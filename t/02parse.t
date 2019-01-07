@@ -1,6 +1,5 @@
 use v6;
 use Test;
-use trace;
 
 ##
 # this test checks the parsing capabilities of XML::LibXML
@@ -214,35 +213,24 @@ $parser.pedantic-parser = 0;
     isa-ok($doc, 'XML::LibXML::Document');
 }
 
-=begin POD
+throws-like( { $parser.parse(:file($badfile1))},
+             X::XML::LibXML::Parser,
+             "Error thrown with bad xml file");
 
-eval {my $fail = $parser.parse(:file($badfile1));};
-like($@, qr/^$badfile1:3: parser error : Extra content at the end of the document/, "error parsing $badfile1");
-
-{
-    # This is to fix https://rt.cpan.org/Public/Bug/Display.html?id=69248
-    # Testing for localised error messages.
-    $! = ENOENT;
-    my $err_string = "$!";
-    $! = 0;
-
-    my $re = qr/\ACould not create file parser context for file "\Q$badfile2\E": \Q$err_string\E/;
-
-    eval { $parser->parse_file($badfile2); };
-    like($@, $re, "error parsing non-existent $badfile2");
-}
 
 {
     my $str = "<a>    <b/> </a>";
     my $tstr= "<a><b/></a>";
-    $parser->keep_blanks(0);
-    my $docA = $parser->parse_string($str);
-    my $docB = $parser->parse_file("example/test3.xml");
-    $XML::LibXML::skipXMLDeclaration = 1;
-    is( $docA->toString, $tstr, "xml string round trips as expected");
-    is( $docB->toString, $tstr, "test3.xml round trips as expected");
-    $XML::LibXML::skipXMLDeclaration = 0;
+    $parser.keep-blanks = False;
+    my $docA = $parser.parse: :string($str);
+    my $docB = $parser.parse: :file("example/test3.xml");
+    temp XML::LibXML.skip-xml-declaration = True;
+    use XML::LibXML::Document;
+    is( ~$docA, $tstr, "xml string round trips as expected");
+    is( ~$docB, $tstr, "test3.xml round trips as expected");
 }
+
+=begin POD
 
 # 1.3 PARSE A HANDLE
 
