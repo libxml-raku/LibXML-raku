@@ -1,0 +1,32 @@
+{
+  "auth" : "github:p6-css",
+  "authors" : [
+    "David Warring"
+  ],
+  "build-depends" : [
+    "LibraryMake",
+    "Pod::To::Markdown"
+  ],
+  "depends" : [ ],
+  "description" : "Interface to libxml2; offering xml and html parsers",
+  "license" : "Artistic-2.0",
+  "name" : "XML::LibXML",
+  "perl" : "6",
+  "provides" : {
+    "XML::LibXML" : "lib/XML/LibXML.pm6",
+    "XML::LibXML::Document" : "lib/XML/LibXML/Document.pm6",
+    "XML::LibXML::Enums" : "lib/XML/LibXML/Enums.pm6",
+    "XML::LibXML::Native" : "lib/XML/LibXML/Native.pm6",
+    "XML::LibXML::Parser" : "lib/XML/LibXML/Parser.pm6"
+  },
+  "resources" : [
+  ],
+  "source-url" : "git://github.com/p6-pdf/XML-LibXML-p6.git",
+  "tags" : [
+    "xml",
+      "html",
+      "xpath"
+  ],
+  "test-depends" : [ ],
+  "version" : "0.0.1"
+}

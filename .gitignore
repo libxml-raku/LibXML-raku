@@ -1,0 +1,10 @@
+*~
+.*
+*.o
+Makefile
+blib/
+README.md
+*.gz
+resources
+Font-FreeType-*
+.gitignore
