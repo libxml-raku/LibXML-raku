@@ -296,6 +296,7 @@ class parserCtxt is repr('CStruct') is export {
     method free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
 }
 
+#| a vanilla XML parser context - can be used to read files or strings
 class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub xmlNewParserCtxt is native(LIB) returns xmlParserCtxt {*};
@@ -304,8 +305,19 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
     method read-doc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
     method read-file(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
     method use-options(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
+
 };
 
+#| an incremental XML push parser context. Determines encoding and reads data in binary chunks
+class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
+
+    sub xmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns xmlPushParserCtxt {*};
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
+    method parse-chunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('xmlParseChunk') { *};
+    method use-options(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
+};
+
+#| a vanilla HTML parser context - can be used to read files or strings
 class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub htmlNewParserCtxt is native(LIB) returns htmlParserCtxt {*};
@@ -315,13 +327,19 @@ class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
     method read-file(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
 };
 
+#| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
+class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
+
+    sub htmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns htmlPushParserCtxt {*};
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { htmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
+    method parse-chunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') { *};
+    method use-options(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
+};
+
 sub xmlGetLastError returns xmlError is native('xml2') { * }
 
 multi method last-error(parserCtxt $ctx) { $ctx.last-error() // $.last-error()  }
 multi method last-error { xmlGetLastError()  }
-
-our $xmlIndentTreeOutput is export := cglobal(LIB, "xmlIndentTreeOutput", int32);
-our $xmlSaveNoEmptyTags is export := cglobal(LIB, "xmlSaveNoEmptyTags", int32);
 
 method xmlKeepBlanksDefault is rw {
     constant value = cglobal(LIB, "xmlKeepBlanksDefaultValue", int32);

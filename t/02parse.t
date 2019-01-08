@@ -150,7 +150,7 @@ sub shorten_string($string is copy) { # Used for test naming.
 dies-ok { $parser.parse(:string(Str)) }, "parse undef string";
 
 for @badWFStrings -> $string {
-    throws-like { my $fail = $parser.parse(:$string); },
+    throws-like { $parser.parse(:$string); },
         X::XML::LibXML::Parser,
         "Error thrown passing '{shorten_string($string)}'";
 }
@@ -232,21 +232,27 @@ throws-like( { $parser.parse(:file($badfile1))},
     is( ~$docB, $tstr, "test3.xml round trips as expected");
 }
 
-=begin POD
-
 # 1.3 PARSE A HANDLE
 
-my $fh = IO::File->new($goodfile);
-isa_ok($fh, 'IO::File');
+my $io = $goodfile.IO;
+my $chunk-size = 256; # process multiple chunks
+isa-ok($io, IO::Path);
+my $doc = $parser.parse: :$io, :$chunk-size;
+isa-ok($doc, 'XML::LibXML::Document');
 
-my $doc = $parser->parse_fh($fh);
-isa_ok($doc, 'XML::LibXML::Document');
+$io .= open(:r, :bin);
+isa-ok($io, IO::Handle);
+$doc = $parser.parse: :$io, :$chunk-size;
+isa-ok($doc, 'XML::LibXML::Document');
 
-$fh = IO::File->new($badfile1);
-isa_ok($fh, 'IO::File');
+$io = $badfile1.IO;
+isa-ok($io, IO::Path);
 
-eval { my $doc = $parser->parse_fh($fh); };
-like($@, qr/^Entity: line 3: parser error : Extra content at the end of the document/, "error parsing bad file from file handle of $badfile1");
+=begin POD
+
+throws-like
+    { $parser.parse: :$io; },
+    X::XML::LibXML::Parser, :message(rx/^Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
 
 $fh = IO::File->new($badfile2);
 

@@ -49,11 +49,7 @@ class XML::LibXML::Parser {
     method expand-entities is rw { self!flag-accessor(XML_PARSE_NOENT); }
     method pedantic-parser is rw { self!flag-accessor(XML_PARSE_PEDANTIC); }
 
-    method !init-parser returns parserCtxt {
-        my parserCtxt $ctx = $!html
-           ?? htmlParserCtxt.new
-           !! xmlParserCtxt.new;
-
+    method !init-parser(parserCtxt $ctx) {
         die "unable to initialize parser" unless $ctx;
 
         unless $!flags +& XML_PARSE_DTDLOAD {
@@ -68,10 +64,13 @@ class XML::LibXML::Parser {
 
     multi method parse(Str:D() :$string!,
                        Str :$uri,
-                       Str :$enc,
-                       Bool :$html) {
+                       Str :$enc) {
 
-        my parserCtxt $ctx = self!init-parser;
+        my parserCtxt $ctx = $!html
+           ?? htmlParserCtxt.new
+           !! xmlParserCtxt.new;
+
+        self!init-parser($ctx);
 
         with $ctx.read-doc($string, $uri, $enc, $!flags) {
             $ctx.free;
@@ -84,12 +83,15 @@ class XML::LibXML::Parser {
         }
     }
 
-    multi method parse(Str:D() :$file!,
+    multi method parse(Str:D :$file!,
                        Str :$uri,
-                       Str :$enc,
-                       Bool :$html) {
+                       Str :$enc) {
 
-        my parserCtxt $ctx = self!init-parser;
+        my parserCtxt $ctx = $!html
+           ?? htmlParserCtxt.new
+           !! xmlParserCtxt.new;
+
+        self!init-parser($ctx);
 
         with $ctx.read-file($file, $uri, $enc, $!flags) {
             $ctx.free;
@@ -100,6 +102,40 @@ class XML::LibXML::Parser {
                 die X::XML::LibXML::Parser.new: :$error;
             }
         }
+    }
+
+    multi method parse(IO::Handle :$io!,
+                       Str   :$uri,
+                       Str   :$enc,
+                       UInt :$chunk-size = 4096,
+                      ) {
+
+        # read initial block to determine encoding
+        my Str $path = $io.path.path;
+        my Blob $chunk = $io.read($chunk-size);
+
+        my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
+        my parserCtxt $ctx = ctx-class.new: :$chunk, :$path;
+
+        self!init-parser($ctx);
+        my Bool $more = ?$chunk;
+
+        while $more {
+            $chunk = $io.read($chunk-size);
+            $more = ?$chunk;
+            $ctx.parse-chunk($chunk, +$chunk, 0)
+                if $more;
+        }
+        $ctx.parse-chunk($chunk, 0, 1); # terminate
+        my xmlDoc:D $struct = $ctx.myDoc;
+        my xmlDoc $struct = $ctx.myDoc.copy;
+        $ctx.free;
+        XML::LibXML::Document.new: :$struct;
+    }
+
+    multi method parse(IO() :io($path)!, |c) {
+        my IO::Handle $io = $path.open(:bin, :r);
+        $.parse(:$io, |c);
     }
 
 }
