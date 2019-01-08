@@ -7,6 +7,8 @@ use Test;
 
 plan 533;
 use XML::LibXML;
+use XML::LibXML::Config;
+constant config = XML::LibXML::Config;
 ##use XML::LibXML::SAX;
 ##use XML::LibXML::SAX::Builder;
 
@@ -221,10 +223,10 @@ throws-like( { $parser.parse(:file($badfile1))},
 {
     my $str = "<a>    <b/> </a>";
     my $tstr= "<a><b/></a>";
-    $parser.keep-blanks = False;
+    temp $parser.keep-blanks = True;
+    temp config.skip-xml-declaration = True;
     my $docA = $parser.parse: :string($str);
     my $docB = $parser.parse: :file("example/test3.xml");
-    temp XML::LibXML.skip-xml-declaration = True;
     use XML::LibXML::Document;
     is( ~$docA, $tstr, "xml string round trips as expected");
     is( ~$docB, $tstr, "test3.xml round trips as expected");

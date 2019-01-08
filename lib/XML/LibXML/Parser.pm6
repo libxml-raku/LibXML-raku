@@ -55,7 +55,7 @@ class XML::LibXML::Parser {
            !! xmlParserCtxt.new;
 
         die "unable to initialize parser" unless $ctx;
-        XML::LibXML::Native.keep-blanks-default = $!flags +& XML_PARSE_NOBLANKS ?? 0 !! 1;
+
         unless $!flags +& XML_PARSE_DTDLOAD {
             for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
                 $!flags -= $_ if $!flags +& $_

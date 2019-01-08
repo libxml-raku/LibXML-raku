@@ -15,7 +15,8 @@
   "provides" : {
     "XML::LibXML" : "lib/XML/LibXML.pm6",
     "XML::LibXML::Document" : "lib/XML/LibXML/Document.pm6",
-    "XML::LibXML::Enums" : "lib/XML/LibXML/Enums.pm6",
+    "XML::LibXML::Config" : "lib/XML/LibXML/Config.pm6",
+    "XML::LibXML::Enums"  : "lib/XML/LibXML/Enums.pm6",
     "XML::LibXML::Native" : "lib/XML/LibXML/Native.pm6",
     "XML::LibXML::Parser" : "lib/XML/LibXML/Parser.pm6"
   },

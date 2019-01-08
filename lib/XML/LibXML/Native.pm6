@@ -114,7 +114,7 @@ class xmlDoc is _NodeCommon is export {
     method xmlDocDumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is native(LIB) {*} 
     method xmlDocDumpMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str) is native(LIB) {*} 
     method xmlDocDumpMemory(Pointer[uint8] $ is rw, int32 $ is rw) is native(LIB) {*}
-    method dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
+    method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
     method copy is native(LIB) is symbol('xmlCopyDoc') returns xmlDoc {*}
     method free is native(LIB) is symbol('xmlFreeDoc') {*}
     method Str {
@@ -320,14 +320,15 @@ sub xmlGetLastError returns xmlError is native('xml2') { * }
 multi method last-error(parserCtxt $ctx) { $ctx.last-error() // $.last-error()  }
 multi method last-error { xmlGetLastError()  }
 
-our $xmlIndentTreeOutput := cglobal(LIB, "xmlIndentTreeOutput", int32);
-our $xmlKeepBlanksDefaultValue := cglobal(LIB, "xmlKeepBlanksDefaultValue", int32);
+our $xmlIndentTreeOutput is export := cglobal(LIB, "xmlIndentTreeOutput", int32);
+our $xmlSaveNoEmptyTags is export := cglobal(LIB, "xmlSaveNoEmptyTags", int32);
 
-sub xmlKeepBlanksDefault(int32 $v) is native(LIB) returns int32 is export { * }
+method xmlKeepBlanksDefault is rw {
+    constant value = cglobal(LIB, "xmlKeepBlanksDefaultValue", int32);
+    sub xmlKeepBlanksDefault(int32 $v) is native(LIB) returns int32 is export { * }
 
-method keep-blanks-default is rw {
     Proxy.new(
-        FETCH => sub ($) { ? $xmlKeepBlanksDefaultValue },
+        FETCH => sub ($) { ? value },
         STORE => sub ($, Bool() $_) {
             xmlKeepBlanksDefault($_);
         },
