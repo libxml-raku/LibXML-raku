@@ -93,7 +93,7 @@ class LibXML::Parser {
 
         self!init-parser($ctx);
 
-        with $ctx.ReadFile($file, $uri, $enc, $!flags) {
+        with $ctx.ReadFile($file, $enc, $!flags) {
             $ctx.Free;
             LibXML::Document.new: :struct($_);
         }

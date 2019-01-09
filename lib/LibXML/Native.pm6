@@ -304,7 +304,7 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
     sub xmlNewParserCtxt is native(LIB) returns xmlParserCtxt {*};
     method new { xmlNewParserCtxt() }
     method ReadDoc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
-    method ReadFile(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
+    method ReadFile(Str $xml, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 
 };
