@@ -1,19 +1,19 @@
 use v6;
 use Test;
-use XML::LibXML;
-use XML::LibXML::Config;
+use LibXML;
+use LibXML::Config;
 
-constant config = XML::LibXML::Config;
+constant config = LibXML::Config;
 
 plan 6;
 
-my XML::LibXML $p .= new();
+my LibXML $p .= new();
 
-ok $p, 'Can initialize a new XML::LibXML instance';
+ok $p, 'Can initialize a new LibXML instance';
 
 my $version = $p.parser-version;
 
-ok $version, 'XML::LibXML.parser-version is trueish';
+ok $version, 'LibXML.parser-version is trueish';
 
 diag "Running libxml2 version: " ~ $version;
 

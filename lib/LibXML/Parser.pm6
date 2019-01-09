@@ -1,13 +1,13 @@
-class X::XML::LibXML::Parser is Exception {
-    use XML::LibXML::Native;
-    use XML::LibXML::Enums;
+class X::LibXML::Parser is Exception {
+    use LibXML::Native;
+    use LibXML::Enums;
 
     has xmlError $.error;
     has Str $.file;
     
     method message {
         my $msg = "Error while parsing {$!file // 'XML document'}\n"
-        ~ "XML::LibXML::Parser error";
+        ~ "LibXML::Parser error";
         with $!error {
             $msg ~= ": $_" with .message;
         }
@@ -15,19 +15,19 @@ class X::XML::LibXML::Parser is Exception {
     }
 }
 
-class XML::LibXML::Parser {
+class LibXML::Parser {
 
-    use XML::LibXML::Native;
-    use XML::LibXML::Enums;
-    use XML::LibXML::Document;
+    use LibXML::Native;
+    use LibXML::Enums;
+    use LibXML::Document;
 
     has parserCtxt $!parser-ctx;
     has Bool $.html;
     has Bool $.line-numbers = False;
     has Str $.dir;
-    has UInt $!flags;
+    has UInt $.flags = 0;
 
-    submethod TWEAK(:$!flags = ($!html ?? (HTML_PARSE_RECOVER + HTML_PARSE_NOBLANKS) !! 0)) {
+    submethod TWEAK {
     }
 
     method !flag-accessor($flag) is rw {
@@ -38,15 +38,15 @@ class XML::LibXML::Parser {
                     $!flags +|= $flag;
                 }
                 else {
-                    $!flags -= $flag
-                        if $!flags +& $flag
+                    my $mask = 0xffff +^ $flag;
+                    $!flags +&= $mask;
                 }
             }
         );
     }
 
     method keep-blanks is rw { self!flag-accessor(XML_PARSE_NOBLANKS); }
-    method expand-entities is rw { self!flag-accessor(XML_PARSE_NOENT); }
+    method expand-entities is rw { self!flag-accessor(XML_PARSE_NOENT +| XML_PARSE_DTDLOAD) }
     method pedantic-parser is rw { self!flag-accessor(XML_PARSE_PEDANTIC); }
 
     method !init-parser(parserCtxt $ctx) {
@@ -74,11 +74,11 @@ class XML::LibXML::Parser {
 
         with $ctx.read-doc($string, $uri, $enc, $!flags) {
             $ctx.free;
-            XML::LibXML::Document.new: :struct($_);
+            LibXML::Document.new: :struct($_);
         }
         else {
-            given XML::LibXML::Native.last-error($ctx) -> $error {
-                die X::XML::LibXML::Parser.new: :$error;
+            given $ctx.last-error -> $error {
+                die X::LibXML::Parser.new: :$error;
             }
         }
     }
@@ -95,11 +95,11 @@ class XML::LibXML::Parser {
 
         with $ctx.read-file($file, $uri, $enc, $!flags) {
             $ctx.free;
-            XML::LibXML::Document.new: :struct($_);
+            LibXML::Document.new: :struct($_);
         }
         else {
-            given XML::LibXML::Native.last-error($ctx) -> $error {
-                die X::XML::LibXML::Parser.new: :$error;
+            given $ctx.last-error -> $error {
+                die X::LibXML::Parser.new: :$error;
             }
         }
     }
@@ -132,13 +132,13 @@ class XML::LibXML::Parser {
             $err ||= $_
         }
 
-        with XML::LibXML::Native.last-error($ctx) -> $error {
-            fail X::XML::LibXML::Parser.new: :$error;
+        with $ctx.last-error -> $error {
+            fail X::LibXML::Parser.new: :$error;
         }
         else {
             warn "untrapped error $err" if $err;
             my xmlDoc:D $struct = $ctx.myDoc;
-            XML::LibXML::Document.new: :$ctx, :$struct;
+            LibXML::Document.new: :$ctx, :$struct;
         }
     }
 

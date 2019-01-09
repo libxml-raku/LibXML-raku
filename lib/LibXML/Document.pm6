@@ -1,15 +1,15 @@
 use v6;
-unit class XML::LibXML::Document;
+unit class LibXML::Document;
 
-use XML::LibXML::Native;
-use XML::LibXML::Enums;
-use XML::LibXML::Config;
+use LibXML::Native;
+use LibXML::Enums;
+use LibXML::Config;
 use NativeCall;
 
-constant config = XML::LibXML::Config;
+constant config = LibXML::Config;
 
 has parserCtxt $.ctx;
-has xmlDoc $.struct is required handles<encoding>;
+has xmlDoc $.struct is required handles<encoding root-element>;
 
 method Str(Bool() $format = False) is default {
     my Pointer[uint8] $p .= new;
@@ -39,9 +39,10 @@ method Str(Bool() $format = False) is default {
         nativecast(str, $p);
     }
 
-    submethod DESTROY {
-        .free with $!ctx // $!struct;
-        $!ctx = Nil;
-        $!struct = Nil;
-    }
+}
+
+submethod DESTROY {
+    .free with $!ctx // $!struct;
+    $!ctx = Nil;
+    $!struct = Nil;
 }

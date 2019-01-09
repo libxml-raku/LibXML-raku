@@ -1,5 +1,5 @@
 use v6;
-unit class XML::LibXML::Enums;
+unit class LibXML::Enums;
 
 enum xmlElementType is export (
    XML_ELEMENT_NODE => 1,

@@ -1,10 +1,10 @@
 use v6;
-use XML::LibXML::Parser;
+use LibXML::Parser;
 
-unit class XML::LibXML
-    is XML::LibXML::Parser;
+unit class LibXML
+    is LibXML::Parser;
 
-use  XML::LibXML::Native;
+use  LibXML::Native;
 
 method parser-version {
     Version.new(xmlParserVersion.match(/ (.)? (..)+ $/).list.join: '.');

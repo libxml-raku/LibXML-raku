@@ -10,19 +10,19 @@
   "depends" : [ ],
   "description" : "Interface to libxml2; offering xml and html parsers",
   "license" : "Artistic-2.0",
-  "name" : "XML::LibXML",
+  "name" : "LibXML",
   "perl" : "6",
   "provides" : {
-    "XML::LibXML" : "lib/XML/LibXML.pm6",
-    "XML::LibXML::Document" : "lib/XML/LibXML/Document.pm6",
-    "XML::LibXML::Config" : "lib/XML/LibXML/Config.pm6",
-    "XML::LibXML::Enums"  : "lib/XML/LibXML/Enums.pm6",
-    "XML::LibXML::Native" : "lib/XML/LibXML/Native.pm6",
-    "XML::LibXML::Parser" : "lib/XML/LibXML/Parser.pm6"
+    "LibXML" : "lib/LibXML.pm6",
+    "LibXML::Document" : "lib/LibXML/Document.pm6",
+    "LibXML::Config" : "lib/LibXML/Config.pm6",
+    "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
+    "LibXML::Native" : "lib/LibXML/Native.pm6",
+    "LibXML::Parser" : "lib/LibXML/Parser.pm6"
   },
   "resources" : [
   ],
-  "source-url" : "git://github.com/p6-pdf/XML-LibXML-p6.git",
+  "source-url" : "git://github.com/p6-pdf/LibXML-p6.git",
   "tags" : [
     "xml",
       "html",

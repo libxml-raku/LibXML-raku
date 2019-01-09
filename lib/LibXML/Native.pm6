@@ -1,6 +1,6 @@
 use v6;
 
-unit class XML::LibXML::Native;
+unit class LibXML::Native;
 
 use NativeCall;
 
@@ -111,10 +111,11 @@ class xmlDoc is _NodeCommon is export {
     has int32                 $.properties;  # set of xmlDocProperties for this document
                                              # set at the end of parsing
 
-    method xmlDocDumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is native(LIB) {*} 
+    method xmlDocDumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is native(LIB) {*}
     method xmlDocDumpMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str) is native(LIB) {*} 
     method xmlDocDumpMemory(Pointer[uint8] $ is rw, int32 $ is rw) is native(LIB) {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
+    method root-element is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc($recursive) }
     method free is native(LIB) is symbol('xmlFreeDoc') {*}
@@ -279,7 +280,7 @@ class parserCtxt is repr('CStruct') is export {
     has xmlAttr                $.freeAttrs;    # List of freed attributes nodes
 
     # the complete error informations for the last error.
-    has xmlError               $.lastError;
+    HAS xmlError               $.lastError;
     has int32                  $.parseMode;    # the parser mode
     has ulong                  $.nbentities;   # number of entities references
     has ulong                  $.sizeentities; # size of parsed entities

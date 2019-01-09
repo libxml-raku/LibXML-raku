@@ -2,15 +2,16 @@ use v6;
 use Test;
 
 ##
-# this test checks the parsing capabilities of XML::LibXML
+# this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
 plan 533;
-use XML::LibXML;
-use XML::LibXML::Config;
-constant config = XML::LibXML::Config;
-##use XML::LibXML::SAX;
-##use XML::LibXML::SAX::Builder;
+use LibXML;
+use LibXML::Config;
+use LibXML::Native;
+constant config = LibXML::Config;
+##use LibXML::SAX;
+##use LibXML::SAX::Builder;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
 
@@ -124,7 +125,7 @@ my $goodfile = "example/dromeds.xml";
 my $badfile1 = "example/bad.xml";
 my $badfile2 = "does_not_exist.xml";
 
-my XML::LibXML $parser .= new();
+my LibXML $parser .= new();
 
 # 1 NON VALIDATING PARSER
 # 1.1 WELL FORMED STRING PARSING
@@ -133,7 +134,7 @@ my XML::LibXML $parser .= new();
 {
     for flat ( @goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> Str $string {
         my $doc = $parser.parse(:$string);
-        isa-ok($doc, 'XML::LibXML::Document');
+        isa-ok($doc, 'LibXML::Document');
     }
 }
 
@@ -149,7 +150,7 @@ dies-ok { $parser.parse(:string(Str)) }, "parse undef string";
 
 for @badWFStrings -> $string {
     throws-like { $parser.parse(:$string); },
-        X::XML::LibXML::Parser,
+        X::LibXML::Parser,
         "Error thrown passing '{shorten_string($string)}'";
 }
 
@@ -160,7 +161,7 @@ $parser.keep-blanks = False;
 {
     for flat ( @goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> $string {
 	my $doc = $parser.parse(:$string);
-        isa-ok($doc, 'XML::LibXML::Document');
+        isa-ok($doc, 'LibXML::Document');
     }
 }
 
@@ -177,7 +178,7 @@ $parser.expand-entities = False;
 {
     for flat ( @goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> $string {
         my $doc = $parser.parse: :$string;
-        isa-ok($doc, 'XML::LibXML::Document');
+        isa-ok($doc, 'LibXML::Document');
     }
 }
 
@@ -196,7 +197,7 @@ $parser.pedantic-parser = True;
 {
     for flat (@goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> $string {
         my $doc = $parser.parse(:$string);
-	isa-ok($doc, 'XML::LibXML::Document');
+	isa-ok($doc, 'LibXML::Document');
     }
 }
 
@@ -210,11 +211,11 @@ $parser.pedantic-parser = 0;
 
 {
     my $doc = $parser.parse(:file($goodfile));
-    isa-ok($doc, 'XML::LibXML::Document');
+    isa-ok($doc, 'LibXML::Document');
 }
 
 throws-like( { $parser.parse(:file($badfile1))},
-             X::XML::LibXML::Parser,
+             X::LibXML::Parser,
              "Error thrown with bad xml file");
 
 
@@ -225,7 +226,7 @@ throws-like( { $parser.parse(:file($badfile1))},
     temp config.skip-xml-declaration = True;
     my $docA = $parser.parse: :string($str);
     my $docB = $parser.parse: :file("example/test3.xml");
-    use XML::LibXML::Document;
+    use LibXML::Document;
     is( ~$docA, $tstr, "xml string round trips as expected");
     is( ~$docB, $tstr, "test3.xml round trips as expected");
 }
@@ -236,37 +237,44 @@ my $io = $goodfile.IO;
 my $chunk-size = 256; # process multiple chunks
 isa-ok($io, IO::Path);
 my $doc = $parser.parse: :$io, :$chunk-size;
-isa-ok($doc, 'XML::LibXML::Document');
+isa-ok($doc, 'LibXML::Document');
 
 $io .= open(:r, :bin);
 isa-ok($io, IO::Handle);
 $doc = $parser.parse: :$io, :$chunk-size;
-isa-ok($doc, 'XML::LibXML::Document');
+isa-ok($doc, 'LibXML::Document');
 
 $io = $badfile1.IO;
 isa-ok($io, IO::Path);
 
 throws-like
     { $parser.parse: :$io; },
-    X::XML::LibXML::Parser, :message(rx/:s Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
-
-=begin POD
+    X::LibXML::Parser, :message(rx/:s Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
 
 {
-    $parser->expand_entities(1);
-    my $doc = $parser->parse_file( "example/dtd.xml" );
-    my @cn = $doc->documentElement->childNodes;
-    is( scalar @cn, 1, "1 child node" );
+    $parser.expand-entities = True;
+    my $doc = $parser.parse: :file( "example/dtd.xml" );
+    warn $parser.flags;
 
-    $doc = $parser->parse_file( "example/complex/complex2.xml" );
-    @cn = $doc->documentElement->childNodes;
-    is( scalar @cn, 1, "1 child node" );
+    my xmlNode @cn = $doc.root-element.child-nodes;
+    is( +@cn, 1, "1 child node" );
+    warn .Str for @cn;
 
-    $parser->expand_entities(0);
-    $doc = $parser->parse_file( "example/dtd.xml" );
-    @cn = $doc->documentElement->childNodes;
-    is( scalar @cn, 3, "3 child nodes" );
+    $parser.expand-entities = False;
+    $doc = $parser.parse: :file( "example/dtd.xml" );
+    warn $parser.flags;
+    @cn = $doc.root-element.child-nodes;
+    is( +@cn, 3, "3 child nodes" );
+    warn .Str for @cn;
+
+    $doc = $parser.parse: :file( "example/complex/complex2.xml" );
+    @cn = $doc.root-element.child-nodes;
+    is( +@cn, 1, "1 child node" );
+
 }
+
+
+=begin POD
 
 # 1.4 x-include processing
 
@@ -289,7 +297,7 @@ my $badXInclude = q{
     $parser->base_uri( "example/" );
     $parser->keep_blanks(0);
     my $doc = $parser->parse_string( $goodXInclude );
-    isa_ok($doc, 'XML::LibXML::Document');
+    isa_ok($doc, 'LibXML::Document');
 
     my $i;
     eval { $i = $parser->processXIncludes($doc); };
@@ -303,7 +311,7 @@ my $badXInclude = q{
     # auto expand
     $parser->expand_xinclude(1);
     $doc = $parser->parse_string( $goodXInclude );
-    isa_ok($doc, 'XML::LibXML::Document');
+    isa_ok($doc, 'LibXML::Document');
 
     $doc = undef;
     eval { $doc = $parser->parse_string( $badXInclude ); };
@@ -321,7 +329,7 @@ my $badXInclude = q{
 # 2 PUSH PARSER
 
 {
-    my XML::LibXML $pparser = new();
+    my LibXML $pparser = new();
     # 2.1 PARSING WELLFORMED DOCUMENTS
     for my $key ( qw(single1 single2 single3 single4 single5 single6
                          single7 single8 single9 multiple1 multiple2 multiple3
@@ -336,7 +344,7 @@ my $badXInclude = q{
         my $doc;
         eval {$doc = $pparser->parse_chunk("",1); };
 	is($@, '', "No error parsing $key");
-	isa_ok($doc, 'XML::LibXML::Document', "Document came back parsing chunk: ");
+	isa_ok($doc, 'LibXML::Document', "Document came back parsing chunk: ");
     }
 
     my @good_strings = ("<foo>", "bar", "</foo>" );
@@ -353,13 +361,13 @@ my $badXInclude = q{
                             badending2   => ["<A> ","</C>","</A>"],
                        );
 
-    my $parser = XML::LibXML->new;
+    my $parser = LibXML->new;
     {
         for ( @good_strings ) {
             $parser->parse_chunk( $_ );
         }
         my $doc = $parser->parse_chunk("",1);
-        isa_ok($doc, 'XML::LibXML::Document');
+        isa_ok($doc, 'LibXML::Document');
     }
 
     {
@@ -403,25 +411,25 @@ my $badXInclude = q{
 	       local $SIG{'__WARN__'} = sub { };
 	       $doc = $parser->finish_push(1);
 	     };
-        isa_ok( $doc, 'XML::LibXML::Document' );
+        isa_ok( $doc, 'LibXML::Document' );
     }
 }
 
 # 3 SAX PARSER
 
 {
-    my $handler = XML::LibXML::SAX::Builder->new();
-    my $generator = XML::LibXML::SAX->new( Handler=>$handler );
+    my $handler = LibXML::SAX::Builder->new();
+    my $generator = LibXML::SAX->new( Handler=>$handler );
 
     my $string  = q{<bar foo="bar">foo</bar>};
 
     $doc = $generator->parse_string( $string );
-    isa_ok( $doc , 'XML::LibXML::Document');
+    isa_ok( $doc , 'LibXML::Document');
 
     # 3.1 GENERAL TESTS
     foreach my $str ( @goodWFStrings ) {
         my $doc = $generator->parse_string( $str );
-        isa_ok( $doc , 'XML::LibXML::Document');
+        isa_ok( $doc , 'LibXML::Document');
     }
 
     # CDATA Sections
@@ -439,7 +447,7 @@ my $badXInclude = q{
     my $i = 0;
     foreach my $str ( @goodWFNSStrings ) {
         my $doc = $generator->parse_string( $str );
-        isa_ok( $doc , 'XML::LibXML::Document');
+        isa_ok( $doc , 'LibXML::Document');
 
         # skip the nested node tests until there is a xmlNormalizeNs().
         #ok(1),next if $i > 2;
@@ -473,12 +481,12 @@ my $badXInclude = q{
 
     foreach my $str ( @goodWFDTDStrings ) {
         my $doc = $generator->parse_string( $str );
-        isa_ok( $doc , 'XML::LibXML::Document');
+        isa_ok( $doc , 'LibXML::Document');
     }
 
     # 3.5 PARSE URI
     $doc = $generator->parse_uri( "example/test.xml" );
-    isa_ok($doc, 'XML::LibXML::Document');
+    isa_ok($doc, 'LibXML::Document');
 
     # 3.6 PARSE CHUNK
 
@@ -488,13 +496,13 @@ my $badXInclude = q{
 # 4 SAXY PUSHER
 
 {
-    my $handler = XML::LibXML::SAX::Builder->new();
-    my $parser = XML::LibXML->new;
+    my $handler = LibXML::SAX::Builder->new();
+    my $parser = LibXML->new;
 
     $parser->set_handler( $handler );
     $parser->push( '<foo/>' );
     my $doc = $parser->finish_push;
-    isa_ok($doc , 'XML::LibXML::Document');
+    isa_ok($doc , 'LibXML::Document');
 
     foreach my $key ( keys %goodPushWF ) {
         foreach ( @{$goodPushWF{$key}} ) {
@@ -503,7 +511,7 @@ my $badXInclude = q{
 
         my $doc;
         eval {$doc = $parser->finish_push; };
-        isa_ok( $doc , 'XML::LibXML::Document');
+        isa_ok( $doc , 'LibXML::Document');
     }
 }
 
@@ -555,13 +563,13 @@ my $badXInclude = q{
     );
 
 
-    my $pparser = XML::LibXML->new;
+    my $pparser = LibXML->new;
 
     # 5.1 DOM CHUNK PARSER
 
     for ( 1..$MAX_WF_C ) {
         my $frag = $pparser->parse_xml_chunk($chunks{'wellformed'.$_});
-        isa_ok($frag, 'XML::LibXML::DocumentFragment');
+        isa_ok($frag, 'LibXML::DocumentFragment');
         if ( $frag->nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag->hasChildNodes ) {
             if ( $frag->firstChild->isSameNode( $frag->lastChild ) ) {
@@ -578,7 +586,7 @@ my $badXInclude = q{
 
     for ( 1..$MAX_WB_C ) {
         my $frag = $pparser->parse_xml_chunk($chunks{'wellbalance'.$_});
-        isa_ok($frag, 'XML::LibXML::DocumentFragment');
+        isa_ok($frag, 'LibXML::DocumentFragment');
         if ( $frag->nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag->hasChildNodes ) {
             if ( $chunks{'wellbalance'.$_} =~ /<A><\/A>/ ) {
@@ -607,7 +615,7 @@ my $badXInclude = q{
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';
 
-        my $parser = XML::LibXML->new();
+        my $parser = LibXML->new();
         my $doc = $parser->parse_xml_chunk( $sDoc,  undef );
         my $chk = $parser->parse_xml_chunk( $sChunk,undef );
 
@@ -624,7 +632,7 @@ my $badXInclude = q{
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';
 
-        my $parser = XML::LibXML->new();
+        my $parser = LibXML->new();
         my $doc = $parser->parse_xml_chunk( $sDoc,  undef );
         my $chk = $parser->parse_xml_chunk( $sChunk,undef );
 
@@ -641,7 +649,7 @@ my $badXInclude = q{
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';
 
-        my $parser = XML::LibXML->new();
+        my $parser = LibXML->new();
         my $doc = $parser->parse_xml_chunk( $sDoc,  undef );
         my $chk = $parser->parse_xml_chunk( $sChunk,undef );
 
@@ -656,12 +664,12 @@ my $badXInclude = q{
 
     # 5.2 SAX CHUNK PARSER
 
-    my $handler = XML::LibXML::SAX::Builder->new();
-    my $parser = XML::LibXML->new;
+    my $handler = LibXML::SAX::Builder->new();
+    my $parser = LibXML->new;
     $parser->set_handler( $handler );
     for ( 1..$MAX_WF_C ) {
         my $frag = $parser->parse_xml_chunk($chunks{'wellformed'.$_});
-        isa_ok($frag, 'XML::LibXML::DocumentFragment');
+        isa_ok($frag, 'LibXML::DocumentFragment');
         if ( $frag->nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag->hasChildNodes ) {
             if ( $frag->firstChild->isSameNode( $frag->lastChild ) ) {
@@ -677,7 +685,7 @@ my $badXInclude = q{
 
     for ( 1..$MAX_WB_C ) {
         my $frag = $parser->parse_xml_chunk($chunks{'wellbalance'.$_});
-        isa_ok($frag, 'XML::LibXML::DocumentFragment');
+        isa_ok($frag, 'LibXML::DocumentFragment');
         if ( $frag->nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag->hasChildNodes ) {
             if ( $chunks{'wellbalance'.$_} =~ /<A><\/A>/ ) {
@@ -696,7 +704,7 @@ my $badXInclude = q{
     my %badstrings = (
                     SIMPLE => '<?xml version="1.0"?>'~"\n<A/>\n",
                   );
-    my $parser = XML::LibXML->new;
+    my $parser = LibXML->new;
 
     $parser->validation(1);
     my $doc;
@@ -721,7 +729,7 @@ EOXML
 <bar/>
 EOXML
 
-    my $parser = XML::LibXML->new;
+    my $parser = LibXML->new;
     $parser->validation(1);
 
     eval { $parser->parse_string( $badxml ); };
@@ -759,14 +767,14 @@ EOXML
 }
 
 SKIP: {
-    skip("LibXML version is below 20600", 8) unless ( XML::LibXML::LIBXML_VERSION >= 20600 );
+    skip("LibXML version is below 20600", 8) unless ( LibXML::LIBXML_VERSION >= 20600 );
     # 8 Clean Namespaces
 
     my ( $xsDoc1, $xsDoc2 );
     $xsDoc1 = q{<A:B xmlns:A="http://D"><A:C xmlns:A="http://D"></A:C></A:B>};
     $xsDoc2 = q{<A:B xmlns:A="http://D"><A:C xmlns:A="http://E"/></A:B>};
 
-    my $parser = XML::LibXML->new();
+    my $parser = LibXML->new();
     $parser->clean_namespaces(1);
 
     my $fn1 = "example/xmlns/goodguy.xml";
@@ -820,7 +828,7 @@ SKIP: {
 <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
 <X>&foo;</X>
 EOXML
-        my $parser = XML::LibXML->new();
+        my $parser = LibXML->new();
 
         $parser->load_ext_dtd(1);
 
@@ -844,7 +852,7 @@ EOXML
 <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
 <X>&foo;</X>
 EOXML
-        my $parser = XML::LibXML->new();
+        my $parser = LibXML->new();
 
         $parser->load_ext_dtd(1);
 
@@ -868,7 +876,7 @@ EOXML
            $doc3 = $parser->parse_file( "example/article_external_bad.xml" );
         };
 
-        isa_ok( $doc3, 'XML::LibXML::Document');
+        isa_ok( $doc3, 'LibXML::Document');
 
         $parser->load_ext_dtd(1);
         eval {
@@ -880,7 +888,7 @@ EOXML
 
 {
 
-   my $parser = XML::LibXML->new();
+   my $parser = LibXML->new();
 
    my $doc = $parser->parse_string('<foo xml:base="foo.xml"/>',"bar.xml");
    my $el = $doc->documentElement;
@@ -908,7 +916,7 @@ EOXML
 
 {
 
-   my $parser = XML::LibXML->new();
+   my $parser = LibXML->new();
 
    my $doc = $parser->parse_html_string('<html><head><base href="foo.html"></head><body></body></html>',{ URI => "bar.html" });
    my $el = $doc->documentElement;
@@ -924,7 +932,7 @@ EOXML
 }
 
 {
-    my $parser = XML::LibXML->new();
+    my $parser = LibXML->new();
     open(my $fh, '<:utf8', 't/data/chinese.xml');
     ok( $fh, 'open chinese.xml');
     eval {
@@ -939,7 +947,7 @@ sub tsub {
     my $doc = shift;
 
     my $th = {};
-    $th->{d} = XML::LibXML::Document->createDocument;
+    $th->{d} = LibXML::Document->createDocument;
     my $e1  = $th->{d}->createElementNS("x","X:foo");
 
     $th->{d}->setDocumentElement( $e1 );
