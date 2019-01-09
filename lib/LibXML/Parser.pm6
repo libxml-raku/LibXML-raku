@@ -25,12 +25,12 @@ class LibXML::Parser {
     has Bool $.html;
     has Bool $.line-numbers = False;
     has Str $.dir;
-    has UInt $.flags = 0;
+    has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
 
     submethod TWEAK {
     }
 
-    method !flag-accessor($flag) is rw {
+    method !flag-accessor(uint32 $flag) is rw {
         Proxy.new(
             FETCH => sub ($) { $!flags +& $flag },
             STORE => sub ($, Bool() $_) {
@@ -38,7 +38,7 @@ class LibXML::Parser {
                     $!flags +|= $flag;
                 }
                 else {
-                    my $mask = 0xffff +^ $flag;
+                    my uint32 $mask = 0xffffffff +^ $flag;
                     $!flags +&= $mask;
                 }
             }
@@ -46,7 +46,7 @@ class LibXML::Parser {
     }
 
     method keep-blanks is rw { self!flag-accessor(XML_PARSE_NOBLANKS); }
-    method expand-entities is rw { self!flag-accessor(XML_PARSE_NOENT +| XML_PARSE_DTDLOAD) }
+    method expand-entities is rw { self!flag-accessor(XML_PARSE_NOENT) }
     method pedantic-parser is rw { self!flag-accessor(XML_PARSE_PEDANTIC); }
 
     method !init-parser(parserCtxt $ctx) {
@@ -57,7 +57,7 @@ class LibXML::Parser {
                 $!flags -= $_ if $!flags +& $_
             }
         }
-        $ctx.use-options($!flags);     # Note: sets ctxt.linenumbers = 1
+        $ctx.UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
         $ctx.linenumbers = +$!line-numbers;
         $ctx;
     }
@@ -72,12 +72,12 @@ class LibXML::Parser {
 
         self!init-parser($ctx);
 
-        with $ctx.read-doc($string, $uri, $enc, $!flags) {
-            $ctx.free;
+        with $ctx.ReadDoc($string, $uri, $enc, $!flags) {
+            $ctx.Free;
             LibXML::Document.new: :struct($_);
         }
         else {
-            given $ctx.last-error -> $error {
+            given $ctx.GetLastError -> $error {
                 die X::LibXML::Parser.new: :$error;
             }
         }
@@ -93,12 +93,12 @@ class LibXML::Parser {
 
         self!init-parser($ctx);
 
-        with $ctx.read-file($file, $uri, $enc, $!flags) {
-            $ctx.free;
+        with $ctx.ReadFile($file, $uri, $enc, $!flags) {
+            $ctx.Free;
             LibXML::Document.new: :struct($_);
         }
         else {
-            given $ctx.last-error -> $error {
+            given $ctx.GetLastError -> $error {
                 die X::LibXML::Parser.new: :$error;
             }
         }
@@ -124,15 +124,15 @@ class LibXML::Parser {
         while $more && !$err {
             $chunk = $io.read($chunk-size);
             $more = ?$chunk;
-            $err = $ctx.parse-chunk($chunk, +$chunk, 0)
+            $err = $ctx.ParseChunk($chunk, +$chunk, 0)
                 if $more;
         }
 
-        given $ctx.parse-chunk($chunk, 0, 1) { # terminate
+        given $ctx.ParseChunk($chunk, 0, 1) { # terminate
             $err ||= $_
         }
 
-        with $ctx.last-error -> $error {
+        with $ctx.GetLastError -> $error {
             fail X::LibXML::Parser.new: :$error;
         }
         else {

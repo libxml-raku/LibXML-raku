@@ -256,19 +256,19 @@ throws-like
     my $doc = $parser.parse: :file( "example/dtd.xml" );
     warn $parser.flags;
 
-    my xmlNode @cn = $doc.root-element.child-nodes;
+    my xmlNode @cn = $doc.GetRootElement.child-nodes;
     is( +@cn, 1, "1 child node" );
     warn .Str for @cn;
 
     $parser.expand-entities = False;
     $doc = $parser.parse: :file( "example/dtd.xml" );
     warn $parser.flags;
-    @cn = $doc.root-element.child-nodes;
+    @cn = $doc.GetRootElement.child-nodes;
     is( +@cn, 3, "3 child nodes" );
     warn .Str for @cn;
 
     $doc = $parser.parse: :file( "example/complex/complex2.xml" );
-    @cn = $doc.root-element.child-nodes;
+    @cn = $doc.GetRootElement.child-nodes;
     is( +@cn, 1, "1 child node" );
 
 }

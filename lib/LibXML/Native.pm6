@@ -30,10 +30,10 @@ class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
 class xmlSAXHandler is repr(Stub) is export {}
 class xmlBuffer is repr(Stub) is export {
-    method create is native(LIB) is symbol('xmlBufferCreate') returns xmlBuffer {*}
+    method Create is native(LIB) is symbol('xmlBufferCreate') returns xmlBuffer {*}
     method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format) is native(LIB) returns int32 is export { * }
-    method content is symbol('xmlBufferContent') is native(LIB) returns Str is export { * }
-    method free is symbol('xmlBufferFree') is native(LIB) is export { * }
+    method Content is symbol('xmlBufferContent') is native(LIB) returns Str is export { * }
+    method Free is symbol('xmlBufferFree') is native(LIB) is export { * }
 }
 
 # C structs
@@ -77,10 +77,10 @@ class xmlNode is _NodeCommon is export {
     has uint16                $.extra;       # extra data for XPath/XSLT
 
     method Str(Bool() $format = False) {
-        my xmlBuffer $buf .= create;
+        my xmlBuffer $buf .= Create;
         $buf.xmlNodeDump($.doc, self, 0, +$format);
-        my str $content = $buf.content;
-        $buf.free;
+        my str $content = $buf.Content;
+        $buf.Free;
         $content;
     }
 
@@ -111,17 +111,17 @@ class xmlDoc is _NodeCommon is export {
     has int32                 $.properties;  # set of xmlDocProperties for this document
                                              # set at the end of parsing
 
-    method xmlDocDumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is native(LIB) {*}
-    method xmlDocDumpMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str) is native(LIB) {*} 
-    method xmlDocDumpMemory(Pointer[uint8] $ is rw, int32 $ is rw) is native(LIB) {*}
+    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
+    method DumpMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str) is symbol('xmlDocDumpMemoryEnc') is native(LIB) {*} 
+    method DumpMemory(Pointer[uint8] $ is rw, int32 $ is rw) is symbol('xmlDocDumpMemoryEnc') is native(LIB) {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
-    method root-element is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
+    method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc($recursive) }
-    method free is native(LIB) is symbol('xmlFreeDoc') {*}
+    method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method Str {
         my Pointer[uint8] $p .= new;
-        $.xmlDocDumpMemoryEnc($p, my uint32 $, 'UTF-8');
+        $.DumpMemoryEnc($p, my uint32 $, 'UTF-8');
         nativecast(str, $p);
     }
 }
@@ -294,8 +294,8 @@ class parserCtxt is repr('CStruct') is export {
     has int32                  $.input_id;     #  we need to label inputs
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
-    method last-error is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
-    method free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
+    method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
+    method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
 }
 
 #| a vanilla XML parser context - can be used to read files or strings
@@ -303,10 +303,9 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub xmlNewParserCtxt is native(LIB) returns xmlParserCtxt {*};
     method new { xmlNewParserCtxt() }
-    method init is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
-    method read-doc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
-    method read-file(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
-    method use-options(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
+    method ReadDoc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
+    method ReadFile(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
+    method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 
 };
 
@@ -315,8 +314,8 @@ class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub xmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns xmlPushParserCtxt {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
-    method parse-chunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('xmlParseChunk') { *};
-    method use-options(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
+    method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('xmlParseChunk') { *};
+    method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 };
 
 #| a vanilla HTML parser context - can be used to read files or strings
@@ -324,9 +323,9 @@ class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub htmlNewParserCtxt is native(LIB) returns htmlParserCtxt {*};
     method new { htmlNewParserCtxt() }
-    method use-options(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method read-doc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
-    method read-file(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
+    method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
+    method ReadDoc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
+    method ReadFile(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
 };
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
@@ -334,16 +333,16 @@ class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub htmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns htmlPushParserCtxt {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { htmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
-    method parse-chunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') { *};
-    method use-options(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
+    method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') { *};
+    method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
 };
 
 sub xmlGetLastError returns xmlError is native('xml2') { * }
 
-multi method last-error(parserCtxt $ctx) { $ctx.last-error() // $.last-error()  }
-multi method last-error { xmlGetLastError()  }
+multi method GetLastError(parserCtxt $ctx) { $ctx.GetLastError() // $.GetLastError()  }
+multi method GetLastError { xmlGetLastError()  }
 
-method xmlKeepBlanksDefault is rw {
+method KeepBlanksDefault is rw {
     constant value = cglobal(LIB, "xmlKeepBlanksDefaultValue", int32);
     sub xmlKeepBlanksDefault(int32 $v) is native(LIB) returns int32 is export { * }
 

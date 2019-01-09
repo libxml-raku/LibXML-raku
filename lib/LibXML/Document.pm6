@@ -9,7 +9,7 @@ use NativeCall;
 constant config = LibXML::Config;
 
 has parserCtxt $.ctx;
-has xmlDoc $.struct is required handles<encoding root-element>;
+has xmlDoc $.struct is required handles<encoding GetRootElement>;
 
 method Str(Bool() $format = False) is default {
     my Pointer[uint8] $p .= new;
@@ -29,20 +29,20 @@ method Str(Bool() $format = False) is default {
         }
 
         if $format {
-            $doc.xmlDocDumpFormatMemoryEnc($p, $len, 'UTF-8', +$format);
+            $doc.DumpFormatMemoryEnc($p, $len, 'UTF-8', +$format);
         }
         else {
-            $doc.xmlDocDumpMemoryEnc($p, $len, 'UTF-8');
+            $doc.DumpMemoryEnc($p, $len, 'UTF-8');
         }
 
-        $doc.free if $copied;
+        $doc.Free if $copied;
         nativecast(str, $p);
     }
 
 }
 
 submethod DESTROY {
-    .free with $!ctx // $!struct;
+    .Free with $!ctx // $!struct;
     $!ctx = Nil;
     $!struct = Nil;
 }

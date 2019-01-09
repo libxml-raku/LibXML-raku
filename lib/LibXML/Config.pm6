@@ -9,7 +9,7 @@ method skip-xml-declaration is rw { $skipXMLDeclaration }
 method skip-dtd is rw { $skipDTD }
 
 method keep-blanks-default is rw {
-    LibXML::Native.xmlKeepBlanksDefault;
+    LibXML::Native.KeepBlanksDefault;
 }
 
 
