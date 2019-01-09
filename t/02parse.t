@@ -120,8 +120,6 @@ dtd1      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>'
 dtd2      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>','<foobar>&f','oo;&gt;</foobar>',],
                     );
 
-  ## todo - rest of this test file
-
 my $goodfile = "example/dromeds.xml";
 my $badfile1 = "example/bad.xml";
 my $badfile2 = "does_not_exist.xml";
@@ -248,16 +246,11 @@ isa-ok($doc, 'XML::LibXML::Document');
 $io = $badfile1.IO;
 isa-ok($io, IO::Path);
 
-=begin POD
-
 throws-like
     { $parser.parse: :$io; },
-    X::XML::LibXML::Parser, :message(rx/^Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
+    X::XML::LibXML::Parser, :message(rx/:s Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
 
-$fh = IO::File->new($badfile2);
-
-eval { my $doc = $parser->parse_fh($fh); };
-like($@, qr/^Can't use an undefined value as a symbol reference at/, "error parsing bad file from file handle of non-existent $badfile2");
+=begin POD
 
 {
     $parser->expand_entities(1);

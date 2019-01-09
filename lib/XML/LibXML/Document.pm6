@@ -8,6 +8,7 @@ use NativeCall;
 
 constant config = XML::LibXML::Config;
 
+has parserCtxt $.ctx;
 has xmlDoc $.struct is required handles<encoding>;
 
 method Str(Bool() $format = False) is default {
@@ -36,5 +37,11 @@ method Str(Bool() $format = False) is default {
 
         $doc.free if $copied;
         nativecast(str, $p);
+    }
+
+    submethod DESTROY {
+        .free with $!ctx // $!struct;
+        $!ctx = Nil;
+        $!struct = Nil;
     }
 }

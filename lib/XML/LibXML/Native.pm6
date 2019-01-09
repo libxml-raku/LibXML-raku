@@ -114,8 +114,9 @@ class xmlDoc is _NodeCommon is export {
     method xmlDocDumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is native(LIB) {*} 
     method xmlDocDumpMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str) is native(LIB) {*} 
     method xmlDocDumpMemory(Pointer[uint8] $ is rw, int32 $ is rw) is native(LIB) {*}
+    method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
-    method copy is native(LIB) is symbol('xmlCopyDoc') returns xmlDoc {*}
+    method copy(Bool :$recursive = True) { $.xmlCopyDoc($recursive) }
     method free is native(LIB) is symbol('xmlFreeDoc') {*}
     method Str {
         my Pointer[uint8] $p .= new;
@@ -175,7 +176,7 @@ class xmlError is repr('CStruct') is export {
 class parserCtxt is repr('CStruct') is export {
     has xmlSAXHandler          $.sax;          # The SAX handler
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
-    has xmlDoc                 $.myDoc;        # the document being built
+    has xmlDoc                 $.myDoc is rw;  # the document being built
     has int32                  $.wellFormed;   # is the document well formed
     has int32                  $.replaceEntities;     # shall we replace entities ?
     has xmlCharP               $.version;      #  the XML version string

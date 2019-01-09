@@ -118,19 +118,28 @@ class XML::LibXML::Parser {
         my parserCtxt $ctx = ctx-class.new: :$chunk, :$path;
 
         self!init-parser($ctx);
-        my Bool $more = ?$chunk;
+        my Bool $more = ?$ctx && ?$chunk;
+        my $err = 0;
 
-        while $more {
+        while $more && !$err {
             $chunk = $io.read($chunk-size);
             $more = ?$chunk;
-            $ctx.parse-chunk($chunk, +$chunk, 0)
+            $err = $ctx.parse-chunk($chunk, +$chunk, 0)
                 if $more;
         }
-        $ctx.parse-chunk($chunk, 0, 1); # terminate
-        my xmlDoc:D $struct = $ctx.myDoc;
-        my xmlDoc $struct = $ctx.myDoc.copy;
-        $ctx.free;
-        XML::LibXML::Document.new: :$struct;
+
+        given $ctx.parse-chunk($chunk, 0, 1) { # terminate
+            $err ||= $_
+        }
+
+        with XML::LibXML::Native.last-error($ctx) -> $error {
+            fail X::XML::LibXML::Parser.new: :$error;
+        }
+        else {
+            warn "untrapped error $err" if $err;
+            my xmlDoc:D $struct = $ctx.myDoc;
+            XML::LibXML::Document.new: :$ctx, :$struct;
+        }
     }
 
     multi method parse(IO() :io($path)!, |c) {
