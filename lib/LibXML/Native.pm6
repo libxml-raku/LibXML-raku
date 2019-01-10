@@ -8,8 +8,7 @@ constant LIB = 'xml2';
 constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 
 # type defs
-constant xmlChar = uint8;
-constant xmlCharP = Pointer[xmlChar];
+constant xmlCharP = Str;
 
 # forward declarations
 class xmlDoc  is repr('CStruct') is export {...}
@@ -50,6 +49,9 @@ class _NodeCommon is repr('CStruct') {
     has xmlDoc                $.doc;         # the containing document
     # End of common part
 
+    method GetBase(xmlDoc) is native(LIB) is symbol('xmlNodeGetBase') returns xmlCharP {*}
+    method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
+
     sub siblings($cur) is rw {
         my class Siblings does Iterable does Iterator {
             has xmlNode $.cur;
@@ -76,14 +78,13 @@ class xmlNode is _NodeCommon is export {
     has uint16                $.line;        # line number
     has uint16                $.extra;       # extra data for XPath/XSLT
 
-    method Str(Bool() $format = False) {
+    method Str(Bool() :$format = False) {
         my xmlBuffer $buf .= Create;
         $buf.xmlNodeDump($.doc, self, 0, +$format);
         my str $content = $buf.Content;
         $buf.Free;
         $content;
     }
-
 }
 
 class xmlDoc is _NodeCommon is export {
@@ -112,11 +113,10 @@ class xmlDoc is _NodeCommon is export {
                                              # set at the end of parsing
 
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
-    method DumpMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str) is symbol('xmlDocDumpMemoryEnc') is native(LIB) {*} 
-    method DumpMemory(Pointer[uint8] $ is rw, int32 $ is rw) is symbol('xmlDocDumpMemoryEnc') is native(LIB) {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
+    method XIncludeProcessFlags(int32) is native(LIB) is symbol('xmlXIncludeProcessFlags') returns int32 {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc($recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method Str {
@@ -177,7 +177,7 @@ class xmlError is repr('CStruct') is export {
 class parserCtxt is repr('CStruct') is export {
     has xmlSAXHandler          $.sax;          # The SAX handler
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
-    has xmlDoc                 $.myDoc is rw;  # the document being built
+    has xmlDoc                 $.myDoc;        # the document being built
     has int32                  $.wellFormed;   # is the document well formed
     has int32                  $.replaceEntities;     # shall we replace entities ?
     has xmlCharP               $.version;      #  the XML version string
@@ -309,6 +309,15 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
 };
 
+# XML file parser context
+class xmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
+
+    sub xmlCreateFileParserCtxt(Str $file) is native(LIB) returns xmlFileParserCtxt {*};
+    method ParseDocument is native(LIB) is symbol('xmlParseDocument') returns int32 {*}
+    method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
+    method new(Str() :$file!) { xmlCreateFileParserCtxt($file) }
+}
+
 #| an incremental XML push parser context. Determines encoding and reads data in binary chunks
 class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
@@ -327,6 +336,15 @@ class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
     method ReadDoc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
     method ReadFile(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
 };
+
+# HTML file parser context
+class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
+
+    sub htmlCreateFileParserCtxt(Str $file) is native(LIB) returns htmlFileParserCtxt {*};
+    method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
+    method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
+    method new(Str() :$file!) { htmlCreateFileParserCtxt($file) }
+}
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
 class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {

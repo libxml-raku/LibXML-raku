@@ -254,18 +254,14 @@ throws-like
 {
     $parser.expand-entities = True;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
-    warn $parser.flags;
 
     my xmlNode @cn = $doc.GetRootElement.child-nodes;
     is( +@cn, 1, "1 child node" );
-    warn .Str for @cn;
 
     $parser.expand-entities = False;
     $doc = $parser.parse: :file( "example/dtd.xml" );
-    warn $parser.flags;
     @cn = $doc.GetRootElement.child-nodes;
     is( +@cn, 3, "3 child nodes" );
-    warn .Str for @cn;
 
     $doc = $parser.parse: :file( "example/complex/complex2.xml" );
     @cn = $doc.GetRootElement.child-nodes;
@@ -273,8 +269,6 @@ throws-like
 
 }
 
-
-=begin POD
 
 # 1.4 x-include processing
 
@@ -293,36 +287,42 @@ my $badXInclude = q{
 </x>
 };
 
+
 {
-    $parser->base_uri( "example/" );
-    $parser->keep_blanks(0);
-    my $doc = $parser->parse_string( $goodXInclude );
-    isa_ok($doc, 'LibXML::Document');
+    $parser.base-uri = "example/";
+    $parser.keep-blanks = False;
+    my $doc = $parser.parse: :string( $goodXInclude );
+    isa-ok($doc, 'LibXML::Document');
 
     my $i;
-    eval { $i = $parser->processXIncludes($doc); };
+    lives-ok { $i = $doc.process-xincludes; };
     is( $i, "1", "return value from processXIncludes == 1");
 
-    $doc = $parser->parse_string( $badXInclude );
-    $i= undef;
-    eval { $i = $parser->processXIncludes($doc); };
-    like($@, qr/$badfile1:3: parser error : Extra content at the end of the document/, "error parsing a bad include");
+    $doc = $parser.parse: :string( $badXInclude );
+    $i = Nil;
+todo "proper error handling";
+    throws-like { $doc.process-xincludes; },
+        X::AdHoc,
+        :message(qx/'Extra content at the end of the document'/),
+        "error parsing a bad include";
 
+    }
     # auto expand
-    $parser->expand_xinclude(1);
-    $doc = $parser->parse_string( $goodXInclude );
-    isa_ok($doc, 'LibXML::Document');
+    $parser.expand-xinclude = True;
+    $doc = $parser.parse: :string( $goodXInclude );
+    isa-ok($doc, 'LibXML::Document');
 
-    $doc = undef;
-    eval { $doc = $parser->parse_string( $badXInclude ); };
+=begin POD
+    $doc = Nil;
+    eval { $doc = $parser.parse: :string( $badXInclude ); };
     like($@, qr/$badfile1:3: parser error : Extra content at the end of the document/, "error parsing $badfile1 in include");
-    is($doc, undef, "no doc returned");
+    ok(!$doc.defined, "no doc returned");
 
     # some bad stuff
-    eval{ $parser->processXIncludes(undef); };
+    eval{ $parser.processXIncludes(undef); };
     like($@, qr/^No document to process! at/, "Error parsing undef include");
 
-    eval{ $parser->processXIncludes("blahblah"); };
+    eval{ $parser.processXIncludes("blahblah"); };
     like($@, qr/^No document to process! at/, "Error parsing bogus include");
 }
 

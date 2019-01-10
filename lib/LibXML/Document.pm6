@@ -7,33 +7,52 @@ use LibXML::Config;
 use NativeCall;
 
 constant config = LibXML::Config;
+has parserCtxt $.ctx is required handles <wellFormed valid>;
+has xmlDoc $.doc handles<encoding GetRootElement>;
 
-has parserCtxt $.ctx;
-has xmlDoc $.struct is required handles<encoding GetRootElement>;
+submethod TWEAK {
+    $!doc //= $!ctx.myDoc;
+}
 
-method Str(Bool() $format = False) is default {
+method uri is rw {
+    Proxy.new(
+        FETCH => sub ($) { $!doc.GetBase($!doc) },
+        STORE => sub ($, Str:D() $_) {
+            $!doc.SetBase($_);
+        }
+    )
+}
+
+method process-xincludes( :$flags = $!doc.parseFlags ) {
+    my $n = $!doc.XIncludeProcessFlags($flags);
+    # todo - error handling/structured errors
+    die(do with LibXML::Native.GetLastError {.message} else {"XInclude processing failed"})
+        if $n < 0;
+    $n;
+}
+
+method Str(Bool() :$format = False) is default {
     my Pointer[uint8] $p .= new;
     my int32 $len;
     my Bool $copied;
 
     if config.skip-xml-declaration {
         my \skip-dtd = config.skip-dtd;
-        $!struct.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str).join;
+        $!doc.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str).join;
     }
     else {
-        my xmlDoc $doc = $!struct;
+        my xmlDoc $doc = $!doc;
         if $doc.internal-dtd && config.skip-dtd {
+            # make a copy, with DTD removed
             $doc .= copy();
-            $doc.xmlUnlinkNode($_) with $doc.internal-dtd;
+            with $doc.internal-dtd {
+                $doc.xmlUnlinkNode($_);
+                .Free;
+            }
             $copied = True;
         }
 
-        if $format {
-            $doc.DumpFormatMemoryEnc($p, $len, 'UTF-8', +$format);
-        }
-        else {
-            $doc.DumpMemoryEnc($p, $len, 'UTF-8');
-        }
+        $doc.DumpFormatMemoryEnc($p, $len, 'UTF-8', +$format);
 
         $doc.Free if $copied;
         nativecast(str, $p);
@@ -42,7 +61,11 @@ method Str(Bool() $format = False) is default {
 }
 
 submethod DESTROY {
-    .Free with $!ctx // $!struct;
+    with $!ctx {
+        $!doc.Free
+          unless $!doc eqv .myDoc;
+         .Free;
+    }
+    $!doc = Nil;
     $!ctx = Nil;
-    $!struct = Nil;
 }

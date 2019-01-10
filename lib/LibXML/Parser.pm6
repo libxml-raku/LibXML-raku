@@ -24,30 +24,30 @@ class LibXML::Parser {
     has parserCtxt $!parser-ctx;
     has Bool $.html;
     has Bool $.line-numbers = False;
-    has Str $.dir;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
+    has Str $.base-uri is rw;
 
-    submethod TWEAK {
-    }
-
-    method !flag-accessor(uint32 $flag) is rw {
-        Proxy.new(
-            FETCH => sub ($) { $!flags +& $flag },
-            STORE => sub ($, Bool() $_) {
-                if .so {
-                    $!flags +|= $flag;
-                }
-                else {
-                    my uint32 $mask = 0xffffffff +^ $flag;
-                    $!flags +&= $mask;
-                }
-            }
-        );
-    }
-
-    method keep-blanks is rw { self!flag-accessor(XML_PARSE_NOBLANKS); }
-    method expand-entities is rw { self!flag-accessor(XML_PARSE_NOENT) }
-    method pedantic-parser is rw { self!flag-accessor(XML_PARSE_PEDANTIC); }
+    constant %FLAGS = %(
+        :recover(XML_PARSE_RECOVER),
+        :expand-entities(XML_PARSE_NOENT),
+        :load-ext-dtd(XML_PARSE_DTDLOAD),
+        :complete-attributes(XML_PARSE_DTDATTR),
+        :validation(XML_PARSE_DTDVALID),
+        :suppress-errors(XML_PARSE_NOERROR),
+        :suppress-warnings(XML_PARSE_NOWARNING),
+        :pedantic-parser(XML_PARSE_PEDANTIC),
+        :keep-blanks(XML_PARSE_NOBLANKS),
+        :expand-xinclude(XML_PARSE_XINCLUDE),
+        :xinclude(XML_PARSE_XINCLUDE),
+        :no-network(XML_PARSE_NONET),
+        :clean-namespaces(XML_PARSE_NSCLEAN),
+        :no-cdata(XML_PARSE_NOCDATA),
+        :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
+        :old10(XML_PARSE_OLD10),
+        :no-base-fix(XML_PARSE_NOBASEFIX),
+        :huge(XML_PARSE_HUGE),
+        :oldsax(XML_PARSE_OLDSAX),
+    );
 
     method !init-parser(parserCtxt $ctx) {
         die "unable to initialize parser" unless $ctx;
@@ -62,8 +62,15 @@ class LibXML::Parser {
         $ctx;
     }
 
+    method !finish(LibXML::Document $doc, :$uri) {
+        $doc.uri = $_ with $uri;
+        $doc.process-xincludes: :$!flags
+            if $.expand-xinclude;
+        $doc;
+    }
+
     multi method parse(Str:D() :$string!,
-                       Str :$uri,
+                       Str :$uri = $!base-uri,
                        Str :$enc) {
 
         my parserCtxt $ctx = $!html
@@ -72,9 +79,8 @@ class LibXML::Parser {
 
         self!init-parser($ctx);
 
-        with $ctx.ReadDoc($string, $uri, $enc, $!flags) {
-            $ctx.Free;
-            LibXML::Document.new: :struct($_);
+        with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $doc {
+            self!finish: LibXML::Document.new( :$ctx, :$doc);
         }
         else {
             given $ctx.GetLastError -> $error {
@@ -84,18 +90,16 @@ class LibXML::Parser {
     }
 
     multi method parse(Str:D :$file!,
-                       Str :$uri,
-                       Str :$enc) {
+                       Str :$uri = $!base-uri) {
 
         my parserCtxt $ctx = $!html
-           ?? htmlParserCtxt.new
-           !! xmlParserCtxt.new;
+           ?? htmlFileParserCtxt.new(:$file)
+           !! xmlFileParserCtxt.new(:$file);
 
         self!init-parser($ctx);
 
-        with $ctx.ReadFile($file, $enc, $!flags) {
-            $ctx.Free;
-            LibXML::Document.new: :struct($_);
+        if $ctx.ParseDocument == 0 {
+            self!finish: LibXML::Document.new(:$ctx), :$uri;
         }
         else {
             given $ctx.GetLastError -> $error {
@@ -105,8 +109,7 @@ class LibXML::Parser {
     }
 
     multi method parse(IO::Handle :$io!,
-                       Str   :$uri,
-                       Str   :$enc,
+                       Str :$uri = $!base-uri,
                        UInt :$chunk-size = 4096,
                       ) {
 
@@ -136,15 +139,48 @@ class LibXML::Parser {
             fail X::LibXML::Parser.new: :$error;
         }
         else {
-            warn "untrapped error $err" if $err;
-            my xmlDoc:D $struct = $ctx.myDoc;
-            LibXML::Document.new: :$ctx, :$struct;
+            self!finish: LibXML::Document.new( :$ctx ), :$uri;
         }
     }
 
     multi method parse(IO() :io($path)!, |c) {
         my IO::Handle $io = $path.open(:bin, :r);
         $.parse(:$io, |c);
+    }
+
+    method !flag-accessor(uint32 $flag) is rw {
+        Proxy.new(
+            FETCH => sub ($) { $!flags +& $flag },
+            STORE => sub ($, Bool() $_) {
+                if .so {
+                    $!flags +|= $flag;
+                }
+                else {
+                    my uint32 $mask = 0xffffffff +^ $flag;
+                    $!flags +&= $mask;
+                }
+            });
+    }
+
+    submethod TWEAK(:html($), :line-numbers($), :flags($), :uri($), *%flags) {
+        for %flags.pairs.sort -> $f {
+            with %FLAGS{$f.key} {
+                self!flag-accessor($_) = $f.value;
+            }
+            else {
+                warn "ignoring option: {$f.key}";
+            }
+        }
+    }
+
+    method FALLBACK($method, |c) is rw {
+        # set up flag accessors;
+        with %FLAGS{$method} {
+            self!flag-accessor($_,|c);
+        }
+        else {
+            die X::Method::NotFound.new( :$method, :typename(self.^name) )
+        }
     }
 
 }
