@@ -63,3 +63,10 @@ enum htmlParserOption is export (
    HTML_PARSE_COMPACT => 65536,
    HTML_PARSE_IGNORE_ENC => 2097152
 );
+
+enum xmlErrorLevel is export (
+   XML_ERR_NONE => 0,
+   XML_ERR_WARNING => 1,
+   XML_ERR_ERROR => 2,
+   XML_ERR_FATAL => 3
+);

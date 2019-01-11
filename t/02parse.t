@@ -295,28 +295,31 @@ my $badXInclude = q{
     isa-ok($doc, 'LibXML::Document');
 
     my $i;
-    lives-ok { $i = $doc.process-xincludes; };
+    lives-ok { $i = $parser.process-xincludes($doc); };
     is( $i, "1", "return value from processXIncludes == 1");
 
     $doc = $parser.parse: :string( $badXInclude );
     $i = Nil;
-todo "proper error handling";
-    throws-like { $doc.process-xincludes; },
-        X::AdHoc,
-        :message(qx/'Extra content at the end of the document'/),
+
+    throws-like { $parser.process-xincludes($doc); },
+        X::LibXML::Parser,
+        :message(rx/'Extra content at the end of the document'/),
         "error parsing a bad include";
 
-    }
     # auto expand
     $parser.expand-xinclude = True;
     $doc = $parser.parse: :string( $goodXInclude );
     isa-ok($doc, 'LibXML::Document');
 
-=begin POD
     $doc = Nil;
-    eval { $doc = $parser.parse: :string( $badXInclude ); };
-    like($@, qr/$badfile1:3: parser error : Extra content at the end of the document/, "error parsing $badfile1 in include");
+    throws-like { $doc = $parser.parse: :string( $badXInclude ); },
+        X::LibXML::Parser,
+        :message(rx/'example/bad.xml:3:' .* 'Extra content at the end of the document'/),
+         "error parsing $badfile1 in include";
     ok(!$doc.defined, "no doc returned");
+
+}
+=begin POD
 
     # some bad stuff
     eval{ $parser.processXIncludes(undef); };
@@ -325,6 +328,7 @@ todo "proper error handling";
     eval{ $parser.processXIncludes("blahblah"); };
     like($@, qr/^No document to process! at/, "Error parsing bogus include");
 }
+
 
 # 2 PUSH PARSER
 

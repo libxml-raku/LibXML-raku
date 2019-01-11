@@ -23,14 +23,6 @@ method uri is rw {
     )
 }
 
-method process-xincludes( :$flags = $!doc.parseFlags ) {
-    my $n = $!doc.XIncludeProcessFlags($flags);
-    # todo - error handling/structured errors
-    die(do with LibXML::Native.GetLastError {.message} else {"XInclude processing failed"})
-        if $n < 0;
-    $n;
-}
-
 method Str(Bool() :$format = False) is default {
     my Pointer[uint8] $p .= new;
     my int32 $len;

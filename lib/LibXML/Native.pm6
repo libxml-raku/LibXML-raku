@@ -116,7 +116,6 @@ class xmlDoc is _NodeCommon is export {
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
-    method XIncludeProcessFlags(int32) is native(LIB) is symbol('xmlXIncludeProcessFlags') returns int32 {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc($recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method Str {
@@ -294,6 +293,8 @@ class parserCtxt is repr('CStruct') is export {
     has int32                  $.input_id;     #  we need to label inputs
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
+    method xmlSetGenericErrorFunc( &error-func (parserCtxt $, Str $fmt)) is native(LIB) {*};
+    method xmlSetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) {*};
     method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
     method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
 }
@@ -316,6 +317,16 @@ class xmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
     method ParseDocument is native(LIB) is symbol('xmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
     method new(Str() :$file!) { xmlCreateFileParserCtxt($file) }
+}
+
+# XML file parser context
+class xmlXIncludeCtxt is parserCtxt is repr('CStruct') is export {
+
+    sub xmlXIncludeNewContext(xmlDoc) is native(LIB) returns xmlXIncludeCtxt {*};
+    method ProcessNode(xmlNode) is native(LIB) is symbol('xmlXIncludeProcessNode') returns int32 {*}
+    method Free is native(LIB) is symbol('xmlXIncludeFreeContext') {*}
+    method UseOptions(int32) is native(LIB) is symbol('xmlXIncludeSetFlags') returns int32 { * }
+    method new(xmlDoc :$doc!) { xmlXIncludeNewContext($doc) }
 }
 
 #| an incremental XML push parser context. Determines encoding and reads data in binary chunks
