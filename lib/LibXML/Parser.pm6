@@ -34,10 +34,10 @@ class LibXML::Parser {
     );
 
     method !context(parserCtxt :$ctx!) {
-        LibXML::Context.new: :$ctx, :$!flags, :$!line-numbers;
+        LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers;
     }
 
-    method !finish(LibXML::Document $doc, :$uri, LibXML::Context :$ch!) {
+    method !finish(LibXML::Document $doc, :$uri, LibXML::ParserContext :$ch!) {
         $ch.flush-errors;
         $doc.uri = $_ with $uri;
         self.process-xincludes($doc)
@@ -48,7 +48,7 @@ class LibXML::Parser {
     method process-xincludes(LibXML::Document $doc) {
         my xmlDoc $xml-doc = $doc.doc;
         my xmlXIncludeCtxt $ctx .= new( :doc($xml-doc) );
-        my LibXML::Context $ch = self!context: :$ctx;
+        my LibXML::ParserContext $ch = self!context: :$ctx;
         my xmlNode $root = $xml-doc.GetRootElement;
         my $n = $ctx.ProcessNode($root);
         $ch.flush-errors;
@@ -64,7 +64,7 @@ class LibXML::Parser {
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
 
-        my LibXML::Context $ch = self!context: :$ctx;
+        my LibXML::ParserContext $ch = self!context: :$ctx;
 
         with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $doc {
             self!finish: LibXML::Document.new( :$ctx, :$doc), :$ch;
@@ -82,7 +82,7 @@ class LibXML::Parser {
            ?? htmlFileParserCtxt.new(:$file)
            !! xmlFileParserCtxt.new(:$file);
 
-        my LibXML::Context $ch = self!context: :$ctx;
+        my LibXML::ParserContext $ch = self!context: :$ctx;
 
         if $ctx.ParseDocument == 0 {
             self!finish: LibXML::Document.new(:$ctx, :$uri), :$ch;

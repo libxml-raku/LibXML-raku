@@ -12,7 +12,7 @@ class X::LibXML::Parser is Exception {
     }
 }
 
-class LibXML::Context {
+class LibXML::ParserContext {
     use LibXML::Native;
     use LibXML::Enums;
     has parserCtxt $.ctx;
