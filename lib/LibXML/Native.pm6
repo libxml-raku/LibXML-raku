@@ -334,7 +334,7 @@ class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub xmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns xmlPushParserCtxt {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
-    method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('xmlParseChunk') { *};
+    method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('xmlParseChunk') returns int32 {*};
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 };
 
@@ -362,7 +362,7 @@ class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub htmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns htmlPushParserCtxt {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { htmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
-    method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') { *};
+    method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') returns int32 { *};
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
 };
 

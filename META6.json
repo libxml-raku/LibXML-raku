@@ -16,9 +16,11 @@
     "LibXML" : "lib/LibXML.pm6",
     "LibXML::Document" : "lib/LibXML/Document.pm6",
     "LibXML::Config" : "lib/LibXML/Config.pm6",
+    "LibXML::Context" : "lib/LibXML/Context.pm6",
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
     "LibXML::Native" : "lib/LibXML/Native.pm6",
-    "LibXML::Parser" : "lib/LibXML/Parser.pm6"
+    "LibXML::Parser" : "lib/LibXML/Parser.pm6",
+    "LibXML::PushParser" : "lib/LibXML/PushParser.pm6"
   },
   "resources" : [
   ],

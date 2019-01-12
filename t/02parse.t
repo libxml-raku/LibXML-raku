@@ -326,23 +326,26 @@ my $badXInclude = q{
     X::Multi::NoMatch, "Error parsing bogus include";
 }
 
-=begin POD
-
 
 # 2 PUSH PARSER
 
 {
-    my LibXML $pparser = new();
+    my LibXML $pparser .= new();
     # 2.1 PARSING WELLFORMED DOCUMENTS
-    for my $key ( qw(single1 single2 single3 single4 single5 single6
+    for qw<single1 single2 single3 single4 single5 single6
                          single7 single8 single9 multiple1 multiple2 multiple3
                          multiple4 multiple5 multiple6 multiple7 multiple8
                          multiple9 multiple10 comment1 comment2 comment3
                          comment4 comment5 attr1 attr2 attr3
-			 ns1 ns2 ns3 ns4 ns5 ns6 dtd1 dtd2) ) {
-        foreach ( @{$goodPushWF{$key}} ) {
-            $pparser->parse_chunk( $_ );
+			 ns1 ns2 ns3 ns4 ns5 ns6 dtd1 dtd2> -> $key {
+        for %goodPushWF{$key}.list {
+            warn "chunk: $_";
+            $pparser.parse-chunk( $_ );
         }
+    }
+
+}
+=begin POD
 
         my $doc;
         eval {$doc = $pparser->parse_chunk("",1); };

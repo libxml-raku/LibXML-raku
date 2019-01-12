@@ -1,29 +1,15 @@
-class X::LibXML::Parser is Exception {
-    use LibXML::Native;
-    use LibXML::Enums;
-
-    has Str $.text;
-    has Str $.file;
-    
-    method message {
-        my $msg = "Error while parsing {$!file // 'XML document'}";
-        $msg ~= ":\n" ~ $_ with $!text;
-        chomp $msg;
-    }
-}
-
 class LibXML::Parser {
 
     use LibXML::Native;
     use LibXML::Enums;
     use LibXML::Document;
+    use LibXML::PushParser;
 
     has parserCtxt $!parser-ctx;
     has Bool $.html;
     has Bool $.line-numbers = False;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.base-uri is rw;
-    has @.errors;
 
     constant %FLAGS = %(
         :recover(XML_PARSE_RECOVER),
@@ -47,75 +33,27 @@ class LibXML::Parser {
         :oldsax(XML_PARSE_OLDSAX),
     );
 
-    method !init-parser(parserCtxt $ctx) {
-        die "unable to initialize parser" unless $ctx;
-
-        unless $!flags +& XML_PARSE_DTDLOAD {
-            for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
-                $!flags -= $_ if $!flags +& $_
-            }
-        }
-
-        $ctx.UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
-        $ctx.linenumbers = +$!line-numbers;
-
-        # error handling
-        @!errors = ();
-        sub structured-err-func(parserCtxt $, xmlError $_) {
-            constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
-                  "HTML parser", "memory", "output", "I/O", "ftp",
-                  "http", "XInclude", "XPath", "xpointer", "regexp",
-                  "Schemas datatype", "Schemas parser", "Schemas validity",
-                  "Relax-NG parser", "Relax-NG validity",
-                  "Catalog", "C14N", "XSLT", "validity", "error-checking",
-                  "xmlwriter", "dynamic loading", "i18n",
-                  "Schematron validity");
-            my Int $level = .level;
-            my Str $msg = .message;
-            my @text;
-            @text.push: $_ with @ErrorDomains[.domain];
-            if $level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
-                @text.push: 'error'
-            }
-            elsif $level == XML_ERR_WARNING {
-                @text.push: 'warning';
-            }
-            $msg = (@text.join(' '),':',$msg).join(' ')
-                if @text;
-
-            if .line && .file && !.file.ends-with('/') {
-                $msg = (.file, .line, ' ' ~ $msg).join: ':';
-            }
-            @!errors.push: %( :$level, :$msg);
-        }
-
-        $ctx.xmlSetGenericErrorFunc( sub (parserCtxt $, Str $msg) { @!errors.push: %( :level(XML_ERR_FATAL), :$msg ) });
-        $ctx.xmlSetStructuredErrorFunc( &structured-err-func );
-
-        $ctx;
+    method !context(parserCtxt :$ctx!) {
+        LibXML::Context.new: :$ctx, :$!flags, :$!line-numbers;
     }
 
-    method !flush-errors {
-        if @!errors {
-            my Str $text = @!errors.map(*<msg>).join;
-            my $fatal = @!errors.first: { .<level> >= XML_ERR_FATAL };
-            my X::LibXML::Parser $err .= new: :$text;
-            if $fatal {
-                die $err;
-            }
-            else {
-                warn $err;
-            }
-       }
-       @!errors = ();
-    }
-
-    method !finish(LibXML::Document $doc, :$uri) {
-        self!flush-errors;
+    method !finish(LibXML::Document $doc, :$uri, LibXML::Context :$ch!) {
+        $ch.flush-errors;
         $doc.uri = $_ with $uri;
         self.process-xincludes($doc)
             if $.expand-xinclude;
         $doc;
+    }
+
+    method process-xincludes(LibXML::Document $doc) {
+        my xmlDoc $xml-doc = $doc.doc;
+        my xmlXIncludeCtxt $ctx .= new( :doc($xml-doc) );
+        my LibXML::Context $ch = self!context: :$ctx;
+        my xmlNode $root = $xml-doc.GetRootElement;
+        my $n = $ctx.ProcessNode($root);
+        $ch.flush-errors;
+        $ctx.Free;
+        $n;
     }
 
     multi method parse(Str:D() :$string!,
@@ -126,16 +64,14 @@ class LibXML::Parser {
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
 
-        self!init-parser($ctx);
+        my LibXML::Context $ch = self!context: :$ctx;
 
         with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $doc {
-            self!finish: LibXML::Document.new( :$ctx, :$doc);
+            self!finish: LibXML::Document.new( :$ctx, :$doc), :$ch;
         }
         else {
-            given $ctx.GetLastError -> $error {
-                my $text = $error.message;
-                die X::LibXML::Parser.new: :$text;
-            }
+##            $ctx.Free; # hangs!?
+            $ch.flush-errors(:die);
         }
     }
 
@@ -146,16 +82,36 @@ class LibXML::Parser {
            ?? htmlFileParserCtxt.new(:$file)
            !! xmlFileParserCtxt.new(:$file);
 
-        self!init-parser($ctx);
+        my LibXML::Context $ch = self!context: :$ctx;
 
         if $ctx.ParseDocument == 0 {
-            self!finish: LibXML::Document.new(:$ctx), :$uri;
+            self!finish: LibXML::Document.new(:$ctx, :$uri), :$ch;
         }
         else {
-            given $ctx.GetLastError -> $error {
-                my $text = $error.message;
-                die X::LibXML::Parser.new: :$text;
-            }
+            $ctx.Free;
+            $ch.flush-errors;
+        }
+    }
+
+    has LibXML::PushParser $!push-parser;
+    has @!push-errors;
+    method parse-chunk($chunk) {
+        with $!push-parser {
+            .push($chunk)
+        }
+        else {
+            $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers;
+        }
+    }
+    method finish-push(
+        Str :$uri = $!base-uri,
+    )
+    {
+        with $!push-parser {
+            .finish-push(:$uri);
+        }
+        else {
+            die "no active push parser";
         }
     }
 
@@ -167,48 +123,23 @@ class LibXML::Parser {
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$!html, :$path, :$!flags, :$!line-numbers;
 
-        my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
-        my parserCtxt $ctx = ctx-class.new: :$chunk, :$path;
+        my Bool $more = ?$chunk;
 
-        self!init-parser($ctx);
-        my Bool $more = ?$ctx && ?$chunk;
-        my $err = 0;
-
-        while $more && !$err {
+        while $more && !$push-parser.err {
             $chunk = $io.read($chunk-size);
             $more = ?$chunk;
-            $err = $ctx.ParseChunk($chunk, +$chunk, 0)
+            $push-parser.push($chunk)
                 if $more;
         }
 
-        given $ctx.ParseChunk($chunk, 0, 1) { # terminate
-            $err ||= $_
-        }
-
-        with $ctx.GetLastError -> $error {
-            my $text = $error.message;
-            fail X::LibXML::Parser.new: :$text;
-        }
-        else {
-            self!finish: LibXML::Document.new( :$ctx ), :$uri;
-        }
+        $push-parser.finish-push;
     }
 
     multi method parse(IO() :io($path)!, |c) {
         my IO::Handle $io = $path.open(:bin, :r);
         $.parse(:$io, |c);
-    }
-
-    multi method process-xincludes( LibXML::Document $doc) {
-        my xmlDoc $xml-doc = $doc.doc;
-        my xmlXIncludeCtxt $ctx .= new( :doc($xml-doc) );
-        self!init-parser($ctx);
-        my xmlNode $root = $xml-doc.GetRootElement;
-        my $n = $ctx.ProcessNode($root);
-        self!flush-errors;
-        $ctx.Free;
-        $n;
     }
 
     method !flag-accessor(uint32 $flag) is rw {
