@@ -314,20 +314,19 @@ my $badXInclude = q{
     $doc = Nil;
     throws-like { $doc = $parser.parse: :string( $badXInclude ); },
         X::LibXML::Parser,
-        :message(rx/'example/bad.xml:3:' .* 'Extra content at the end of the document'/),
+        :message(rx/'example/bad.xml:3: parser error : Extra content at the end of the document'/),
          "error parsing $badfile1 in include";
     ok(!$doc.defined, "no doc returned");
 
-}
-=begin POD
-
     # some bad stuff
-    eval{ $parser.processXIncludes(undef); };
-    like($@, qr/^No document to process! at/, "Error parsing undef include");
+    throws-like { $parser.process-xincludes(Str); },
+    X::Multi::NoMatch, "Error parsing undef include";
 
-    eval{ $parser.processXIncludes("blahblah"); };
-    like($@, qr/^No document to process! at/, "Error parsing bogus include");
+    throws-like { $parser.process-xincludes("blahblah"); },
+    X::Multi::NoMatch, "Error parsing bogus include";
 }
+
+=begin POD
 
 
 # 2 PUSH PARSER

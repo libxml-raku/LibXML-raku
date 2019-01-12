@@ -62,10 +62,29 @@ class LibXML::Parser {
         # error handling
         @!errors = ();
         sub structured-err-func(parserCtxt $, xmlError $_) {
+            constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
+                  "HTML parser", "memory", "output", "I/O", "ftp",
+                  "http", "XInclude", "XPath", "xpointer", "regexp",
+                  "Schemas datatype", "Schemas parser", "Schemas validity",
+                  "Relax-NG parser", "Relax-NG validity",
+                  "Catalog", "C14N", "XSLT", "validity", "error-checking",
+                  "xmlwriter", "dynamic loading", "i18n",
+                  "Schematron validity");
             my Int $level = .level;
             my Str $msg = .message;
+            my @text;
+            @text.push: $_ with @ErrorDomains[.domain];
+            if $level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
+                @text.push: 'error'
+            }
+            elsif $level == XML_ERR_WARNING {
+                @text.push: 'warning';
+            }
+            $msg = (@text.join(' '),':',$msg).join(' ')
+                if @text;
+
             if .line && .file && !.file.ends-with('/') {
-                $msg = (.file, .line, $msg).join: ':';
+                $msg = (.file, .line, ' ' ~ $msg).join: ':';
             }
             @!errors.push: %( :$level, :$msg);
         }
