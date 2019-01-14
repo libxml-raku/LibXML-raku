@@ -24,7 +24,6 @@ method uri is rw {
 }
 
 method Str(Bool() :$format = False) is default {
-    my Pointer[uint8] $p .= new;
     my int32 $len;
     my Bool $copied;
 
@@ -44,6 +43,7 @@ method Str(Bool() :$format = False) is default {
             $copied = True;
         }
 
+        my Pointer $p .= new;
         $doc.DumpFormatMemoryEnc($p, $len, 'UTF-8', +$format);
 
         $doc.Free if $copied;

@@ -1,0 +1,10 @@
+language: perl6
+sudo: false
+os:
+  - linux
+perl6:
+  - latest
+  - '2018.04'
+install:
+  - rakudobrew build zef
+  - zef --depsonly install .
