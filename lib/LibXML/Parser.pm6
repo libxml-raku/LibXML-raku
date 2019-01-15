@@ -102,6 +102,7 @@ class LibXML::Parser {
         else {
             $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers;
         }
+        $.finish-push;
     }
     method finish-push(
         Str :$uri = $!base-uri,

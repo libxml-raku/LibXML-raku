@@ -10,8 +10,6 @@ use LibXML;
 use LibXML::Config;
 use LibXML::Native;
 constant config = LibXML::Config;
-##use LibXML::SAX;
-##use LibXML::SAX::Builder;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
 
