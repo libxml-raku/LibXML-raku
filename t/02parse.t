@@ -371,53 +371,43 @@ my $badXInclude = q{
         isa-ok($doc, 'LibXML::Document');
     }
 
-}
-=begin POD
-
     {
         # 2.2 PARSING BROKEN DOCUMENTS
         my $doc;
-        foreach keys %bad_strings -> $key {
-            $doc = undef;
-	    my $bad_chunk;
-            foreach @(%bad_strings{$key}) {
-               eval { $parser->parse_chunk( $_ );};
-               if ( $@ ) {
-                   # if we won't stop here, we will lose the error :|
-		   $bad_chunk = $_;
-                   last;
-               }
-            }
-            if ( $@ ) {
-	        isnt($@, '', "Error found parsing chunk $bad_chunk");
-#                $parser->parse_chunk("",1); # will cause no harm anymore, but is still needed
-                next;
+        for %bad_strings.keys -> $key {
+            $doc = Nil;
+	    my $bad-chunk;
+            my $err;
+            for @(%bad_strings{$key}) -> $chunk {
+                try {
+                    $parser.parse-chunk( $chunk );
+                    CATCH { default { $err = .message; $bad-chunk = $chunk; } };
+                }
+                last if $bad-chunk;
             }
 
-            eval {
-                $doc = $parser->parse_chunk("",1);
-            };
-            isnt($@, '', "Got an error parsing empty chunk after chunks for $key");
+            dies-ok { $doc = $parser.parse-chunk('', :terminate)}, "Got an error parsing empty chunk after chunks for $key";
         }
 
     }
 
     {
         # 2.3 RECOVERING PUSH PARSER
-        $parser->init_push;
+        $parser.init-push;
 
-        foreach ( "<A>", "B" ) {
-            $parser->push( $_);
+        for "<A>", "B" {
+            $parser.push($_);
         }
 
         my $doc;
-        eval {
-	       local $SIG{'__WARN__'} = sub { };
-	       $doc = $parser->finish_push(1);
-	     };
-        isa_ok( $doc, 'LibXML::Document' );
+        quietly {
+            $doc = $parser.finish-push(:recover);
+        };
+        isa-ok( $doc, 'LibXML::Document' );
     }
 }
+
+=begin POD
 
 # 3 SAX PARSER
 

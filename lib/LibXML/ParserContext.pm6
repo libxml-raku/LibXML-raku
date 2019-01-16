@@ -18,7 +18,7 @@ class LibXML::ParserContext {
     has parserCtxt $.ctx;
     has @!errors;
 
-    submethod TWEAK(:$flags!, :$line-numbers!) {
+    submethod TWEAK(:$flags!, :$line-numbers!, Bool :$recover) {
         die "unable to initialize parser"
             without $!ctx;
 
@@ -27,6 +27,7 @@ class LibXML::ParserContext {
                 $flags -= $_ if $flags +& $_
             }
         }
+        $flags +|= XML_PARSE_RECOVER if $recover;
 
         $!ctx.UseOptions($flags);     # Note: sets ctxt.linenumbers = 1
         $!ctx.linenumbers = +$line-numbers;
@@ -66,16 +67,16 @@ class LibXML::ParserContext {
         $!ctx;
     }
 
-    method flush-errors {
+    method flush-errors(Bool :$recover = False) {
         if @!errors {
             my Str $text = @!errors.map(*<msg>).join;
             my $fatal = @!errors.first: { .<level> >= XML_ERR_FATAL };
             my X::LibXML::Parser $err .= new: :$text;
-            if $fatal {
-                die $err;
+            if !$fatal || $recover {
+                warn $err;
             }
             else {
-                warn $err;
+                die $err;
             }
         }
         @!errors = ();

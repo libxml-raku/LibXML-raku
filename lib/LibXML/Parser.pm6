@@ -8,6 +8,7 @@ class LibXML::Parser {
     has parserCtxt $!parser-ctx;
     has Bool $.html;
     has Bool $.line-numbers = False;
+    has Bool $.recover;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.base-uri is rw;
 
@@ -34,24 +35,24 @@ class LibXML::Parser {
     );
 
     method !context(parserCtxt :$ctx!) {
-        LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers;
+        LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
 
-    method !finish(LibXML::Document $doc, :$uri, LibXML::ParserContext :$ch!) {
-        $ch.flush-errors;
+    method !finish(LibXML::Document $doc, :$uri, LibXML::ParserContext :$pc!) {
+        $pc.flush-errors: :$!recover;
         $doc.uri = $_ with $uri;
         self.process-xincludes($doc)
             if $.expand-xinclude;
         $doc;
     }
 
-    method process-xincludes(LibXML::Document $doc) {
+    method process-xincludes(LibXML::Document $doc, Bool :$recover = $!recover) {
         my xmlDoc $xml-doc = $doc.doc;
         my xmlXIncludeCtxt $ctx .= new( :doc($xml-doc) );
-        my LibXML::ParserContext $ch = self!context: :$ctx;
+        my LibXML::ParserContext $pc = self!context: :$ctx;
         my xmlNode $root = $xml-doc.GetRootElement;
         my $n = $ctx.ProcessNode($root);
-        $ch.flush-errors;
+        $pc.flush-errors: :$!recover;
         $ctx.Free;
         $n;
     }
@@ -64,14 +65,14 @@ class LibXML::Parser {
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
 
-        my LibXML::ParserContext $ch = self!context: :$ctx;
+        my LibXML::ParserContext $pc = self!context: :$ctx;
 
         with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $doc {
-            self!finish: LibXML::Document.new( :$ctx, :$doc), :$ch;
+            self!finish: LibXML::Document.new( :$ctx, :$doc), :$pc;
         }
         else {
-##            $ctx.Free; # hangs!?
-            $ch.flush-errors(:die);
+            $ctx.Free; # hangs!?
+            $pc.flush-errors: :$!recover;
         }
     }
 
@@ -82,34 +83,39 @@ class LibXML::Parser {
            ?? htmlFileParserCtxt.new(:$file)
            !! xmlFileParserCtxt.new(:$file);
 
-        my LibXML::ParserContext $ch = self!context: :$ctx;
+        my LibXML::ParserContext $pc = self!context: :$ctx;
 
         if $ctx.ParseDocument == 0 {
-            self!finish: LibXML::Document.new(:$ctx, :$uri), :$ch;
+            self!finish: LibXML::Document.new(:$ctx, :$uri), :$pc;
         }
         else {
             $ctx.Free;
-            $ch.flush-errors;
+            $pc.flush-errors: :$!recover;
         }
     }
 
     has LibXML::PushParser $!push-parser;
-    method parse-chunk($chunk, :$terminate) {
+    method init-push { $!push-parser = Nil }
+    method push($chunk) {
         with $!push-parser {
             .push($chunk)
         }
         else {
             $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers;
         }
+    }
+    method parse-chunk($chunk?, :$terminate) {
+        $.push($_) with $chunk;
         $.finish-push
             if $terminate;
     }
     method finish-push(
         Str :$uri = $!base-uri,
+        Bool :$recover = $!recover,
     )
     {
         with $!push-parser {
-            my $doc := .finish-push(:$uri);
+            my $doc := .finish-push(:$uri, :$recover);
             $_ = Nil;
             $doc;
         }
