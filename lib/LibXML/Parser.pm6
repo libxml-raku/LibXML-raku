@@ -94,22 +94,24 @@ class LibXML::Parser {
     }
 
     has LibXML::PushParser $!push-parser;
-    has @!push-errors;
-    method parse-chunk($chunk) {
+    method parse-chunk($chunk, :$terminate) {
         with $!push-parser {
             .push($chunk)
         }
         else {
             $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers;
         }
-        $.finish-push;
+        $.finish-push
+            if $terminate;
     }
     method finish-push(
         Str :$uri = $!base-uri,
     )
     {
         with $!push-parser {
-            .finish-push(:$uri);
+            my $doc := .finish-push(:$uri);
+            $_ = Nil;
+            $doc;
         }
         else {
             die "no active push parser";

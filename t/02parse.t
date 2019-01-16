@@ -318,10 +318,10 @@ my $badXInclude = q{
 
     # some bad stuff
     throws-like { $parser.process-xincludes(Str); },
-    X::Multi::NoMatch, "Error parsing undef include";
+    X::TypeCheck::Binding::Parameter, "Error parsing undef include";
 
     throws-like { $parser.process-xincludes("blahblah"); },
-    X::Multi::NoMatch, "Error parsing bogus include";
+    X::TypeCheck::Binding::Parameter, "Error parsing bogus include";
 }
 
 
@@ -337,19 +337,16 @@ my $badXInclude = q{
                          comment4 comment5 attr1 attr2 attr3
 			 ns1 ns2 ns3 ns4 ns5 ns6 dtd1 dtd2> -> $key {
         for %goodPushWF{$key}.list {
-            warn "chunk: $_";
             $pparser.parse-chunk( $_ );
         }
-    }
-
-}
-=begin POD
 
         my $doc;
-        eval {$doc = $pparser->parse_chunk("",1); };
-	is($@, '', "No error parsing $key");
-	isa_ok($doc, 'LibXML::Document', "Document came back parsing chunk: ");
+        lives-ok {$doc = $pparser.parse-chunk("", :terminate); }, "No error parsing $key";
+	isa-ok($doc, 'LibXML::Document', "Document came back parsing chunk: ");
     }
+}
+
+{
 
     my @good_strings = ("<foo>", "bar", "</foo>" );
     my %bad_strings  = (
@@ -365,22 +362,25 @@ my $badXInclude = q{
                             badending2   => ["<A> ","</C>","</A>"],
                        );
 
-    my $parser = LibXML->new;
+    my LibXML $parser .= new;
     {
         for ( @good_strings ) {
-            $parser->parse_chunk( $_ );
+            $parser.parse-chunk( $_ );
         }
-        my $doc = $parser->parse_chunk("",1);
-        isa_ok($doc, 'LibXML::Document');
+        my $doc = $parser.parse-chunk("",:terminate);
+        isa-ok($doc, 'LibXML::Document');
     }
+
+}
+=begin POD
 
     {
         # 2.2 PARSING BROKEN DOCUMENTS
         my $doc;
-        foreach my $key ( keys %bad_strings ) {
+        foreach keys %bad_strings -> $key {
             $doc = undef;
 	    my $bad_chunk;
-            foreach ( @{$bad_strings{$key}} ) {
+            foreach @(%bad_strings{$key}) {
                eval { $parser->parse_chunk( $_ );};
                if ( $@ ) {
                    # if we won't stop here, we will lose the error :|
@@ -614,7 +614,7 @@ my $badXInclude = q{
     }
 
     {
-        # 5.1.1 Segmenation fault tests
+        # 5.1.1 Segmentation fault tests
 
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';
@@ -631,7 +631,7 @@ my $badXInclude = q{
     }
 
     {
-        # 5.1.2 Segmenation fault tests
+        # 5.1.2 Segmentation fault tests
 
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';
@@ -648,7 +648,7 @@ my $badXInclude = q{
     }
 
     {
-        # 5.1.3 Segmenation fault tests
+        # 5.1.3 Segmentation fault tests
 
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';

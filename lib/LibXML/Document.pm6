@@ -52,13 +52,13 @@ method Str(Bool() :$format = False) is default {
 
 }
 
-sub addr($v) { +nativecast(Pointer, $v) }
+sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 
 submethod DESTROY {
-    with $!ctx {
+    with $!ctx -> $ctx {
         $!doc.Free
-	    unless addr($!doc) == addr(.myDoc);
-	.Free;
+	    unless addr($!doc) ~~ addr($!ctx.myDoc);
+	$ctx.Free;
     }
     $!doc = Nil;
     $!ctx = Nil;

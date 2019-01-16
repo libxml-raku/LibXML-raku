@@ -22,12 +22,11 @@ class LibXML::PushParser {
     }
 
     method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$terminate = False) {
-        given  $!ctx.ParseChunk($chunk, $size, +$terminate) {
-	    warn :$!err.perl if $!err;
-	    die "XML not well-formed in xmlParseChunk" unless $!ctx.wellFormed;
-            $!err ||= $_;
-            $_;
-	    
+        with $!ctx {
+            .ParseChunk($chunk, $size, +$terminate);
+        }
+        else {
+            die "parser has been finished";
         }
     }
 
@@ -42,7 +41,10 @@ class LibXML::PushParser {
     method finish-push(Str :$uri) {
         self!parse-chunk: :terminate;
 	$!ch.flush-errors;
-        LibXML::Document.new( :$!ctx, :$uri);
+	die "XML not well-formed in xmlParseChunk" unless $!ctx.wellFormed;
+        my $doc := LibXML::Document.new( :$!ctx, :$uri);
+        $!ctx = Nil;
+        $doc;
     }
 }
 
