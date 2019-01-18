@@ -35,6 +35,26 @@ class xmlSAXHandler is repr('CStruct') is export {
             self."{.key}"() = .value;
         }
     }
+
+    my role Sax-CB-Att[&setter] {
+        #| override standard Attribute method for generating accessors
+        method compose(Mu $package) {
+            my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
+            my &accessor = sub (\obj) is rw {
+                Proxy.new(
+                    FETCH => sub ($) { self.get_value(obj) },
+                    STORE => sub ($, &cb) {
+                        setter(obj,&cb);
+                    });
+            }
+            $package.^add_method( $name, &accessor );
+        }
+ 
+    }
+    my Attribute @callbacks;
+    multi trait_mod:<is>(Attribute $att, :&sax-cb!) {
+        $att does Sax-CB-Att[&sax-cb]
+    }
     has Pointer               $.internalSubset;
     has Pointer               $.isStandalone;
     has Pointer               $.hasInternalSubset;
@@ -50,17 +70,13 @@ class xmlSAXHandler is repr('CStruct') is export {
     has Pointer               $.startDocument;
     has Pointer               $.endDocument;
 
-    has Pointer               $!startElement;
-    method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(WRAPPER-LIB) {*}
-    method startElement is rw {
-        Proxy.new(
-            FETCH => sub ($) { $!startElement },
-            STORE => sub ($, &cb) {
-                self.xml6_sax_set_startElement(&cb);
-            });
-    }
-
-    has Pointer               $.endElement;
+    has Pointer               $!startElement is sax-cb(
+        method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(WRAPPER-LIB) {*}
+    );
+    
+    has Pointer               $!endElement is sax-cb(
+        method xml6_sax_set_endElement( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
+    );
     has Pointer               $.reference;
     has Pointer               $.characters;
     has Pointer               $.ignorableWhitespace;
