@@ -1,0 +1,25 @@
+SRC=src
+
+all : lib doc
+
+lib : resources/libraries/%LIB-NAME%
+
+resources/libraries/%LIB-NAME% : $(SRC)/xml6_sax%O%
+	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% $(SRC)/xml6_sax%O% %LIB-LDFLAGS%
+
+$(SRC)/xml6_sax%O% : $(SRC)/xml6_sax.c $(SRC)/xml6_sax.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_sax%O% $(SRC)/xml6_sax.c %LIB-CFLAGS%
+
+test : all
+	@prove -e"perl6 -I ." -v t
+
+clean :
+	@rm -f $(SRC)/xml6_*%O% resources/libraries/*%LIB-NAME%
+
+realclean : clean
+	@rm -f Makefile
+
+doc :
+	echo doc stub
+
+

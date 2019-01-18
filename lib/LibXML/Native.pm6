@@ -5,14 +5,16 @@ unit class LibXML::Native;
 use NativeCall;
 
 constant LIB = 'xml2';
+constant WRAPPER-LIB =  %?RESOURCES<libraries/xml6>;
 constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 
 # type defs
 constant xmlCharP = Str;
 
 # forward declarations
-class xmlDoc  is repr('CStruct') is export {...}
-class xmlNode is repr('CStruct') is export {...}
+class xmlDoc     is repr('CStruct') is export {...}
+class xmlNode    is repr('CStruct') is export {...}
+class parserCtxt is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
 constant Stub = 'CPointer';
@@ -27,7 +29,58 @@ class xmlParserNodeInfo is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
-class xmlSAXHandler is repr(Stub) is export {}
+class xmlSAXHandler is repr('CStruct') is export {
+    submethod TWEAK(*%callbacks) {
+        for %callbacks.pairs.sort {
+            self."{.key}"() = .value;
+        }
+    }
+    has Pointer               $.internalSubset;
+    has Pointer               $.isStandalone;
+    has Pointer               $.hasInternalSubset;
+    has Pointer               $.hasExternalSubset;
+    has Pointer               $.resolveEntity;
+    has Pointer               $.getEntity;
+    has Pointer               $.entityDecl;
+    has Pointer               $.notationDecl;
+    has Pointer               $.attributeDecl;
+    has Pointer               $.elementDecl;
+    has Pointer               $.unparsedEntityDecl;
+    has Pointer               $.setDocumentLocator;
+    has Pointer               $.startDocument;
+    has Pointer               $.endDocument;
+
+    has Pointer               $!startElement;
+    method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(WRAPPER-LIB) {*}
+    method startElement is rw {
+        Proxy.new(
+            FETCH => sub ($) { $!startElement },
+            STORE => sub ($, &cb) {
+                self.xml6_sax_set_startElement(&cb);
+            });
+    }
+
+    has Pointer               $.endElement;
+    has Pointer               $.reference;
+    has Pointer               $.characters;
+    has Pointer               $.ignorableWhitespace;
+    has Pointer               $.processingInstruction;
+    has Pointer               $.comment;
+    has Pointer               $.warning;
+    has Pointer               $.error;
+    has Pointer               $.fatalError;
+    has Pointer               $.getParameterEntity;
+    has Pointer               $.cdataBlock;
+    has Pointer               $.externalSubset;
+    has uint32                $.initialized;
+    has Pointer               $._private;
+    has Pointer               $.startElementNs;
+    has Pointer               $.endElementNs;
+    has Pointer               $.serror;
+
+    method ParseDoc(Str, int32) is native(LIB) is symbol('xmlSAXParseDoc') returns xmlDoc {*};
+}
+
 class xmlBuffer is repr(Stub) is export {
     method Create is native(LIB) is symbol('xmlBufferCreate') returns xmlBuffer {*}
     method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format) is native(LIB) returns int32 is export { * }
@@ -173,7 +226,7 @@ class xmlError is repr('CStruct') is export {
     has Pointer                $.node;      # the node in the tree
 }
 
-class parserCtxt is repr('CStruct') is export {
+class parserCtxt is export {
     has xmlSAXHandler          $.sax;          # The SAX handler
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
     has xmlDoc                 $.myDoc;        # the document being built

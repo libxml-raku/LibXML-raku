@@ -71,7 +71,7 @@ class LibXML::Parser {
             self!finish: LibXML::Document.new( :$ctx, :$doc), :$pc;
         }
         else {
-            $ctx.Free; # hangs!?
+            $ctx.Free;
             $pc.flush-errors: :$!recover;
         }
     }

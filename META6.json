@@ -23,12 +23,11 @@
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6"
   },
   "resources" : [
+    "libraries/xml6"
   ],
   "source-url" : "git://github.com/p6-pdf/LibXML-p6.git",
   "tags" : [
-    "xml",
-      "html",
-      "xpath"
+    "xml", "html", "xpath"
   ],
   "test-depends" : [ ],
   "version" : "0.0.1"
