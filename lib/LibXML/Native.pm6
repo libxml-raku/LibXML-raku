@@ -13,6 +13,7 @@ constant xmlCharP = Str;
 
 # forward declarations
 class xmlDoc     is repr('CStruct') is export {...}
+class xmlError   is repr('CStruct') is export {...}
 class xmlNode    is repr('CStruct') is export {...}
 class parserCtxt is repr('CStruct') is export {...}
 
@@ -49,50 +50,109 @@ class xmlSAXHandler is repr('CStruct') is export {
             }
             $package.^add_method( $name, &accessor );
         }
- 
     }
-    my Attribute @callbacks;
+
     multi trait_mod:<is>(Attribute $att, :&sax-cb!) {
         $att does Sax-CB-Att[&sax-cb]
     }
-    has Pointer               $.internalSubset;
-    has Pointer               $.isStandalone;
-    has Pointer               $.hasInternalSubset;
-    has Pointer               $.hasExternalSubset;
-    has Pointer               $.resolveEntity;
-    has Pointer               $.getEntity;
-    has Pointer               $.entityDecl;
-    has Pointer               $.notationDecl;
-    has Pointer               $.attributeDecl;
-    has Pointer               $.elementDecl;
-    has Pointer               $.unparsedEntityDecl;
-    has Pointer               $.setDocumentLocator;
-    has Pointer               $.startDocument;
-    has Pointer               $.endDocument;
 
-    has Pointer               $!startElement is sax-cb(
+    has Pointer   $.internalSubset is sax-cb(
+        method xml6_sax_set_internalSubset(&cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.isStandalone is sax-cb(
+        method xml6_sax_set_isStandalone( &cb (parserCtxt $ctx) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.hasInternalSubset is sax-cb(
+        method xml6_sax_set_hasInternalSubset( &cb (parserCtxt $ctx) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.hasExternalSubset is sax-cb(
+        method xml6_sax_set_hasExternalSubset( &cb (parserCtxt $ctx) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.resolveEntity is sax-cb(
+        method xml6_sax_set_resolveEntity( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.getEntity is sax-cb(
+        method xml6_sax_set_getEntity( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.entityDecl is sax-cb(
+        method xml6_sax_set_entityDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.notationDecl is sax-cb(
+        method xml6_sax_set_notationDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.attributeDecl is sax-cb(
+        # todo xmlEnumeration $tree
+        method xml6_sax_set_attributeDecl( &cb (parserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, Pointer $tree) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.elementDecl is sax-cb(
+        # todo xmlElementContent $content
+        method xml6_sax_set_elementDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, Pointer $content) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.unparsedEntityDecl is sax-cb(
+        method xml6_sax_set_unparsedEntityDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.setDocumentLocator is sax-cb(
+        # todo xmlSAXLocator $loc
+        method xml6_sax_set_setDocumentLocator( &cb (parserCtxt $ctx, Pointer $loc) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.startDocument is sax-cb(
+        method xml6_sax_set_startDocument( &cb (parserCtxt $ctx) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.endDocument is sax-cb(
+        method xml6_sax_set_endDocument( &cb (parserCtxt $ctx) ) is native(WRAPPER-LIB) {*}
+    );
+
+    has Pointer   $!startElement is sax-cb(
         method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(WRAPPER-LIB) {*}
     );
     
-    has Pointer               $!endElement is sax-cb(
+    has Pointer   $!endElement is sax-cb(
         method xml6_sax_set_endElement( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
     );
-    has Pointer               $.reference;
-    has Pointer               $.characters;
-    has Pointer               $.ignorableWhitespace;
-    has Pointer               $.processingInstruction;
-    has Pointer               $.comment;
-    has Pointer               $.warning;
-    has Pointer               $.error;
-    has Pointer               $.fatalError;
-    has Pointer               $.getParameterEntity;
-    has Pointer               $.cdataBlock;
-    has Pointer               $.externalSubset;
-    has uint32                $.initialized;
-    has Pointer               $._private;
-    has Pointer               $.startElementNs;
-    has Pointer               $.endElementNs;
-    has Pointer               $.serror;
+    has Pointer   $.reference is sax-cb(
+        method xml6_sax_set_reference( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.characters is sax-cb(
+        method xml6_sax_set_characters( &cb (parserCtxt $ctx, Str $name, int32 $len) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.ignorableWhitespace is sax-cb(
+        method xml6_sax_set_ignorableWhitespace( &cb (parserCtxt $ctx, Str $name, int32 $len) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.processingInstruction is sax-cb(
+        method xml6_sax_processingInstruction( &cb (parserCtxt $ctx, Str $target, Str $data) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.comment is sax-cb(
+        method xml6_sax_set_comment( &cb (parserCtxt $ctx, Str $value) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.warning is sax-cb(
+        method xml6_sax_set_warning( &cb (parserCtxt $ctx, Str $msg) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.error is sax-cb(
+        method xml6_sax_set_error( &cb (parserCtxt $ctx, Str $msg) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.fatalError is sax-cb(
+        method xml6_sax_set_fatalError( &cb (parserCtxt $ctx, Str $msg) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.getParameterEntity is sax-cb(
+        method xml6_sax_set_getParameterEntity( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.cdataBlock is sax-cb(
+        method xml6_sax_set_cdataBlock( &cb (parserCtxt $ctx, Str $name, int32 $len) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.externalSubset is sax-cb(
+        method xml6_sax_set_externalSubset( &cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
+    );
+    has uint32    $.initialized;
+    has Pointer   $._private;
+    has Pointer   $.startElementNs is sax-cb(
+        method xml6_sax_set_startElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $nb-namespaces, CArray[Str] $namespaces, int32 $nb-attributes, int32 $nb-defaulted, CArray[Str] $attributes) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.endElementNs is sax-cb(
+        method xml6_sax_set_endElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) ) is native(WRAPPER-LIB) {*}
+    );
+    has Pointer   $.serror is sax-cb(
+        method xml6_sax_set_serror( &cb (parserCtxt $ctx, xmlError $serror) ) is native(WRAPPER-LIB) {*}
+    );
 
     method ParseDoc(Str, int32) is native(LIB) is symbol('xmlSAXParseDoc') returns xmlDoc {*};
 }
@@ -226,7 +286,7 @@ class xmlValidCtxt is repr('CStruct') is export {
     has xmlAutomataState       $.state;     # used to build the automata
 }
 
-class xmlError is repr('CStruct') is export {
+class xmlError is export {
     has int32                  $.domain;    # What part of the library raised this error
     has int32                  $.code;      # The error code, e.g. an xmlParserError
     has Str                    $.message;   # human-readable informative error message
