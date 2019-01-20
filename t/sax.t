@@ -2,7 +2,7 @@ use v6;
 use Test;
 # minimal low-level bootstrapping tests for the sax parser
 
-plan 8;
+plan 11;
 use NativeCall;
 use LibXML;
 use LibXML::Config;
@@ -11,7 +11,7 @@ constant config = LibXML::Config;
 
 my @start-tags;
 my @end-tags;
-my %atts;
+my %atts-seen;
 
 sub startElement(parserCtxt $ctx, Str $name, CArray[Str] $atts) {
     @start-tags.push: $name;
@@ -19,7 +19,7 @@ sub startElement(parserCtxt $ctx, Str $name, CArray[Str] $atts) {
     loop {
         my $key = $atts[$i++] // last;
         my $val = $atts[$i++] // last;
-        %atts{$key} = $val;
+        %atts-seen{$key} = $val;
     }
     
 }
@@ -44,5 +44,28 @@ $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
-is-deeply %atts, %( :working<yup> ), 'atts';
+is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
+use LibXML::SAX;
+class SaxHandler is LibXML::SAX {
+    method startElement($name, :%atts) {
+        %atts-seen ,= %atts;
+        @start-tags.push: $name; 
+    }
+    method endElement($name) {
+        @end-tags.push: $name; 
+    }
+}
+
+@start-tags = ();
+@end-tags = ();
+%atts-seen = ();
+my SaxHandler $sh .= new;
+my xmlSAXHandler $sax = $sh.sax;
+
+$ctx .= new: :$sax, :$chunk;
+$ctx.ParseChunk(Blob.new, 0, 1); #terminate
+
+is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
+is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
+is-deeply %atts-seen, %( :working<yup> ), 'atts';

@@ -20,7 +20,8 @@
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
     "LibXML::Native" : "lib/LibXML/Native.pm6",
     "LibXML::Parser" : "lib/LibXML/Parser.pm6",
-    "LibXML::PushParser" : "lib/LibXML/PushParser.pm6"
+      "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
+    "LibXML::SAX" : "lib/LibXML/SAX.pm6"
   },
   "resources" : [
     "libraries/xml6"
