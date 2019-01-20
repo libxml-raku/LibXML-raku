@@ -46,8 +46,8 @@ is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
-use LibXML::SAX;
-class SaxHandler is LibXML::SAX {
+use LibXML::SAX::Handler;
+class SaxHandler is LibXML::SAX::Handler {
     method startElement($name, :%atts) {
         %atts-seen ,= %atts;
         @start-tags.push: $name; 

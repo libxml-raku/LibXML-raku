@@ -9,6 +9,8 @@ plan 533;
 use LibXML;
 use LibXML::Config;
 use LibXML::Native;
+use LibXML::SAX;
+use LibXML::SAX::Handler;
 constant config = LibXML::Config;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
@@ -407,15 +409,16 @@ my $badXInclude = q{
     }
 }
 
-=begin POD
-
 # 3 SAX PARSER
 
 {
-    my $handler = LibXML::SAX::Builder->new();
-    my $generator = LibXML::SAX->new( Handler=>$handler );
+    my LibXML::SAX::Handler $handler .= new;
+    my LibXML::SAX $generator .= new: :$handler;
 
     my $string  = q{<bar foo="bar">foo</bar>};
+
+}
+=begin POD
 
     $doc = $generator->parse_string( $string );
     isa_ok( $doc , 'LibXML::Document');
