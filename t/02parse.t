@@ -7,11 +7,10 @@ use Test;
 
 plan 533;
 use LibXML;
-use LibXML::Config;
 use LibXML::Native;
 use LibXML::SAX;
 use LibXML::SAX::Builder;
-constant config = LibXML::Config;
+my \config = LibXML.config;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
 

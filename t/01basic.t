@@ -5,9 +5,10 @@ use LibXML::Config;
 
 constant config = LibXML::Config;
 
-plan 6;
+plan 8;
 
 my LibXML $p .= new();
+
 
 ok $p, 'Can initialize a new LibXML instance';
 
@@ -21,3 +22,18 @@ for True, False -> $kb {
     lives-ok { config.keep-blanks-default = $kb }, 'set keep-blanks-default';
     is-deeply config.keep-blanks-default, $kb, 'get keep-blanks-default';
 }
+
+
+my Str $string = '<html><body><h1>Test</h1></body></html>';
+my $doc = $p.parse: :$string;
+
+config.skip-xml-declaration = True;
+
+is $doc.Str, $string, '$doc.Str';
+is-deeply $doc.Str(:format).lines, (
+    '<html>',
+    '  <body>',
+    '    <h1>Test</h1>',
+    '  </body>',
+    '</html>'
+), '$doc.Str(:format)';

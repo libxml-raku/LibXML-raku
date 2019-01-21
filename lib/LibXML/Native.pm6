@@ -208,6 +208,7 @@ class xmlNode is _NodeCommon is export {
     has uint16                $.extra;       # extra data for XPath/XSLT
 
     method Str(Bool() :$format = False) {
+        nextsame without self;
         my xmlBuffer $buf .= Create;
         $buf.xmlNodeDump($.doc, self, 0, +$format);
         my str $content = $buf.Content;
@@ -241,15 +242,16 @@ class xmlDoc is _NodeCommon is export {
     has int32                 $.properties;  # set of xmlDocProperties for this document
                                              # set at the end of parsing
 
-    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
+    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
-    method copy(Bool :$recursive = True) { $.xmlCopyDoc($recursive) }
+    method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
-    method Str {
+    method Str(Bool() :$format = False) {
+        nextsame without self;
         my Pointer[uint8] $p .= new;
-        $.DumpMemoryEnc($p, my uint32 $, 'UTF-8');
+        $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
         nativecast(str, $p);
     }
 }

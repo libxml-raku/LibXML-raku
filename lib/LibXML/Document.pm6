@@ -29,7 +29,7 @@ method Str(Bool() :$format = False) is default {
 
     if config.skip-xml-declaration {
         my \skip-dtd = config.skip-dtd;
-        $!doc.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str).join;
+        $!doc.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
     }
     else {
         my xmlDoc $doc = $!doc;
@@ -43,11 +43,9 @@ method Str(Bool() :$format = False) is default {
             $copied = True;
         }
 
-        my Pointer $p .= new;
-        $doc.DumpFormatMemoryEnc($p, $len, 'UTF-8', +$format);
-
+        my $str := $doc.Str(:$format);
         $doc.Free if $copied;
-        nativecast(str, $p);
+        $str;
     }
 
 }

@@ -5,15 +5,14 @@ use Test;
 plan 11;
 use NativeCall;
 use LibXML;
-use LibXML::Config;
 use LibXML::Native;
-constant config = LibXML::Config;
+my \config = LibXML.config;
 
 my @start-tags;
 my @end-tags;
 my %atts-seen;
 
-# RAW Native SAX Handler
+# 1. RAW Native SAX Handler
 
 sub startElement(parserCtxt $ctx, Str $name, CArray[Str] $atts) {
     @start-tags.push: $name;
@@ -48,7 +47,7 @@ is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
-# LibXML::SAX::Builder
+# 2. Low level LibXML::SAX::Builder
 
 use LibXML::SAX::Builder;
 class SaxBuilder is LibXML::SAX::Builder {
@@ -64,7 +63,7 @@ class SaxBuilder is LibXML::SAX::Builder {
 @start-tags = ();
 @end-tags = ();
 %atts-seen = ();
-my xmlSAXHandler $sax =  SaxBuilder.new.sax;
+my xmlSAXHandler $sax = SaxBuilder.new.sax;
 
 $ctx .= new: :$sax, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -72,3 +71,4 @@ $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
+
