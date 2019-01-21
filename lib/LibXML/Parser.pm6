@@ -11,6 +11,7 @@ class LibXML::Parser {
     has Bool $.recover;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.base-uri is rw;
+    has xmlSAXHandler $.sax;
 
     constant %FLAGS = %(
         :recover(XML_PARSE_RECOVER),
@@ -165,7 +166,7 @@ class LibXML::Parser {
             });
     }
 
-    submethod TWEAK(:html($), :line-numbers($), :flags($), :uri($), *%flags) {
+    submethod TWEAK(:html($), :line-numbers($), :flags($), :uri($), :sax($), *%flags) {
         for %flags.pairs.sort -> $f {
             with %FLAGS{$f.key} {
                 self!flag-accessor($_) = $f.value;

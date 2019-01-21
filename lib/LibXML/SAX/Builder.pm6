@@ -1,4 +1,4 @@
-class LibXML::SAX::Handler {
+class LibXML::SAX::Builder {
     use LibXML::Native;
     use NativeCall;
     has xmlSAXHandler $.sax .= new;

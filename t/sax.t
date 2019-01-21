@@ -13,6 +13,8 @@ my @start-tags;
 my @end-tags;
 my %atts-seen;
 
+# RAW Native SAX Handler
+
 sub startElement(parserCtxt $ctx, Str $name, CArray[Str] $atts) {
     @start-tags.push: $name;
     my $i = 0;
@@ -46,8 +48,10 @@ is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
-use LibXML::SAX::Handler;
-class SaxHandler is LibXML::SAX::Handler {
+# LibXML::SAX::Builder
+
+use LibXML::SAX::Builder;
+class SaxBuilder is LibXML::SAX::Builder {
     method startElement($name, :%atts) {
         %atts-seen ,= %atts;
         @start-tags.push: $name; 
@@ -60,8 +64,7 @@ class SaxHandler is LibXML::SAX::Handler {
 @start-tags = ();
 @end-tags = ();
 %atts-seen = ();
-my SaxHandler $sh .= new;
-my xmlSAXHandler $sax = $sh.sax;
+my xmlSAXHandler $sax =  SaxBuilder.new.sax;
 
 $ctx .= new: :$sax, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate

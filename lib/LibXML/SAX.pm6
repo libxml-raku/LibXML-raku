@@ -1,4 +1,7 @@
-class LibXML::SAX {
-    use LibXML::SAX::Handler;
-    has LibXML::SAX::Handler $.handler;
+use LibXML::Parser;
+
+class LibXML::SAX
+    is LibXML::Parser {
+    use LibXML::SAX::Builder;
+    has LibXML::SAX::Builder $.handler;
 }
