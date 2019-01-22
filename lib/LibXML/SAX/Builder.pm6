@@ -1,7 +1,6 @@
 class LibXML::SAX::Builder {
     use LibXML::Native;
     use NativeCall;
-    has xmlSAXHandler $.sax .= new;
 
     sub atts-Hash(CArray[Str] $atts) {
         my %atts;
@@ -30,17 +29,32 @@ class LibXML::SAX::Builder {
                     method($obj, $name, :$ctx);
                 }
             },
+        characters => 
+            -> $obj, &method {
+                -> parserCtxt $ctx, CArray[byte] $chars, int32 $len {
+                    # ensure null termination
+                    sub memcpy(Blob $dest, CArray $chars, size_t $n) is native {*};
+                    my buf8 $char-buf .= new;
+                    $char-buf[$len-1] = 0
+                        if $len > 0;
+                    memcpy($char-buf, $chars, $len);
+                    method($obj, $char-buf.decode, :$ctx);
+                }
+            },
     );
 
-    submethod TWEAK {
+    method build(:$sax = xmlSAXHandler.new) {
+        my LibXML::SAX::Builder $obj = self;
+        $_ .= new without $obj;
         for %Dispatch.pairs.sort {
             my $name := .key;
             with self.can($name) -> $methods {
                 my &dispatch := .value;
-                $!sax."$name"() = dispatch(self, $methods[0])
+                $sax."$name"() = dispatch($obj, $methods[0])
                     if +$methods;
             }
         }
+        $sax;
     }
 
 }

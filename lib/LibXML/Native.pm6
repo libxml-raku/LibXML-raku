@@ -113,7 +113,7 @@ class xmlSAXHandler is repr('CStruct') is export {
         method xml6_sax_set_reference( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
     );
     has Pointer   $.characters is sax-cb(
-        method xml6_sax_set_characters( &cb (parserCtxt $ctx, Str $name, int32 $len) ) is native(WRAPPER-LIB) {*}
+        method xml6_sax_set_characters( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(WRAPPER-LIB) {*}
     );
     has Pointer   $.ignorableWhitespace is sax-cb(
         method xml6_sax_set_ignorableWhitespace( &cb (parserCtxt $ctx, Str $name, int32 $len) ) is native(WRAPPER-LIB) {*}

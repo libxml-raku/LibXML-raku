@@ -9,7 +9,7 @@ plan 533;
 use LibXML;
 use LibXML::Native;
 use LibXML::SAX;
-use LibXML::SAX::Builder;
+use LibXML::SAX::Builder::XML;
 my \config = LibXML.config;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
@@ -411,8 +411,8 @@ my $badXInclude = q{
 # 3 SAX PARSER
 
 {
-    my LibXML::SAX::Builder $builder .= new;
-    my xmlSAXHandler $sax = $builder.sax;
+    my LibXML::SAX::Builder::XML $builder .= new;
+    my xmlSAXHandler $sax = $builder.build;
     my LibXML::SAX $generator .= new: :$sax;
 
     my $string  = q{<bar foo="bar">foo</bar>};
@@ -420,8 +420,8 @@ my $badXInclude = q{
 }
 =begin POD
 
-    $doc = $generator->parse_string( $string );
-    isa_ok( $doc , 'LibXML::Document');
+    $doc = $generator.parse_string( $string );
+    isa_ok( $doc , 'XML::Document');
 
     # 3.1 GENERAL TESTS
     foreach my $str ( @goodWFStrings ) {
