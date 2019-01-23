@@ -23,6 +23,7 @@
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
     "LibXML::SAX" : "lib/LibXML/SAX.pm6",
     "LibXML::SAX::Builder" : "lib/LibXML/SAX/Builder.pm6",
+    "LibXML::SAX::Builder::SAX2" : "lib/LibXML/SAX/Builder/SAX2.pm6",
     "LibXML::SAX::Builder::XML" : "lib/LibXML/SAX/Builder/XML.pm6"
   },
   "resources" : [

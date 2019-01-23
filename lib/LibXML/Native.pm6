@@ -22,6 +22,12 @@ constant Stub = 'CPointer';
 class xmlAttr is repr(Stub) is export {}
 class xmlDict is repr(Stub) is export {}
 class xmlDtd is repr(Stub) is export {}
+class xmlEntity is repr(Stub) is export {
+    sub xmlGetPredefinedEntity(xmlCharP $name) is native(LIB) returns xmlEntity is export { * }
+    method new(Str :$name!) {
+        xmlGetPredefinedEntity($name);
+    }
+}
 class xmlHashTable is repr(Stub) is export {}
 class xmlNs is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {}
@@ -30,12 +36,9 @@ class xmlParserNodeInfo is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
+
+# Defined Structs/Pointers
 class xmlSAXHandler is repr('CStruct') is export {
-    submethod TWEAK(*%callbacks) {
-        for %callbacks.pairs.sort {
-            self."{.key}"() = .value;
-        }
-    }
 
     my role Sax-CB-Att[&setter] {
         #| override standard Attribute method for generating accessors
@@ -72,7 +75,7 @@ class xmlSAXHandler is repr('CStruct') is export {
         method xml6_sax_set_resolveEntity( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
     );
     has Pointer   $.getEntity is sax-cb(
-        method xml6_sax_set_getEntity( &cb (parserCtxt $ctx, Str $name) ) is native(WRAPPER-LIB) {*}
+        method xml6_sax_set_getEntity( &cb (parserCtxt $ctx, Str $name --> xmlEntity) ) is native(WRAPPER-LIB) {*}
     );
     has Pointer   $.entityDecl is sax-cb(
         method xml6_sax_set_entityDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native(WRAPPER-LIB) {*}
@@ -154,7 +157,14 @@ class xmlSAXHandler is repr('CStruct') is export {
         method xml6_sax_set_serror( &cb (parserCtxt $ctx, xmlError $serror) ) is native(WRAPPER-LIB) {*}
     );
 
+    submethod TWEAK(*%callbacks) {
+        for %callbacks.pairs.sort {
+            self."{.key}"() = .value;
+        }
+    }
+
     method ParseDoc(Str, int32) is native(LIB) is symbol('xmlSAXParseDoc') returns xmlDoc {*};
+
 }
 
 class xmlBuffer is repr(Stub) is export {
@@ -428,6 +438,13 @@ class parserCtxt is export {
     method xmlSetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) {*};
     method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
     method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
+
+
+    # SAX2 Handler callbacks
+    method xmlSAX2StartElement(Str $name, CArray $atts) is native(LIB) {*};
+    method xmlSAX2EndElement(Str $name) is native(LIB) {*};
+    method xmlSAX2Characters(Blob $chars, int32 $len) is native(LIB) {*};
+    method xmlSAX2GetEntity(Str $name) is native(LIB) {*};
 }
 
 #| a vanilla XML parser context - can be used to read files or strings

@@ -38,7 +38,7 @@ ok $sax-handler.startElement.defined, 'startElement updated';
 
 $sax-handler .= new: :&startElement, :&endElement;
 ok $sax-handler.startElement.defined, 'startElement initialization';
-my Blob $chunk = '<html><body><h1 working="yup">Test</h1></body></html>'.encode;
+my Blob $chunk = '<html><body><h1 working="yup">Hello World</h1></body></html>'.encode;
 
 my $ctx = xmlPushParserCtxt.new: :sax($sax-handler), :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate

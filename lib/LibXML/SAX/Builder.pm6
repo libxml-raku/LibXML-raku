@@ -16,20 +16,20 @@ class LibXML::SAX::Builder {
     }
 
     my %Dispatch = %(
-        startElement => 
+        startElement =>
             -> $obj, &method {
-                -> parserCtxt $ctx, Str $name, CArray[Str] $atts {
-                    my %atts := atts-Hash($atts);
-                    method($obj, $name, :$ctx, :%atts);
+                -> parserCtxt $ctx, Str $name, CArray[Str] $raw-atts {
+                    my %atts := atts-Hash($raw-atts);
+                    method($obj, $name, :$ctx, :%atts, :$raw-atts);
                 }
             },
-        endElement => 
+        'endElement'|'getEntity' =>
             -> $obj, &method {
                 -> parserCtxt $ctx, Str $name {
                     method($obj, $name, :$ctx);
                 }
             },
-        characters => 
+        characters =>
             -> $obj, &method {
                 -> parserCtxt $ctx, CArray[byte] $chars, int32 $len {
                     # ensure null termination
@@ -46,6 +46,7 @@ class LibXML::SAX::Builder {
     method build(:$sax = xmlSAXHandler.new) {
         my LibXML::SAX::Builder $obj = self;
         $_ .= new without $obj;
+
         for %Dispatch.pairs.sort {
             my $name := .key;
             with self.can($name) -> $methods {
