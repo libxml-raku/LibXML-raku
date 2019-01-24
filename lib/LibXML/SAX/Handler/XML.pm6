@@ -1,10 +1,8 @@
-use LibXML::SAX::Builder;
-use LibXML::SAX::Builder::SAX2;
+use LibXML::SAX::Handler::SAX2;
 
-class LibXML::SAX::Builder::XML
-    is LibXML::SAX::Builder
-    is LibXML::SAX::Builder::SAX2 {
-    use LibXML::Native;
+class LibXML::SAX::Handler::XML
+    is LibXML::SAX::Handler::SAX2 {
+
     use XML::Document;
     use XML::Element;
     use XML::Text;

@@ -43,13 +43,11 @@ class LibXML::SAX::Builder {
             },
     );
 
-    method build(:$sax = xmlSAXHandler.new) {
-        my LibXML::SAX::Builder $obj = self;
-        $_ .= new without $obj;
-
+    method build(Any:D $obj) {
+        my xmlSAXHandler $sax .= new;
         for %Dispatch.pairs.sort {
             my $name := .key;
-            with self.can($name) -> $methods {
+            with $obj.can($name) -> $methods {
                 my &dispatch := .value;
                 $sax."$name"() = dispatch($obj, $methods[0])
                     if +$methods;

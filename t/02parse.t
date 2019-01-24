@@ -8,8 +8,7 @@ use Test;
 plan 533;
 use LibXML;
 use LibXML::Native;
-use LibXML::SAX;
-use LibXML::SAX::Builder::XML;
+use LibXML::SAX::Handler::XML;
 my \config = LibXML.config;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
@@ -411,9 +410,9 @@ my $badXInclude = q{
 # 3 SAX PARSER
 
 {
-    my LibXML::SAX::Builder::XML $builder .= new;
-    my xmlSAXHandler $sax = $builder.build;
-    my LibXML::SAX $generator .= new: :$sax;
+    my LibXML::SAX::Handler::XML $handler .= new;
+    my xmlSAXHandler $sax = $handler.sax;
+##    my LibXML::SAX $generator .= new: :$sax;
 
     my $string  = q{<bar foo="bar">foo</bar>};
 

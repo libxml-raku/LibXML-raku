@@ -47,10 +47,10 @@ is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
-# 2. Subclassed LibXML::SAX::Builder
+# 2. Subclassed LibXML::SAX::Handler
 
-use LibXML::SAX::Builder;
-class SaxBuilder is LibXML::SAX::Builder {
+use LibXML::SAX::Handler;
+class SaxHandler is LibXML::SAX::Handler {
     method startElement($name, :%atts) {
         %atts-seen ,= %atts;
         @start-tags.push: $name; 
@@ -63,7 +63,7 @@ class SaxBuilder is LibXML::SAX::Builder {
 @start-tags = ();
 @end-tags = ();
 %atts-seen = ();
-my xmlSAXHandler $sax = SaxBuilder.build;
+my xmlSAXHandler $sax = SaxHandler.new.sax;
 
 $ctx .= new: :$sax, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -71,13 +71,12 @@ $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
-
 # 3. Basic use of LibXML::SAX::Builder::XML
 
 use XML::Document;
-use LibXML::SAX::Builder::XML;
-my $handler = LibXML::SAX::Builder::XML.new;
-$sax = $handler.build;
+use LibXML::SAX::Handler::XML;
+my $handler = LibXML::SAX::Handler::XML.new;
+$sax = $handler.sax;
 
 $ctx .= new: :$sax, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate

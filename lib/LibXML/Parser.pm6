@@ -5,7 +5,6 @@ class LibXML::Parser {
     use LibXML::Document;
     use LibXML::PushParser;
 
-    has parserCtxt $!parser-ctx;
     has Bool $.html;
     has Bool $.line-numbers = False;
     has Bool $.recover;
