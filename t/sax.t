@@ -51,11 +51,14 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
 use LibXML::SAX::Handler;
 class SaxHandler is LibXML::SAX::Handler {
-    method startElement($name, :%atts) {
+    use LibXML::SAX::Builder :sax-cb;
+    method startElement($name, :%atts) is sax-cb {
+        callsame;
         %atts-seen ,= %atts;
         @start-tags.push: $name; 
     }
-    method endElement($name) {
+    method endElement($name) is sax-cb {
+        callsame;
         @end-tags.push: $name; 
     }
 }

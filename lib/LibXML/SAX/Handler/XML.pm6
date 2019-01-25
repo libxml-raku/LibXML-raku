@@ -10,7 +10,9 @@ class LibXML::SAX::Handler::XML
     has XML::Element  $!node;
     has XML::Document $.doc;
 
-    method startElement($name, :atts(%attribs)) {
+    use LibXML::SAX::Builder :sax-cb;
+
+    method startElement($name, :atts(%attribs)) is sax-cb {
         callsame;
         my XML::Element $elem .= new: :$name, :%attribs;
         # append and walk down
@@ -23,13 +25,13 @@ class LibXML::SAX::Handler::XML
         $!node = $elem;
     }
 
-    method endElement(Str $name) {
+    method endElement(Str $name) is sax-cb {
         callsame;
         # walk up the tree
         $!node = $!node.parent // Nil;
     }
 
-    method characters(Str $text) {
+    method characters(Str $text) is sax-cb {
         callsame;
         .append: XML::Text.new(:$text)
             with $!node;

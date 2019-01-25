@@ -23,8 +23,8 @@ class LibXML::SAX::Handler::SAX2
         ? $ctx.xmlSAX2IsStandalone;
     }
 
-    method startElement(Str $name, CArray :raw-atts($atts)!, Ctx :$ctx!) {
-        $ctx.xmlSAX2StartElement($name, $atts);
+    method startElement(Str $name, CArray :$raw-atts!, Ctx :$ctx!) {
+        $ctx.xmlSAX2StartElement($name, $raw-atts);
     }
 
     method endElement(Str $name, Ctx :$ctx!) {

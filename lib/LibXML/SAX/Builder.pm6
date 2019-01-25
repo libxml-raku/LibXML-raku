@@ -2,6 +2,12 @@ class LibXML::SAX::Builder {
     use LibXML::Native;
     use NativeCall;
 
+    my role is-sax-cb {
+    }
+    multi trait_mod:<is>(Method $m, :sax-cb($)!) is export(:sax-cb) {
+        $m does is-sax-cb;
+    }
+
     sub atts-Hash(CArray[Str] $atts) {
         my %atts;
         with $atts {
@@ -58,28 +64,32 @@ class LibXML::SAX::Builder {
             },
     );
 
-    method !build(Any:D $obj, $handler, %dispatch) {
-        for %dispatch.pairs.sort {
-            my $name     := .key;
-            my &dispatch := .value;
-
-            with $obj.can($name) -> $methods {
-                $handler."$name"() = dispatch($obj, $methods[0])
-                    if +$methods;
+    method !build(Any:D $obj, $handler, %dispatches) {
+        my Bool %seen;
+        for $obj.^methods.grep(* ~~ is-sax-cb) -> &meth {
+            my $name = &meth.name;
+            with %dispatches{$name} -> &dispatch {
+                %seen{$name} = True;
+                $handler."$name"() = dispatch($obj, &meth);
             }
             else {
-                warn "no handler method '$name'";
+                my $known = %dispatches.keys.sort.join: ' ';
+                die "unknown SAX method $name. expected: $known";
             }
         }
+        warn "'startElement' and 'startElementNs' callbacks are mutually exclusive"
+            if %seen<startElement> && %seen<startElementNs>;
+        warn "'endElement' and 'endElementNs' callbacks are mutually exclusive"
+            if %seen<endElement> && %seen<endElementNs>;
         $handler;
     }
 
-    method build-sax($obj) {
-        my xmlSAXHandler $sax .= new;
+    method build-sax($obj, xmlSAXHandler :$sax = xmlSAXHandler.new) {
+        $sax.init;
         self!build($obj, $sax, %SAXHandlerDispatch);
     }
 
-    method build-locator($obj, xmlSAXLocator $locator) {
+    method build-locator($obj, xmlSAXLocator :$locator = xmlSAXLocator.new) {
         self!build($obj, $locator, %SAXLocatorDispatch);
     }
 }

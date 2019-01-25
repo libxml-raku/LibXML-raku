@@ -54,10 +54,12 @@ DLLEXPORT void xml6_sax_set_endDocument(xmlSAXHandlerPtr sax, endDocumentSAXFunc
 }
 
 DLLEXPORT void xml6_sax_set_startElement(xmlSAXHandlerPtr sax, startElementSAXFunc func) {
+  sax->startElementNs = NULL;
   sax->startElement = func;
 }
 
 DLLEXPORT void xml6_sax_set_endElement(xmlSAXHandlerPtr sax, endElementSAXFunc func) {
+  sax->endElementNs = NULL;
   sax->endElement = func;
 }
 
