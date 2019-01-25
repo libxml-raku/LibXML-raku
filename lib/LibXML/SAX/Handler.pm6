@@ -5,7 +5,7 @@ class LibXML::SAX::Handler {
     use LibXML::Native;
     has xmlSAXHandler $.sax;
     method sax {
-        $!sax //= LibXML::SAX::Builder.build(self);
+        $!sax //= LibXML::SAX::Builder.build-sax(self);
     }
 }
 

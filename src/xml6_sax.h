@@ -61,4 +61,12 @@ DLLEXPORT void xml6_sax_set_endElementNs(xmlSAXHandlerPtr sax, endElementNsSAX2F
 
 DLLEXPORT void xml6_sax_set_serror(xmlSAXHandlerPtr sax, xmlStructuredErrorFunc func);
 
+DLLEXPORT void xml6_sax_locator_set_getPublicId(xmlSAXLocatorPtr sax_locator, void *func);
+
+DLLEXPORT void xml6_sax_locator_set_getSystemId(xmlSAXLocatorPtr sax_locator, void *func);
+
+DLLEXPORT void xml6_sax_locator_set_getLineNumber(xmlSAXLocatorPtr sax_locator, void *func);
+
+DLLEXPORT void xml6_sax_locator_set_getColumnNumber(xmlSAXLocatorPtr sax_locator, void *func);
+
 #endif /* __XML6_SAX_H */

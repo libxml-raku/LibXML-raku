@@ -15,23 +15,38 @@ class LibXML::SAX::Builder {
         %atts
     }
 
-    my %Dispatch = %(
-        startElement =>
+    my %SAXLocatorDispatch = %(
+        'getPublicId'|'getSystemId' =>
+            sub ($obj, &method) {
+                sub (--> Str) {
+                    method($obj);
+                }
+            },
+        'getLineNumber'|'getColumnNumber' =>
+            sub ($obj, &method) {
+                sub (--> UInt) {
+                    method($obj);
+                }
+            },
+    );
+
+    my %SAXHandlerDispatch = %(
+        'startElement' =>
             -> $obj, &method {
-                -> parserCtxt $ctx, Str $name, CArray[Str] $raw-atts {
+                sub (parserCtxt $ctx, Str $name, CArray[Str] $raw-atts) {
                     my %atts := atts-Hash($raw-atts);
                     method($obj, $name, :$ctx, :%atts, :$raw-atts);
                 }
             },
         'endElement'|'getEntity' =>
             -> $obj, &method {
-                -> parserCtxt $ctx, Str $name {
+                sub (parserCtxt $ctx, Str $name) {
                     method($obj, $name, :$ctx);
                 }
             },
-        characters =>
+        'characters' =>
             -> $obj, &method {
-                -> parserCtxt $ctx, CArray[byte] $chars, int32 $len {
+                sub (parserCtxt $ctx, CArray[byte] $chars, int32 $len) {
                     # ensure null termination
                     sub memcpy(Blob $dest, CArray $chars, size_t $n) is native {*};
                     my buf8 $char-buf .= new;
@@ -43,17 +58,28 @@ class LibXML::SAX::Builder {
             },
     );
 
-    method build(Any:D $obj) {
-        my xmlSAXHandler $sax .= new;
-        for %Dispatch.pairs.sort {
-            my $name := .key;
+    method !build(Any:D $obj, $handler, %dispatch) {
+        for %dispatch.pairs.sort {
+            my $name     := .key;
+            my &dispatch := .value;
+
             with $obj.can($name) -> $methods {
-                my &dispatch := .value;
-                $sax."$name"() = dispatch($obj, $methods[0])
+                $handler."$name"() = dispatch($obj, $methods[0])
                     if +$methods;
             }
+            else {
+                warn "no handler method '$name'";
+            }
         }
-        $sax;
+        $handler;
     }
 
+    method build-sax($obj) {
+        my xmlSAXHandler $sax .= new;
+        self!build($obj, $sax, %SAXHandlerDispatch);
+    }
+
+    method build-locator($obj, xmlSAXLocator $locator) {
+        self!build($obj, $locator, %SAXLocatorDispatch);
+    }
 }

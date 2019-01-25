@@ -20,9 +20,10 @@ class parserCtxt is repr('CStruct') is export {...}
 # Opaque/stubbed structs
 constant Stub = 'CPointer';
 class xmlAttr is repr(Stub) is export {}
+class xmlAutomata is repr(Stub) is export {}
+class xmlAutomataState is repr(Stub) is export {}
 class xmlDict is repr(Stub) is export {}
 class xmlDtd is repr(Stub) is export {}
-class xmlSAXLocator is repr(Stub) is export {}
 class xmlEntity is repr(Stub) is export {
     sub xmlGetPredefinedEntity(xmlCharP $name) is native(LIB) returns xmlEntity is export { * }
     method new(Str :$name!) {
@@ -30,41 +31,57 @@ class xmlEntity is repr(Stub) is export {
     }
 }
 class xmlEnumeration is repr(Stub) is export {}
+class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlNs is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {}
 class xmlParserInput is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
-class xmlAutomata is repr(Stub) is export {}
-class xmlAutomataState is repr(Stub) is export {}
+
+my role Sax-CB-Att[&setter] {
+    #| override standard Attribute method for generating accessors
+    method compose(Mu $package) {
+        my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
+        my &accessor = sub (\obj) is rw {
+            Proxy.new(
+                FETCH => sub ($) { self.get_value(obj) },
+                STORE => sub ($, &cb) {
+                    setter(obj,&cb);
+                });
+        }
+        $package.^add_method( $name, &accessor );
+    }
+}
+
+multi trait_mod:<is>(Attribute $att, :&sax-cb!) {
+    $att does Sax-CB-Att[&sax-cb]
+}
 
 # Defined Structs/Pointers
+class xmlSAXLocator is repr('CStruct') is export {
+    has Pointer  $.getPublicId is sax-cb(
+        method xml6_sax_locator_set_getPublicId( &cb (parserCtxt $ctx --> Str) ) is native(WRAPPER-LIB) {*}
+    );
+
+    has Pointer $.getSystemId is sax-cb(
+        method xml6_sax_locator_set_getSystemId( &cb (parserCtxt $ctx --> Str) ) is native(WRAPPER-LIB) {*}
+    );
+
+    has Pointer $.getLineNumber is sax-cb(
+        method xml6_sax_locator_set_getLineNumber( &cb (parserCtxt $ctx --> Str) ) is native(WRAPPER-LIB) {*}
+    );
+
+    has Pointer $.getColumnNumber is sax-cb(
+        method xml6_sax_locator_set_getColumnNumber( &cb (parserCtxt $ctx --> Str) ) is native(WRAPPER-LIB) {*}
+    );
+}
 class xmlSAXHandler is repr('CStruct') is export {
 
     submethod TWEAK(*%callbacks) {
         for %callbacks.pairs.sort {
             self."{.key}"() = .value;
         }
-    }
-
-    my role Sax-CB-Att[&setter] {
-        #| override standard Attribute method for generating accessors
-        method compose(Mu $package) {
-            my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
-            my &accessor = sub (\obj) is rw {
-                Proxy.new(
-                    FETCH => sub ($) { self.get_value(obj) },
-                    STORE => sub ($, &cb) {
-                        setter(obj,&cb);
-                    });
-            }
-            $package.^add_method( $name, &accessor );
-        }
-    }
-
-    multi trait_mod:<is>(Attribute $att, :&sax-cb!) {
-        $att does Sax-CB-Att[&sax-cb]
     }
 
     has Pointer   $.internalSubset is sax-cb(
@@ -441,9 +458,10 @@ class parserCtxt is export {
 
 
     # SAX2 Handler callbacks
-    method xmlSAX2GetPublicId(Str $name) returns Str is native(LIB) {*};
-    method xmlSAX2GetSystemId(Str $name) returns Str is native(LIB) {*};
-    method xmlSAX2SetDocumentLocator(xmlSAXLocator $loc) returns Str is native(LIB) {*};
+    #-- Document Properties --#
+    method xmlSAX2GetPublicId() returns Str is native(LIB) {*};
+    method xmlSAX2GetSystemId() returns Str is native(LIB) {*};
+    method xmlSAX2SetDocumentLocator(xmlSAXLocator $loc) is native(LIB) {*};
     method xmlSAX2GetLineNumber() returns int32 is native(LIB) {*};
     method xmlSAX2GetColumnNumber() returns int32 is native(LIB) {*};
     method xmlSAX2IsStandalone() returns int32 is native(LIB) {*};
@@ -451,15 +469,32 @@ class parserCtxt is export {
     method xmlSAX2HasExternalSubset() returns int32 is native(LIB) {*};
     method xmlSAX2InternalSubset(Str $name , Str $ext-id, Str $int-id) returns int32 is native(LIB) {*};
     method xmlSAX2ExternalSubset(Str $name , Str $ext-id, Str $int-id) returns int32 is native(LIB) {*};
+
+    #-- Entities --#
     method xmlSAX2GetEntity(Str $name) is native(LIB) returns xmlEntity {*};
     method xmlSAX2GetParameterEntity(Str $name) is native(LIB) returns xmlEntity {*};
     method xmlSAX2ResolveEntity(Str $public-id, Str $system-id) is native(LIB) returns xmlParserInput {*};
+
+    #-- Declarations --#
     method xmlSAX2EntityDecl(Str $name, int32 $type, Str $public-id, Str $system-id, Str $content) is native(LIB) returns xmlParserInput {*};
     method xmlSAX2AttributeDecl(Str $elem, Str $fullname, int32 $type, int32 $def, Str $default-value, xmlEnumeration $tree) is native(LIB) {*};
+    method xmlSAX2ElementDecl(Str $name, int32 $type, xmlElementContent $content) is native(LIB) {*};
+    method xmlSAX2NotationDecl(Str $name, Str $public-id, Str $system-id) is native(LIB) {*};
+    method xmlSAX2UnparsedEntityDecl(Str $name, Str $public-id, Str $system-id, Str $notation-name) is native(LIB) {*};
 
+    #-- Content --#
+    method xmlSAX2StartDocument() is native(LIB) {*};
+    method xmlSAX2EndDocument() is native(LIB) {*};
     method xmlSAX2StartElement(Str $name, CArray $atts) is native(LIB) {*};
     method xmlSAX2EndElement(Str $name) is native(LIB) {*};
+    method xmlSAX2StartElementNs(Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) is native(LIB) {*};
+    method xmlSAX2EndElementNs(Str $local-name, Str $prefix, Str $uri) is native(LIB) {*};
+    method xmlSAX2Reference(Str $name) is native(LIB) {*};
     method xmlSAX2Characters(Blob $chars, int32 $len) is native(LIB) {*};
+    method xmlSAX2IgnorableWhitespace(Blob $chars, int32 $len) is native(LIB) {*};
+    method xmlSAX2ProcessingInstruction(Str $len, Str $data) is native(LIB) {*};
+    method xmlSAX2Comment(Str $value) is native(LIB) {*};
+    method xmlSAX2CDataBlock(Blob $chars, int32 $len) is native(LIB) {*};
 }
 
 #| a vanilla XML parser context - can be used to read files or strings

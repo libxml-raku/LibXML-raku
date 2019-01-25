@@ -24,6 +24,7 @@
     "LibXML::SAX::Builder" : "lib/LibXML/SAX/Builder.pm6",
     "LibXML::SAX::Handler" : "lib/LibXML/SAX/Handler.pm6",
     "LibXML::SAX::Handler::SAX2" : "lib/LibXML/SAX/Handler/SAX2.pm6",
+    "LibXML::SAX::Handler::SAX2::Locator" : "lib/LibXML/SAX/Handler/SAX2/Locator.pm6",
     "LibXML::SAX::Handler::XML" : "lib/LibXML/SAX/Handler/XML.pm6"
   },
   "resources" : [

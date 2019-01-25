@@ -5,9 +5,23 @@ class LibXML::SAX::Handler::SAX2
     is LibXML::SAX::Handler {
     use LibXML::Native;
     use NativeCall;
+    use LibXML::SAX::Handler::SAX2::Locator;
+    has LibXML::SAX::Handler::SAX2::Locator $.locator .= new;
 
     constant LIB = LibXML::Native::LIB;
     constant Ctx = parserCtxt;
+
+    method setDocumentLocator(xmlSAXLocator $loc, :$ctx!) {
+        warn "i'm setting up a document locator, wish me luck!!";
+        use LibXML::SAX::Builder;
+        LibXML::SAX::Builder.build-locator($.locator, $loc);
+
+        $ctx.xmlSAX2SetDocumentLocator($loc);
+    }
+
+    method isStandalone(:$ctx!) returns Bool {
+        ? $ctx.xmlSAX2IsStandalone;
+    }
 
     method startElement(Str $name, CArray :raw-atts($atts)!, Ctx :$ctx!) {
         $ctx.xmlSAX2StartElement($name, $atts);
