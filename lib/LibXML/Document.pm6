@@ -24,7 +24,6 @@ method uri is rw {
 }
 
 method Str(Bool() :$format = False) is default {
-    my int32 $len;
     my Bool $copied;
 
     if config.skip-xml-declaration {
