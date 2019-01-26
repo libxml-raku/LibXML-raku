@@ -416,6 +416,7 @@ my $badXInclude = q{
     my $string  = q{<bar foo="bar">foo</bar>};
 
 }
+skip("port remaining tests", 248);
 =begin POD
 
     $doc = $generator.parse_string( $string );
