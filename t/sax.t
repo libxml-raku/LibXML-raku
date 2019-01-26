@@ -2,7 +2,7 @@ use v6;
 use Test;
 # minimal low-level bootstrapping tests for the sax parser
 
-plan 12;
+plan 13;
 use NativeCall;
 use LibXML;
 use LibXML::Native;
@@ -50,15 +50,15 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 # 2. Subclassed LibXML::SAX::Handler
 
 use LibXML::SAX::Handler;
+use LibXML::SAX::Builder :atts2Hash;
+
 class SaxHandler is LibXML::SAX::Handler {
     use LibXML::SAX::Builder :sax-cb;
-    method startElement($name, :%atts) is sax-cb {
-        callsame;
-        %atts-seen ,= %atts;
+    method startElement($name, :$atts) is sax-cb {
+        %atts-seen ,= atts2Hash($atts);
         @start-tags.push: $name; 
     }
     method endElement($name) is sax-cb {
-        callsame;
         @end-tags.push: $name; 
     }
 }
@@ -87,3 +87,24 @@ $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 my XML::Document:D $doc = $handler.doc;
 my $header = '<?xml version="1.0"?>';
 is $doc.Str, $header ~ $chunk, 'XML Sax builder sanity';
+
+class SAXShouter is LibXML::SAX::Handler::SAX2 {
+    use LibXML::SAX::Builder :sax-cb;
+    method startElement($name, |c) is sax-cb {
+        nextwith($name.uc, |c);
+    }
+    method endElement($name, |c) is sax-cb {
+        nextwith($name.uc, |c);
+    }
+    method characters($chars, |c) is sax-cb {
+        nextwith($chars.uc, |c);
+    }
+}
+
+$handler = SAXShouter.new;
+$sax = $handler.sax;
+
+$ctx .= new: :$sax, :$chunk;
+$ctx.ParseChunk(Blob.new, 0, 1); #terminate
+
+is $ctx.myDoc.Str.lines.tail, '<HTML><BODY><H1 working="yup">HELLO WORLD</H1></BODY></HTML>', 'Simple transform';

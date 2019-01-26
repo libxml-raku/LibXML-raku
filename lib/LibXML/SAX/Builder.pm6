@@ -8,7 +8,7 @@ class LibXML::SAX::Builder {
         $m does is-sax-cb;
     }
 
-    sub atts-Hash(CArray[Str] $atts) {
+    sub atts2Hash(CArray[Str] $atts) is export(:atts2Hash) {
         my %atts;
         with $atts {
             my int $i = 0;
@@ -37,22 +37,9 @@ class LibXML::SAX::Builder {
     );
 
     my %SAXHandlerDispatch = %(
-        'startElement' =>
+        'characters'|'ignorableWhitespace'|'cdataBlock' =>
             -> $obj, &method {
-                sub (parserCtxt $ctx, Str $name, CArray[Str] $raw-atts) {
-                    my %atts := atts-Hash($raw-atts);
-                    method($obj, $name, :$ctx, :%atts, :$raw-atts);
-                }
-            },
-        'endElement'|'getEntity' =>
-            -> $obj, &method {
-                sub (parserCtxt $ctx, Str $name) {
-                    method($obj, $name, :$ctx);
-                }
-            },
-        'characters' =>
-            -> $obj, &method {
-                sub (parserCtxt $ctx, CArray[byte] $chars, int32 $len) {
+            sub (parserCtxt $ctx, CArray[byte] $chars, int32 $len) {
                     # ensure null termination
                     sub memcpy(Blob $dest, CArray $chars, size_t $n) is native {*};
                     my buf8 $char-buf .= new;
@@ -61,7 +48,105 @@ class LibXML::SAX::Builder {
                     memcpy($char-buf, $chars, $len);
                     method($obj, $char-buf.decode, :$ctx);
                 }
-            },
+        },
+        'internalSubset'|'externalSubset' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) {
+                    method($obj, $name, :$ctx, :$external-id, :$system-id);
+                }
+        },
+        'isStandalone'|'hasInternalSubset'|'hasExternalSubset' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx --> UInt) {
+                    method($obj, :$ctx);
+                }
+        },
+        'resolveEntity' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
+                    method($obj, :$ctx, :$public-id, :$system-id);
+                }
+        },
+        'getEntity' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $name --> xmlEntity) {
+                    method($obj, $name, :$ctx);
+                }
+        },
+        'entityDecl' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $public-id, Str $system-id) {
+                    method($obj, :$ctx, :$public-id, :$system-id);
+                }
+        },
+        'attributeDecl' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) {
+                    method($obj, $elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree);
+                }
+        },
+        'elementDecl' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
+                    method($obj, $name, :$ctx, :$type, :$content);
+                }
+        },
+        'unparsedEntityDecl' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
+                    method($obj, $name, :$ctx, :$public-id, :$system-id, :$notation-name);
+                }
+        },
+        'setDocumentLocator' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, xmlSAXLocator $locator) {
+                    method($obj, $locator, :$ctx);
+                }
+        },
+        'startDocument'|'endDocument' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx) {
+                    method($obj, :$ctx);
+                }
+        },
+        'startElement' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $name, CArray[Str] $atts) {
+                    method($obj, $name, :$ctx, :$atts);
+                }
+        },
+        'endElement'|'reference'|'comment'|'warring'|'error'|'fatalError'|'getParameterEntity' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $text) {
+                    method($obj, $text, :$ctx);
+                }
+        },
+        'processingInstruction' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $target, Str $data) {
+                    method($obj, $target, $data, :$ctx);
+                }
+        },
+        # Introduced with SAX2 
+        'startElementNs' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) {
+                    method($obj, $local-name, :$ctx, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-attributes, :$num-defaulted, :$attributes);
+                }
+        },
+        'endElementNs' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
+                    method($obj, $local-name, :$ctx, :$prefix, :$uri);
+                }
+        },
+        'serror' =>
+            -> $obj, &method {
+                sub (parserCtxt $ctx, xmlError $error) {
+                    method($obj, $error, :$ctx);
+                }
+        },
+
     );
 
     method !build(Any:D $obj, $handler, %dispatches) {

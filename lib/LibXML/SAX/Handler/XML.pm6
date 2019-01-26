@@ -6,14 +6,16 @@ class LibXML::SAX::Handler::XML
     use XML::Document;
     use XML::Element;
     use XML::Text;
+    use NativeCall;
 
     has XML::Element  $!node;
     has XML::Document $.doc;
 
-    use LibXML::SAX::Builder :sax-cb;
+    use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
-    method startElement($name, :atts(%attribs)) is sax-cb {
+    method startElement($name, CArray :$atts) is sax-cb {
         callsame;
+        my %attribs := atts2Hash($atts);
         my XML::Element $elem .= new: :$name, :%attribs;
         # append and walk down
         with $!doc {

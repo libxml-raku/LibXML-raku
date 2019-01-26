@@ -119,6 +119,13 @@ DLLEXPORT void xml6_sax_set_serror(xmlSAXHandlerPtr sax, xmlStructuredErrorFunc 
   sax->serror = func;
 }
 
+DLLEXPORT void xml6_sax_locator_init(xmlSAXLocatorPtr sax_locator) {
+  sax_locator->getPublicId = xmlDefaultSAXLocator.getPublicId;
+  sax_locator->getSystemId = xmlDefaultSAXLocator.getSystemId;
+  sax_locator->getLineNumber = xmlDefaultSAXLocator.getLineNumber;
+  sax_locator->getColumnNumber = xmlDefaultSAXLocator.getColumnNumber;
+}
+
 DLLEXPORT void xml6_sax_locator_set_getPublicId(xmlSAXLocatorPtr sax_locator, void *func) {
   sax_locator->getPublicId = func;
 }
