@@ -9,6 +9,7 @@ plan 533;
 use LibXML;
 use LibXML::Native;
 use LibXML::SAX::Handler::SAX2;
+use LibXML::SAX::Handler::XML;
 my \config = LibXML.config;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
@@ -408,19 +409,31 @@ my $badXInclude = q{
 }
 
 # 3 SAX PARSER
-
+use LibXML::SAX;
 {
     my LibXML::SAX::Handler::SAX2 $handler .= new;
-##    my LibXML::SAX $generator .= new: :$handler;
+    my LibXML::SAX $generator .= new: :$handler;
 
     my $string  = q{<bar foo="bar">foo</bar>};
 
-}
-skip("port remaining tests", 248);
-=begin POD
+    $doc = $generator.parse: :$string;
+    isa-ok( $doc , 'LibXML::Document');
 
-    $doc = $generator.parse_string( $string );
-    isa_ok( $doc , 'XML::Document');
+}
+
+{
+    my LibXML::SAX::Handler::XML $handler .= new;
+    my LibXML::SAX $generator .= new: :$handler;
+
+    my $string  = q{<bar foo="bar">foo</bar>};
+
+    $doc = $generator.parse: :$string;
+    isa-ok( $doc , 'XML::Document');
+
+}
+
+skip("port remaining tests", 246);
+=begin POD
 
     # 3.1 GENERAL TESTS
     foreach my $str ( @goodWFStrings ) {

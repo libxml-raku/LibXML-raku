@@ -21,6 +21,7 @@
     "LibXML::Native" : "lib/LibXML/Native.pm6",
     "LibXML::Parser" : "lib/LibXML/Parser.pm6",
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
+    "LibXML::SAX" : "lib/LibXML/SAX.pm6",
     "LibXML::SAX::Builder" : "lib/LibXML/SAX/Builder.pm6",
     "LibXML::SAX::Handler" : "lib/LibXML/SAX/Handler.pm6",
     "LibXML::SAX::Handler::SAX2" : "lib/LibXML/SAX/Handler/SAX2.pm6",

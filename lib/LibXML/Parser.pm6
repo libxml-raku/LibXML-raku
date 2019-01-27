@@ -10,7 +10,7 @@ class LibXML::Parser {
     has Bool $.recover;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.base-uri is rw;
-    has xmlSAXHandler $.sax;
+    has xmlSAXHandler $.sax is rw;
 
     constant %FLAGS = %(
         :recover(XML_PARSE_RECOVER),
@@ -35,6 +35,7 @@ class LibXML::Parser {
     );
 
     method !context(parserCtxt :$ctx!) {
+        $ctx.sax = $_ with $!sax;
         LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
 
@@ -46,11 +47,12 @@ class LibXML::Parser {
         $doc;
     }
 
-    method process-xincludes(LibXML::Document $doc, Bool :$recover = $!recover) {
-        my xmlDoc $xml-doc = $doc.doc;
-        my xmlXIncludeCtxt $ctx .= new( :doc($xml-doc) );
+    method process-xincludes(LibXML::Document $_, Bool :$recover = $!recover) {
+        my xmlDoc $doc = .doc;
+        my xmlXIncludeCtxt $ctx .= new( :$doc );
+        $ctx.sax = $_ with $!sax;
         my LibXML::ParserContext $pc = self!context: :$ctx;
-        my xmlNode $root = $xml-doc.GetRootElement;
+        my xmlNode $root = $doc.GetRootElement;
         my $n = $ctx.ProcessNode($root);
         $pc.flush-errors: :$!recover;
         $ctx.Free;
@@ -101,7 +103,7 @@ class LibXML::Parser {
             .push($chunk)
         }
         else {
-            $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers;
+            $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$!sax;
         }
     }
     method parse-chunk($chunk?, :$terminate) {
@@ -132,7 +134,7 @@ class LibXML::Parser {
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$!html, :$path, :$!flags, :$!line-numbers;
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$!html, :$path, :$!flags, :$!line-numbers, :$!sax;
 
         my Bool $more = ?$chunk;
 
@@ -165,7 +167,7 @@ class LibXML::Parser {
             });
     }
 
-    submethod TWEAK(:html($), :line-numbers($), :flags($), :uri($), :sax($), *%flags) {
+    submethod TWEAK(:html($), :line-numbers($), :flags($), :uri($), :sax($), :handler($), *%flags) {
         for %flags.pairs.sort -> $f {
             with %FLAGS{$f.key} {
                 self!flag-accessor($_) = $f.value;

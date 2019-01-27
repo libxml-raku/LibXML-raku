@@ -7,11 +7,17 @@ class LibXML::SAX::Handler::XML
     use XML::Element;
     use XML::Text;
     use NativeCall;
+    use LibXML::Document;
 
     has XML::Element  $!node;
     has XML::Document $.doc;
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
+
+    method finish-doc(LibXML::Document :$doc!) {
+        # replace with our own
+        $!doc;
+    }
 
     method startElement($name, CArray :$atts) is sax-cb {
         callsame;

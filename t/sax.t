@@ -6,6 +6,7 @@ plan 13;
 use NativeCall;
 use LibXML;
 use LibXML::Native;
+use LibXML::Parser;
 my \config = LibXML.config;
 
 my @start-tags;
@@ -38,7 +39,8 @@ ok $sax-handler.startElement.defined, 'startElement updated';
 
 $sax-handler .= new: :&startElement, :&endElement;
 ok $sax-handler.startElement.defined, 'startElement initialization';
-my Blob $chunk = '<html><body><h1 working="yup">Hello World</h1></body></html>'.encode;
+my $string = '<html><body><h1 working="yup">Hello World</h1></body></html>';
+my Blob $chunk = $string.encode;
 
 my $ctx = xmlPushParserCtxt.new: :sax($sax-handler), :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -74,6 +76,7 @@ $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
 is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
 is-deeply %atts-seen, %( :working<yup> ), 'atts';
+
 # 3. Basic use of LibXML::SAX::Builder::XML
 
 use XML::Document;

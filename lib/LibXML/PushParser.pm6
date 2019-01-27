@@ -44,8 +44,13 @@ class LibXML::PushParser {
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
         my $doc := LibXML::Document.new( :$!ctx, :$uri);
-        $!ctx = Nil;
         $doc;
+    }
+    submethod DESTROY {
+        with $!ctx {
+            .Free;
+            $_ = Nil;
+        }
     }
 }
 

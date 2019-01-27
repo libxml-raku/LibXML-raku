@@ -7,6 +7,10 @@ class LibXML::SAX::Handler::SAX2
     use NativeCall;
     use LibXML::SAX::Handler::SAX2::Locator;
     has LibXML::SAX::Handler::SAX2::Locator $.locator .= new;
+    use LibXML::Document;
+    method finish-doc(LibXML::Document :$doc!) {
+        $doc;
+    }
 
     constant LIB = LibXML::Native::LIB;
     constant Ctx = parserCtxt;

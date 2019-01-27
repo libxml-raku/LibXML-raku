@@ -4,11 +4,14 @@ all : lib doc
 
 lib : resources/libraries/%LIB-NAME%
 
-resources/libraries/%LIB-NAME% : $(SRC)/xml6_sax%O%
-	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% $(SRC)/xml6_sax%O% %LIB-LDFLAGS%
+resources/libraries/%LIB-NAME% : $(SRC)/xml6_sax%O% $(SRC)/xml6_ctx%O%
+	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% $(SRC)/xml6_sax%O% $(SRC)/xml6_ctx%O% %LIB-LDFLAGS%
 
 $(SRC)/xml6_sax%O% : $(SRC)/xml6_sax.c $(SRC)/xml6_sax.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_sax%O% $(SRC)/xml6_sax.c %LIB-CFLAGS%
+
+$(SRC)/xml6_ctx%O% : $(SRC)/xml6_ctx.c $(SRC)/xml6_ctx.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ctx%O% $(SRC)/xml6_ctx.c %LIB-CFLAGS%
 
 test : all
 	@prove -e"perl6 -I ." -v t

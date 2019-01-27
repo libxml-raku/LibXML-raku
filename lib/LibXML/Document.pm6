@@ -7,7 +7,7 @@ use LibXML::Config;
 use NativeCall;
 
 constant config = LibXML::Config;
-has parserCtxt $.ctx is required handles <wellFormed valid>;
+has parserCtxt $.ctx is rw is required handles <wellFormed valid>;
 has xmlDoc $.doc handles<encoding GetRootElement>;
 
 submethod TWEAK {
@@ -32,14 +32,14 @@ method Str(Bool() :$format = False) is default {
     }
     else {
         my xmlDoc $doc = $!doc;
-        if $doc.internal-dtd && config.skip-dtd {
-            # make a copy, with DTD removed
-            $doc .= copy();
-            with $doc.internal-dtd {
+        with $doc.internal-dtd {
+            if config.skip-dtd {
+                # make a copy, with DTD removed
+                $doc .= copy();
                 $doc.xmlUnlinkNode($_);
                 .Free;
+                $copied = True;
             }
-            $copied = True;
         }
 
         my $str := $doc.Str(:$format);
