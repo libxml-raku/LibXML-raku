@@ -8,6 +8,7 @@ use Test;
 plan 533;
 use LibXML;
 use LibXML::Native;
+use LibXML::Enums;
 use LibXML::SAX::Handler::SAX2;
 use LibXML::SAX::Handler::XML;
 my \config = LibXML.config;
@@ -411,17 +412,6 @@ my $badXInclude = q{
 # 3 SAX PARSER
 use LibXML::SAX;
 {
-    my LibXML::SAX::Handler::SAX2 $handler .= new;
-    my LibXML::SAX $generator .= new: :$handler;
-
-    my $string  = q{<bar foo="bar">foo</bar>};
-
-    $doc = $generator.parse: :$string;
-    isa-ok( $doc , 'LibXML::Document');
-
-}
-
-{
     my LibXML::SAX::Handler::XML $handler .= new;
     my LibXML::SAX $generator .= new: :$handler;
 
@@ -432,38 +422,49 @@ use LibXML::SAX;
 
 }
 
-skip("port remaining tests", 246);
-=begin POD
+{
+    my LibXML::SAX::Handler::SAX2 $handler .= new;
+    my LibXML::SAX $generator .= new: :$handler;
+
+    my $string  = q{<bar foo="bar">foo</bar>};
+
+    $doc = $generator.parse: :$string;
+    isa-ok( $doc , 'LibXML::Document');
 
     # 3.1 GENERAL TESTS
-    foreach my $str ( @goodWFStrings ) {
-        my $doc = $generator->parse_string( $str );
-        isa_ok( $doc , 'LibXML::Document');
+    for @goodWFStrings -> $string {
+        my $doc = $generator.parse: :$string;
+        isa-ok( $doc , 'LibXML::Document');
     }
 
     # CDATA Sections
 
     $string = q{<foo><![CDATA[&foo<bar]]></foo>};
-    $doc = $generator->parse_string( $string );
-    my @cn = $doc->documentElement->childNodes();
-    is( scalar @cn, 1, "Child nodes - 1" );
-    is( $cn[0]->nodeType, XML_CDATA_SECTION_NODE );
-    is( $cn[0]->textContent, "&foo<bar" );
-    is( $cn[0]->toString, '<![CDATA[&foo<bar]]>');
+
+    $doc = $generator.parse: :$string;
+    my @cn = $doc.GetRootElement.child-nodes();
+    is( + @cn, 1, "Child nodes - 1" );
+    is( @cn[0].type, +XML_CDATA_SECTION_NODE );
+    is( @cn[0].content, '&foo<bar' );
+    is( @cn[0].Str, '<![CDATA[&foo<bar]]>');
 
     # 3.2 NAMESPACE TESTS
 
     my $i = 0;
-    foreach my $str ( @goodWFNSStrings ) {
-        my $doc = $generator->parse_string( $str );
-        isa_ok( $doc , 'LibXML::Document');
+    for @goodWFNSStrings -> $string {
+        my $doc = $generator.parse: :$string;
+        isa-ok( $doc , 'LibXML::Document');
 
         # skip the nested node tests until there is a xmlNormalizeNs().
         #ok(1),next if $i > 2;
 
-        is( $doc->toString(), $str );
+        is( $doc.Str.subst(/' encoding="UTF-8"'/, ''), $string );
         $i++
     }
+
+}
+skip("port remaining tests", 216);
+=begin POD
 
     # DATA CONSISTENCE
     # find out if namespaces are there
