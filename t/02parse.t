@@ -498,28 +498,24 @@ use LibXML::SAX;
 
 }
 
-skip("port remaining tests", 204);
-=begin POD
-
 # 4 SAXY PUSHER
 
 {
-    my $handler = LibXML::SAX::Builder->new();
-    my $parser = LibXML->new;
+    my LibXML::SAX::Handler::SAX2 $handler .= new;
+    my LibXML::SAX $parser .= new: :$handler;
 
-    $parser->set_handler( $handler );
-    $parser->push( '<foo/>' );
-    my $doc = $parser->finish_push;
-    isa_ok($doc , 'LibXML::Document');
+    $parser.push( '<foo/>' );
+    my $doc = $parser.finish-push;
+    isa-ok($doc , 'LibXML::Document');
 
-    foreach my $key ( keys %goodPushWF ) {
-        foreach ( @{$goodPushWF{$key}} ) {
-            $parser->push( $_);
+    for %goodPushWF.keys.sort -> $key {
+        for @(%goodPushWF{$key}) {
+            $parser.push( $_);
         }
 
         my $doc;
-        eval {$doc = $parser->finish_push; };
-        isa_ok( $doc , 'LibXML::Document');
+        lives-ok {$doc = $parser.finish-push; };
+        isa-ok( $doc , 'LibXML::Document');
     }
 }
 
@@ -571,26 +567,34 @@ skip("port remaining tests", 204);
     );
 
 
-    my $pparser = LibXML->new;
+    my LibXML $pparser .= new;
 
     # 5.1 DOM CHUNK PARSER
 
-    for ( 1..$MAX_WF_C ) {
-        my $frag = $pparser->parse_xml_chunk($chunks{'wellformed'.$_});
-        isa_ok($frag, 'LibXML::DocumentFragment');
-        if ( $frag->nodeType == XML_DOCUMENT_FRAG_NODE
-             && $frag->hasChildNodes ) {
-            if ( $frag->firstChild->isSameNode( $frag->lastChild ) ) {
-                if ( $chunks{'wellformed' . $_} =~ /\<A\>\<\/A\>/ ) {
+    for ( 1..$MAX_WF_C ) -> $_ is copy {
+        my $chunk = %chunks{'wellformed' ~ $_};
+warn :$chunk.perl;
+        my $frag = $pparser.parse-balanced: :$chunk;
+        isa-ok($frag, 'LibXML::DocumentFragment');
+warn $frag.doc.type;
+        if ( $frag.doc.type == +XML_DOCUMENT_FRAG_NODE) {
+warn "kiddie winkies";
+            my @kids = $frag.doc.children;
+            if @kids && @kids.head === @kids.tail {
+                if ( %chunks{'wellformed' ~ $_} ~~ /'<A></A>'/ ) {
                     $_--; # because we cannot distinguish between <a/> and <a></a>
                 }
 
-                is($frag->toString, $chunks{'wellformed' . $_}, $chunks{'wellformed' . $_} . " is well formed");
+                is($frag.Str, %chunks{'wellformed' ~ $_}, %chunks{'wellformed' ~ $_} ~ " is well formed");
                 next;
             }
         }
         fail("Unexpected fragment without child nodes");
     }
+
+}
+skip("port remaining tests", 111);
+=begin POD
 
     for ( 1..$MAX_WB_C ) {
         my $frag = $pparser->parse_xml_chunk($chunks{'wellbalance'.$_});

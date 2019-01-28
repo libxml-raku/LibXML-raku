@@ -99,6 +99,33 @@ class LibXML::Parser {
         }
     }
 
+    multi method parse(IO::Handle :$io!,
+                       Str :$uri = $!base-uri,
+                       UInt :$chunk-size = 4096,
+                      ) {
+
+        # read initial block to determine encoding
+        my Str $path = $io.path.path;
+        my Blob $chunk = $io.read($chunk-size);
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$!html, :$path, :$!flags, :$!line-numbers, :$!sax;
+
+        my Bool $more = ?$chunk;
+
+        while $more && !$push-parser.err {
+            $chunk = $io.read($chunk-size);
+            $more = ?$chunk;
+            $push-parser.push($chunk)
+                if $more;
+        }
+
+        $push-parser.finish-push;
+    }
+
+    multi method parse(IO() :io($path)!, |c) {
+        my IO::Handle $io = $path.open(:bin, :r);
+        $.parse(:$io, |c);
+    }
+
     has LibXML::PushParser $!push-parser;
     method init-push { $!push-parser = Nil }
     method push($chunk) {
@@ -129,31 +156,11 @@ class LibXML::Parser {
         }
     }
 
-    multi method parse(IO::Handle :$io!,
-                       Str :$uri = $!base-uri,
-                       UInt :$chunk-size = 4096,
-                      ) {
-
-        # read initial block to determine encoding
-        my Str $path = $io.path.path;
-        my Blob $chunk = $io.read($chunk-size);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$!html, :$path, :$!flags, :$!line-numbers, :$!sax;
-
-        my Bool $more = ?$chunk;
-
-        while $more && !$push-parser.err {
-            $chunk = $io.read($chunk-size);
-            $more = ?$chunk;
-            $push-parser.push($chunk)
-                if $more;
-        }
-
-        $push-parser.finish-push;
-    }
-
-    multi method parse(IO() :io($path)!, |c) {
-        my IO::Handle $io = $path.open(:bin, :r);
-        $.parse(:$io, |c);
+    method parse-balanced(Str() :$chunk!, Bool() :$recover = False, LibXML::Document :$ref-doc) {
+        use LibXML::DocumentFragment;
+        my LibXML::DocumentFragment $frag .= new;
+        my UInt $ret = $frag.parse-balanced: :$chunk, :$!sax, :$ref-doc;
+        $frag;
     }
 
     method !flag-accessor(uint32 $flag) is rw {

@@ -6,7 +6,7 @@ DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr ctx, xmlSAXHandlerPtr sax) {
     ctx->sax = sax;
   }
   else {
-    fprintf(stderr, "can't set SAX handler in this context\n");
+    fprintf(stderr, "%s:%d: can't set SAX handler to NULL context\n", __FILE__, __LINE__);
   }
 }
 

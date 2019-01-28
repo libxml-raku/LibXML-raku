@@ -6,18 +6,25 @@ class LibXML::SAX
     has LibXML::SAX::Handler $.handler is required;
 
     use LibXML::Native;
+    use LibXML::Document;
+    use LibXML::DocumentFragment;
 
     submethod TWEAK {
         self.sax = .sax given $!handler;
     }
 
     method parse(|c) {
-        my $doc = callsame;
-        $!handler.finish-doc: :$doc;
+        my LibXML::Document $doc = callsame;
+        $!handler.finish: :$doc;
     }
 
     method finish-push(|c) {
-        my $doc = callsame;
-        $!handler.finish-doc: :$doc;
+        my LibXML::Document $doc = callsame;
+        $!handler.finish: :$doc;
+    }
+
+    method parse-balanced(|c) {
+        my LibXML::DocumentFragment $doc = callsame;
+        $!handler.finish: :$doc;
     }
 }

@@ -7,8 +7,13 @@ class LibXML::SAX::Handler::SAX2
     use NativeCall;
     use LibXML::SAX::Handler::SAX2::Locator;
     has LibXML::SAX::Handler::SAX2::Locator $.locator .= new;
+
     use LibXML::Document;
-    method finish-doc(LibXML::Document :$doc!) {
+    use LibXML::DocumentFragment;
+    multi method finish(LibXML::Document :$doc!) {
+        $doc;
+    }
+    multi method finish(LibXML::DocumentFragment :$doc!) {
         $doc;
     }
 

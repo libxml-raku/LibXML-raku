@@ -7,7 +7,7 @@ use LibXML::Config;
 use NativeCall;
 
 constant config = LibXML::Config;
-has parserCtxt $.ctx is rw is required handles <wellFormed valid>;
+has parserCtxt $.ctx is required handles <wellFormed valid>;
 has xmlDoc $.doc handles<encoding GetRootElement>;
 
 submethod TWEAK {
@@ -23,7 +23,7 @@ method uri is rw {
     )
 }
 
-method Str(Bool() :$format = False) is default {
+method Str(Bool() :$format = False) {
     my Bool $copied;
 
     if config.skip-xml-declaration {
@@ -53,9 +53,13 @@ sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 
 submethod DESTROY {
     with $!ctx -> $ctx {
-        $!doc.Free
-	    unless addr($!doc) ~~ addr($!ctx.myDoc);
+        with $!doc {
+            .Free unless addr($_) ~~ addr($ctx.myDoc);
+        }
 	$ctx.Free;
+    }
+    else {
+        .Free with $!doc;
     }
     $!doc = Nil;
     $!ctx = Nil;

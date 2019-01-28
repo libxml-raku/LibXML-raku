@@ -15,6 +15,7 @@
   "provides" : {
     "LibXML" : "lib/LibXML.pm6",
     "LibXML::Document" : "lib/LibXML/Document.pm6",
+    "LibXML::DocumentFragment" : "lib/LibXML/DocumentFragment.pm6",
     "LibXML::Config" : "lib/LibXML/Config.pm6",
     "LibXML::ParserContext" : "lib/LibXML/ParserContext.pm6",
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
