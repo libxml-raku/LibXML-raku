@@ -462,22 +462,27 @@ use LibXML::SAX;
         $i++
     }
 
-}
-skip("port remaining tests", 216);
-=begin POD
+    $doc = $generator.parse: :string(q{<foo bar="baz"/>});
+    my xmlAttr @attrs = $doc.GetRootElement.attributes;
+    is(+ @attrs , 1, "1 attribute");
 
     # DATA CONSISTENCE
     # find out if namespaces are there
+
     my $string2 = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi/></foo>};
 
-    $doc = $generator->parse_string( $string2 );
+    $doc = $generator.parse: :string($string2);
 
-    my @attrs = $doc->documentElement->attributes;
+    my xmlNs @namespaces = $doc.GetRootElement.namespaces;
 
-    is(scalar @attrs , 1, "1 attribute");
-    is( $attrs[0]->nodeType, XML_NAMESPACE_DECL, "Node type: " . XML_NAMESPACE_DECL );
+    is(+ @namespaces , 1, "1 namespace");
+    is( @namespaces[0].type, +XML_NAMESPACE_DECL, "Node type: " ~ +XML_NAMESPACE_DECL );
 
-    my $root = $doc->documentElement;
+    my $root = $doc.GetRootElement;
+
+}
+skip("port remaining tests", 213);
+=begin POD
 
     # bad thing: i have to do some NS normalizing.
     # libxml2 will only do some fixing. this will lead to multiple

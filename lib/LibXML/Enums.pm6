@@ -70,3 +70,10 @@ enum xmlErrorLevel is export (
    XML_ERR_ERROR => 2,
    XML_ERR_FATAL => 3
 );
+
+my enum xmlAttributeDefault is export (
+    XML_ATTRIBUTE_NONE => 1,
+    'XML_ATTRIBUTE_REQUIRED',
+    'XML_ATTRIBUTE_IMPLIED',
+    'XML_ATTRIBUTE_FIXED'
+);

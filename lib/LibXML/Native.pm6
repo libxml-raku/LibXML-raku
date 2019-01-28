@@ -3,6 +3,7 @@ use v6;
 unit class LibXML::Native;
 
 use NativeCall;
+use LibXML::Enums;
 
 constant LIB = 'xml2';
 constant WRAPPER-LIB =  %?RESOURCES<libraries/xml6>;
@@ -15,11 +16,11 @@ constant xmlCharP = Str;
 class xmlDoc     is repr('CStruct') is export {...}
 class xmlError   is repr('CStruct') is export {...}
 class xmlNode    is repr('CStruct') is export {...}
+class xmlAttr    is repr('CStruct') is export {...}
 class parserCtxt is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
 constant Stub = 'CPointer';
-class xmlAttr is repr(Stub) is export {}
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
 class xmlDict is repr(Stub) is export {}
@@ -33,7 +34,6 @@ class xmlEntity is repr(Stub) is export {
 class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
-class xmlNs is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {}
 class xmlParserInput is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
@@ -58,7 +58,30 @@ multi trait_mod:<is>(Attribute $att, :&proxy!) {
     $att does CustomSetter[&proxy]
 }
 
+class LinkedList {
+    our sub iterate($cur) is rw {
+        # follow a chain of .next links.
+        my class Siblings does Iterable does Iterator {
+            has LinkedList $.cur;
+            method iterator { self }
+            method pull-one {
+                my LinkedList $this = $!cur;
+                $_ = .next with $!cur;
+                $this // IterationEnd;
+            }
+        }.new( :$cur );
+    }
+}
+
 # Defined Structs/Pointers
+class xmlNs is repr('CStruct') is LinkedList is export {
+    has xmlNs    $.next;    # next Ns link for this node
+    has int32    $.type;    # global or local (enum xmlNsType)
+    has xmlCharP $.prefix;  # prefix for the namespace
+    has Pointer  $.private; # application data
+    has xmlDoc   $.context; # normally an xmlDoc
+}
+
 class xmlSAXLocator is repr('CStruct') is export {
     has Pointer  $.getPublicId is proxy(
         method xml6_sax_locator_set_getPublicId( &cb (parserCtxt $ctx --> Str) ) is native(WRAPPER-LIB) {*}
@@ -206,48 +229,42 @@ class xmlBuffer is repr(Stub) is export {
     method Free is symbol('xmlBufferFree') is native(LIB) is export { * }
 }
 
-# C structs
-
-class _NodeCommon is repr('CStruct') {
-    has Pointer               $._private;    # application data
-    has int32                 $.type;        # type number, must be second !
-    has xmlCharP              $.name;        # the name of the node, or the entity
-    has xmlNode               $.children;    # parent->childs link
-    has xmlNode               $.last;        # last child link
-    has xmlNode               $.parent;      # child->parent link
-    has xmlNode               $.next;        # next sibling link
-    has xmlNode               $.prev;        # previous sibling link
-    has xmlDoc                $.doc;         # the containing document
+class _xmlNode is repr('CStruct') is LinkedList {
+    has Pointer         $._private;    # application data
+    has int32           $.type;        # type number, must be second !
+    has xmlCharP        $.name;        # the name of the node, or the entity
+    has xmlNode         $.children;    # parent->childs link
+    has xmlNode         $.last;        # last child link
+    has xmlNode         $.parent;      # child->parent link
+    has xmlNode         $.next;        # next sibling link
+    has xmlNode         $.prev;        # previous sibling link
+    has xmlDoc          $.doc;         # the containing document
     # End of common part
 
     method GetBase(xmlDoc) is native(LIB) is symbol('xmlNodeGetBase') returns xmlCharP {*}
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
 
-    sub siblings($cur) is rw {
-        my class Siblings does Iterable does Iterator {
-            has xmlNode $.cur;
-            method iterator { self }
-            method pull-one {
-                my xmlNode $this = $!cur;
-                $_ = .next with $!cur;
-                $this // IterationEnd;
-            }
-        }.new( :$cur );
-    }
-
     method child-nodes {
-        siblings($!children);
+        LinkedList::iterate($!children);
     }
-  }
+}
 
-class xmlNode is _NodeCommon is export {
-    has xmlNs                 $.ns;          # pointer to the associated namespace
-    has xmlCharP              $.content;     # the content
-    has xmlAttr               $.properties;  # properties list
-    has xmlNs                 $.nsDef;       # namespace definitions on this node
-    has Pointer               $.psvi;        # for type/PSVI informations
-    has uint16                $.line;        # line number
-    has uint16                $.extra;       # extra data for XPath/XSLT
+class xmlNode is _xmlNode {
+    has xmlNs           $.ns;          # pointer to the associated namespace
+    has xmlCharP        $.content;     # the content
+    has xmlAttr         $.properties;  # properties list
+    has xmlNs           $.nsDef;       # namespace definitions on this node
+    has Pointer         $.psvi;        # for type/PSVI informations
+    has uint16          $.line;        # line number
+    has uint16          $.extra;       # extra data for XPath/XSLT
+
+    method attributes {
+        LinkedList::iterate($!properties);
+    }
+
+    method namespaces {
+        LinkedList::iterate($!nsDef);
+    }
 
     method Str(Bool() :$format = False) {
         nextsame without self;
@@ -257,32 +274,44 @@ class xmlNode is _NodeCommon is export {
         $buf.Free;
         $content;
     }
+
 }
 
-class xmlDoc is _NodeCommon is export {
-    has int32                 $.compression; # level of zlib compression
-    has int32                 $.standalone;  # standalone document (no external refs)
-                                             # 1 if standalone="yes"
-                                             # 0 if standalone="no"
-                                             # -1 if there is no XML declaration
-                                             # -2 if there is an XML declaration, but no
-                                             #    standalone attribute was specified
-    has xmlDtd                $.intSubset;   # the document internal subset
-    has xmlDtd                $.extSubset;   # the document external subset
-    has xmlNs                 $.oldNs;       # Global namespace, the old way
-    has xmlCharP              $.version;     # the XML version string
-    has xmlCharP              $.encoding;    # external initial encoding, if any
-    has Pointer               $.ids;         # Hash table for ID attributes if any
-    has Pointer               $.refs;        # Hash table for IDREFs attributes if any
-    has xmlCharP              $.URL;         # The URI for that document
-    has int32                 $.charset;     # Internal flag for charset handling,
-                                             # actually an xmlCharEncoding 
-    has xmlDict               $.dict;        # dict used to allocate names or NULL
-    has Pointer               $.psvi;        # for type/PSVI informations
-    has int32                 $.parseFlags;  # set of xmlParserOption used to parse the
-                                             # document
-    has int32                 $.properties;  # set of xmlDocProperties for this document
-                                             # set at the end of parsing
+class xmlAttr is _xmlNode is export {
+    has xmlAttr         $.nexth;        # next in hash table
+    has int32           $.atype;        # the attribute type
+    has int32           $.def;          # default mode (enum xmlAttributeDefault)
+    has xmlCharP        $.defaultValue; # or the default value
+    has xmlEnumeration  $.tree;         # or the enumeration tree if any
+    has xmlCharP        $.prefix;       # the namespace prefix if any
+    has xmlCharP        $.elem;         # Element holding the attribute
+
+}
+
+class xmlDoc is _xmlNode is export {
+    has int32           $.compression; # level of zlib compression
+    has int32           $.standalone;  # standalone document (no external refs)
+                                       # 1 if standalone="yes"
+                                       # 0 if standalone="no"
+                                       # -1 if there is no XML declaration
+                                       # -2 if there is an XML declaration, but no
+                                       #    standalone attribute was specified
+    has xmlDtd          $.intSubset;   # the document internal subset
+    has xmlDtd          $.extSubset;   # the document external subset
+    has xmlNs           $.oldNs;       # Global namespace, the old way
+    has xmlCharP        $.version;     # the XML version string
+    has xmlCharP        $.encoding;    # external initial encoding, if any
+    has Pointer         $.ids;         # Hash table for ID attributes if any
+    has Pointer         $.refs;        # Hash table for IDREFs attributes if any
+    has xmlCharP        $.URL;         # The URI for that document
+    has int32           $.charset;     # Internal flag for charset handling,
+                                       # actually an xmlCharEncoding 
+    has xmlDict         $.dict;        # dict used to allocate names or NULL
+    has Pointer         $.psvi;        # for type/PSVI informations
+    has int32           $.parseFlags;  # set of xmlParserOption used to parse the
+                                       # document
+    has int32           $.properties;  # set of xmlDocProperties for this document
+                                       # set at the end of parsing
 
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
