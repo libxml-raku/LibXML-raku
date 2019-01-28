@@ -480,33 +480,26 @@ use LibXML::SAX;
 
     my $root = $doc.GetRootElement;
 
-}
-skip("port remaining tests", 213);
-=begin POD
-
-    # bad thing: i have to do some NS normalizing.
-    # libxml2 will only do some fixing. this will lead to multiple
-    # declarations, if a node with a new namespace is added.
-
     my $vstring = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi/></foo>};
-    # my $vstring = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi xmlns:bar="http://foo.bar"/></foo>};
-    is($root->toString, $vstring );
+    is($root.Str, $vstring );
+
 
     # 3.3 INTERNAL SUBSETS
 
-    foreach my $str ( @goodWFDTDStrings ) {
-        my $doc = $generator->parse_string( $str );
-        isa_ok( $doc , 'LibXML::Document');
+    for @goodWFDTDStrings -> $string {
+        my $doc = $generator.parse: :$string;
+        isa-ok( $doc , 'LibXML::Document');
     }
 
-    # 3.5 PARSE URI
-    $doc = $generator->parse_uri( "example/test.xml" );
-    isa_ok($doc, 'LibXML::Document');
-
-    # 3.6 PARSE CHUNK
+    # 3.5 PARSE FILE
+    $doc = $generator.parse: :file("example/test.xml");
+    isa-ok($doc, 'LibXML::Document');
 
 
 }
+
+skip("port remaining tests", 204);
+=begin POD
 
 # 4 SAXY PUSHER
 

@@ -34,7 +34,7 @@ class LibXML::Parser {
         :oldsax(XML_PARSE_OLDSAX),
     );
 
-    method !context(parserCtxt :$ctx!) {
+    method !context(parserCtxt:D :$ctx!) {
         $ctx.sax = $_ with $!sax;
         LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
@@ -80,6 +80,9 @@ class LibXML::Parser {
 
     multi method parse(Str:D :$file!,
                        Str :$uri = $!base-uri) {
+
+        die "file not found: $file"
+            unless $file.IO.e;
 
         my parserCtxt $ctx = $!html
            ?? htmlFileParserCtxt.new(:$file)
