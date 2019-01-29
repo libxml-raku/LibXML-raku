@@ -572,43 +572,41 @@ use LibXML::SAX;
     # 5.1 DOM CHUNK PARSER
 
     for ( 1..$MAX_WF_C ) -> $_ is copy {
-        my $chunk = %chunks{'wellformed' ~ $_};
-warn :$chunk.perl;
+        my Str:D $chunk = %chunks{'wellformed' ~ $_};
         my $frag = $pparser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-warn $frag.doc.type;
         if ( $frag.doc.type == +XML_DOCUMENT_FRAG_NODE) {
-warn "kiddie winkies";
             my @kids = $frag.doc.children;
             if @kids && @kids.head === @kids.tail {
-                if ( %chunks{'wellformed' ~ $_} ~~ /'<A></A>'/ ) {
+                if ( $chunk ~~ /'<A></A>'/ ) {
                     $_--; # because we cannot distinguish between <a/> and <a></a>
                 }
 
-                is($frag.Str, %chunks{'wellformed' ~ $_}, %chunks{'wellformed' ~ $_} ~ " is well formed");
+                is($frag.Str, %chunks{'wellformed' ~ $_}, $chunk ~ " is well formed");
                 next;
             }
         }
         fail("Unexpected fragment without child nodes");
     }
 
-}
-skip("port remaining tests", 111);
-=begin POD
-
-    for ( 1..$MAX_WB_C ) {
-        my $frag = $pparser->parse_xml_chunk($chunks{'wellbalance'.$_});
-        isa_ok($frag, 'LibXML::DocumentFragment');
-        if ( $frag->nodeType == XML_DOCUMENT_FRAG_NODE
-             && $frag->hasChildNodes ) {
-            if ( $chunks{'wellbalance'.$_} =~ /<A><\/A>/ ) {
+    for ( 1..$MAX_WB_C ) -> $_ is copy {
+        my Str:D $chunk = %chunks{'wellbalance' ~ $_};
+        my $frag = $pparser.parse-balanced: :$chunk;
+        isa-ok($frag, 'LibXML::DocumentFragment');
+        if ( $frag.doc.type == XML_DOCUMENT_FRAG_NODE) {
+            my xmlNode @children = $frag.doc.children;
+            if ( $chunk ~~ /'<A></A>'/ ) {
                 $_--;
             }
-            is($frag->toString, $chunks{'wellbalance'.$_}, $chunks{'wellbalance'.$_} . " is well balanced");
+            is($frag.Str, %chunks{'wellbalance' ~ $_}, $chunk ~ " is well balanced");
             next;
         }
         fail("Can't test balancedness");
     }
+
+}
+skip("port remaining tests", 79);
+=begin POD
 
     eval { my $fail = $pparser->parse_xml_chunk(undef); };
     like($@, qr/^Empty String at/, "error parsing undef xml chunk");
