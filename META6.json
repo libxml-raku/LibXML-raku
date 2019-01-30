@@ -14,7 +14,6 @@
   "perl" : "6",
   "provides" : {
     "LibXML" : "lib/LibXML.pm6",
-    "LibXML::Native::DOM::Node" : "lib/LibXML/DOM/Node.pm6",
     "LibXML::DomNode" : "lib/LibXML/DomNode.pm6",
     "LibXML::Document" : "lib/LibXML/Document.pm6",
     "LibXML::DocumentFragment" : "lib/LibXML/DocumentFragment.pm6",

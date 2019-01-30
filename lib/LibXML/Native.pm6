@@ -249,6 +249,7 @@ class _xmlNode is repr('CStruct') is LinkedList does LibXML::Native::DOM::Node i
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method domAppendChild(_xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domInsertBefore(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
+    method domInsertAfter(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
 
     method siblings {
         LinkedList::iterate(self);
@@ -400,9 +401,9 @@ class xmlError is export {
 }
 
 class parserCtxt is export {
-    has xmlSAXHandler          $.sax is proxy(
+    has xmlSAXHandler          $.sax is proxy(       # The SAX handler
         method xml6_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
-    );          # The SAX handler
+    );
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
     has xmlDoc                 $.myDoc;        # the document being built
     has int32                  $.wellFormed;   # is the document well formed

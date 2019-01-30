@@ -52,12 +52,11 @@ method Str(Bool() :$format = False) {
 
 }
 
-sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 
 submethod DESTROY {
     with $!ctx -> $ctx {
         with $!node {
-            .Free unless addr($_) ~~ addr($ctx.myDoc);
+            .Free unless .isSameNode($ctx.myDoc);
         }
 	$ctx.Free;
     }
