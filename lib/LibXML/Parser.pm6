@@ -49,13 +49,14 @@ class LibXML::Parser {
 
     method process-xincludes(LibXML::Document $_, Bool :$recover = $!recover) {
         my xmlDoc $doc = .node;
-        my xmlXIncludeCtxt $ctx .= new( :$doc );
+        my xmlXIncludeCtxt $ctx .= new( :$doc, :$!flags );
         $ctx.sax = $_ with $!sax;
         my LibXML::ParserContext $pc = self!context: :$ctx;
         my xmlNode $root = $doc.GetRootElement;
         my $n = $ctx.ProcessNode($root);
-        $pc.flush-errors: :$!recover;
         $ctx.Free;
+        $pc.ctx = Nil;
+        $pc.flush-errors: :$!recover;
         $n;
     }
 
@@ -74,6 +75,7 @@ class LibXML::Parser {
         }
         else {
             $ctx.Free;
+            $pc.ctx = Nil;
             $pc.flush-errors: :$!recover;
         }
     }
@@ -95,6 +97,7 @@ class LibXML::Parser {
         }
         else {
             $ctx.Free;
+            $pc.ctx = Nil;
             $pc.flush-errors: :$!recover;
         }
     }

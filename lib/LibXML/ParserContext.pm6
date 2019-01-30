@@ -15,7 +15,7 @@ class X::LibXML::Parser is Exception {
 class LibXML::ParserContext {
     use LibXML::Native;
     use LibXML::Enums;
-    has parserCtxt $.ctx;
+    has parserCtxt $.ctx is rw;
     has @!errors;
 
     submethod TWEAK(:$flags!, :$line-numbers!, Bool :$recover) {
