@@ -48,7 +48,7 @@ class LibXML::Parser {
     }
 
     method process-xincludes(LibXML::Document $_, Bool :$recover = $!recover) {
-        my xmlDoc $doc = .doc;
+        my xmlDoc $doc = .node;
         my xmlXIncludeCtxt $ctx .= new( :$doc );
         $ctx.sax = $_ with $!sax;
         my LibXML::ParserContext $pc = self!context: :$ctx;
@@ -69,8 +69,8 @@ class LibXML::Parser {
 
         my LibXML::ParserContext $pc = self!context: :$ctx;
 
-        with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $doc {
-            self!finish: LibXML::Document.new( :$ctx, :$doc), :$pc;
+        with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $node {
+            self!finish: LibXML::Document.new( :$ctx, :$node), :$pc;
         }
         else {
             $ctx.Free;

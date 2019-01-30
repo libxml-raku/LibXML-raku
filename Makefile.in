@@ -4,9 +4,9 @@ all : lib doc
 
 lib : resources/libraries/%LIB-NAME%
 
-resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/xml6_ctx%O% $(SRC)/xml6_doc_frag%O% $(SRC)/xml6_sax%O%
+resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/xml6_ctx%O%  $(SRC)/xml6_doc%O% $(SRC)/xml6_doc_frag%O% $(SRC)/xml6_sax%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
-        $(SRC)/dom%O% $(SRC)/xml6_ctx%O% $(SRC)/xml6_doc_frag%O% $(SRC)/xml6_sax%O% \
+        $(SRC)/dom%O% $(SRC)/xml6_ctx%O%  $(SRC)/xml6_doc%O% $(SRC)/xml6_doc_frag%O% $(SRC)/xml6_sax%O% \
         %LIB-LDFLAGS% 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
@@ -14,6 +14,9 @@ $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
 
 $(SRC)/xml6_ctx%O% : $(SRC)/xml6_ctx.c $(SRC)/xml6_ctx.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ctx%O% $(SRC)/xml6_ctx.c %LIB-CFLAGS%
+
+$(SRC)/xml6_doc%O% : $(SRC)/xml6_doc.c $(SRC)/xml6_doc.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_doc%O% $(SRC)/xml6_doc.c %LIB-CFLAGS%
 
 $(SRC)/xml6_doc_frag%O% : $(SRC)/xml6_doc_frag.c $(SRC)/xml6_doc_frag.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_doc_frag%O% $(SRC)/xml6_doc_frag.c %LIB-CFLAGS%

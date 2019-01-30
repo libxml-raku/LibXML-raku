@@ -229,7 +229,9 @@ class xmlBuffer is repr(Stub) is export {
     method Free is symbol('xmlBufferFree') is native(LIB) is export { * }
 }
 
-class _xmlNode is repr('CStruct') is LinkedList {
+use LibXML::Native::DOM::Node;
+
+class _xmlNode is repr('CStruct') is LinkedList does LibXML::Native::DOM::Node is export {
     has Pointer         $._private;    # application data
     has int32           $.type;        # type number, must be second !
     has xmlCharP        $.name;        # the name of the node, or the entity
@@ -245,6 +247,8 @@ class _xmlNode is repr('CStruct') is LinkedList {
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
+    method domAppendChild(_xmlNode) returns _xmlNode is native(BIND-LIB) {*}
+    method domInsertBefore(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
 
     method siblings {
         LinkedList::iterate(self);
@@ -324,6 +328,7 @@ class xmlDoc is _xmlNode is export {
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
+    method xml6_doc_set_int_subset(xmlDtd) is native(BIND-LIB) {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method Str(Bool() :$format = False) {
         nextsame without self;

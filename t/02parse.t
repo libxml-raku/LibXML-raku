@@ -561,7 +561,7 @@ use LibXML::SAX;
         "bar</ouch>",
         "<ouch/>&foo;", # undefined entity
         "&",            # bad char
-        "h\x[e4]h?",         # bad encoding
+       ## "h\x[e4]h?",         # bad encoding
         "<!--->",       # bad stays bad ;)
         "<!----->",     # bad stays bad ;)
     );
@@ -575,8 +575,8 @@ use LibXML::SAX;
         my Str:D $chunk = %chunks{'wellformed' ~ $_};
         my $frag = $pparser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-        if ( $frag.doc.type == +XML_DOCUMENT_FRAG_NODE) {
-            my @kids = $frag.doc.children;
+        if ( $frag.node.type == +XML_DOCUMENT_FRAG_NODE) {
+            my @kids = $frag.node.children;
             if @kids && @kids.head === @kids.tail {
                 if ( $chunk ~~ /'<A></A>'/ ) {
                     $_--; # because we cannot distinguish between <a/> and <a></a>
@@ -593,8 +593,8 @@ use LibXML::SAX;
         my Str:D $chunk = %chunks{'wellbalance' ~ $_};
         my $frag = $pparser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-        if ( $frag.doc.type == XML_DOCUMENT_FRAG_NODE) {
-            my xmlNode @children = $frag.doc.children;
+        if ( $frag.node.type == XML_DOCUMENT_FRAG_NODE) {
+            my xmlNode @children = $frag.node.children;
             if ( $chunk ~~ /'<A></A>'/ ) {
                 $_--;
             }
@@ -604,19 +604,12 @@ use LibXML::SAX;
         fail("Can't test balancedness");
     }
 
-}
-skip("port remaining tests", 79);
-=begin POD
+    dies-ok { $pparser.parse-balanced: :chunk(Mu); };
 
-    eval { my $fail = $pparser->parse_xml_chunk(undef); };
-    like($@, qr/^Empty String at/, "error parsing undef xml chunk");
+    dies-ok { $pparser.parse-balanced: :chunk(""); };
 
-    eval { my $fail = $pparser->parse_xml_chunk(""); };
-    like($@, qr/^Empty String at/, "error parsing empty xml chunk");
-
-    foreach my $str ( @badWBStrings ) {
-        eval { my $fail = $pparser->parse_xml_chunk($str); };
-        isnt($@, '', "Error parsing xml chunk: '" . shorten_string($str) . "'");
+    for @badWBStrings -> $chunk {
+        dies-ok({ $pparser.parse-balanced: :$chunk; }), "parse-balanced fails: $chunk";
     }
 
     {
@@ -625,16 +618,20 @@ skip("port remaining tests", 79);
         my $sDoc   = '<C/><D/>';
         my $sChunk = '<A/><B/>';
 
-        my $parser = LibXML->new();
-        my $doc = $parser->parse_xml_chunk( $sDoc,  undef );
-        my $chk = $parser->parse_xml_chunk( $sChunk,undef );
+        my LibXML $parser .= new();
+        my $doc = $parser.parse-balanced: :chunk( $sDoc);
+        my $chk = $parser.parse-balanced: :chunk( $sChunk);
 
-        my $fc = $doc->firstChild;
+        my $fc = $doc.firstChild;
 
-        $doc->appendChild( $chk );
+        $doc.appendChild( $chk );
 
-        is( $doc->toString(), '<C/><D/><A/><B/>', 'No segfault parsing string "<C/><D/><A/><B/>"');
+        is( $doc.Str, '<C/><D/><A/><B/>', 'appendChild');
     }
+
+}
+skip("port remaining tests", 68);
+=begin POD
 
     {
         # 5.1.2 Segmentation fault tests
