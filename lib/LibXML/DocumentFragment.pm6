@@ -7,19 +7,15 @@ use LibXML::Document;
 use LibXML::Native;
 use NativeCall;
 
-has LibXML::Document $.ref-doc;
 has xmlDocFrag $.node handles <Str>;
 
-submethod TWEAK {
-    my xmlDoc $ref-doc = .doc with $!ref-doc;
-    $!node //= xmlDocFrag.new: :$ref-doc;
+submethod TWEAK(xmlDoc :$ref-doc) {
+    $!node //= xmlDocFrag.new;
 }
 
 method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data,  Bool() :$repair) {
-    my xmlDoc $ref-doc = .doc with $!ref-doc;
-    $_ .= new without $ref-doc;
     my Pointer[xmlNode] $nodes .= new;
-    my $stat = $ref-doc.xmlParseBalancedChunkMemory($sax, $user-data, 0, $chunk, $nodes);
+    my $stat = xmlDoc.xmlParseBalancedChunkMemory($sax, $user-data, 0, $chunk, $nodes);
     if $stat && !$repair {
         .deref.FreeList with $nodes;
     }
@@ -34,7 +30,7 @@ method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data, 
 
 submethod DESTROY {
     with $!node {
-        .Free;
+        .FreeList with $!node.children;
 	$_ = Nil;
     }
 }

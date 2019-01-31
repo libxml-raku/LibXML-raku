@@ -635,7 +635,7 @@ class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
 };
 
-sub xmlGetLastError returns xmlError is native('xml2') { * }
+sub xmlGetLastError returns xmlError is native(LIB) { * }
 
 multi method GetLastError(parserCtxt $ctx) { $ctx.GetLastError() // $.GetLastError()  }
 multi method GetLastError { xmlGetLastError()  }
