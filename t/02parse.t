@@ -8,6 +8,7 @@ use Test;
 plan 533;
 use LibXML;
 use LibXML::Native;
+use LibXML::Node;
 use LibXML::Enums;
 use LibXML::SAX::Handler::SAX2;
 use LibXML::SAX::Handler::XML;
@@ -220,11 +221,11 @@ throws-like( { $parser.parse(:file($badfile1))},
 
 
 {
-    my $str = "<a>    <b/> </a>";
-    my $tstr= "<a><b/></a>";
-    temp $parser.keep-blanks = True;
+    my $string = "<a>    <b/> </a>";
+    my $tstr = "<a><b/></a>";
+    temp $parser.keep-blanks = False;
     temp config.skip-xml-declaration = True;
-    my $docA = $parser.parse: :string($str);
+    my $docA = $parser.parse: :$string;
     my $docB = $parser.parse: :file("example/test3.xml");
     use LibXML::Document;
     is( ~$docA, $tstr, "xml string round trips as expected");
@@ -255,7 +256,7 @@ throws-like
     $parser.expand-entities = True;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
 
-    my xmlNode @cn = $doc.GetRootElement.child-nodes;
+    my LibXML::Node @cn = $doc.GetRootElement.child-nodes;
     is( +@cn, 1, "1 child node" );
 
     $parser.expand-entities = False;
@@ -463,7 +464,8 @@ use LibXML::SAX;
     }
 
     $doc = $generator.parse: :string(q{<foo bar="baz"/>});
-    my xmlAttr @attrs = $doc.GetRootElement.attributes;
+    my LibXML::Node:D $root = $doc.GetRootElement;
+    my LibXML::Node @attrs = $root.attributes;
     is(+ @attrs , 1, "1 attribute");
 
     # DATA CONSISTENCE
@@ -478,7 +480,7 @@ use LibXML::SAX;
     is(+ @namespaces , 1, "1 namespace");
     is( @namespaces[0].type, +XML_NAMESPACE_DECL, "Node type: " ~ +XML_NAMESPACE_DECL );
 
-    my $root = $doc.GetRootElement;
+    $root = $doc.GetRootElement;
 
     my $vstring = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi/></foo>};
     is($root.Str, $vstring );

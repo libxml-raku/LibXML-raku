@@ -1,17 +1,17 @@
-use LibXML::DomNode;
+use LibXML::Node;
 
 unit class LibXML::DocumentFragment
-    is LibXML::DomNode;
+    is LibXML::Node;
 
 use LibXML::Document;
 use LibXML::Native;
 use NativeCall;
 
-has xmlDocFrag $.node handles <Str>;
-
-submethod TWEAK(xmlDoc :$ref-doc) {
-    $!node //= xmlDocFrag.new;
+submethod TWEAK() {
+    self.set-node: xmlDocFrag.new;
 }
+
+method root { self }
 
 method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data,  Bool() :$repair) {
     my Pointer[xmlNode] $nodes .= new;
@@ -21,17 +21,22 @@ method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data, 
     }
     else {
         with $nodes {
-            .FreeList with $!node.children;
-            $!node.set-nodes(.deref);
+            .FreeList with $.node.children;
+            $.node.set-nodes(.deref);
         }
     }
     $stat;
 }
 
+method Str(Bool :$format = False) {
+    $.child-nodes.map(*.Str(:$format)).join;
+}
+
 submethod DESTROY {
-    with $!node {
-        .FreeList with $!node.children;
-	$_ = Nil;
+    with self.node {
+        .FreeList with self.node.children;
+	self.set-node: _xmlNode;
     }
 }
+
 

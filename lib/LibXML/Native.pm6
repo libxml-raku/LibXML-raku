@@ -251,12 +251,6 @@ class _xmlNode is repr('CStruct') is LinkedList does LibXML::Native::DOM::Node i
     method domInsertBefore(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domInsertAfter(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
 
-    method siblings {
-        LinkedList::iterate(self);
-    }
-    method child-nodes {
-        LinkedList::iterate($!children);
-    }
 }
 
 class xmlNode is _xmlNode {
@@ -346,9 +340,6 @@ class xmlDocFrag is xmlDoc is repr('CStruct') is export {
         my xmlDocFrag:D $frag = xmlNewDocFragment($ref-doc);
         $frag.set-nodes($_) with $nodes;
         $frag;
-    }
-    method Str(Bool :$format = False) {
-        self.child-nodes.map(*.Str(:$format)).join;
     }
 }
 

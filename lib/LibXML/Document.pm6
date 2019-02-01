@@ -1,8 +1,8 @@
 use v6;
-use LibXML::DomNode;
+use LibXML::Node;
 
 unit class LibXML::Document
-    is LibXML::DomNode;
+    is LibXML::Node;
 
 use LibXML::Native;
 use LibXML::Enums;
@@ -11,17 +11,19 @@ use NativeCall;
 
 constant config = LibXML::Config;
 has parserCtxt $.ctx is required handles <wellFormed valid>;
-has xmlDoc $.node handles<encoding GetRootElement>;
+# todo eliminate raw node handling
+method node handles<encoding> { callsame }
+method root { self }
 
-submethod TWEAK {
-    $!node //= $!ctx.myDoc;
+submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
+    self.set-node: $node;
 }
 
 method uri is rw {
     Proxy.new(
-        FETCH => sub ($) { $!node.GetBase($!node) },
+        FETCH => sub ($) { $.node.GetBase($.node) },
         STORE => sub ($, Str:D() $_) {
-            $!node.SetBase($_);
+            $.node.SetBase($_);
         }
     )
 }
@@ -31,10 +33,10 @@ method Str(Bool() :$format = False) {
 
     if config.skip-xml-declaration {
         my \skip-dtd = config.skip-dtd;
-        $!node.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
+        $.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
     }
     else {
-        my xmlDoc $doc = $!node;
+        my xmlDoc $doc = $.node;
         with $doc.internal-dtd {
             if config.skip-dtd {
                 # make a copy, with DTD removed
@@ -52,17 +54,16 @@ method Str(Bool() :$format = False) {
 
 }
 
-
 submethod DESTROY {
     with $!ctx -> $ctx {
-        with $!node {
+        with self.node {
             .Free unless .isSameNode($ctx.myDoc);
         }
 	$ctx.Free;
     }
     else {
-        .Free with $!node;
+        .Free with self.node;
     }
-    $!node = Nil;
+    self.set-node: _xmlNode;
     $!ctx = Nil;
 }

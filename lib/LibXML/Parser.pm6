@@ -21,7 +21,7 @@ class LibXML::Parser {
         :suppress-errors(XML_PARSE_NOERROR),
         :suppress-warnings(XML_PARSE_NOWARNING),
         :pedantic-parser(XML_PARSE_PEDANTIC),
-        :keep-blanks(XML_PARSE_NOBLANKS),
+        :no-blanks(XML_PARSE_NOBLANKS),
         :expand-xinclude(XML_PARSE_XINCLUDE),
         :xinclude(XML_PARSE_XINCLUDE),
         :no-network(XML_PARSE_NONET),
@@ -33,6 +33,13 @@ class LibXML::Parser {
         :huge(XML_PARSE_HUGE),
         :oldsax(XML_PARSE_OLDSAX),
     );
+
+    method keep-blanks is rw {
+        Proxy.new(FETCH => sub ($) { ! self.no-blanks },
+                  STORE => sub ($, Bool() $kb) {
+                         self.no-blanks = ! $kb
+                     })
+    }
 
     method !context(parserCtxt:D :$ctx!) {
         $ctx.sax = $_ with $!sax;
