@@ -33,7 +33,7 @@ method Str(Bool() :$format = False) {
 
     if config.skip-xml-declaration {
         my \skip-dtd = config.skip-dtd;
-        $.child-nodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
+        $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
     }
     else {
         my xmlDoc $doc = $.node;

@@ -5,7 +5,7 @@ use Test;
 # this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
-plan 533;
+plan 534;
 use LibXML;
 use LibXML::Native;
 use LibXML::Node;
@@ -256,16 +256,16 @@ throws-like
     $parser.expand-entities = True;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
 
-    my LibXML::Node @cn = $doc.GetRootElement.child-nodes;
+    my LibXML::Node @cn = $doc.documentElement.childNodes;
     is( +@cn, 1, "1 child node" );
 
     $parser.expand-entities = False;
     $doc = $parser.parse: :file( "example/dtd.xml" );
-    @cn = $doc.GetRootElement.child-nodes;
+    @cn = $doc.documentElement.childNodes;
     is( +@cn, 3, "3 child nodes" );
 
     $doc = $parser.parse: :file( "example/complex/complex2.xml" );
-    @cn = $doc.GetRootElement.child-nodes;
+    @cn = $doc.documentElement.childNodes;
     is( +@cn, 1, "1 child node" );
 
 }
@@ -443,7 +443,7 @@ use LibXML::SAX;
     $string = q{<foo><![CDATA[&foo<bar]]></foo>};
 
     $doc = $generator.parse: :$string;
-    my @cn = $doc.GetRootElement.child-nodes();
+    my @cn = $doc.documentElement.childNodes();
     is( + @cn, 1, "Child nodes - 1" );
     is( @cn[0].type, +XML_CDATA_SECTION_NODE );
     is( @cn[0].content, '&foo<bar' );
@@ -464,7 +464,7 @@ use LibXML::SAX;
     }
 
     $doc = $generator.parse: :string(q{<foo bar="baz"/>});
-    my LibXML::Node:D $root = $doc.GetRootElement;
+    my LibXML::Node:D $root = $doc.documentElement;
     my LibXML::Node @attrs = $root.attributes;
     is(+ @attrs , 1, "1 attribute");
 
@@ -475,12 +475,12 @@ use LibXML::SAX;
 
     $doc = $generator.parse: :string($string2);
 
-    my xmlNs @namespaces = $doc.GetRootElement.namespaces;
+    my xmlNs @namespaces = $doc.documentElement.namespaces;
 
     is(+ @namespaces , 1, "1 namespace");
     is( @namespaces[0].type, +XML_NAMESPACE_DECL, "Node type: " ~ +XML_NAMESPACE_DECL );
 
-    $root = $doc.GetRootElement;
+    $root = $doc.documentElement;
 
     my $vstring = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi/></foo>};
     is($root.Str, $vstring );
@@ -705,63 +705,63 @@ use LibXML::SAX;
     }
 }
 
-skip("port remaining tests", 11);
-=begin POD
-
 {
     # 6 VALIDATING PARSER
 
     my %badstrings = (
                     SIMPLE => '<?xml version="1.0"?>'~"\n<A/>\n",
                   );
-    my $parser = LibXML->new;
+    my LibXML $parser .= new;
 
-    $parser->validation(1);
+    $parser.validation = True;
     my $doc;
-    eval { $doc = $parser->parse_string($badstrings{SIMPLE}); };
-    isnt($@, '', "Failed to parse SIMPLE bad string");
-    my $ql;
+    dies-ok({ $doc = $parser.parse: :string(%badstrings<SIMPLE>); }, "Failed to parse SIMPLE bad string");
 }
 
 {
     # 7 LINE NUMBERS
 
-    my $goodxml = <<EOXML;
+    my $goodxml = q:to<EOXML>;
 <?xml version="1.0"?>
 <foo>
     <bar/>
 </foo>
 EOXML
 
-    my $badxml = <<EOXML;
+    my $badxml = q:to<EOXML>;
 <?xml version="1.0"?>
 <!DOCTYPE foo [<!ELEMENT foo EMPTY>]>
 <bar/>
 EOXML
 
-    my $parser = LibXML->new;
-    $parser->validation(1);
+    my LibXML $parser .= new;
+    $parser.validation = True;
 
-    eval { $parser->parse_string( $badxml ); };
+    throws-like { $parser.parse: :string( $badxml ); },
+    X::LibXML::Parser,
     # correct line number may or may not be present
     # depending on libxml2 version
-    like($@,  qr/^:[03]:/, "line 03 found in error" );
+    :message(rx/^^\:<[03]>\:/), "line 03 found in error";
 
-    $parser->line_numbers(1);
-    eval { $parser->parse_string( $badxml ); };
-    like($@, qr/^:3:/, "line 3 found in error");
+    $parser.line-numbers = True;
+    throws-like { $parser.parse: :string( $badxml ); },
+    X::LibXML::Parser, :message(rx/^^\:3\:/), "line 3 found in error";
 
     # switch off validation for the following tests
-    $parser->validation(0);
+    $parser.validation = False;
 
     my $doc;
-    eval { $doc = $parser->parse_string( $goodxml ); };
+    lives-ok { $doc = $parser.parse: :string( $goodxml ); };
 
-    my $root = $doc->documentElement();
-    is( $root->line_number(), 2, "line number is 2");
+    my $root = $doc.documentElement();
+    is( $root.line-number(), 2, "line number is 2");
 
-    my @kids = $root->childNodes();
-    is( $kids[1]->line_number(),3, "line number is 3" );
+    my LibXML::Node @kids = $root.childNodes();
+    is( @kids[1].line-number(),3, "line number is 3" );
+
+}
+skip("port remaining tests", 6);
+=begin POD
 
     my $newkid = $root->appendChild( $doc->createElement( "bar" ) );
     is( $newkid->line_number(), 0, "line number is 0");

@@ -55,8 +55,9 @@ class LibXML::ParserContext {
             $msg = (@text.join(' '), ' : ', $msg).join
             if @text;
 
-            if .line && .file && !.file.ends-with('/') {
-                $msg = (.file, .line, ' ' ~ $msg).join: ':';
+            my $file = .file // '';
+            if .line && !$file.ends-with('/') {
+                $msg = ($file, .line, ' ' ~ $msg).join: ':';
             }
             @!errors.push: %( :$level, :$msg);
         }
@@ -70,7 +71,7 @@ class LibXML::ParserContext {
     method flush-errors(Bool :$recover = False) {
         if @!errors {
             my Str $text = @!errors.map(*<msg>).join;
-            my $fatal = @!errors.first: { .<level> >= XML_ERR_FATAL };
+            my $fatal = @!errors.first: { .<level> >= XML_ERR_ERROR };
             my X::LibXML::Parser $err .= new: :$text;
             if !$fatal || $recover {
                 warn $err;

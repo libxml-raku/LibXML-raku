@@ -29,7 +29,7 @@ method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data, 
 }
 
 method Str(Bool :$format = False) {
-    $.child-nodes.map(*.Str(:$format)).join;
+    $.childNodes.map(*.Str(:$format)).join;
 }
 
 submethod DESTROY {

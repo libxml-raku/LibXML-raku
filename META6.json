@@ -14,6 +14,7 @@
   "perl" : "6",
   "provides" : {
     "LibXML" : "lib/LibXML.pm6",
+    "LibXML::Attr" : "lib/LibXML/Attr.pm6",
     "LibXML::Node" : "lib/LibXML/Node.pm6",
     "LibXML::Document" : "lib/LibXML/Document.pm6",
     "LibXML::DocumentFragment" : "lib/LibXML/DocumentFragment.pm6",

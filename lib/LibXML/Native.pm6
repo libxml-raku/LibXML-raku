@@ -247,6 +247,7 @@ class _xmlNode is repr('CStruct') is LinkedList does LibXML::Native::DOM::Node i
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
+    method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
     method domAppendChild(_xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domInsertBefore(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domInsertAfter(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}

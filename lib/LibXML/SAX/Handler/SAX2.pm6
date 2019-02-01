@@ -21,7 +21,6 @@ class LibXML::SAX::Handler::SAX2
     constant Ctx = parserCtxt;
 
     method setDocumentLocator(xmlSAXLocator $loc, :$ctx!) {
-        warn "i'm setting up a document locator, wish me luck!!";
         use LibXML::SAX::Builder;
         LibXML::SAX::Builder.build-locator($.locator, $loc);
 

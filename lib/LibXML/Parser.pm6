@@ -6,7 +6,7 @@ class LibXML::Parser {
     use LibXML::PushParser;
 
     has Bool $.html;
-    has Bool $.line-numbers = False;
+    has Bool $.line-numbers is rw = False;
     has Bool $.recover;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.base-uri is rw;

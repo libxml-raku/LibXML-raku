@@ -14,8 +14,8 @@ method domInsertBefore { ... }
 method domInsertAfter { ... }
 
 method firstChild { self.children }
-
 method lastChild { self.last }
+method documentElement { self.GetRootElement }
 
 method appendChild(Node $nNode) {
     if self.type == XML_DOCUMENT_NODE {

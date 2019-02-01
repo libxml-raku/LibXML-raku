@@ -6,7 +6,7 @@ has _xmlNode $.node handles <Str type content hasChildNodes namespaces>;
 BEGIN {
     # wrap methods that return raw nodes
     # no arguments
-    for <last parent next prev doc firstChild lastChild GetRootElement> {
+    for <last parent next prev doc firstChild lastChild documentElement> {
         $?CLASS.^add_method($_, method { self.proxy-node: $!node."$_"() });
     }
     # single node argument constructor
@@ -22,6 +22,8 @@ BEGIN {
         $?CLASS.^add_method($_, method (LibXML::Node:D $n1, LibXML::Node:D $n2) { self.proxy-node: $!node."$_"($n1.node, $n2.node) });
     }
 }
+
+method line-number { $!node.GetLineNo }
 
 method proxy-node(_xmlNode $node) { with $node { $?CLASS.new: :$node, :$.root} else { $?CLASS }; }
 method set-node($!node) {};
@@ -44,7 +46,8 @@ sub iterate($obj, _xmlNode $cur) is rw {
     }.new( :$cur );
 }
 
-method child-nodes {
+# DOM methods
+method childNodes {
     iterate(self, $.node.children);
 }
 
