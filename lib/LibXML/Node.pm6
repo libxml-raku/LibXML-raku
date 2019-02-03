@@ -1,7 +1,8 @@
 unit class LibXML::Node;
+use LibXML::Namespace;
 use LibXML::Native;
 has LibXML::Node $.root;
-has _xmlNode $.node handles <Str type content hasChildNodes namespaces>;
+has _xmlNode $.node handles <Str type content hasChildNodes>;
 
 BEGIN {
     # wrap methods that return raw nodes
@@ -25,19 +26,19 @@ BEGIN {
 
 method line-number { $!node.GetLineNo }
 
-method proxy-node(_xmlNode $node) { with $node { $?CLASS.new: :$node, :$.root} else { $?CLASS }; }
+method proxy-node(_xmlNode $node, :$class = self.WHAT, :$root = $.root) { with $node { $class.new: :$node, :$root} else { $class }; }
 method set-node($!node) {};
 
-sub iterate($obj, _xmlNode $cur) is rw {
+sub iterate($obj, $cur, :$root = $obj.root) is rw is export(:iterate) {
     # follow a chain of .next links.
     my class Siblings does Iterable does Iterator {
-        has _xmlNode $.cur;
+        has $.cur;
         method iterator { self }
         method pull-one {
-            my _xmlNode $this = $!cur;
+            my $this = $!cur;
             $_ = .next with $!cur;
             with $this -> $node {
-                $obj.proxy-node: $node
+                $obj.proxy-node: $node, :$root;
             }
             else {
                 IterationEnd;
@@ -51,6 +52,4 @@ method childNodes {
     iterate(self, $.node.children);
 }
 
-method attributes {
-    iterate(self, $.node.properties);
-}
+

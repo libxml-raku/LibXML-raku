@@ -5,9 +5,10 @@ use Test;
 # this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
-plan 534;
+plan 537;
 use LibXML;
 use LibXML::Native;
+use LibXML::Namespace;
 use LibXML::Node;
 use LibXML::Enums;
 use LibXML::SAX::Handler::SAX2;
@@ -256,7 +257,9 @@ throws-like
     $parser.expand-entities = True;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
 
-    my LibXML::Node @cn = $doc.documentElement.childNodes;
+    my $root = $doc.documentElement;
+    isa-ok($root, 'LibXML::Element');
+    my LibXML::Node @cn = $root.childNodes;
     is( +@cn, 1, "1 child node" );
 
     $parser.expand-entities = False;
@@ -475,7 +478,7 @@ use LibXML::SAX;
 
     $doc = $generator.parse: :string($string2);
 
-    my xmlNs @namespaces = $doc.documentElement.namespaces;
+    my LibXML::Namespace @namespaces = $doc.documentElement.namespaces;
 
     is(+ @namespaces , 1, "1 namespace");
     is( @namespaces[0].type, +XML_NAMESPACE_DECL, "Node type: " ~ +XML_NAMESPACE_DECL );
@@ -625,6 +628,7 @@ use LibXML::SAX;
         my $chk = $parser.parse-balanced: :chunk( $sChunk);
 
         my $fc = $doc.firstChild;
+        isa-ok($fc, 'LibXML::Element');
 
         $doc.appendChild( $chk );
 
@@ -642,6 +646,7 @@ use LibXML::SAX;
         my $chk = $parser.parse-balanced: :chunk($sChunk);
 
         my $fc = $doc.firstChild;
+        isa-ok($fc, 'LibXML::Element');
 
         $doc.insertAfter( $chk, $fc );
 

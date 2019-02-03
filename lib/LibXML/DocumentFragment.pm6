@@ -5,6 +5,7 @@ unit class LibXML::DocumentFragment
 
 use LibXML::Document;
 use LibXML::Native;
+use LibXML::Element;
 use NativeCall;
 
 submethod TWEAK() {
@@ -12,6 +13,8 @@ submethod TWEAK() {
 }
 
 method root { self }
+
+method proxy-node(|c) { nextwith( :class(LibXML::Element), |c); }
 
 method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data,  Bool() :$repair) {
     my Pointer[xmlNode] $nodes .= new;

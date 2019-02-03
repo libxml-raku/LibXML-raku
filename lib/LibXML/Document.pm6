@@ -7,6 +7,7 @@ unit class LibXML::Document
 use LibXML::Native;
 use LibXML::Enums;
 use LibXML::Config;
+use LibXML::Element;
 use NativeCall;
 
 constant config = LibXML::Config;
@@ -14,6 +15,8 @@ has parserCtxt $.ctx is required handles <wellFormed valid>;
 # todo eliminate raw node handling
 method node handles<encoding> { callsame }
 method root { self }
+
+method proxy-node(|c) { nextwith( :class(LibXML::Element), |c); }
 
 submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
     self.set-node: $node;

@@ -58,23 +58,8 @@ multi trait_mod:<is>(Attribute $att, :&proxy!) {
     $att does CustomSetter[&proxy]
 }
 
-class LinkedList {
-    our sub iterate($cur) is rw {
-        # follow a chain of .next links.
-        my class Siblings does Iterable does Iterator {
-            has LinkedList $.cur;
-            method iterator { self }
-            method pull-one {
-                my LinkedList $this = $!cur;
-                $_ = .next with $!cur;
-                $this // IterationEnd;
-            }
-        }.new( :$cur );
-    }
-}
-
 # Defined Structs/Pointers
-class xmlNs is repr('CStruct') is LinkedList is export {
+class xmlNs is repr('CStruct') is export {
     has xmlNs    $.next;    # next Ns link for this node
     has int32    $.type;    # global or local (enum xmlNsType)
     has xmlCharP $.prefix;  # prefix for the namespace
@@ -231,7 +216,7 @@ class xmlBuffer is repr(Stub) is export {
 
 use LibXML::Native::DOM::Node;
 
-class _xmlNode is repr('CStruct') is LinkedList does LibXML::Native::DOM::Node is export {
+class _xmlNode is repr('CStruct') does LibXML::Native::DOM::Node is export {
     has Pointer         $._private;    # application data
     has int32           $.type;        # type number, must be second !
     has xmlCharP        $.name;        # the name of the node, or the entity
@@ -262,14 +247,6 @@ class xmlNode is _xmlNode {
     has Pointer         $.psvi;        # for type/PSVI informations
     has uint16          $.line;        # line number
     has uint16          $.extra;       # extra data for XPath/XSLT
-
-    method attributes {
-        LinkedList::iterate($!properties);
-    }
-
-    method namespaces {
-        LinkedList::iterate($!nsDef);
-    }
 
     method Str(Bool() :$format = False) {
         nextsame without self;
