@@ -31,7 +31,6 @@ class LibXML::ParserContext {
 
         $!ctx.UseOptions($flags);     # Note: sets ctxt.linenumbers = 1
         $!ctx.linenumbers = +$line-numbers;
-
         # error handling
         sub structured-err-func(parserCtxt $, xmlError $_) {
             constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
@@ -64,7 +63,6 @@ class LibXML::ParserContext {
 
         $!ctx.xmlSetGenericErrorFunc( sub (parserCtxt $, Str $msg) { @!errors.push: %( :level(XML_ERR_FATAL), :$msg ) });
         $!ctx.xmlSetStructuredErrorFunc( &structured-err-func );
-
         $!ctx;
     }
 

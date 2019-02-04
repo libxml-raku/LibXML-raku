@@ -6,4 +6,3 @@ DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr ctx, xmlSAXHandlerPtr sax) {
 
   ctx->sax = sax;
 }
-

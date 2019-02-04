@@ -37,7 +37,7 @@ class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {}
-class xmlParserInput is repr(Stub) is export {}
+class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 
@@ -61,6 +61,26 @@ multi trait_mod:<is>(Attribute $att, :&proxy!) {
 }
 
 # Defined Structs/Pointers
+class xmlParserInput is repr('CStruct') is export {
+	has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
+	has Str                       $.filename is proxy(
+            method xml6_input_set_filename(Str $filename) is native(BIND-LIB) {*}
+        );    # The file analyzed, if any
+	has Str                       $.directory;   # the directory/base of the file
+	has xmlCharP                  $.base;        # Base of the array to parse
+	has xmlCharP                  $.cur;         # Current char being parsed
+	has xmlCharP                  $.end;         # end of the array to parse
+	has int32                     $.length;      # length if known
+	has int32                     $.line;        # Current line
+	has int32                     $.col;         # Current column
+	has ulong                     $.consumed;    # How many xmlChars already consumed
+	has xmlParserInputDeallocate  $.free;        # function to deallocate the base
+	has xmlCharP                  $.encoding;    # the encoding string for entity
+	has xmlCharP                  $.version;     # the version string for entity
+	has int32                     $.standalone;  # Was that entity marked standalone
+	has int32                     $.id;          # int id
+}
+
 class xmlNs is repr('CStruct') is export {
     has xmlNs    $.next;    # next Ns link for this node
     has int32    $.type;    # global or local (enum xmlNsType)
@@ -228,8 +248,9 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     has xmlNode         $.parent;      # child->parent link
     has xmlNode         $.next;        # next sibling link
     has xmlNode         $.prev;        # previous sibling link
-    has xmlDoc          $.doc;         # the containing document
-    # End of common part
+    has xmlDoc          $.doc is proxy(   # the containing document
+        method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*}
+    );
 
     method GetBase(xmlDoc) is native(LIB) is symbol('xmlNodeGetBase') returns xmlCharP {*}
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
@@ -251,10 +272,15 @@ class xmlNode is _xmlNode {
     has uint16          $.line;        # line number
     has uint16          $.extra;       # extra data for XPath/XSLT
 
+    sub New(xmlNs, xmlCharP $name --> xmlNode) is native(LIB) is symbol('xmlNewNode') {*}
+    method new(Str:D :$name!, xmlNs :$ns) {
+        New($ns, $name);
+    }
+
     method Str(Bool() :$format = False) {
         nextsame without self;
         my xmlBuffer $buf .= Create;
-        $buf.xmlNodeDump($.doc, self, 0, +$format);
+        $buf.xmlNodeDump($.doc // xmlDoc, self, 0, +$format);
         my str $content = $buf.Content;
         $buf.Free;
         $content;
@@ -606,6 +632,32 @@ class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
     method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') returns int32 { *};
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
 };
+
+class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
+    sub xmlCreateMemoryParserCtxt(Blob $buf, int32 $len --> xmlMemoryParserCtxt) is native(LIB) {*}
+    method ParseDocument is native(LIB) is symbol('xmlParseDocument') {*}
+    method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
+    multi method new( Str() :$string! ) {
+        my Blob $buf = ($string || ' ').encode;
+        self.new: :$buf;
+    }
+    multi method new( Blob() :$buf!, UInt :$len = +$buf ) {
+         xmlCreateMemoryParserCtxt($buf, $len);
+    }
+}
+
+class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
+    sub htmlCreateMemoryParserCtxt(Blob $buf, int32 $len --> htmlMemoryParserCtxt) is native(LIB) {*}
+    method ParseDocument is native(LIB) is symbol('htmlParseDocument') {*}
+    method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
+    multi method new( Str() :$string! ) {
+        my Blob $buf = $string.encode;
+        self.new: :$buf;
+    }
+    multi method new( Blob() :$buf!, UInt :$len = +$buf ) {
+         htmlCreateMemoryParserCtxt($buf, $len);
+    }
+}
 
 sub xmlGetLastError returns xmlError is native(LIB) { * }
 

@@ -13,7 +13,7 @@ use NativeCall;
 constant config = LibXML::Config;
 has parserCtxt $.ctx is required handles <wellFormed valid>;
 # todo eliminate raw node handling
-method node handles<encoding> { callsame }
+method node(--> xmlDoc) handles<encoding> { callsame }
 method root { self }
 
 submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
@@ -27,6 +27,13 @@ method uri is rw {
             $.node.SetBase($_);
         }
     )
+}
+
+# DOM Methods
+method createElement(Str $name) {
+    my xmlNode $node .= new: :$name;
+    $node.doc = $.node;
+    LibXML::Element.new: :$node, :root(self);
 }
 
 method Str(Bool() :$format = False) {

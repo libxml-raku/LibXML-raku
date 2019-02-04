@@ -1,5 +1,4 @@
 #include "xml6.h"
-#include "xml6.h"
 #include "xml6_doc.h"
 
 // adapted from 
@@ -16,7 +15,7 @@ DLLEXPORT void xml6_doc_set_int_subset(xmlDocPtr doc, xmlDtdPtr dtd) {
   if (old_dtd != NULL) {
     xmlUnlinkNode((xmlNodePtr) old_dtd);
 
-    if (PmmPROXYNODE(old_dtd) == NULL) {
+    if (old_dtd == NULL) {
       xmlFreeDtd(old_dtd);
     }
   }

@@ -1,11 +1,10 @@
 use v6;
 use Test;
-
 ##
 # this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
-plan 537;
+plan 543;
 use LibXML;
 use LibXML::Native;
 use LibXML::Namespace;
@@ -764,53 +763,50 @@ EOXML
     my LibXML::Node @kids = $root.childNodes();
     is( @kids[1].line-number(),3, "line number is 3" );
 
-}
-skip("port remaining tests", 6);
-=begin POD
+    my $newkid = $root.appendChild( $doc.createElement( "bar" ) );
+    is( $newkid.line-number(), 0, "line number is 0");
 
-    my $newkid = $root->appendChild( $doc->createElement( "bar" ) );
-    is( $newkid->line_number(), 0, "line number is 0");
+    $parser.line-numbers = False;
+    lives-ok { $doc = $parser.parse: :string( $goodxml ); };
 
-    $parser->line_numbers(0);
-    eval { $doc = $parser->parse_string( $goodxml ); };
+    $root = $doc.documentElement();
+    is( $root.line-number(), 0, "line number is 0");
 
-    $root = $doc->documentElement();
-    is( $root->line_number(), 0, "line number is 0");
-
-    @kids = $root->childNodes();
-    is( $kids[1]->line_number(), 0, "line number is 0");
+    @kids = $root.childNodes();
+    is( @kids[1].line-number(), 0, "line number is 0");
 }
 
 SKIP: {
-    skip("LibXML version is below 20600", 8) unless ( LibXML::LIBXML_VERSION >= 20600 );
-    # 8 Clean Namespaces
+    unless LibXML.parser-version >= v2.06.00 {
+        skip("LibXML version is below 20600", 8);
+        last SKIP;
+    }
+    my Str ( $xsDoc1, $xsDoc2 );
+    my Str $fn1 = "example/xmlns/goodguy.xml";
+    my Str $fn2 = "example/xmlns/badguy.xml";
 
-    my ( $xsDoc1, $xsDoc2 );
     $xsDoc1 = q{<A:B xmlns:A="http://D"><A:C xmlns:A="http://D"></A:C></A:B>};
     $xsDoc2 = q{<A:B xmlns:A="http://D"><A:C xmlns:A="http://E"/></A:B>};
 
-    my $parser = LibXML->new();
-    $parser->clean_namespaces(1);
+    my LibXML $parser .= new();
+    $parser.clean-namespaces = True;
 
-    my $fn1 = "example/xmlns/goodguy.xml";
-    my $fn2 = "example/xmlns/badguy.xml";
-
-    is( $parser->parse_string( $xsDoc1 )->documentElement->toString(),
+    is( $parser.parse(:string( $xsDoc1 )).documentElement.Str,
         q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
-    is( $parser->parse_string( $xsDoc2 )->documentElement->toString(),
+    is( $parser.parse(:string( $xsDoc2 )).documentElement.Str,
         $xsDoc2 );
 
-    is( $parser->parse_file( $fn1  )->documentElement->toString(),
+    is( $parser.parse(:file($fn1)).documentElement.Str,
         q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
-    is( $parser->parse_file( $fn2 )->documentElement->toString() ,
+    is( $parser.parse(:file($fn2)).documentElement.Str,
         $xsDoc2 );
 
-    my $fh1 = IO::File->new($fn1);
-    my $fh2 = IO::File->new($fn2);
+    my $fh1 = $fn1.IO;
+    my $fh2 = $fn2.IO;
 
-    is( $parser->parse_fh( $fh1  )->documentElement->toString(),
+    is( $parser.parse(:io($fh1)).documentElement,
         q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
-    is( $parser->parse_fh( $fh2 )->documentElement->toString() ,
+    is( $parser.parse(:io($fh2 )).documentElement ,
         $xsDoc2 );
 
     my @xaDoc1 = ('<A:B xmlns:A="http://D">','<A:C xmlns:A="h','ttp://D"/>' ,'</A:B>');
@@ -818,21 +814,24 @@ SKIP: {
 
     my $doc;
 
-    foreach ( @xaDoc1 ) {
-        $parser->parse_chunk( $_ );
+    for @xaDoc1 {
+        $parser.parse-chunk($_);
     }
-    $doc = $parser->parse_chunk( "", 1 );
-    is( $doc->documentElement->toString(),
+    $doc = $parser.parse-chunk: :terminate;
+
+    is( $doc.documentElement,
         q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
 
 
-    foreach ( @xaDoc2 ) {
-        $parser->parse_chunk( $_ );
+    for @xaDoc2 {
+        $parser.parse-chunk( $_ );
     }
-    $doc = $parser->parse_chunk( "", 1 );
-    is( $doc->documentElement->toString() ,
+    $doc = $parser.parse-chunk: :terminate;
+    is( $doc.documentElement,
         $xsDoc2 );
 };
+
+=begin POD
 
 
 ##

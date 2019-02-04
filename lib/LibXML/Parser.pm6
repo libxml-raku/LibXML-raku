@@ -67,24 +67,20 @@ class LibXML::Parser {
         $n;
     }
 
-    multi method parse(Str:D() :$string!,
+    multi method parse(Str:D() :$string! is copy,
                        Str :$uri = $!base-uri,
-                       Str :$enc) {
+                      ) {
 
+        # gives better diagnositics
         my parserCtxt $ctx = $!html
-           ?? htmlParserCtxt.new
-           !! xmlParserCtxt.new;
+           ?? htmlMemoryParserCtxt.new: :$string
+           !! xmlMemoryParserCtxt.new: :$string;
+
+        $ctx.input.filename = $_ with $uri;
 
         my LibXML::ParserContext $pc = self!context: :$ctx;
-
-        with $ctx.ReadDoc($string, $uri, $enc, $!flags) -> $node {
-            self!finish: LibXML::Document.new( :$ctx, :$node), :$pc;
-        }
-        else {
-            $ctx.Free;
-            $pc.ctx = Nil;
-            $pc.flush-errors: :$!recover;
-        }
+        $ctx.ParseDocument;
+        self!finish: LibXML::Document.new(:$ctx), :$pc;
     }
 
     multi method parse(Str:D :$file!,
