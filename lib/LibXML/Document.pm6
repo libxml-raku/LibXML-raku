@@ -16,8 +16,6 @@ has parserCtxt $.ctx is required handles <wellFormed valid>;
 method node handles<encoding> { callsame }
 method root { self }
 
-method proxy-node(|c) { nextwith( :class(LibXML::Element), |c); }
-
 submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
     self.set-node: $node;
 }

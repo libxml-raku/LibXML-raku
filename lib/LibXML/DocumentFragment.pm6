@@ -14,8 +14,6 @@ submethod TWEAK() {
 
 method root { self }
 
-method proxy-node(|c) { nextwith( :class(LibXML::Element), |c); }
-
 method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data,  Bool() :$repair) {
     my Pointer[xmlNode] $nodes .= new;
     my $stat = xmlDoc.xmlParseBalancedChunkMemory($sax, $user-data, 0, $chunk, $nodes);

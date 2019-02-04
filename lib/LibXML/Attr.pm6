@@ -8,5 +8,5 @@ method node handles <atype def defaultValue tree prefix elem> {
 }
 
 method nexth returns LibXML::Attr {
-    self.proxy-node: $.node.nexth, :class(LibXML::Attr);
+    self.dom-node: $.node.nexth;
 }

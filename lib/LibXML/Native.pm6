@@ -13,7 +13,9 @@ constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 constant xmlCharP = Str;
 
 # forward declarations
+class _xmlNode   is repr('CStruct') is export {...}
 class xmlDoc     is repr('CStruct') is export {...}
+class xmlDocFrag is repr('CStruct') is export {...}
 class xmlError   is repr('CStruct') is export {...}
 class xmlNode    is repr('CStruct') is export {...}
 class xmlAttr    is repr('CStruct') is export {...}
@@ -216,7 +218,8 @@ class xmlBuffer is repr(Stub) is export {
 
 use LibXML::Native::DOM::Node;
 
-class _xmlNode is repr('CStruct') does LibXML::Native::DOM::Node is export {
+class _xmlNode does LibXML::Native::DOM::Node is export {
+
     has Pointer         $._private;    # application data
     has int32           $.type;        # type number, must be second !
     has xmlCharP        $.name;        # the name of the node, or the entity
@@ -267,10 +270,10 @@ class xmlAttr is _xmlNode is export {
     has xmlEnumeration  $.tree;         # or the enumeration tree if any
     has xmlCharP        $.prefix;       # the namespace prefix if any
     has xmlCharP        $.elem;         # Element holding the attribute
-
 }
 
 class xmlDoc is _xmlNode is export {
+    submethod TWEAK { warn };
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone;  # standalone document (no external refs)
                                        # 1 if standalone="yes"
@@ -311,7 +314,7 @@ class xmlDoc is _xmlNode is export {
     }
 }
 
-class xmlDocFrag is xmlDoc is repr('CStruct') is export {
+class xmlDocFrag is xmlNode is export {
     sub xmlNewDocFragment(xmlDoc $ref-doc) returns xmlDocFrag is native(LIB) {*}
     method set-nodes(xmlNode $nodes) is symbol('xml6_doc_frag_set_nodes') is native(BIND-LIB) returns xmlDocFrag {*};
     method new(xmlDoc :$ref-doc, xmlNode :$nodes) {

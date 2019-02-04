@@ -1,12 +1,14 @@
-use LibXML::Node :iterate;
+use LibXML::Node;
 
-unit class LibXML::Element
-    is LibXML::Node;
+class LibXML::Element
+    is LibXML::Node {
 
-method attributes {
-    iterate(self, $.node.properties);
-}
+    use LibXML::Namespace;
+    method attributes {
+        LibXML::Node::iterate(self, $.node.properties);
+    }
 
-method namespaces {
-    iterate(LibXML::Namespace, $.node.nsDef, :$.root);
+    method namespaces {
+        LibXML::Node::iterate(LibXML::Namespace, $.node.nsDef, :$.root);
+    }
 }
