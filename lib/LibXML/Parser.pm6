@@ -9,7 +9,7 @@ class LibXML::Parser {
     has Bool $.line-numbers is rw = False;
     has Bool $.recover;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
-    has Str $.base-uri is rw;
+    has Str $.baseURI is rw;
     has xmlSAXHandler $.sax is rw;
 
     constant %FLAGS = %(
@@ -46,9 +46,9 @@ class LibXML::Parser {
         LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
 
-    method !finish(LibXML::Document $doc, :$uri, LibXML::ParserContext :$pc!) {
+    method !finish(LibXML::Document $doc, :$URI, LibXML::ParserContext :$pc!) {
         $pc.flush-errors: :$!recover;
-        $doc.uri = $_ with $uri;
+        $doc.baseURI = $_ with $URI;
         self.process-xincludes($doc)
             if $.expand-xinclude;
         $doc;
@@ -68,15 +68,16 @@ class LibXML::Parser {
     }
 
     multi method parse(Str:D() :$string! is copy,
-                       Str :$uri = $!base-uri,
+                       Bool() :$html = $!html,
+                       Str() :$URI = $!baseURI,
                       ) {
 
         # gives better diagnositics
-        my parserCtxt $ctx = $!html
+        my parserCtxt $ctx = $html
            ?? htmlMemoryParserCtxt.new: :$string
            !! xmlMemoryParserCtxt.new: :$string;
 
-        $ctx.input.filename = $_ with $uri;
+        $ctx.input.filename = $_ with $URI;
 
         my LibXML::ParserContext $pc = self!context: :$ctx;
         $ctx.ParseDocument;
@@ -84,19 +85,20 @@ class LibXML::Parser {
     }
 
     multi method parse(Str:D :$file!,
-                       Str :$uri = $!base-uri) {
+                       Bool() :$html = $!html,
+                       Str :$URI = $!baseURI) {
 
         die "file not found: $file"
             unless $file.IO.e;
 
-        my parserCtxt $ctx = $!html
+        my parserCtxt $ctx = $html
            ?? htmlFileParserCtxt.new(:$file)
            !! xmlFileParserCtxt.new(:$file);
 
         my LibXML::ParserContext $pc = self!context: :$ctx;
 
         if $ctx.ParseDocument == 0 {
-            self!finish: LibXML::Document.new(:$ctx, :$uri), :$pc;
+            self!finish: LibXML::Document.new(:$ctx), :$URI, :$pc;
         }
         else {
             $ctx.Free;
@@ -106,14 +108,15 @@ class LibXML::Parser {
     }
 
     multi method parse(IO::Handle :$io!,
-                       Str :$uri = $!base-uri,
+                       Str :$URI = $!baseURI,
+                       Bool() :$html = $!html,
                        UInt :$chunk-size = 4096,
                       ) {
 
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$!html, :$path, :$!flags, :$!line-numbers, :$!sax;
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$!flags, :$!line-numbers, :$!sax;
 
         my Bool $more = ?$chunk;
 
@@ -148,12 +151,12 @@ class LibXML::Parser {
             if $terminate;
     }
     method finish-push(
-        Str :$uri = $!base-uri,
+        Str :$URI = $!baseURI,
         Bool :$recover = $!recover,
     )
     {
         with $!push-parser {
-            my $doc := .finish-push(:$uri, :$recover);
+            my $doc := .finish-push(:$URI, :$recover);
             $_ = Nil;
             $doc;
         }
@@ -183,7 +186,7 @@ class LibXML::Parser {
             });
     }
 
-    submethod TWEAK(:html($), :line-numbers($), :flags($), :uri($), :sax($), :handler($), *%flags) {
+    submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax($), :handler($), *%flags) {
         for %flags.pairs.sort -> $f {
             with %FLAGS{$f.key} {
                 self!flag-accessor($_) = $f.value;

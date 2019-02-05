@@ -252,7 +252,8 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
         method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*}
     );
 
-    method GetBase(xmlDoc) is native(LIB) is symbol('xmlNodeGetBase') returns xmlCharP {*}
+    sub xmlNodeGetBase(xmlDoc, _xmlNode) is native(LIB) returns xmlCharP {*}
+    method GetBase { xmlNodeGetBase(self.doc, self) }
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
@@ -286,6 +287,7 @@ class xmlNode is _xmlNode {
         $content;
     }
 
+    method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
 
 class xmlAttr is _xmlNode is export {
@@ -314,7 +316,8 @@ class xmlDoc is _xmlNode is export {
     has xmlCharP        $.encoding;    # external initial encoding, if any
     has Pointer         $.ids;         # Hash table for ID attributes if any
     has Pointer         $.refs;        # Hash table for IDREFs attributes if any
-    has xmlCharP        $.URL;         # The URI for that document
+    has xmlCharP        $.URI is proxy(
+            method xml6_doc_set_uri(Str $uri) is native(BIND-LIB) {*});         # The URI for that document
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
     has xmlDict         $.dict;        # dict used to allocate names or NULL
@@ -332,7 +335,9 @@ class xmlDoc is _xmlNode is export {
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xml6_doc_set_int_subset(xmlDtd) is native(BIND-LIB) {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
+
     method Str(Bool() :$format = False) {
+
         nextsame without self;
         my Pointer[uint8] $p .= new;
         $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);

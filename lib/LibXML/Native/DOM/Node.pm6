@@ -57,3 +57,11 @@ sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 method isSameNode(Node $oNode) {
     addr(self) ~~ addr($oNode);
 }
+
+method baseURI is rw {
+    Proxy.new(
+        FETCH => sub ($) { self.GetBase },
+        STORE => sub ($, Str() $uri) { self.SetBase($uri) }
+    );
+}
+

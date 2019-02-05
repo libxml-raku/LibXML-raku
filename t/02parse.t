@@ -4,7 +4,7 @@ use Test;
 # this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
-plan 543;
+plan 570;
 use LibXML;
 use LibXML::Native;
 use LibXML::Namespace;
@@ -292,7 +292,7 @@ my $badXInclude = q{
 
 
 {
-    $parser.base-uri = "example/";
+    $parser.baseURI = "example/";
     $parser.keep-blanks = False;
     my $doc = $parser.parse: :string( $goodXInclude );
     isa-ok($doc, 'LibXML::Document');
@@ -831,28 +831,25 @@ SKIP: {
         $xsDoc2 );
 };
 
-=begin POD
-
-
 ##
 # test if external subsets are loaded correctly
 
 {
-        my $xmldoc = <<EOXML;
+        my $xmldoc = q:to<EOXML>;
 <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
 <X>&foo;</X>
 EOXML
-        my $parser = LibXML->new();
+        my LibXML $parser .= new;
 
-        $parser->load_ext_dtd(1);
+        $parser.load-ext-dtd = True;
 
         # first time it should work
-        my $doc    = $parser->parse_string( $xmldoc );
-        is( $doc->documentElement()->string_value(), " test " );
+        my $doc    = $parser.parse: :string( $xmldoc );
+        is( $doc.documentElement.string-value(), " test " );
 
         # second time it must not fail.
-        my $doc2   = $parser->parse_string( $xmldoc );
-        is( $doc2->documentElement()->string_value(), " test " );
+        my $doc2   = $parser.parse: :string( $xmldoc );
+        is( $doc2.documentElement().string-value(), " test " );
 }
 
 ##
@@ -862,131 +859,95 @@ EOXML
 ##
 # Test ticket #7913
 {
-        my $xmldoc = <<EOXML;
+        my $xmldoc = q:to<EOXML>;
 <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
 <X>&foo;</X>
 EOXML
-        my $parser = LibXML->new();
+        my LibXML $parser .= new();
 
-        $parser->load_ext_dtd(1);
+        $parser.load-ext-dtd = True;
 
         # first time it should work
-        my $doc    = $parser->parse_string( $xmldoc );
-        is( $doc->documentElement()->string_value(), " test " );
+        my $doc    = $parser.parse: :string( $xmldoc );
+        is( $doc.documentElement.string-value(), " test " );
 
-        # lets see if load_ext_dtd(0) works
-        $parser->load_ext_dtd(0);
+        # lets see if load_ext_dtd = False works
+        $parser.load-ext-dtd = False;
         my $doc2;
-        eval {
-           $doc2    = $parser->parse_string( $xmldoc );
+        dies-ok {
+           $doc2    = $parser.parse: :string( $xmldoc );
         };
-        isnt($@, '', "error parsing $xmldoc");
 
-        $parser->validation(1);
-
-        $parser->load_ext_dtd(0);
+        $parser.validation = True;
+        $parser.load-ext-dtd = False;
         my $doc3;
-        eval {
-           $doc3 = $parser->parse_file( "example/article_external_bad.xml" );
+        lives-ok {
+           $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
         };
 
-        isa_ok( $doc3, 'LibXML::Document');
+        isa-ok( $doc3, 'LibXML::Document');
 
-        $parser->load_ext_dtd(1);
-        eval {
-           $doc3 = $parser->parse_file( "example/article_external_bad.xml" );
+        $parser.load-ext-dtd = True;
+        dies-ok {
+           $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
         };
 
-        isnt($@, '', "error parsing example/article_external_bad.xml");
 }
 
 {
 
-   my $parser = LibXML->new();
+   my LibXML $parser .= new();
 
-   my $doc = $parser->parse_string('<foo xml:base="foo.xml"/>',"bar.xml");
-   my $el = $doc->documentElement;
-   is( $doc->URI, "bar.xml" );
-   is( $doc->baseURI, "bar.xml" );
-   is( $el->baseURI, "foo.xml" );
+   my $doc = $parser.parse: :string('<foo xml:base="foo.xml"/>'), :URI<bar.xml>;
+   my $el = $doc.documentElement;
+   is( $doc.URI, "bar.xml" );
+   is( $doc.baseURI, "bar.xml" );
+   is( $el.baseURI, "foo.xml" );
 
-   $doc->setURI( "baz.xml" );
-   is( $doc->URI, "baz.xml" );
-   is( $doc->baseURI, "baz.xml" );
-   is( $el->baseURI, "foo.xml" );
+   $doc.URI = "baz.xml";
+   is( $doc.URI, "baz.xml" );
+   is( $doc.baseURI, "baz.xml" );
+   is( $el.baseURI, "foo.xml" );
 
-   $doc->setBaseURI( "bag.xml" );
-   is( $doc->URI, "bag.xml" );
-   is( $doc->baseURI, "bag.xml" );
-   is( $el->baseURI, "foo.xml" );
+   $doc.baseURI = "bag.xml";
+   is( $doc.URI, "bag.xml" );
+   is( $doc.baseURI, "bag.xml" );
+   is( $el.baseURI, "foo.xml" );
 
-   $el->setBaseURI( "bam.xml" );
-   is( $doc->URI, "bag.xml" );
-   is( $doc->baseURI, "bag.xml" );
-   is( $el->baseURI, "bam.xml" );
-
-}
-
-
-{
-
-   my $parser = LibXML->new();
-
-   my $doc = $parser->parse_html_string('<html><head><base href="foo.html"></head><body></body></html>',{ URI => "bar.html" });
-   my $el = $doc->documentElement;
-   is( $doc->URI, "bar.html" );
-   is( $doc->baseURI, "foo.html" );
-   is( $el->baseURI, "foo.html" );
-
-   $doc->setURI( "baz.html" );
-   is( $doc->URI, "baz.html" );
-   is( $doc->baseURI, "foo.html" );
-   is( $el->baseURI, "foo.html" );
+   $el.baseURI = "bam.xml" ;
+   is( $doc.URI, "bag.xml" );
+   is( $doc.baseURI, "bag.xml" );
+   is( $el.baseURI, "bam.xml" );
 
 }
 
 {
-    my $parser = LibXML->new();
-    open(my $fh, '<:utf8', 't/data/chinese.xml');
-    ok( $fh, 'open chinese.xml');
-    eval {
-        $parser->parse_fh($fh);
+
+   my LibXML $parser .= new();
+
+   my $doc = $parser.parse: :html, :string('<html><head><base href="foo.html"></head><body></body></html>'), :URI<bar.html>;
+   my $el = $doc.documentElement;
+   is( $doc.URI, "bar.html" );
+   is( $doc.baseURI, "foo.html" );
+   is( $el.baseURI, "foo.html" );
+
+   $doc.URI = "baz.html";
+   is( $doc.URI, "baz.html" );
+   is( $doc.baseURI, "foo.html" );
+   is( $el.baseURI, "foo.html" );
+
+}
+
+{
+    my LibXML $parser .= new();
+    my $file = 't/data/chinese.xml';
+    lives-ok {
+        $parser.parse: :$file;
     };
-    like( $@, qr/Read more bytes than requested/,
-          'UTF-8 encoding layer throws exception' );
-    close($fh);
+    lives-ok {
+        $parser.parse: :io($file);
+    };
+   
 }
 
-sub tsub {
-    my $doc = shift;
 
-    my $th = {};
-    $th->{d} = LibXML::Document->createDocument;
-    my $e1  = $th->{d}->createElementNS("x","X:foo");
-
-    $th->{d}->setDocumentElement( $e1 );
-    my $e2 = $th->{d}->createElementNS( "x","X:bar" );
-
-    $e1->appendChild( $e2 );
-
-    $e2->appendChild( $th->{d}->importNode( $doc->documentElement() ) );
-
-    return $th->{d};
-}
-
-sub tsub2 {
-    my ($doc,$query)=($_[0],@{$_[1]});
-#    return [ $doc->findnodes($query) ];
-    return [ $doc->findnodes(encodeToUTF8('iso-8859-1',$query)) ];
-}
-
-sub shorten_string { # Used for test naming.
-  my $string = shift;
-  return "'undef'" if(!defined $string);
-
-  $string =~ s/\n/\\n/msg;
-  return $string if(length($string) < 25);
-  return $string = substr($string, 0, 10) . "..." . substr($string, -10);
-}
-
-=end POD

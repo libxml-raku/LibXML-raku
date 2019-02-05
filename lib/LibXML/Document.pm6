@@ -13,20 +13,11 @@ use NativeCall;
 constant config = LibXML::Config;
 has parserCtxt $.ctx is required handles <wellFormed valid>;
 # todo eliminate raw node handling
-method node(--> xmlDoc) handles<encoding> { callsame }
+method node(--> xmlDoc) handles<encoding URI> { callsame }
 method root { self }
 
 submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
     self.set-node: $node;
-}
-
-method uri is rw {
-    Proxy.new(
-        FETCH => sub ($) { $.node.GetBase($.node) },
-        STORE => sub ($, Str:D() $_) {
-            $.node.SetBase($_);
-        }
-    )
 }
 
 # DOM Methods

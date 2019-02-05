@@ -23,3 +23,8 @@ DLLEXPORT void xml6_doc_set_int_subset(xmlDocPtr doc, xmlDtdPtr dtd) {
   doc->intSubset = dtd;
 }
 
+DLLEXPORT void xml6_doc_set_uri(xmlDocPtr doc, char *uri) {
+  if (doc == NULL) xml6_fail("unable to update null document");
+  if (doc->URL) xmlFree((xmlChar*)doc->URL);
+  doc->URL = uri ? xmlStrdup((const xmlChar*)uri) : NULL;
+}

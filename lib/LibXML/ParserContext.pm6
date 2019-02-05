@@ -18,7 +18,7 @@ class LibXML::ParserContext {
     has parserCtxt $.ctx is rw;
     has @!errors;
 
-    submethod TWEAK(:$flags!, :$line-numbers!, Bool :$recover) {
+    submethod TWEAK(:$flags! is copy, :$line-numbers!, Bool :$recover) {
         die "unable to initialize parser"
             without $!ctx;
 

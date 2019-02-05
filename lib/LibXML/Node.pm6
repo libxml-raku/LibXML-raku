@@ -2,7 +2,7 @@ class LibXML::Node {
     use LibXML::Native;
     use LibXML::Enums;
     has LibXML::Node $.root;
-    has _xmlNode $.node handles <Str type content hasChildNodes>;
+    has _xmlNode $.node handles <Str string-value type content hasChildNodes URI baseURI>;
 
     BEGIN {
         # wrap methods that return raw nodes
