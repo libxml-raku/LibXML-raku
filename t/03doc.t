@@ -24,7 +24,7 @@ sub _check_element_node(LibXML::Node $node, Str $name, Str $blurb)
 {
 
      ok($node, "$blurb - node was initialised");
-     is($node.node.type, XML_ELEMENT_NODE, "$blurb - node is an element node");
+     is($node.node.type, +XML_ELEMENT_NODE, "$blurb - node is an element node");
      is($node.node.name, $name, "$blurb - node has the right name.");
 }
 
@@ -108,6 +108,7 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     is( $doc.standalone, -1, 'doc.standalone' );  # is the value we get for undefined,
                                  # actually the same as 0 but just not set.
     # TEST
+    warn $doc.URI.defined;
     ok( !defined($doc.URI), 'doc.URI');  # should be set by default.
     # TEST
     is( $doc.compression, -1, 'doc.compression' ); # -1 indicates NO compression at all!
@@ -130,28 +131,24 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     # TEST
     is( $doc.URI, "localhost/here.xml", 'URI is set.' );
 
-skip("port remaining tests", 183);
-}    
-=begin POD
-
-    my $doc2 = LibXML::Document->createDocument("1.1", "iso-8859-2");
+    my $doc2 = LibXML::Document.createDocument(:version<1.1>, :encoding<iso-8859-2>);
     # TEST
-    is( $doc2->encoding, "iso-8859-2", 'doc2 encoding was set.' );
+    is( $doc2.encoding, "iso-8859-2", 'doc2 encoding was set.' );
     # TEST
-    is( $doc2->version,  "1.1", 'doc2 version was set.' );
+    is( $doc2.version,  "1.1", 'doc2 version was set.' );
     # TEST
-    is( $doc2->standalone,  -1, 'doc2 standalone' );
+    is( $doc2.standalone,  -1, 'doc2 standalone' );
 }
 
 {
     # 2. Creating Elements
-    my $doc = LibXML::Document->new();
+    my LibXML::Document $doc .= new();
     {
-        my $node = $doc->createDocumentFragment();
+        my $node = $doc.createDocumentFragment();
         # TEST
-        ok($node, ' TODO : Add test name');
+        ok($node, '$doc.createDocumentFragment');
         # TEST
-        is($node->nodeType, XML_DOCUMENT_FRAG_NODE, ' TODO : Add test name');
+        is($node.node.type, +XML_DOCUMENT_FRAG_NODE, 'document fragment type');
     }
 
     # TEST*$_check_created_element
@@ -159,8 +156,8 @@ skip("port remaining tests", 183);
 
     {
         # document with encoding
-        my $encdoc = LibXML::Document->new( "1.0" );
-        $encdoc->setEncoding( "iso-8859-1" );
+        my LibXML::Document $encdoc .= new;
+        $encdoc.encoding = "iso-8859-1";
 
         # TEST*$_check_created_element
         _check_created_element(
@@ -168,19 +165,23 @@ skip("port remaining tests", 183);
         );
 
         # SAX style document with encoding
-        my $node_def = {
+        my %node_def = %(
             Name => "object",
             LocalName => "object",
             Prefix => "",
             NamespaceURI => "",
-                       };
+                       );
 
         # TEST*$_check_created_element
         _check_created_element(
-            $encdoc, $node_def->{Name}, 'object',
+            $encdoc, %node_def<Name>, 'object',
             'Encdoc element creation based on node_def->{name}',
         );
     }
+
+}
+skip("port remaining tests", 169);
+=begin POD
 
     {
         # namespaced element test

@@ -340,7 +340,7 @@ class xmlDoc is _xmlNode is export {
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
-    method new(Str() :$version) {
+    method new(Str() :$version = '1.0') {
         xmlNewDoc($version);
     }
 
@@ -354,10 +354,10 @@ class xmlDoc is _xmlNode is export {
 }
 
 class xmlDocFrag is xmlNode is export {
-    sub xmlNewDocFragment(xmlDoc $ref-doc) returns xmlDocFrag is native(LIB) {*}
+    sub xmlNewDocFragment(xmlDoc $doc) returns xmlDocFrag is native(LIB) {*}
     method set-nodes(xmlNode $nodes) is symbol('xml6_doc_frag_set_nodes') is native(BIND-LIB) returns xmlDocFrag {*};
-    method new(xmlDoc :$ref-doc, xmlNode :$nodes) {
-        my xmlDocFrag:D $frag = xmlNewDocFragment($ref-doc);
+    method new(xmlDoc :$doc, xmlNode :$nodes) {
+        my xmlDocFrag:D $frag = xmlNewDocFragment($doc);
         $frag.set-nodes($_) with $nodes;
         $frag;
     }

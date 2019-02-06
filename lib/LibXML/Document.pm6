@@ -16,20 +16,34 @@ has parserCtxt $.ctx handles <wellFormed valid>;
 method node(--> xmlDoc) handles<compression standalone version encoding URI> { callsame }
 method root { self }
 
-submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
+submethod TWEAK(xmlDoc :$node is copy) {
+    $node //= .myDoc with $!ctx;
+    $node //= xmlDoc.new;
     self.set-node: $node;
 }
 
 # DOM Methods
-constant DOMString = Str;
-method createElement(DOMString $name) {
+method createElement(Str $name) {
     my xmlNode $node .= new: :$name;
     $node.doc = $.node;
     LibXML::Element.new: :$node;
 }
-method createDocument() {
-    my xmlDoc $node .= new: :version<1.0>;
-    self.new: :$node;
+
+method createDocument(Str :$version = '1.0',
+                      Str :$encoding,
+                      Str :$URI) {
+    my xmlDoc $node .= new: :$version;
+    $node.encoding = $_ with $encoding;
+    $node.URI = $_ with $URI;
+    my $doc = self.new: :$node;
+    
+}
+
+method createDocumentFragment() {
+    require LibXML::DocumentFragment;
+    my xmlDoc $doc = self.node;
+    my xmlDocFrag $node .= new: :$doc;
+    LibXML::DocumentFragment.new: :$node;
 }
 
 method Str(Bool() :$format = False) {
