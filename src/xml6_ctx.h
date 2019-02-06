@@ -3,6 +3,6 @@
 
 #include <libxml/parser.h>
 
-DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr ctx, xmlSAXHandlerPtr sax);
+DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr, xmlSAXHandlerPtr);
 
 #endif /* __XML6_CTX_H */

@@ -1,144 +1,146 @@
 #include "xml6.h"
 #include "xml6_sax.h"
 
-DLLEXPORT void xml6_sax_set_internalSubset(xmlSAXHandlerPtr sax, internalSubsetSAXFunc func) {
-  sax->internalSubset = func;
+DLLEXPORT void xml6_sax_set_internalSubset(xmlSAXHandlerPtr self, internalSubsetSAXFunc func) {
+  self->internalSubset = func;
 }
 
-DLLEXPORT void xml6_sax_set_isStandalone(xmlSAXHandlerPtr sax, isStandaloneSAXFunc func) {
-  sax->isStandalone = func;
+DLLEXPORT void xml6_sax_set_isStandalone(xmlSAXHandlerPtr self, isStandaloneSAXFunc func) {
+  self->isStandalone = func;
 }
 
-DLLEXPORT void xml6_sax_set_hasInternalSubset(xmlSAXHandlerPtr sax, hasInternalSubsetSAXFunc func) {
-  sax->hasInternalSubset = func;
+DLLEXPORT void xml6_sax_set_hasInternalSubset(xmlSAXHandlerPtr self, hasInternalSubsetSAXFunc func) {
+  self->hasInternalSubset = func;
 }
 
-DLLEXPORT void xml6_sax_set_hasExternalSubset(xmlSAXHandlerPtr sax, hasExternalSubsetSAXFunc func) {
-  sax->hasExternalSubset = func;
+DLLEXPORT void xml6_sax_set_hasExternalSubset(xmlSAXHandlerPtr self, hasExternalSubsetSAXFunc func) {
+  self->hasExternalSubset = func;
 }
 
-DLLEXPORT void xml6_sax_set_resolveEntity(xmlSAXHandlerPtr sax, resolveEntitySAXFunc func) {
-  sax->resolveEntity = func;
+DLLEXPORT void xml6_sax_set_resolveEntity(xmlSAXHandlerPtr self, resolveEntitySAXFunc func) {
+  self->resolveEntity = func;
 }
 
-DLLEXPORT void xml6_sax_set_getEntity(xmlSAXHandlerPtr sax, getEntitySAXFunc func) {
-  sax->getEntity = func;
+DLLEXPORT void xml6_sax_set_getEntity(xmlSAXHandlerPtr self, getEntitySAXFunc func) {
+  self->getEntity = func;
 }
 
-DLLEXPORT void xml6_sax_set_entityDecl(xmlSAXHandlerPtr sax, entityDeclSAXFunc func) {
-  sax->entityDecl = func;
+DLLEXPORT void xml6_sax_set_entityDecl(xmlSAXHandlerPtr self, entityDeclSAXFunc func) {
+  self->entityDecl = func;
 }
 
-DLLEXPORT void xml6_sax_set_notationDecl(xmlSAXHandlerPtr sax, notationDeclSAXFunc func) {
-  sax->notationDecl = func;
+DLLEXPORT void xml6_sax_set_notationDecl(xmlSAXHandlerPtr self, notationDeclSAXFunc func) {
+  self->notationDecl = func;
 }
 
-DLLEXPORT void xml6_sax_set_attributeDecl(xmlSAXHandlerPtr sax, attributeDeclSAXFunc func) {
-  sax->attributeDecl = func;
+DLLEXPORT void xml6_sax_set_attributeDecl(xmlSAXHandlerPtr self, attributeDeclSAXFunc func) {
+  self->attributeDecl = func;
 }
 
-DLLEXPORT void xml6_sax_set_unparsedEntityDecl(xmlSAXHandlerPtr sax, unparsedEntityDeclSAXFunc func) {
-  sax->unparsedEntityDecl = func;
+DLLEXPORT void xml6_sax_set_unparsedEntityDecl(xmlSAXHandlerPtr self, unparsedEntityDeclSAXFunc func) {
+  self->unparsedEntityDecl = func;
 }
 
-DLLEXPORT void xml6_sax_set_setDocumentLocator(xmlSAXHandlerPtr sax, setDocumentLocatorSAXFunc func) {
-  sax->setDocumentLocator = func;
+DLLEXPORT void xml6_sax_set_setDocumentLocator(xmlSAXHandlerPtr self, setDocumentLocatorSAXFunc func) {
+  self->setDocumentLocator = func;
 }
 
-DLLEXPORT void xml6_sax_set_startDocument(xmlSAXHandlerPtr sax, startDocumentSAXFunc func) {
-  sax->startDocument = func;
+DLLEXPORT void xml6_sax_set_startDocument(xmlSAXHandlerPtr self, startDocumentSAXFunc func) {
+  self->startDocument = func;
 }
 
-DLLEXPORT void xml6_sax_set_endDocument(xmlSAXHandlerPtr sax, endDocumentSAXFunc func) {
-  sax->endDocument = func;
+DLLEXPORT void xml6_sax_set_endDocument(xmlSAXHandlerPtr self, endDocumentSAXFunc func) {
+  self->endDocument = func;
 }
 
-DLLEXPORT void xml6_sax_set_startElement(xmlSAXHandlerPtr sax, startElementSAXFunc func) {
-  sax->startElementNs = NULL;
-  sax->startElement = func;
+DLLEXPORT void xml6_sax_set_startElement(xmlSAXHandlerPtr self, startElementSAXFunc func) {
+  self->startElementNs = NULL;
+  self->startElement = func;
 }
 
-DLLEXPORT void xml6_sax_set_endElement(xmlSAXHandlerPtr sax, endElementSAXFunc func) {
-  sax->endElementNs = NULL;
-  sax->endElement = func;
+DLLEXPORT void xml6_sax_set_endElement(xmlSAXHandlerPtr self, endElementSAXFunc func) {
+  self->endElementNs = NULL;
+  self->endElement = func;
 }
 
-DLLEXPORT void xml6_sax_set_reference(xmlSAXHandlerPtr sax, referenceSAXFunc func) {
-  sax->reference = func;
+DLLEXPORT void xml6_sax_set_reference(xmlSAXHandlerPtr self, referenceSAXFunc func) {
+  self->reference = func;
 }
 
-DLLEXPORT void xml6_sax_set_characters(xmlSAXHandlerPtr sax, charactersSAXFunc func) {
-  sax->characters = func;
+DLLEXPORT void xml6_sax_set_characters(xmlSAXHandlerPtr self, charactersSAXFunc func) {
+  self->characters = func;
 }
 
-DLLEXPORT void xml6_sax_set_ignorableWhitespace(xmlSAXHandlerPtr sax, ignorableWhitespaceSAXFunc func) {
-  sax->ignorableWhitespace = func;
+DLLEXPORT void xml6_sax_set_ignorableWhitespace(xmlSAXHandlerPtr self, ignorableWhitespaceSAXFunc func) {
+  self->ignorableWhitespace = func;
 }
 
-DLLEXPORT void xml6_sax_set_processingInstruction(xmlSAXHandlerPtr sax, processingInstructionSAXFunc func) {
-  sax->processingInstruction = func;
+DLLEXPORT void xml6_sax_set_processingInstruction(xmlSAXHandlerPtr self, processingInstructionSAXFunc func) {
+  self->processingInstruction = func;
 }
 
-DLLEXPORT void xml6_sax_set_comment(xmlSAXHandlerPtr sax, commentSAXFunc func) {
-  sax->comment = func;
+DLLEXPORT void xml6_sax_set_comment(xmlSAXHandlerPtr self, commentSAXFunc func) {
+  self->comment = func;
 }
 
-DLLEXPORT void xml6_sax_set_warning(xmlSAXHandlerPtr sax, warningSAXFunc func) {
-  sax->warning = func;
+DLLEXPORT void xml6_sax_set_warning(xmlSAXHandlerPtr self, warningSAXFunc func) {
+  self->warning = func;
 }
 
-DLLEXPORT void xml6_sax_set_error(xmlSAXHandlerPtr sax, errorSAXFunc func) {
-  sax->error = func;
+DLLEXPORT void xml6_sax_set_error(xmlSAXHandlerPtr self, errorSAXFunc func) {
+  self->error = func;
 }
 
-DLLEXPORT void xml6_sax_set_fatalError(xmlSAXHandlerPtr sax, fatalErrorSAXFunc func) {
-  sax->fatalError = func;
+DLLEXPORT void xml6_sax_set_fatalError(xmlSAXHandlerPtr self, fatalErrorSAXFunc func) {
+  self->fatalError = func;
 }
 
-DLLEXPORT void xml6_sax_set_getParameterEntity(xmlSAXHandlerPtr sax, getParameterEntitySAXFunc func) {
-  sax->getParameterEntity = func;
+DLLEXPORT void xml6_sax_set_getParameterEntity(xmlSAXHandlerPtr self, getParameterEntitySAXFunc func) {
+  self->getParameterEntity = func;
 }
 
-DLLEXPORT void xml6_sax_set_cdataBlock(xmlSAXHandlerPtr sax, cdataBlockSAXFunc func) {
-  sax->cdataBlock = func;
+DLLEXPORT void xml6_sax_set_cdataBlock(xmlSAXHandlerPtr self, cdataBlockSAXFunc func) {
+  self->cdataBlock = func;
 }
 
-DLLEXPORT void xml6_sax_set_externalSubset(xmlSAXHandlerPtr sax, externalSubsetSAXFunc func) {
-  sax->externalSubset = func;
+DLLEXPORT void xml6_sax_set_externalSubset(xmlSAXHandlerPtr self, externalSubsetSAXFunc func) {
+  self->externalSubset = func;
 }
 
-DLLEXPORT void xml6_sax_set_startElementNs(xmlSAXHandlerPtr sax, startElementNsSAX2Func func) {
-  sax->startElementNs = func;
+DLLEXPORT void xml6_sax_set_startElementNs(xmlSAXHandlerPtr self, startElementNsSAX2Func func) {
+  self->startElementNs = func;
 }
 
-DLLEXPORT void xml6_sax_set_endElementNs(xmlSAXHandlerPtr sax, endElementNsSAX2Func func) {
-  sax->endElementNs = func;
+DLLEXPORT void xml6_sax_set_endElementNs(xmlSAXHandlerPtr self, endElementNsSAX2Func func) {
+  self->endElementNs = func;
 }
 
-DLLEXPORT void xml6_sax_set_serror(xmlSAXHandlerPtr sax, xmlStructuredErrorFunc func) {
-  sax->serror = func;
+DLLEXPORT void xml6_sax_set_serror(xmlSAXHandlerPtr self, xmlStructuredErrorFunc func) {
+  self->serror = func;
 }
 
-DLLEXPORT void xml6_sax_locator_init(xmlSAXLocatorPtr sax_locator) {
-  sax_locator->getPublicId = xmlDefaultSAXLocator.getPublicId;
-  sax_locator->getSystemId = xmlDefaultSAXLocator.getSystemId;
-  sax_locator->getLineNumber = xmlDefaultSAXLocator.getLineNumber;
-  sax_locator->getColumnNumber = xmlDefaultSAXLocator.getColumnNumber;
+// SaxLocator Methods
+
+DLLEXPORT void xml6_sax_locator_init(xmlSAXLocatorPtr self) {
+  self->getPublicId = xmlDefaultSAXLocator.getPublicId;
+  self->getSystemId = xmlDefaultSAXLocator.getSystemId;
+  self->getLineNumber = xmlDefaultSAXLocator.getLineNumber;
+  self->getColumnNumber = xmlDefaultSAXLocator.getColumnNumber;
 }
 
-DLLEXPORT void xml6_sax_locator_set_getPublicId(xmlSAXLocatorPtr sax_locator, void *func) {
-  sax_locator->getPublicId = func;
+DLLEXPORT void xml6_sax_locator_set_getPublicId(xmlSAXLocatorPtr self, void *func) {
+  self->getPublicId = func;
 }
 
-DLLEXPORT void xml6_sax_locator_set_getSystemId(xmlSAXLocatorPtr sax_locator, void *func) {
-  sax_locator->getSystemId = func;
+DLLEXPORT void xml6_sax_locator_set_getSystemId(xmlSAXLocatorPtr self, void *func) {
+  self->getSystemId = func;
 }
 
-DLLEXPORT void xml6_sax_locator_set_getLineNumber(xmlSAXLocatorPtr sax_locator, void *func) {
-  sax_locator->getLineNumber = func;
+DLLEXPORT void xml6_sax_locator_set_getLineNumber(xmlSAXLocatorPtr self, void *func) {
+  self->getLineNumber = func;
 }
 
-DLLEXPORT void xml6_sax_locator_set_getColumnNumber(xmlSAXLocatorPtr sax_locator, void *func) {
-  sax_locator->getColumnNumber = func;
+DLLEXPORT void xml6_sax_locator_set_getColumnNumber(xmlSAXLocatorPtr self, void *func) {
+  self->getColumnNumber = func;
 }
 

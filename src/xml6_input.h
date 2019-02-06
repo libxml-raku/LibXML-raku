@@ -3,6 +3,6 @@
 
 #include <libxml/parser.h>
 
-DLLEXPORT void xml6_input_set_filename(xmlParserInputPtr input, char *url);
+DLLEXPORT void xml6_input_set_filename(xmlParserInputPtr, char *url);
 
 #endif /* __XML6_INPUT_H */

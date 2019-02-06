@@ -11,9 +11,9 @@ use LibXML::Element;
 use NativeCall;
 
 constant config = LibXML::Config;
-has parserCtxt $.ctx is required handles <wellFormed valid>;
+has parserCtxt $.ctx handles <wellFormed valid>;
 # todo eliminate raw node handling
-method node(--> xmlDoc) handles<encoding URI> { callsame }
+method node(--> xmlDoc) handles<compression standalone version encoding URI> { callsame }
 method root { self }
 
 submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
@@ -21,10 +21,15 @@ submethod TWEAK(xmlDoc:D :$node = $!ctx.myDoc) {
 }
 
 # DOM Methods
-method createElement(Str $name) {
+constant DOMString = Str;
+method createElement(DOMString $name) {
     my xmlNode $node .= new: :$name;
     $node.doc = $.node;
-    LibXML::Element.new: :$node, :root(self);
+    LibXML::Element.new: :$node;
+}
+method createDocument() {
+    my xmlDoc $node .= new: :version<1.0>;
+    self.new: :$node;
 }
 
 method Str(Bool() :$format = False) {

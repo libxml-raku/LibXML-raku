@@ -301,9 +301,8 @@ class xmlAttr is _xmlNode is export {
 }
 
 class xmlDoc is _xmlNode is export {
-    submethod TWEAK { warn };
     has int32           $.compression; # level of zlib compression
-    has int32           $.standalone;  # standalone document (no external refs)
+    has int32           $.standalone is rw;  # standalone document (no external refs)
                                        # 1 if standalone="yes"
                                        # 0 if standalone="no"
                                        # -1 if there is no XML declaration
@@ -312,12 +311,16 @@ class xmlDoc is _xmlNode is export {
     has xmlDtd          $.intSubset;   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
-    has xmlCharP        $.version;     # the XML version string
-    has xmlCharP        $.encoding;    # external initial encoding, if any
+    has xmlCharP        $.version is proxy(
+            method xml6_doc_set_version(Str) is native(BIND-LIB) {*}
+        );     # the XML version string
+    has xmlCharP        $.encoding is proxy(
+            method xml6_doc_set_encoding(Str) is native(BIND-LIB) {*}
+        );    # external initial encoding, if any
     has Pointer         $.ids;         # Hash table for ID attributes if any
     has Pointer         $.refs;        # Hash table for IDREFs attributes if any
     has xmlCharP        $.URI is proxy(
-            method xml6_doc_set_uri(Str $uri) is native(BIND-LIB) {*});         # The URI for that document
+            method xml6_doc_set_URI(Str $uri) is native(BIND-LIB) {*});         # The URI for that document
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
     has xmlDict         $.dict;        # dict used to allocate names or NULL
@@ -335,6 +338,11 @@ class xmlDoc is _xmlNode is export {
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xml6_doc_set_int_subset(xmlDtd) is native(BIND-LIB) {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
+
+    sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
+    method new(Str() :$version) {
+        xmlNewDoc($version);
+    }
 
     method Str(Bool() :$format = False) {
 

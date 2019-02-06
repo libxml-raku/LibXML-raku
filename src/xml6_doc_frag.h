@@ -3,6 +3,6 @@
 
 #include <libxml/parser.h>
 
-DLLEXPORT void xml6_doc_frag_set_nodes(xmlNodePtr fragment, xmlNodePtr nv);
+DLLEXPORT void xml6_doc_frag_set_nodes(xmlNodePtr, xmlNodePtr nodes);
 
 #endif /* __XML6_DOC_FRAG_H */
