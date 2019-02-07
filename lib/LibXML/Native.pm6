@@ -68,7 +68,6 @@ multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
 multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 
     my role StringSetter[&setter] {
-        #| call xmlStrdup to make a copy of the object
         method compose(Mu $package) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
             my &accessor = sub (\obj) is rw {
@@ -308,9 +307,9 @@ class xmlNode is _xmlNode {
     has uint16          $.line;        # line number
     has uint16          $.extra;       # extra data for XPath/XSLT
 
-    sub xmlNewNode(xmlNs, Pointer $name --> xmlNode) is native(LIB) {*}
+    sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
     method new(Str:D :$name!, xmlNs :$ns) {
-        xmlNewNode($ns, xmlStrdup($name));
+        xmlNewNode($ns, $name);
     }
 
     method Str(Bool() :$format = False) {
@@ -326,9 +325,9 @@ class xmlNode is _xmlNode {
 }
 
 class xmlTextNode is xmlNode is repr('CStruct') is export {
-    sub xmlNewText(Pointer $content --> xmlTextNode) is native(LIB) {*}
+    sub xmlNewText(Str $content --> xmlTextNode) is native(LIB) {*}
     method new(Str :$content!, xmlDoc :$doc) {
-        given xmlNewText(xmlStrdup($content)) -> $node {
+        given xmlNewText($content) -> $node {
             $node.doc = $_ with $doc;
             $node;
         }
@@ -336,9 +335,9 @@ class xmlTextNode is xmlNode is repr('CStruct') is export {
 }
 
 class xmlCommentNode is xmlNode is repr('CStruct') is export {
-    sub xmlNewComment(Pointer $content --> xmlCommentNode) is native(LIB) {*}
+    sub xmlNewComment(Str $content --> xmlCommentNode) is native(LIB) {*}
     method new(Str :$content!, xmlDoc :$doc) {
-        given xmlNewComment(xmlStrdup($content)) -> $node {
+        given xmlNewComment($content) -> $node {
             $node.doc = $_ with $doc;
             $node;
         }
@@ -346,14 +345,14 @@ class xmlCommentNode is xmlNode is repr('CStruct') is export {
 }
 
 class xmlCDataNode is xmlNode is repr('CStruct') is export {
-    sub xmlNewCDataBlock(xmlDoc, Pointer $content, int32 $len --> xmlCDataNode) is native(LIB) {*}
+    sub xmlNewCDataBlock(xmlDoc, Blob $content, int32 $len --> xmlCDataNode) is native(LIB) {*}
     multi method new(Str :content($string)!, xmlDoc :$doc) {
         my Blob $content = $string.encode;
         self.new: :$content, :$doc;
     }
     multi method new(Blob :content($buf)!, xmlDoc :$doc) {
         my $len = $buf.elems;
-        xmlNewCDataBlock($doc, xmlStrndup($buf, $len), $len);
+        xmlNewCDataBlock($doc, $buf, $len);
     }
 }
 
