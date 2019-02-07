@@ -201,7 +201,6 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
         for @badnames -> $name {
-            todo "die on bad name";
             dies-ok {$doc.createElement( $name );};
         }
 

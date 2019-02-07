@@ -9,6 +9,7 @@ use LibXML::Enums;
 use LibXML::Config;
 use LibXML::Element;
 use LibXML::Attr;
+use LibXML::Types :QName;
 use NativeCall;
 
 constant config = LibXML::Config;
@@ -24,7 +25,8 @@ submethod TWEAK(xmlDoc :$node is copy) {
 }
 
 # DOM Methods
-method createElement(Str $name is copy,
+
+method createElement(QName $name is copy,
                      Str :$prefix is copy,
                      Str :$href,
                     ) {
@@ -37,14 +39,12 @@ method createElement(Str $name is copy,
         }
     }
 
-    my xmlDoc $doc = $.node;
-    my xmlNode $node .= new: :$name, :$doc;
-    $node.ns .= new( :$prefix, :$href, :$node)
+    my xmlNs $ns .= new(:$prefix, :$href)
         if $prefix && $href;
-    LibXML::Element.new: :$node, :root(self);
+    LibXML::Element.new: :$name, :$ns, :root(self);
 }
 
-method createAttribute(Str $name is copy,
+method createAttribute(QName $name is copy,
                        Str $value,
                        Str :$prefix is copy,
                        Str :$href,
@@ -58,11 +58,9 @@ method createAttribute(Str $name is copy,
         }
     }
 
-    my xmlDoc $doc = $.node;
-    my xmlAttr $node .= new: :$name, :$value, :$doc;
-    $node.ns .= new( :$prefix, :$href, :$node)
+    my xmlNs $ns .= new(:$prefix, :$href)
         if $prefix && $href;
-    LibXML::Attr.new: :$node, :root(self);
+    LibXML::Attr.new: :$name, :$value, :$ns, :root(self);
 }
 
 method createDocument(Str :$version = '1.0',

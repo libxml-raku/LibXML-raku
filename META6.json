@@ -30,6 +30,7 @@
     "LibXML::Parser" : "lib/LibXML/Parser.pm6",
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
     "LibXML::Text" : "lib/LibXML/Text.pm6",
+    "LibXML::Types" : "lib/LibXML/Types.pm6",
     "LibXML::SAX" : "lib/LibXML/SAX.pm6",
     "LibXML::SAX::Builder" : "lib/LibXML/SAX/Builder.pm6",
     "LibXML::SAX::Handler" : "lib/LibXML/SAX/Handler.pm6",

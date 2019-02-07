@@ -13,3 +13,9 @@ DLLEXPORT void xml6_node_set_ns(xmlNodePtr self, xmlNsPtr ns) {
   self->ns = ns;
 }
 
+DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr self, xmlNsPtr ns) {
+  if (self == NULL) xml6_fail("unable to update null node");
+
+  self->nsDef = ns;
+}
+

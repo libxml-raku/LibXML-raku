@@ -114,7 +114,7 @@ class xmlNs is repr('CStruct') is export {
     has xmlDoc   $.context; # normally an xmlDoc
 
     sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
-    method new(Str:D :$prefix!, Str:D :$href!, _xmlNode:D :$node) {
+    method new(Str:D :$prefix!, Str:D :$href!, _xmlNode :$node) {
         xmlNewNs($node, $href, $prefix);
     }
 }
@@ -282,8 +282,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
         method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*}
     );
 
-    sub xmlNodeGetBase(xmlDoc, _xmlNode) is native(LIB) returns xmlCharP {*}
-    method GetBase { xmlNodeGetBase(self.doc, self) }
+    method GetBase { self.doc.xmlNodeGetBase(self) }
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
@@ -303,13 +302,21 @@ class xmlNode is _xmlNode {
     );          # pointer to the associated namespace
     has xmlCharP        $.content;     # the content
     has xmlAttr         $.properties;  # properties list
-    has xmlNs           $.nsDef;       # namespace definitions on this node
+    has xmlNs           $.nsDef is rw-ptr( # namespace definitions on this node
+        method xml6_node_set_nsDef(xmlNs) is native(BIND-LIB) {*}
+    );
     has Pointer         $.psvi;        # for type/PSVI informations
     has uint16          $.line;        # line number
     has uint16          $.extra;       # extra data for XPath/XSLT
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
-    method new(Str:D :$name!, xmlNs :$ns, xmlDoc :$doc) {
+    multi method new(Str:D :$name!, xmlNs:D :$ns!, xmlDoc:D :$doc!) {
+        given $doc.NewNode($ns, $name, Str) -> xmlNode:D $node {
+            $node.nsDef = $ns;
+            $node;
+        }
+    }
+    multi method new(Str:D :$name!, xmlNs :$ns, xmlDoc :$doc) {
         given xmlNewNode($ns, $name) -> xmlNode:D $node {
             $node.doc = $_ with $doc;
             $node;
@@ -407,12 +414,14 @@ class xmlDoc is _xmlNode is export {
                                        # set at the end of parsing
 
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
-    method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
+    method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
+    method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
+    method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {

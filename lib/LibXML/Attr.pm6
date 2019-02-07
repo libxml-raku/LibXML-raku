@@ -4,11 +4,13 @@ unit class LibXML::Attr
     is LibXML::Node;
 
 use LibXML::Native;
+use LibXML::Types :QName;
 
 multi submethod TWEAK(:root($)!, :node($)!) { }
-multi submethod TWEAK(:$root!, Str :$name!, Str :$value!) {
+multi submethod TWEAK(:$root!, QName :$name!, Str :$value!, xmlNs :$ns) {
     my xmlDoc:D $doc = $root.node;
     my xmlAttr $node .= new: :$name, :$value, :$doc;
+    $node.ns = $_ with $ns;
     self.set-node: $node;
 }
 
