@@ -8,6 +8,7 @@ use LibXML::Native;
 use LibXML::Enums;
 use LibXML::Config;
 use LibXML::Element;
+use LibXML::Attr;
 use NativeCall;
 
 constant config = LibXML::Config;
@@ -36,11 +37,32 @@ method createElement(Str $name is copy,
         }
     }
 
-    my xmlNode $node .= new: :$name;
-    $node.doc = $.node;
+    my xmlDoc $doc = $.node;
+    my xmlNode $node .= new: :$name, :$doc;
     $node.ns .= new( :$prefix, :$href, :$node)
         if $prefix && $href;
-    LibXML::Element.new: :$node;
+    LibXML::Element.new: :$node, :root(self);
+}
+
+method createAttribute(Str $name is copy,
+                       Str $value,
+                       Str :$prefix is copy,
+                       Str :$href,
+                    ) {
+    with $href {
+        without $prefix {
+            # try to extract ns prefix from the tag name
+            my @s = $name.split(':', 2);
+            ($prefix, $name) = @s
+                if @s >= 2;
+        }
+    }
+
+    my xmlDoc $doc = $.node;
+    my xmlAttr $node .= new: :$name, :$value, :$doc;
+    $node.ns .= new( :$prefix, :$href, :$node)
+        if $prefix && $href;
+    LibXML::Attr.new: :$node, :root(self);
 }
 
 method createDocument(Str :$version = '1.0',

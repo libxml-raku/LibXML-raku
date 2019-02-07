@@ -293,6 +293,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method domInsertAfter(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domName returns Str is native(BIND-LIB) {*}
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
+    method domSetNodeValue(Str) is native(BIND-LIB) {*}
 
 }
 
@@ -308,8 +309,11 @@ class xmlNode is _xmlNode {
     has uint16          $.extra;       # extra data for XPath/XSLT
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
-    method new(Str:D :$name!, xmlNs :$ns) {
-        xmlNewNode($ns, $name);
+    method new(Str:D :$name!, xmlNs :$ns, xmlDoc :$doc) {
+        given xmlNewNode($ns, $name) -> xmlNode:D $node {
+            $node.doc = $_ with $doc;
+            $node;
+        }
     }
 
     method Str(Bool() :$format = False) {
@@ -327,7 +331,7 @@ class xmlNode is _xmlNode {
 class xmlTextNode is xmlNode is repr('CStruct') is export {
     sub xmlNewText(Str $content --> xmlTextNode) is native(LIB) {*}
     method new(Str :$content!, xmlDoc :$doc) {
-        given xmlNewText($content) -> $node {
+        given xmlNewText($content) -> xmlTextNode:D $node {
             $node.doc = $_ with $doc;
             $node;
         }
@@ -337,7 +341,7 @@ class xmlTextNode is xmlNode is repr('CStruct') is export {
 class xmlCommentNode is xmlNode is repr('CStruct') is export {
     sub xmlNewComment(Str $content --> xmlCommentNode) is native(LIB) {*}
     method new(Str :$content!, xmlDoc :$doc) {
-        given xmlNewComment($content) -> $node {
+        given xmlNewComment($content) -> xmlCommentNode:D $node {
             $node.doc = $_ with $doc;
             $node;
         }
@@ -346,11 +350,11 @@ class xmlCommentNode is xmlNode is repr('CStruct') is export {
 
 class xmlCDataNode is xmlNode is repr('CStruct') is export {
     sub xmlNewCDataBlock(xmlDoc, Blob $content, int32 $len --> xmlCDataNode) is native(LIB) {*}
-    multi method new(Str :content($string)!, xmlDoc :$doc) {
+    multi method new(Str :content($string)!, xmlDoc :$doc --> xmlCDataNode:D) {
         my Blob $content = $string.encode;
         self.new: :$content, :$doc;
     }
-    multi method new(Blob :content($buf)!, xmlDoc :$doc) {
+    multi method new(Blob :content($buf)!, xmlDoc :$doc --> xmlCDataNode:D) {
         my $len = $buf.elems;
         xmlNewCDataBlock($doc, $buf, $len);
     }
@@ -364,6 +368,10 @@ class xmlAttr is _xmlNode is export {
     has xmlEnumeration  $.tree;         # or the enumeration tree if any
     has xmlCharP        $.prefix;       # the namespace prefix if any
     has xmlCharP        $.elem;         # Element holding the attribute
+    sub  xmlNewDocProp(xmlDoc, xmlCharP $name, xmlCharP $value --> xmlAttr) is native(LIB) {*}
+    method new(Str :$name!, Str :$value!, xmlDoc :$doc --> xmlAttr:D) {
+        xmlNewDocProp($doc, $name, $value);
+    }
 }
 
 class xmlDoc is _xmlNode is export {

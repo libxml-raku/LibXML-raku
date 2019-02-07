@@ -14,6 +14,7 @@ method domInsertBefore { ... }
 method domInsertAfter { ... }
 method domName { ... }
 method domGetNodeValue { ... }
+method domSetNodeValue { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
@@ -54,8 +55,11 @@ method nodeName {
     self.domName;
 }
 
-method nodeValue {
-    self.domGetNodeValue;
+method nodeValue is rw {
+    Proxy.new(
+        FETCH => sub ($) { self.domGetNodeValue },
+        STORE => sub ($, Str() $_) { self.domSetNodeValue($_) },
+    );
 }
 
 method hasChildNodes returns Bool {

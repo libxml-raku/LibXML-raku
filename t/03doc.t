@@ -184,7 +184,7 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         # TEST
         ok($node, '$doc.createElement');
         # TEST
-        is($node.nodeType, +XML_ELEMENT_NODE, '$node.node Type');
+        is($node.nodeType, +XML_ELEMENT_NODE, '$node.nodeType');
         # TEST
         is($node.nodeName, "foo:bar", '$node.nodeName');
         # TEST
@@ -241,29 +241,29 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         is($node.Str, "<![CDATA[foo]]>", ' TODO : Add test name');
     }
 
-}
-skip("port remaining tests", 147);
-=begin POD
-
     # -> Create Attributes
     {
-        my $attr = $doc->createAttribute("foo", "bar");
+        my $attr = $doc.createAttribute("foo", "bar");
         # TEST
-        ok($attr, ' TODO : Add test name');
+        ok($attr, '$doc.createAttribute');
         # TEST
-        is($attr->nodeType, XML_ATTRIBUTE_NODE, ' TODO : Add test name' );
+        is($attr.nodeType, +XML_ATTRIBUTE_NODE, '$node.nodeType' );
         # TEST
-        is($attr->name, "foo", ' TODO : Add test name');
+        is($attr.name, "foo", '$node.name');
         # TEST
-        is($attr->value, "bar", ' TODO : Add test name' );
+        is($attr.value, "bar", '$node.value' );
         # TEST
-        is($attr->hasChildNodes, 0, ' TODO : Add test name');
-        my $content = $attr->firstChild;
+        is-deeply($attr.hasChildNodes, False, '$node.hasChildNodes');
+        my $content = $attr.firstChild;
         # TEST
-        ok( $content, ' TODO : Add test name' );
+        ok( $content, '$attr.content' );
         # TEST
-        is( $content->nodeType, XML_TEXT_NODE, ' TODO : Add test name' );
+        is( $content.nodeType, +XML_TEXT_NODE, 'attribute content is a text node' );
     }
+}
+skip("port remaining tests", 140);
+=begin POD
+
     {
         # bad attribute creation
         # TEST:$badnames_count=5;
