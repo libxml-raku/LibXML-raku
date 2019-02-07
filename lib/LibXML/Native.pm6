@@ -44,49 +44,52 @@ class xmlValidState is repr(Stub) is export {}
 sub xmlStrdup(Str --> Pointer) is native(LIB) {*};
 sub xmlStrndup(Blob, int32 --> Pointer) is native(LIB) {*};
 
-my role StaticSetter[&setter] {
-    #| override standard Attribute method for generating accessors
-    method compose(Mu $package) {
-        my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
-        my &accessor = sub (\obj) is rw {
-            Proxy.new(
-                FETCH => sub ($) { self.get_value(obj) },
-                STORE => sub ($, $val) {
-                    setter(obj, $val);
-                });
+
+multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
+
+    my role PointerSetter[&setter] {
+        #| override standard Attribute method for generating accessors
+        method compose(Mu $package) {
+            my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
+            my &accessor = sub (\obj) is rw {
+                Proxy.new(
+                    FETCH => sub ($) { self.get_value(obj) },
+                    STORE => sub ($, $val) {
+                        setter(obj, $val);
+                    });
+            }
+            $package.^add_method( $name, &accessor );
         }
-        $package.^add_method( $name, &accessor );
     }
+
+    $att does PointerSetter[&rw-ptr]
 }
 
-multi trait_mod:<is>(Attribute $att, :&static!) {
-    $att does StaticSetter[&static]
-}
+multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 
-my role CopySetter[&setter] {
-    #| call xmlStrdup to make a copy of the object
-    method compose(Mu $package) {
-        my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
-        my &accessor = sub (\obj) is rw {
-            Proxy.new(
-                FETCH => sub ($) { self.get_value(obj) },
-                STORE => sub ($, Str() $val) {
-                    setter(obj, xmlStrdup($val));
-                });
+    my role StringSetter[&setter] {
+        #| call xmlStrdup to make a copy of the object
+        method compose(Mu $package) {
+            my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
+            my &accessor = sub (\obj) is rw {
+                Proxy.new(
+                    FETCH => sub ($) { self.get_value(obj) },
+                    STORE => sub ($, Str() $val) {
+                        setter(obj, $val);
+                    });
+            }
+            $package.^add_method( $name, &accessor );
         }
-        $package.^add_method( $name, &accessor );
     }
-}
 
-multi trait_mod:<is>(Attribute $att, :&copied!) {
-    $att does CopySetter[&copied]
+    $att does StringSetter[&rw-str]
 }
 
 # Defined Structs/Pointers
 class xmlParserInput is repr('CStruct') is export {
 	has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
-	has Str                       $.filename is copied(
-            method xml6_input_set_filename(Pointer) is native(BIND-LIB) {*}
+	has Str                       $.filename is rw-str(
+            method xml6_input_set_filename(Str) is native(BIND-LIB) {*}
         );    # The file analyzed, if any
 	has Str                       $.directory;   # the directory/base of the file
 	has xmlCharP                  $.base;        # Base of the array to parse
@@ -118,19 +121,19 @@ class xmlNs is repr('CStruct') is export {
 }
 
 class xmlSAXLocator is repr('CStruct') is export {
-    has Pointer  $.getPublicId is static(
+    has Pointer  $.getPublicId is rw-ptr(
         method xml6_sax_locator_set_getPublicId( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer $.getSystemId is static(
+    has Pointer $.getSystemId is rw-ptr(
         method xml6_sax_locator_set_getSystemId( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer $.getLineNumber is static(
+    has Pointer $.getLineNumber is rw-ptr(
         method xml6_sax_locator_set_getLineNumber( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer $.getColumnNumber is static(
+    has Pointer $.getColumnNumber is rw-ptr(
         method xml6_sax_locator_set_getColumnNumber( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
@@ -150,99 +153,99 @@ class xmlSAXHandler is repr('CStruct') is export {
         }
     }
 
-    has Pointer   $.internalSubset is static(
+    has Pointer   $.internalSubset is rw-ptr(
         method xml6_sax_set_internalSubset(&cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.isStandalone is static(
+    has Pointer   $.isStandalone is rw-ptr(
         method xml6_sax_set_isStandalone( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.hasInternalSubset is static(
+    has Pointer   $.hasInternalSubset is rw-ptr(
         method xml6_sax_set_hasInternalSubset( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.hasExternalSubset is static(
+    has Pointer   $.hasExternalSubset is rw-ptr(
         method xml6_sax_set_hasExternalSubset( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.resolveEntity is static(
+    has Pointer   $.resolveEntity is rw-ptr(
         method xml6_sax_set_resolveEntity( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id --> xmlParserInput) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.getEntity is static(
+    has Pointer   $.getEntity is rw-ptr(
         method xml6_sax_set_getEntity( &cb (parserCtxt $ctx, Str $name --> xmlEntity) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.entityDecl is static(
+    has Pointer   $.entityDecl is rw-ptr(
         method xml6_sax_set_entityDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.notationDecl is static(
+    has Pointer   $.notationDecl is rw-ptr(
         method xml6_sax_set_notationDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.attributeDecl is static(
+    has Pointer   $.attributeDecl is rw-ptr(
         # todo xmlEnumeration $tree
         method xml6_sax_set_attributeDecl( &cb (parserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.elementDecl is static(
+    has Pointer   $.elementDecl is rw-ptr(
         method xml6_sax_set_elementDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.unparsedEntityDecl is static(
+    has Pointer   $.unparsedEntityDecl is rw-ptr(
         method xml6_sax_set_unparsedEntityDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.setDocumentLocator is static(
+    has Pointer   $.setDocumentLocator is rw-ptr(
         method xml6_sax_set_setDocumentLocator( &cb (parserCtxt $ctx, xmlSAXLocator $loc) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.startDocument is static(
+    has Pointer   $.startDocument is rw-ptr(
         method xml6_sax_set_startDocument( &cb (parserCtxt $ctx) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.endDocument is static(
+    has Pointer   $.endDocument is rw-ptr(
         method xml6_sax_set_endDocument( &cb (parserCtxt $ctx) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer   $.startElement is static(
+    has Pointer   $.startElement is rw-ptr(
         method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(BIND-LIB) {*}
     );
     
-    has Pointer   $.endElement is static(
+    has Pointer   $.endElement is rw-ptr(
         method xml6_sax_set_endElement( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.reference is static(
+    has Pointer   $.reference is rw-ptr(
         method xml6_sax_set_reference( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.characters is static(
+    has Pointer   $.characters is rw-ptr(
         method xml6_sax_set_characters( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.ignorableWhitespace is static(
+    has Pointer   $.ignorableWhitespace is rw-ptr(
         method xml6_sax_set_ignorableWhitespace( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.processingInstruction is static(
+    has Pointer   $.processingInstruction is rw-ptr(
         method xml6_sax_processingInstruction( &cb (parserCtxt $ctx, Str $target, Str $data) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.comment is static(
+    has Pointer   $.comment is rw-ptr(
         method xml6_sax_set_comment( &cb (parserCtxt $ctx, Str $value) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.warning is static(
+    has Pointer   $.warning is rw-ptr(
         method xml6_sax_set_warning( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.error is static(
+    has Pointer   $.error is rw-ptr(
         method xml6_sax_set_error( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.fatalError is static(
+    has Pointer   $.fatalError is rw-ptr(
         method xml6_sax_set_fatalError( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.getParameterEntity is static(
+    has Pointer   $.getParameterEntity is rw-ptr(
         method xml6_sax_set_getParameterEntity( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.cdataBlock is static(
+    has Pointer   $.cdataBlock is rw-ptr(
         method xml6_sax_set_cdataBlock( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.externalSubset is static(
+    has Pointer   $.externalSubset is rw-ptr(
         method xml6_sax_set_externalSubset( &cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has uint32    $.initialized;
     has Pointer   $._private;
-    has Pointer   $.startElementNs is static(
+    has Pointer   $.startElementNs is rw-ptr(
         method xml6_sax_set_startElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.endElementNs is static(
+    has Pointer   $.endElementNs is rw-ptr(
         method xml6_sax_set_endElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.serror is static(
+    has Pointer   $.serror is rw-ptr(
         method xml6_sax_set_serror( &cb (parserCtxt $ctx, xmlError $error) ) is native(BIND-LIB) {*}
     );
 
@@ -276,7 +279,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     has xmlNode         $.parent;      # child->parent link
     has xmlNode         $.next;        # next sibling link
     has xmlNode         $.prev;        # previous sibling link
-    has xmlDoc          $.doc is static(   # the containing document
+    has xmlDoc          $.doc is rw-ptr(   # the containing document
         method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*}
     );
 
@@ -295,7 +298,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
 }
 
 class xmlNode is _xmlNode {
-    has xmlNs           $.ns is static(   # the containing document
+    has xmlNs           $.ns is rw-ptr(   # the containing document
         method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
     );          # pointer to the associated namespace
     has xmlCharP        $.content;     # the content
@@ -375,16 +378,16 @@ class xmlDoc is _xmlNode is export {
     has xmlDtd          $.intSubset;   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
-    has xmlCharP        $.version is copied(
-            method xml6_doc_set_version(Pointer) is native(BIND-LIB) {*}
+    has xmlCharP        $.version is rw-str(
+            method xml6_doc_set_version(Str) is native(BIND-LIB) {*}
         );     # the XML version string
-    has xmlCharP        $.encoding is copied(
-            method xml6_doc_set_encoding(Pointer) is native(BIND-LIB) {*}
+    has xmlCharP        $.encoding is rw-str(
+            method xml6_doc_set_encoding(Str) is native(BIND-LIB) {*}
         );    # external initial encoding, if any
     has Pointer         $.ids;         # Hash table for ID attributes if any
     has Pointer         $.refs;        # Hash table for IDREFs attributes if any
-    has xmlCharP        $.URI is copied(
-            method xml6_doc_set_URI(Pointer) is native(BIND-LIB) {*});         # The URI for that document
+    has xmlCharP        $.URI is rw-str(
+            method xml6_doc_set_URI(Str) is native(BIND-LIB) {*});         # The URI for that document
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
     has xmlDict         $.dict;        # dict used to allocate names or NULL
@@ -476,7 +479,7 @@ class xmlError is export {
 }
 
 class parserCtxt is export {
-    has xmlSAXHandler          $.sax is static(       # The SAX handler
+    has xmlSAXHandler          $.sax is rw-ptr(       # The SAX handler
         method xml6_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
     );
     has Pointer                $.userData;     # For SAX interface only, used by DOM build

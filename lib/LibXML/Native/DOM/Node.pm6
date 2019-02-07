@@ -13,6 +13,7 @@ method domAppendChild { ... }
 method domInsertBefore { ... }
 method domInsertAfter { ... }
 method domName { ... }
+method domGetNodeValue { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
