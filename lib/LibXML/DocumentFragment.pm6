@@ -8,13 +8,17 @@ use LibXML::Native;
 use LibXML::Element;
 use NativeCall;
 
-submethod TWEAK() {
-    self.set-node: xmlDocFrag.new;
+multi submethod TWEAK(:root($)!, :node($)!) {}
+multi submethod TWEAK(:$root!) {
+    my xmlDoc:D $doc = $root.node;
+    my xmlDocFrag $node .= new: :$doc;
+    self.set-node: $node;
 }
 
-method root { self }
-
-method parse-balanced(Str() :$chunk!, xmlSAXHandler :$sax, Pointer :$user-data,  Bool() :$repair) {
+method parse-balanced(Str() :$chunk!,
+                      xmlSAXHandler :$sax,
+                      Pointer :$user-data,
+                      Bool() :$repair) {
     my Pointer[xmlNode] $nodes .= new;
     my $stat = xmlDoc.xmlParseBalancedChunkMemory($sax, $user-data, 0, $chunk, $nodes);
     if $stat && !$repair {

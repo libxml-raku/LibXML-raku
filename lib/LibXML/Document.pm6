@@ -23,9 +23,23 @@ submethod TWEAK(xmlDoc :$node is copy) {
 }
 
 # DOM Methods
-method createElement(Str $name) {
+method createElement(Str $name is copy,
+                     Str :$prefix is copy,
+                     Str :$href,
+                    ) {
+    with $href {
+        without $prefix {
+            # try to extract ns prefix from the tag name
+            my @s = $name.split(':', 2);
+            ($prefix, $name) = @s
+                if @s >= 2;
+        }
+    }
+
     my xmlNode $node .= new: :$name;
     $node.doc = $.node;
+    $node.ns .= new( :$prefix, :$href, :$node)
+        if $prefix && $href;
     LibXML::Element.new: :$node;
 }
 
@@ -41,9 +55,22 @@ method createDocument(Str :$version = '1.0',
 
 method createDocumentFragment() {
     require LibXML::DocumentFragment;
-    my xmlDoc $doc = self.node;
-    my xmlDocFrag $node .= new: :$doc;
-    LibXML::DocumentFragment.new: :$node;
+    LibXML::DocumentFragment.new: :root(self);
+}
+
+method createTextNode(Str $content) {
+    require LibXML::Text;
+    LibXML::Text.new: :root(self), :$content;
+}
+
+method createComment(Str $content) {
+    require LibXML::Comment;
+    LibXML::Comment.new: :root(self), :$content;
+}
+
+method createCDATASection(Str $content) {
+    require LibXML::CDATASection;
+    LibXML::CDATASection.new: :root(self), :$content;
 }
 
 method Str(Bool() :$format = False) {

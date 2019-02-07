@@ -447,7 +447,7 @@ use LibXML::SAX;
     $doc = $generator.parse: :$string;
     my @cn = $doc.documentElement.childNodes();
     is( + @cn, 1, "Child nodes - 1" );
-    is( @cn[0].type, +XML_CDATA_SECTION_NODE );
+    is( @cn[0].nodeType, +XML_CDATA_SECTION_NODE );
     is( @cn[0].content, '&foo<bar' );
     is( @cn[0].Str, '<![CDATA[&foo<bar]]>');
 
@@ -579,7 +579,7 @@ use LibXML::SAX;
         my Str:D $chunk = %chunks{'wellformed' ~ $_};
         my $frag = $pparser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-        if $frag.node.type == +XML_DOCUMENT_FRAG_NODE
+        if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes {
             if $frag.firstChild.isSameNode($frag.lastChild) {
                 if ( $chunk ~~ /'<A></A>'/ ) {
@@ -597,7 +597,7 @@ use LibXML::SAX;
         my Str:D $chunk = %chunks{'wellbalance' ~ $_};
         my $frag = $pparser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-        if $frag.node.type == +XML_DOCUMENT_FRAG_NODE
+        if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes {
             if ( $chunk ~~ /'<A></A>'/ ) {
                 $_--;
@@ -680,7 +680,7 @@ use LibXML::SAX;
         my $chunk = %chunks{'wellformed' ~ $_};
         my $frag = $parser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-        if ( $frag.node.type == +XML_DOCUMENT_FRAG_NODE
+        if ( $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes ) {
             if ( $frag.firstChild.isSameNode( $frag.lastChild ) ) {
                 if ( $chunk ~~ /'<A></A>'/ ) {
@@ -697,7 +697,7 @@ use LibXML::SAX;
         my Str:D $chunk = %chunks{'wellbalance' ~ $_};
         my $frag = $parser.parse-balanced: :$chunk;
         isa-ok($frag, 'LibXML::DocumentFragment');
-        if ( $frag.node.type == XML_DOCUMENT_FRAG_NODE
+        if ( $frag.nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes ) {
             if ( $chunk ~~ /'<A></A>'/ ) {
                 $_--;

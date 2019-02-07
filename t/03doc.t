@@ -108,7 +108,6 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     is( $doc.standalone, -1, 'doc.standalone' );  # is the value we get for undefined,
                                  # actually the same as 0 but just not set.
     # TEST
-    warn $doc.URI.defined;
     ok( !defined($doc.URI), 'doc.URI');  # should be set by default.
     # TEST
     is( $doc.compression, -1, 'doc.compression' ); # -1 indicates NO compression at all!
@@ -179,25 +178,21 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         );
     }
 
-}
-skip("port remaining tests", 169);
-=begin POD
-
     {
         # namespaced element test
-        my $node = $doc->createElementNS( "http://kungfoo", "foo:bar" );
+        my $node = $doc.createElement( :href<http://kungfoo>, "foo:bar" );
         # TEST
-        ok($node, ' TODO : Add test name');
+        ok($node, '$doc.createElement');
         # TEST
-        is($node->nodeType, XML_ELEMENT_NODE, ' TODO : Add test name');
+        is($node.nodeType, +XML_ELEMENT_NODE, '$node.node Type');
         # TEST
-        is($node->nodeName, "foo:bar", ' TODO : Add test name');
+        is($node.nodeName, "foo:bar", '$node.nodeName');
         # TEST
-        is($node->prefix, "foo", ' TODO : Add test name');
+        is($node.prefix, "foo", '$node.prefix');
         # TEST
-        is($node->localname, "bar", ' TODO : Add test name');
+        is($node.localname, "bar", '$node.localname');
         # TEST
-        is($node->namespaceURI, "http://kungfoo", ' TODO : Add test name');
+        is($node.namespaceURI, "http://kungfoo", '$node.namespaceURI');
     }
 
     {
@@ -205,47 +200,50 @@ skip("port remaining tests", 169);
         # TEST:$badnames_count=5;
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
-        foreach my $name ( @badnames ) {
-            my $node = eval {$doc->createElement( $name );};
-            # TEST*$badnames_count
-            ok( !(defined $node), ' TODO : Add test name' );
+        for @badnames -> $name {
+            todo "die on bad name";
+            dies-ok {$doc.createElement( $name );};
         }
 
     }
 
     {
-        my $node = $doc->createTextNode( "foo" );
+        my $node = $doc.createTextNode( "foo" );
         # TEST
-        ok($node, ' TODO : Add test name');
+        ok($node, '$doc.createTextNode');
         # TEST
-        is($node->nodeType, XML_TEXT_NODE, ' TODO : Add test name' );
+        is($node.nodeType, +XML_TEXT_NODE, 'text node type' );
         # TEST
-        is($node->nodeValue, "foo", ' TODO : Add test name' );
+        is($node.nodeValue, "foo", 'text node value' );
     }
 
     {
-        my $node = $doc->createComment( "foo" );
+        my $node = $doc.createComment( "foo" );
         # TEST
-        ok($node, ' TODO : Add test name');
+        ok($node, '$doc.createTextNode');
         # TEST
-        is($node->nodeType, XML_COMMENT_NODE, ' TODO : Add test name' );
+        is($node.nodeType, +XML_COMMENT_NODE, 'comment node type' );
         # TEST
-        is($node->nodeValue, "foo", ' TODO : Add test name' );
+        is($node.nodeValue, "foo", 'comment node value' );
         # TEST
-        is($node->toString, "<!--foo-->", ' TODO : Add test name');
+        is($node.Str, "<!--foo-->", 'Comment node string');
     }
 
     {
-        my $node = $doc->createCDATASection( "foo" );
+        my $node = $doc.createCDATASection( "foo" );
         # TEST
         ok($node, ' TODO : Add test name');
         # TEST
-        is($node->nodeType, XML_CDATA_SECTION_NODE, ' TODO : Add test name' );
+        is($node.nodeType, +XML_CDATA_SECTION_NODE, ' TODO : Add test name' );
         # TEST
-        is($node->nodeValue, "foo", ' TODO : Add test name' );
+        is($node.nodeValue, "foo", ' TODO : Add test name' );
         # TEST
-        is($node->toString, "<![CDATA[foo]]>", ' TODO : Add test name');
+        is($node.Str, "<![CDATA[foo]]>", ' TODO : Add test name');
     }
+
+}
+skip("port remaining tests", 147);
+=begin POD
 
     # -> Create Attributes
     {

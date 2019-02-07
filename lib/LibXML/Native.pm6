@@ -41,7 +41,10 @@ class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 
-my role CustomSetter[&setter] {
+sub xmlStrdup(Str --> Pointer) is native(LIB) {*};
+sub xmlStrndup(Blob, int32 --> Pointer) is native(LIB) {*};
+
+my role StaticSetter[&setter] {
     #| override standard Attribute method for generating accessors
     method compose(Mu $package) {
         my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
@@ -56,15 +59,34 @@ my role CustomSetter[&setter] {
     }
 }
 
-multi trait_mod:<is>(Attribute $att, :&proxy!) {
-    $att does CustomSetter[&proxy]
+multi trait_mod:<is>(Attribute $att, :&static!) {
+    $att does StaticSetter[&static]
+}
+
+my role CopySetter[&setter] {
+    #| call xmlStrdup to make a copy of the object
+    method compose(Mu $package) {
+        my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
+        my &accessor = sub (\obj) is rw {
+            Proxy.new(
+                FETCH => sub ($) { self.get_value(obj) },
+                STORE => sub ($, Str() $val) {
+                    setter(obj, xmlStrdup($val));
+                });
+        }
+        $package.^add_method( $name, &accessor );
+    }
+}
+
+multi trait_mod:<is>(Attribute $att, :&copied!) {
+    $att does CopySetter[&copied]
 }
 
 # Defined Structs/Pointers
 class xmlParserInput is repr('CStruct') is export {
 	has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
-	has Str                       $.filename is proxy(
-            method xml6_input_set_filename(Str $filename) is native(BIND-LIB) {*}
+	has Str                       $.filename is copied(
+            method xml6_input_set_filename(Pointer) is native(BIND-LIB) {*}
         );    # The file analyzed, if any
 	has Str                       $.directory;   # the directory/base of the file
 	has xmlCharP                  $.base;        # Base of the array to parse
@@ -84,25 +106,31 @@ class xmlParserInput is repr('CStruct') is export {
 class xmlNs is repr('CStruct') is export {
     has xmlNs    $.next;    # next Ns link for this node
     has int32    $.type;    # global or local (enum xmlNsType)
+    has xmlCharP $.href;    # URL for the namespace
     has xmlCharP $.prefix;  # prefix for the namespace
     has Pointer  $.private; # application data
     has xmlDoc   $.context; # normally an xmlDoc
+
+    sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
+    method new(Str:D :$prefix!, Str:D :$href!, _xmlNode:D :$node) {
+        xmlNewNs($node, $href, $prefix);
+    }
 }
 
 class xmlSAXLocator is repr('CStruct') is export {
-    has Pointer  $.getPublicId is proxy(
+    has Pointer  $.getPublicId is static(
         method xml6_sax_locator_set_getPublicId( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer $.getSystemId is proxy(
+    has Pointer $.getSystemId is static(
         method xml6_sax_locator_set_getSystemId( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer $.getLineNumber is proxy(
+    has Pointer $.getLineNumber is static(
         method xml6_sax_locator_set_getLineNumber( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer $.getColumnNumber is proxy(
+    has Pointer $.getColumnNumber is static(
         method xml6_sax_locator_set_getColumnNumber( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
@@ -122,99 +150,99 @@ class xmlSAXHandler is repr('CStruct') is export {
         }
     }
 
-    has Pointer   $.internalSubset is proxy(
+    has Pointer   $.internalSubset is static(
         method xml6_sax_set_internalSubset(&cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.isStandalone is proxy(
+    has Pointer   $.isStandalone is static(
         method xml6_sax_set_isStandalone( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.hasInternalSubset is proxy(
+    has Pointer   $.hasInternalSubset is static(
         method xml6_sax_set_hasInternalSubset( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.hasExternalSubset is proxy(
+    has Pointer   $.hasExternalSubset is static(
         method xml6_sax_set_hasExternalSubset( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.resolveEntity is proxy(
+    has Pointer   $.resolveEntity is static(
         method xml6_sax_set_resolveEntity( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id --> xmlParserInput) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.getEntity is proxy(
+    has Pointer   $.getEntity is static(
         method xml6_sax_set_getEntity( &cb (parserCtxt $ctx, Str $name --> xmlEntity) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.entityDecl is proxy(
+    has Pointer   $.entityDecl is static(
         method xml6_sax_set_entityDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.notationDecl is proxy(
+    has Pointer   $.notationDecl is static(
         method xml6_sax_set_notationDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.attributeDecl is proxy(
+    has Pointer   $.attributeDecl is static(
         # todo xmlEnumeration $tree
         method xml6_sax_set_attributeDecl( &cb (parserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.elementDecl is proxy(
+    has Pointer   $.elementDecl is static(
         method xml6_sax_set_elementDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.unparsedEntityDecl is proxy(
+    has Pointer   $.unparsedEntityDecl is static(
         method xml6_sax_set_unparsedEntityDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.setDocumentLocator is proxy(
+    has Pointer   $.setDocumentLocator is static(
         method xml6_sax_set_setDocumentLocator( &cb (parserCtxt $ctx, xmlSAXLocator $loc) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.startDocument is proxy(
+    has Pointer   $.startDocument is static(
         method xml6_sax_set_startDocument( &cb (parserCtxt $ctx) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.endDocument is proxy(
+    has Pointer   $.endDocument is static(
         method xml6_sax_set_endDocument( &cb (parserCtxt $ctx) ) is native(BIND-LIB) {*}
     );
 
-    has Pointer   $.startElement is proxy(
+    has Pointer   $.startElement is static(
         method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(BIND-LIB) {*}
     );
     
-    has Pointer   $.endElement is proxy(
+    has Pointer   $.endElement is static(
         method xml6_sax_set_endElement( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.reference is proxy(
+    has Pointer   $.reference is static(
         method xml6_sax_set_reference( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.characters is proxy(
+    has Pointer   $.characters is static(
         method xml6_sax_set_characters( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.ignorableWhitespace is proxy(
+    has Pointer   $.ignorableWhitespace is static(
         method xml6_sax_set_ignorableWhitespace( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.processingInstruction is proxy(
+    has Pointer   $.processingInstruction is static(
         method xml6_sax_processingInstruction( &cb (parserCtxt $ctx, Str $target, Str $data) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.comment is proxy(
+    has Pointer   $.comment is static(
         method xml6_sax_set_comment( &cb (parserCtxt $ctx, Str $value) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.warning is proxy(
+    has Pointer   $.warning is static(
         method xml6_sax_set_warning( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.error is proxy(
+    has Pointer   $.error is static(
         method xml6_sax_set_error( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.fatalError is proxy(
+    has Pointer   $.fatalError is static(
         method xml6_sax_set_fatalError( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.getParameterEntity is proxy(
+    has Pointer   $.getParameterEntity is static(
         method xml6_sax_set_getParameterEntity( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.cdataBlock is proxy(
+    has Pointer   $.cdataBlock is static(
         method xml6_sax_set_cdataBlock( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.externalSubset is proxy(
+    has Pointer   $.externalSubset is static(
         method xml6_sax_set_externalSubset( &cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has uint32    $.initialized;
     has Pointer   $._private;
-    has Pointer   $.startElementNs is proxy(
+    has Pointer   $.startElementNs is static(
         method xml6_sax_set_startElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.endElementNs is proxy(
+    has Pointer   $.endElementNs is static(
         method xml6_sax_set_endElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) ) is native(BIND-LIB) {*}
     );
-    has Pointer   $.serror is proxy(
+    has Pointer   $.serror is static(
         method xml6_sax_set_serror( &cb (parserCtxt $ctx, xmlError $error) ) is native(BIND-LIB) {*}
     );
 
@@ -248,7 +276,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     has xmlNode         $.parent;      # child->parent link
     has xmlNode         $.next;        # next sibling link
     has xmlNode         $.prev;        # previous sibling link
-    has xmlDoc          $.doc is proxy(   # the containing document
+    has xmlDoc          $.doc is static(   # the containing document
         method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*}
     );
 
@@ -261,11 +289,15 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method domAppendChild(_xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domInsertBefore(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
     method domInsertAfter(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
+    method domName returns Str is native(BIND-LIB) {*}
+    method domGetNodeValue returns Str is native(BIND-LIB) {*}
 
 }
 
 class xmlNode is _xmlNode {
-    has xmlNs           $.ns;          # pointer to the associated namespace
+    has xmlNs           $.ns is static(   # the containing document
+        method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
+    );          # pointer to the associated namespace
     has xmlCharP        $.content;     # the content
     has xmlAttr         $.properties;  # properties list
     has xmlNs           $.nsDef;       # namespace definitions on this node
@@ -273,9 +305,9 @@ class xmlNode is _xmlNode {
     has uint16          $.line;        # line number
     has uint16          $.extra;       # extra data for XPath/XSLT
 
-    sub New(xmlNs, xmlCharP $name --> xmlNode) is native(LIB) is symbol('xmlNewNode') {*}
+    sub xmlNewNode(xmlNs, Pointer $name --> xmlNode) is native(LIB) {*}
     method new(Str:D :$name!, xmlNs :$ns) {
-        New($ns, $name);
+        xmlNewNode($ns, xmlStrdup($name));
     }
 
     method Str(Bool() :$format = False) {
@@ -288,6 +320,38 @@ class xmlNode is _xmlNode {
     }
 
     method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
+}
+
+class xmlTextNode is xmlNode is repr('CStruct') is export {
+    sub xmlNewText(Pointer $content --> xmlTextNode) is native(LIB) {*}
+    method new(Str :$content!, xmlDoc :$doc) {
+        given xmlNewText(xmlStrdup($content)) -> $node {
+            $node.doc = $_ with $doc;
+            $node;
+        }
+    }
+}
+
+class xmlCommentNode is xmlNode is repr('CStruct') is export {
+    sub xmlNewComment(Pointer $content --> xmlCommentNode) is native(LIB) {*}
+    method new(Str :$content!, xmlDoc :$doc) {
+        given xmlNewComment(xmlStrdup($content)) -> $node {
+            $node.doc = $_ with $doc;
+            $node;
+        }
+    }
+}
+
+class xmlCDataNode is xmlNode is repr('CStruct') is export {
+    sub xmlNewCDataBlock(xmlDoc, Pointer $content, int32 $len --> xmlCDataNode) is native(LIB) {*}
+    multi method new(Str :content($string)!, xmlDoc :$doc) {
+        my Blob $content = $string.encode;
+        self.new: :$content, :$doc;
+    }
+    multi method new(Blob :content($buf)!, xmlDoc :$doc) {
+        my $len = $buf.elems;
+        xmlNewCDataBlock($doc, xmlStrndup($buf, $len), $len);
+    }
 }
 
 class xmlAttr is _xmlNode is export {
@@ -311,16 +375,16 @@ class xmlDoc is _xmlNode is export {
     has xmlDtd          $.intSubset;   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
-    has xmlCharP        $.version is proxy(
-            method xml6_doc_set_version(Str) is native(BIND-LIB) {*}
+    has xmlCharP        $.version is copied(
+            method xml6_doc_set_version(Pointer) is native(BIND-LIB) {*}
         );     # the XML version string
-    has xmlCharP        $.encoding is proxy(
-            method xml6_doc_set_encoding(Str) is native(BIND-LIB) {*}
+    has xmlCharP        $.encoding is copied(
+            method xml6_doc_set_encoding(Pointer) is native(BIND-LIB) {*}
         );    # external initial encoding, if any
     has Pointer         $.ids;         # Hash table for ID attributes if any
     has Pointer         $.refs;        # Hash table for IDREFs attributes if any
-    has xmlCharP        $.URI is proxy(
-            method xml6_doc_set_URI(Str $uri) is native(BIND-LIB) {*});         # The URI for that document
+    has xmlCharP        $.URI is copied(
+            method xml6_doc_set_URI(Pointer) is native(BIND-LIB) {*});         # The URI for that document
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
     has xmlDict         $.dict;        # dict used to allocate names or NULL
@@ -412,7 +476,7 @@ class xmlError is export {
 }
 
 class parserCtxt is export {
-    has xmlSAXHandler          $.sax is proxy(       # The SAX handler
+    has xmlSAXHandler          $.sax is static(       # The SAX handler
         method xml6_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
     );
     has Pointer                $.userData;     # For SAX interface only, used by DOM build

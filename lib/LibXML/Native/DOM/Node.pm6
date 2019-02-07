@@ -12,6 +12,7 @@ method last { ... }
 method domAppendChild { ... }
 method domInsertBefore { ... }
 method domInsertAfter { ... }
+method domName { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
@@ -46,6 +47,14 @@ method insertAfter(Node $nNode, Node $oNode) {
     self.doc.xml6_doc_set_int_subset($nNode)
         if $rNode.type == XML_DTD_NODE;
     $nNode;
+}
+
+method nodeName {
+    self.domName;
+}
+
+method nodeValue {
+    self.domGetNodeValue;
 }
 
 method hasChildNodes returns Bool {
