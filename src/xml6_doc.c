@@ -35,10 +35,7 @@ DLLEXPORT void xml6_doc_set_intSubset(xmlDocPtr self, xmlDtdPtr dtd) {
 
   if (old_dtd != NULL) {
     xmlUnlinkNode((xmlNodePtr) old_dtd);
-
-    if (old_dtd == NULL) {
-      xmlFreeDtd(old_dtd);
-    }
+    xmlFreeDtd(old_dtd);
   }
 
   self->intSubset = dtd;

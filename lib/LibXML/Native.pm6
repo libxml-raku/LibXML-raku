@@ -382,7 +382,9 @@ class xmlDoc is _xmlNode is export {
                                        # -1 if there is no XML declaration
                                        # -2 if there is an XML declaration, but no
                                        #    standalone attribute was specified
-    has xmlDtd          $.intSubset;   # the document internal subset
+    has xmlDtd          $.intSubset is rw-ptr(
+            method xml6_doc_set_intSubset(xmlDtd) is native(BIND-LIB) {*}
+    );   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
     has xmlCharP        $.version is rw-str(
@@ -410,7 +412,6 @@ class xmlDoc is _xmlNode is export {
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
-    method xml6_doc_set_int_subset(xmlDtd) is native(BIND-LIB) {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}

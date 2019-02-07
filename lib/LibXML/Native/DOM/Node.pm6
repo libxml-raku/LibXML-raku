@@ -32,21 +32,21 @@ method appendChild(Node $nNode) {
         fail $_ with %Unsupported{$nNode.type};
     }
     my Node:D $rNode = self.domAppendChild($nNode);
-    self.doc.xml6_doc_set_int_subset($nNode)
+    self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
     $rNode;
 }
 
 method insertBefore(Node $nNode, Node $oNode) {
     my Node:D $rNode = self.domInsertBefore($nNode, $oNode);
-    self.doc.xml6_doc_set_int_subset($nNode)
+    self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
     $nNode;
 }
 
 method insertAfter(Node $nNode, Node $oNode) {
     my Node:D $rNode = self.domInsertAfter($nNode, $oNode);
-    self.doc.xml6_doc_set_int_subset($nNode)
+    self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
     $nNode;
 }
