@@ -8,9 +8,9 @@ use LibXML::Native;
 use LibXML::Element;
 use NativeCall;
 
-multi submethod TWEAK(:root($)!, :node($)!) {}
-multi submethod TWEAK(:$root!) {
-    my xmlDoc:D $doc = $root.node;
+multi submethod TWEAK(LibXML::Node :doc($)!, :node($)!) {}
+multi submethod TWEAK(:doc($root)!) {
+    my xmlDoc:D $doc = .node with $root;
     my xmlDocFrag $node .= new: :$doc;
     self.set-node: $node;
 }

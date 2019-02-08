@@ -16,7 +16,7 @@ constant config = LibXML::Config;
 has parserCtxt $.ctx handles <wellFormed valid>;
 # todo eliminate raw node handling
 method node(--> xmlDoc) handles<compression standalone version encoding URI> { callsame }
-method root { self }
+method doc { self }
 
 submethod TWEAK(xmlDoc :$node is copy) {
     $node //= .myDoc with $!ctx;
@@ -41,7 +41,19 @@ method createElement(QName $name is copy,
 
     my xmlNs $ns .= new(:$prefix, :$href)
         if $prefix && $href;
-    LibXML::Element.new: :$name, :$ns, :root(self);
+    LibXML::Element.new: :$name, :$ns, :doc(self);
+}
+
+method documentElement is rw {
+    Proxy.new(
+        FETCH => sub ($) {
+            self.dom-node: $.node.documentElement;
+        },
+        STORE => sub ($, LibXML::Element $elem) {
+            $elem.doc = self.doc;
+            $.node.documentElement = $elem.node;
+        }
+    );
 }
 
 method createAttribute(QName $name is copy,
@@ -60,37 +72,40 @@ method createAttribute(QName $name is copy,
 
     my xmlNs $ns .= new(:$prefix, :$href)
         if $prefix && $href;
-    LibXML::Attr.new: :$name, :$value, :$ns, :root(self);
+    LibXML::Attr.new: :$name, :$value, :$ns, :doc(self);
 }
 
 method createDocument(Str :$version = '1.0',
                       Str :$encoding,
-                      Str :$URI) {
+                      Str :$URI,
+                      LibXML::Element :$root;
+                     ) {
     my xmlDoc $node .= new: :$version;
     $node.encoding = $_ with $encoding;
     $node.URI = $_ with $URI;
     my $doc = self.new: :$node;
-    
+    $doc.documentElement = $_ with $root;
+    $doc;
 }
 
 method createDocumentFragment() {
     require LibXML::DocumentFragment;
-    LibXML::DocumentFragment.new: :root(self);
+    LibXML::DocumentFragment.new: :doc(self);
 }
 
 method createTextNode(Str $content) {
     require LibXML::Text;
-    LibXML::Text.new: :root(self), :$content;
+    LibXML::Text.new: :doc(self), :$content;
 }
 
 method createComment(Str $content) {
     require LibXML::Comment;
-    LibXML::Comment.new: :root(self), :$content;
+    LibXML::Comment.new: :doc(self), :$content;
 }
 
 method createCDATASection(Str $content) {
     require LibXML::CDATASection;
-    LibXML::CDATASection.new: :root(self), :$content;
+    LibXML::CDATASection.new: :doc(self), :$content;
 }
 
 method Str(Bool() :$format = False) {

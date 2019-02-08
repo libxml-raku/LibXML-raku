@@ -678,10 +678,6 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
     if ( self == NULL || old == NULL ) {
         return NULL;
     }
-    if ( old->type == XML_ATTRIBUTE_NODE
-         || old->type == XML_NAMESPACE_DECL ) {
-        return NULL;
-    }
     if ( self != old->parent ) {
         /* not a child! */
         return NULL;

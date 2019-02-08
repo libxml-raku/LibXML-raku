@@ -6,8 +6,8 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(:root($)!, :node($)!) { }
-multi submethod TWEAK(:$root!, QName :$name!, Str :$value!, xmlNs :$ns) {
+multi submethod TWEAK(LibXML::Node :doc($)!, :node($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($root)!, QName :$name!, Str :$value!, xmlNs :$ns) {
     my xmlDoc:D $doc = $root.node;
     my xmlAttr $node .= new: :$name, :$value, :$doc;
     $node.ns = $_ with $ns;

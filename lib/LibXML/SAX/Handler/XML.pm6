@@ -14,7 +14,7 @@ class LibXML::SAX::Handler::XML
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
-    method finish(:$doc!) {
+    method finish(:$doc) {
         # replace with our own
         $!doc;
     }

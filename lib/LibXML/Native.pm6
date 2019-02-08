@@ -267,6 +267,7 @@ class xmlBuffer is repr(Stub) is export {
 }
 
 use LibXML::Native::DOM::Node;
+use LibXML::Native::DOM::Document;
 
 class _xmlNode does LibXML::Native::DOM::Node is export {
 
@@ -293,7 +294,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method domName returns Str is native(BIND-LIB) {*}
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
-
+    method domRemoveChild(_xmlNode) is native(LIB) {*}
 }
 
 class xmlNode is _xmlNode {
@@ -381,7 +382,7 @@ class xmlAttr is _xmlNode is export {
     }
 }
 
-class xmlDoc is _xmlNode is export {
+class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone is rw;  # standalone document (no external refs)
                                        # 1 if standalone="yes"
@@ -415,6 +416,7 @@ class xmlDoc is _xmlNode is export {
 
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
+    method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
     method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }

@@ -6,9 +6,9 @@ unit class LibXML::Element
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(:root($)!, :node($)!) { }
-multi submethod TWEAK(:$root!, QName :$name!, xmlNs :$ns) {
-    my xmlDoc:D $doc = $root.node;
+multi submethod TWEAK(:node($)!) { }
+multi submethod TWEAK(:doc($root), QName :$name!, xmlNs :$ns) {
+    my xmlDoc:D $doc = .node with $root;
     my xmlNode $node .= new: :$name, :$doc, :$ns;
     self.set-node: $node;
 }
@@ -19,6 +19,6 @@ method attributes {
 }
 
 method namespaces {
-    LibXML::Node::iterate(LibXML::Namespace, $.node.nsDef, :$.root);
+    LibXML::Node::iterate(LibXML::Namespace, $.node.nsDef, :$.doc);
 }
 

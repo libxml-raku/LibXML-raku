@@ -1,5 +1,5 @@
 unit class LibXML::Namespace;
 use LibXML::Native;
-has $.root;
+has $.doc;
 has xmlNs $.ns handles <type prefix>;
-method dom-node(xmlNs $ns, :$root!) { with $ns { $?CLASS.new: :$ns, :$root} else { $?CLASS }; }
+method dom-node(xmlNs $ns, :$doc!) { with $ns { $?CLASS.new: :$ns, :$doc} else { $?CLASS }; }

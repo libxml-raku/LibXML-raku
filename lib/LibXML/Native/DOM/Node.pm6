@@ -9,16 +9,16 @@ method type { ... }
 method children { ... }
 method last { ... }
 
-method domAppendChild { ... }
+method domAppendChild  { ... }
 method domInsertBefore { ... }
-method domInsertAfter { ... }
+method domInsertAfter  { ... }
 method domName { ... }
 method domGetNodeValue { ... }
 method domSetNodeValue { ... }
+method domRemoveChild  { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
-method documentElement { self.GetRootElement }
 
 method appendChild(Node $nNode) {
     if self.type == XML_DOCUMENT_NODE {
@@ -35,6 +35,10 @@ method appendChild(Node $nNode) {
     self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
     $rNode;
+}
+
+method removeChild(Node $child) {
+    self.domRemoveChild($child);
 }
 
 method insertBefore(Node $nNode, Node $oNode) {

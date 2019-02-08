@@ -1,7 +1,16 @@
 class LibXML::Node {
     use LibXML::Native;
     use LibXML::Enums;
-    has LibXML::Node $.root;
+    has LibXML::Node $.doc;
+    method doc is rw {
+        Proxy.new(
+            FETCH => sub ($) { $!doc },
+            STORE => sub ($, LibXML::Node:D $doc) {
+                die "can't change owner document for a node"
+                with $!doc;
+            $!doc = $doc;
+        });
+    }
     has _xmlNode $.node handles <Str string-value content hasChildNodes URI baseURI nodeName nodeValue>;
     method nodeType { $!node.type }
     method localname { $!node.name }
@@ -10,7 +19,7 @@ class LibXML::Node {
     BEGIN {
         # wrap methods that return raw nodes
         # no arguments
-        for <last parent next prev doc firstChild lastChild documentElement> {
+        for <last parent next prev firstChild lastChild> {
             $?CLASS.^add_method($_, method { self.dom-node: $!node."$_"() });
         }
         # single node argument constructor
@@ -45,10 +54,10 @@ class LibXML::Node {
         }
     }
 
-    method dom-node(_xmlNode $node, :$root = $.root) { with $node { delegate($node).new: :$node, :$root} else { xmlNode }; }
+    method dom-node(_xmlNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
     method set-node($!node) {};
 
-    our sub iterate($obj, $cur, :$root = $obj.root) is rw is export(:iterate) {
+    our sub iterate($obj, $cur, :$doc = $obj.doc) is rw is export(:iterate) {
         # follow a chain of .next links.
         my class Siblings does Iterable does Iterator {
             has $.cur;
@@ -57,7 +66,7 @@ class LibXML::Node {
                 my $this = $!cur;
                 $_ = .next with $!cur;
                 with $this -> $node {
-                    $obj.dom-node: $node, :$root;
+                    $obj.dom-node: $node, :$doc;
                 }
                 else {
                     IterationEnd;
