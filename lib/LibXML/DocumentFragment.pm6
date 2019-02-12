@@ -12,7 +12,7 @@ multi submethod TWEAK(LibXML::Node :doc($)!, :node($)!) {}
 multi submethod TWEAK(:doc($root)!) {
     my xmlDoc:D $doc = .node with $root;
     my xmlDocFrag $node .= new: :$doc;
-    self.set-node: $node;
+    self.node = $node;
 }
 
 method parse-balanced(Str() :$chunk!,
@@ -36,12 +36,4 @@ method parse-balanced(Str() :$chunk!,
 method Str(Bool :$format = False) {
     $.childNodes.map(*.Str(:$format)).join;
 }
-
-submethod DESTROY {
-    with self.node {
-        .FreeList with self.node.children;
-	self.set-node: _xmlNode;
-    }
-}
-
 

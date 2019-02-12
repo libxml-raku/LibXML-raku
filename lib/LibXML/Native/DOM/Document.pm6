@@ -9,6 +9,7 @@ use NativeCall;
 
 method GetRootElement  { ... }
 method SetRootElement  { ... }
+method NewProp { ... }
 
 method documentElement is rw {
     Proxy.new(
@@ -17,4 +18,9 @@ method documentElement is rw {
             self.removeChild($_) with self.GetRootElement;
             self.SetRootElement($e);
         });
+}
+
+method createAttribute(Str $name, Str $value) {
+    my $encoded = self.EncodeEntitiesReentrant($value);
+    self.NewProp($name, $encoded);
 }

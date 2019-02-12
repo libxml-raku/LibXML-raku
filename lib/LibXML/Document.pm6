@@ -15,13 +15,11 @@ use NativeCall;
 constant config = LibXML::Config;
 has parserCtxt $.ctx handles <wellFormed valid>;
 # todo eliminate raw node handling
-method node(--> xmlDoc) handles<compression standalone version encoding URI> { callsame }
+method node is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
-submethod TWEAK(xmlDoc :$node is copy) {
-    $node //= .myDoc with $!ctx;
-    $node //= xmlDoc.new;
-    self.set-node: $node;
+submethod TWEAK {
+    self.node //= do with $!ctx {.myDoc} else {xmlDoc.new};
 }
 
 # DOM Methods
@@ -56,7 +54,12 @@ method documentElement is rw {
     );
 }
 
-method createAttribute(QName $name is copy,
+my subset AttSpec of Pair where .key ~~ QName && .value ~~ Str:D;
+multi method createAttribute(AttSpec $_, |c) {
+    $.createAttribute(.key, .value, |c);
+}
+
+multi method createAttribute(QName $name is copy,
                        Str $value,
                        Str :$prefix is copy,
                        Str :$href,
@@ -72,7 +75,8 @@ method createAttribute(QName $name is copy,
 
     my xmlNs $ns .= new(:$prefix, :$href)
         if $prefix && $href;
-    LibXML::Attr.new: :$name, :$value, :$ns, :doc(self);
+    my xmlAttr:D $node = self.node.createAttribute($name, $value);
+    LibXML::Attr.new: :$node, :$ns, :doc(self);
 }
 
 method createDocument(Str :$version = '1.0',
@@ -135,15 +139,7 @@ method Str(Bool() :$format = False) {
 }
 
 submethod DESTROY {
-    with $!ctx -> $ctx {
-        with self.node {
-            .Free unless .isSameNode($ctx.myDoc);
-        }
-	$ctx.Free;
-    }
-    else {
-        .Free with self.node;
-    }
-    self.set-node: _xmlNode;
+    .Free with $!ctx;
     $!ctx = Nil;
+    # we've already run LibXML::Node.DESTROY
 }

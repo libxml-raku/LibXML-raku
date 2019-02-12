@@ -285,6 +285,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
 
     method GetBase { self.doc.xmlNodeGetBase(self) }
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
+    method Free() is native(LIB) is symbol('xmlFreeNode') {*}
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
@@ -294,7 +295,24 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method domName returns Str is native(BIND-LIB) {*}
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
-    method domRemoveChild(_xmlNode) is native(LIB) {*}
+    method domRemoveChild(_xmlNode) is native(BIND-LIB) {*}
+    method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
+    method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
+    method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
+    method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
+    method remove-reference is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
+    method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_node_is_referenced') {*}
+
+    method Str(Bool() :$format = False) {
+        nextsame without self;
+        my xmlBuffer $buf .= Create;
+        $buf.xmlNodeDump($.doc // xmlDoc, self, 0, +$format);
+        my str $content = $buf.Content;
+        $buf.Free;
+        $content;
+    }
+
+    method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
 
 class xmlNode is _xmlNode {
@@ -324,16 +342,6 @@ class xmlNode is _xmlNode {
         }
     }
 
-    method Str(Bool() :$format = False) {
-        nextsame without self;
-        my xmlBuffer $buf .= Create;
-        $buf.xmlNodeDump($.doc // xmlDoc, self, 0, +$format);
-        my str $content = $buf.Content;
-        $buf.Free;
-        $content;
-    }
-
-    method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
 
 class xmlTextNode is xmlNode is repr('CStruct') is export {
@@ -376,9 +384,9 @@ class xmlAttr is _xmlNode is export {
     has xmlEnumeration  $.tree;         # or the enumeration tree if any
     has xmlCharP        $.prefix;       # the namespace prefix if any
     has xmlCharP        $.elem;         # Element holding the attribute
-    sub  xmlNewDocProp(xmlDoc, xmlCharP $name, xmlCharP $value --> xmlAttr) is native(LIB) {*}
+    method Free is native(LIB) is symbol('xmlFreeProp') {*}
     method new(Str :$name!, Str :$value!, xmlDoc :$doc --> xmlAttr:D) {
-        xmlNewDocProp($doc, $name, $value);
+        $doc.NewProp($name, $value);
     }
 }
 
@@ -424,6 +432,8 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
     method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
+    method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
+    method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {

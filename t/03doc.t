@@ -251,6 +251,7 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         is($attr.name, "foo", '$node.name');
         # TEST
         is($attr.value, "bar", '$node.value' );
+        is($attr.Str, ' foo="bar"', '$node.Str' );
         # TEST
         is-deeply($attr.hasChildNodes, False, '$node.hasChildNodes');
         my $content = $attr.firstChild;
@@ -259,29 +260,27 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         # TEST
         is( $content.nodeType, +XML_TEXT_NODE, 'attribute content is a text node' );
     }
-}
-skip("port remaining tests", 140);
-=begin POD
 
     {
         # bad attribute creation
         # TEST:$badnames_count=5;
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
-        foreach my $name ( @badnames ) {
-            my $node = eval {$doc->createAttribute( $name, "bar" );};
-            # TEST*$badnames_count
-            ok( !defined($node), ' TODO : Add test name' );
+        for @badnames -> $name {
+            dies-ok {$doc.createAttribute( $name, "bar" );}, "badd att name: $name";
         }
 
     }
+
     {
-      my $elem = $doc->createElement('foo');
-      my $attr = $doc->createAttribute(attr => 'e & f');
-      $elem->addChild($attr);
+      my $elem = $doc.createElement('foo');
+      my $attr = $doc.createAttribute('attr', 'e & f');
+      $elem.setAttributeNode($attr);
       # TEST
-      ok ($elem->toString() eq '<foo attr="e &amp; f"/>', ' TODO : Add test name');
-      $elem->removeAttribute('attr');
+      is($elem, '<foo attr="e &amp; f"/>', 'Elem with attribute added');
+}}
+skip("port remaining tests", 133);
+=begin POD
       $attr = $doc->createAttributeNS(undef,'attr2' => 'a & b');
       $elem->addChild($attr);
       # TEST

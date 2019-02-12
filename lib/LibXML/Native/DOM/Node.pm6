@@ -16,6 +16,8 @@ method domName { ... }
 method domGetNodeValue { ... }
 method domSetNodeValue { ... }
 method domRemoveChild  { ... }
+method domGetAttributeNode  { ... }
+method domSetAttributeNode  { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
@@ -37,8 +39,25 @@ method appendChild(Node $nNode) {
     $rNode;
 }
 
+my subset AttrNode of Node where .type == XML_ATTRIBUTE_NODE;
+
+method setAttributeNode(AttrNode $att) {
+    self.domSetAttributeNode($att);
+}
+
+method getAttributeNode(Str:D $att-name) {
+    self.domGetAttributeNode($att-name);
+}
+
 method removeChild(Node $child) {
     self.domRemoveChild($child);
+}
+
+method removeAttribute(Str:D $attr-name) {
+    with self.domGetAttributeNode($attr-name) {
+        warn "removing $attr-name";
+        .Unlink;
+    }
 }
 
 method insertBefore(Node $nNode, Node $oNode) {

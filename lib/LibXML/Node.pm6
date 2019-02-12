@@ -2,6 +2,24 @@ class LibXML::Node {
     use LibXML::Native;
     use LibXML::Enums;
     has LibXML::Node $.doc;
+
+    has _xmlNode $.node handles <Str string-value content hasChildNodes URI baseURI nodeName nodeValue>;
+
+    method node is rw {
+        Proxy.new(
+            FETCH => sub ($) { $!node },
+            STORE => sub ($, _xmlNode $new-node) {
+                .remove-reference with $!node;
+                .add-reference with $new-node;
+                $!node = $new-node;
+            },
+        );
+    }
+
+    submethod TWEAK {
+        .add-reference with $!node;
+    }
+
     method doc is rw {
         Proxy.new(
             FETCH => sub ($) { $!doc },
@@ -11,7 +29,7 @@ class LibXML::Node {
             $!doc = $doc;
         });
     }
-    has _xmlNode $.node handles <Str string-value content hasChildNodes URI baseURI nodeName nodeValue>;
+
     method nodeType { $!node.type }
     method localname { $!node.name }
     method prefix { .prefix with $!node.ns }
@@ -55,7 +73,6 @@ class LibXML::Node {
     }
 
     method dom-node(_xmlNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
-    method set-node($!node) {};
 
     our sub iterate($obj, $cur, :$doc = $obj.doc) is rw is export(:iterate) {
         # follow a chain of .next links.
@@ -76,7 +93,34 @@ class LibXML::Node {
     }
 
     # DOM methods
+    method !unlink(_xmlNode $node) {
+        $node.Unlink;
+        $node.Free
+           unless $node.is-referenced;
+    }
     method childNodes {
-        iterate(self, $.node.children);
+        iterate(self, $!node.children);
+    }
+    my subset AttrNode of LibXML::Node where .nodeType == XML_ATTRIBUTE_NODE;
+    method setAttributeNode(AttrNode $att) {
+        self!unlink($_) with $!node.getAttributeNode($att.name);
+        $!node.setAttributeNode($att.node);
+    }
+    method getAttributeNode(Str $att-name) {
+        self.dom-node: $!node.getAttributeNode($att-name);
+    }
+    method removeAttribute(Str $attr-name) {
+        self!unlink($_) with $!node.getAttributeNode($attr-name);
+    }
+
+    submethod DESTROY {
+        with $!node {
+            $!node.remove-reference;
+            without self.node.parent {
+                # not rigourous
+                $!node.Free unless $!node.is-referenced;
+            }
+            $!node = Nil;
+        }
     }
 }

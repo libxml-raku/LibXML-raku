@@ -10,7 +10,7 @@ multi submethod TWEAK(:node($)!) { }
 multi submethod TWEAK(:doc($root), QName :$name!, xmlNs :$ns) {
     my xmlDoc:D $doc = .node with $root;
     my xmlNode $node .= new: :$name, :$doc, :$ns;
-    self.set-node: $node;
+    self.node = $node;
 }
 
 use LibXML::Namespace;
