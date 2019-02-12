@@ -116,7 +116,7 @@ class LibXML::Node {
     submethod DESTROY {
         with $!node {
             $!node.remove-reference;
-            without self.node.parent {
+            without $!node.parent {
                 # not rigourous
                 $!node.Free unless $!node.is-referenced;
             }

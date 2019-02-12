@@ -39,7 +39,10 @@ DLLEXPORT void xml6_node_remove_reference(xmlNodePtr self) {
   else {
     xml6NodeProxyPtr proxy = (xml6NodeProxyPtr) self->_private;
     if (proxy->ref_count <= 0 || proxy->ref_count >= 65536) {
-      xml6_warn("node has unexpected ref_count value");
+      char msg[80];
+
+      sprintf(msg, "node %ld has unexpected ref_count value: %ld", (long) self, proxy->ref_count);
+      xml6_warn(msg);
     }
     else {
       if (proxy->ref_count == 1) {
