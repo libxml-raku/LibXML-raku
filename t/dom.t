@@ -4,7 +4,7 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Native;
 
-plan 12;
+plan 15;
 
 my $string = "<a>    <b/> </a>";
 my $tstr= "<a><b/></a>";
@@ -21,7 +21,7 @@ is-deeply $doc.doc, $doc, 'doc self-root';
 my LibXML::DocumentFragment $frag = $parser.parse-balanced: :chunk( $sDoc);
 my LibXML::DocumentFragment $chk = $parser.parse-balanced: :chunk( $sChunk);
 
-$frag.appendChild( $chk );
+lives-ok {$frag.appendChild( $chk )}, 'appendChild lives';
 
 is( $frag.Str, '<C/><D/><A/><B/>', 'No segfault parsing string "<C/><D/><A/><B/>"');
 
@@ -40,12 +40,14 @@ my $elem = $doc.createElement('foo');
 my $attr = $doc.createAttribute('attr', 'e & f');
 $elem.setAttributeNode($attr);
 is $attr.Str, ' attr="e &amp; f"', 'attr.Str';
+is $elem.node.properties, ' attr="e &amp; f"'; 'elem properties linkage';
+is $attr.node.parent.properties, $attr.node, 'attribute parent linkage';
 my $att2 = $elem.getAttributeNode('attr');
 is $att2.Str, ' attr="e &amp; f"', 'att2.Str';
 ok $attr.isSameNode($att2);
 is($elem, '<foo attr="e &amp; f"/>', 'Elem with attribute added');
 $elem.removeAttribute('attr');
+warn .Str with $elem.node.properties;
 $att2 = $elem.getAttributeNode('attr');
-todo "removeAttribute bug-fest", 2;
 nok $att2.defined, 'getAttributeNode after removal';
 is($elem.Str, '<foo/>', 'Elem with attribute removed');

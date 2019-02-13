@@ -1096,6 +1096,7 @@ domSetAttributeNode( xmlNodePtr node, xmlAttrPtr attr ) {
             prev->next = attr;
             attr->prev = prev;
         }
+        attr->parent = node;
     }
 
     return attr;

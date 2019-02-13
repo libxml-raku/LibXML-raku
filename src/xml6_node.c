@@ -1,10 +1,12 @@
 #include "xml6.h"
 #include "xml6_node.h"
+#include <string.h>
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
   xml6NodeProxyPtr proxy;
   if ( self->_private == NULL ) {
     proxy = (xml6NodeProxyPtr)xmlMalloc(sizeof(struct _xml6NodeProxy));
+    memset(proxy, 0, sizeof(struct _xml6NodeProxy));
     self->_private = (void*) proxy;
   }
   else {
