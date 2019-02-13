@@ -115,10 +115,12 @@ class LibXML::Node {
 
     submethod DESTROY {
         with $!node {
-            $!node.remove-reference;
-            without $!node.parent {
-                # not rigourous
-                $!node.Free unless $!node.is-referenced;
+            if $!node.remove-reference {
+                # this node is no longer referenced
+                given $!node.root {
+                    # release the entire tree, if possible
+                    .Free unless .is-referenced;
+                }
             }
             $!node = Nil;
         }

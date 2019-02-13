@@ -34,9 +34,11 @@ DLLEXPORT int xml6_node_is_referenced(xmlNodePtr self) {
   return 0;
 }
 
-DLLEXPORT void xml6_node_remove_reference(xmlNodePtr self) {
+DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
+  int released = 0;
   if ( self->_private == NULL ) {
     xml6_warn("node was not referenced");
+    released = 1;
   }
   else {
     xml6NodeProxyPtr proxy = (xml6NodeProxyPtr) self->_private;
@@ -50,12 +52,21 @@ DLLEXPORT void xml6_node_remove_reference(xmlNodePtr self) {
       if (proxy->ref_count == 1) {
         self->_private = NULL;
         xmlFree((void*) proxy);
+        released = 1;
       }
       else {
         proxy->ref_count--;
       }
     }
   }
+  return released;
+}
+
+DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
+  while (node->parent) {
+    node = node->parent;
+  }
+  return node;
 }
 
 DLLEXPORT void xml6_node_set_doc(xmlNodePtr self, xmlDocPtr doc) {

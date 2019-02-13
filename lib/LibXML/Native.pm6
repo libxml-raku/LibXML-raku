@@ -300,8 +300,9 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
-    method remove-reference is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_node_is_referenced') {*}
+    method root(--> _xmlNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
 
     method Str(Bool() :$format = False) {
         nextsame without self;
