@@ -86,36 +86,76 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 
 # Defined Structs/Pointers
 class xmlParserInput is repr('CStruct') is export {
-	has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
-	has Str                       $.filename is rw-str(
-            method xml6_input_set_filename(Str) is native(BIND-LIB) {*}
-        );    # The file analyzed, if any
-	has Str                       $.directory;   # the directory/base of the file
-	has xmlCharP                  $.base;        # Base of the array to parse
-	has xmlCharP                  $.cur;         # Current char being parsed
-	has xmlCharP                  $.end;         # end of the array to parse
-	has int32                     $.length;      # length if known
-	has int32                     $.line;        # Current line
-	has int32                     $.col;         # Current column
-	has ulong                     $.consumed;    # How many xmlChars already consumed
-	has xmlParserInputDeallocate  $.free;        # function to deallocate the base
-	has xmlCharP                  $.encoding;    # the encoding string for entity
-	has xmlCharP                  $.version;     # the version string for entity
-	has int32                     $.standalone;  # Was that entity marked standalone
-	has int32                     $.id;          # int id
+    has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
+    has Str                       $.filename is rw-str(
+        method xml6_input_set_filename(Str) is native(BIND-LIB) {*}
+    );    # The file analyzed, if any
+    has Str                       $.directory;   # the directory/base of the file
+    has xmlCharP                  $.base;        # Base of the array to parse
+    has xmlCharP                  $.cur;         # Current char being parsed
+    has xmlCharP                  $.end;         # end of the array to parse
+    has int32                     $.length;      # length if known
+    has int32                     $.line;        # Current line
+    has int32                     $.col;         # Current column
+    has ulong                     $.consumed;    # How many xmlChars already consumed
+    has xmlParserInputDeallocate  $.free;        # function to deallocate the base
+    has xmlCharP                  $.encoding;    # the encoding string for entity
+    has xmlCharP                  $.version;     # the version string for entity
+    has int32                     $.standalone;  # Was that entity marked standalone
+    has int32                     $.id;          # int id
+}
+
+class xmlBuffer is repr('CStruct') is export {
+    has xmlCharP  $.content;     # The buffer content UTF8
+    has uint32    $.compat_use;  # for binary compatibility
+    has uint32    $.compat_size; # for binary compatibility
+    has int32     $.alloc is rw; # The realloc method
+    has xmlCharP  $.contentIO;   # in IO mode we may have a different base
+    has size_t    $.use;         # The buffer size used
+    has size_t    $.size;        # The buffer size
+    has xmlBuffer $.buffer;      # wrapper for an old buffer
+    has int32     $.error;       # an error code if a failure occurred
+
+    sub Create is native(LIB) is symbol('xmlBufferCreate') returns xmlBuffer {*}
+    method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufferCat') {*}
+    method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufferWriteQuotedString') {*}
+    method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format) is native(LIB) returns int32 is export { * }
+    method Content is symbol('xmlBufferContent') is native(LIB) returns Str is export { * }
+    method Free is symbol('xmlBufferFree') is native(LIB) is export { * }
+    method new returns xmlBuffer:D { Create() }
 }
 
 class xmlNs is repr('CStruct') is export {
-    has xmlNs    $.next;    # next Ns link for this node
-    has int32    $.type;    # global or local (enum xmlNsType)
-    has xmlCharP $.href;    # URL for the namespace
-    has xmlCharP $.prefix;  # prefix for the namespace
-    has Pointer  $.private; # application data
-    has xmlDoc   $.context; # normally an xmlDoc
+    has xmlNs    $.next;       # next Ns link for this node
+    has int32    $.type;       # global or local (enum xmlNsType)
+    has xmlCharP $.href;       # URL for the namespace
+    has xmlCharP $.prefix;     # prefix for the namespace
+    has Pointer  $.private;    # application data
+    has xmlDoc   $.context;    # normally an xmlDoc
 
     sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
     method new(Str:D :$prefix!, Str:D :$href!, _xmlNode :$node) {
         xmlNewNs($node, $href, $prefix);
+    }
+    method Str {
+        nextsame without self;
+        nextsame if self.prefix ~~ 'xml';
+        # approximation of xmlsave.c: xmlNsDumpOutput(...)
+        # but using xmlBuffer rather than xmlBuf
+        my xmlBuffer $buf .= new;
+
+        $buf.Write('xmlns');
+        $buf.Write(':' ~ $_)
+            with self.prefix;
+
+        with self.href {
+            $buf.Write('=');
+            $buf.WriteQuoted($_);
+        }
+
+        my str $content = $buf.Content;
+        $buf.Free;
+        $content;
     }
 }
 
@@ -259,13 +299,6 @@ class xmlSAXHandler is repr('CStruct') is export {
 
 }
 
-class xmlBuffer is repr(Stub) is export {
-    method Create is native(LIB) is symbol('xmlBufferCreate') returns xmlBuffer {*}
-    method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format) is native(LIB) returns int32 is export { * }
-    method Content is symbol('xmlBufferContent') is native(LIB) returns Str is export { * }
-    method Free is symbol('xmlBufferFree') is native(LIB) is export { * }
-}
-
 use LibXML::Native::DOM::Node;
 use LibXML::Native::DOM::Document;
 
@@ -306,7 +339,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
 
     method Str(Bool() :$format = False) {
         nextsame without self;
-        my xmlBuffer $buf .= Create;
+        my xmlBuffer $buf .= new;
         $buf.xmlNodeDump($.doc // xmlDoc, self, 0, +$format);
         my str $content = $buf.Content;
         $buf.Free;
@@ -330,15 +363,12 @@ class xmlNode is _xmlNode {
     has uint16          $.extra;       # extra data for XPath/XSLT
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
-    multi method new(Str:D :$name!, xmlNs:D :$ns!, xmlDoc:D :$doc!) {
-        given $doc.NewNode($ns, $name, Str) -> xmlNode:D $node {
-            $node.nsDef = $ns;
-            $node;
-        }
+    multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
+        $doc.new-node(:$name, :$ns);
     }
-    multi method new(Str:D :$name!, xmlNs :$ns, xmlDoc :$doc) {
+    multi method new(Str:D :$name!, xmlNs :$ns) {
         given xmlNewNode($ns, $name) -> xmlNode:D $node {
-            $node.doc = $_ with $doc;
+            $node.nsDef = $_ with $ns;
             $node;
         }
     }
@@ -432,6 +462,12 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
+    method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlNode:D) {
+        given self.NewNode($ns, $name, $content) -> xmlNode:D $node {
+            $node.nsDef = $_ with $ns;
+            $node;
+        }
+    }
     method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
     method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}

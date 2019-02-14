@@ -1233,7 +1233,6 @@ domCreateAttribute( xmlDocPtr self, char *name, char *value) {
   buffer = xmlEncodeEntitiesReentrant(self, value);
   newAttr = xmlNewDocProp( self, name, buffer );
   xmlFree(buffer);
-  fprintf(stderr, "createAtrtribute: %ld\n", (long) newAttr);
   return newAttr;
 }
 
@@ -1273,6 +1272,5 @@ domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value ) {
     }
     xmlFree(localname);
   }
-  fprintf(stderr, "createAttributeNS: %ld\n", (long) newAttr);
   return newAttr;
 }

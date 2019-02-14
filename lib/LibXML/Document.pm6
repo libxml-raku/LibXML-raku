@@ -23,7 +23,7 @@ submethod TWEAK(LibXML::Element :$root,
                 Str :$encoding,
                 Str :$URI,
                ) {
-    my xmlDoc $node = self.node //= do with $!ctx {.myDoc} else {xmlDoc.new};
+    my xmlDoc:D $node = self.node //= do with $!ctx {.myDoc} else {xmlDoc.new};
     $node.version = $_ with $version;
     $node.encoding = $_ with $encoding;
     $node.URI = $_ with $URI;
@@ -33,13 +33,13 @@ submethod TWEAK(LibXML::Element :$root,
 # DOM Methods
 
 multi method createElement(QName $name, Str:D :$href!) {
-    $.createElementNs($href, $name);
+    $.createElementNS($href, $name);
 }
 multi method createElement(NCName $name) {
     self.dom-node: $.node.createElement($name);
 }
-method createElementNs(Str:D $href, QName:D $name) {
-    self.dom-node: $.node.createElementNs($href, $name);
+method createElementNS(Str:D $href, QName:D $name) {
+    self.dom-node: $.node.createElementNS($href, $name);
 }
 
 method documentElement is rw {
@@ -72,7 +72,7 @@ multi method createAttribute(NCName $name,
     self.dom-node: $.node.createAttribute($name, $value);
 }
 
-method createAttributeNS(Str:D $href,
+method createAttributeNS(Str $href,
                          QName $name is copy,
                          Str $value = '',
                         ) {

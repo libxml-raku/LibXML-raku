@@ -27,22 +27,23 @@ method documentElement is rw {
         });
 }
 
-method createElementNs(Str:D $href, QName:D $name) {
-    my ($prefix, $localname) = $name.split(":");
-    $localname //= $prefix;
+method createElementNS(Str $href, QName:D $name is copy) {
+    return self.createElement($name) without $href;
+    (my $prefix, $name) = $name.split(":");
+    $name //= $prefix;
     my $ns = self.oldNs.new: :$href, :$prefix;
-    self.NewNode($ns, $localname, '');
+    self.new-node: :$name, :$ns;
 }
 
 method createElement(NCName:D $name) {
-    self.NewNode(Nil, $name, '');
+    self.new-node: :$name;
 }
 
 method createAttribute(NCName:D $name, Str $value = '') {
     self.domCreateAttribute($name, $value);
 }
 
-method createAttributeNS(Str:D $href, Str:D $name is copy, Str:D $value = '') {
+method createAttributeNS(Str $href, Str:D $name, Str:D $value = '') {
     fail "need to create documentElement first"
         without $.documentElement;
     self.domCreateAttributeNS($href, $name, $value);

@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 193;
+plan 194;
 
 use LibXML;
 use LibXML::Enums;
@@ -180,9 +180,10 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
 
     {
         # namespaced element test
-        my $node = $doc.createElement( :href<http://kungfoo>, "foo:bar" );
+        my $node = $doc.createElementNS( "http://kungfoo", "foo:bar" );
+        is $node.node.nsDef, 'xmlns:foo="http://kungfoo"', 'Node namespace';
         # TEST
-        ok($node, '$doc.createElement');
+        is $node, '<foo:bar xmlns:foo="http://kungfoo"/>', '$doc.createElement';
         # TEST
         is($node.nodeType, +XML_ELEMENT_NODE, '$node.nodeType');
         # TEST
@@ -282,13 +283,12 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
       $attr = $doc.createAttribute('attr2' => 'a & b');
       $elem.addChild($attr);
       # TEST
-warn $doc.Str;
       is $elem, '<foo attr2="a &amp; b"/>', 'Elem replace attributes';
     }
     {
         dies-ok {
             my $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
-        }, "$doc.createAttributeNS without root element - dies";;
+        }, '$doc.createAttributeNS without root element - dies';
 
         my $root = $doc.createElement( "foo" );
         $doc.documentElement = $root;
@@ -309,21 +309,30 @@ warn $doc.Str;
         # TEST
         is($attr.value, 'bar&amp;', ' TODO : Add test name' );
     }
-}
-skip("port remaining tests", 125);
-=begin POD
+
+    {
+        # good attribute creation
+        # TEST:$badnames_count=5;
+        my @goodnames = ( "foo", "bar:baz");
+
+        for @goodnames -> $name {
+            lives-ok {$doc.createAttributeNS( Str, $name, "bar" );}, 'createAttributeNS with good name';
+        }
+
+    }
     {
         # bad attribute creation
         # TEST:$badnames_count=5;
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
-        foreach my $name ( @badnames ) {
-            my $node = eval {$doc->createAttributeNS( undef, $name, "bar" );};
-            # TEST*$badnames_count
-            ok( (!defined $node), ' TODO : Add test name' );
+        for @badnames -> $name {
+            dies-ok {$doc.createAttributeNS( Str, $name, "bar" );}, 'createAttributeNS with bad name';
         }
 
     }
+}
+skip("port remaining tests", 118);
+=begin POD
 
     # -> Create PIs
     {
