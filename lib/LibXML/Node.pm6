@@ -24,10 +24,13 @@ class LibXML::Node {
         Proxy.new(
             FETCH => sub ($) { $!doc },
             STORE => sub ($, LibXML::Node:D $doc) {
-                die "can't change owner document for a node"
-                with $!doc;
-            $!doc = $doc;
-        });
+                with $!doc {
+                    die "can't change owner document for a node"
+                    unless $doc === $_;
+                }
+                $!doc = $doc;
+            },
+        );
     }
 
     method nodeType { $!node.type }
@@ -98,10 +101,12 @@ class LibXML::Node {
         $node.Free
            unless $node.is-referenced;
     }
+    my subset AttrNode of LibXML::Node where .nodeType == XML_ATTRIBUTE_NODE;
+    multi method addChild(AttrNode $a) { $.setAttributeNode($a) };
+    multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
     method childNodes {
         iterate(self, $!node.children);
     }
-    my subset AttrNode of LibXML::Node where .nodeType == XML_ATTRIBUTE_NODE;
     method setAttributeNode(AttrNode $att) {
         self!unlink($_) with $!node.getAttributeNode($att.name);
         $!node.setAttributeNode($att.node);

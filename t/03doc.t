@@ -231,13 +231,13 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     {
         my $node = $doc.createCDATASection( "foo" );
         # TEST
-        ok($node, ' TODO : Add test name');
+        ok($node, '$doc.createCDATASection');
         # TEST
-        is($node.nodeType, +XML_CDATA_SECTION_NODE, ' TODO : Add test name' );
+        is($node.nodeType, +XML_CDATA_SECTION_NODE, 'CDATA node type' );
         # TEST
-        is($node.nodeValue, "foo", ' TODO : Add test name' );
+        is($node.nodeValue, "foo", 'CDATA node value' );
         # TEST
-        is($node.Str, "<![CDATA[foo]]>", ' TODO : Add test name');
+        is($node.Str, "<![CDATA[foo]]>", 'CDATA node string');
     }
 
     # -> Create Attributes
@@ -278,41 +278,40 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
       $elem.setAttributeNode($attr);
       # TEST
       is($elem, '<foo attr="e &amp; f"/>', 'Elem with attribute added');
-}}
-skip("port remaining tests", 133);
-=begin POD
-      $attr = $doc->createAttributeNS(undef,'attr2' => 'a & b');
-      $elem->addChild($attr);
+      $elem.removeAttribute('attr');
+      $attr = $doc.createAttribute('attr2' => 'a & b');
+      $elem.addChild($attr);
       # TEST
-      ok ($elem->toString() eq '<foo attr2="a &amp; b"/>', ' TODO : Add test name');
+warn $doc.Str;
+      is $elem, '<foo attr2="a &amp; b"/>', 'Elem replace attributes';
     }
     {
-        eval {
-            my $attr = $doc->createAttributeNS("http://kungfoo", "kung:foo","bar");
-        };
-        # TEST
-        ok($@, ' TODO : Add test name');
+        dies-ok {
+            my $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
+        }, "$doc.createAttributeNS without root element - dies";;
 
-        my $root = $doc->createElement( "foo" );
-        $doc->setDocumentElement( $root );
-
+        my $root = $doc.createElement( "foo" );
+        $doc.documentElement = $root;
         my $attr;
-        eval {
-           $attr = $doc->createAttributeNS("http://kungfoo", "kung:foo","bar");
+        lives-ok {
+           $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
         };
         # TEST
-        ok($attr, ' TODO : Add test name');
+        ok($attr, '$doc.createAttributeNS');
         # TEST
-        is($attr->nodeName, "kung:foo", ' TODO : Add test name');
+        is($attr.nodeName, "kung:foo", '$doc.createAttributeNS nodeName');
         # TEST
-        is($attr->name,"foo", ' TODO : Add test name' );
+        is($attr.name,"foo", '$doc.createAttributeNS name' );
         # TEST
-        is($attr->value, "bar", ' TODO : Add test name' );
+        is($attr.value, "bar", ' TODO : Add test name' );
 
-        $attr->setValue( q(bar&amp;) );
+        $attr.value = 'bar&amp;';
         # TEST
-        is($attr->getValue, q(bar&amp;), ' TODO : Add test name' );
+        is($attr.value, 'bar&amp;', ' TODO : Add test name' );
     }
+}
+skip("port remaining tests", 125);
+=begin POD
     {
         # bad attribute creation
         # TEST:$badnames_count=5;

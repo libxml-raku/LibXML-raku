@@ -1225,3 +1225,54 @@ domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns) {
     return(1);
 }
 
+xmlAttrPtr
+domCreateAttribute( xmlDocPtr self, char *name, char *value) {
+  xmlChar *buffer;
+  xmlAttrPtr newAttr;
+  /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
+  buffer = xmlEncodeEntitiesReentrant(self, value);
+  newAttr = xmlNewDocProp( self, name, buffer );
+  xmlFree(buffer);
+  fprintf(stderr, "createAtrtribute: %ld\n", (long) newAttr);
+  return newAttr;
+}
+
+xmlAttrPtr
+domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value ) {
+  xmlChar * prefix = NULL;
+  xmlChar * localname = NULL;
+  xmlAttrPtr newAttr = NULL;
+  xmlNsPtr ns = NULL;
+
+  if ( URI != NULL && xmlStrlen(URI) > 0 ) {
+    xmlNodePtr root = xmlDocGetRootElement(self);
+    if ( root == NULL) {
+      croak("unable to locate document root");
+    }
+    if ( xmlStrchr(name, ':') != NULL ) {
+      localname = xmlSplitQName2(name, &prefix);
+    }
+    else {
+      localname = xmlStrdup( name );
+    }
+    ns = xmlSearchNsByHref( self, root, URI );
+    if ( ns == NULL ) {
+      /* create a new NS if the NS does not already exists */
+      ns = xmlNewNs(root, URI , prefix );
+    }
+
+    if ( ns == NULL ) {
+      croak("unable to create Attribute namespace");
+    }
+
+    newAttr = xmlNewDocProp( self, localname, value );
+    xmlSetNs((xmlNodePtr)newAttr, ns);
+
+    if ( prefix ) {
+      xmlFree(prefix);
+    }
+    xmlFree(localname);
+  }
+  fprintf(stderr, "createAttributeNS: %ld\n", (long) newAttr);
+  return newAttr;
+}

@@ -9,7 +9,7 @@ use LibXML::Enums;
 use LibXML::Config;
 use LibXML::Element;
 use LibXML::Attr;
-use LibXML::Types :QName;
+use LibXML::Types :QName, :NCName;
 use NativeCall;
 
 constant config = LibXML::Config;
@@ -18,28 +18,28 @@ has parserCtxt $.ctx handles <wellFormed valid>;
 method node is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
-submethod TWEAK {
-    self.node //= do with $!ctx {.myDoc} else {xmlDoc.new};
+submethod TWEAK(LibXML::Element :$root,
+                Str :$version,
+                Str :$encoding,
+                Str :$URI,
+               ) {
+    my xmlDoc $node = self.node //= do with $!ctx {.myDoc} else {xmlDoc.new};
+    $node.version = $_ with $version;
+    $node.encoding = $_ with $encoding;
+    $node.URI = $_ with $URI;
+    self.documentElement = $_ with $root;
 }
 
 # DOM Methods
 
-method createElement(QName $name is copy,
-                     Str :$prefix is copy,
-                     Str :$href,
-                    ) {
-    with $href {
-        without $prefix {
-            # try to extract ns prefix from the tag name
-            my @s = $name.split(':', 2);
-            ($prefix, $name) = @s
-                if @s >= 2;
-        }
-    }
-
-    my xmlNs $ns .= new(:$prefix, :$href)
-        if $prefix && $href;
-    LibXML::Element.new: :$name, :$ns, :doc(self);
+multi method createElement(QName $name, Str:D :$href!) {
+    $.createElementNs($href, $name);
+}
+multi method createElement(NCName $name) {
+    self.dom-node: $.node.createElement($name);
+}
+method createElementNs(Str:D $href, QName:D $name) {
+    self.dom-node: $.node.createElementNs($href, $name);
 }
 
 method documentElement is rw {
@@ -54,42 +54,37 @@ method documentElement is rw {
     );
 }
 
-my subset AttSpec of Pair where .key ~~ QName && .value ~~ Str:D;
-multi method createAttribute(AttSpec $_, |c) {
+my subset AttPair of Pair where .key ~~ QName && .value ~~ Str:D;
+multi method createAttribute(AttPair $_, |c) {
     $.createAttribute(.key, .value, |c);
 }
 
-multi method createAttribute(QName $name is copy,
-                       Str $value,
-                       Str :$prefix is copy,
-                       Str :$href,
-                    ) {
-    with $href {
-        without $prefix {
-            # try to extract ns prefix from the tag name
-            my @s = $name.split(':', 2);
-            ($prefix, $name) = @s
-                if @s >= 2;
-        }
-    }
+multi method createAttribute(QName $name,
+                             Str $value = '',
+                             Str:D :$href!,
+                            ) {
+    self.dom-node: $.node.createAttributeNS($href, $name, $value);
+}
 
-    my xmlNs $ns .= new(:$prefix, :$href)
-        if $prefix && $href;
-    my xmlAttr:D $node = self.node.createAttribute($name, $value);
-    LibXML::Attr.new: :$node, :$ns, :doc(self);
+multi method createAttribute(NCName $name,
+                             Str $value = '',
+                            ) {
+    self.dom-node: $.node.createAttribute($name, $value);
+}
+
+method createAttributeNS(Str:D $href,
+                         QName $name is copy,
+                         Str $value = '',
+                        ) {
+    self.dom-node: $.node.createAttributeNS($href, $name, $value);
 }
 
 method createDocument(Str :$version = '1.0',
                       Str :$encoding,
                       Str :$URI,
-                      LibXML::Element :$root;
+                      LibXML::Element :$root,
                      ) {
-    my xmlDoc $node .= new: :$version;
-    $node.encoding = $_ with $encoding;
-    $node.URI = $_ with $URI;
-    my $doc = self.new: :$node;
-    $doc.documentElement = $_ with $root;
-    $doc;
+    self.new: :$version, :$encoding, :$URI, :$root;
 }
 
 method createDocumentFragment() {

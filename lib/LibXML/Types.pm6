@@ -1,3 +1,6 @@
 unit module LibXML::Types;
 
-subset QName of Str is export(:QName) where /^[<ident>+ % <[-.]>]**1..2 % ':'$/;
+use XML::Grammar;
+
+subset NCName of Str is export(:NCName) where {!.defined || $_ ~~ /^<XML::Grammar::pident>$/}
+subset QName of Str is export(:QName) where {!.defined || $_ ~~ /^<XML::Grammar::name>$/}

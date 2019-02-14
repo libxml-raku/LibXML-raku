@@ -242,4 +242,10 @@ domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr);
 void
 domClearPSVI(xmlNodePtr tree);
 
+xmlAttrPtr
+domCreateAttribute( xmlDocPtr self, char *name, char *value);
+
+xmlAttrPtr
+domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value );
+
 #endif

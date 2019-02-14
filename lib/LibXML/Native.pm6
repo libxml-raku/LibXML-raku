@@ -317,9 +317,9 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
 }
 
 class xmlNode is _xmlNode {
-    has xmlNs           $.ns is rw-ptr(   # the containing document
+    has xmlNs           $.ns is rw-ptr(   # pointer to the associated namespace
         method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
-    );          # pointer to the associated namespace
+    );
     has xmlCharP        $.content;     # the content
     has xmlAttr         $.properties;  # properties list
     has xmlNs           $.nsDef is rw-ptr( # namespace definitions on this node
@@ -440,6 +440,9 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     method new(Str() :$version = '1.0') {
         xmlNewDoc($version);
     }
+
+    method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}
+    method domCreateAttributeNS(Str, Str, Str --> xmlAttr) is native(BIND-LIB) {*}
 
     method Str(Bool() :$format = False) {
 
