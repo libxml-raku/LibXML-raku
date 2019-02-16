@@ -30,8 +30,7 @@ $doc .= new;
 my LibXML::Element:D $root .= new: :name<Test>;
 $doc.documentElement = $root;
 my LibXML::Element:D $root2 = $doc.documentElement;
-todo "maintain object cache";
-ok $root === $root2, 'See issue #2';
+ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
 is $doc, '<Test/>', 'Document';
 

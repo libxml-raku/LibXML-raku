@@ -118,6 +118,12 @@ class LibXML::Node {
     method removeAttribute(Str $attr-name) {
         self!unlink($_) with $!node.getAttributeNode($attr-name);
     }
+    method removeChild(LibXML::Node:D $kid) {
+        with $!node.removeChild($kid.node) {
+            .Free unless .is-referenced;
+            $_;
+        }
+    }
 
     submethod DESTROY {
         with $!node {

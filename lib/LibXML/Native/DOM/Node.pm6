@@ -1,6 +1,6 @@
 #| low level DOM. Works directly on Native XML Nodes
 unit role LibXML::Native::DOM::Node;
-my constant Node = LibXML::Native::DOM::Node;
+my constant Node = LibXML::Native::DOM::Node:D;
 use LibXML::Enums;
 use NativeCall;
 

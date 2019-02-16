@@ -14,11 +14,12 @@ use NativeCall;
 
 constant config = LibXML::Config;
 has parserCtxt $.ctx handles <wellFormed valid>;
+has LibXML::Element $!documentElement;
 # todo eliminate raw node handling
 method node is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
-submethod TWEAK(LibXML::Element :$root,
+submethod TWEAK(
                 Str :$version,
                 Str :$encoding,
                 Str :$URI,
@@ -27,7 +28,9 @@ submethod TWEAK(LibXML::Element :$root,
     $node.version = $_ with $version;
     $node.encoding = $_ with $encoding;
     $node.URI = $_ with $URI;
-    self.documentElement = $_ with $root;
+    with $node.documentElement {
+        $!documentElement .= new: :node($_), :doc(self);
+    }
 }
 
 # DOM Methods
@@ -42,14 +45,27 @@ method createElementNS(Str:D $href, QName:D $name) {
     self.dom-node: $.node.createElementNS($href, $name);
 }
 
+method !check-new-node($node, |) {
+   if $node ~~ LibXML::Element {
+       die "Document already has a root element"
+           with $.documentElement;
+   }
+}
+
+# don't allow more than one element in the document root
+method appendChild($node)    { self!check-new-node($node); nextsame; }
+method addChild($node)       { self!check-new-node($node); nextsame; }
+method insertBefore($node,$) { self!check-new-node($node); nextsame; }
+method insertAfter($node,$)  { self!check-new-node($node); nextsame; }
+
 method documentElement is rw {
     Proxy.new(
         FETCH => sub ($) {
-            self.dom-node: $.node.documentElement;
+            $!documentElement;
         },
-        STORE => sub ($, LibXML::Element $elem) {
-            $elem.doc = self.doc;
-            $.node.documentElement = $elem.node;
+        STORE => sub ($, $!documentElement) {
+            $!documentElement.doc = self;
+            $.node.documentElement = $!documentElement.node;
         }
     );
 }

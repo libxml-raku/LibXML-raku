@@ -9,9 +9,9 @@
 
 #include "dom.h"
 
-#define warn(string) fprintf(stderr, string)
+#define warn(string) {fprintf(stderr, "%s:%ld: %s\n", __FILE__,__LINE__,(string));return NULL;}
 #define xs_warn(string) warn(string)
-#define croak(string) {warn(string);exit(1);}
+#define croak(string) {warn(string);return NULL;}
 
 void
 domClearPSVIInList(xmlNodePtr list);
@@ -622,8 +622,7 @@ domAppendChild( xmlNodePtr self,
 
     if ( !(domTestHierarchy(self, newChild)
            && domTestDocument(self, newChild))){
-        croak("appendChild: HIERARCHY_REQUEST_ERR\n");
-        return NULL;
+        croak("appendChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( newChild->doc == self->doc ){
@@ -667,7 +666,7 @@ domAppendChild( xmlNodePtr self,
         }
     }
     else if ( newChild->type != XML_ENTITY_REF_NODE ) {
-                domReconcileNs(newChild);
+      domReconcileNs(newChild);
     }
 
     return newChild;
@@ -676,17 +675,17 @@ domAppendChild( xmlNodePtr self,
 xmlNodePtr
 domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
     if ( self == NULL || old == NULL ) {
-        return NULL;
+      return NULL;
     }
     if ( self != old->parent ) {
-        /* not a child! */
-        return NULL;
+      /* not a child! */
+      return NULL;
     }
 
     domUnlinkNode( old );
-        if ( old->type == XML_ELEMENT_NODE ) {
-                domReconcileNs( old );
-        }
+    if ( old->type == XML_ELEMENT_NODE ) {
+      domReconcileNs( old );
+    }
 
     return old ;
 }
@@ -713,8 +712,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
 
     if ( !(domTestHierarchy(self, new)
            && domTestDocument(self, new))){
-        croak("replaceChild: HIERARCHY_REQUEST_ERR\n");
-        return NULL;
+        croak("replaceChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( new->doc == self->doc ) {
@@ -782,8 +780,7 @@ domInsertBefore( xmlNodePtr self,
 
     if ( !(domTestHierarchy( self, newChild )
            && domTestDocument( self, newChild ))) {
-        croak("insertBefore/insertAfter: HIERARCHY_REQUEST_ERR\n");
-        return NULL;
+        croak("insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
     }
 
     if ( self->doc == newChild->doc ){
@@ -847,8 +844,7 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
          * wrong node type
          * new node is parent of itself
          */
-        croak("replaceNode: HIERARCHY_REQUEST_ERR\n");
-        return NULL;
+        croak("replaceNode: HIERARCHY_REQUEST_ERR");
     }
 
     par  = oldNode->parent;

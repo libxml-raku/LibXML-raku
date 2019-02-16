@@ -375,87 +375,83 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     }
 }
 
-skip("port remaining tests", 107);
-=begin POD
-
 {
     # Document Manipulation
     # -> Document Elements
 
-    my $doc = LibXML::Document->new();
-    my $node = $doc->createElement( "foo" );
-    $doc->setDocumentElement( $node );
-    my $tn = $doc->documentElement;
+    my $doc = LibXML::Document.new();
+    my $node = $doc.createElement( "foo" );
+    $doc.documentElement = $node;
+    my $tn = $doc.documentElement;
     # TEST
     ok($tn, ' TODO : Add test name');
     # TEST
-    ok($node->isSameNode($tn), ' TODO : Add test name');
+    ok($node.isSameNode($tn), ' TODO : Add test name');
 
-    my $node2 = $doc->createElement( "bar" );
-    { my $warn;
-      eval {
-        local $SIG{__WARN__} = sub { $warn = 1 };
-        # TEST
-        ok( !defined($doc->appendChild($node2)), ' TODO : Add test name' );
-      };
-      # TEST
-      ok(($@ or $warn), ' TODO : Add test name');
-    }
-    my @cn = $doc->childNodes;
-    # TEST
-    is( scalar(@cn) , 1, ' TODO : Add test name');
-    # TEST
-    ok($cn[0]->isSameNode($node), ' TODO : Add test name');
+    my $node2 = $doc.createElement( "bar" );
+    dies-ok {
+        $doc.appendChild($node2);
+    }, 'Append second root element - dies';
 
-    eval {
-      $doc->insertBefore($node2, $node);
+    my @cn = $doc.childNodes;
+    # TEST
+    is( +@cn, 1, ' TODO : Add test name');
+    # TEST
+    ok(@cn[0].isSameNode($node), ' TODO : Add test name');
+
+    dies-ok {
+      $doc.insertBefore($node2, $node);
     };
     # TEST
-    ok ($@, ' TODO : Add test name');
-    @cn = $doc->childNodes;
+##    ok ($@, ' TODO : Add test name');
+    @cn = $doc.childNodes;
     # TEST
-    is( scalar(@cn) , 1, ' TODO : Add test name');
+    is( +@cn, 1, ' TODO : Add test name');
     # TEST
-    ok($cn[0]->isSameNode($node), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($node), ' TODO : Add test name');
 
-    $doc->removeChild($node);
-    @cn = $doc->childNodes;
+    $doc.removeChild($node);
+    @cn = $doc.childNodes;
     # TEST
-    is( scalar(@cn) , 0, ' TODO : Add test name');
+    is( +@cn, 0, ' TODO : Add test name');
 
     for ( 1..2 ) {
-        my $nodeA = $doc->createElement( "x" );
-        $doc->setDocumentElement( $nodeA );
+        my $nodeA = $doc.createElement( "x" );
+        $doc.documentElement = $nodeA;
     }
     # TEST
     ok(1, ' TODO : Add test name'); # must not segfault here :)
 
-    $doc->setDocumentElement( $node2 );
-    @cn = $doc->childNodes;
+    $doc.documentElement = $node2;
+    @cn = $doc.childNodes;
     # TEST
-    is( scalar(@cn) , 1, ' TODO : Add test name');
+    is( +@cn, 1, ' TODO : Add test name');
     # TEST
-    ok($cn[0]->isSameNode($node2), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($node2), ' TODO : Add test name');
 
-    my $node3 = $doc->createElementNS( "http://foo", "bar" );
+    my $node3 = $doc.createElementNS( "http://foo", "bar" );
     # TEST
     ok($node3, ' TODO : Add test name');
 
-    # -> Processing Instructions
+    # . Processing Instructions
     {
-        my $pi = $doc->createProcessingInstruction( "foo", "bar" );
-        $doc->appendChild( $pi );
-        @cn = $doc->childNodes;
+        my $pi = $doc.createProcessingInstruction( "foo", "bar" );
+        $doc.appendChild( $pi );
+        @cn = $doc.childNodes;
         # TEST
-        ok( $pi->isSameNode($cn[-1]), ' TODO : Add test name' );
-        $pi->setData( 'bar="foo"' );
+        ok( $pi.isSameNode(@cn.tail), ' TODO : Add test name' );
+        $pi.nodeValue = 'bar="foo"';
         # TEST
-        is( $pi->textContent, 'bar="foo"', ' TODO : Add test name');
-        $pi->setData( foo=>"foo" );
+        is( $pi.content, 'bar="foo"', ' TODO : Add test name');
+        $pi.nodeValue = foo=>"foo";
         # TEST
-        is( $pi->textContent, 'foo="foo"', ' TODO : Add test name');
+        todo("check test valid?");
+        is( $pi.content, 'foo="foo"', ' TODO : Add test name');
     }
 }
+
+skip("port remaining tests", 91);
+=begin POD
 
 package Stringify;
 
