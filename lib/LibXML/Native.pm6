@@ -25,7 +25,11 @@ class parserCtxt is repr('CStruct') is export {...}
 constant Stub = 'CPointer';
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
-class xmlDict is repr(Stub) is export {}
+class xmlDict is repr(Stub) is export {
+    sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
+    method Free is native(LIB) is symbol('xmlDictFree') {*};
+    method new returns xmlDict:D { Create() }
+}
 class xmlDtd is repr(Stub) is export {}
 class xmlEntity is repr(Stub) is export {
     sub xmlGetPredefinedEntity(xmlCharP $name) is native(LIB) returns xmlEntity is export { * }
@@ -54,7 +58,7 @@ multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
             my &accessor = sub (\obj) is rw {
                 Proxy.new(
                     FETCH => sub ($) { self.get_value(obj) },
-                    STORE => sub ($, $val) {
+                    STORE => sub ($, $val is raw) {
                         setter(obj, $val);
                     });
             }
@@ -407,6 +411,16 @@ class xmlCDataNode is xmlNode is repr('CStruct') is export {
     }
 }
 
+class xmlPINode is xmlNode is repr('CStruct') is export {
+    sub xmlNewPI(xmlCharP $name, xmlCharP $content) is native(LIB) {*}
+    multi method new(xmlDoc:D :$doc!, Str:D :$name!, Str :$content) {
+        $doc.new-pi(:$name, :$content);
+    }
+    multi method new(Str:D :$name!, Str :$content) {
+        xmlNewPI($name, $content);
+    }
+}
+
 class xmlAttr is _xmlNode is export {
     has xmlAttr         $.nexth;        # next in hash table
     has int32           $.atype;        # the attribute type
@@ -447,6 +461,15 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
     has xmlDict         $.dict;        # dict used to allocate names or NULL
+    method dict is rw {
+        Proxy.new(
+            FETCH => sub ($) { $!dict },
+            STORE => sub ($, xmlDict $new-dict) {
+                .Free with $!dict;
+                $!dict := $new-dict
+            }
+        );
+    }
     has Pointer         $.psvi;        # for type/PSVI informations
     has int32           $.parseFlags;  # set of xmlParserOption used to parse the
                                        # document
@@ -468,13 +491,19 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
             $node;
         }
     }
+    method NewPI(xmlCharP $name, xmlCharP $content --> xmlPINode) is native(LIB) is symbol('xmlNewDocPI') {*}
+    method new-pi(Str:D :$name!, Str :$content --> xmlPINode:D) {
+       self.NewPI($name, $content);
+    }
     method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
     method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {
-        xmlNewDoc($version);
+        my xmlDoc:D $doc = xmlNewDoc($version);
+        $doc.dict = xmlDict.new;
+        $doc;
     }
 
     method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}

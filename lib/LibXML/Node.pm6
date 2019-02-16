@@ -67,6 +67,7 @@ class LibXML::Node {
                | XML_ENTITY_REF_NODE    { require LibXML::Text }
             when XML_COMMENT_NODE       { require LibXML::Comment }
             when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
+            when XML_PI_NODE            { require LibXML::PI }
             when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
             default {
                 warn "node content-type not yet handled: $_";

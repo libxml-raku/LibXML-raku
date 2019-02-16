@@ -208,9 +208,10 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     }
 
     {
-        my $node = $doc.createTextNode( "foo" );
+        need LibXML::Text;
+        my LibXML::Text:D $node = $doc.createTextNode( "foo" );
         # TEST
-        ok($node, '$doc.createTextNode');
+        is($node, 'foo', 'text Str');
         # TEST
         is($node.nodeType, +XML_TEXT_NODE, 'text node type' );
         # TEST
@@ -218,9 +219,10 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     }
 
     {
-        my $node = $doc.createComment( "foo" );
+        need LibXML::Comment;
+        my LibXML::Comment:D $node = $doc.createComment( "foo" );
         # TEST
-        ok($node, '$doc.createTextNode');
+        is($node, '<!--foo-->', 'comment Str');
         # TEST
         is($node.nodeType, +XML_COMMENT_NODE, 'comment node type' );
         # TEST
@@ -230,7 +232,8 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     }
 
     {
-        my $node = $doc.createCDATASection( "foo" );
+        need LibXML::CDATASection;
+        my LibXML::CDATASection:D $node = $doc.createCDATASection( "foo" );
         # TEST
         ok($node, '$doc.createCDATASection');
         # TEST
@@ -243,21 +246,22 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
 
     # -> Create Attributes
     {
-        my $attr = $doc.createAttribute("foo", "bar");
+        need LibXML::Attr;
+        need LibXML::Text;
+        my LibXML::Attr:D $attr = $doc.createAttribute("foo", "bar");
         # TEST
-        ok($attr, '$doc.createAttribute');
+        is($attr, ' foo="bar"', 'attr Str');
         # TEST
-        is($attr.nodeType, +XML_ATTRIBUTE_NODE, '$node.nodeType' );
+        is($attr.nodeType, +XML_ATTRIBUTE_NODE, 'attr nodeType' );
         # TEST
-        is($attr.name, "foo", '$node.name');
+        is($attr.name, "foo", 'attr name');
         # TEST
-        is($attr.value, "bar", '$node.value' );
-        is($attr.Str, ' foo="bar"', '$node.Str' );
+        is($attr.value, "bar", 'attr value' );
         # TEST
-        is-deeply($attr.hasChildNodes, False, '$node.hasChildNodes');
-        my $content = $attr.firstChild;
+        is-deeply($attr.hasChildNodes, False, 'att hasChildNodes');
+        my  LibXML::Text:D $content = $attr.firstChild;
         # TEST
-        ok( $content, '$attr.content' );
+        is( $content, 'bar', 'attr content Str' );
         # TEST
         is( $content.nodeType, +XML_TEXT_NODE, 'attribute content is a text node' );
     }
@@ -274,8 +278,10 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     }
 
     {
-      my $elem = $doc.createElement('foo');
-      my $attr = $doc.createAttribute('attr', 'e & f');
+      need LibXML::Element;
+      need LibXML::Attr;
+      my LibXML::Element:D $elem = $doc.createElement('foo');
+      my LibXML::Attr:D $attr = $doc.createAttribute('attr', 'e & f');
       $elem.setAttributeNode($attr);
       # TEST
       is($elem, '<foo attr="e &amp; f"/>', 'Elem with attribute added');
@@ -330,47 +336,47 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         }
 
     }
-}
-skip("port remaining tests", 118);
-=begin POD
 
     # -> Create PIs
     {
-        my $pi = $doc->createProcessingInstruction( "foo", "bar" );
+        need LibXML::PI;
+        my LibXML::PI:D $pi = $doc.createProcessingInstruction( "foo", "bar" );
         # TEST
-        ok($pi, ' TODO : Add test name');
+        is($pi, '<?foo bar?>');
         # TEST
-        is($pi->nodeType, XML_PI_NODE, ' TODO : Add test name');
+        is($pi.nodeType, +XML_PI_NODE, ' TODO : Add test name');
         # TEST
-        is($pi->nodeName, "foo", ' TODO : Add test name');
+        is($pi.nodeName, "foo", ' TODO : Add test name');
         # TEST
-        is($pi->textContent, "bar", ' TODO : Add test name');
+        is($pi.string-value, "bar", ' TODO : Add test name');
         # TEST
-        is($pi->getData, "bar", ' TODO : Add test name');
+        is($pi.content, "bar", ' TODO : Add test name');
     }
 
     {
-        my $pi = $doc->createProcessingInstruction( "foo" );
+        my $pi = $doc.createProcessingInstruction( "foo" );
         # TEST
-        ok($pi, ' TODO : Add test name');
+        is($pi, '<?foo?>');
         # TEST
-        is($pi->nodeType, XML_PI_NODE, ' TODO : Add test name');
+        is($pi.nodeType, +XML_PI_NODE, ' TODO : Add test name');
         # TEST
-        is($pi->nodeName, "foo", ' TODO : Add test name');
-        my $data = $pi->textContent;
+        is($pi.nodeName, "foo", ' TODO : Add test name');
+        my $data = $pi.content;
         # undef or "" depending on libxml2 version
         # TEST
         ok( is-empty-str($data), ' TODO : Add test name' );
-        $data = $pi->getData;
+        $data = $pi.content;
         # TEST
         ok( is-empty-str($data), ' TODO : Add test name' );
-        $pi->setData(q(bar&amp;));
+        $pi.nodeValue = 'bar&amp;';
         # TEST
-        is( $pi->getData, q(bar&amp;), ' TODO : Add test name');
-        # TEST
-        is($pi->textContent, q(bar&amp;), ' TODO : Add test name');
+        is($pi.content, 'bar&amp;', ' TODO : Add test name');
+        is $pi, '<?foo bar&amp;?>';
     }
 }
+
+skip("port remaining tests", 107);
+=begin POD
 
 {
     # Document Manipulation

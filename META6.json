@@ -29,6 +29,7 @@
     "LibXML::Native::DOM::Node" : "lib/LibXML/Native/DOM/Node.pm6",
     "LibXML::Native::DOM::Document" : "lib/LibXML/Native/DOM/Document.pm6",
     "LibXML::Parser" : "lib/LibXML/Parser.pm6",
+    "LibXML::PI" : "lib/LibXML/PI.pm6",
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
     "LibXML::Text" : "lib/LibXML/Text.pm6",
     "LibXML::Types" : "lib/LibXML/Types.pm6",

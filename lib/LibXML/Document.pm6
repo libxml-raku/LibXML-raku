@@ -35,7 +35,7 @@ submethod TWEAK(LibXML::Element :$root,
 multi method createElement(QName $name, Str:D :$href!) {
     $.createElementNS($href, $name);
 }
-multi method createElement(NCName $name) {
+multi method createElement(QName $name) {
     self.dom-node: $.node.createElement($name);
 }
 method createElementNS(Str:D $href, QName:D $name) {
@@ -73,7 +73,7 @@ multi method createAttribute(NCName $name,
 }
 
 method createAttributeNS(Str $href,
-                         QName $name is copy,
+                         QName $name,
                          Str $value = '',
                         ) {
     self.dom-node: $.node.createAttributeNS($href, $name, $value);
@@ -105,6 +105,11 @@ method createComment(Str $content) {
 method createCDATASection(Str $content) {
     require LibXML::CDATASection;
     LibXML::CDATASection.new: :doc(self), :$content;
+}
+
+method createProcessingInstruction(NCName $name, Str $content?) {
+    need LibXML::PI;
+    LibXML::PI.new: :doc(self), :$name, :$content;
 }
 
 method Str(Bool() :$format = False) {

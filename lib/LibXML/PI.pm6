@@ -1,13 +1,13 @@
 use LibXML::Node;
 
-unit class LibXML::CDATASection
+unit class LibXML::PI
     is LibXML::Node;
 
 use LibXML::Native;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, :node($)!) { }
-multi submethod TWEAK(:doc($root)!, Str :$content!) {
+multi submethod TWEAK(:doc($root)!, Str :$name!, Str :$content!) {
     my xmlDoc:D $doc = $root.node;
-    my xmlCDataNode:D $node .= new: :$content, :$doc;
+    my xmlPINode:D $node .= new: :$name, :$content, :$doc;
     self.node = $node;
 }

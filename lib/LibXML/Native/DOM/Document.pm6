@@ -35,7 +35,7 @@ method createElementNS(Str $href, QName:D $name is copy) {
     self.new-node: :$name, :$ns;
 }
 
-method createElement(NCName:D $name) {
+method createElement(QName:D $name) {
     self.new-node: :$name;
 }
 
