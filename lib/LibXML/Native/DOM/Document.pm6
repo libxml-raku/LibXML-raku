@@ -29,8 +29,13 @@ method documentElement is rw {
 
 method createElementNS(Str $href, QName:D $name is copy) {
     return self.createElement($name) without $href;
-    (my $prefix, $name) = $name.split(":");
-    $name //= $prefix;
+    my Str $prefix;
+    given $name.split(':', 2) {
+        when 2 {
+            $prefix = .[0];
+            $name   = .[1];
+        }
+    }
     my $ns = self.oldNs.new: :$href, :$prefix;
     self.new-node: :$name, :$ns;
 }

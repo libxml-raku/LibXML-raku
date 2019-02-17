@@ -138,7 +138,7 @@ class xmlNs is repr('CStruct') is export {
     has xmlDoc   $.context;    # normally an xmlDoc
 
     sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
-    method new(Str:D :$prefix!, Str:D :$href!, _xmlNode :$node) {
+    method new(Str:D :$href!, Str :$prefix, _xmlNode :$node) {
         xmlNewNs($node, $href, $prefix);
     }
     method Str {

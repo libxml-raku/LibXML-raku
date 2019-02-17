@@ -307,13 +307,13 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         # TEST
         is($attr.nodeName, "kung:foo", '$doc.createAttributeNS nodeName');
         # TEST
-        is($attr.name,"foo", '$doc.createAttributeNS name' );
+        is($attr.name,"foo", 'attr ns name' );
         # TEST
-        is($attr.value, "bar", ' TODO : Add test name' );
+        is($attr.value, "bar", 'attr ns value' );
 
         $attr.value = 'bar&amp;';
         # TEST
-        is($attr.value, 'bar&amp;', ' TODO : Add test name' );
+        is($attr.value, 'bar&amp;', 'attr ns value updated' );
     }
 
     {
@@ -344,13 +344,13 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         # TEST
         is($pi, '<?foo bar?>');
         # TEST
-        is($pi.nodeType, +XML_PI_NODE, ' TODO : Add test name');
+        is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
         # TEST
-        is($pi.nodeName, "foo", ' TODO : Add test name');
+        is($pi.nodeName, "foo", 'PI nodeName');
         # TEST
-        is($pi.string-value, "bar", ' TODO : Add test name');
+        is($pi.string-value, "bar", 'PI string-value');
         # TEST
-        is($pi.content, "bar", ' TODO : Add test name');
+        is($pi.content, "bar", 'PI content');
     }
 
     {
@@ -358,19 +358,19 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         # TEST
         is($pi, '<?foo?>');
         # TEST
-        is($pi.nodeType, +XML_PI_NODE, ' TODO : Add test name');
+        is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
         # TEST
-        is($pi.nodeName, "foo", ' TODO : Add test name');
+        is($pi.nodeName, "foo", 'PI nodeName');
         my $data = $pi.content;
         # undef or "" depending on libxml2 version
         # TEST
-        ok( is-empty-str($data), ' TODO : Add test name' );
-        $data = $pi.content;
+        ok( is-empty-str($data), 'PI content (empty)' );
+        $data = $pi.string-value;
         # TEST
-        ok( is-empty-str($data), ' TODO : Add test name' );
+        ok( is-empty-str($data), 'PI string-value (empty)' );
         $pi.nodeValue = 'bar&amp;';
         # TEST
-        is($pi.content, 'bar&amp;', ' TODO : Add test name');
+        is($pi.content, 'bar&amp;', 'PI content updated');
         is $pi, '<?foo bar&amp;?>';
     }
 }
@@ -379,59 +379,58 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     # Document Manipulation
     # -> Document Elements
 
-    my $doc = LibXML::Document.new();
-    my $node = $doc.createElement( "foo" );
+    my LibXML::Document:D $doc .= new();
+    my LibXML::Element $node = $doc.createElement( "foo" );
     $doc.documentElement = $node;
     my $tn = $doc.documentElement;
     # TEST
-    ok($tn, ' TODO : Add test name');
+    is($tn, '<foo/>', 'set document element');
     # TEST
-    ok($node.isSameNode($tn), ' TODO : Add test name');
+    ok($node.isSameNode($tn), 'document element preserved');
 
     my $node2 = $doc.createElement( "bar" );
     dies-ok {
         $doc.appendChild($node2);
-    }, 'Append second root element - dies';
+    }, 'Append second document root element - dies';
 
     my @cn = $doc.childNodes;
     # TEST
-    is( +@cn, 1, ' TODO : Add test name');
+    is( +@cn, 1, 'Second document root element is isgnored');
     # TEST
-    ok(@cn[0].isSameNode($node), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($node), 'document element preserved');
 
     dies-ok {
       $doc.insertBefore($node2, $node);
-    };
+    }, "Can't insertBefore document root";
     # TEST
-##    ok ($@, ' TODO : Add test name');
     @cn = $doc.childNodes;
     # TEST
-    is( +@cn, 1, ' TODO : Add test name');
+    is( +@cn, 1, "Can't insertBefore document root");
     # TEST
-    ok(@cn[0].isSameNode($node), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($node), 'document element preserved');
 
     $doc.removeChild($node);
     @cn = $doc.childNodes;
     # TEST
-    is( +@cn, 0, ' TODO : Add test name');
+    is( +@cn, 0, 'document removeChild of root element');
 
     for ( 1..2 ) {
         my $nodeA = $doc.createElement( "x" );
         $doc.documentElement = $nodeA;
     }
     # TEST
-    ok(1, ' TODO : Add test name'); # must not segfault here :)
+    ok(1, 'Replacement of document root element'); # must not segfault here :)
 
     $doc.documentElement = $node2;
     @cn = $doc.childNodes;
     # TEST
-    is( +@cn, 1, ' TODO : Add test name');
+    is( +@cn, 1, 'Replaced root element');
     # TEST
-    ok(@cn[0].isSameNode($node2), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($node2), 'Replaced root element');
 
     my $node3 = $doc.createElementNS( "http://foo", "bar" );
     # TEST
-    ok($node3, ' TODO : Add test name');
+    is($node3, '<bar xmlns="http://foo"/>', '$doc.createElementNS');
 
     # . Processing Instructions
     {
@@ -439,28 +438,19 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         $doc.appendChild( $pi );
         @cn = $doc.childNodes;
         # TEST
-        ok( $pi.isSameNode(@cn.tail), ' TODO : Add test name' );
+        ok( $pi.isSameNode(@cn.tail), 'Append processing instruction to document root' );
         $pi.nodeValue = 'bar="foo"';
         # TEST
-        is( $pi.content, 'bar="foo"', ' TODO : Add test name');
+        is( $pi.content, 'bar="foo"', 'Appended processing instruction');
         $pi.nodeValue = foo=>"foo";
         # TEST
         todo("check test valid?");
-        is( $pi.content, 'foo="foo"', ' TODO : Add test name');
+        is( $pi.content, 'foo="foo"', 'Append Pair as processing instruction');
     }
 }
 
 skip("port remaining tests", 91);
 =begin POD
-
-package Stringify;
-
-use overload q[""] => sub { return '<A xmlns:C="xml://D"><C:A>foo<A/>bar</C:A><A><C:B/>X</A>baz</A>'; };
-
-sub new
-{
-    return bless \(my $x);
-}
 
 package main;
 
