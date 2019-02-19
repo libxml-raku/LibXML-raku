@@ -128,8 +128,8 @@ method createProcessingInstruction(NCName $name, Str $content?) {
     LibXML::PI.new: :doc(self), :$name, :$content;
 }
 
+
 method Str(Bool() :$format = False) {
-    my Bool $copied;
 
     if config.skip-xml-declaration {
         my \skip-dtd = config.skip-dtd;
@@ -137,8 +137,10 @@ method Str(Bool() :$format = False) {
     }
     else {
         my xmlDoc $doc = $.node;
-        with $doc.internal-dtd {
-            if config.skip-dtd {
+        my Bool $copied;
+
+        if config.skip-dtd {
+            with $doc.internal-dtd {
                 # make a copy, with DTD removed
                 $doc .= copy();
                 $doc.xmlUnlinkNode($_);
@@ -152,6 +154,33 @@ method Str(Bool() :$format = False) {
         $str;
     }
 
+}
+
+method Blob(Bool() :$format = False) {
+    if config.skip-xml-declaration {
+        # losing the encoding specification;
+        # revert to UTF-8 (default encoding)
+        my \skip-dtd = config.skip-dtd;
+        $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join.encode;
+    }
+    else {
+        my xmlDoc $doc = $.node;
+        my Bool $copied;
+
+        if config.skip-dtd {
+            with $doc.internal-dtd {
+                # make a copy, with DTD removed
+                $doc .= copy();
+                $doc.xmlUnlinkNode($_);
+                .Free;
+                $copied = True;
+            }
+        }
+
+        my $blob := $doc.Blob(:$format);
+        $doc.Free if $copied;
+        $blob;
+    }
 }
 
 submethod DESTROY {

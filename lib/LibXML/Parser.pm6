@@ -84,7 +84,7 @@ class LibXML::Parser {
         self!finish: LibXML::Document.new(:$ctx), :$pc;
     }
 
-    multi method parse(Str:D :$file!,
+    multi method parse(IO() :$file!,
                        Bool() :$html = $!html,
                        Str :$URI = $!baseURI) {
 

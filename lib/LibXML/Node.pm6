@@ -125,6 +125,20 @@ class LibXML::Node {
         }
     }
 
+    multi method write(IO::Handle :$io!, Bool :$format = False) {
+        $io.write: self.Blob(:$format);
+    }
+
+    multi method write(IO() :io($path)!, |c) {
+        my IO::Handle $io = $path.open(:bin, :w);
+        $.write(:$io, |c);
+        $io;
+    }
+
+    multi method write(IO() :file($io)!, |c) {
+        $.write(:$io, |c).close;
+    }
+
     submethod DESTROY {
         with $!node {
             if $!node.remove-reference {

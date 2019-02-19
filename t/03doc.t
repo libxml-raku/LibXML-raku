@@ -449,60 +449,58 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
     }
 }
 
-skip("port remaining tests", 91);
-=begin POD
-
-package main;
-
 {
+    need LibXML::Document;
     # Document Storing
-    my $parser = LibXML->new;
-    my $doc = $parser->parse_string("<foo>bar</foo>");
+    my LibXML:D $parser .= new;
+    my LibXML::Document:D $doc = $parser.parse: :string("<foo>bar</foo>");
 
     # TEST
 
-    ok( $doc, ' TODO : Add test name' );
+    is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );
 
-    # -> to file handle
+    # . to file handle
 
     {
-        open my $fh, '>', 'example/testrun.xml'
-            or die "Cannot open example/testrun.xml for writing - $!.";
+        my IO::Handle $io = 'example/testrun.xml'.IO.open(:w);
 
-        $doc->toFH( $fh );
-        $fh->close;
+        $doc.write: :$io;
+        $io.close;
         # TEST
         ok(1, ' TODO : Add test name');
         # now parse the file to check, if succeeded
-        my $tdoc = $parser->parse_file( "example/testrun.xml" );
+        my $tdoc = $parser.parse: :file( "example/testrun.xml" );
         # TEST
-        ok( $tdoc, ' TODO : Add test name' );
+        is-deeply( $tdoc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>' , '<foo>bar</foo>'), ' TODO : Add test name' );
         # TEST
-        ok( $tdoc->documentElement, ' TODO : Add test name' );
+        is( $tdoc.documentElement, '<foo>bar</foo>', ' TODO : Add test name' );
         # TEST
-        is( $tdoc->documentElement->nodeName, "foo", ' TODO : Add test name' );
+        is( $tdoc.documentElement.nodeName, "foo", ' TODO : Add test name' );
         # TEST
-        is( $tdoc->documentElement->textContent, "bar", ' TODO : Add test name' );
+        is( $tdoc.documentElement.string-value, "bar", ' TODO : Add test name' );
         unlink "example/testrun.xml" ;
     }
 
     # -> to named file
     {
-        $doc->toFile( "example/testrun.xml" );
+        $doc.write: :file( "example/testrun.xml" );
         # TEST
         ok(1, ' TODO : Add test name');
         # now parse the file to check, if succeeded
-        my $tdoc = $parser->parse_file( "example/testrun.xml" );
+        my $tdoc = $parser.parse: :file( "example/testrun.xml" );
         # TEST
         ok( $tdoc, ' TODO : Add test name' );
         # TEST
-        ok( $tdoc->documentElement, ' TODO : Add test name' );
+        ok( $tdoc.documentElement, ' TODO : Add test name' );
         # TEST
-        is( $tdoc->documentElement->nodeName, "foo", ' TODO : Add test name' );
+        is( $tdoc.documentElement.nodeName, "foo", ' TODO : Add test name' );
         # TEST
-        is( $tdoc->documentElement->textContent, "bar", ' TODO : Add test name' );
+        is( $tdoc.documentElement.string-value, "bar", ' TODO : Add test name' );
         unlink "example/testrun.xml" ;
     }
+
+}; skip("port remaining tests", 80);
+=begin POD
 
     # ELEMENT LIKE FUNCTIONS
     {

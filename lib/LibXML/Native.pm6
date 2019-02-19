@@ -479,7 +479,7 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
-    method internal-dtd is native(LIB) is symbol('xmlGetIntSubset') {*}
+    method internal-dtd(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
     method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
@@ -509,12 +509,27 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
     method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}
     method domCreateAttributeNS(Str, Str, Str --> xmlAttr) is native(BIND-LIB) {*}
 
+    #| Dump to a blob, using the inate encoding scheme
+    method Blob(Bool() :$format = False) {
+
+        nextsame without self;
+        my Pointer[uint8] $p .= new;
+        $.DumpFormatMemoryEnc($p, my int32 $len, Str, +$format);
+        my buf8 $buf .= allocate($len);
+        $buf[$_] = $p[$_] for 0 ..^ $len;
+        ## xmlFree($p); # segfaulting
+        $buf;
+    }
+
+    #| Dump to a string as UTF-8
     method Str(Bool() :$format = False) {
 
         nextsame without self;
         my Pointer[uint8] $p .= new;
         $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
-        nativecast(str, $p);
+        my Str $result := nativecast(str, $p);
+     ##   xmlFree($p); # sefaulting
+        $result;
     }
 }
 
@@ -837,6 +852,7 @@ class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
     }
 }
 
+sub xmlFree(Pointer) is native(LIB) {*}
 sub xmlGetLastError returns xmlError is native(LIB) { * }
 
 multi method GetLastError(parserCtxt $ctx) { $ctx.GetLastError() // $.GetLastError()  }
