@@ -1,14 +1,17 @@
 class LibXML::Node {
     use LibXML::Native;
     use LibXML::Enums;
+    use LibXML::Namespace;
+    use NativeCall;
+
     has LibXML::Node $.doc;
 
-    has _xmlNode $.node handles <Str string-value content hasChildNodes URI baseURI nodeName nodeValue>;
+    has domNode $.node handles <Str string-value content hasChildNodes URI baseURI nodeName nodeValue>;
 
     method node is rw {
         Proxy.new(
             FETCH => sub ($) { $!node },
-            STORE => sub ($, _xmlNode $new-node) {
+            STORE => sub ($, domNode $new-node) {
                 .remove-reference with $!node;
                 .add-reference with $new-node;
                 $!node = $new-node;
@@ -59,7 +62,7 @@ class LibXML::Node {
 
     method line-number { $!node.GetLineNo }
 
-    sub delegate(_xmlNode $node) {
+    sub delegate(domNode $node) {
         given $node.type {
             when XML_ELEMENT_NODE       { require LibXML::Element }
             when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
@@ -76,11 +79,14 @@ class LibXML::Node {
         }
     }
 
-    method dom-node(_xmlNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
+    method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
 
-    our sub iterate($obj, $cur, :$doc = $obj.doc) is rw is export(:iterate) {
+    my subset Nodeish where LibXML::Node|LibXML::Namespace;
+    our proto sub iterate(Nodeish, $struct, :doc($)) {*}
+
+    multi sub iterate(Nodeish $obj, $start, :$doc = $obj.doc) {
         # follow a chain of .next links.
-        my class Siblings does Iterable does Iterator {
+        my class NodeList does Iterable does Iterator {
             has $.cur;
             method iterator { self }
             method pull-one {
@@ -93,11 +99,36 @@ class LibXML::Node {
                     IterationEnd;
                 }
             }
-        }.new( :$cur );
+        }.new( :cur($start) );
+    }
+
+    multi sub iterate(LibXML::Node $obj, xmlNodeSet $set, :$doc = $obj.doc) {
+        # follow a chain of .next links.
+        my class Node does Iterable does Iterator {
+            has xmlNodeSet $.set;
+            has UInt $!idx = 0;
+            submethod DESTROY {
+                # xmlNodeSet is managed by us
+                with $!set { 
+                  ##  xmlFree( nativecast(Pointer, $_) ); # segfaulting
+                    $_ = Nil;
+                }
+            }
+            method iterator { self }
+            method pull-one {
+                if $!idx < $!set.nodeNr {
+                    my domNode:D $node := nativecast(domNode, $!set.nodeTab[$!idx++]);
+                    $obj.dom-node: $node; 
+                }
+                else {
+                    IterationEnd;
+                }
+            }
+        }.new( :$set );
     }
 
     # DOM methods
-    method !unlink(_xmlNode $node) {
+    method !unlink(domNode $node) {
         $node.Unlink;
         $node.Free
            unless $node.is-referenced;
@@ -107,6 +138,15 @@ class LibXML::Node {
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
     method childNodes {
         iterate(self, $!node.children);
+    }
+    method getElementsByTagName(Str:D $name) {
+        iterate(self, $!node.getElementsByTagName($name));
+    }
+    method getElementsByLocalName(Str:D $name) {
+        iterate(self, $!node.getElementsByLocalName($name));
+    }
+    method getElementsByTagNameNS(Str $name, Str $uri) {
+        iterate(self, $!node.getElementsByTagNameNS($name, $uri));
     }
     method setAttributeNode(AttrNode $att) {
         self!unlink($_) with $!node.getAttributeNode($att.name);

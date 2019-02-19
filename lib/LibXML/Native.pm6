@@ -4,6 +4,8 @@ unit class LibXML::Native;
 
 use NativeCall;
 use LibXML::Enums;
+use LibXML::Native::DOM::Node;
+use LibXML::Native::DOM::Document;
 
 constant LIB = 'xml2';
 constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
@@ -13,7 +15,7 @@ constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 constant xmlCharP = Str;
 
 # forward declarations
-class _xmlNode   is repr('CStruct') is export {...}
+class domNode    is repr('CStruct') is export {...}
 class xmlDoc     is repr('CStruct') is export {...}
 class xmlDocFrag is repr('CStruct') is export {...}
 class xmlError   is repr('CStruct') is export {...}
@@ -89,6 +91,12 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 }
 
 # Defined Structs/Pointers
+class xmlNodeSet is repr('CStruct') is export {
+    has int32 $.nodeNr;
+    has int32 $.nodeMax;
+    has CArray[Pointer] $.nodeTab; 
+}
+
 class xmlParserInput is repr('CStruct') is export {
     has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
     has Str                       $.filename is rw-str(
@@ -138,7 +146,7 @@ class xmlNs is repr('CStruct') is export {
     has xmlDoc   $.context;    # normally an xmlDoc
 
     sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
-    method new(Str:D :$href!, Str :$prefix, _xmlNode :$node) {
+    method new(Str:D :$href!, Str :$prefix, domNode :$node) {
         xmlNewNs($node, $href, $prefix);
     }
     method Str {
@@ -303,11 +311,7 @@ class xmlSAXHandler is repr('CStruct') is export {
 
 }
 
-use LibXML::Native::DOM::Node;
-use LibXML::Native::DOM::Document;
-
-class _xmlNode does LibXML::Native::DOM::Node is export {
-
+class domNode is export does LibXML::Native::DOM::Node {
     has Pointer         $._private;    # application data
     has int32           $.type;        # type number, must be second !
     has xmlCharP        $.name;        # the name of the node, or the entity
@@ -326,20 +330,21 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
-    method domAppendChild(_xmlNode) returns _xmlNode is native(BIND-LIB) {*}
-    method domInsertBefore(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
-    method domInsertAfter(_xmlNode, _xmlNode) returns _xmlNode is native(BIND-LIB) {*}
+    method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
+    method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
+    method domInsertAfter(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domName returns Str is native(BIND-LIB) {*}
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
-    method domRemoveChild(_xmlNode) is native(BIND-LIB) {*}
+    method domRemoveChild(domNode) is native(BIND-LIB) {*}
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_node_is_referenced') {*}
-    method root(--> _xmlNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
+    method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
+    method domXPathSelect(Str --> xmlNodeSet) is native(BIND-LIB) {*}
 
     method Str(Bool() :$format = False) {
         nextsame without self;
@@ -353,7 +358,7 @@ class _xmlNode does LibXML::Native::DOM::Node is export {
     method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
 
-class xmlNode is _xmlNode {
+class xmlNode is domNode {
     has xmlNs           $.ns is rw-ptr(   # pointer to the associated namespace
         method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
     );
@@ -421,7 +426,7 @@ class xmlPINode is xmlNode is repr('CStruct') is export {
     }
 }
 
-class xmlAttr is _xmlNode is export {
+class xmlAttr is domNode is export {
     has xmlAttr         $.nexth;        # next in hash table
     has int32           $.atype;        # the attribute type
     has int32           $.def;          # default mode (enum xmlAttributeDefault)
@@ -435,7 +440,7 @@ class xmlAttr is _xmlNode is export {
     }
 }
 
-class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
+class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone is rw;  # standalone document (no external refs)
                                        # 1 if standalone="yes"
@@ -528,7 +533,7 @@ class xmlDoc is _xmlNode does LibXML::Native::DOM::Document is export {
         my Pointer[uint8] $p .= new;
         $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
         my Str $result := nativecast(str, $p);
-     ##   xmlFree($p); # sefaulting
+        ## xmlFree($p); # sefaulting
         $result;
     }
 }
@@ -852,8 +857,9 @@ class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
     }
 }
 
-sub xmlFree(Pointer) is native(LIB) {*}
-sub xmlGetLastError returns xmlError is native(LIB) { * }
+sub xmlFree(Pointer) is export is native(LIB) {*}
+
+sub xmlGetLastError returns xmlError is export is native(LIB) { * }
 
 multi method GetLastError(parserCtxt $ctx) { $ctx.GetLastError() // $.GetLastError()  }
 multi method GetLastError { xmlGetLastError()  }

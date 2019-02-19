@@ -42,12 +42,10 @@ sub _check_created_element(LibXML::Document $doc, Str $given-name, Str $name, St
 
 sub _multi_arg_generic_count(LibXML::Document $doc, Str $method, List $params)
 {
-
     my (List $meth_params, UInt $want_count, Str $blurb) = @$params;
-
     my @elems = $doc."$method"( |$meth_params );
 
-    return is (+(@elems), $want_count, $blurb);
+    return is(+(@elems), $want_count, $blurb);
 }
 
 sub _generic_count(LibXML::Document $doc, Str $method, List $params)
@@ -79,7 +77,7 @@ sub _count_children_by_name(LibXML::Document $doc, *@args)
     return _generic_count($doc, 'getChildrenByTagName', @args);
 }
 
-sub _count_elements_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $want_count, Str $blurb)
+sub _count_elements_by_name_ns(LibXML::Document $doc, List $ns_and_name, UInt $want_count, Str $blurb)
 {
     return _multi_arg_generic_count($doc, 'getElementsByTagNameNS',
         [$ns_and_name, $want_count, $blurb]
@@ -499,19 +497,16 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         unlink "example/testrun.xml" ;
     }
 
-}; skip("port remaining tests", 80);
-=begin POD
-
     # ELEMENT LIKE FUNCTIONS
     {
-        my $parser2 = LibXML->new();
+        my $parser2 = LibXML.new();
         my $string1 = "<A><A><B/></A><A><B/></A></A>";
         my $string2 = '<C:A xmlns:C="xml://D"><C:A><C:B/></C:A><C:A><C:B/></C:A></C:A>';
         my $string3 = '<A xmlns="xml://D"><A><B/></A><A><B/></A></A>';
         my $string4 = '<C:A><C:A><C:B/></C:A><C:A><C:B/></C:A></C:A>';
         my $string5 = '<A xmlns:C="xml://D"><C:A>foo<A/>bar</C:A><A><C:B/>X</A>baz</A>';
         {
-            my $doc2 = $parser2->parse_string($string1);
+            my $doc2 = $parser2.parse: :string($string1);
             # TEST
             _count_tag_name($doc2, 'A', 3, q{3 As});
             # TEST
@@ -528,6 +523,9 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
             # TEST
             _count_local_name($doc2, '*', 5, q{5 Sub-elements});
         }
+}}; skip("port remaining tests", 75);
+=begin POD
+
         {
             my $doc2 = $parser2->parse_string($string2);
             # TEST

@@ -2,6 +2,7 @@
 unit role LibXML::Native::DOM::Node;
 my constant Node = LibXML::Native::DOM::Node:D;
 use LibXML::Enums;
+use LibXML::Types :NCName;
 use NativeCall;
 
 method doc { ... }
@@ -18,6 +19,7 @@ method domSetNodeValue { ... }
 method domRemoveChild  { ... }
 method domGetAttributeNode  { ... }
 method domSetAttributeNode  { ... }
+method domXPathSelect  { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
@@ -58,6 +60,37 @@ method removeAttribute(Str:D $attr-name) {
         warn "removing $attr-name";
         .Unlink;
     }
+}
+
+method !xpath-select(Str:D $xpath) {
+    self.domXPathSelect($xpath);
+}
+
+multi method getElementsByTagName('*') {
+    self!xpath-select: "descendant::*";
+}
+multi method getElementsByTagName(Str:D $name) {
+    self!xpath-select: "descendant::*[name()='$name']";
+}
+
+multi method getElementsByLocalName('*') {
+    self!xpath-select: "descendant::*";
+}
+multi method getElementsByLocalName(NCName $name) {
+    self!xpath-select: "descendant::*[local-name()='$name']";
+}
+
+multi method getElementsByTagNameNS('*','*') {
+    self!xpath-select: "descendant::*";
+}
+multi method getElementsByTagNameNS(Str() $URI, '*') {
+    self!xpath-select: "descendant::*[namespace-uri()='$URI']";
+}
+multi method getElementsByTagNameNS('*', NCName $name) {
+    self!xpath-select: "descendant::*[local-name()='$name']";
+}
+multi method getElementsByTagNameNS(Str() $URI, NCName $name, $?) {
+    self!xpath-select: "descendant::*[local-name()='$name' and namespace-uri()='$URI']";
 }
 
 method insertBefore(Node $nNode, Node $oNode) {
