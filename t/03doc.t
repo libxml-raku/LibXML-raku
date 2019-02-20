@@ -40,20 +40,19 @@ sub _check_created_element(LibXML::Document $doc, Str $given-name, Str $name, St
 }
 # TEST:$_check_created_element=$check-element-node;
 
-sub _multi_arg_generic_count(LibXML::Document $doc, Str $method, List $params)
+sub _multi_arg_generic_count(LibXML::Node $node, Str $method, List $params)
 {
     my (List $meth_params, UInt $want_count, Str $blurb) = @$params;
-    my @elems = $doc."$method"( |$meth_params );
-
+    my @elems = $node."$method"( |$meth_params );
     return is(+(@elems), $want_count, $blurb);
 }
 
-sub _generic_count(LibXML::Document $doc, Str $method, List $params)
+sub _generic_count(LibXML::Node $node, Str $method, List $params)
 {
     my (Str $name, UInt $want_count, Str $blurb) = @$params;
 
     return _multi_arg_generic_count(
-        $doc, $method, [[$name], $want_count, $blurb, ],
+        $node, $method, [[$name], $want_count, $blurb, ],
     );
 }
 
@@ -62,31 +61,31 @@ sub _count_local_name(LibXML::Document $doc, *@args)
     return _generic_count($doc, 'getElementsByLocalName', @args);
 }
 
-sub _count_tag_name(LibXML::Document $doc, *@args)
+sub _count_tag_name(LibXML::Node $node, *@args)
 {
-    return _generic_count($doc, 'getElementsByTagName', @args);
+    return _generic_count($node, 'getElementsByTagName', @args);
 }
 
-sub _count_children_by_local_name(LibXML::Document $doc, *@args)
+sub _count_children_by_local_name(LibXML::Node $node, *@args)
 {
-    return _generic_count($doc, 'getChildrenByLocalName', @args);
+    return _generic_count($node, 'getChildrenByLocalName', @args);
 }
 
-sub _count_children_by_name(LibXML::Document $doc, *@args)
+sub _count_children_by_name(LibXML::Node $node, *@args)
 {
-    return _generic_count($doc, 'getChildrenByTagName', @args);
+    return _generic_count($node, 'getChildrenByTagName', @args);
 }
 
-sub _count_elements_by_name_ns(LibXML::Document $doc, List $ns_and_name, UInt $want_count, Str $blurb)
+sub _count_elements_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want_count, Str $blurb)
 {
-    return _multi_arg_generic_count($doc, 'getElementsByTagNameNS',
+    return _multi_arg_generic_count($node, 'getElementsByTagNameNS',
         [$ns_and_name, $want_count, $blurb]
     );
 }
 
-sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $want_count, Str $blurb)
+sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want_count, Str $blurb)
 {
-    return _multi_arg_generic_count($doc, 'getChildrenByTagNameNS',
+    return _multi_arg_generic_count($node, 'getChildrenByTagNameNS',
         [$ns_and_name, $want_count, $blurb]
     );
 }
@@ -523,11 +522,9 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
             # TEST
             _count_local_name($doc2, '*', 5, q{5 Sub-elements});
         }
-}}; skip("port remaining tests", 75);
-=begin POD
 
         {
-            my $doc2 = $parser2->parse_string($string2);
+            my $doc2 = $parser2.parse: :string($string2);
             # TEST
             _count_tag_name( $doc2, 'C:A', 3, q{C:A count});
             # TEST
@@ -542,7 +539,7 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
             _count_local_name($doc2, 'A', 3, q{3 As});
         }
         {
-            my $doc2 = $parser2->parse_string($string3);
+            my $doc2 = $parser2.parse: :string($string3);
             # TEST
             _count_elements_by_name_ns($doc2, ["xml://D", "A"], 3,
                 q{3 Elements A of any namespace}
@@ -550,38 +547,9 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
             # TEST
             _count_local_name($doc2, 'A', 3, q{3 As});
         }
-=begin taken_out
-        # This was taken out because the XML uses an undefined namespace.
-        # I don't know why this test was introduced in the first place,
-        # but it fails now
-        #
-        # This test fails in this bug report -
-        # https://rt.cpan.org/Ticket/Display.html?id=75403
-        # -- Shlomi Fish
+
         {
-            $parser2->recover(1);
-            local $SIG{'__WARN__'} = sub {
-                  print "warning caught: @_\n";
-            };
-            # my $doc2 = $parser2->parse_string($string4);
-            #-TEST
-            # _count_local_name( $doc2, 'A', 3, q{3 As});
-        }
-=end taken_out
-
-=cut
-    # TEST:$count=3;
-    # Also test that we can parse from scalar references:
-    # See RT #64051 ( https://rt.cpan.org/Ticket/Display.html?id=64051 )
-    # Also test that we can parse from references to scalars with
-    # overloaded strings:
-    # See RT #77864 ( https://rt.cpan.org/Public/Bug/Display.html?id=77864 )
-
-        my $obj = Stringify->new;
-
-        foreach my $input ( $string5, (\$string5), $obj )
-        {
-            my $doc2 = $parser2->parse_string($input);
+            my $doc2 = $parser2.parse: :string($string5);
             # TEST*$count
             _count_tag_name($doc2, 'C:A', 1, q{3 C:As});
             # TEST*$count
@@ -598,8 +566,7 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
             _count_elements_by_name_ns( $doc2, ["xml://D", "*" ], 2,
                 q{2 elements of any name in D}
             );
-
-            my $A = $doc2->getDocumentElement;
+            my $A = $doc2.documentElement;
             # TEST*$count
             _count_children_by_name($A, 'A', 1, q{1 A});
             # TEST*$count
@@ -607,7 +574,7 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
             # TEST*$count
             _count_children_by_name($A, 'C:B', 0, q{No C:B children});
             # TEST*$count
-            _count_children_by_name($A, "*", 2, q{2 Childern in $A in total});
+            _count_children_by_name($A, "*", 2, q{2 Children in $A in total});
             # TEST*$count
             _count_children_by_name_ns($A, ['*', 'A'], 2,
                 q{2 As of any namespace});
@@ -624,6 +591,9 @@ sub _count_children_by_name_ns(LibXML::Document $doc, Str $ns_and_name, UInt $wa
         }
     }
 }
+
+skip("port remaining tests", 56);
+=begin POD
 
 {
     # Bug fixes (to be used with valgrind)

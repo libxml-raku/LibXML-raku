@@ -58,6 +58,10 @@ method addChild($node)       { self!check-new-node($node); nextsame; }
 method insertBefore($node,$) { self!check-new-node($node); nextsame; }
 method insertAfter($node,$)  { self!check-new-node($node); nextsame; }
 
+method getDocumentElement { $!documentElement }
+method setDocumentElement(LibXML::Element $_) {
+    $.documentElement = $_;
+}
 method documentElement is rw {
     Proxy.new(
         FETCH => sub ($) {

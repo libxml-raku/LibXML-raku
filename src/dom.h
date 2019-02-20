@@ -213,10 +213,13 @@ domImportNode( xmlDocPtr document, xmlNodePtr node, int move, int reconcileNS );
  **/
 
 xmlNodeSetPtr
-domGetElementsByTagName( xmlNodePtr self, xmlChar* name );
+domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name );
 
 xmlNodeSetPtr
-domGetElementsByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
+domGetChildrenByTagName( xmlNodePtr self, xmlChar* name );
+
+xmlNodeSetPtr
+domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
 xmlNsPtr
 domNewNs ( xmlNodePtr elem , xmlChar *prefix, xmlChar *href );

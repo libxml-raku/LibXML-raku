@@ -82,7 +82,7 @@ class LibXML::Node {
     method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
 
     my subset Nodeish where LibXML::Node|LibXML::Namespace;
-    our proto sub iterate(Nodeish, $struct, :doc($)) {*}
+    our proto sub iterate(Nodeish, $struct, :doc($), :select(&)) {*}
 
     multi sub iterate(Nodeish $obj, $start, :$doc = $obj.doc) {
         # follow a chain of .next links.
@@ -93,7 +93,7 @@ class LibXML::Node {
                 my $this = $!cur;
                 $_ = .next with $!cur;
                 with $this -> $node {
-                    $obj.dom-node: $node, :$doc;
+                    $obj.dom-node: $node, :$doc
                 }
                 else {
                     IterationEnd;
@@ -116,9 +116,9 @@ class LibXML::Node {
             }
             method iterator { self }
             method pull-one {
-                if $!idx < $!set.nodeNr {
+                if $!set.defined && $!idx < $!set.nodeNr {
                     my domNode:D $node := nativecast(domNode, $!set.nodeTab[$!idx++]);
-                    $obj.dom-node: $node; 
+                        $obj.dom-node: $node
                 }
                 else {
                     IterationEnd;
@@ -145,8 +145,17 @@ class LibXML::Node {
     method getElementsByLocalName(Str:D $name) {
         iterate(self, $!node.getElementsByLocalName($name));
     }
-    method getElementsByTagNameNS(Str $name, Str $uri) {
-        iterate(self, $!node.getElementsByTagNameNS($name, $uri));
+    method getElementsByTagNameNS(Str $uri, Str $name) {
+        iterate(self, $!node.getElementsByTagNameNS($uri, $name));
+    }
+    method getChildrenByLocalName(Str:D $name) {
+        iterate(self, $!node.getChildrenByLocalName($name));
+    }
+    method getChildrenByTagName(Str:D $name) {
+        iterate(self, $!node.getChildrenByTagName($name));
+    }
+    method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
+        iterate(self, $!node.getChildrenByTagNameNS($uri, $name));
     }
     method setAttributeNode(AttrNode $att) {
         self!unlink($_) with $!node.getAttributeNode($att.name);

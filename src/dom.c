@@ -959,14 +959,51 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
 
 
 xmlNodeSetPtr
-domGetElementsByTagName( xmlNodePtr n, xmlChar* name ){
+domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = NULL;
+    int any_name;
 
-    if ( n != NULL && name != NULL ) {
-        cld = n->children;
+    if ( self != NULL && name != NULL ) {
+        any_name =  xmlStrcmp( name, "*" ) == 0;
+        cld = self->children;
         while ( cld != NULL ) {
-            if ( xmlStrcmp( name, cld->name ) == 0 ){
+          if ( ((any_name && cld->type == XML_ELEMENT_NODE)
+                || xmlStrcmp( name, cld->name ) == 0 )) {
+                if ( rv == NULL ) {
+                    rv = xmlXPathNodeSetCreate( cld ) ;
+                }
+                else {
+                    xmlXPathNodeSetAdd( rv, cld );
+                }
+            }
+            cld = cld->next;
+        }
+    }
+
+    return rv;
+}
+
+static int domNamecmp(xmlNodePtr self, const xmlChar *pname) {
+  int rv;
+  xmlChar *name = domName(self);
+  rv = xmlStrcmp( name, pname );
+  xmlFree(name);
+  return rv;
+}
+
+xmlNodeSetPtr
+domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
+    xmlNodeSetPtr rv = NULL;
+    xmlNodePtr cld = NULL;
+    int any_name;
+
+    if ( self != NULL && name != NULL ) {
+        any_name =  xmlStrcmp( name, "*" ) == 0;
+        cld = self->children;
+        while ( cld != NULL ) {
+          if ( ((any_name && cld->type == XML_ELEMENT_NODE)
+                || domNamecmp( cld, name ) == 0 )) {
                 if ( rv == NULL ) {
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }
@@ -983,28 +1020,33 @@ domGetElementsByTagName( xmlNodePtr n, xmlChar* name ){
 
 
 xmlNodeSetPtr
-domGetElementsByTagNameNS( xmlNodePtr n, xmlChar* nsURI, xmlChar* name ){
+domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
+    int any_name;
+    xmlNodePtr cld;
 
-    if ( nsURI == NULL ) {
-        return domGetElementsByTagName( n, name );
-    }
-
-    if ( n != NULL && name != NULL  ) {
-        xmlNodePtr cld = n->children;
+    if ( self != NULL && name != NULL && nsURI != NULL ) {
+      if (  xmlStrcmp( nsURI, "*" ) == 0) {
+        rv = domGetChildrenByLocalName(self, name);
+      }
+      else {
+        any_name = xmlStrcmp( name, "*" ) == 0;
+        cld = self->children;
         while ( cld != NULL ) {
-            if ( xmlStrcmp( name, cld->name ) == 0
-                 && cld->ns != NULL
-                 && xmlStrcmp( nsURI, cld->ns->href ) == 0  ){
-                if ( rv == NULL ) {
-                    rv = xmlXPathNodeSetCreate( cld ) ;
-                }
-                else {
-                    xmlXPathNodeSetAdd( rv, cld );
-                }
+          if (((any_name &&  cld->type == XML_ELEMENT_NODE)
+               || xmlStrcmp( name, cld->name ) == 0)
+               && cld->ns != NULL
+               && xmlStrcmp( nsURI, cld->ns->href ) == 0  ){
+            if ( rv == NULL ) {
+              rv = xmlXPathNodeSetCreate( cld ) ;
             }
-            cld = cld->next;
+            else {
+              xmlXPathNodeSetAdd( rv, cld );
+            }
+          }
+          cld = cld->next;
         }
+      }
     }
 
     return rv;

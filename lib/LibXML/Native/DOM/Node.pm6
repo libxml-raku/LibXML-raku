@@ -17,9 +17,12 @@ method domName { ... }
 method domGetNodeValue { ... }
 method domSetNodeValue { ... }
 method domRemoveChild  { ... }
-method domGetAttributeNode  { ... }
-method domSetAttributeNode  { ... }
+method domGetAttributeNode { ... }
+method domSetAttributeNode { ... }
 method domXPathSelect  { ... }
+method domGetChildrenByLocalName { ... }
+method domGetChildrenByTagName { ... }
+method domGetChildrenByTagNameNS { ... }
 
 method firstChild { self.children }
 method lastChild { self.last }
@@ -62,35 +65,47 @@ method removeAttribute(Str:D $attr-name) {
     }
 }
 
-method !xpath-select(Str:D $xpath) {
-    self.domXPathSelect($xpath);
+method !descendants(Str:D $expr = '') {
+   self.domXPathSelect("descendant::*" ~ $expr);
 }
 
 multi method getElementsByTagName('*') {
-    self!xpath-select: "descendant::*";
+    self!descendants;
 }
 multi method getElementsByTagName(Str:D $name) {
-    self!xpath-select: "descendant::*[name()='$name']";
+    self!descendants: "[name()='$name']";
 }
 
 multi method getElementsByLocalName('*') {
-    self!xpath-select: "descendant::*";
+    self!descendants;
 }
-multi method getElementsByLocalName(NCName $name) {
-    self!xpath-select: "descendant::*[local-name()='$name']";
+multi method getElementsByLocalName(Str:D $name) {
+    self!descendants: "[local-name()='$name']";
 }
 
 multi method getElementsByTagNameNS('*','*') {
-    self!xpath-select: "descendant::*";
+    self!descendants;
 }
 multi method getElementsByTagNameNS(Str() $URI, '*') {
-    self!xpath-select: "descendant::*[namespace-uri()='$URI']";
+    self!descendants: "[namespace-uri()='$URI']";
 }
-multi method getElementsByTagNameNS('*', NCName $name) {
-    self!xpath-select: "descendant::*[local-name()='$name']";
+multi method getElementsByTagNameNS('*', Str $name) {
+    self!descendants: "[local-name()='$name']";
 }
-multi method getElementsByTagNameNS(Str() $URI, NCName $name, $?) {
-    self!xpath-select: "descendant::*[local-name()='$name' and namespace-uri()='$URI']";
+multi method getElementsByTagNameNS(Str() $URI, Str $name) {
+    self!descendants: "[local-name()='$name' and namespace-uri()='$URI']";
+}
+
+method getChildrenByLocalName(Str $name) {
+    self.domGetChildrenByLocalName($name);
+}
+
+method getChildrenByTagName(Str $name) {
+    self.domGetChildrenByTagName($name);
+}
+
+method getChildrenByTagNameNS(Str $URI, Str $name) {
+    self.domGetChildrenByTagNameNS($URI, $name);
 }
 
 method insertBefore(Node $nNode, Node $oNode) {
