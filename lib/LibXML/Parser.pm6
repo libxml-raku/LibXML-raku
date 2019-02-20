@@ -56,11 +56,10 @@ class LibXML::Parser {
 
     method process-xincludes(LibXML::Document $_, Bool :$recover = $!recover) {
         my xmlDoc $doc = .node;
-        my xmlXIncludeCtxt $ctx .= new( :$doc, :$!flags );
+        my xmlParserCtxt $ctx .= new;
         $ctx.sax = $_ with $!sax;
         my LibXML::ParserContext $pc = self!context: :$ctx;
-        my xmlNode $root = $doc.GetRootElement;
-        my $n = $ctx.ProcessNode($root);
+        my $n = $doc.XIncludeProcessFlags($!flags);
         $ctx.Free;
         $pc.ctx = Nil;
         $pc.flush-errors: :$!recover;
@@ -174,7 +173,7 @@ class LibXML::Parser {
 
     method !flag-accessor(uint32 $flag) is rw {
         Proxy.new(
-            FETCH => sub ($) { $!flags +& $flag },
+            FETCH => sub ($) { ? ($!flags +& $flag) },
             STORE => sub ($, Bool() $_) {
                 if .so {
                     $!flags +|= $flag;

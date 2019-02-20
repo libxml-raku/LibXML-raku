@@ -45,6 +45,7 @@ class xmlHashTable is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {}
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
+class xmlXIncludeCtxt is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 
 sub xmlStrdup(Str --> Pointer) is native(LIB) {*};
@@ -503,6 +504,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
     method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}
+    method XIncludeProcessFlags(uint32 $flags --> int) is symbol('xmlXIncludeProcessFlags') is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {
@@ -782,16 +784,6 @@ class xmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
     method ParseDocument is native(LIB) is symbol('xmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
     method new(Str() :$file!) { xmlCreateFileParserCtxt($file) }
-}
-
-# XML file parser context
-class xmlXIncludeCtxt is parserCtxt is repr('CStruct') is export {
-
-    sub xmlXIncludeNewContext(xmlDoc) is native(LIB) returns xmlXIncludeCtxt {*};
-    method ProcessNode(xmlNode) is native(LIB) is symbol('xmlXIncludeProcessNode') returns int32 {*}
-    method Free is native(LIB) is symbol('xmlXIncludeFreeContext') {*}
-    method UseOptions(int32) is native(LIB) is symbol('xmlXIncludeSetFlags') returns int32 { * }
-    method new(xmlDoc :$doc!) { xmlXIncludeNewContext($doc) }
 }
 
 #| an incremental XML push parser context. Determines encoding and reads data in binary chunks
