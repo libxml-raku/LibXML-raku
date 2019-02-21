@@ -66,7 +66,7 @@ class LibXML::Parser {
         $n;
     }
 
-    multi method parse(Str:D() :$string! is copy,
+    multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
                       ) {
@@ -75,6 +75,23 @@ class LibXML::Parser {
         my parserCtxt $ctx = $html
            ?? htmlMemoryParserCtxt.new: :$string
            !! xmlMemoryParserCtxt.new: :$string;
+
+        $ctx.input.filename = $_ with $URI;
+
+        my LibXML::ParserContext $pc = self!context: :$ctx;
+        $ctx.ParseDocument;
+        self!finish: LibXML::Document.new(:$ctx), :$pc;
+    }
+
+    multi method parse(Blob :$buf!,
+                       Bool() :$html = $!html,
+                       Str() :$URI = $!baseURI,
+                      ) {
+
+        # gives better diagnositics
+        my parserCtxt $ctx = $html
+           ?? htmlMemoryParserCtxt.new: :$buf
+           !! xmlMemoryParserCtxt.new: :$buf;
 
         $ctx.input.filename = $_ with $URI;
 

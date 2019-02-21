@@ -507,7 +507,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
     method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}
-    method XIncludeProcessFlags(uint32 $flags --> int) is symbol('xmlXIncludeProcessFlags') is native(LIB) {*}
+    method XIncludeProcessFlags(uint32 $flags --> int32) is symbol('xmlXIncludeProcessFlags') is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {
@@ -524,11 +524,17 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 
         nextsame without self;
         my Pointer[uint8] $p .= new;
-        $.DumpFormatMemoryEnc($p, my int32 $len, Str, +$format);
+        my int32 $len;
+        with self.encoding {
+            $.DumpFormatMemoryEnc($p, $len, $_, +$format);
+        }
+        else {
+            $.DumpFormatMemoryEnc($p, $len, Str, +$format);
+        }
         my buf8 $buf .= allocate($len);
         $buf[$_] = $p[$_] for 0 ..^ $len;
         ## xmlFree($p); # segfaulting
-        $buf;
+        blob8.new: $buf;
     }
 
     #| Dump to a string as UTF-8
@@ -536,7 +542,12 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 
         nextsame without self;
         my Pointer[uint8] $p .= new;
-        $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
+        # don't output encoding='UTF-8' in the header.
+        # not really meaningful in a string.
+        my $enc-save = self.encoding;
+        self.encoding = Str;
+        $.DumpFormatMemoryEnc($p, my int32 $, Str, +$format);
+        self.encoding = $enc-save;
         my Str $result := nativecast(str, $p);
         ## xmlFree($p); # sefaulting
         $result;
@@ -834,8 +845,8 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
         my Blob $buf = ($string || ' ').encode;
         self.new: :$buf;
     }
-    multi method new( Blob() :$buf!, UInt :$len = +$buf ) {
-         xmlCreateMemoryParserCtxt($buf, $len);
+    multi method new( Blob() :$buf!, UInt :$bytes = $buf.bytes ) {
+         xmlCreateMemoryParserCtxt($buf, $bytes);
     }
 }
 
@@ -847,8 +858,8 @@ class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
         my Blob $buf = $string.encode;
         self.new: :$buf;
     }
-    multi method new( Blob() :$buf!, UInt :$len = +$buf ) {
-         htmlCreateMemoryParserCtxt($buf, $len);
+    multi method new( Blob() :$buf!, UInt :$bytes = $buf.bytes ) {
+         htmlCreateMemoryParserCtxt($buf, $bytes);
     }
 }
 

@@ -629,7 +629,7 @@ domAppendChild( xmlNodePtr self,
         domUnlinkNode( newChild );
     }
     else {
-        xs_warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
+      //        xs_warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
         /* xmlGenericError(xmlGenericErrorContext,"WRONG_DOCUMENT_ERR\n"); */
         newChild = domImportNode( self->doc, newChild, 1, 0 );
     }
@@ -1310,5 +1310,9 @@ domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value ) {
     }
     xmlFree(localname);
   }
+  else {
+    newAttr = domCreateAttribute(self, name, value);
+  }
+
   return newAttr;
 }

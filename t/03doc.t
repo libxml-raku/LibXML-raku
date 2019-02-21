@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 194;
+plan 154;
 
 use LibXML;
 use LibXML::Enums;
@@ -454,7 +454,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     # TEST
 
-    is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );
+    is-deeply( $doc.Str.lines, ('<?xml version="1.0"?>', '<foo>bar</foo>'), 'string parse sanity' );
 
     # . to file handle
 
@@ -468,7 +468,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         # now parse the file to check, if succeeded
         my $tdoc = $parser.parse: :file( "example/testrun.xml" );
         # TEST
-        is-deeply( $tdoc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>' , '<foo>bar</foo>'), ' TODO : Add test name' );
+        is-deeply( $tdoc.Str.lines, ('<?xml version="1.0"?>' , '<foo>bar</foo>'), ' TODO : Add test name' );
         # TEST
         is( $tdoc.documentElement, '<foo>bar</foo>', ' TODO : Add test name' );
         # TEST
@@ -592,56 +592,52 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     }
 }
 
-skip("port remaining tests", 56);
-=begin POD
-
 {
     # Bug fixes (to be used with valgrind)
     {
-       my $doc=LibXML->createDocument(); # create a doc
-       my $x=$doc->createPI(foo=>"bar");      # create a PI
-       undef $doc;                            # should not free
-       undef $x;                              # free the PI
+       my $doc=LibXML.createDocument(); # create a doc
+       my $x=$doc.createPI('foo'=>"bar");      # create a PI
+       $doc = Nil;                            # should not free
+       $x = Nil;                              # free the PI
        # TEST
        ok(1, ' TODO : Add test name');
     }
     {
-       my $doc=LibXML->createDocument(); # create a doc
-       my $x=$doc->createAttribute(foo=>"bar"); # create an attribute
-       undef $doc;                            # should not free
-       undef $x;                              # free the attribute
+       my $doc=LibXML.createDocument(); # create a doc
+       my $x=$doc.createAttribute('foo'=>"bar"); # create an attribute
+       $doc = Nil;                            # should not free
+       $x = Nil;                              # free the attribute
        # TEST
        ok(1, ' TODO : Add test name');
     }
     {
-       my $doc=LibXML->createDocument(); # create a doc
-       my $x=$doc->createAttributeNS(undef,foo=>"bar"); # create an attribute
-       undef $doc;                            # should not free
-       undef $x;                              # free the attribute
+       my $doc=LibXML.createDocument(); # create a doc
+       my $x=$doc.createAttributeNS(Str,'foo'=>"bar"); # create an attribute
+       $doc = Nil;                            # should not free
+       $x = Nil;                              # free the attribute
        # TEST
        ok(1, ' TODO : Add test name');
     }
     {
-       my $doc=LibXML->new->parse_string('<foo xmlns:x="http://foo.bar"/>');
-       my $x=$doc->createAttributeNS('http://foo.bar','x:foo'=>"bar"); # create an attribute
-       undef $doc;                            # should not free
-       undef $x;                              # free the attribute
+       my $doc=LibXML.new.parse: :string('<foo xmlns:x="http://foo.bar"/>');
+       my $x=$doc.createAttributeNS('http://foo.bar','x:foo'=>"bar"); # create an attribute
+       $doc = Nil;                            # should not free
+       $x = Nil;                              # free the attribute
        # TEST
        ok(1, ' TODO : Add test name');
     }
     {
       # rt.cpan.org #30610
       # valgrind this
-      my $object=LibXML::Element->new( 'object' );
-      my $xml = qq(<?xml version="1.0" encoding="UTF-8"?>\n<lom/>);
-      my $lom_doc=LibXML->new->parse_string($xml);
-      my $lom_root=$lom_doc->getDocumentElement();
-      $object->appendChild( $lom_root );
+      my $object=LibXML::Element.new( :name<object> );
+      my $xml = qq{<?xml version="1.0" encoding="UTF-8"?>\n<lom/>};
+      my $lom_doc=LibXML.new.parse: :string($xml);
+      my $lom_root=$lom_doc.getDocumentElement();
+      $object.appendChild( $lom_root );
       # TEST
-      ok(!defined($object->firstChild->ownerDocument), ' TODO : Add test name');
+      ok(!defined($object.firstChild.ownerDocument), ' TODO : Add test name');
     }
 }
-
 
 {
   my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
@@ -650,50 +646,37 @@ skip("port remaining tests", 56);
   my $out = q{<?xml version="1.0"?>
 <test/>
 };
-  my $dom = LibXML->new->parse_string($xml);
+  my $dom = LibXML.new.parse: :string($xml);
   # TEST
-  is($dom->getEncoding, "UTF-8", ' TODO : Add test name');
-  $dom->setEncoding();
+  is($dom.encoding, "UTF-8", ' TODO : Add test name');
+  $dom.encoding = Nil;
   # TEST
-  is($dom->getEncoding, undef, ' TODO : Add test name');
+  is-deeply($dom.encoding, Str, ' TODO : Add test name');
   # TEST
-  is($dom->toString, $out, ' TODO : Add test name');
+  is($dom.Str, $out, ' TODO : Add test name');
 }
 
-# the following tests were added for #33810
-SKIP:
 {
-    if (! eval { require Encode; })
-    {
-        skip "Encoding related tests require Encode", (3*8);
-    }
-    # TEST:$num_encs=3;
-    # The count.
-    # TEST:$c=0;
-    for my $enc (qw(UTF-16 UTF-16LE UTF-16BE)) {
-        my $xml = Encode::encode($enc,qq{<?xml version="1.0" encoding="$enc"?>
-            <test foo="bar"/>
-            });
-        my $dom = LibXML->new->parse_string($xml);
+
+    for ('UTF-16LE', 'UTF-16BE') -> $enc {
+        my $string = qq{<?xml version="1.0" encoding="$enc"?>
+<test foo="bar"/>
+};
+        my Blob $buf = $string.encode: $enc;
+        my $dom = LibXML.new.parse: :$buf;
+        
         # TEST:$c++;
-        is($dom->getEncoding,$enc, ' TODO : Add test name');
+        is $dom.encoding, $enc, "$enc encoding";
+        
+        is $dom.getDocumentElement.getAttribute('foo'),'bar', "$enc encoding getAttribute";
         # TEST:$c++;
-        is($dom->actualEncoding,$enc, ' TODO : Add test name');
+        is-deeply $dom.Str.lines, ('<?xml version="1.0"?>', '<test foo="bar"/>'), '.Str method';
+        is-deeply $dom.Blob, $buf, 'Blob round-trip';
         # TEST:$c++;
-        is($dom->getDocumentElement->getAttribute('foo'),'bar', ' TODO : Add test name');
-        # TEST:$c++;
-        is($dom->getDocumentElement->getAttribute(Encode::encode('UTF-16','foo')), 'bar', ' TODO : Add test name');
-        # TEST:$c++;
-        is($dom->getDocumentElement->getAttribute(Encode::encode($enc,'foo')), 'bar', ' TODO : Add test name');
-        my $exp_enc = $enc eq 'UTF-16' ? 'UTF-16LE' : $enc;
-        # TEST:$c++;
-        is($dom->getDocumentElement->getAttribute('foo',1), Encode::encode($exp_enc,'bar'), ' TODO : Add test name');
-        # TEST:$c++;
-        is($dom->getDocumentElement->getAttribute(Encode::encode('UTF-16','foo'),1), Encode::encode($exp_enc,'bar'), ' TODO : Add test name');
-        # TEST:$c++;
-        is($dom->getDocumentElement->getAttribute(Encode::encode($enc,'foo'),1), Encode::encode($exp_enc,'bar'), ' TODO : Add test name');
     }
     # TEST*$num_encs*$c
 }
 
-=end POD
+
+
+

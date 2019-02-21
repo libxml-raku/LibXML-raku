@@ -82,7 +82,7 @@ class LibXML::Node {
     method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
 
     my subset Nodeish where LibXML::Node|LibXML::Namespace;
-    our proto sub iterate(Nodeish, $struct, :doc($), :select(&)) {*}
+    our proto sub iterate(Nodeish, $struct, :doc($)) {*}
 
     multi sub iterate(Nodeish $obj, $start, :$doc = $obj.doc) {
         # follow a chain of .next links.
@@ -133,6 +133,7 @@ class LibXML::Node {
         $node.Free
            unless $node.is-referenced;
     }
+    method ownerDocument { $!doc }
     my subset AttrNode of LibXML::Node where .nodeType == XML_ATTRIBUTE_NODE;
     multi method addChild(AttrNode $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
@@ -163,6 +164,9 @@ class LibXML::Node {
     }
     method getAttributeNode(Str $att-name) {
         self.dom-node: $!node.getAttributeNode($att-name);
+    }
+    method getAttribute(Str $att-name) {
+        .string-value with self.getAttributeNode($att-name);
     }
     method removeAttribute(Str $attr-name) {
         self!unlink($_) with $!node.getAttributeNode($attr-name);

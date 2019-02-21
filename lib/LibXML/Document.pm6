@@ -74,8 +74,8 @@ method documentElement is rw {
     );
 }
 
-my subset AttPair of Pair where .key ~~ QName && .value ~~ Str:D;
-multi method createAttribute(AttPair $_, |c) {
+my subset NameVal of Pair where .key ~~ QName && .value ~~ Str:D;
+multi method createAttribute(NameVal $_!, |c) {
     $.createAttribute(.key, .value, |c);
 }
 
@@ -92,7 +92,10 @@ multi method createAttribute(NCName $name,
     self.dom-node: $.node.createAttribute($name, $value);
 }
 
-method createAttributeNS(Str $href,
+multi method createAttributeNS(Str $href, NameVal $_!, |c) {
+    $.createAttributeNS($href, .key, .value, |c);
+}
+multi method createAttributeNS(Str $href,
                          QName $name,
                          Str $value = '',
                         ) {
@@ -127,7 +130,14 @@ method createCDATASection(Str $content) {
     LibXML::CDATASection.new: :doc(self), :$content;
 }
 
-method createProcessingInstruction(NCName $name, Str $content?) {
+method createProcessingInstruction(|c) {
+    $.createPI(|c);
+}
+
+multi method createPI(NameVal $_!, |c) {
+    $.createPI(.key, .value, |c);
+}
+multi method createPI(NCName $name, Str $content?) {
     need LibXML::PI;
     LibXML::PI.new: :doc(self), :$name, :$content;
 }
@@ -169,7 +179,7 @@ method Blob(Bool() :$format = False) {
     }
     else {
         my xmlDoc $doc = $.node;
-        my Bool $copied;
+        my Bool $copied = False;
 
         if config.skip-dtd {
             with $doc.internal-dtd {
