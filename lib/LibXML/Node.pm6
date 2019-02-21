@@ -6,7 +6,37 @@ class LibXML::Node {
 
     has LibXML::Node $.doc;
 
-    has domNode $.node handles <Str string-value content hasChildNodes URI baseURI nodeName nodeValue>;
+    has domNode $.node handles <
+        Str string-value content
+        hasChildNodes hasAttributes
+        URI baseURI nodeName nodeValue
+    >;
+
+    BEGIN {
+        # wrap methods that return raw nodes
+        # simple navigation; no arguments
+        for <
+             firstChild
+             last lastChild
+             next nextSibling nextNonBlankSibling
+             parent parentNode
+             prev previousSibling previousNonBlankSibling
+        > {
+            $?CLASS.^add_method($_, method { self.dom-node: $!node."$_"() });
+        }
+        # single node argument constructor
+        for <appendChild> {
+            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { self.dom-node: $!node."$_"($n1.node) });
+        }
+        # single node argument
+        for <isSameNode> {
+            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $!node."$_"($n1.node) });
+        }
+        # two node arguments
+        for <insertBefore insertAfter> {
+            $?CLASS.^add_method($_, method (LibXML::Node:D $n1, LibXML::Node:D $n2) { self.dom-node: $!node."$_"($n1.node, $n2.node) });
+        }
+    }
 
     method node is rw {
         Proxy.new(
@@ -40,26 +70,6 @@ class LibXML::Node {
     method localname { $!node.name }
     method prefix { .prefix with $!node.ns }
     method namespaceURI { .href with $!node.ns }
-    BEGIN {
-        # wrap methods that return raw nodes
-        # no arguments
-        for <last parent next prev firstChild lastChild> {
-            $?CLASS.^add_method($_, method { self.dom-node: $!node."$_"() });
-        }
-        # single node argument constructor
-        for <appendChild> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { self.dom-node: $!node."$_"($n1.node) });
-        }
-        # single node argument
-        for <isSameNode> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $!node."$_"($n1.node) });
-        }
-        # two node arguments
-        for <insertBefore insertAfter> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1, LibXML::Node:D $n2) { self.dom-node: $!node."$_"($n1.node, $n2.node) });
-        }
-    }
-
     method line-number { $!node.GetLineNo }
 
     sub delegate(domNode $node) {
@@ -137,6 +147,7 @@ class LibXML::Node {
     my subset AttrNode of LibXML::Node where .nodeType == XML_ATTRIBUTE_NODE;
     multi method addChild(AttrNode $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
+    method textContent { $.string-value }
     method childNodes {
         iterate(self, $!node.children);
     }

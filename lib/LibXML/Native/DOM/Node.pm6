@@ -122,9 +122,7 @@ method insertAfter(Node $nNode, Node $oNode) {
     $nNode;
 }
 
-method nodeName {
-    self.domName;
-}
+method nodeName { self.domName; }
 
 method nodeValue is rw {
     Proxy.new(
@@ -133,8 +131,34 @@ method nodeValue is rw {
     );
 }
 
+method hasAttributes returns Bool {
+    ? (self.type != XML_ATTRIBUTE_NODE
+       && self.type != XML_DTD_NODE
+       && self.properties.defined)
+}
+
 method hasChildNodes returns Bool {
     ? (self.type != XML_ATTRIBUTE_NODE && self.children.defined)
+}
+
+method nextSibling returns Node { self.next; }
+
+method parentNode returns Node { self.parent; }
+
+method nextNonBlankSibling returns Node {
+    my $next = self.next;
+    $next .= next()
+        while $next.defined && $next.isBlankNode;
+    $next;
+}
+
+method previousSibling returns Node { self.prev; }
+
+method previousNonBlankSibling returns Node {
+    my $prev = self.prev;
+    $prev .= prev()
+        while $prev.defined && $prev.isBlankNode;
+    $prev;
 }
 
 sub addr($d) { +nativecast(Pointer, $_) with $d;  }

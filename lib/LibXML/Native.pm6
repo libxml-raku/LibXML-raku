@@ -331,6 +331,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
+    method IsBlank(--> int32) is native(LIB) is symbol('xmlIsBlankNode') {*}
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertAfter(domNode, domNode) returns domNode is native(BIND-LIB) {*}
