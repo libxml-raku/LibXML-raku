@@ -542,12 +542,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 
         nextsame without self;
         my Pointer[uint8] $p .= new;
-        # don't output encoding='UTF-8' in the header.
-        # not really meaningful in a string.
-        my $enc-save = self.encoding;
-        self.encoding = Str;
-        $.DumpFormatMemoryEnc($p, my int32 $, Str, +$format);
-        self.encoding = $enc-save;
+        $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
         my Str $result := nativecast(str, $p);
         ## xmlFree($p); # sefaulting
         $result;

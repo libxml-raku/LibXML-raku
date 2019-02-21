@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 154;
+plan 170;
 
 use LibXML;
 use LibXML::Enums;
@@ -454,7 +454,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     # TEST
 
-    is-deeply( $doc.Str.lines, ('<?xml version="1.0"?>', '<foo>bar</foo>'), 'string parse sanity' );
+    is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );
 
     # . to file handle
 
@@ -468,7 +468,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         # now parse the file to check, if succeeded
         my $tdoc = $parser.parse: :file( "example/testrun.xml" );
         # TEST
-        is-deeply( $tdoc.Str.lines, ('<?xml version="1.0"?>' , '<foo>bar</foo>'), ' TODO : Add test name' );
+        is-deeply( $tdoc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>' , '<foo>bar</foo>'), ' TODO : Add test name' );
         # TEST
         is( $tdoc.documentElement, '<foo>bar</foo>', ' TODO : Add test name' );
         # TEST
@@ -643,9 +643,6 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
   my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 <test/>
 };
-  my $out = q{<?xml version="1.0"?>
-<test/>
-};
   my $dom = LibXML.new.parse: :string($xml);
   # TEST
   is($dom.encoding, "UTF-8", ' TODO : Add test name');
@@ -653,30 +650,44 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
   # TEST
   is-deeply($dom.encoding, Str, ' TODO : Add test name');
   # TEST
-  is($dom.Str, $out, ' TODO : Add test name');
+  is($dom.Str, $xml, ' TODO : Add test name');
 }
 
 {
+    my $name = "Heydər Əliyev";
 
-    for ('UTF-16LE', 'UTF-16BE') -> $enc {
-        my $string = qq{<?xml version="1.0" encoding="$enc"?>
-<test foo="bar"/>
-};
+    for ('UTF-16LE', 'UTF-16BE', 'UTF-16', 'ISO-8859-1') -> $enc {
+        my $name-enc = $enc eq 'ISO-8859-1'
+            ?? $name.ords.map({32 <= $_ <= 127 ?? .chr !! sprintf("&#%d;", $_)}).join
+            !! $name;
+        my $xml-header = '<?xml version="1.0" encoding="%s"?>'.sprintf: $enc;
+        my $xml-root-pretty = '<test foo="%s">%s</test>'.sprintf($name, $name);
+        my $xml-root = '<test foo="%s">%s</test>'.sprintf($name-enc, $name-enc);
+        my $string = ($xml-header, $xml-root, '').join: "\n";
+
         my Blob $buf = $string.encode: $enc;
         my $dom = LibXML.new.parse: :$buf;
         
         # TEST:$c++;
         is $dom.encoding, $enc, "$enc encoding";
-        
-        is $dom.getDocumentElement.getAttribute('foo'),'bar', "$enc encoding getAttribute";
+        my $root = $dom.getDocumentElement;
+        is $root.getAttribute('foo'), $name, "$enc encoding getAttribute";
+        is $root.firstChild.nodeValue, $name, 'node value';
         # TEST:$c++;
-        is-deeply $dom.Str.lines, ('<?xml version="1.0"?>', '<test foo="bar"/>'), '.Str method';
-        is-deeply $dom.Blob, $buf, 'Blob round-trip';
+        is-deeply $dom.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', $xml-root-pretty), '.Str method';
+        # peek at the first few bytes
+        my $dom-blob = $dom.Blob;
+        my $start-bytes = $dom-blob.subbuf(0, 4).List;
+        my $expected-start-bytes = %(
+            'UTF-16LE'   => (60,0,63,0),
+            'UTF-16BE'   => (0,60,0,63),
+            'UTF-16'     => ((255,254,60,0)|(254,255,0,60)), # BOM marker, big or little endian
+            'ISO-8859-1' => (60,63,120,109),
+        ){$enc};
+        ok $start-bytes ~~ $expected-start-bytes, "Blob $enc start bytes"
+           or diag "unexpect start bytes in $enc Blob: $start-bytes";
+        is-deeply $dom-blob.decode($enc).lines, ($xml-header, $xml-root), "$enc blob round-trip";
         # TEST:$c++;
     }
     # TEST*$num_encs*$c
 }
-
-
-
-
