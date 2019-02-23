@@ -376,6 +376,8 @@ class xmlNode is domNode {
     has uint16          $.line;        # line number
     has uint16          $.extra;       # extra data for XPath/XSLT
 
+    method SetProp(Str, Str --> xmlAttr) is native(LIB) is symbol('xmlSetProp') {*}
+
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
         $doc.new-node(:$name, :$ns);

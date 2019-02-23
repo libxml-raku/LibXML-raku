@@ -2,6 +2,7 @@ class LibXML::Node {
     use LibXML::Native;
     use LibXML::Enums;
     use LibXML::Namespace;
+    use LibXML::Types :NCName;
     use NativeCall;
 
     has LibXML::Node $.doc;
@@ -169,6 +170,10 @@ class LibXML::Node {
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(self, $!node.getChildrenByTagNameNS($uri, $name));
     }
+    method setAttribute(NCName $name, Str $value) {
+        self!unlink($_) with $!node.getAttributeNode($name);
+        $!node.setAttribute($name, $value);
+    }
     method setAttributeNode(AttrNode $att) {
         self!unlink($_) with $!node.getAttributeNode($att.name);
         $!node.setAttributeNode($att.node);
@@ -187,6 +192,38 @@ class LibXML::Node {
             .Free unless .is-referenced;
             $_;
         }
+    }
+
+    method attributes {
+
+        role AttrMap[LibXML::Node $elem] does Associative {
+            method ASSIGN-KEY(Str() $name, Str() $val) {
+                $elem.setAttribute($name, $val);
+                nextwith($name, $elem.getAttributeNode($name));
+            }
+
+            method DELETE-KEY(Str() $key) {
+                $elem.removeAttribute($key);
+                nextsame;
+            }
+        }
+
+        my AttrNode %atts;
+        with self.node.properties -> domNode:D $node is copy {
+            my LibXML::Node $doc = self.doc;
+            while $node.defined {
+                if $node.type == XML_ATTRIBUTE_NODE {
+                    my Str:D $name = $node.name;
+                    %atts{$name} = LibXML::Attr.new: :$node, :$doc;;
+                }
+                $node .= next;
+            }
+        }
+        %atts does AttrMap[self];
+    }
+
+    method properties {
+        iterate(self, $.node.properties);
     }
 
     multi method write(IO::Handle :$io!, Bool :$format = False) {

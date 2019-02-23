@@ -46,6 +46,10 @@ method appendChild(Node $nNode) {
 
 my subset AttrNode of Node where .type == XML_ATTRIBUTE_NODE;
 
+method setAttribute(NCName $name, Str $value) {
+    self.SetProp($name, $value);
+}
+
 method setAttributeNode(AttrNode $att) {
     self.domSetAttributeNode($att);
 }

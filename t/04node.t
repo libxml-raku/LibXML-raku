@@ -98,32 +98,32 @@ my $doc    = $parser.parse: :string( $xmlstring );
         {
             # 1.2 Attribute Node
             # TEST
-            ok( $xc.hasAttributes, ' TODO : Add test name' );
+            ok( $xc.hasAttributes, 'hasAttributes' );
             my $attributes = $xc.attributes;
             # TEST
-            ok( $attributes, ' TODO : Add test name' );
+            ok( $attributes, 'got attributes' );
             # TEST
 
-}}} ; skip("port remaining tests", 140);
-=begin POD
-
-            isa-ok( ref($attributes), "LibXML::NamedNodeMap", ' TODO : Add test name' );
+            isa-ok( $attributes, "Hash", ' TODO : Add test name' );
             # TEST
-            is( $attributes.length, 1, ' TODO : Add test name' );
-            my $attr = $attributes.getNamedItem("foo");
+            is( +$attributes, 1, ' TODO : Add test name' );
+            my $attr = $attributes<foo>;
 
             # TEST
 
-            ok( $attr, ' TODO : Add test name' );
+            is( $attr, ' foo="foobar"', ' TODO : Add test name' );
             # TEST
-            is( $attr.nodeType, XML_ATTRIBUTE_NODE, ' TODO : Add test name' );
+            is( $attr.nodeType, +XML_ATTRIBUTE_NODE, ' TODO : Add test name' );
             # TEST
             is( $attr.nodeName, "foo", ' TODO : Add test name' );
             # TEST
             is( $attr.nodeValue, "foobar", ' TODO : Add test name' );
             # TEST
-            is( $attr.hasChildNodes, 0, ' TODO : Add test name');
+            is-deeply( $attr.hasChildNodes, False, ' TODO : Add test name');
         }
+
+}} ; skip("port remaining tests", 133);
+=begin POD
 
         {
             my @attributes = $xc.attributes;
