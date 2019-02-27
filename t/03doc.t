@@ -289,16 +289,11 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
       is $elem, '<foo attr2="a &amp; b"/>', 'Elem replace attributes';
     }
     {
-        dies-ok {
-            my $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
-        }, '$doc.createAttributeNS without root element - dies';
-
-        my $root = $doc.createElement( "foo" );
-        $doc.documentElement = $root;
         my $attr;
         lives-ok {
-           $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
-        };
+            $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
+        }, '$doc.createAttributeNS without root element - dies';
+
         # TEST
         ok($attr, '$doc.createAttributeNS');
         # TEST
@@ -311,6 +306,11 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         $attr.value = 'bar&amp;';
         # TEST
         is($attr.value, 'bar&amp;', 'attr ns value updated' );
+
+        my $root = $doc.createElement( "foo" );
+        $doc.documentElement = $root;
+        $root.addChild($attr);
+        is $root, '<foo kung:foo="bar&amp;amp;"/>', 'Can use attribute created before document root';
     }
 
     {

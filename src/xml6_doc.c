@@ -5,8 +5,6 @@
 DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr self, char *encoding) {
   if (self == NULL) xml6_fail("unable to update null document");
 
-  fprintf(stderr, "enc=%ld\n", (long)(encoding));
-
   if ( self->encoding != NULL ) {
     xmlFree( (xmlChar*) self->encoding );
   }

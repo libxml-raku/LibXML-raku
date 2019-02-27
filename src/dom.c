@@ -1309,19 +1309,19 @@ domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value ) {
   xmlChar * localname = NULL;
   xmlAttrPtr newAttr = NULL;
   xmlNsPtr ns = NULL;
+  xmlNodePtr root = xmlDocGetRootElement(self);
 
   if ( URI != NULL && xmlStrlen(URI) > 0 ) {
-    xmlNodePtr root = xmlDocGetRootElement(self);
-    if ( root == NULL) {
-      croak("unable to locate document root");
-    }
     if ( xmlStrchr(name, ':') != NULL ) {
       localname = xmlSplitQName2(name, &prefix);
     }
     else {
       localname = xmlStrdup( name );
     }
-    ns = xmlSearchNsByHref( self, root, URI );
+
+    if ( root != NULL ) {
+      ns = xmlSearchNsByHref( self, root, URI );
+    }
     if ( ns == NULL ) {
       /* create a new NS if the NS does not already exists */
       ns = xmlNewNs(root, URI , prefix );

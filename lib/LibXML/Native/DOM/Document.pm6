@@ -50,8 +50,6 @@ method createAttribute(NCName:D $name, Str $value = '') {
 
 method createAttributeNS(Str $href, Str:D $name, Str:D $value = '') {
     with $href {
-        fail "need to create documentElement first"
-            without $.documentElement;
         self.domCreateAttributeNS($_, $name, $value);
     }
     else {
