@@ -200,7 +200,7 @@ class LibXML::Node {
         self.dom-node: $!node.cloneNode($recursive);
     }
 
-    method attributes {
+    method !get-attributes {
 
         role AttrMap[LibXML::Node $elem] does Associative {
             method ASSIGN-KEY(Str() $name, Str() $val) {
@@ -226,6 +226,41 @@ class LibXML::Node {
             }
         }
         %atts does AttrMap[self];
+    }
+
+    method !set-attributes(%atts) {
+        # clear out old attributes
+        with self.node.properties -> domNode:D $node is copy {
+            my LibXML::Node $doc = self.doc;
+            while $node.defined {
+                my $next = $node.next;
+                if $node.type == XML_ATTRIBUTE_NODE {
+                    $node.Unlink;
+                    $node.Free unless $node.is-referenced;
+                }
+                $node = $next;
+            }
+        }
+        # set new attributes
+        for %atts.pairs {
+            if .value ~~ Pair {
+                my $uri = .value.key;
+                my $value = .value.value;
+                self.setAttributeNS($uri, .key, $value);
+            }
+            else {
+                self.setAttribute(.key, .value);
+            }
+        }
+    }
+
+    method attributes is rw {
+        Proxy.new(
+            FETCH => sub ($) { self!get-attributes },
+            STORE => sub ($, %atts) {
+                self!set-attributes(%atts);
+            }
+        );
     }
 
     method properties {

@@ -4,7 +4,7 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Native;
 
-plan 17;
+plan 18;
 
 my $string = "<a>    <b/> </a>";
 my $tstr= "<a><b/></a>";
@@ -51,8 +51,10 @@ nok $att2.defined, 'getAttributeNode after removal';
 is($elem.Str, '<foo/>', 'Elem with attribute removed');
 
 my %atts := $elem.attributes;
-%atts<xxx> = 'yyy';
-is($elem.Str, '<foo xxx="yyy"/>', 'Elem attribute set via attributes map');
-%atts<xxx>:delete;
+%atts<aaa> = 'bbb';
+is($elem.Str, '<foo aaa="bbb"/>', 'Elem attribute set via attributes map');
+$elem.attributes = 'xxx' => 'yyy';
+is($elem.Str, '<foo xxx="yyy"/>', 'Elem attribute set via attributes proxy');
+$elem.attributes<xxx>:delete;
 is($elem.Str, '<foo/>', 'Elem with attribute removed via attributes map');
 
