@@ -99,7 +99,7 @@ domRemoveNsDef(xmlNodePtr tree, xmlNsPtr ns)
 }
 
 /* ns->next must be NULL, or bad things could happen */
-xmlNsPtr
+static xmlNsPtr
 _domAddNsChain(xmlNsPtr c, xmlNsPtr ns)
 {
         if( c == NULL )
@@ -984,7 +984,7 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     return rv;
 }
 
-static int domNamecmp(xmlNodePtr self, const xmlChar *pname) {
+static int _domNamecmp(xmlNodePtr self, const xmlChar *pname) {
   int rv;
   xmlChar *name = domName(self);
   rv = xmlStrcmp( name, pname );
@@ -1003,7 +1003,7 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
         cld = self->children;
         while ( cld != NULL ) {
           if ( ((any_name && cld->type == XML_ELEMENT_NODE)
-                || domNamecmp( cld, name ) == 0 )) {
+                || _domNamecmp( cld, name ) == 0 )) {
                 if ( rv == NULL ) {
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }
@@ -1076,21 +1076,21 @@ xmlAttrPtr
 domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
     xmlChar * prefix    = NULL;
     xmlChar * localname = NULL;
-    xmlAttrPtr ret = NULL;
+    xmlAttrPtr rv = NULL;
     xmlNsPtr ns = NULL;
 
     if ( qname == NULL || node == NULL )
        return NULL;
 
     /* first try qname without namespace */
-    ret = xmlHasNsProp(node, qname, NULL);
-    if ( ret == NULL ) {
+    rv = xmlHasNsProp(node, qname, NULL);
+    if ( rv == NULL ) {
       localname = xmlSplitQName2(qname, &prefix);
       if ( localname != NULL ) {
         ns = xmlSearchNs( node->doc, node, prefix );
         if ( ns != NULL ) {
           /* then try localname with the namespace bound to prefix */
-          ret = xmlHasNsProp( node, localname, ns->href );
+          rv = xmlHasNsProp( node, localname, ns->href );
         }
         if ( prefix != NULL) {
           xmlFree( prefix );
@@ -1098,12 +1098,41 @@ domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
         xmlFree( localname );
       }
     }
-    if (ret && ret->type != XML_ATTRIBUTE_NODE) {
-      return NULL;  /* we don't want fixed attribute decls */
+    if (rv && rv->type != XML_ATTRIBUTE_NODE) {
+      rv = NULL;  /* we don't want fixed attribute decls */
     }
-    else {
-      return ret;
+    return rv;
+}
+
+xmlChar *
+domGetAttribute(xmlNodePtr node, const xmlChar *qname) {
+    xmlChar * prefix    = NULL;
+    xmlChar * localname = NULL;
+    xmlChar * rv = NULL;
+    xmlNsPtr ns = NULL;
+
+    if ( qname == NULL || node == NULL )
+       return NULL;
+
+    /* first try qname without namespace */
+    rv = xmlGetNoNsProp(node, qname);
+
+    if ( rv == NULL ) {
+      localname = xmlSplitQName2(qname, &prefix);
+      if ( localname != NULL ) {
+        ns = xmlSearchNs( node->doc, node, prefix );
+        if ( ns != NULL ) {
+          /* then try localname with the namespace bound to prefix */
+          rv = xmlGetNsProp( node, localname, ns->href );
+        }
+        if ( prefix != NULL) {
+          xmlFree( prefix );
+        }
+        xmlFree( localname );
+      }
     }
+
+    return rv;
 }
 
 xmlAttrPtr
@@ -1312,6 +1341,43 @@ domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value ) {
   }
   else {
     newAttr = domCreateAttribute(self, name, value);
+  }
+
+  return newAttr;
+}
+
+xmlAttrPtr
+domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value ) {
+  xmlNsPtr   ns          = NULL;
+  xmlChar    * localname = NULL;
+  xmlChar    * prefix    = NULL;
+  xmlNsPtr   * all_ns    = NULL;
+  xmlAttrPtr newAttr     = NULL;
+  int i;
+
+  if (self && nsURI && xmlStrlen(nsURI) && name && value) {
+
+    localname =  xmlSplitQName2(name, &prefix);
+    if ( localname ) {
+      name = localname;
+    }
+
+    ns = xmlSearchNsByHref( self->doc, self, nsURI );
+    if ( ns == NULL ) {
+      /* create a new NS if the NS does not already exists */
+      ns = xmlNewNs(self, nsURI , prefix );
+    }
+
+    newAttr = xmlSetNsProp( self, ns, name, value );
+
+    if ( prefix ) {
+      xmlFree( prefix );
+    }
+
+    if ( localname ) {
+      xmlFree( localname );
+    }
+
   }
 
   return newAttr;

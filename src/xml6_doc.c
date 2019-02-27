@@ -3,9 +3,9 @@
 #include <string.h>
 
 DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr self, char *encoding) {
-  int charset = XML_CHAR_ENCODING_ERROR;
-
   if (self == NULL) xml6_fail("unable to update null document");
+
+  fprintf(stderr, "enc=%ld\n", (long)(encoding));
 
   if ( self->encoding != NULL ) {
     xmlFree( (xmlChar*) self->encoding );
@@ -13,13 +13,9 @@ DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr self, char *encoding) {
 
   if (encoding != NULL && strlen(encoding)) {
     self->encoding = xmlStrdup( (const xmlChar *)encoding );
-    charset = (int)xmlParseCharEncoding( (const char*)self->encoding );
-    if ( charset <= 0 ) {
-            charset = XML_CHAR_ENCODING_ERROR;
-    }
   } else {
+    fprintf(stderr, "clearing enc..\n");
     self->encoding = NULL;
-    charset = XML_CHAR_ENCODING_UTF8;
   }
 }
 

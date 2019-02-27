@@ -32,7 +32,10 @@ class xmlDict is repr(Stub) is export {
     method Free is native(LIB) is symbol('xmlDictFree') {*};
     method new returns xmlDict:D { Create() }
 }
-class xmlDtd is repr(Stub) is export {}
+class xmlDtd is repr(Stub) is export {
+    method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
+    method copy() { $.xmlCopyDtd }
+}
 class xmlEntity is repr(Stub) is export {
     sub xmlGetPredefinedEntity(xmlCharP $name) is native(LIB) returns xmlEntity is export { * }
     method new(Str :$name!) {
@@ -80,8 +83,9 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
             my &accessor = sub (\obj) is rw {
                 Proxy.new(
                     FETCH => sub ($) { self.get_value(obj) },
-                    STORE => sub ($, Str() $val) {
-                        setter(obj, $val);
+                    STORE => sub ($, $val) {
+                        my $str := do with $val {.Str} else { Str };
+                        setter(obj, $str);
                     });
             }
             $package.^add_method( $name, &accessor );
@@ -150,6 +154,8 @@ class xmlNs is repr('CStruct') is export {
     method new(Str:D :$href!, Str :$prefix, domNode :$node) {
         xmlNewNs($node, $href, $prefix);
     }
+    method xmlCopyNamespace is native(LIB)  returns xmlNs {*}
+    method copy() { $.xmlCopyNamespace }
     method Str {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';
@@ -340,7 +346,9 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
     method domRemoveChild(domNode) is native(BIND-LIB) {*}
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
+    method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
+    method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
@@ -379,6 +387,8 @@ class xmlNode is domNode {
     method SetProp(Str, Str --> xmlAttr) is native(LIB) is symbol('xmlSetProp') {*}
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
+    method xmlCopyNode(int32) is native(LIB)  returns xmlNode {*}
+    method copy(Bool :$recursive = True) { $.xmlCopyNode( $recursive ?? 1 !! 2 ) }
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
         $doc.new-node(:$name, :$ns);
     }
@@ -442,6 +452,8 @@ class xmlAttr is domNode is export {
     has xmlCharP        $.prefix;       # the namespace prefix if any
     has xmlCharP        $.elem;         # Element holding the attribute
     method Free is native(LIB) is symbol('xmlFreeProp') {*}
+    method xmlCopyProp is native(LIB)  returns xmlAttr {*}
+    method copy() { $.xmlCopyProp }
     method new(Str :$name!, Str :$value!, xmlDoc :$doc --> xmlAttr:D) {
         $doc.NewProp($name, $value);
     }
@@ -860,6 +872,9 @@ class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
          htmlCreateMemoryParserCtxt($buf, $bytes);
     }
 }
+
+sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
+our subset xmlCharEncoding of Str where {!.defined || xmlParseCharEncoding($_) > 0}
 
 sub xmlFree(Pointer) is export is native(LIB) {*}
 

@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 166;
+plan 167;
 
 use LibXML;
 use LibXML::Enums;
@@ -122,13 +122,10 @@ my $doc    = $parser.parse: :string( $xmlstring );
             is-deeply( $attr.hasChildNodes, False, ' TODO : Add test name');
         }
 
-}} ; skip("port remaining tests", 133);
-=begin POD
-
         {
             my @attributes = $xc.attributes;
             # TEST
-            is( scalar( @attributes ), 1, ' TODO : Add test name' );
+            is( + @attributes, 1, ' TODO : Add test name' );
         }
 
         # 1.2 Node Cloning
@@ -138,10 +135,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
 	    $cnode.setAttributeNS('http://ns','x:bbb','BBB');
             my $c1node = $doc.createElement("bar");
             $cnode.appendChild( $c1node );
+            is( $cnode, '<foo xmlns:x="http://ns" aaa="AAA" x:bbb="BBB"><bar/></foo>', ' TODO : Add test name' );
 
             my $xnode = $cnode.cloneNode(0);
             # TEST
-            ok( $xnode, ' TODO : Add test name' );
+            is( $xnode, '<foo xmlns:x="http://ns" aaa="AAA" x:bbb="BBB"/>', ' TODO : Add test name' );
             # TEST
             is( $xnode.nodeName, "foo", ' TODO : Add test name' );
             # TEST
@@ -149,6 +147,10 @@ my $doc    = $parser.parse: :string( $xmlstring );
 	    # TEST
 	    is( $xnode.getAttribute('aaa'),'AAA', ' TODO : Add test name' );
 	    # TEST
+
+}}} ; skip("port remaining tests", 128);
+=begin POD
+
 	    is( $xnode.getAttributeNS('http://ns','bbb'),'BBB', ' TODO : Add test name' );
 
             $xnode = $cnode.cloneNode(1);

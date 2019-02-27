@@ -18,7 +18,9 @@ method domGetNodeValue { ... }
 method domSetNodeValue { ... }
 method domRemoveChild  { ... }
 method domGetAttributeNode { ... }
+method domGetAttribute { ... }
 method domSetAttributeNode { ... }
+method domSetAttributeNS { ... }
 method domXPathSelect  { ... }
 method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
@@ -56,6 +58,14 @@ method setAttributeNode(AttrNode $att) {
 
 method getAttributeNode(Str:D $att-name) {
     self.domGetAttributeNode($att-name);
+}
+
+method getAttribute(Str:D $att-name) {
+    self.domGetAttribute($att-name);
+}
+
+method setAttributeNS(Str $uri, Str $name, Str $value) {
+    self.domSetAttributeNS($uri, $name, $value);
 }
 
 method removeChild(Node $child) {
@@ -124,6 +134,10 @@ method insertAfter(Node $nNode, Node $oNode) {
     self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
     $nNode;
+}
+
+method cloneNode(Bool:D $recursive) {
+    self.copy: :$recursive;
 }
 
 method nodeName { self.domName; }

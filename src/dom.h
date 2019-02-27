@@ -48,7 +48,7 @@ extern "C" {
  **/
 
 void
-domReconcileNs(xmlNodePtr tree);
+domReconcileNS(xmlNodePtr tree);
 
 xmlNodePtr
 domReadWellBalancedString( xmlDocPtr doc, xmlChar* string, int repair );
@@ -221,11 +221,11 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name );
 xmlNodeSetPtr
 domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
-xmlNsPtr
-domNewNs ( xmlNodePtr elem , xmlChar *prefix, xmlChar *href );
-
 xmlAttrPtr
 domGetAttributeNode( xmlNodePtr node, const xmlChar *qname);
+
+xmlChar *
+domGetAttribute(xmlNodePtr node, const xmlChar *qname);
 
 xmlAttrPtr
 domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
@@ -250,5 +250,9 @@ domCreateAttribute( xmlDocPtr self, char *name, char *value);
 
 xmlAttrPtr
 domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value );
+
+
+xmlAttrPtr
+domSetAttributeNS(xmlNodePtr, xmlChar *URI, xmlChar *name, xmlChar *value );
 
 #endif

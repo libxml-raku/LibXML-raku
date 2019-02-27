@@ -142,6 +142,7 @@ multi method createPI(NCName $name, Str $content?) {
     LibXML::PI.new: :doc(self), :$name, :$content;
 }
 
+our $lock = Lock.new;
 
 method Str(Bool() :$format = False) {
 
@@ -151,49 +152,52 @@ method Str(Bool() :$format = False) {
     }
     else {
         my xmlDoc $doc = $.node;
-        my Bool $copied;
+        my Str $rv;
 
-        if config.skip-dtd {
-            with $doc.internal-dtd {
-                # make a copy, with DTD removed
-                $doc .= copy();
-                $doc.xmlUnlinkNode($_);
-                .Free;
-                $copied = True;
+        if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
+            $lock.protect: {
+                # temporarily remove the DTD
+                $doc.xmlUnlinkNode($dtd);
+
+                $rv := $doc.Str(:$format);
+
+                $doc.internal-dtd = $dtd;
             }
         }
+        else {
+            $rv := $doc.Str(:$format);
+        }
 
-        my $str := $doc.Str(:$format);
-        $doc.Free if $copied;
-        $str;
+        $rv;
     }
 
 }
 
 method Blob(Bool() :$format = False) {
     if config.skip-xml-declaration {
-        # losing the encoding specification;
-        # revert to UTF-8 (default encoding)
+        # losing encoding declaration; switch to UTF-8
         my \skip-dtd = config.skip-dtd;
         $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join.encode;
     }
     else {
         my xmlDoc $doc = $.node;
-        my Bool $copied = False;
+        my Blob $rv;
 
-        if config.skip-dtd {
-            with $doc.internal-dtd {
-                # make a copy, with DTD removed
-                $doc .= copy();
-                $doc.xmlUnlinkNode($_);
-                .Free;
-                $copied = True;
+        if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
+            $lock.protect: {
+                # temporarily remove the DTD
+                $doc.xmlUnlinkNode($dtd);
+
+                $rv := $doc.Blob(:$format);
+
+                $doc.internal-dtd = $dtd;
             }
         }
+        else {
+            $rv := $doc.Blob(:$format);
+        }
 
-        my $blob := $doc.Blob(:$format);
-        $doc.Free if $copied;
-        $blob;
+        $rv;
     }
 }
 

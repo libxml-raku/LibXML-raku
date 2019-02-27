@@ -2,7 +2,7 @@ class LibXML::Node {
     use LibXML::Native;
     use LibXML::Enums;
     use LibXML::Namespace;
-    use LibXML::Types :NCName;
+    use LibXML::Types :NCName, :QName;
     use NativeCall;
 
     has LibXML::Node $.doc;
@@ -74,7 +74,7 @@ class LibXML::Node {
     method line-number { $!node.GetLineNo }
 
     sub delegate(domNode $node) {
-        given $node.type {
+        given +$node.type {
             when XML_ELEMENT_NODE       { require LibXML::Element }
             when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
             when XML_TEXT_NODE
@@ -90,7 +90,7 @@ class LibXML::Node {
         }
     }
 
-    method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($node).new: :$node, :$doc} else { Nil }; }
+    method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($_).new: :node($_), :$doc} else { domNode }; }
 
     my subset Nodeish where LibXML::Node|LibXML::Namespace;
     our proto sub iterate(Nodeish, $struct, :doc($)) {*}
@@ -178,11 +178,14 @@ class LibXML::Node {
         self!unlink($_) with $!node.getAttributeNode($att.name);
         $!node.setAttributeNode($att.node);
     }
+    method setAttributeNS(Str $uri, QName $name, Str $value) {
+        $!node.setAttributeNS($uri, $name, $value);
+    }
     method getAttributeNode(Str $att-name) {
         self.dom-node: $!node.getAttributeNode($att-name);
     }
     method getAttribute(Str $att-name) {
-        .string-value with self.getAttributeNode($att-name);
+        $!node.getAttribute($att-name);
     }
     method removeAttribute(Str $attr-name) {
         self!unlink($_) with $!node.getAttributeNode($attr-name);
@@ -192,6 +195,9 @@ class LibXML::Node {
             .Free unless .is-referenced;
             $_;
         }
+    }
+    method cloneNode(Bool() $recursive) {
+        self.dom-node: $!node.cloneNode($recursive);
     }
 
     method attributes {
