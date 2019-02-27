@@ -4,7 +4,7 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Native;
 
-plan 18;
+plan 24;
 
 my $string = "<a>    <b/> </a>";
 my $tstr= "<a><b/></a>";
@@ -58,3 +58,12 @@ is($elem.Str, '<foo xxx="yyy"/>', 'Elem attribute set via attributes proxy');
 $elem.attributes<xxx>:delete;
 is($elem.Str, '<foo/>', 'Elem with attribute removed via attributes map');
 
+$elem.attributes = 'x:bbb' => 'zzz';
+is($elem.Str, '<foo x:bbb="zzz"/>', 'QName Elem set via attributes proxy');
+$elem.attributes = %('http://ns' => %('x:aaa' => 'AAA', 'x:bbb' => 'BBB', 'y:ccc' => 'CCCC'), :foo<bar>);
+is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc="CCCC"/>', 'NS Elem set via attributes proxy');
+my %atts := $elem.attributes;
+is-deeply %atts.keys.sort, ('foo', 'http://ns'), 'NS entries';
+is-deeply %atts<http://ns>.keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
+is %atts<foo>, ' foo="bar"', 'Non NS elem';
+is %atts<http://ns>{'aaa'}, ' x:aaa="AAA"', 'NS elem';

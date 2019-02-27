@@ -523,6 +523,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}
     method XIncludeProcessFlags(uint32 $flags --> int32) is symbol('xmlXIncludeProcessFlags') is native(LIB) {*}
+    method SearchNs(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNs') {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {

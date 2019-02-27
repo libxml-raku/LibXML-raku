@@ -2,7 +2,7 @@
 unit role LibXML::Native::DOM::Node;
 my constant Node = LibXML::Native::DOM::Node:D;
 use LibXML::Enums;
-use LibXML::Types :NCName;
+use LibXML::Types :NCName, :QName;
 use NativeCall;
 
 method doc { ... }
@@ -38,7 +38,7 @@ method appendChild(Node $nNode) {
 
 my subset AttrNode of Node where .type == XML_ATTRIBUTE_NODE;
 
-method setAttribute(NCName $name, Str $value) {
+method setAttribute(QName:D $name, Str:D $value) {
     self.SetProp($name, $value);
 }
 
@@ -46,15 +46,15 @@ method setAttributeNode(AttrNode $att) {
     self.domSetAttributeNode($att);
 }
 
-method getAttributeNode(Str:D $att-name) {
+method getAttributeNode(QName:D $att-name) {
     self.domGetAttributeNode($att-name);
 }
 
-method getAttribute(Str:D $att-name) {
+method getAttribute(QName:D $att-name) {
     self.domGetAttribute($att-name);
 }
 
-method setAttributeNS(Str $uri, Str $name, Str $value) {
+method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
     self.domSetAttributeNS($uri, $name, $value);
 }
 

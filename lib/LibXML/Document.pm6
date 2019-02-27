@@ -74,19 +74,19 @@ method documentElement is rw {
     );
 }
 
-my subset NameVal of Pair where .key ~~ QName && .value ~~ Str:D;
+my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 multi method createAttribute(NameVal $_!, |c) {
     $.createAttribute(.key, .value, |c);
 }
 
-multi method createAttribute(QName $name,
+multi method createAttribute(QName:D $name,
                              Str $value = '',
                              Str:D :$href!,
                             ) {
     self.dom-node: $.node.createAttributeNS($href, $name, $value);
 }
 
-multi method createAttribute(NCName $name,
+multi method createAttribute(QName:D $name,
                              Str $value = '',
                             ) {
     self.dom-node: $.node.createAttribute($name, $value);
@@ -96,7 +96,7 @@ multi method createAttributeNS(Str $href, NameVal $_!, |c) {
     $.createAttributeNS($href, .key, .value, |c);
 }
 multi method createAttributeNS(Str $href,
-                         QName $name,
+                         QName:D $name,
                          Str $value = '',
                         ) {
     self.dom-node: $.node.createAttributeNS($href, $name, $value);

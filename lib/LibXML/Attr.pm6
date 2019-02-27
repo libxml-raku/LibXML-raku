@@ -6,13 +6,10 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr :$node!, xmlNs :$ns) {
-    $node.ns = $_ with $ns;
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr :node($)!) {
 }
-multi submethod TWEAK(LibXML::Node :$doc!, QName :$name!, Str :$value!, xmlNs :$ns) {
-    my xmlAttr $node = $doc.node.NewProp( $name, $value );
-    $node.ns = $_ with $ns;
-    self.node = $node;
+multi submethod TWEAK(LibXML::Node :$doc!, :$name!, Str :$value!) {
+    self.node = $doc.node.NewProp( $name, $value );
 }
 
 method node handles <atype def defaultValue tree prefix elem name> {

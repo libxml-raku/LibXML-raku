@@ -5,6 +5,9 @@ class LibXML::Node {
     use LibXML::Types :NCName, :QName;
     use NativeCall;
 
+    my subset Nodeish where LibXML::Node|LibXML::Namespace;
+    my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
+
     has LibXML::Node $.doc;
 
     has domNode $.node handles <
@@ -92,7 +95,6 @@ class LibXML::Node {
 
     method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($_).new: :node($_), :$doc} else { domNode }; }
 
-    my subset Nodeish where LibXML::Node|LibXML::Namespace;
     our proto sub iterate(Nodeish, $struct, :doc($)) {*}
 
     multi sub iterate(Nodeish $obj, $start, :$doc = $obj.doc) {
@@ -170,7 +172,7 @@ class LibXML::Node {
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(self, $!node.getChildrenByTagNameNS($uri, $name));
     }
-    method setAttribute(NCName $name, Str $value) {
+    method setAttribute(QName $name, Str $value) {
         self!unlink($_) with $!node.getAttributeNode($name);
         $!node.setAttribute($name, $value);
     }
@@ -178,7 +180,10 @@ class LibXML::Node {
         self!unlink($_) with $!node.getAttributeNode($att.name);
         $!node.setAttributeNode($att.node);
     }
-    method setAttributeNS(Str $uri, QName $name, Str $value) {
+    multi method setAttributeNS(Str $uri, NameVal:D $_) {
+        $!node.setAttributeNS($uri, .key, .value);
+    }
+    multi method setAttributeNS(Str $uri, QName $name, Str $value) {
         $!node.setAttributeNS($uri, $name, $value);
     }
     method getAttributeNode(Str $att-name) {
@@ -214,15 +219,34 @@ class LibXML::Node {
             }
         }
 
-        my AttrNode %atts;
-        with self.node.properties -> domNode:D $node is copy {
+        my xmlNs %ns;
+        my %atts;
+        with $!node.properties -> domNode:D $node is copy {
             my LibXML::Node $doc = self.doc;
+            require LibXML::Attr;
             while $node.defined {
+                my $has-namespace = False;
                 if $node.type == XML_ATTRIBUTE_NODE {
-                    my Str:D $name = $node.name;
-                    %atts{$name} = LibXML::Attr.new: :$node, :$doc;;
+                    $node = nativecast(xmlAttr, $node);
+                    my $att = LibXML::Attr.new: :$node, :$doc;
+                    my Str:D $name = $node.domName;
+                    my ($prefix,$local-name) = $name.split(':', 2);
+
+                    if $local-name {
+                        %ns{$prefix} = $doc.node.SearchNs($!node, $prefix)
+                            unless %ns{$prefix}:exists;
+
+                        with %ns{$prefix} -> $ns {
+                            $has-namespace = True;
+                            %atts{$ns.href}{$local-name} = $att;
+                        }
+                    }
+
+                    %atts{$name} = $att
+                        unless $has-namespace;
                 }
-                $node .= next;
+
+                $node = $node.next;
             }
         }
         %atts does AttrMap[self];
@@ -230,7 +254,7 @@ class LibXML::Node {
 
     method !set-attributes(%atts) {
         # clear out old attributes
-        with self.node.properties -> domNode:D $node is copy {
+        with $!node.properties -> domNode:D $node is copy {
             my LibXML::Node $doc = self.doc;
             while $node.defined {
                 my $next = $node.next;
@@ -242,14 +266,14 @@ class LibXML::Node {
             }
         }
         # set new attributes
-        for %atts.pairs {
-            if .value ~~ Pair {
-                my $uri = .value.key;
-                my $value = .value.value;
-                self.setAttributeNS($uri, .key, $value);
+        for %atts.pairs.sort -> $att, {
+            if $att.value ~~ NameVal|Hash {
+                my $uri = $att.key;
+                self.setAttributeNS($uri, $_)
+                    for $att.value.pairs.sort;
             }
             else {
-                self.setAttribute(.key, .value);
+                self.setAttribute($att.key, $att.value);
             }
         }
     }
