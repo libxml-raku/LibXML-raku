@@ -30,16 +30,6 @@ method firstChild { self.children }
 method lastChild { self.last }
 
 method appendChild(Node $nNode) {
-    if self.type == XML_DOCUMENT_NODE {
-        my constant %Unsupported = %(
-            (+XML_ELEMENT_NODE) => "Appending an element to a document node not supported yet!",
-            (+XML_DOCUMENT_FRAG_NODE) => "Appending a document fragment node to a document node not supported yet!",
-            (+XML_TEXT_NODE|+XML_CDATA_SECTION_NODE)
-                => "Appending text node not supported on a document node yet!",
-        );
-
-        fail $_ with %Unsupported{$nNode.type};
-    }
     my Node:D $rNode = self.domAppendChild($nNode);
     self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
