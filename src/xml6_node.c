@@ -7,6 +7,7 @@ DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
   if ( self->_private == NULL ) {
     proxy = (xml6NodeProxyPtr)xmlMalloc(sizeof(struct _xml6NodeProxy));
     memset(proxy, 0, sizeof(struct _xml6NodeProxy));
+    proxy->magic = XML_NODE_MAGIC;
     self->_private = (void*) proxy;
   }
   else {
@@ -36,26 +37,33 @@ DLLEXPORT int xml6_node_is_referenced(xmlNodePtr self) {
 
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
   int released = 0;
+  char msg[80];
+
   if ( self->_private == NULL ) {
     xml6_warn("node was not referenced");
     released = 1;
   }
   else {
     xml6NodeProxyPtr proxy = (xml6NodeProxyPtr) self->_private;
-    if (proxy->ref_count <= 0 || proxy->ref_count >= 65536) {
-      char msg[80];
-
-      sprintf(msg, "node %ld has unexpected ref_count value: %ld", (long) self, proxy->ref_count);
+    if (proxy->magic != XML_NODE_MAGIC) {
+      sprintf(msg, "node %ld is not owned by us, or is corrupted", (long) self);
       xml6_warn(msg);
     }
     else {
-      if (proxy->ref_count == 1) {
-        self->_private = NULL;
-        xmlFree((void*) proxy);
-        released = 1;
+      if (proxy->ref_count <= 0 || proxy->ref_count >= 65536) {
+
+        sprintf(msg, "node %ld has unexpected ref_count value: %ld", (long) self, proxy->ref_count);
+        xml6_warn(msg);
       }
       else {
-        proxy->ref_count--;
+        if (proxy->ref_count == 1) {
+          self->_private = NULL;
+          xmlFree((void*) proxy);
+          released = 1;
+        }
+        else {
+          proxy->ref_count--;
+        }
       }
     }
   }

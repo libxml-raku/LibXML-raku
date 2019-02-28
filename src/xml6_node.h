@@ -3,7 +3,10 @@
 
 #include <libxml/parser.h>
 
+#define XML_NODE_MAGIC 2020437046 // 'xml6', little endian
+
 struct _xml6NodeProxy {
+  uint magic;     /* for verification */
   int ref_count;
 };
 
