@@ -50,6 +50,10 @@ method getAttributeNode(QName:D $att-name) {
     self.domGetAttributeNode($att-name);
 }
 
+method getAttributeNodeNS(Str $uri, QName:D $att-name) {
+    self.NsPropNode($att-name, $uri);
+}
+
 method getAttribute(QName:D $att-name) {
     self.domGetAttribute($att-name);
 }
@@ -60,13 +64,6 @@ method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
 
 method removeChild(Node $child) {
     self.domRemoveChild($child);
-}
-
-method removeAttribute(Str:D $attr-name) {
-    with self.domGetAttributeNode($attr-name) {
-        warn "removing $attr-name";
-        .Unlink;
-    }
 }
 
 method !descendants(Str:D $expr = '') {

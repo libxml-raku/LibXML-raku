@@ -4,7 +4,7 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Native;
 
-plan 24;
+plan 27;
 
 my $string = "<a>    <b/> </a>";
 my $tstr= "<a><b/></a>";
@@ -36,7 +36,7 @@ is $doc, '<Test/>', 'Document';
 
 # attribute basics
 my $elem = $doc.createElement('foo');
-my $attr = $doc.createAttribute('attr', 'e & f');
+my LibXML::Attr:D $attr = $doc.createAttribute('attr', 'e & f');
 $elem.setAttributeNode($attr);
 is $attr, ' attr="e &amp; f"', 'attr.Str';
 is $elem.node.properties, $attr, 'elem properties linkage';
@@ -72,4 +72,11 @@ is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc=
 is-deeply %atts.keys.sort, ('foo', 'http://ns'), 'NS entries';
 is-deeply %atts<http://ns>.keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
 is %atts<foo>, ' foo="bar"', 'Non NS elem';
-is %atts<http://ns>{'aaa'}, ' x:aaa="AAA"', 'NS elem';
+is %atts<http://ns><aaa>, ' x:aaa="AAA"', 'NS elem';
+
+lives-ok {$attr = $elem.getAttributeNodeNS('http://ns', 'aaa');};
+
+lives-ok {$attr = %atts<http://ns><aaa>:delete};
+
+is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:bbb="BBB" x:ccc="CCCC"/>', 'NS Elem after NS proxy deletion');
+

@@ -93,7 +93,7 @@ class LibXML::Node {
         }
     }
 
-    method dom-node(domNode $node, :$doc = $.doc) { with $node { delegate($_).new: :node($_), :$doc} else { domNode }; }
+    method dom-node(domNode $node, :$doc = $.doc --> LibXML::Node) { with $node { delegate($_).new: :node($_), :$doc} else { LibXML::Node }; }
 
     our proto sub iterate(Nodeish, $struct, :doc($)) {*}
 
@@ -186,14 +186,20 @@ class LibXML::Node {
     multi method setAttributeNS(Str $uri, QName $name, Str $value) {
         $!node.setAttributeNS($uri, $name, $value);
     }
-    method getAttributeNode(Str $att-name) {
+    method getAttributeNode(Str $att-name --> LibXML::Node) {
         self.dom-node: $!node.getAttributeNode($att-name);
     }
-    method getAttribute(Str $att-name) {
+    method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
+        self.dom-node: $!node.getAttributeNodeNS($uri, $att-name);
+    }
+    method getAttribute(Str $att-name --> Str) {
         $!node.getAttribute($att-name);
     }
     method removeAttribute(Str $attr-name) {
         self!unlink($_) with $!node.getAttributeNode($attr-name);
+    }
+    method removeAttributeNS(Str $uri, Str $attr-name) {
+        self!unlink($_) with $!node.getAttributeNodeNS($uri, $attr-name);
     }
     method removeChild(LibXML::Node:D $kid) {
         with $!node.removeChild($kid.node) {
@@ -209,23 +215,47 @@ class LibXML::Node {
 
         role AttrMap[LibXML::Node $elem] does Associative {
             method ASSIGN-KEY(Str() $name, Str() $val) {
-                $elem.setAttribute($name, $val);
-                nextwith($name, $elem.getAttributeNode($name));
+                if self{$name} ~~ Hash:D { # nested namespace elems
+                    nextsame
+                }
+                else {
+                    $elem.setAttribute($name, $val);
+                    nextwith($name, $elem.getAttributeNode($name));
+                }
             }
 
             method DELETE-KEY(Str() $key) {
-                $elem.removeAttribute($key);
+                if self{$key} ~~ Hash:D { # nested namespace elems
+                    self{$key}{$_}.DELETE-KEY
+                        for self{$_}.keys;
+                }
+                else {
+                    $elem.removeAttribute($key);
+                }
+                nextsame;
+            }
+        }
+
+        role AttrMapNs[LibXML::Node $elem, Str $uri] does Associative {
+            method ASSIGN-KEY(Str() $name, Str() $val) {
+                $elem.setAttribute($name, $val);
+                nextwith($name, $elem.getAttributeNodeNS($uri, $name));
+            }
+
+            method DELETE-KEY(Str() $key) {
+                $elem.removeAttributeNS($uri, $key);
                 nextsame;
             }
         }
 
         my xmlNs %ns;
         my %atts;
+        my Bool %uris;
         with $!node.properties -> domNode:D $node is copy {
             my LibXML::Node $doc = self.doc;
             require LibXML::Attr;
             while $node.defined {
-                my $has-namespace = False;
+                my $uri;
                 if $node.type == XML_ATTRIBUTE_NODE {
                     $node = nativecast(xmlAttr, $node);
                     my $att = LibXML::Attr.new: :$node, :$doc;
@@ -237,18 +267,21 @@ class LibXML::Node {
                             unless %ns{$prefix}:exists;
 
                         with %ns{$prefix} -> $ns {
-                            $has-namespace = True;
-                            %atts{$ns.href}{$local-name} = $att;
+                            $uri = $ns.href;
+                            %uris{$uri} = True;
+                            %atts{$uri}{$local-name} = $att;
                         }
                     }
 
                     %atts{$name} = $att
-                        unless $has-namespace;
+                        unless $uri;
                 }
 
                 $node = $node.next;
             }
         }
+
+        %atts{$_} does AttrMapNs[self,$_] for %uris.keys;
         %atts does AttrMap[self];
     }
 
