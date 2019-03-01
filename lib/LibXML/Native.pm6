@@ -340,6 +340,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method IsBlank(--> int32) is native(LIB) is symbol('xmlIsBlankNode') {*}
     method NsPropNode(xmlCharP, xmlCharP --> xmlAttr) is native(LIB) is symbol('xmlHasNsProp') {*}
     method PropNode(xmlCharP --> xmlAttr) is native(LIB) is symbol('xmlHasProp') {*}
+    method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
+    method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertAfter(domNode, domNode) returns domNode is native(BIND-LIB) {*}
@@ -390,7 +392,7 @@ class xmlNode is domNode {
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
     method xmlCopyNode(int32) is native(LIB)  returns xmlNode {*}
-    method copy(Bool :$recursive = True) { $.xmlCopyNode( $recursive ?? 1 !! 2 ) }
+    method copy(Bool :$deep = True) { $.xmlCopyNode( $deep ?? 1 !! 2 ) }
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
         $doc.new-node(:$name, :$ns);
     }
@@ -507,7 +509,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
     method internal-dtd(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
     method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
-    method copy(Bool :$recursive = True) { $.xmlCopyDoc(+$recursive) }
+    method copy(Bool :$deep = True) { $.xmlCopyDoc(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}

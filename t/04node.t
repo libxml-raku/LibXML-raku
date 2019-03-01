@@ -148,9 +148,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
 	    is( $xnode.getAttribute('aaa'),'AAA', ' TODO : Add test name' );
 	    # TEST
 
-}}} ; skip("port remaining tests", 128);
-=begin POD
-
 	    is( $xnode.getAttributeNS('http://ns','bbb'),'BBB', ' TODO : Add test name' );
 
             $xnode = $cnode.cloneNode(1);
@@ -169,11 +166,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
             # TEST
             ok( @cn, ' TODO : Add test name' );
             # TEST
-            is( scalar(@cn), 1, ' TODO : Add test name');
+            is( +@cn, 1, ' TODO : Add test name');
             # TEST
-            is( $cn[0].nodeName, "bar", ' TODO : Add test name' );
+            is( @cn[0].nodeName, "bar", ' TODO : Add test name' );
             # TEST
-            ok( !$cn[0].isSameNode( $c1node ), ' TODO : Add test name' );
+            ok( !@cn[0].isSameNode( $c1node ), ' TODO : Add test name' );
 
             # clone namespaced elements
             my $nsnode = $doc.createElementNS( "fooNS", "foo:bar" );
@@ -189,8 +186,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
             # clone namespaced elements (recursive)
             my $c2nsnode = $nsnode.cloneNode(1);
             # TEST
-            is( $c2nsnode.toString(), $nsnode.toString(), ' TODO : Add test name' );
+            is( $c2nsnode.Str, $nsnode.Str, ' TODO : Add test name' );
         }
+
+}} ; skip("port remaining tests", 114);
+=begin POD
 
         # 1.3 Node Value
         my $string2 = "<foo>bar<tag>foo</tag></foo>";

@@ -93,7 +93,13 @@ class LibXML::Node {
         }
     }
 
-    method dom-node(domNode $node, :$doc = $.doc --> LibXML::Node) { with $node { delegate($_).new: :node($_), :$doc} else { LibXML::Node }; }
+    method dom-node(domNode $node, :$doc = $.doc --> LibXML::Node) {
+        with $node {
+            delegate($_).new: :node($_), :$doc
+        } else {
+            LibXML::Node;
+        }
+    }
 
     our proto sub iterate(Nodeish, $struct, :doc($)) {*}
 
@@ -192,6 +198,12 @@ class LibXML::Node {
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
         self.dom-node: $!node.getAttributeNodeNS($uri, $att-name);
     }
+    method getAttributeNS(Str $uri, Str $att-name --> Str) {
+        $!node.getAttributeNS($uri, $att-name);
+    }
+    method localNS {
+        LibXML::Namespace.dom-node: $!node.localNS, :$!doc;
+    }
     method getAttribute(Str $att-name --> Str) {
         $!node.getAttribute($att-name);
     }
@@ -207,8 +219,8 @@ class LibXML::Node {
             $_;
         }
     }
-    method cloneNode(Bool() $recursive) {
-        self.dom-node: $!node.cloneNode($recursive);
+    method cloneNode(Bool() $deep) {
+        self.dom-node: $!node.cloneNode($deep);
     }
 
     method !get-attributes {

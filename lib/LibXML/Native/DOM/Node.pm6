@@ -54,6 +54,19 @@ method getAttributeNodeNS(Str $uri, QName:D $att-name) {
     self.NsPropNode($att-name, $uri);
 }
 
+method getAttributeNS(Str $uri, QName:D $att-name) {
+    with $uri { 
+        self.NsProp($att-name, $uri);
+    }
+    else {
+        self.Prop($att-name);
+    }
+}
+
+method localNS {
+    .copy with self.ns;
+}
+
 method getAttribute(QName:D $att-name) {
     self.domGetAttribute($att-name);
 }
@@ -123,8 +136,8 @@ method insertAfter(Node $nNode, Node $oNode) {
     $nNode;
 }
 
-method cloneNode(Bool:D $recursive) {
-    self.copy: :$recursive;
+method cloneNode(Bool:D $deep) {
+    self.copy: :$deep;
 }
 
 method nodeName { self.domName; }
