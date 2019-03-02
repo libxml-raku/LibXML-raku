@@ -81,7 +81,7 @@ class LibXML::Node {
     method namespaceURI { .href with $!node.ns }
     method line-number { $!node.GetLineNo }
 
-    sub delegate(domNode $node) {
+    sub class-delegate(domNode $node) {
         given +$node.type {
             when XML_ELEMENT_NODE       { require LibXML::Element }
             when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
@@ -98,9 +98,31 @@ class LibXML::Node {
         }
     }
 
-    method dom-node(domNode $node, :$doc = $.doc --> LibXML::Node) {
-        with $node {
-            delegate($_).new: :node($_), :$doc
+    sub node-delegate(UInt $_) {
+        when XML_ELEMENT_NODE       { xmlNode }
+        when XML_ATTRIBUTE_NODE     { xmlAttr }
+        when XML_TEXT_NODE
+           | XML_ENTITY_REF_NODE    { xmlTextNode }
+        when XML_COMMENT_NODE       { xmlCommentNode }
+        when XML_CDATA_SECTION_NODE { xmlCDataNode }
+        when XML_PI_NODE            { xmlPINode }
+        when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
+        when XML_DOCUMENT_NODE      { xmlDoc }
+        default {
+            warn "node content-type not yet handled: $_";
+            domNode;
+        }
+    }
+
+    sub cast-node(domNode:D $node is raw) {
+        my $delegate := node-delegate($node.type);
+        nativecast( $delegate, $node);
+    }
+
+    method dom-node(domNode $vanilla-node, :$doc = $.doc --> LibXML::Node) {
+        with $vanilla-node {
+            my $node := cast-node($_);
+            class-delegate($_).new: :$node, :$doc
         } else {
             LibXML::Node;
         }
@@ -234,7 +256,8 @@ class LibXML::Node {
         }
     }
     method cloneNode(Bool() $deep) {
-        self.dom-node: $!node.cloneNode($deep);
+        my $node = $!node.cloneNode($deep);
+        self.new: :$node;
     }
 
     method !get-attributes {

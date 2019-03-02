@@ -5,7 +5,7 @@ unit class LibXML::Comment
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, :node($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlCommentNode:D :node($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($root)!, Str :$content!) {
     my xmlDoc:D $doc = $root.node;
     my xmlCommentNode $node .= new: :$content, :$doc;

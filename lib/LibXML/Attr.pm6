@@ -6,7 +6,7 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr :node($)!) {
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :node($)!) {
 }
 multi submethod TWEAK(LibXML::Node :$doc!, :$name!, Str :$value!) {
     self.node = $doc.node.NewProp( $name, $value );

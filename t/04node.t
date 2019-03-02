@@ -232,6 +232,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         ok( $xn.isSameNode( $jnode ), ' TODO : Add test name' );
 
         $jnode.unbindNode;
+        $node.Str;
 
         my @cn = $node.childNodes;
         # TEST

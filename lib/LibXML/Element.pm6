@@ -8,7 +8,7 @@ use LibXML::Types :QName;
 use LibXML::Attr;
 use LibXML::Namespace;
 
-multi submethod TWEAK(:node($)!) { }
+multi submethod TWEAK(xmlNode:D :node($)!) { }
 multi submethod TWEAK(:doc($root), QName :$name!, xmlNs :$ns) {
     my xmlDoc:D $doc = .node with $root;
     self.node = xmlNode.new: :$name, :$doc, :$ns;
