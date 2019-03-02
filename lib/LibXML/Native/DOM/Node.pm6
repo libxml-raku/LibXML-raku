@@ -1,6 +1,6 @@
 #| low level DOM. Works directly on Native XML Nodes
 unit role LibXML::Native::DOM::Node;
-my constant Node = LibXML::Native::DOM::Node:D;
+my constant Node = LibXML::Native::DOM::Node;
 use LibXML::Enums;
 use LibXML::Types :NCName, :QName;
 use NativeCall;
@@ -75,7 +75,7 @@ method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
     self.domSetAttributeNS($uri, $name, $value);
 }
 
-method removeChild(Node $child) {
+method removeChild(Node:D $child) {
     self.domRemoveChild($child);
 }
 
@@ -122,14 +122,14 @@ method getChildrenByTagNameNS(Str $URI, Str $name) {
     self.domGetChildrenByTagNameNS($URI, $name);
 }
 
-method insertBefore(Node $nNode, Node $oNode) {
+method insertBefore(Node:D $nNode, Node $oNode) {
     my Node:D $rNode = self.domInsertBefore($nNode, $oNode);
     self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;
     $nNode;
 }
 
-method insertAfter(Node $nNode, Node $oNode) {
+method insertAfter(Node:D $nNode, Node $oNode) {
     my Node:D $rNode = self.domInsertAfter($nNode, $oNode);
     self.doc.intSubset = $nNode
         if $rNode.type == XML_DTD_NODE;

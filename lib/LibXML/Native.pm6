@@ -155,6 +155,7 @@ class xmlNs is repr('CStruct') is export {
         xmlNewNs($node, $href, $prefix);
     }
     method xmlCopyNamespace is native(LIB)  returns xmlNs {*}
+    method Free is native(LIB) is symbol('xmlFreeNs') {*}
     method copy() { $.xmlCopyNamespace }
     method Str {
         nextsame without self;
@@ -348,7 +349,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domName returns Str is native(BIND-LIB) {*}
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
-    method domRemoveChild(domNode) is native(BIND-LIB) {*}
+    method domRemoveChild(domNode --> domNode) is native(BIND-LIB) {*}
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}

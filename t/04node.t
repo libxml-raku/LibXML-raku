@@ -189,13 +189,10 @@ my $doc    = $parser.parse: :string( $xmlstring );
             is( $c2nsnode.Str, $nsnode.Str, ' TODO : Add test name' );
         }
 
-}} ; skip("port remaining tests", 114);
-=begin POD
-
         # 1.3 Node Value
         my $string2 = "<foo>bar<tag>foo</tag></foo>";
         {
-            my $doc2 = $parser.parse_string( $string2 );
+            my $doc2 = $parser.parse: :string( $string2 );
             my $root = $doc2.documentElement;
             # TEST
             ok( ! defined($root.nodeValue), ' TODO : Add test name' );
@@ -207,10 +204,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
     {
         my $children = $node.childNodes;
         # TEST
-        ok( defined $children, ' TODO : Add test name' );
+        ok( defined($children), ' TODO : Add test name' );
         # TEST
-        is( ref($children), "LibXML::NodeList", ' TODO : Add test name' );
+        isa-ok( $children, "LibXML::Node::NodeList", ' TODO : Add test name' );
     }
+
 
     # 2. (Child) Node Manipulation
 
@@ -227,19 +225,19 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         ok( $xn.isSameNode($inode), ' TODO : Add test name' );
 
-
-        $node.insertBefore( $jnode, undef );
+        $node.insertBefore( $jnode, LibXML::Node );
         my @ta  = $node.childNodes();
         $xn = pop @ta;
         # TEST
         ok( $xn.isSameNode( $jnode ), ' TODO : Add test name' );
+
         $jnode.unbindNode;
 
         my @cn = $node.childNodes;
         # TEST
-        is(scalar(@cn), 6, ' TODO : Add test name');
+        is(+@cn, 6, ' TODO : Add test name');
         # TEST
-        ok( $cn[3].isSameNode($inode), ' TODO : Add test name' );
+        ok( @cn[3].isSameNode($inode), ' TODO : Add test name' );
 
         $xn = $node.removeChild($inode);
         # TEST
@@ -249,9 +247,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
         @cn = $node.childNodes;
         # TEST
-        is(scalar(@cn), 5, ' TODO : Add test name');
+        is(+@cn, 5, ' TODO : Add test name');
         # TEST
-        ok( $cn[3].isSameNode($rnode), ' TODO : Add test name' );
+        ok( @cn[3].isSameNode($rnode), ' TODO : Add test name' );
 
         $xn = $node.appendChild($inode);
         # TEST
@@ -267,7 +265,10 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         ok($xn.isSameNode($inode), ' TODO : Add test name');
         # TEST
-        ok($cn[-1].isSameNode($node.lastChild), ' TODO : Add test name');
+        ok(@cn.tail.isSameNode($node.lastChild), ' TODO : Add test name');
+
+}}; skip("port remaining tests", 95);
+=begin POD
 
         $xn = $node.replaceChild( $inode, $rnode );
         # TEST
@@ -277,9 +278,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
         my @cn2 = $node.childNodes;
         # TEST
-        is(scalar(@cn), 5, ' TODO : Add test name');
+        is(+@cn, 5, ' TODO : Add test name');
         # TEST
-        ok( $cn2[3].isSameNode($inode), ' TODO : Add test name' );
+        ok( @cn2[3].isSameNode($inode), ' TODO : Add test name' );
     }
 
     {
@@ -336,9 +337,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         is(scalar(@cn2), 7, ' TODO : Add test name');
         # TEST
-        ok($cn2[-1].isSameNode($node2), ' TODO : Add test name');
+        ok(@cn2[-1].isSameNode($node2), ' TODO : Add test name');
         # TEST
-        ok($cn2[-2].isSameNode($node1), ' TODO : Add test name');
+        ok(@cn2[-2].isSameNode($node1), ' TODO : Add test name');
 
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
@@ -347,11 +348,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         is(scalar(@cn2), 5, ' TODO : Add test name');
 
-        $xn = $node.replaceChild( $frag, $cn[3] );
+        $xn = $node.replaceChild( $frag, @cn[3] );
         # TEST
         ok($xn, ' TODO : Add test name');
         # TEST
-        ok($xn.isSameNode($cn[3]), ' TODO : Add test name');
+        ok($xn.isSameNode(@cn[3]), ' TODO : Add test name');
         @cn2 = $node.childNodes;
         # TEST
         is(scalar(@cn2), 6, ' TODO : Add test name');
@@ -359,7 +360,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
 
-        $xn = $node.insertBefore( $frag, $cn[0] );
+        $xn = $node.insertBefore( $frag, @cn[0] );
         # TEST
         ok($xn, ' TODO : Add test name');
         # TEST
@@ -461,7 +462,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     is( scalar(@cn), 1, ' TODO : Add test name' );
     # TEST
-    ok($cn[0].isSameNode($e3), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($e3), ' TODO : Add test name');
     # TEST
     ok($x.isSameNode($e2), ' TODO : Add test name');
 
@@ -470,9 +471,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     is( scalar(@cn), 2, ' TODO : Add test name' );
     # TEST
-    ok($cn[0].isSameNode($e3), ' TODO : Add test name');
+    ok(@cn[0].isSameNode($e3), ' TODO : Add test name');
     # TEST
-    ok($cn[1].isSameNode($e2), ' TODO : Add test name');
+    ok(@cn[1].isSameNode($e2), ' TODO : Add test name');
 }
 
 # 6.   implicit attribute manipulation

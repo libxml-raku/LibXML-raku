@@ -38,7 +38,10 @@ class LibXML::Node {
         }
         # two node arguments
         for <insertBefore insertAfter> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1, LibXML::Node:D $n2) { self.dom-node: $!node."$_"($n1.node, $n2.node) });
+            $?CLASS.^add_method(
+                $_, method (LibXML::Node:D $n1, LibXML::Node $n2) {
+                    self.dom-node: $!node."$_"($n1.node, do with $n2 {.node} else {domNode});
+                });
         }
     }
 
@@ -60,10 +63,12 @@ class LibXML::Node {
     method doc is rw {
         Proxy.new(
             FETCH => sub ($) { $!doc },
-            STORE => sub ($, LibXML::Node:D $doc) {
+            STORE => sub ($, LibXML::Node $doc) {
                 with $!doc {
-                    die "can't change owner document for a node"
-                    unless $doc === $_;
+                    with $doc {
+                        die "node is already bound to another document"
+                           unless $!doc === $_;
+                    }
                 }
                 $!doc = $doc;
             },
@@ -147,7 +152,7 @@ class LibXML::Node {
     }
 
     # DOM methods
-    method !unlink(domNode $node) {
+    method !release(domNode $node) {
         $node.Unlink;
         $node.Free
            unless $node.is-referenced;
@@ -157,6 +162,11 @@ class LibXML::Node {
     multi method addChild(AttrNode $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
     method textContent { $.string-value }
+    method unbindNode {
+        $!node.Unlink;
+        $!doc = LibXML::Node;
+        self;
+    }
     method childNodes {
         iterate(self, $!node.children);
     }
@@ -179,11 +189,11 @@ class LibXML::Node {
         iterate(self, $!node.getChildrenByTagNameNS($uri, $name));
     }
     method setAttribute(QName $name, Str $value) {
-        self!unlink($_) with $!node.getAttributeNode($name);
+        self!release($_) with $!node.getAttributeNode($name);
         $!node.setAttribute($name, $value);
     }
     method setAttributeNode(AttrNode $att) {
-        self!unlink($_) with $!node.getAttributeNode($att.name);
+        self!release($_) with $!node.getAttributeNode($att.name);
         $!node.setAttributeNode($att.node);
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
@@ -208,15 +218,19 @@ class LibXML::Node {
         $!node.getAttribute($att-name);
     }
     method removeAttribute(Str $attr-name) {
-        self!unlink($_) with $!node.getAttributeNode($attr-name);
+        self!release($_) with $!node.getAttributeNode($attr-name);
     }
     method removeAttributeNS(Str $uri, Str $attr-name) {
-        self!unlink($_) with $!node.getAttributeNodeNS($uri, $attr-name);
+        self!release($_) with $!node.getAttributeNodeNS($uri, $attr-name);
     }
-    method removeChild(LibXML::Node:D $kid) {
+    method removeChild(LibXML::Node:D $kid --> LibXML::Node) {
         with $!node.removeChild($kid.node) {
-            .Free unless .is-referenced;
-            $_;
+            $kid.doc = LibXML::Node;
+            $kid;
+        }
+        else {
+            # not a child
+            $kid.WHAT;
         }
     }
     method cloneNode(Bool() $deep) {
