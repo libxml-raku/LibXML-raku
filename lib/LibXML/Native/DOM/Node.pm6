@@ -11,6 +11,7 @@ method children { ... }
 method last { ... }
 
 method domAppendChild  { ... }
+method domReplaceChild  { ... }
 method domInsertBefore { ... }
 method domInsertAfter  { ... }
 method domName { ... }
@@ -77,6 +78,10 @@ method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
 
 method removeChild(Node:D $child) {
     self.domRemoveChild($child);
+}
+
+method replaceChild(Node $child, Node $old) {
+    self.replaceRemoveChild($child, $old);
 }
 
 method !descendants(Str:D $expr = '') {

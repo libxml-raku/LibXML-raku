@@ -9,8 +9,8 @@ use LibXML::Element;
 use NativeCall;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :node($)!) {}
-multi submethod TWEAK(:doc($root)!) {
-    my xmlDoc:D $doc = .node with $root;
+multi submethod TWEAK(LibXML::Node :doc($doc-obj)!) {
+    my xmlDoc:D $doc = .node with $doc-obj;
     my xmlDocFrag $node .= new: :$doc;
     self.node = $node;
 }
@@ -18,18 +18,27 @@ multi submethod TWEAK(:doc($root)!) {
 method parse-balanced(Str() :$chunk!,
                       xmlSAXHandler :$sax,
                       Pointer :$user-data,
-                      Bool() :$repair) {
+                      Bool() :$repair = False) {
     my Pointer[xmlNode] $nodes .= new;
-    my $stat = xmlDoc.xmlParseBalancedChunkMemory($sax, $user-data, 0, $chunk, $nodes);
-    if $stat && !$repair {
-        .deref.FreeList with $nodes;
+    # may return a linked list of nodes
+    my $stat = xmlDoc.xmlParseBalancedChunkMemoryRecover(
+        $sax, $user-data, 0, $chunk, $nodes, +$repair
+    );
+    die "balanced parse failed with status $stat"
+        if $stat && !$repair;
+
+    my xmlNode $new-node = $nodes.deref;
+
+    # replace old nodes
+    my $old-node = $.node.children;
+    while $old-node.defined {
+        $old-node.Unlink;
+        $old-node.Free unless .is-referenced;
+        $old-node .= next;
     }
-    else {
-        with $nodes {
-            .FreeList with $.node.children;
-            $.node.set-nodes(.deref);
-        }
-    }
+    .add-reference with $new-node;
+    $.node.set-nodes($new-node);
+
     $stat;
 }
 

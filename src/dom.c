@@ -232,62 +232,6 @@ domReconcileNs(xmlNodePtr tree)
 }
 
 /**
- * Name: domReadWellBalancedString
- * Synopsis: xmlNodePtr domReadWellBalancedString( xmlDocPtr doc, xmlChar *string )
- * @doc: the document, the string should belong to
- * @string: the string to parse
- *
- * this function is pretty neat, since you can read in well balanced
- * strings and get a list of nodes, which can be added to any other node.
- * (sure - this should return a doucment_fragment, but still it doesn't)
- *
- * the code is pretty heavy i think, but deep in my heard i believe it's
- * worth it :) (e.g. if you like to read a chunk of well-balanced code
- * from a databasefield)
- *
- * in 99% the cases i believe it is faster than to create the dom by hand,
- * and skip the parsing job which has to be done here.
- *
- * the repair flag will not be recognized with the current libxml2
- **/
-xmlNodePtr
-domReadWellBalancedString( xmlDocPtr doc, xmlChar* block, int repair ) {
-    int retCode       = -1;
-    xmlNodePtr nodes  = NULL;
-
-    if ( block ) {
-        /* read and encode the chunk */
-        retCode = xmlParseBalancedChunkMemory( doc,
-                                               NULL,
-                                               NULL,
-                                               0,
-                                               block,
-                                               &nodes );
-
-/*         retCode = xmlParseBalancedChunkMemoryRecover( doc,  */
-/*                                                       NULL, */
-/*                                                       NULL, */
-/*                                                       0, */
-/*                                                       block, */
-/*                                                       &nodes, */
-/*                                                       repair ); */
-
-        /* error handling */
-        if ( retCode != 0 && repair == 0 ) {
-            /* if the code was not well balanced, we will not return
-             * a bad node list, but we have to free the nodes */
-            xmlFreeNodeList( nodes );
-            nodes = NULL;
-        }
-        else {
-            xmlSetListDoc(nodes,doc);
-        }
-    }
-
-    return nodes;
-}
-
-/**
  * internal helper: insert node to nodelist
  * synopsis: xmlNodePtr insert_node_to_nodelist( leader, insertnode, followup );
  * while leader and followup are already list nodes. both may be NULL
@@ -701,7 +645,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
         return NULL;
 
     if ( new == NULL ) {
-        /* level2 sais nothing about this case :( */
+        /* level2 says nothing about this case :( */
         return domRemoveChild( self, old );
     }
 

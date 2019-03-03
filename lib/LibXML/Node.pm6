@@ -30,7 +30,7 @@ class LibXML::Node {
         }
         # single node argument constructor
         for <appendChild> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { self.dom-node: $!node."$_"($n1.node) });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $ret) { self.dom-node( $!node."$_"($ret.node), :$ret); });
         }
         # single node argument
         for <isSameNode> {
@@ -39,10 +39,17 @@ class LibXML::Node {
         # two node arguments
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
-                $_, method (LibXML::Node:D $n1, LibXML::Node $n2) {
-                    self.dom-node: $!node."$_"($n1.node, do with $n2 {.node} else {domNode});
+                $_, method (LibXML::Node:D $ret, LibXML::Node $ref) {
+                    self.dom-node($!node."$_"($ret.node, do with $ref {.node} else {domNode}), :$ret);
                 });
         }
+    }
+
+    method replaceChild(LibXML::Node $new, $ret) {
+        self.dom-node(
+            $!node.replaceChild($new, $ret),
+            :$ret
+        );
     }
 
     method node is rw {
@@ -119,10 +126,35 @@ class LibXML::Node {
         nativecast( $delegate, $node);
     }
 
-    method dom-node(domNode $vanilla-node, :$doc = $.doc --> LibXML::Node) {
+    method dom-node(domNode $vanilla-node, LibXML::Node :$doc is copy = $.doc, LibXML::Node :$ret --> LibXML::Node) {
         with $vanilla-node {
             my $node := cast-node($_);
-            class-delegate($_).new: :$node, :$doc
+            with $node.doc -> $node-doc {
+                # some consistancy checks
+                with $doc {
+                    warn "document/node mismatch"
+                        unless .node.isSameNode($node-doc);
+                }
+            }
+            else {
+                # not parented. unlink from document
+                $doc = LibXML::Node;
+            }
+            given $node {
+                when $ret.defined && $ret.node.isSameNode($node) {
+                    $ret.doc = $doc;
+                    $ret;
+                }
+                default {
+                    with $ret {
+                        # unable to reuse the container object for the returned node.
+                        # unexpected, except for document fragments, which are discarded.
+                        warn "hmm, returning unexpected node: {$node.Str}"
+                            unless $ret.node.type == XML_DOCUMENT_FRAG_NODE;
+                    }
+                    class-delegate($_).new: :$node, :$doc;
+                }
+            }
         } else {
             LibXML::Node;
         }
@@ -174,7 +206,7 @@ class LibXML::Node {
     }
 
     # DOM methods
-    method !release(domNode $node) {
+    method !release(domNode:D $node) {
         $node.Unlink;
         $node.Free
            unless $node.is-referenced;

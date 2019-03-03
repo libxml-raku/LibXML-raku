@@ -344,6 +344,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
+    method domReplaceChild(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertAfter(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domName returns Str is native(BIND-LIB) {*}
@@ -513,6 +514,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method copy(Bool :$deep = True) { $.xmlCopyDoc(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
+    method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
     method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlNode:D) {
         given self.NewNode($ns, $name, $content) -> xmlNode:D $node {

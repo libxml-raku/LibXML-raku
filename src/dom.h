@@ -50,9 +50,6 @@ extern "C" {
 void
 domReconcileNS(xmlNodePtr tree);
 
-xmlNodePtr
-domReadWellBalancedString( xmlDocPtr doc, xmlChar* string, int repair );
-
 /**
  * NAME domIsParent
  * TYPE function
