@@ -129,8 +129,8 @@ domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 * the function will return 1 if the cur node is appended to
 * the list. otherwise the function returns 0.
 */
-int
-domAddNodeToList( xmlNodePtr cur, xmlNodePtr prev, xmlNodePtr next );
+static int
+_domAddNodeToList( xmlNodePtr cur, xmlNodePtr prev, xmlNodePtr next, xmlNodePtr *frag );
 
 /**
  * part A:

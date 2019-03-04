@@ -51,16 +51,6 @@ domClearPSVIInList(xmlNodePtr list) {
     }
 }
 
-/**
- * Name: domReconcileNs
- * Synopsis: void domReconcileNs( xmlNodePtr tree );
- * @tree: the tree to reconcile
- *
- * Reconciles namespacing on a tree by removing declarations
- * of element and attribute namespaces that are already
- * declared in the scope of the corresponding node.
- **/
-
 void
 domAddNsDef(xmlNodePtr tree, xmlNsPtr ns)
 {
@@ -165,6 +155,16 @@ _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused)
         }
 }
 
+/**
+ * Name: _domReconcileNs
+ * Synopsis: void _domReconcileNs( xmlNodePtr tree );
+ * @tree: the tree to reconcile
+ *
+ * Reconciles namespacing on a tree by removing declarations
+ * of element and attribute namespaces that are already
+ * declared in the scope of the corresponding node.
+ **/
+
 void
 _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused)
 {
@@ -231,6 +231,27 @@ domReconcileNs(xmlNodePtr tree)
                 xmlFreeNsList(unused);
 }
 
+static xmlNodePtr
+_domImportFrag(xmlNodePtr frag) {
+    return xmlCopyNodeList(frag->children);
+}
+
+static xmlNodePtr
+_domReconcile(xmlNodePtr fragment, xmlNodePtr newChild) {
+    if ( fragment ) {
+        /* we must reconcile all nodes in the fragment */
+        newChild = fragment; /* return the first node in the fragment */
+        while ( fragment ) {
+            domReconcileNs(fragment);
+            fragment = fragment->next;
+        }
+    }
+    else if ( newChild->type != XML_ENTITY_REF_NODE ) {
+      domReconcileNs(newChild);
+    }
+    return newChild;
+}
+
 /**
  * internal helper: insert node to nodelist
  * synopsis: xmlNodePtr insert_node_to_nodelist( leader, insertnode, followup );
@@ -246,8 +267,8 @@ domReconcileNs(xmlNodePtr tree)
  * text node. as i see DOM Level 1 does not allow text node sequences, while
  * Level 2 and 3 do.
  **/
-int
-domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup)
+static int
+_domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *frag)
 {
    xmlNodePtr c1 = NULL, c2 = NULL, p = NULL;
    if ( cur ) {
@@ -263,14 +284,14 @@ domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup)
        }
 
        if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
-           c1 = cur->children;
+           c1 = _domImportFrag(cur);
+           if (frag) *frag = c1;
            while ( c1 ){
                c1->parent = p;
                c1 = c1->next;
            }
            c1 = cur->children;
            c2 = cur->last;
-           cur->last = cur->children = NULL;
        }
        else {
            cur->parent = p;
@@ -579,14 +600,12 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( self->children != NULL ) {
-        if (newChild->type == XML_DOCUMENT_FRAG_NODE )
-            fragment = newChild->children;
-        domAddNodeToList( newChild, self->last, NULL );
+      _domAddNodeToList( newChild, self->last, NULL, &fragment );
     }
     else if (newChild->type == XML_DOCUMENT_FRAG_NODE ) {
         xmlNodePtr c1 = NULL;
-        self->children = newChild->children;
-        fragment = newChild->children;
+        fragment = _domImportFrag(newChild);
+        self->children = fragment;
         c1 = fragment;
         while ( c1 ){
             c1->parent = self;
@@ -601,19 +620,7 @@ domAppendChild( xmlNodePtr self,
         newChild->parent= self;
     }
 
-    if ( fragment ) {
-        /* we must reconcile all nodes in the fragment */
-        newChild = fragment; /* return the first node in the fragment */
-        while ( fragment ) {
-            domReconcileNs(fragment);
-            fragment = fragment->next;
-        }
-    }
-    else if ( newChild->type != XML_ENTITY_REF_NODE ) {
-      domReconcileNs(newChild);
-    }
-
-    return newChild;
+    return _domReconcile(fragment, newChild);
 }
 
 xmlNodePtr
@@ -674,22 +681,16 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     else if ( new->type == XML_DOCUMENT_FRAG_NODE
               && new->children == NULL ) {
         /* want to replace with an empty fragment, then remove ... */
-        fragment = new->children;
+        fragment = _domImportFrag(new);
         fragment_next = old->next;
         domRemoveChild( self, old );
     }
     else {
-        domAddNodeToList(new, old->prev, old->next );
+      _domAddNodeToList(new, old->prev, old->next, &fragment );
         old->parent = old->next = old->prev = NULL;
     }
-    if ( fragment ) {
-        while ( fragment && fragment != fragment_next ) {
-            domReconcileNs(fragment);
-            fragment = fragment->next;
-        }
-    } else if ( new->type != XML_ENTITY_REF_NODE ) {
-                domReconcileNs(new);
-    }
+
+    _domReconcile(fragment, new);
 
     return old;
 }
@@ -734,27 +735,14 @@ domInsertBefore( xmlNodePtr self,
         newChild = domImportNode( self->doc, newChild, 1, 0 );
     }
 
-    if ( newChild->type == XML_DOCUMENT_FRAG_NODE ) {
-      fragment = newChild->children;
-    }
     if ( refChild == NULL ) {
-        domAddNodeToList(newChild, self->last, NULL);
+      _domAddNodeToList(newChild, self->last, NULL, &fragment);
     }
     else {
-        domAddNodeToList(newChild, refChild->prev, refChild);
+      _domAddNodeToList(newChild, refChild->prev, refChild, &fragment);
     }
 
-    if ( fragment ) {
-        newChild = fragment; /* return the first node in the fragment */
-        while ( fragment && fragment != refChild ) {
-            domReconcileNs(fragment);
-            fragment = fragment->next;
-        }
-    } else if ( newChild->type != XML_ENTITY_REF_NODE ) {
-                domReconcileNs(newChild);
-    }
-
-    return newChild;
+    return _domReconcile(fragment, newChild);
 }
 
 /*
@@ -802,25 +790,15 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
         domUnlinkNode( oldNode );
     }
 
-    if ( newNode->type == XML_DOCUMENT_FRAG_NODE ) {
-        fragment = newNode->children;
-    }
     if( prev == NULL && next == NULL ) {
         /* oldNode was the only child */
         domAppendChild( par , newNode );
     }
     else {
-        domAddNodeToList( newNode, prev,  next );
+      _domAddNodeToList( newNode, prev,  next, &fragment );
     }
 
-    if ( fragment ) {
-        while ( fragment && fragment != next ) {
-            domReconcileNs(fragment);
-            fragment = fragment->next;
-        }
-    } else if ( newNode->type != XML_ENTITY_REF_NODE ) {
-                domReconcileNs(newNode);
-    }
+    _domReconcile(fragment, newNode);
 
     return oldNode;
 }
