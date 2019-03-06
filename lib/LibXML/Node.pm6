@@ -14,6 +14,8 @@ class LibXML::Node {
         domCheck
         Str string-value content
         hasChildNodes hasAttributes
+        lookupNamespacePrefix lookupNamespaceURI
+        removeChildNodes
         URI baseURI nodeName nodeValue
     >;
 
@@ -206,12 +208,6 @@ class LibXML::Node {
         }.new( :$set );
     }
 
-    # DOM methods
-    method !release(domNode:D $node) {
-        $node.Unlink;
-        $node.Free
-           unless $node.is-referenced;
-    }
     method ownerDocument { $!doc }
     my subset AttrNode of LibXML::Node where .nodeType == XML_ATTRIBUTE_NODE;
     multi method addChild(AttrNode $a) { $.setAttributeNode($a) };
@@ -244,11 +240,11 @@ class LibXML::Node {
         iterate(self, $!node.getChildrenByTagNameNS($uri, $name));
     }
     method setAttribute(QName $name, Str $value) {
-        self!release($_) with $!node.getAttributeNode($name);
+        .Release with $!node.getAttributeNode($name);
         $!node.setAttribute($name, $value);
     }
     method setAttributeNode(AttrNode $att) {
-        self!release($_) with $!node.getAttributeNode($att.name);
+        .Release with $!node.getAttributeNode($att.name);
         $!node.setAttributeNode($att.node);
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
@@ -273,26 +269,28 @@ class LibXML::Node {
         $!node.getAttribute($att-name);
     }
     method removeAttribute(Str $attr-name) {
-        self!release($_) with $!node.getAttributeNode($attr-name);
+        .Release with $!node.getAttributeNode($attr-name);
     }
     method removeAttributeNS(Str $uri, Str $attr-name) {
-        self!release($_) with $!node.getAttributeNodeNS($uri, $attr-name);
+        .Release with $!node.getAttributeNodeNS($uri, $attr-name);
     }
-    method removeChild(LibXML::Node:D $kid --> LibXML::Node) {
-        with $!node.removeChild($kid.node) {
-            $kid.doc = LibXML::Node;
-            $kid;
+    method getNamespaces {
+        $!node.getNamespaces.map: { LibXML::Namespace.dom-node($_, :$!doc) }
+    }
+    method removeChild(LibXML::Node:D $ret --> LibXML::Node) {
+        with $!node.removeChild($ret.node) {
+            $ret.doc = LibXML::Node;
+            self.dom-node: $_, :$ret;
         }
         else {
             # not a child
-            $kid.WHAT;
+            $ret.WHAT;
         }
     }
     method cloneNode(Bool() $deep) {
         my $node = $!node.cloneNode($deep);
         self.new: :$node;
     }
-
     method !get-attributes {
 
         role AttrMap[LibXML::Node $elem] does Associative {
@@ -370,13 +368,10 @@ class LibXML::Node {
     method !set-attributes(%atts) {
         # clear out old attributes
         with $!node.properties -> domNode:D $node is copy {
-            my LibXML::Node $doc = self.doc;
             while $node.defined {
                 my $next = $node.next;
-                if $node.type == XML_ATTRIBUTE_NODE {
-                    $node.Unlink;
-                    $node.Free unless $node.is-referenced;
-                }
+                $node.Release
+                    if $node.type == XML_ATTRIBUTE_NODE;
                 $node = $next;
             }
         }
@@ -422,14 +417,14 @@ class LibXML::Node {
 
     submethod DESTROY {
         with $!node {
-            if $!node.remove-reference {
+            if .remove-reference {
                 # this node is no longer referenced
-                given $!node.root {
+                given .root {
                     # release the entire tree, if possible
                     .Free unless .is-referenced;
                 }
             }
-            $!node = Nil;
+            $_ = Nil;
         }
     }
 }

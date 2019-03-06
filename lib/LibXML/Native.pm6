@@ -356,7 +356,9 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
-    method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
+    method xmlUnlinkNode(--> domNode) is native(LIB) {*}
+    method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
+    method Release(--> domNode) is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_node_is_referenced') {*}
@@ -532,6 +534,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}
     method XIncludeProcessFlags(uint32 $flags --> int32) is symbol('xmlXIncludeProcessFlags') is native(LIB) {*}
     method SearchNs(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNs') {*}
+    method SearchNsByHref(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNsByHref') {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str() :$version = '1.0') {

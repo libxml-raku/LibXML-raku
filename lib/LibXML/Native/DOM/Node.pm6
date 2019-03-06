@@ -160,6 +160,16 @@ method hasAttributes returns Bool {
        && self.properties.defined)
 }
 
+method removeChildNodes {
+    with self.children -> Node:D $node is copy {
+        while $node.defined {
+            my $next = $node.next;
+            $node.Release;
+            $node = $next;
+        }
+    }
+}
+
 method hasChildNodes returns Bool {
     ? (self.type != XML_ATTRIBUTE_NODE && self.children.defined)
 }
@@ -183,6 +193,36 @@ method previousNonBlankSibling returns Node {
         while $prev.defined && $prev.isBlankNode;
     $prev;
 }
+
+method lookupNamespacePrefix(Str $uri --> Str) {
+    with self.doc.SearchNsByHref(self, $uri) {
+        .prefix;
+    }
+    else {
+        Str;
+    }
+}
+
+method lookupNamespaceURI(Str $prefix --> Str) {
+    with self.doc.SearchNs(self, $prefix) {
+        .href;
+    }
+    else {
+        Str;
+    }
+}
+
+method getNamespaces {
+    my @ns;
+    my $ns = self.nsDef;
+    while $ns.defined {
+        @ns.push: $ns
+            if $ns.prefix.defined || $ns.href.defined;
+        $ns .= next;
+    }
+    @ns;
+}
+
 
 sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 

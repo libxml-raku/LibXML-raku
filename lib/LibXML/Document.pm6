@@ -157,7 +157,7 @@ method Str(Bool() :$format = False) {
         if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
             $lock.protect: {
                 # temporarily remove the DTD
-                $doc.xmlUnlinkNode($dtd);
+                $dtd.Unlink;
 
                 $rv := $doc.Str(:$format);
 
@@ -186,7 +186,7 @@ method Blob(Bool() :$format = False) {
         if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
             $lock.protect: {
                 # temporarily remove the DTD
-                $doc.xmlUnlinkNode($dtd);
+                $dtd.Unlink;
 
                 $rv := $doc.Blob(:$format);
 

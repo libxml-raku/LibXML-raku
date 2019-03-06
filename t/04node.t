@@ -374,24 +374,22 @@ my $doc    = $parser.parse: :string( $xmlstring );
         is(+@cn2, 6, ' TODO : Add test name');
     }
 
-}; skip("port remaining tests", 74);
-=begin POD
-
     # 2.2 Invalid Operations
 
 
     # 2.3 DOM extensions
     {
-        my $str = "<foo><bar/>com</foo>";
-        my $doc = LibXML.new.parse_string( $str );
+        my $string = "<foo><bar/>com</foo>";
+        my $doc = LibXML.new.parse: :$string;
         my $elem= $doc.documentElement;
         # TEST
         ok( $elem, ' TODO : Add test name' );
         # TEST
         ok( $elem.hasChildNodes, ' TODO : Add test name' );
         $elem.removeChildNodes;
+        $elem.Str;
         # TEST
-        is( $elem.hasChildNodes,0, ' TODO : Add test name' );
+        is-deeply( $elem.hasChildNodes, False, ' TODO : Add test name' );
         $elem.Str;
     }
 }
@@ -404,13 +402,13 @@ my $doc    = $parser.parse: :string( $xmlstring );
     my $pre = "foo";
     my $name= "bar";
 
-    my $elem = $doc.createElementNS($URI, $pre.":".$name);
+    my $elem = $doc.createElementNS($URI, $pre~":"~$name);
 
     # TEST
 
     ok($elem, ' TODO : Add test name');
     # TEST
-    is($elem.nodeName, $pre.":".$name, ' TODO : Add test name');
+    is($elem.nodeName, $pre~":"~$name, ' TODO : Add test name');
     # TEST
     is($elem.namespaceURI, $URI, ' TODO : Add test name');
     # TEST
@@ -429,7 +427,10 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is( +@ns, 1, ' TODO : Add test name' );
 }
 
-# 4.   Document swtiching
+skip("port remaining tests", 63);
+=begin POD
+
+# 4.   Document switching
 
 {
     # 4.1 simple document
@@ -446,10 +447,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
     }
     my $elem = $docA.documentElement;
     my @c = $elem.childNodes;
-    my $xroot = $c[0].ownerDocument;
+    my $xroot = @c[0].ownerDocument;
     # TEST
     ok( $xroot.isSameNode($docA), ' TODO : Add test name' );
-
 
 }
 

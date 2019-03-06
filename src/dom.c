@@ -8,6 +8,8 @@
 */
 
 #include "dom.h"
+#include "xml6.h"
+#include "xml6_node.h"
 
 #define warn(string) {fprintf(stderr, "%s:%ld: %s\n", __FILE__,__LINE__,(string));}
 #define xs_warn(string) warn(string)
@@ -424,9 +426,12 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
     return 1;
 }
 
-static void
-_domUnlinkNode( xmlNodePtr node ) {
-    return xmlUnlinkNode(node);
+void
+domReleaseNode( xmlNodePtr node ) {
+    xmlUnlinkNode(node);
+    if ( ! xml6_node_is_referenced(node) ) {
+        xmlFreeNode(node);
+    }
 }
 
 xmlNodePtr
@@ -435,7 +440,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
 
     if ( move ) {
         return_node = node;
-        _domUnlinkNode( node );
+        xmlUnlinkNode( node );
     }
     else {
         if ( node->type == XML_DTD_NODE ) {
@@ -575,7 +580,7 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( newChild->doc == self->doc ){
-        _domUnlinkNode( newChild );
+        xmlUnlinkNode( newChild );
     }
     else {
       //        xs_warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
@@ -619,7 +624,7 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
       return NULL;
     }
 
-    _domUnlinkNode( old );
+    xmlUnlinkNode( old );
     if ( old->type == XML_ELEMENT_NODE ) {
       domReconcileNs( old );
     }
@@ -654,7 +659,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     }
 
     if ( new->doc == self->doc ) {
-        _domUnlinkNode( new );
+        xmlUnlinkNode( new );
     }
     else {
         /* WRONG_DOCUMENT_ERR - non conform implementation */
@@ -718,7 +723,7 @@ domInsertBefore( xmlNodePtr self,
     }
 
     if ( self->doc == newChild->doc ){
-        _domUnlinkNode( newChild );
+        xmlUnlinkNode( newChild );
     }
     else {
         newChild = domImportNode( self->doc, newChild, 1, 0 );
@@ -774,12 +779,7 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
     prev = oldNode->prev;
     next = oldNode->next;
 
-    if ( oldNode->_private == NULL ) {
-        xmlUnlinkNode( oldNode );
-    }
-    else {
-        _domUnlinkNode( oldNode );
-    }
+    xmlUnlinkNode( oldNode );
 
     if( prev == NULL && next == NULL ) {
         /* oldNode was the only child */
@@ -1137,13 +1137,7 @@ domNodeNormalize( xmlNodePtr node )
                 && node->next->type == XML_TEXT_NODE ) {
             next = node->next;
             xmlNodeAddContent(node, next->content);
-            xmlUnlinkNode( next );
-
-            /**
-             * keep only nodes that are referred by perl (or GDOME)
-             */
-            if ( !next->_private )
-                xmlFreeNode( next );
+            domReleaseNode( next );
         }
         break;
     case XML_ELEMENT_NODE:

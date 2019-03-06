@@ -176,6 +176,9 @@ domSetNodeValue( xmlNodePtr self, xmlChar* value );
 xmlNodePtr
 domReplaceNode( xmlNodePtr old, xmlNodePtr new );
 
+void
+domReleaseNode( xmlNodePtr node );
+
 /**
  * part B:
  *

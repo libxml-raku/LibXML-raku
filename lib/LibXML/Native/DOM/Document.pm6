@@ -20,8 +20,7 @@ method documentElement is rw {
         STORE => sub ($, Node $e) {
             with self.GetRootElement {
                 return if .isSameNode($e);
-                self.removeChild($_);
-                .Free unless .is-referenced;
+                .Release;
             }
             self.SetRootElement($e);
         });
