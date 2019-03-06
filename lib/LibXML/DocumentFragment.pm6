@@ -27,17 +27,7 @@ method parse-balanced(Str() :$chunk!,
     die "balanced parse failed with status $stat"
         if $stat && !$repair;
 
-    my xmlNode $new-node = $nodes.deref;
-
-    # replace old nodes
-    my $old-node = $.node.children;
-    while $old-node.defined {
-        $old-node.Unlink;
-        $old-node.Free unless .is-referenced;
-        $old-node .= next;
-    }
-    .add-reference with $new-node;
-    $.node.set-nodes($new-node);
+    $.node.AddChildList($_) with $nodes.deref;
 
     $stat;
 }

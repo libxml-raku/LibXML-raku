@@ -81,7 +81,7 @@ method removeChild(Node:D $child) {
 }
 
 method replaceChild(Node $child, Node $old) {
-    self.replaceRemoveChild($child, $old);
+    self.domReplaceChild($child, $old);
 }
 
 method !descendants(Str:D $expr = '') {
@@ -188,6 +188,61 @@ sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 
 method isSameNode(Node $oNode) {
     addr(self) ~~ addr($oNode);
+}
+
+sub oops($node, Bool $ok is rw, @path, Str:D $msg) {
+    my $where = '[' ~ @path.join(',') ~ '] ' ~ $node.domName;
+    note $where ~ ' : ' ~ $msg;
+    $ok = False;
+}
+
+method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0], Node :$doc = self.doc) {
+    # perform various integrity checks on the current node
+    # - uniqueness of nodes
+    # - parent child links (parent.child === child.parent)
+    # - sibling links (prev.next === next.prev)
+    # - parent.last == last-sibling
+    # - consistant doc entries
+    # consider moving to dom.c (profiling/benchmarking needed)
+
+    my Bool $ok = True;
+    return oops(self, $ok, @path, "duplicate node")
+        if %seen{addr(self)}++;
+
+    oops(self, $ok, @path, "inconsistant owner document")
+         unless addr(self.doc) ~~ addr($doc);
+    my Node $last;
+    my Node $sibling = self.children;
+    my @subpath = @path;
+    @subpath.push: 0;
+    my %siblings-seen;
+    while $sibling.defined {
+        oops($sibling, $ok, @subpath, "inconsistant parent link")
+            unless addr($sibling.parent) ~~ addr(self);
+        if %siblings-seen{addr($sibling)}++ {
+            oops($sibling, $ok, @subpath, "cycle detected in sibling links");
+            last;
+        }
+        if $recursive {
+            $ok = False
+                unless $sibling.domCheck(:%seen, :@subpath, :$doc);
+        }
+
+        my $next = $sibling.next;
+
+        @subpath.tail++;
+        with $next {
+            oops($_, $ok, @subpath, "inconsistant prev link")
+                unless addr(.prev) ~~ addr($sibling);
+        }
+        $last = $sibling;
+        $sibling = $next;
+    }
+
+    oops(self, $ok, @path, "wrong last link")
+        unless addr(self.last) ~~ addr($last);
+
+    $ok
 }
 
 method baseURI is rw {

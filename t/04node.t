@@ -11,14 +11,14 @@
 
 use v6;
 use Test;
-plan 167;
+plan 170;
 
 use LibXML;
 use LibXML::Enums;
 
 my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo bar]]></foo>};
 
-my LibXML $parser .= new();
+my LibXML $parser .= new;
 my $doc    = $parser.parse: :string( $xmlstring );
 
 # 1   Standalone Without NameSpaces
@@ -268,9 +268,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         ok(@cn.tail.isSameNode($node.lastChild), ' TODO : Add test name');
 
-}}; skip("port remaining tests", 95);
-=begin POD
-
         $xn = $node.replaceChild( $inode, $rnode );
         # TEST
         ok($xn, ' TODO : Add test name');
@@ -291,17 +288,17 @@ my $doc    = $parser.parse: :string( $xmlstring );
         my $cnode = $doc.createElement("c");
         my $dnode = $doc.createElement("d");
 
-        $anode.insertAfter( $bnode, undef );
+        $anode.insertAfter( $bnode, LibXML::Node );
         # TEST
-        is( $anode.toString(), '<a><b/></a>', ' TODO : Add test name' );
+        is( $anode.Str(), '<a><b/></a>', ' TODO : Add test name' );
 
-        $anode.insertAfter( $dnode, undef );
+        $anode.insertAfter( $dnode, LibXML::Node );
         # TEST
-        is( $anode.toString(), '<a><b/><d/></a>', ' TODO : Add test name' );
+        is( $anode.Str(), '<a><b/><d/></a>', ' TODO : Add test name' );
 
         $anode.insertAfter( $cnode, $bnode );
         # TEST
-        is( $anode.toString(), '<a><b/><c/><d/></a>', ' TODO : Add test name' );
+        is( $anode.Str(), '<a><b/><c/><d/></a>', ' TODO : Add test name' );
 
     }
 
@@ -311,7 +308,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         $inode = $doc.createElement("kungfoo"); # already tested
         $jnode = $doc.createElement("foobar");
 
-        my $xn = $inode.insertBefore( $jnode, undef);
+        my $xn = $inode.insertBefore( $jnode, LibXML::Node);
         # TEST
         ok( $xn, ' TODO : Add test name' );
         # TEST
@@ -320,43 +317,49 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
     {
         # 2.1.2 Document Fragment
-
         my @cn   = $doc.documentElement.childNodes;
         my $rnode= $doc.documentElement;
 
         my $frag = $doc.createDocumentFragment;
-        my $node1= $doc.createElement("kung");
-        my $node2= $doc.createElement("foo");
+        is $frag.nodeType, +XML_DOCUMENT_FRAG_NODE, 'nodeType';
+
+        my $node1 = $doc.createElement("kung");
+        my $node2 = $doc.createElement("foobar1");
 
         $frag.appendChild($node1);
         $frag.appendChild($node2);
+        is $frag, '<kung/><foobar1/>', 'frag';
 
         my $xn = $node.appendChild( $frag );
+
         # TEST
         ok($xn, ' TODO : Add test name');
         my @cn2 = $node.childNodes;
+         # TEST
+        is(+@cn2, 7, ' TODO : Add test name');
         # TEST
-        is(scalar(@cn2), 7, ' TODO : Add test name');
+        ok(@cn2[*-1].isSameNode($node2), ' TODO : Add test name');
         # TEST
-        ok(@cn2[-1].isSameNode($node2), ' TODO : Add test name');
-        # TEST
-        ok(@cn2[-2].isSameNode($node1), ' TODO : Add test name');
+        ok(@cn2[*-2].isSameNode($node1), ' TODO : Add test name');
 
+        ok $node.domCheck, 'domCheck';
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
-
+        ok $node.domCheck, 'domCheck';
+        $node.Str;
         @cn2 = $node.childNodes;
         # TEST
-        is(scalar(@cn2), 5, ' TODO : Add test name');
+        is(+@cn2, 5, ' TODO : Add test name');
 
         $xn = $node.replaceChild( $frag, @cn[3] );
-        # TEST
+
+       # TEST
         ok($xn, ' TODO : Add test name');
         # TEST
         ok($xn.isSameNode(@cn[3]), ' TODO : Add test name');
         @cn2 = $node.childNodes;
         # TEST
-        is(scalar(@cn2), 6, ' TODO : Add test name');
+        is(+@cn2, 6, ' TODO : Add test name');
 
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
@@ -368,8 +371,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
         ok($node1.isSameNode($node.firstChild), ' TODO : Add test name');
         @cn2 = $node.childNodes;
         # TEST
-        is(scalar(@cn2), 6, ' TODO : Add test name');
+        is(+@cn2, 6, ' TODO : Add test name');
     }
+
+}; skip("port remaining tests", 74);
+=begin POD
 
     # 2.2 Invalid Operations
 
@@ -386,7 +392,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         $elem.removeChildNodes;
         # TEST
         is( $elem.hasChildNodes,0, ' TODO : Add test name' );
-        $elem.toString;
+        $elem.Str;
     }
 }
 
@@ -420,7 +426,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
     my @ns = $elem.getNamespaces;
     # TEST
-    is( scalar(@ns) ,1, ' TODO : Add test name' );
+    is( +@ns, 1, ' TODO : Add test name' );
 }
 
 # 4.   Document swtiching
@@ -461,7 +467,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(@cn, ' TODO : Add test name');
     # TEST
-    is( scalar(@cn), 1, ' TODO : Add test name' );
+    is( +@cn, 1, ' TODO : Add test name' );
     # TEST
     ok(@cn[0].isSameNode($e3), ' TODO : Add test name');
     # TEST
@@ -470,7 +476,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     $e3.addSibling( $e2 );
     @cn = $e1.childNodes;
     # TEST
-    is( scalar(@cn), 2, ' TODO : Add test name' );
+    is( +@cn, 2, ' TODO : Add test name' );
     # TEST
     ok(@cn[0].isSameNode($e3), ' TODO : Add test name');
     # TEST
@@ -494,7 +500,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(@att, ' TODO : Add test name');
     # TEST
-    is(scalar(@att), 2, ' TODO : Add test name');
+    is( +@att, 2, ' TODO : Add test name');
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "foo" );
 
     $attributes.setNamedItem($newAttr);
@@ -502,7 +508,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(@att, ' TODO : Add test name');
     # TEST
-    is(scalar(@att), 4, ' TODO : Add test name'); # because of the namespace ...
+    is( +@att, 4, ' TODO : Add test name'); # because of the namespace ...
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );
     $attributes.setNamedItem($newAttr);
@@ -510,7 +516,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(@att, ' TODO : Add test name');
     # TEST
-    is(scalar(@att), 4, ' TODO : Add test name');
+    is( +@att, 4, ' TODO : Add test name');
     # TEST
     ok($att[2].isSameNode($newAttr), ' TODO : Add test name');
 
@@ -520,7 +526,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(@att, ' TODO : Add test name');
     # TEST
-    is(scalar(@att), 3, ' TODO : Add test name');
+    is( +@att, 3, ' TODO : Add test name');
     # TEST
     is($attributes.length, 3, ' TODO : Add test name');
 }
@@ -608,7 +614,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
    $attr.appendChild($ent);
    $attr.appendChild($text);
    # TEST
-   ok($attr.toString() eq ' test="bar&foo;baz"', ' TODO : Add test name');
+   ok($attr.Str() eq ' test="bar&foo;baz"', ' TODO : Add test name');
 }
 
 {

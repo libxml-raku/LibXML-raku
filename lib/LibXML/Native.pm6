@@ -343,6 +343,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method PropNode(xmlCharP --> xmlAttr) is native(LIB) is symbol('xmlHasProp') {*}
     method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
+    method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceChild(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
@@ -574,7 +575,6 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 
 class xmlDocFrag is xmlNode is export {
     sub xmlNewDocFragment(xmlDoc $doc) returns xmlDocFrag is native(LIB) {*}
-    method set-nodes(xmlNode $nodes) is symbol('xml6_doc_frag_set_nodes') is native(BIND-LIB) returns xmlDocFrag {*};
     method new(xmlDoc :$doc, xmlNode :$nodes) {
         my xmlDocFrag:D $frag = xmlNewDocFragment($doc);
         $frag.set-nodes($_) with $nodes;

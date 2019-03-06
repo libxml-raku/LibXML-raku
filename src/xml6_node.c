@@ -71,7 +71,7 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
 }
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
-  while (node->parent) {
+  while (node && node->parent) {
     node = node->parent;
   }
   return node;

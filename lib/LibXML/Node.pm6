@@ -11,6 +11,7 @@ class LibXML::Node {
     has LibXML::Node $.doc;
 
     has domNode $.node handles <
+        domCheck
         Str string-value content
         hasChildNodes hasAttributes
         URI baseURI nodeName nodeValue
@@ -47,7 +48,7 @@ class LibXML::Node {
 
     method replaceChild(LibXML::Node $new, $ret) {
         self.dom-node(
-            $!node.replaceChild($new, $ret),
+            $!node.replaceChild($new.node, $ret.node),
             :$ret
         );
     }
@@ -121,7 +122,7 @@ class LibXML::Node {
         }
     }
 
-    sub cast-node(domNode:D $node is raw) {
+    our sub cast-node(domNode:D $node is raw) {
         my $delegate := node-delegate($node.type);
         nativecast( $delegate, $node);
     }

@@ -9,7 +9,7 @@
 
 #include "dom.h"
 
-#define warn(string) {fprintf(stderr, "%s:%ld: %s\n", __FILE__,__LINE__,(string));return NULL;}
+#define warn(string) {fprintf(stderr, "%s:%ld: %s\n", __FILE__,__LINE__,(string));}
 #define xs_warn(string) warn(string)
 #define croak(string) {warn(string);return NULL;}
 
@@ -233,23 +233,32 @@ domReconcileNs(xmlNodePtr tree)
 
 static xmlNodePtr
 _domImportFrag(xmlNodePtr frag) {
-    return xmlCopyNodeList(frag->children);
+    xmlNodePtr fraglist = frag->children;
+    xmlNodePtr n = fraglist;
+
+    frag->children = frag->last = NULL;
+    // detach fragment list
+    while ( n ){
+      n->parent = NULL;
+      n = n->next;
+    }
+
+    return fraglist;
 }
 
 static xmlNodePtr
-_domReconcile(xmlNodePtr fragment, xmlNodePtr newChild) {
-    if ( fragment ) {
+_domReconcileSlice(xmlNodePtr head, xmlNodePtr tail) {
+    xmlNodePtr cur = head;
+    while ( cur ) {
         /* we must reconcile all nodes in the fragment */
-        newChild = fragment; /* return the first node in the fragment */
-        while ( fragment ) {
-            domReconcileNs(fragment);
-            fragment = fragment->next;
+        domReconcileNs(cur);
+        if ( !tail || cur == tail ) {
+            break;
         }
+        cur = cur->next;
     }
-    else if ( newChild->type != XML_ENTITY_REF_NODE ) {
-      domReconcileNs(newChild);
-    }
-    return newChild;
+
+    return head;
 }
 
 /**
@@ -267,56 +276,63 @@ _domReconcile(xmlNodePtr fragment, xmlNodePtr newChild) {
  * text node. as i see DOM Level 1 does not allow text node sequences, while
  * Level 2 and 3 do.
  **/
-static int
-_domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *frag)
+static xmlNodePtr
+_domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *ptail)
 {
-   xmlNodePtr c1 = NULL, c2 = NULL, p = NULL;
+  xmlNodePtr head = NULL, tail = NULL, p = NULL, n = NULL;
    if ( cur ) {
-       c1 = c2 = cur;
-       if( leader ) {
+       head = tail = cur;
+       if ( leader ) {
           p = leader->parent;
        }
-       else if( followup ) {
+       else if ( followup ) {
           p = followup->parent;
        }
        else {
           return 0; /* can't insert */
        }
 
+       if (leader && followup && p != followup->parent) {
+         warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
+       }
+
        if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
-           c1 = _domImportFrag(cur);
-           if (frag) *frag = c1;
-           while ( c1 ){
-               c1->parent = p;
-               c1 = c1->next;
+           head = _domImportFrag(cur);
+
+           n = head;
+           while ( n ){
+               n->parent = p;
+               n->doc = p->doc;
+               tail = n;
+               n = n->next;
            }
-           c1 = cur->children;
-           c2 = cur->last;
        }
        else {
            cur->parent = p;
        }
 
-       if (c1 && c2 && c1!=leader) {
+       if (head && tail && head != leader) {
            if ( leader ) {
-               leader->next = c1;
-               c1->prev = leader;
+               leader->next = head;
+               head->prev = leader;
            }
            else if ( p ) {
-               p->children = c1;
+               p->children = head;
            }
 
            if ( followup ) {
-               followup->prev = c2;
-               c2->next = followup;
+               followup->prev = tail;
+               tail->next = followup;
            }
            else if ( p ) {
-               p->last = c2;
+               p->last = tail;
            }
        }
-       return 1;
+       *ptail = tail;
+       return head;
    }
-   return 0;
+   *ptail = NULL;
+   return NULL;
 }
 
 /**
@@ -408,42 +424,9 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
     return 1;
 }
 
-void
-domUnlinkNode( xmlNodePtr node ) {
-    if ( node == NULL
-         || ( node->prev      == NULL
-              && node->next   == NULL
-              && node->parent == NULL ) ) {
-        return;
-    }
-
-    if (node->type == XML_DTD_NODE) {
-        /* This clears the doc->intSubset pointer. */
-        xmlUnlinkNode(node);
-        return;
-    }
-
-    if ( node->prev != NULL ) {
-        node->prev->next = node->next;
-    }
-
-    if ( node->next != NULL ) {
-        node->next->prev = node->prev;
-    }
-
-    if ( node->parent != NULL ) {
-        if ( node == node->parent->last ) {
-            node->parent->last = node->prev;
-        }
-
-        if ( node == node->parent->children ) {
-            node->parent->children = node->next;
-        }
-    }
-
-    node->prev   = NULL;
-    node->next   = NULL;
-    node->parent = NULL;
+static void
+_domUnlinkNode( xmlNodePtr node ) {
+    return xmlUnlinkNode(node);
 }
 
 xmlNodePtr
@@ -452,7 +435,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
 
     if ( move ) {
         return_node = node;
-        domUnlinkNode( node );
+        _domUnlinkNode( node );
     }
     else {
         if ( node->type == XML_DTD_NODE ) {
@@ -580,7 +563,8 @@ domName(xmlNodePtr node) {
 xmlNodePtr
 domAppendChild( xmlNodePtr self,
                 xmlNodePtr newChild ){
-  xmlNodePtr fragment = NULL;
+    xmlNodePtr head = newChild;
+    xmlNodePtr tail = newChild;
     if ( self == NULL ) {
         return newChild;
     }
@@ -591,7 +575,7 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( newChild->doc == self->doc ){
-        domUnlinkNode( newChild );
+        _domUnlinkNode( newChild );
     }
     else {
       //        xs_warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
@@ -600,27 +584,29 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( self->children != NULL ) {
-      _domAddNodeToList( newChild, self->last, NULL, &fragment );
+      head = _domAddNodeToList( newChild, self->last, NULL, &tail );
     }
-    else if (newChild->type == XML_DOCUMENT_FRAG_NODE ) {
+    else if (newChild->type == XML_DOCUMENT_FRAG_NODE) {
         xmlNodePtr c1 = NULL;
-        fragment = _domImportFrag(newChild);
-        self->children = fragment;
-        c1 = fragment;
+        head = _domImportFrag(newChild);
+        self->children = head;
+        c1 = head;
         while ( c1 ){
             c1->parent = self;
+            self->last = c1;
+            tail = c1;
             c1 = c1->next;
         }
-        self->last = newChild->last;
-        newChild->last = newChild->children = NULL;
     }
     else {
+        head = tail = newChild;
         self->children = newChild;
         self->last     = newChild;
-        newChild->parent= self;
+        newChild->parent = self;
     }
 
-    return _domReconcile(fragment, newChild);
+    _domReconcileSlice(head, tail);
+    return head;
 }
 
 xmlNodePtr
@@ -633,7 +619,7 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
       return NULL;
     }
 
-    domUnlinkNode( old );
+    _domUnlinkNode( old );
     if ( old->type == XML_ELEMENT_NODE ) {
       domReconcileNs( old );
     }
@@ -643,9 +629,10 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
 
 xmlNodePtr
 domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
-    xmlNodePtr fragment = NULL;
-    xmlNodePtr fragment_next = NULL;
-    if ( self== NULL )
+    xmlNodePtr head = new;
+    xmlNodePtr tail = new;
+
+    if ( self == NULL )
         return NULL;
 
     if ( new == old )
@@ -667,7 +654,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     }
 
     if ( new->doc == self->doc ) {
-        domUnlinkNode( new );
+        _domUnlinkNode( new );
     }
     else {
         /* WRONG_DOCUMENT_ERR - non conform implementation */
@@ -679,18 +666,19 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
         domAppendChild( self, new );
     }
     else if ( new->type == XML_DOCUMENT_FRAG_NODE
-              && new->children == NULL ) {
+              && new->children == NULL && 0) {
         /* want to replace with an empty fragment, then remove ... */
-        fragment = _domImportFrag(new);
-        fragment_next = old->next;
+        head = NULL;
         domRemoveChild( self, old );
     }
     else {
-      _domAddNodeToList(new, old->prev, old->next, &fragment );
+        head = _domAddNodeToList(new, old->prev, old->next, &tail );
         old->parent = old->next = old->prev = NULL;
     }
 
-    _domReconcile(fragment, new);
+    if ( head ) {
+       _domReconcileSlice(head, tail);
+    }
 
     return old;
 }
@@ -700,7 +688,8 @@ xmlNodePtr
 domInsertBefore( xmlNodePtr self,
                  xmlNodePtr newChild,
                  xmlNodePtr refChild ){
-    xmlNodePtr fragment = NULL;
+    xmlNodePtr head = newChild;
+    xmlNodePtr tail = newChild;
     if ( refChild == newChild ) {
         return newChild;
     }
@@ -729,20 +718,20 @@ domInsertBefore( xmlNodePtr self,
     }
 
     if ( self->doc == newChild->doc ){
-        domUnlinkNode( newChild );
+        _domUnlinkNode( newChild );
     }
     else {
         newChild = domImportNode( self->doc, newChild, 1, 0 );
     }
 
     if ( refChild == NULL ) {
-      _domAddNodeToList(newChild, self->last, NULL, &fragment);
+      head = _domAddNodeToList(newChild, self->last, NULL, &tail);
     }
     else {
-      _domAddNodeToList(newChild, refChild->prev, refChild, &fragment);
+      head = _domAddNodeToList(newChild, refChild->prev, refChild, &tail);
     }
 
-    return _domReconcile(fragment, newChild);
+    return _domReconcileSlice(head, tail);
 }
 
 /*
@@ -760,7 +749,9 @@ domInsertAfter( xmlNodePtr self,
 
 xmlNodePtr
 domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
-    xmlNodePtr prev = NULL, next = NULL, par = NULL, fragment = NULL;
+  xmlNodePtr prev = NULL, next = NULL, par = NULL;
+    xmlNodePtr head = newNode;
+    xmlNodePtr tail = newNode;
 
     if ( oldNode == NULL
          || newNode == NULL ) {
@@ -787,7 +778,7 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
         xmlUnlinkNode( oldNode );
     }
     else {
-        domUnlinkNode( oldNode );
+        _domUnlinkNode( oldNode );
     }
 
     if( prev == NULL && next == NULL ) {
@@ -795,10 +786,10 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
         domAppendChild( par , newNode );
     }
     else {
-      _domAddNodeToList( newNode, prev,  next, &fragment );
+      head = _domAddNodeToList( newNode, prev,  next, &tail );
     }
 
-    _domReconcile(fragment, newNode);
+    _domReconcileSlice(head, tail);
 
     return oldNode;
 }
