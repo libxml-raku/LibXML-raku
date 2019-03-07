@@ -15,7 +15,6 @@ class LibXML::Node {
         Str string-value content
         hasChildNodes hasAttributes
         lookupNamespacePrefix lookupNamespaceURI
-        removeChildNodes
         URI baseURI nodeName nodeValue
     >;
 
@@ -286,6 +285,9 @@ class LibXML::Node {
             # not a child
             $ret.WHAT;
         }
+    }
+    method removeChildNodes(--> LibXML::Node) {
+        self.dom-node: $!node.removeChildNodes;
     }
     method cloneNode(Bool() $deep) {
         my $node = $!node.cloneNode($deep);

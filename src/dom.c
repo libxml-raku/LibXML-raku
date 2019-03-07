@@ -426,10 +426,30 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
     return 1;
 }
 
+int
+domNodeIsReferenced(xmlNodePtr self) {
+
+  xmlNodePtr cld;
+  if (self->_private != NULL ) {
+    return 1;
+  }
+
+  // Look for child references
+  cld = self->children;
+  while ( cld ) {
+    if (domNodeIsReferenced( cld )) {
+      return 1;
+    }
+    cld = cld->next;
+  }
+
+  return 0;
+}
+
 void
 domReleaseNode( xmlNodePtr node ) {
     xmlUnlinkNode(node);
-    if ( ! xml6_node_is_referenced(node) ) {
+    if ( domNodeIsReferenced(node) == 0 ) {
         xmlFreeNode(node);
     }
 }
@@ -792,6 +812,25 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
     _domReconcileSlice(head, tail);
 
     return oldNode;
+}
+
+xmlNodePtr
+domRemoveChildNodes( xmlNodePtr self) {
+  xmlNodePtr frag = xmlNewDocFragment( self->doc );
+  xmlNodePtr elem = self->children;
+  // transfer kids
+  frag->children = self->children;
+  frag->last = self->last;
+  self->children = self->last = NULL;
+  while ( elem ) {
+    xmlNodePtr next = elem->next;
+    if (elem->type == XML_ATTRIBUTE_NODE
+        || elem->type == XML_DTD_NODE) {
+      domReleaseNode( elem );
+    }
+    elem = next;
+  }
+  return frag;
 }
 
 xmlChar*

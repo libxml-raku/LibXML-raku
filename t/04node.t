@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 170;
+plan 172;
 
 use LibXML;
 use LibXML::Enums;
@@ -385,11 +385,12 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         ok( $elem, ' TODO : Add test name' );
         # TEST
-        ok( $elem.hasChildNodes, ' TODO : Add test name' );
-        $elem.removeChildNodes;
-        $elem.Str;
+        ok( $elem.hasChildNodes, 'hasChildNodes' );
+        my $frag = $elem.removeChildNodes;
+        isa-ok $frag, 'LibXML::DocumentFragment', 'removed child nodes';
+        is $frag, '<bar/>com', 'removed child nodes';
         # TEST
-        is-deeply( $elem.hasChildNodes, False, ' TODO : Add test name' );
+        nok( $elem.hasChildNodes, 'hasChildNodes after removal' );
         $elem.Str;
     }
 }

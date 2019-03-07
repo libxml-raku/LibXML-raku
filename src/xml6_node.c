@@ -16,25 +16,6 @@ DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
   proxy->ref_count++;
 }
 
-DLLEXPORT int xml6_node_is_referenced(xmlNodePtr self) {
-
-  xmlNodePtr cld;
-  if (self->_private != NULL ) {
-    return 1;
-  }
-
-  // Look for child references
-  cld = self->children;
-  while ( cld ) {
-    if (xml6_node_is_referenced( cld )) {
-      return 1;
-    }
-    cld = cld->next;
-  }
-
-  return 0;
-}
-
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
   int released = 0;
   char msg[80];

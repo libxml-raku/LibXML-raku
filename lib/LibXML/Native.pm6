@@ -352,16 +352,17 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
     method domRemoveChild(domNode --> domNode) is native(BIND-LIB) {*}
+    method domRemoveChildNodes returns xmlDocFrag is native(BIND-LIB) {*}
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method xmlUnlinkNode(--> domNode) is native(LIB) {*}
     method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
-    method Release(--> domNode) is native(BIND-LIB) is symbol('domReleaseNode') {*}
+    method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
-    method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_node_is_referenced') {*}
+    method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
     method domXPathSelect(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native(BIND-LIB) {*}

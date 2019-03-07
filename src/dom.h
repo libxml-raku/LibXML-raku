@@ -176,6 +176,12 @@ domSetNodeValue( xmlNodePtr self, xmlChar* value );
 xmlNodePtr
 domReplaceNode( xmlNodePtr old, xmlNodePtr new );
 
+xmlNodePtr
+domRemoveChildNodes( xmlNodePtr self);
+
+int
+domNodeIsReferenced(xmlNodePtr self);
+
 void
 domReleaseNode( xmlNodePtr node );
 

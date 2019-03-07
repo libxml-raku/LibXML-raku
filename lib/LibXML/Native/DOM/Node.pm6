@@ -161,13 +161,7 @@ method hasAttributes returns Bool {
 }
 
 method removeChildNodes {
-    with self.children -> Node:D $node is copy {
-        while $node.defined {
-            my $next = $node.next;
-            $node.Release;
-            $node = $next;
-        }
-    }
+    self.domRemoveChildNodes;
 }
 
 method hasChildNodes returns Bool {
