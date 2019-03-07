@@ -179,6 +179,9 @@ domReplaceNode( xmlNodePtr old, xmlNodePtr new );
 xmlNodePtr
 domRemoveChildNodes( xmlNodePtr self);
 
+xmlNodePtr
+domAddSibling( xmlNodePtr self, xmlNodePtr nNode );
+
 int
 domNodeIsReferenced(xmlNodePtr self);
 

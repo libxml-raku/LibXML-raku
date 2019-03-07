@@ -204,5 +204,5 @@ method Blob(Bool() :$format = False) {
 submethod DESTROY {
     .Free with $!ctx;
     $!ctx = Nil;
-    # we've already run LibXML::Node.DESTROY
+    # we're already invoking LibXML::Node.DESTROY
 }

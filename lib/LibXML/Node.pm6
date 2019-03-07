@@ -34,7 +34,10 @@ class LibXML::Node {
         for <appendChild> {
             $?CLASS.^add_method($_, method (LibXML::Node:D $ret) { self.dom-node( $!node."$_"($ret.node), :$ret); });
         }
-        # single node argument
+        for <replaceNode addSibling> {
+            $?CLASS.^add_method($_, method (LibXML::Node:D $new) { self.dom-node( $!node."$_"($new.node)); });
+        }
+        # single node argument unconstructed
         for <isSameNode> {
             $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $!node."$_"($n1.node) });
         }
@@ -71,12 +74,17 @@ class LibXML::Node {
 
     method doc is rw {
         Proxy.new(
-            FETCH => sub ($) { $!doc },
+            FETCH => sub ($) {
+                given self.node.doc -> $node {
+                    $!doc .= new: :$node
+                        if ! ($!doc && !$!doc.node.isSameNode($node));
+                }
+                $!doc;
+            },
             STORE => sub ($, LibXML::Node $doc) {
-                with $!doc {
-                    with $doc {
-                        die "node is already bound to another document"
-                           unless $!doc === $_;
+                with $doc {
+                    unless ($!doc && $doc.isSameNode($!doc)) || $doc.isSameNode(self) {
+                        $doc.node.domImportNode(self.node, my $_move = True, my $_reconcile = True);
                     }
                 }
                 $!doc = $doc;
@@ -128,33 +136,36 @@ class LibXML::Node {
         nativecast( $delegate, $node);
     }
 
-    method dom-node(domNode $vanilla-node, LibXML::Node :$doc is copy = $.doc, LibXML::Node :$ret --> LibXML::Node) {
+    method dom-node(domNode $vanilla-node,
+                    LibXML::Node :$doc is copy = $.doc, # reusable document object
+                    LibXML::Node :$ret                  # reusable return container
+                                 --> LibXML::Node) {
         with $vanilla-node {
             my $node := cast-node($_);
-            with $node.doc -> $node-doc {
-                # some consistancy checks
-                with $doc {
-                    warn "document/node mismatch"
-                        unless .node.isSameNode($node-doc);
-                }
-            }
-            else {
-                # not parented. unlink from document
-                $doc = LibXML::Node;
-            }
             given $node {
-                when $ret.defined && $ret.node.isSameNode($node) {
-                    $ret.doc = $doc;
+                when $ret.defined && $ret.node.isSameNode($_) {
                     $ret;
                 }
                 default {
+                    # create a new object. reuse document object, if possible
+                    with $node.doc -> $node-doc {
+                        # can we reuse the document object?
+                        with $doc {
+                            $doc = LibXML::Node
+                                unless .node.isSameNode($node-doc);
+                        }
+                    }
+                    else {
+                        # Not in a document
+                        $doc = LibXML::Node;
+                    }
                     with $ret {
                         # unable to reuse the container object for the returned node.
                         # unexpected, except for document fragments, which are discarded.
                         warn "hmm, returning unexpected node: {$node.Str}"
                             unless $ret.node.type == XML_DOCUMENT_FRAG_NODE;
                     }
-                    class-delegate($_).new: :$node, :$doc;
+                    class-delegate($_).new: :node($_), :$doc;
                 }
             }
         } else {

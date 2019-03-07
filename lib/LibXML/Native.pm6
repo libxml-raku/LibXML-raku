@@ -345,6 +345,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
+    method domReplaceNode(domNode) returns domNode is native(BIND-LIB) {*}
+    method domAddSibling(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceChild(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertAfter(domNode, domNode) returns domNode is native(BIND-LIB) {*}
@@ -546,6 +548,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 
     method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}
     method domCreateAttributeNS(Str, Str, Str --> xmlAttr) is native(BIND-LIB) {*}
+    method domImportNode(domNode, int32, int32 --> domNode) is native(BIND-LIB) {*}
 
     #| Dump to a blob, using the inate encoding scheme
     method Blob(Bool() :$format = False) {

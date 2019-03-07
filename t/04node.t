@@ -428,9 +428,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is( +@ns, 1, ' TODO : Add test name' );
 }
 
-skip("port remaining tests", 63);
-=begin POD
-
 # 4.   Document switching
 
 {
@@ -483,6 +480,9 @@ skip("port remaining tests", 63);
     # TEST
     ok(@cn[1].isSameNode($e2), ' TODO : Add test name');
 }
+
+skip("port remaining tests", 55);
+=begin POD
 
 # 6.   implicit attribute manipulation
 

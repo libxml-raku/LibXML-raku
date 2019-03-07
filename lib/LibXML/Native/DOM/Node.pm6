@@ -11,6 +11,8 @@ method children { ... }
 method last { ... }
 
 method domAppendChild  { ... }
+method domReplaceNode  { ... }
+method domAddSibling  { ... }
 method domReplaceChild  { ... }
 method domInsertBefore { ... }
 method domInsertAfter  { ... }
@@ -82,6 +84,14 @@ method removeChild(Node:D $child) {
 
 method replaceChild(Node $child, Node $old) {
     self.domReplaceChild($child, $old);
+}
+
+method addSibling(Node $new) {
+    self.domAddSibling($new);
+}
+
+method replaceNode(Node $new) {
+    self.domReplaceNode($new);
 }
 
 method !descendants(Str:D $expr = '') {

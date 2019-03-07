@@ -456,33 +456,33 @@ domReleaseNode( xmlNodePtr node ) {
 
 xmlNodePtr
 domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
-    xmlNodePtr return_node = node;
+    xmlNodePtr imported_node = node;
 
     if ( move ) {
-        return_node = node;
+        imported_node = node;
         xmlUnlinkNode( node );
     }
     else {
         if ( node->type == XML_DTD_NODE ) {
-            return_node = (xmlNodePtr) xmlCopyDtd((xmlDtdPtr) node);
+            imported_node = (xmlNodePtr) xmlCopyDtd((xmlDtdPtr) node);
         }
         else {
-            return_node = xmlDocCopyNode( node, doc, 1 );
+            imported_node = xmlDocCopyNode( node, doc, 1 );
         }
     }
 
 
     /* tell all children about the new boss */
     if ( node && node->doc != doc ) {
-        xmlSetTreeDoc(return_node, doc);
+        xmlSetTreeDoc(imported_node, doc);
     }
 
-    if ( reconcileNS && doc && return_node
-         && return_node->type != XML_ENTITY_REF_NODE ) {
-                domReconcileNs(return_node);
+    if ( reconcileNS && doc && imported_node
+         && imported_node->type != XML_ENTITY_REF_NODE ) {
+                domReconcileNs(imported_node);
     }
 
-    return return_node;
+    return imported_node;
 }
 
 /**
@@ -774,7 +774,7 @@ domInsertAfter( xmlNodePtr self,
 
 xmlNodePtr
 domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
-  xmlNodePtr prev = NULL, next = NULL, par = NULL;
+    xmlNodePtr prev = NULL, next = NULL, par = NULL;
     xmlNodePtr head = newNode;
     xmlNodePtr tail = newNode;
 
@@ -831,6 +831,53 @@ domRemoveChildNodes( xmlNodePtr self) {
     elem = next;
   }
   return frag;
+}
+
+static void
+_set_int_subset(xmlDocPtr doc, xmlNodePtr dtd) {
+    xmlNodePtr old_dtd = (xmlNodePtr)doc->intSubset;
+    if (old_dtd == dtd) {
+        return;
+    }
+
+    if (old_dtd != NULL) {
+        domReleaseNode(old_dtd);
+    }
+
+    doc->intSubset = (xmlDtdPtr)dtd;
+}
+
+xmlNodePtr
+domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
+
+    xmlNodePtr rv = NULL;
+
+    if ( nNode->type == XML_DOCUMENT_FRAG_NODE ) {
+        croak("Adding document fragments with addSibling not yet supported!");
+        return NULL;
+    }
+
+    if (self->type == XML_TEXT_NODE && nNode->type == XML_TEXT_NODE
+        && self->name == nNode->name) {
+        /* As a result of text merging, the added node may be freed. */
+        xmlNodePtr copy = xmlCopyNode(nNode, 0);
+        rv = xmlAddSibling(self, copy);
+
+        if (rv) {
+            domReleaseNode(nNode);
+        }
+        else {
+            xmlFreeNode(copy);
+        }
+    }
+    else {
+        rv = xmlAddSibling( self, nNode );
+
+        if ( rv && nNode->type == XML_DTD_NODE ) {
+            _set_int_subset(self->doc, nNode);
+        }
+    }
+    return rv;
 }
 
 xmlChar*
