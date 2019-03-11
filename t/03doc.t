@@ -247,7 +247,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         need LibXML::Text;
         my LibXML::Attr:D $attr = $doc.createAttribute("foo", "bar");
         # TEST
-        is($attr, ' foo="bar"', 'attr Str');
+        is($attr, 'bar', 'attr Str');
         # TEST
         is($attr.nodeType, +XML_ATTRIBUTE_NODE, 'attr nodeType' );
         # TEST

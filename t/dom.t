@@ -38,11 +38,11 @@ is $doc, '<Test/>', 'Document';
 my $elem = $doc.createElement('foo');
 my LibXML::Attr:D $attr = $doc.createAttribute('attr', 'e & f');
 $elem.setAttributeNode($attr);
-is $attr, ' attr="e &amp; f"', 'attr.Str';
-is $elem.node.properties, $attr, 'elem properties linkage';
-is $attr.node.parent.properties, $attr, 'attribute parent linkage';
+is $attr, 'e & f', 'attr.Str';
+is $elem.node.properties, ' attr="e &amp; f"', 'elem properties linkage';
+is $attr.node.parent.properties, ' attr="e &amp; f"', 'attribute parent linkage';
 my $att2 = $elem.getAttributeNode('attr');
-is $att2.Str, ' attr="e &amp; f"', 'att2.Str';
+is $att2.Str, 'e & f', 'att2.Str';
 ok $attr.isSameNode($att2);
 is($elem, '<foo attr="e &amp; f"/>', 'Elem with attribute added');
 $elem.removeAttribute('attr');
@@ -71,8 +71,8 @@ is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc=
 %atts := $elem.attributes;
 is-deeply %atts.keys.sort, ('foo', 'http://ns'), 'NS entries';
 is-deeply %atts<http://ns>.keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
-is %atts<foo>, ' foo="bar"', 'Non NS elem';
-is %atts<http://ns><aaa>, ' x:aaa="AAA"', 'NS elem';
+is %atts<foo>, 'bar', 'Non NS elem';
+is %atts<http://ns><aaa>, 'AAA', 'NS elem';
 
 lives-ok {$attr = $elem.getAttributeNodeNS('http://ns', 'aaa');};
 

@@ -460,7 +460,6 @@ use LibXML::SAX;
 
         # skip the nested node tests until there is a xmlNormalizeNs().
         #ok(1),next if $i > 2;
-
         is( $doc.Str.subst(/' encoding="UTF-8"'/, ''), $string );
         $i++
     }
@@ -468,7 +467,7 @@ use LibXML::SAX;
     $doc = $generator.parse: :string(q{<foo bar="baz"/>});
     my LibXML::Node:D $root = $doc.documentElement;
     # attributes as a tied hash
-    my Hash $attrs := $root.attributes;
+    my $attrs := $root.attributes;
     is(+$attrs , 1, "1 attribute");
     # attributes via an iterator
     my LibXML::Attr @props = $root.properties;

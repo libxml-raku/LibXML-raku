@@ -343,8 +343,8 @@ class LibXML::Node {
         class AttrMap does Associative {
             has LibXML::Node $.elem;
             has xmlNs %!ns;
-            my subset AttrNode where AttrNode:D|AttrMapNs:D;
-            has AttrNode %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
+            my subset AttrMapNode where AttrNode:D|AttrMapNs:D;
+            has AttrMapNode %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
 
             submethod TWEAK() {
                 with $!elem.node.properties -> domNode $prop is copy {
@@ -375,7 +375,7 @@ class LibXML::Node {
                      }
                 }
             }
-            method !store(Str:D $name, AttrNode:D $att) {
+            method !store(Str:D $name, AttrMapNode:D $att) {
                 self!unlink($name);
                 %!store{$name} = $att;
             }
