@@ -335,7 +335,6 @@ class domNode is export does LibXML::Native::DOM::Node {
     method GetBase { self.doc.xmlNodeGetBase(self) }
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
     method Free() is native(LIB) is symbol('xmlFreeNode') {*}
-    method FreeList() is native(LIB) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native(LIB) is symbol('xmlIsBlankNode') {*}

@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 172;
+plan 173;
 
 use LibXML;
 use LibXML::Enums;
@@ -104,14 +104,14 @@ my $doc    = $parser.parse: :string( $xmlstring );
             ok( $attributes, 'got attributes' );
             # TEST
 
-            isa-ok( $attributes, "Hash", ' TODO : Add test name' );
+            isa-ok( $attributes, "LibXML::Node::AttrMap", ' TODO : Add test name' );
             # TEST
             is( +$attributes, 1, ' TODO : Add test name' );
             my $attr = $attributes<foo>;
 
             # TEST
 
-            is( $attr, ' foo="foobar"', ' TODO : Add test name' );
+            is( $attr, 'foobar', ' TODO : Add test name' );
             # TEST
             is( $attr.nodeType, +XML_ATTRIBUTE_NODE, ' TODO : Add test name' );
             # TEST
@@ -123,9 +123,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
         }
 
         {
-            my @attributes = $xc.attributes;
+            my %attributes := $xc.attributes;
             # TEST
-            is( + @attributes, 1, ' TODO : Add test name' );
+            is( + %attributes, 1, ' TODO : Add test name' );
         }
 
         # 1.2 Node Cloning
@@ -481,56 +481,54 @@ my $doc    = $parser.parse: :string( $xmlstring );
     ok(@cn[1].isSameNode($e2), ' TODO : Add test name');
 }
 
-skip("port remaining tests", 55);
-=begin POD
-
 # 6.   implicit attribute manipulation
 
 {
     my $parser = LibXML.new();
-    my $doc = $parser.parse_string( '<foo bar="foo"/>' );
+    my $doc = $parser.parse: :string( '<foo bar="foo"/>' );
     my $root = $doc.documentElement;
-    my $attributes = $root.attributes;
+    my $attributes := $root.attributes;
+    is( +$attributes, 1, ' TODO : Add test name');
     # TEST
     ok($attributes, ' TODO : Add test name');
-
     my $newAttr = $doc.createAttribute( "kung", "foo" );
     $attributes.setNamedItem( $newAttr );
 
-    my @att = $root.attributes;
+    my %att := $root.attributes;
     # TEST
-    ok(@att, ' TODO : Add test name');
+    ok(%att, ' TODO : Add test name');
     # TEST
-    is( +@att, 2, ' TODO : Add test name');
+    is( +%att, 2, ' TODO : Add test name');
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "foo" );
 
     $attributes.setNamedItem($newAttr);
-    @att = $root.attributes;
+    %att := $root.attributes;
     # TEST
-    ok(@att, ' TODO : Add test name');
+    ok(%att, ' TODO : Add test name');
     # TEST
-    is( +@att, 4, ' TODO : Add test name'); # because of the namespace ...
+    is( +%att, 2, ' TODO : Add test name');
+    is( +%att<http://kungfoo>, 1, ' TODO : Add test name');
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );
     $attributes.setNamedItem($newAttr);
-    @att = $root.attributes;
+    %att := $root.attributes;
     # TEST
-    ok(@att, ' TODO : Add test name');
+    ok(%att, ' TODO : Add test name');
     # TEST
-    is( +@att, 4, ' TODO : Add test name');
+    is( +%att, 2, ' TODO : Add test name');
     # TEST
-    ok($att[2].isSameNode($newAttr), ' TODO : Add test name');
+    is(%att<http://kungfoo><kung>, $newAttr.nodeValue, ' TODO : Add test name');
 
     $attributes.removeNamedItem("x:kung");
-
-    @att = $root.attributes;
+    %att := $root.attributes;
     # TEST
-    ok(@att, ' TODO : Add test name');
+    is( +%att, 2, ' TODO : Add test name');
     # TEST
-    is( +@att, 3, ' TODO : Add test name');
-    # TEST
-    is($attributes.length, 3, ' TODO : Add test name');
+    is($attributes.elems, 2, ' TODO : Add test name');
 }
+
+skip("port remaining tests", 44);
+=begin POD
 
 # 7. importing and adopting
 

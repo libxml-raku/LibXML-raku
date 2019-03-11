@@ -21,3 +21,5 @@ method value is rw { $.nodeValue }
 method nexth returns LibXML::Attr {
     self.dom-node: $.node.nexth;
 }
+
+method Str { $.nodeValue }
