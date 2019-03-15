@@ -5,9 +5,9 @@ unit class LibXML::PI
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlPINode:D :node($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlPINode:D :struct($)!) { }
 multi submethod TWEAK(:doc($root)!, Str :$name!, Str :$content!) {
-    my xmlDoc:D $doc = $root.node;
-    my xmlPINode:D $node .= new: :$name, :$content, :$doc;
-    self.node = $node;
+    my xmlDoc:D $doc = $root.struct;
+    my xmlPINode:D $pi-struct .= new: :$name, :$content, :$doc;
+    self.struct = $pi-struct;
 }

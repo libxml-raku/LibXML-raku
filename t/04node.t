@@ -383,7 +383,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         my $doc = LibXML.new.parse: :$string;
         my $elem= $doc.documentElement;
         # TEST
-        ok( $elem, ' TODO : Add test name' );
+        is( $elem, '<foo><bar/>com</foo>', ' TODO : Add test name' );
         # TEST
         ok( $elem.hasChildNodes, 'hasChildNodes' );
         my $frag = $elem.removeChildNodes;

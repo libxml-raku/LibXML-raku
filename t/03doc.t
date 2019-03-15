@@ -24,8 +24,8 @@ sub _check_element_node(LibXML::Node $node, Str $name, Str $blurb)
 {
 
      ok($node, "$blurb - node was initialised");
-     is($node.node.type, +XML_ELEMENT_NODE, "$blurb - node is an element node");
-     is($node.node.name, $name, "$blurb - node has the right name.");
+     is($node.struct.type, +XML_ELEMENT_NODE, "$blurb - node is an element node");
+     is($node.struct.name, $name, "$blurb - node has the right name.");
 }
 
 # TEST:$check-element-node=$c;
@@ -111,7 +111,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
                                  # while 0 indicates just no zip compression
                                  # (big difference huh?)
 
-    $doc.node.encoding = "iso-8859-1";
+    $doc.struct.encoding = "iso-8859-1";
     # TEST
     is( $doc.encoding, "iso-8859-1", 'Encoding was set.' );
 
@@ -144,7 +144,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         # TEST
         ok($node, '$doc.createDocumentFragment');
         # TEST
-        is($node.node.type, +XML_DOCUMENT_FRAG_NODE, 'document fragment type');
+        is($node.struct.type, +XML_DOCUMENT_FRAG_NODE, 'document fragment type');
     }
 
     # TEST*$_check_created_element
@@ -178,7 +178,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     {
         # namespaced element test
         my $node = $doc.createElementNS( "http://kungfoo", "foo:bar" );
-        is $node.node.nsDef, 'xmlns:foo="http://kungfoo"', 'Node namespace';
+        is $node.struct.nsDef, 'xmlns:foo="http://kungfoo"', 'Node namespace';
         # TEST
         is $node, '<foo:bar xmlns:foo="http://kungfoo"/>', '$doc.createElement';
         # TEST

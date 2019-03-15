@@ -1,21 +1,16 @@
 unit class LibXML::Namespace;
 use LibXML::Native;
-has xmlNs $.ns handles <type prefix Str>;
-method dom-node(xmlNs $ns, :$doc!) {
-    with $ns {
-        $?CLASS.new: :ns($_);
-    }
-    else {
-        $?CLASS;
-    };
+has xmlNs $.struct handles <type prefix Str>;
+method dom-node(xmlNs:D $struct!, :$doc!) {
+    $?CLASS.new: :$struct;
 }
 
 submethod TWEAK {
-    $!ns .= copy;
+    $!struct .= copy;
 }
 
 submethod DESTROY {
-    with $!ns {
+    with $!struct {
         .Free;
         $_ = Nil;
     }

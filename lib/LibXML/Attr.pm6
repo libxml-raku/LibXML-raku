@@ -6,20 +6,20 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :node($)!) {
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :struct($)!) {
 }
 multi submethod TWEAK(LibXML::Node :$doc!, :$name!, Str :$value!) {
-    self.node = $doc.node.NewProp( $name, $value );
+    self.struct = $doc.struct.NewProp( $name, $value );
 }
 
-method node handles <atype def defaultValue tree prefix elem name> {
+method struct handles <atype def defaultValue tree prefix elem name> {
     nextsame;
 }
 
 method value is rw { $.nodeValue }
 
 method nexth returns LibXML::Attr {
-    self.dom-node: $.node.nexth;
+    self.dom-node: $.struct.nexth;
 }
 
 method Str { $.nodeValue }

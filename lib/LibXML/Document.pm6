@@ -16,7 +16,7 @@ constant config = LibXML::Config;
 has parserCtxt $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 # todo eliminate raw node handling
-method node is rw handles <compression standalone version encoding URI> { callsame() }
+method struct is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
 submethod TWEAK(
@@ -24,12 +24,12 @@ submethod TWEAK(
                 Str :$encoding,
                 Str :$URI,
                ) {
-    my xmlDoc:D $node = self.node //= do with $!ctx {.myDoc} else {xmlDoc.new};
-    $node.version = $_ with $version;
-    $node.encoding = $_ with $encoding;
-    $node.URI = $_ with $URI;
-    with $node.documentElement {
-        $!documentElement .= new: :node($_), :doc(self);
+    my xmlDoc:D $struct = self.struct //= do with $!ctx {.myDoc} else {xmlDoc.new};
+    $struct.version = $_ with $version;
+    $struct.encoding = $_ with $encoding;
+    $struct.URI = $_ with $URI;
+    with $struct.documentElement {
+        $!documentElement .= new: :struct($_), :doc(self);
     }
 }
 
@@ -39,10 +39,10 @@ multi method createElement(QName $name, Str:D :$href!) {
     $.createElementNS($href, $name);
 }
 multi method createElement(QName $name) {
-    self.dom-node: $.node.createElement($name);
+    self.dom-node: $.struct.createElement($name);
 }
 method createElementNS(Str:D $href, QName:D $name) {
-    self.dom-node: $.node.createElementNS($href, $name);
+    self.dom-node: $.struct.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -69,7 +69,7 @@ method documentElement is rw {
         },
         STORE => sub ($, $!documentElement) {
             $!documentElement.doc = self;
-            $.node.documentElement = $!documentElement.node;
+            $.struct.documentElement = $!documentElement.struct;
         }
     );
 }
@@ -83,13 +83,13 @@ multi method createAttribute(QName:D $name,
                              Str $value = '',
                              Str:D :$href!,
                             ) {
-    self.dom-node: $.node.createAttributeNS($href, $name, $value);
+    self.dom-node: $.struct.createAttributeNS($href, $name, $value);
 }
 
 multi method createAttribute(QName:D $name,
                              Str $value = '',
                             ) {
-    self.dom-node: $.node.createAttribute($name, $value);
+    self.dom-node: $.struct.createAttribute($name, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
@@ -99,7 +99,7 @@ multi method createAttributeNS(Str $href,
                          QName:D $name,
                          Str $value = '',
                         ) {
-    self.dom-node: $.node.createAttributeNS($href, $name, $value);
+    self.dom-node: $.struct.createAttributeNS($href, $name, $value);
 }
 
 method createDocument(Str :$version = '1.0',
@@ -151,7 +151,7 @@ method Str(Bool() :$format = False) {
         $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
     }
     else {
-        my xmlDoc $doc = $.node;
+        my xmlDoc $doc = $.struct;
         my Str $rv;
 
         if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
@@ -180,7 +180,7 @@ method Blob(Bool() :$format = False) {
         $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join.encode;
     }
     else {
-        my xmlDoc $doc = $.node;
+        my xmlDoc $doc = $.struct;
         my Blob $rv;
 
         if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {

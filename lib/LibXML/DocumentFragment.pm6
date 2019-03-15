@@ -8,11 +8,11 @@ use LibXML::Native;
 use LibXML::Element;
 use NativeCall;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :node($)!) {}
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :struct($)!) {}
 multi submethod TWEAK(LibXML::Node :doc($doc-obj)!) {
-    my xmlDoc:D $doc = .node with $doc-obj;
-    my xmlDocFrag $node .= new: :$doc;
-    self.node = $node;
+    my xmlDoc:D $doc = .struct with $doc-obj;
+    my xmlDocFrag $doc-frag-struct .= new: :$doc;
+    self.struct = $doc-frag-struct;
 }
 
 method parse-balanced(Str() :$chunk!,
@@ -27,7 +27,7 @@ method parse-balanced(Str() :$chunk!,
     die "balanced parse failed with status $stat"
         if $stat && !$repair;
 
-    $.node.AddChildList($_) with $nodes.deref;
+    $.struct.AddChildList($_) with $nodes.deref;
 
     $stat;
 }
