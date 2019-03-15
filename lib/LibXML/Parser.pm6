@@ -66,6 +66,8 @@ class LibXML::Parser {
         $n;
     }
 
+    method load(|c) { self.new.parse(|c) }
+
     multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,

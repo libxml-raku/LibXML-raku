@@ -363,6 +363,9 @@ class domNode is export does LibXML::Native::DOM::Node {
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
+    method first-child(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_first_child') {*}
+    method next-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_next') {*}
+    method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
     method domXPathSelect(Str --> xmlNodeSet) is native(BIND-LIB) {*}

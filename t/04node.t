@@ -527,7 +527,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is($attributes.elems, 2, ' TODO : Add test name');
 }
 
-skip("port remaining tests", 44);
+skip("port remaining tests", 15);
 =begin POD
 
 # 7. importing and adopting
@@ -616,15 +616,17 @@ skip("port remaining tests", 44);
    ok($attr.Str() eq ' test="bar&foo;baz"', ' TODO : Add test name');
 }
 
+=end POD
+
 {
-    my $string = <<'EOF';
+    my $string = q:to<EOF>;
 <r>
   <a/>
 	  <b/>
   <![CDATA[
 
   ]]>
-  <!-- foo -.
+  <!-- foo -->
   <![CDATA[
     x
   ]]>
@@ -635,21 +637,21 @@ skip("port remaining tests", 44);
 EOF
 
     # TEST:$count=2;
-    foreach my $arg_to_parse ($string, \$string)
+    for $string -> $arg_to_parse
     {
-        my $doc = LibXML.load_xml(string=>$arg_to_parse);
+        my $doc = LibXML.load: :string($arg_to_parse);
         my $r = $doc.getDocumentElement;
         # TEST*$count
         ok($r, ' TODO : Add test name');
         my @nonblank = $r.nonBlankChildNodes;
         # TEST*$count
-        is(join(',',map $_.nodeName,@nonblank), 'a,b,#comment,#cdata-section,foo,c,#text', ' TODO : Add test name' );
+        is(join(',',@nonblank.map(*.nodeName)), 'a,b,#comment,#cdata-section,foo,c,#text', ' TODO : Add test name' );
         # TEST*$count
         is($r.firstChild.nodeName, '#text', ' TODO : Add test name');
 
         my @all = $r.childNodes;
         # TEST*$count
-        is(join(',',map $_.nodeName,@all), '#text,a,#text,b,#text,#cdata-section,#text,#comment,#text,#cdata-section,#text,foo,#text,c,#text', ' TODO : Add test name' );
+        is(join(',', @all.map(*.nodeName)), '#text,a,#text,b,#text,#cdata-section,#text,#comment,#text,#cdata-section,#text,foo,#text,c,#text', ' TODO : Add test name' );
 
         my $f = $r.firstNonBlankChild;
         my $p;
@@ -720,7 +722,7 @@ EOF
 
         $f=$f.nextNonBlankSibling;
         # TEST*$count
-        ok(!defined $f, ' TODO : Add test name');
+        ok(!defined($f), ' TODO : Add test name');
 
     }
 }
@@ -729,10 +731,9 @@ EOF
     # RT #94149
     # https://rt.cpan.org/Ticket/Display.html?id=94149
 
-    my $orig = LibXML::Text.new('Double ');
-    my $ret = $orig.addSibling(LibXML::Text.new('Free'));
+    my $orig = LibXML::Text.new: :content('Double ');
+    my $ret = $orig.addSibling(LibXML::Text.new: :content('Free'));
     # TEST
     is( $ret.textContent, 'Double Free', 'merge text nodes with addSibling' );
 }
 
-=end POD

@@ -58,17 +58,30 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
   return node;
 }
 
-DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int blank) {
-  while (node && node->next && (blank || ! xmlIsBlankNode(node->next))) {
-    node = node->next;
+DLLEXPORT xmlNodePtr xml6_node_first_child(xmlNodePtr node, int keep_blanks) {
+  node = node->children;
+  if (keep_blanks == 0) {
+    while (node && xmlIsBlankNode(node)) {
+      node = node->next;
+    }
   }
+
   return node;
 }
 
-DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int blank) {
-  while (node && node->prev && (blank || ! xmlIsBlankNode(node->prev))) {
+DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int keep_blanks) {
+  do {
+    node = node->next;
+  } while (node != NULL && keep_blanks == 0 && xmlIsBlankNode(node));
+
+  return node;
+}
+
+DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int keep_blanks) {
+  do {
     node = node->prev;
-  }
+  } while (node != NULL && keep_blanks == 0 && xmlIsBlankNode(node));
+
   return node;
 }
 

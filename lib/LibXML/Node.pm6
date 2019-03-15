@@ -5,8 +5,8 @@ class LibXML::Node {
     use LibXML::Types :NCName, :QName;
     use NativeCall;
 
-    my subset Nodeish where LibXML::Node|LibXML::Namespace;
     my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
+    enum <SkipBlanks KeepBlanks>;
 
     has LibXML::Node $.doc;
 
@@ -25,7 +25,7 @@ class LibXML::Node {
         # wrap methods that return raw nodes
         # simple navigation; no arguments
         for <
-             firstChild
+             firstChild firstNonBlankChild
              last lastChild
              next nextSibling nextNonBlankSibling
              parent parentNode
@@ -177,16 +177,16 @@ class LibXML::Node {
         }
     }
 
-    our proto sub iterate(Nodeish, $struct, :doc($)) {*}
+    our proto sub iterate(LibXML::Node, $struct, :doc($), :keep-blanks($)) {*}
 
-    multi sub iterate(Nodeish $obj, $start, :$doc = $obj.doc) {
+    multi sub iterate(LibXML::Node $obj, $start, :$doc = $obj.doc, Bool :$keep-blanks = True) {
         # follow a chain of .next links.
         my class NodeList does Iterable does Iterator {
             has $.cur;
             method iterator { self }
             method pull-one {
                 my $this = $!cur;
-                $_ = .next with $!cur;
+                $_ = .next-node($keep-blanks) with $!cur;
                 with $this -> $node {
                     $obj.dom-node: $node, :$doc
                 }
@@ -198,7 +198,7 @@ class LibXML::Node {
     }
 
     multi sub iterate(LibXML::Node $obj, xmlNodeSet $set, :$doc = $obj.doc) {
-        # follow a chain of .next links.
+        # iterate through a set of nodes
         my class Node does Iterable does Iterator {
             has xmlNodeSet $.set;
             has UInt $!idx = 0;
@@ -233,7 +233,10 @@ class LibXML::Node {
         self;
     }
     method childNodes {
-        iterate(self, $!struct.children);
+        iterate(self, $!struct.first-child(KeepBlanks));
+    }
+    method nonBlankChildNodes {
+        iterate(self, $!struct.first-child(SkipBlanks), :!keep-blanks);
     }
     method getElementsByTagName(Str:D $name) {
         iterate(self, $!struct.getElementsByTagName($name));

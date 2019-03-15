@@ -29,7 +29,10 @@ method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
 
-method firstChild { self.children }
+enum <SkipBlanks KeepBlanks>;
+
+method firstChild { self.first-child(KeepBlanks); }
+method firstNonBlankChild { self.first-child(SkipBlanks); }
 method lastChild { self.last }
 
 method appendChild(Node $nNode) {
@@ -178,25 +181,14 @@ method hasChildNodes returns Bool {
     ? (self.type != XML_ATTRIBUTE_NODE && self.children.defined)
 }
 
-method nextSibling returns Node { self.next; }
+method nextSibling returns Node { self.next-node(KeepBlanks); }
+method nextNonBlankSibling returns Node { self.next-node(SkipBlanks); }
 
 method parentNode returns Node { self.parent; }
 
-method nextNonBlankSibling returns Node {
-    my $next = self.next;
-    $next .= next()
-        while $next.defined && $next.isBlankNode;
-    $next;
-}
+method previousSibling returns Node { self.prev-node(KeepBlanks); }
 
-method previousSibling returns Node { self.prev; }
-
-method previousNonBlankSibling returns Node {
-    my $prev = self.prev;
-    $prev .= prev()
-        while $prev.defined && $prev.isBlankNode;
-    $prev;
-}
+method previousNonBlankSibling returns Node { self.prev-node(SkipBlanks); }
 
 method lookupNamespacePrefix(Str $uri --> Str) {
     with self.doc.SearchNsByHref(self, $uri) {

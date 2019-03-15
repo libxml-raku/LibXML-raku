@@ -14,7 +14,25 @@ multi submethod TWEAK(:doc($owner), QName :$name!, xmlNs :$ns) {
     self.struct = xmlNode.new: :$name, :$doc, :$ns;
 }
 
+sub iterate(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
+    # follow a chain of .next links.
+    my class NodeList does Iterable does Iterator {
+        has $.cur;
+        method iterator { self }
+        method pull-one {
+            my $this = $!cur;
+            $_ = .next with $!cur;
+            with $this -> $node {
+                $obj.dom-node: $node, :$doc
+            }
+            else {
+                IterationEnd;
+            }
+        }
+    }.new( :cur($start) );
+}
+
 method namespaces {
-    LibXML::Node::iterate(LibXML::Namespace, $.struct.nsDef, :$.doc);
+    iterate(LibXML::Namespace, $.struct.nsDef, :$.doc);
 }
 
