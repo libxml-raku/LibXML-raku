@@ -15,8 +15,10 @@ typedef xml6NodeProxy *xml6NodeProxyPtr;
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr);
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr);
-DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr);
 
+DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr);
+DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr, int);
+DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr, int);
 DLLEXPORT void xml6_node_set_doc(xmlNodePtr, xmlDocPtr);
 DLLEXPORT void xml6_node_set_ns(xmlNodePtr, xmlNsPtr);
 DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr, xmlNsPtr);

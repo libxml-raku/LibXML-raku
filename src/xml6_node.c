@@ -33,7 +33,7 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
     else {
       if (proxy->ref_count <= 0 || proxy->ref_count >= 65536) {
 
-        sprintf(msg, "node %ld has unexpected ref_count value: %ld", (long) self, proxy->ref_count);
+        sprintf(msg, "node %ld has unexpected ref_count value: %ld", (long) self, (long) proxy->ref_count);
         xml6_warn(msg);
       }
       else {
@@ -54,6 +54,20 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
   while (node && node->parent) {
     node = node->parent;
+  }
+  return node;
+}
+
+DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int blank) {
+  while (node && node->next && (blank || ! xmlIsBlankNode(node->next))) {
+    node = node->next;
+  }
+  return node;
+}
+
+DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int blank) {
+  while (node && node->prev && (blank || ! xmlIsBlankNode(node->prev))) {
+    node = node->prev;
   }
   return node;
 }
