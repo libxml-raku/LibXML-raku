@@ -9,8 +9,8 @@ use LibXML::Attr;
 use LibXML::Namespace;
 
 multi submethod TWEAK(xmlNode:D :struct($)!) { }
-multi submethod TWEAK(:doc($root), QName :$name!, xmlNs :$ns) {
-    my xmlDoc:D $doc = .struct with $root;
+multi submethod TWEAK(:doc($owner), QName :$name!, xmlNs :$ns) {
+    my xmlDoc:D $doc = .struct with $owner;
     self.struct = xmlNode.new: :$name, :$doc, :$ns;
 }
 
