@@ -34,7 +34,7 @@ test : all
 	@prove -e"perl6 -I ." -v t
 
 clean :
-	@rm -f $(SRC)/xml6_*%O% resources/libraries/*%LIB-NAME%
+	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/xpath%O% resources/libraries/*%LIB-NAME%
 
 realclean : clean
 	@rm -f Makefile

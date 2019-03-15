@@ -101,38 +101,6 @@ int
 domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
-* NAME domAddNodeToList
-* TYPE function
-* SYNOPSIS
-* domAddNodeToList( cur, prevNode, nextNode )
-*
-* This function inserts a node between the two nodes prevNode
-* and nextNode. prevNode and nextNode MUST be adjacent nodes,
-* otherwise the function leads into undefined states.
-* Either prevNode or nextNode can be NULL to mark, that the
-* node has to be inserted to the beginning or the end of the
-* nodelist. in such case the given reference node has to be
-* first or the last node in the list.
-*
-* if prevNode is the same node as cur node (or in case of a
-* Fragment its first child) only the parent information will
-* get updated.
-*
-* The function behaves different to libxml2's list functions.
-* The function is aware about document fragments.
-* the function does not perform any text node normalization!
-*
-* NOTE: this function does not perform any highlevel
-* errorhandling. use this function with caution, since it can
-* lead into undefined states.
-*
-* the function will return 1 if the cur node is appended to
-* the list. otherwise the function returns 0.
-*/
-static xmlNodePtr
-_domAddNodeToList( xmlNodePtr cur, xmlNodePtr prev, xmlNodePtr next, xmlNodePtr *tail );
-
-/**
  * part A:
  *
  * class Node
@@ -255,10 +223,10 @@ void
 domClearPSVI(xmlNodePtr tree);
 
 xmlAttrPtr
-domCreateAttribute( xmlDocPtr self, char *name, char *value);
+domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value);
 
 xmlAttrPtr
-domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value );
+domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value );
 
 
 xmlAttrPtr

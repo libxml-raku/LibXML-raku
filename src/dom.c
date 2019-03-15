@@ -11,7 +11,7 @@
 #include "xml6.h"
 #include "xml6_node.h"
 
-#define warn(string) {fprintf(stderr, "%s:%ld: %s\n", __FILE__,__LINE__,(string));}
+#define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__,__LINE__,(string));}
 #define xs_warn(string) warn(string)
 #define croak(string) {warn(string);return NULL;}
 
@@ -864,7 +864,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
         rv = xmlAddSibling(self, copy);
 
         if (rv) {
-            domReleaseNode(nNode);
+	    domReleaseNode(nNode);
         }
         else {
             xmlFreeNode(copy);
@@ -964,7 +964,7 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     int any_name;
 
     if ( self != NULL && name != NULL ) {
-        any_name =  xmlStrcmp( name, "*" ) == 0;
+        any_name = xmlStrcmp( name, (unsigned char*) "*" ) == 0;
         cld = self->children;
         while ( cld != NULL ) {
           if ( ((any_name && cld->type == XML_ELEMENT_NODE)
@@ -998,7 +998,7 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
     int any_name;
 
     if ( self != NULL && name != NULL ) {
-        any_name =  xmlStrcmp( name, "*" ) == 0;
+        any_name =  xmlStrcmp( name, (unsigned char *) "*" ) == 0;
         cld = self->children;
         while ( cld != NULL ) {
           if ( ((any_name && cld->type == XML_ELEMENT_NODE)
@@ -1025,11 +1025,11 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
     xmlNodePtr cld;
 
     if ( self != NULL && name != NULL && nsURI != NULL ) {
-      if (  xmlStrcmp( nsURI, "*" ) == 0) {
+      if ( xmlStrcmp( nsURI, (unsigned char *) "*" ) == 0) {
         rv = domGetChildrenByLocalName(self, name);
       }
       else {
-        any_name = xmlStrcmp( name, "*" ) == 0;
+        any_name = xmlStrcmp( name, (unsigned char *) "*" ) == 0;
         cld = self->children;
         while ( cld != NULL ) {
           if (((any_name &&  cld->type == XML_ELEMENT_NODE)
@@ -1286,7 +1286,7 @@ domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns) {
 }
 
 xmlAttrPtr
-domCreateAttribute( xmlDocPtr self, char *name, char *value) {
+domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value) {
   xmlChar *buffer;
   xmlAttrPtr newAttr;
   /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
@@ -1297,7 +1297,7 @@ domCreateAttribute( xmlDocPtr self, char *name, char *value) {
 }
 
 xmlAttrPtr
-domCreateAttributeNS( xmlDocPtr self, char *URI, char *name, char *value ) {
+domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value ) {
   xmlChar * prefix = NULL;
   xmlChar * localname = NULL;
   xmlAttrPtr newAttr = NULL;
@@ -1344,9 +1344,7 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
   xmlNsPtr   ns          = NULL;
   xmlChar    * localname = NULL;
   xmlChar    * prefix    = NULL;
-  xmlNsPtr   * all_ns    = NULL;
   xmlAttrPtr newAttr     = NULL;
-  int i;
 
   if (self && nsURI && xmlStrlen(nsURI) && name && value) {
 
