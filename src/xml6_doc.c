@@ -16,24 +16,6 @@ DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr self, char *encoding) {
   }
 }
 
-DLLEXPORT void xml6_doc_set_intSubset(xmlDocPtr self, xmlDtdPtr dtd) {
-  xmlDtdPtr old_dtd;
-
-  if (self == NULL) xml6_fail("unable to update null document");
-
-  old_dtd = self->intSubset;
-  if (old_dtd == dtd) {
-    return;
-  }
-
-  if (old_dtd != NULL) {
-    xmlUnlinkNode((xmlNodePtr) old_dtd);
-    xmlFreeDtd(old_dtd);
-  }
-
-  self->intSubset = dtd;
-}
-
 DLLEXPORT void xml6_doc_set_URI(xmlDocPtr self, char *URI) {
   if (self == NULL) xml6_fail("unable to update null document");
   if (self->URL) xmlFree((xmlChar*)self->URL);

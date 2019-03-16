@@ -9,6 +9,7 @@ use LibXML::Enums;
 use LibXML::Config;
 use LibXML::Element;
 use LibXML::Attr;
+use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
 use NativeCall;
 
@@ -128,6 +129,11 @@ method createComment(Str $content) {
 method createCDATASection(Str $content) {
     require LibXML::CDATASection;
     LibXML::CDATASection.new: :doc(self), :$content;
+}
+
+method createEntityReference(Str $name) {
+    require LibXML::EntityRef;
+    LibXML::EntityRef.new: :doc(self), :$name;
 }
 
 method createProcessingInstruction(|c) {

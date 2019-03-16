@@ -1,5 +1,6 @@
 class LibXML::Node {
     use LibXML::Native;
+    use LibXML::Native::DOM::Node;
     use LibXML::Enums;
     use LibXML::Namespace;
     use LibXML::Types :NCName, :QName;
@@ -106,8 +107,8 @@ class LibXML::Node {
         given +$node.type {
             when XML_ELEMENT_NODE       { require LibXML::Element }
             when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
-            when XML_TEXT_NODE
-               | XML_ENTITY_REF_NODE    { require LibXML::Text }
+            when XML_TEXT_NODE          { require LibXML::Text }
+            when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
             when XML_COMMENT_NODE       { require LibXML::Comment }
             when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
             when XML_PI_NODE            { require LibXML::PI }
@@ -122,8 +123,8 @@ class LibXML::Node {
     sub delegate-struct(UInt $_) {
         when XML_ELEMENT_NODE       { xmlNode }
         when XML_ATTRIBUTE_NODE     { xmlAttr }
-        when XML_TEXT_NODE
-           | XML_ENTITY_REF_NODE    { xmlTextNode }
+        when XML_TEXT_NODE          { xmlTextNode }
+        when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
         when XML_COMMENT_NODE       { xmlCommentNode }
         when XML_CDATA_SECTION_NODE { xmlCDataNode }
         when XML_PI_NODE            { xmlPINode }
@@ -140,7 +141,7 @@ class LibXML::Node {
         nativecast( $delegate, $struct);
     }
 
-    method dom-node(domNode $vanilla-struct,
+    method dom-node(LibXML::Native::DOM::Node $vanilla-struct,
                     LibXML::Node :$doc is copy = $.doc, # reusable document object
                     LibXML::Node :$ret                  # reusable return container
                                  --> LibXML::Node) {

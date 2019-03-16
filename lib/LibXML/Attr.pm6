@@ -22,4 +22,4 @@ method nexth returns LibXML::Attr {
     self.dom-node: $.struct.nexth;
 }
 
-method Str { $.nodeValue }
+method Str(:$raw) { $raw ?? nextsame() !! $.nodeValue}

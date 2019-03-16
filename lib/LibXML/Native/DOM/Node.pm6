@@ -10,6 +10,7 @@ method type { ... }
 method children { ... }
 method last { ... }
 
+method domError { ... }
 method domAppendChild  { ... }
 method domReplaceNode  { ... }
 method domAddSibling  { ... }
@@ -36,10 +37,8 @@ method firstNonBlankChild { self.first-child(SkipBlanks); }
 method lastChild { self.last }
 
 method appendChild(Node $nNode) {
-    my Node:D $rNode = self.domAppendChild($nNode);
-    self.doc.intSubset = $nNode
-        if $rNode.type == XML_DTD_NODE;
-    $rNode;
+    self.domAppendChild($nNode)
+        // self.domError // Node;
 }
 
 my subset AttrNode of Node where .type == XML_ATTRIBUTE_NODE;
@@ -86,15 +85,18 @@ method removeChild(Node:D $child) {
 }
 
 method replaceChild(Node $child, Node $old) {
-    self.domReplaceChild($child, $old);
+    self.domReplaceChild($child, $old)
+        // self.domError;
 }
 
 method addSibling(Node $new) {
-    self.domAddSibling($new);
+    self.domAddSibling($new)
+        // self.domError;
 }
 
 method replaceNode(Node $new) {
-    self.domReplaceNode($new);
+    self.domReplaceNode($new)
+        // self.domError;
 }
 
 method !descendants(Str:D $expr = '') {
@@ -141,17 +143,13 @@ method getChildrenByTagNameNS(Str $URI, Str $name) {
 }
 
 method insertBefore(Node:D $nNode, Node $oNode) {
-    my Node:D $rNode = self.domInsertBefore($nNode, $oNode);
-    self.doc.intSubset = $nNode
-        if $rNode.type == XML_DTD_NODE;
-    $nNode;
+    self.domInsertBefore($nNode, $oNode)
+        // self.domError;
 }
 
 method insertAfter(Node:D $nNode, Node $oNode) {
-    my Node:D $rNode = self.domInsertAfter($nNode, $oNode);
-    self.doc.intSubset = $nNode
-        if $rNode.type == XML_DTD_NODE;
-    $nNode;
+    self.domInsertAfter($nNode, $oNode)
+        // self.domError;
 }
 
 method cloneNode(Bool:D $deep) {

@@ -50,6 +50,8 @@ extern "C" {
 void
 domReconcileNS(xmlNodePtr tree);
 
+void domSetIntSubset(xmlDocPtr, xmlDtdPtr dtd);
+
 /**
  * NAME domIsParent
  * TYPE function

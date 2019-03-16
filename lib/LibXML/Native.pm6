@@ -10,6 +10,7 @@ use LibXML::Native::DOM::Document;
 constant LIB = 'xml2';
 constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
 constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
+constant dom_error is export := cglobal(BIND-LIB, 'dom_error', Str);
 
 # type defs
 constant xmlCharP = Str;
@@ -343,6 +344,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
+    method domError { die $_ with dom_error; }
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceNode(domNode) returns domNode is native(BIND-LIB) {*}
     method domAddSibling(domNode) returns domNode is native(BIND-LIB) {*}
@@ -457,6 +459,12 @@ class xmlPINode is xmlNode is repr('CStruct') is export {
     }
 }
 
+class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
+    multi method new(xmlDoc:D :$doc!, Str:D :$name!) {
+        $doc.new-ent-ref(:$name);
+    }
+}
+
 class xmlAttr is domNode is export {
     has xmlAttr         $.nexth;        # next in hash table
     has int32           $.atype;        # the attribute type
@@ -482,7 +490,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
                                        # -2 if there is an XML declaration, but no
                                        #    standalone attribute was specified
     has xmlDtd          $.intSubset is rw-ptr(
-            method xml6_doc_set_intSubset(xmlDtd) is native(BIND-LIB) {*}
+            method domSetIntSubset(xmlDtd) is native(BIND-LIB) {*}
     );   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
@@ -534,6 +542,11 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method new-pi(Str:D :$name!, Str :$content --> xmlPINode:D) {
        self.NewPI($name, $content);
     }
+    method NewEntityRef(xmlCharP $name --> xmlEntityRefNode) is native(LIB) is symbol('xmlNewReference') {*}
+    method new-ent-ref(Str:D :$name! --> xmlEntityRefNode:D) {
+       self.NewEntityRef($name);
+    }
+
     method xmlNodeGetBase(xmlNode) is native(LIB) returns xmlCharP {*}
     method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native(LIB) {*}

@@ -11,9 +11,11 @@
 #include "xml6.h"
 #include "xml6_node.h"
 
-#define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__,__LINE__,(string));}
+unsigned char *dom_error = NULL;
+
+#define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
 #define xs_warn(string) warn(string)
-#define croak(string) {warn(string);return NULL;}
+#define croak(string) {dom_error = (string);return NULL;}
 
 void
 domClearPSVIInList(xmlNodePtr list);
@@ -248,12 +250,36 @@ _domImportFrag(xmlNodePtr frag) {
     return fraglist;
 }
 
+void domSetIntSubset(xmlDocPtr self, xmlDtdPtr dtd) {
+  xmlDtdPtr old_dtd;
+
+  if (self == NULL) xml6_fail("unable to update null document");
+
+  old_dtd = self->intSubset;
+  if (old_dtd == dtd) {
+    return;
+  }
+
+  if (old_dtd != NULL) {
+      domReleaseNode((xmlNodePtr) old_dtd);
+  }
+
+  self->intSubset = dtd;
+}
+
 static xmlNodePtr
-_domReconcileSlice(xmlNodePtr head, xmlNodePtr tail) {
+_domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
     xmlNodePtr cur = head;
     while ( cur ) {
         /* we must reconcile all nodes in the fragment */
-        domReconcileNs(cur);
+        if (cur->type != XML_DTD_NODE) {
+            domReconcileNs(cur);
+        }
+        else {
+          if (cur->doc) {
+            domSetIntSubset(cur->doc, (xmlDtdPtr) cur);
+            }
+        }
         if ( !tail || cur == tail ) {
             break;
         }
@@ -630,7 +656,7 @@ domAppendChild( xmlNodePtr self,
         newChild->parent = self;
     }
 
-    _domReconcileSlice(head, tail);
+    _domAssimulate(head, tail);
     return head;
 }
 
@@ -702,7 +728,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     }
 
     if ( head ) {
-       _domReconcileSlice(head, tail);
+       _domAssimulate(head, tail);
     }
 
     return old;
@@ -756,7 +782,7 @@ domInsertBefore( xmlNodePtr self,
       head = _domAddNodeToList(newChild, refChild->prev, refChild, &tail);
     }
 
-    return _domReconcileSlice(head, tail);
+    return _domAssimulate(head, tail);
 }
 
 /*
@@ -809,7 +835,7 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
       head = _domAddNodeToList( newNode, prev,  next, &tail );
     }
 
-    _domReconcileSlice(head, tail);
+    _domAssimulate(head, tail);
 
     return oldNode;
 }

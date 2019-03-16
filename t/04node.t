@@ -527,7 +527,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is($attributes.elems, 2, ' TODO : Add test name');
 }
 
-skip("port remaining tests", 15);
+skip("port remaining tests", 11);
 =begin POD
 
 # 7. importing and adopting
@@ -585,6 +585,8 @@ skip("port remaining tests", 15);
     ok( $doc3.isSameNode( $xnode2.ownerDocument ), ' TODO : Add test name' );
 }
 
+=end POD
+
 {
   # appending empty fragment
   my $doc = LibXML::Document.new();
@@ -592,31 +594,32 @@ skip("port remaining tests", 15);
   my $root = $doc.createElement( 'foo' );
   my $r = $root.appendChild( $frag );
   # TEST
-  ok( $r, ' TODO : Add test name' );
+  nok( $r, ' TODO : Add test name' );
 }
 
 {
-   my $doc = LibXML::Document.new('1.0', 'UTF-8');
+   my $doc = LibXML::Document.new();
    my $schema = $doc.createElement('sphinx:schema');
-   eval { $schema.appendChild( $schema ) };
+   dies-ok { $schema.appendChild( $schema ) };
    # TEST
-   like ($@, qr/HIERARCHY_REQUEST_ERR/,
-       ' Thrown HIERARCHY_REQUEST_ERR exception'
-   );
+##   like ($@, qr/HIERARCHY_REQUEST_ERR/,
+##       ' Thrown HIERARCHY_REQUEST_ERR exception'
+##   );
 }
 
 {
-   my $doc = LibXML::Document.new('1.0', 'UTF-8');
-   my $attr = $doc.createAttribute('test','bar');
-   my $ent = $doc.createEntityReference('foo');
-   my $text = $doc.createTextNode('baz');
-   $attr.appendChild($ent);
-   $attr.appendChild($text);
-   # TEST
-   ok($attr.Str() eq ' test="bar&foo;baz"', ' TODO : Add test name');
+    use NativeCall;
+    use LibXML::Native;
+    my $doc = LibXML::Document.new();
+    my $attr = $doc.createAttribute('test','bar');
+    my $ent = $doc.createEntityReference('foo');
+    is $ent.Str, '&foo;';
+    my $text = $doc.createTextNode('baz');
+    $attr.appendChild($ent);
+    $attr.appendChild($text);
+    # TEST
+    is($attr.Str(:raw), ' test="bar&foo;baz"', ' TODO : Add test name');
 }
-
-=end POD
 
 {
     my $string = q:to<EOF>;
