@@ -14,13 +14,12 @@
 unsigned char *dom_error = NULL;
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
-#define xs_warn(string) warn(string)
 #define croak(string) {dom_error = (string);return NULL;}
 
-void
+DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
 
-void
+DLLEXPORT void
 domClearPSVI(xmlNodePtr tree) {
     xmlAttrPtr prop;
 
@@ -42,7 +41,7 @@ domClearPSVI(xmlNodePtr tree) {
         domClearPSVIInList(tree->children);
 }
 
-void
+DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list) {
     xmlNodePtr cur;
 
@@ -55,7 +54,7 @@ domClearPSVIInList(xmlNodePtr list) {
     }
 }
 
-void
+DLLEXPORT void
 domAddNsDef(xmlNodePtr tree, xmlNsPtr ns)
 {
         xmlNsPtr i = tree->nsDef;
@@ -68,7 +67,7 @@ domAddNsDef(xmlNodePtr tree, xmlNsPtr ns)
         }
 }
 
-char
+DLLEXPORT char
 domRemoveNsDef(xmlNodePtr tree, xmlNsPtr ns)
 {
         xmlNsPtr i = tree->nsDef;
@@ -113,7 +112,7 @@ _domAddNsChain(xmlNsPtr c, xmlNsPtr ns)
 }
 
 /* We need to be smarter with attributes, because the declaration is on the parent element */
-void
+static void
 _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused)
 {
         xmlNodePtr tree = attr->parent;
@@ -169,7 +168,7 @@ _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused)
  * declared in the scope of the corresponding node.
  **/
 
-void
+static void
 _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused)
 {
         if( tree->ns != NULL
@@ -226,7 +225,7 @@ _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused)
         }
 }
 
-void
+DLLEXPORT void
 domReconcileNs(xmlNodePtr tree)
 {
         xmlNsPtr unused = NULL;
@@ -250,7 +249,8 @@ _domImportFrag(xmlNodePtr frag) {
     return fraglist;
 }
 
-void domSetIntSubset(xmlDocPtr self, xmlDtdPtr dtd) {
+DLLEXPORT void
+domSetIntSubset(xmlDocPtr self, xmlDtdPtr dtd) {
   xmlDtdPtr old_dtd;
 
   if (self == NULL) xml6_fail("unable to update null document");
@@ -369,7 +369,7 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
  * trees. if the ref is a parent of the cur node the
  * function returns 1 (TRUE), otherwise 0 (FALSE).
  **/
-int
+DLLEXPORT int
 domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
     xmlNodePtr helper = NULL;
 
@@ -397,7 +397,7 @@ domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
     return 0;
 }
 
-int
+DLLEXPORT int
 domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode)
 {
     if ( !refNode || !cur ) {
@@ -431,7 +431,7 @@ domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode)
     return 1;
 }
 
-int
+DLLEXPORT int
 domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
 {
     if ( cur->type == XML_DOCUMENT_NODE ) {
@@ -452,7 +452,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
     return 1;
 }
 
-int
+DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr self) {
 
   xmlNodePtr cld;
@@ -472,7 +472,7 @@ domNodeIsReferenced(xmlNodePtr self) {
   return 0;
 }
 
-void
+DLLEXPORT void
 domReleaseNode( xmlNodePtr node ) {
     xmlUnlinkNode(node);
     if ( domNodeIsReferenced(node) == 0 ) {
@@ -480,7 +480,7 @@ domReleaseNode( xmlNodePtr node ) {
     }
 }
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
     xmlNodePtr imported_node = node;
 
@@ -519,7 +519,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
  * If the node belongs to a namespace it returns the prefix and
  * the local name. otherwise only the local name is returned.
  **/
-xmlChar*
+DLLEXPORT xmlChar*
 domName(xmlNodePtr node) {
     const xmlChar *prefix = NULL;
     const xmlChar *name   = NULL;
@@ -611,7 +611,7 @@ domName(xmlNodePtr node) {
  * If newCld belongs to a different DOM the node will be imported
  * implicit before it gets appended.
  **/
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domAppendChild( xmlNodePtr self,
                 xmlNodePtr newChild ){
     xmlNodePtr head = newChild;
@@ -629,7 +629,7 @@ domAppendChild( xmlNodePtr self,
         xmlUnlinkNode( newChild );
     }
     else {
-      //        xs_warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
+      //        warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
         /* xmlGenericError(xmlGenericErrorContext,"WRONG_DOCUMENT_ERR\n"); */
         newChild = domImportNode( self->doc, newChild, 1, 0 );
     }
@@ -660,7 +660,7 @@ domAppendChild( xmlNodePtr self,
     return head;
 }
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
     if ( self == NULL || old == NULL ) {
       return NULL;
@@ -678,7 +678,7 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
     return old ;
 }
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     xmlNodePtr head = new;
     xmlNodePtr tail = new;
@@ -734,8 +734,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     return old;
 }
 
-
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domInsertBefore( xmlNodePtr self,
                  xmlNodePtr newChild,
                  xmlNodePtr refChild ){
@@ -788,7 +787,7 @@ domInsertBefore( xmlNodePtr self,
 /*
  * this function does not exist in the spec although it's useful
  */
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domInsertAfter( xmlNodePtr self,
                 xmlNodePtr newChild,
                 xmlNodePtr refChild ){
@@ -798,7 +797,7 @@ domInsertAfter( xmlNodePtr self,
     return domInsertBefore( self, newChild, refChild->next );
 }
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
     xmlNodePtr prev = NULL, next = NULL, par = NULL;
     xmlNodePtr head = newNode;
@@ -840,7 +839,7 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
     return oldNode;
 }
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domRemoveChildNodes( xmlNodePtr self) {
   xmlNodePtr frag = xmlNewDocFragment( self->doc );
   xmlNodePtr elem = self->children;
@@ -859,21 +858,7 @@ domRemoveChildNodes( xmlNodePtr self) {
   return frag;
 }
 
-static void
-_set_int_subset(xmlDocPtr doc, xmlNodePtr dtd) {
-    xmlNodePtr old_dtd = (xmlNodePtr)doc->intSubset;
-    if (old_dtd == dtd) {
-        return;
-    }
-
-    if (old_dtd != NULL) {
-        domReleaseNode(old_dtd);
-    }
-
-    doc->intSubset = (xmlDtdPtr)dtd;
-}
-
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
 
     xmlNodePtr rv = NULL;
@@ -900,13 +885,13 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
         rv = xmlAddSibling( self, nNode );
 
         if ( rv && nNode->type == XML_DTD_NODE ) {
-            _set_int_subset(self->doc, nNode);
+          domSetIntSubset(self->doc, (xmlDtdPtr) nNode);
         }
     }
     return rv;
 }
 
-xmlChar*
+DLLEXPORT xmlChar*
 domGetNodeValue( xmlNodePtr n ) {
     xmlChar * retval = NULL;
     if( n != NULL ) {
@@ -928,19 +913,16 @@ domGetNodeValue( xmlNodePtr n ) {
         }
         else {
             if ( n->content != NULL ) {
-                xs_warn(" duplicate content\n" );
                 retval = xmlStrdup(n->content);
             }
             else if ( n->children != NULL ) {
                 xmlNodePtr cnode = n->children;
-                xs_warn(" use child content\n" );
                 /* ok then toString in this case ... */
                 while (cnode) {
                     xmlBufferPtr buffer = xmlBufferCreate();
                     /* buffer = xmlBufferCreate(); */
                     xmlNodeDump( buffer, n->doc, cnode, 0, 0 );
                     if ( buffer->content != NULL ) {
-                        xs_warn( "add item" );
                         if ( retval != NULL ) {
                             retval = xmlStrcat( retval, buffer->content );
                         }
@@ -958,7 +940,7 @@ domGetNodeValue( xmlNodePtr n ) {
     return retval;
 }
 
-void
+DLLEXPORT void
 domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     if ( n == NULL )
         return;
@@ -982,8 +964,7 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     }
 }
 
-
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = NULL;
@@ -1017,7 +998,7 @@ static int _domNamecmp(xmlNodePtr self, const xmlChar *pname) {
   return rv;
 }
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = NULL;
@@ -1043,8 +1024,7 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
     return rv;
 }
 
-
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     int any_name;
@@ -1077,7 +1057,7 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
     return rv;
 }
 
-xmlNsPtr
+DLLEXPORT xmlNsPtr
 domNewNs ( xmlNodePtr elem , xmlChar *prefix, xmlChar *href ) {
     xmlNsPtr ns = NULL;
 
@@ -1097,7 +1077,7 @@ domNewNs ( xmlNodePtr elem , xmlChar *prefix, xmlChar *href ) {
     return ns;
 }
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
     xmlChar * prefix    = NULL;
     xmlChar * localname = NULL;
@@ -1129,7 +1109,7 @@ domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
     return rv;
 }
 
-xmlChar *
+DLLEXPORT xmlChar*
 domGetAttribute(xmlNodePtr node, const xmlChar *qname) {
     xmlChar * prefix    = NULL;
     xmlChar * localname = NULL;
@@ -1160,7 +1140,7 @@ domGetAttribute(xmlNodePtr node, const xmlChar *qname) {
     return rv;
 }
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domSetAttributeNode( xmlNodePtr node, xmlAttrPtr attr ) {
     if ( node == NULL || attr == NULL ) {
         return attr;
@@ -1194,7 +1174,7 @@ domSetAttributeNode( xmlNodePtr node, xmlAttrPtr attr ) {
     return attr;
 }
 
-void
+DLLEXPORT void
 domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr)
 {
     xmlNodePtr children;
@@ -1221,10 +1201,10 @@ domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr)
 }
 
 
-int
+DLLEXPORT int
 domNodeNormalize( xmlNodePtr node );
 
-int
+DLLEXPORT int
 domNodeNormalizeList( xmlNodePtr nodelist )
 {
     while ( nodelist ){
@@ -1235,7 +1215,7 @@ domNodeNormalizeList( xmlNodePtr nodelist )
     return(1);
 }
 
-int
+DLLEXPORT int
 domNodeNormalize( xmlNodePtr node )
 {
     xmlNodePtr next = NULL;
@@ -1264,7 +1244,7 @@ domNodeNormalize( xmlNodePtr node )
     return(1);
 }
 
-int
+DLLEXPORT int
 domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns) {
     xmlAttrPtr attr;
     xmlNodePtr node = tree;
@@ -1311,7 +1291,7 @@ domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns) {
     return(1);
 }
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value) {
   xmlChar *buffer;
   xmlAttrPtr newAttr;
@@ -1322,7 +1302,7 @@ domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value) {
   return newAttr;
 }
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value ) {
   xmlChar * prefix = NULL;
   xmlChar * localname = NULL;
@@ -1365,7 +1345,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
   return newAttr;
 }
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value ) {
   xmlNsPtr   ns          = NULL;
   xmlChar    * localname = NULL;

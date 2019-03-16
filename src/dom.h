@@ -41,16 +41,23 @@ extern "C" {
 }
 #endif
 
+#ifdef _WIN32
+#define DLLEXPORT __declspec(dllexport)
+#else
+#define DLLEXPORT extern
+#endif
+
 /**
  * part 0:
  *
  * unsortet.
  **/
 
-void
+DLLEXPORT void
 domReconcileNS(xmlNodePtr tree);
 
-void domSetIntSubset(xmlDocPtr, xmlDtdPtr dtd);
+DLLEXPORT void
+domSetIntSubset(xmlDocPtr, xmlDtdPtr dtd);
 
 /**
  * NAME domIsParent
@@ -66,7 +73,7 @@ void domSetIntSubset(xmlDocPtr, xmlDtdPtr dtd);
  *
  * the function returns 1 if the ref node is a parent of the cur node.
  */
-int
+DLLEXPORT int
 domIsParent( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
@@ -85,7 +92,7 @@ domIsParent( xmlNodePtr cur, xmlNodePtr ref );
  * the function will retrun 1 if there is no hierarchical error found.
  * otherwise it returns 0.
  */
-int
+DLLEXPORT int
 domTestHierarchy( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
@@ -99,7 +106,7 @@ domTestHierarchy( xmlNodePtr cur, xmlNodePtr ref );
 * inserted. (e.g. Attribute or Element nodes must not be appended to a
 * document node)
 */
-int
+DLLEXPORT int
 domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
@@ -110,20 +117,20 @@ domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 
 /* A.1 DOM specified section */
 
-xmlChar *
+DLLEXPORT xmlChar*
 domName( xmlNodePtr node );
 
-void
+DLLEXPORT void
 domSetName( xmlNodePtr node, xmlChar* name );
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domAppendChild( xmlNodePtr self,
                 xmlNodePtr newChild );
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domReplaceChild( xmlNodePtr self,
                  xmlNodePtr newChlid,
                  xmlNodePtr oldChild );
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domRemoveChild( xmlNodePtr self,
                xmlNodePtr Child );
 xmlNodePtr
@@ -131,31 +138,31 @@ domInsertBefore( xmlNodePtr self,
                  xmlNodePtr newChild,
                  xmlNodePtr refChild );
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domInsertAfter( xmlNodePtr self,
                 xmlNodePtr newChild,
                 xmlNodePtr refChild );
 
 /* A.3 extra functionality not specified in DOM L1/2*/
-xmlChar*
+DLLEXPORT xmlChar*
 domGetNodeValue( xmlNodePtr self );
 
-void
+DLLEXPORT void
 domSetNodeValue( xmlNodePtr self, xmlChar* value );
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domReplaceNode( xmlNodePtr old, xmlNodePtr new );
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domRemoveChildNodes( xmlNodePtr self);
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domAddSibling( xmlNodePtr self, xmlNodePtr nNode );
 
-int
+DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr self);
 
-void
+DLLEXPORT void
 domReleaseNode( xmlNodePtr node );
 
 /**
@@ -182,7 +189,7 @@ domReleaseNode( xmlNodePtr node );
  * the function will return the imported node on success. otherwise NULL
  * is returned
  */
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domImportNode( xmlDocPtr document, xmlNodePtr node, int move, int reconcileNS );
 
 /**
@@ -191,47 +198,48 @@ domImportNode( xmlDocPtr document, xmlNodePtr node, int move, int reconcileNS );
  * class Element
  **/
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name );
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagName( xmlNodePtr self, xmlChar* name );
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domGetAttributeNode( xmlNodePtr node, const xmlChar *qname);
 
-xmlChar *
+DLLEXPORT xmlChar*
 domGetAttribute(xmlNodePtr node, const xmlChar *qname);
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
 
-int
+DLLEXPORT int
 domNodeNormalize( xmlNodePtr node );
 
-int
+DLLEXPORT int
 domNodeNormalizeList( xmlNodePtr nodelist );
 
-int
+DLLEXPORT int
 domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns);
 
-void
+DLLEXPORT void
 domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr);
 
-void
+DLLEXPORT void
 domClearPSVI(xmlNodePtr tree);
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value);
 
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value );
 
-
-xmlAttrPtr
+DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr, xmlChar *URI, xmlChar *name, xmlChar *value );
+
+DLLEXPORT unsigned char *dom_error;
 
 #endif
