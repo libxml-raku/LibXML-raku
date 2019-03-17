@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 173;
+plan 177;
 
 use LibXML;
 use LibXML::Enums;
@@ -527,14 +527,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is($attributes.elems, 2, ' TODO : Add test name');
 }
 
-skip("port remaining tests", 11);
-=begin POD
-
 # 7. importing and adopting
 
 {
     my $parser = LibXML.new;
-    my $doc1 = $parser.parse_string( "<foo>bar<foobar/></foo>" );
+    my $doc1 = $parser.parse: :string( "<foo>bar<foobar/></foo>" );
     my $doc2 = LibXML::Document.new;
 
     # TEST
@@ -557,7 +554,7 @@ skip("port remaining tests", 11);
     # TEST
     ok( $cndoc.isSameNode( $doc2 ), ' TODO : Add test name' );
 
-    my $xnode = LibXML::Element.new("test");
+    my $xnode = LibXML::Element.new: :name<test>;
 
     my $node2 = $doc2.importNode($xnode);
     # TEST
@@ -575,17 +572,16 @@ skip("port remaining tests", 11);
     # TEST
     ok( $xnode.isSameNode( $node3 ), ' TODO : Add test name' );
     # TEST
+    ok $node3.ownerDocument.defined, "have owner document";
     ok( $doc3.isSameNode( $node3.ownerDocument ), ' TODO : Add test name' );
 
-    my $xnode2 = LibXML::Element.new("test");
+    my $xnode2 = LibXML::Element.new: :name<test>;
     $xnode2.setOwnerDocument( $doc3 ); # alternate version of adopt node
     # TEST
     ok( $xnode2.ownerDocument, ' TODO : Add test name' );
     # TEST
     ok( $doc3.isSameNode( $xnode2.ownerDocument ), ' TODO : Add test name' );
 }
-
-=end POD
 
 {
   # appending empty fragment

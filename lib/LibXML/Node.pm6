@@ -18,9 +18,6 @@ class LibXML::Node {
         lookupNamespacePrefix lookupNamespaceURI
         URI baseURI nodeName nodeValue
     >;
-    method node is rw {
-        die "xxx";
-    }
 
     BEGIN {
         # wrap methods that return raw nodes
@@ -89,7 +86,7 @@ class LibXML::Node {
             STORE => sub ($, LibXML::Node $doc) {
                 with $doc {
                     unless ($!doc && $doc.isSameNode($!doc)) || $doc.isSameNode(self) {
-                        $doc.struct.domImportNode(self.struct, my $_move = True, my $_reconcile = True);
+                        $doc.adoptNode(self);
                     }
                 }
                 $!doc = $doc;
@@ -224,6 +221,7 @@ class LibXML::Node {
     }
 
     method ownerDocument { $!doc }
+    method setOwnerDocument(LibXML::Node:D $_) { self.doc = $_ }
     my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
     multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
@@ -310,7 +308,7 @@ class LibXML::Node {
     }
     method cloneNode(Bool() $deep) {
         my $struct = $!struct.cloneNode($deep);
-        self.new: :$struct;
+        self.new: :$struct, :$!doc;
     }
     method !get-attributes {
 

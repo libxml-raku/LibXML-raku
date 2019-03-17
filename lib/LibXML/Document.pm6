@@ -54,10 +54,13 @@ method !check-new-node($node, |) {
 }
 
 # don't allow more than one element in the document root
-method appendChild($node)    { self!check-new-node($node); nextsame; }
-method addChild($node)       { self!check-new-node($node); nextsame; }
-method insertBefore($node,$) { self!check-new-node($node); nextsame; }
-method insertAfter($node,$)  { self!check-new-node($node); nextsame; }
+method appendChild(LibXML::Node:D $node)    { self!check-new-node($node); nextsame; }
+method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsame; }
+method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
+method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
+
+method importNode(LibXML::Node:D $node) { self.dom-node: $.struct.importNode($node.struct); }
+method adoptNode(LibXML::Node:D $node)  { self.dom-node: $.struct.adoptNode($node.struct); }
 
 method getDocumentElement { $!documentElement }
 method setDocumentElement(LibXML::Element $_) {
