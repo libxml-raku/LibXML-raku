@@ -240,6 +240,6 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
 DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr, xmlChar *URI, xmlChar *name, xmlChar *value );
 
-DLLEXPORT unsigned char *dom_error;
+DLLEXPORT char *dom_error;
 
 #endif

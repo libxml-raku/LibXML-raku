@@ -11,7 +11,7 @@
 #include "xml6.h"
 #include "xml6_node.h"
 
-unsigned char *dom_error = NULL;
+char *dom_error = NULL;
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
 #define croak(string) {dom_error = (string);return NULL;}
