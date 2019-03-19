@@ -152,15 +152,10 @@ my $doc = LibXML::Document.new();
     is( $textnode.getData(), 'foo&amp;bar', ' TODO : Add test name' );
 }
 
-skip "todo port remaining tests", 29;
-=begin POD
-
 {
     # UTF-8 tests
 
     my $test_str  = "te\xDFt";
-    # Latin1 strings still fail.
-    utf8::upgrade($test_str);
 
     # 1. creation
     my $textnode = $doc.createTextNode($test_str);
@@ -168,7 +163,7 @@ skip "todo port remaining tests", 29;
     ok( $textnode, 'UTF-8 creation 1');
     # TEST
     is( $textnode.nodeValue(), $test_str,  'UTF-8 creation 2',);
-    my $foo_str = "\x{0444}oo\x{0431}ar";
+    my $foo_str = "\x[0444]oo\x[0431]ar";
     $textnode = $doc.createTextNode($foo_str);
     # TEST
     ok( $textnode, 'UTF-8 creation 3');
@@ -181,99 +176,100 @@ skip "todo port remaining tests", 29;
     is( $tnstr , "oo", 'UTF-8 substring 1');
     $tnstr = $textnode.substringData( 0,3 );
     # TEST
-    is( $tnstr , "\x{0444}oo", 'UTF-8 substring 2');
+    is( $tnstr , "\x[0444]oo", 'UTF-8 substring 2');
 
     # 3. Expansion
     $textnode.appendData( $foo_str );
     # TEST
-    is( $textnode.nodeValue(), $foo_str . $foo_str, 'UTF-8 expansion 1');
+    is( $textnode.nodeValue(), $foo_str ~ $foo_str, 'UTF-8 expansion 1');
 
-    my $ins_str = "\x{0424}OO";
+    my $ins_str = "\x[0424]OO";
     $textnode.insertData( 6, $ins_str );
     # TEST
-    is( $textnode.nodeValue(), $foo_str.$ins_str.$foo_str,
+    is( $textnode.nodeValue(), $foo_str ~ $ins_str ~ $foo_str,
         'UTF-8 expansion 2' );
 
     $textnode.setData( $foo_str );
     $textnode.insertData( 6, $ins_str );
     # TEST
-    is( $textnode.nodeValue(), $foo_str.$ins_str, 'UTF-8 expansion 3');
+    is( $textnode.nodeValue(), $foo_str ~ $ins_str, 'UTF-8 expansion 3');
 
     # 4. Removal
     $textnode.setData( $foo_str );
     $textnode.deleteData( 1,3 );
     # TEST
-    is( $textnode.nodeValue(), "\x{0444}ar", 'UTF-8 Removal 1');
+    is( $textnode.nodeValue(), "\x[0444]ar", 'UTF-8 Removal 1');
     $textnode.setData( $foo_str );
     $textnode.deleteData( 1,10 );
     # TEST
-    is( $textnode.nodeValue(), "\x{0444}", 'UTF-8 Removal 2');
+    is( $textnode.nodeValue(), "\x[0444]", 'UTF-8 Removal 2');
     $textnode.setData( $foo_str );
     $textnode.deleteData( 6,100 );
     # TEST
     is( $textnode.nodeValue(), $foo_str, 'UTF-8 Removal 3');
 
     # 5. Replacement
-    my $phish_str = "ph\x{2160}sh";
+    my $phish_str = "ph\x[2160]sh";
     $textnode.setData( $test_str );
     $textnode.replaceData( 1,2, $phish_str );
     # TEST
-    is( $textnode.nodeValue(), "t".$phish_str."t", 'UTF-8 Replacement 1');
+    is( $textnode.nodeValue(), "t" ~ $phish_str ~ "t", 'UTF-8 Replacement 1');
     $textnode.setData( $test_str );
     $textnode.replaceData( 1,4, $phish_str );
     # TEST
-    is( $textnode.nodeValue(), "t".$phish_str, 'UTF-8 Replacement 2');
+    is( $textnode.nodeValue(), "t" ~ $phish_str, 'UTF-8 Replacement 2');
     $textnode.setData( $test_str );
     $textnode.replaceData( 1,0, $phish_str );
     # TEST
-    is( $textnode.nodeValue(), "t".$phish_str."e\xDFt",
+    is( $textnode.nodeValue(), "t" ~ $phish_str ~ "e\xDFt",
         'UTF-8 Replacement 3');
 
     # 6. LibXML features
     $textnode.setData( $test_str );
 
-    my $new_str = "n\x{1D522}w";
+    my $new_str = "n\x[1D522]w";
     $textnode.replaceData( "e\xDF", $new_str );
     # TEST
-    is( $textnode.nodeValue(), "t".$new_str."t",
+    is( $textnode.nodeValue(), "t" ~ $new_str ~ "t",
         'UTF-8 replaceData() 1');
 
-    $textnode.replaceDataRegEx( 'n(.)w', '$1s' );
+    $textnode.replaceData( rx/n(.)w/, { "$0s" } );
     # TEST
-    is( $textnode.nodeValue(), "t\x{1D522}st", 'UTF-8 replaceDataRegEx() 2');
+    todo "proper substitution";
+    is( $textnode.nodeValue(), "t\x[1D522]st", 'UTF-8 replaceDataRegEx() 2');
 
     $textnode.setData( "blue $phish_str, white $phish_str, no $phish_str" );
-    $textnode.replaceDataRegEx( $phish_str, $test_str );
+    $textnode.replaceData( $phish_str, $test_str );
     # TEST
     is( $textnode.nodeValue(),
         "blue $test_str, white $phish_str, no $phish_str",
         'UTF-8 replaceDataRegEx 3',);
 
     # replace them all!
-    $textnode.replaceDataRegEx( $phish_str, $test_str, 'g' );
+    $textnode.replaceData( $phish_str, $test_str, :g );
     # TEST
     is( $textnode.nodeValue(),
         "blue $test_str, white $test_str, no $test_str",
         'UTF-8 replaceDataRegEx g',);
 
     # check if deleteDataString works
-    my $hit_str = "hi\x{1D54B}";
-    my $pit_str = "\x{2119}it";
+    my $hit_str = "hi\x[1D54B]";
+    my $pit_str = "\x[2119]it";
     $textnode.setData( "$hit_str$pit_str$hit_str" );
-    $textnode.deleteDataString( $hit_str );
+    $textnode.deleteData( $hit_str );
     # TEST
     is( $textnode.nodeValue(), "$pit_str$hit_str", 'UTF-8 deleteDataString 1' );
 
     # check if deleteDataString all works
     $textnode.setData( "$hit_str$pit_str$hit_str" );
-    $textnode.deleteDataString( $hit_str, 1 );
+    $textnode.deleteData( $hit_str, :g );
     # TEST
     is( $textnode.nodeValue(), $pit_str, 'UTF-8 deleteDataString 2' );
 }
 
 {
     # standalone test
-    my $node = LibXML::Text.new("foo");
+    my $node = LibXML::Text.new: :content<foo>;
     # TEST
     ok($node, ' TODO : Add test name');
     # TEST
@@ -283,10 +279,10 @@ skip "todo port remaining tests", 29;
 {
     # CDATA node name test
 
-    my $node = LibXML::CDATASection.new("test");
+    my $node = LibXML::CDATASection.new: :content<test>;
 
     # TEST
-    is( $node.string_value(), "test", ' TODO : Add test name' );
+    is( $node.string-value(), "test", ' TODO : Add test name' );
     # TEST
     is( $node.nodeName(), "#cdata-section", ' TODO : Add test name' );
 }
@@ -294,10 +290,10 @@ skip "todo port remaining tests", 29;
 {
     # Comment node name test
 
-    my $node = LibXML::Comment.new("test");
+    my $node = LibXML::Comment.new: :content<test>;
 
     # TEST
-    is( $node.string_value(), "test", ' TODO : Add test name' );
+    is( $node.string-value(), "test", ' TODO : Add test name' );
     # TEST
     is( $node.nodeName(), "#comment", ' TODO : Add test name' );
 }
@@ -319,4 +315,3 @@ skip "todo port remaining tests", 29;
     is( $node.nodeName(), "#document-fragment", ' TODO : Add test name' );
 }
 
-=end POD

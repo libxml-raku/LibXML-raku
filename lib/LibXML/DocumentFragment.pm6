@@ -9,7 +9,7 @@ use LibXML::Element;
 use NativeCall;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :struct($)!) {}
-multi submethod TWEAK(LibXML::Node :doc($doc-obj)!) {
+multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
     my xmlDoc:D $doc = .struct with $doc-obj;
     my xmlDocFrag $doc-frag-struct .= new: :$doc;
     self.struct = $doc-frag-struct;
