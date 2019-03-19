@@ -23,5 +23,6 @@ DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr, int);
 DLLEXPORT void xml6_node_set_doc(xmlNodePtr, xmlDocPtr);
 DLLEXPORT void xml6_node_set_ns(xmlNodePtr, xmlNsPtr);
 DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr, xmlNsPtr);
+DLLEXPORT void xml6_node_set_content(xmlNodePtr, xmlChar*);
 
 #endif /* __XML6_NODE_H */

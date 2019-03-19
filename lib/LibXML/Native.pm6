@@ -391,7 +391,9 @@ class xmlNode is domNode {
     has xmlNs           $.ns is rw-ptr(   # pointer to the associated namespace
         method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
     );
-    has xmlCharP        $.content;     # the content
+    has xmlCharP        $.content is rw-str(     # the content
+        method xml6_node_set_content(xmlCharP) is native(BIND-LIB) {*}
+    );
     has xmlAttr         $.properties;  # properties list
     has xmlNs           $.nsDef is rw-ptr( # namespace definitions on this node
         method xml6_node_set_nsDef(xmlNs) is native(BIND-LIB) {*}
@@ -425,6 +427,7 @@ class xmlTextNode is xmlNode is repr('CStruct') is export {
             $node;
         }
     }
+
 }
 
 class xmlCommentNode is xmlNode is repr('CStruct') is export {
@@ -879,20 +882,20 @@ class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
 class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
     sub xmlCreateMemoryParserCtxt(Blob $buf, int32 $len --> xmlMemoryParserCtxt) is native(LIB) {*}
-    method ParseDocument is native(LIB) is symbol('xmlParseDocument') {*}
+    method ParseDocument is native(LIB) is symbol('xmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
     multi method new( Str() :$string! ) {
         my Blob $buf = ($string || ' ').encode;
         self.new: :$buf;
     }
-    multi method new( Blob() :$buf!, UInt :$bytes = $buf.bytes ) {
+    multi method new( Blob() :$buf!, UInt :$bytes = $buf.bytes --> xmlMemoryParserCtxt:D) {
          xmlCreateMemoryParserCtxt($buf, $bytes);
     }
 }
 
 class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
     sub htmlCreateMemoryParserCtxt(Blob $buf, int32 $len --> htmlMemoryParserCtxt) is native(LIB) {*}
-    method ParseDocument is native(LIB) is symbol('htmlParseDocument') {*}
+    method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
     multi method new( Str() :$string! ) {
         my Blob $buf = $string.encode;

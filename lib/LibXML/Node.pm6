@@ -33,7 +33,7 @@ class LibXML::Node {
         }
         # single node argument constructor
         for <appendChild> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $ret) { self.dom-node( $!struct."$_"($ret.struct), :$ret); });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $cont) { self.dom-node( $!struct."$_"($cont.struct), :$cont); });
         }
         for <replaceNode addSibling> {
             $?CLASS.^add_method($_, method (LibXML::Node:D $new) { self.dom-node( $!struct."$_"($new.struct)); });
@@ -45,16 +45,16 @@ class LibXML::Node {
         # two node arguments
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
-                $_, method (LibXML::Node:D $ret, LibXML::Node $ref) {
-                    self.dom-node($!struct."$_"($ret.struct, do with $ref {.struct} else {domNode}), :$ret);
+                $_, method (LibXML::Node:D $cont, LibXML::Node $ref) {
+                    self.dom-node($!struct."$_"($cont.struct, do with $ref {.struct} else {domNode}), :$cont);
                 });
         }
     }
 
-    method replaceChild(LibXML::Node $new, $ret) {
+    method replaceChild(LibXML::Node $new, $cont) {
         self.dom-node(
-            $!struct.replaceChild($new.struct, $ret.struct),
-            :$ret
+            $!struct.replaceChild($new.struct, $cont.struct),
+            :$cont
         );
     }
 
@@ -100,7 +100,7 @@ class LibXML::Node {
     method namespaceURI { .href with $!struct.ns }
     method line-number { $!struct.GetLineNo }
 
-    sub class-delegate(domNode $node) {
+    sub delegate-class(domNode $node) {
         given +$node.type {
             when XML_ELEMENT_NODE       { require LibXML::Element }
             when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
@@ -140,13 +140,13 @@ class LibXML::Node {
 
     method dom-node(LibXML::Native::DOM::Node $vanilla-struct,
                     LibXML::Node :$doc is copy = $.doc, # reusable document object
-                    LibXML::Node :$ret                  # reusable return container
+                    LibXML::Node :$cont                  # reusable return container
                                  --> LibXML::Node) {
         with $vanilla-struct {
             my $struct := cast-struct($_);
             given $struct {
-                when $ret.defined && $ret.struct.isSameNode($_) {
-                    $ret;
+                when $cont.defined && $cont.struct.isSameNode($_) {
+                    $cont;
                 }
                 default {
                     # create a new object. reuse document object, if possible
@@ -161,13 +161,13 @@ class LibXML::Node {
                         # Not in a document
                         $doc = LibXML::Node;
                     }
-                    with $ret {
+                    with $cont {
                         # unable to reuse the container object for the returned node.
                         # unexpected, except for document fragments, which are discarded.
                         warn "hmm, returning unexpected node: {$struct.Str}"
-                            unless $ret.struct.type == XML_DOCUMENT_FRAG_NODE;
+                            unless $cont.struct.type == XML_DOCUMENT_FRAG_NODE;
                     }
-                    class-delegate($_).new: :struct($_), :$doc;
+                    delegate-class($_).new: :struct($_), :$doc;
                 }
             }
         } else {
@@ -259,9 +259,9 @@ class LibXML::Node {
         .Release with $!struct.getAttributeNode($name);
         self.dom-node: $!struct.setAttribute($name, $value);
     }
-    method setAttributeNode(AttrNode:D $ret) {
-        .Release with $!struct.getAttributeNode($ret.name);
-        self.dom-node: $!struct.setAttributeNode($ret.struct), :$ret;
+    method setAttributeNode(AttrNode:D $cont) {
+        .Release with $!struct.getAttributeNode($cont.name);
+        self.dom-node: $!struct.setAttributeNode($cont.struct), :$cont;
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
         self.dom-node: $!struct.setAttributeNS($uri, .key, .value);
@@ -293,14 +293,14 @@ class LibXML::Node {
     method getNamespaces {
         $!struct.getNamespaces.map: { LibXML::Namespace.dom-node($_, :$!doc) }
     }
-    method removeChild(LibXML::Node:D $ret --> LibXML::Node) {
-        with $!struct.removeChild($ret.struct) {
-            $ret.doc = LibXML::Node;
-            self.dom-node: $_, :$ret;
+    method removeChild(LibXML::Node:D $cont --> LibXML::Node) {
+        with $!struct.removeChild($cont.struct) {
+            $cont.doc = LibXML::Node;
+            self.dom-node: $_, :$cont;
         }
         else {
             # not a child
-            $ret.WHAT;
+            $cont.WHAT;
         }
     }
     method removeChildNodes(--> LibXML::Node) {

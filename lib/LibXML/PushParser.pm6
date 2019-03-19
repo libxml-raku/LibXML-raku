@@ -1,12 +1,12 @@
 class LibXML::PushParser {
     use LibXML::Native;
-    use LibXML::ParserContext;
+    use LibXML::ErrorHandler;
     use LibXML::Document;
 
     has Bool $.html;
     has @!errors;
     has parserCtxt $!ctx;
-    has LibXML::ParserContext $!pc;
+    has LibXML::ErrorHandler $!errors;
     has Int $.err = 0;
     method ctx { $!ctx }
 
@@ -18,7 +18,7 @@ class LibXML::PushParser {
     multi submethod TWEAK(Blob :$chunk!, Str :$path, xmlSAXHandler :$sax, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
         $!ctx = ctx-class.new: :$chunk, :$path, :$sax;
-        $!pc .= new: :$!ctx, |c;
+        $!errors .= new: :$!ctx, |c;
     }
 
     method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$terminate = False) {
@@ -40,10 +40,11 @@ class LibXML::PushParser {
 
     method finish-push(Str :$uri, Bool :$recover = False) {
         self!parse-chunk: :terminate;
-	$!pc.flush-errors: :$recover;
+	$!errors.flush: :$recover;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
         my $doc := LibXML::Document.new( :$!ctx, :$uri);
+        $!errors = Nil;
         $!ctx = Nil;
         $doc;
     }

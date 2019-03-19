@@ -16,7 +16,7 @@ use NativeCall;
 constant config = LibXML::Config;
 has parserCtxt $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
-# todo eliminate raw node handling
+
 method struct is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
@@ -212,6 +212,5 @@ method Blob(Bool() :$format = False) {
 
 submethod DESTROY {
     .Free with $!ctx;
-    $!ctx = Nil;
     # we're already invoking LibXML::Node.DESTROY
 }

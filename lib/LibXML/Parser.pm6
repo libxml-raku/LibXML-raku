@@ -41,13 +41,13 @@ class LibXML::Parser {
                      })
     }
 
-    method !context(parserCtxt:D :$ctx!) {
+    method !error-handler(parserCtxt:D :$ctx!) {
         $ctx.sax = $_ with $!sax;
-        LibXML::ParserContext.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
+        LibXML::ErrorHandler.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
 
-    method !finish(LibXML::Document $doc, :$URI, LibXML::ParserContext :$pc!) {
-        $pc.flush-errors: :$!recover;
+    method !finish(LibXML::Document:D $doc, :$URI, LibXML::ErrorHandler :$errors!) {
+        $errors.flush: :$!recover;
         $doc.baseURI = $_ with $URI;
         self.process-xincludes($doc)
             if $.expand-xinclude;
@@ -58,11 +58,10 @@ class LibXML::Parser {
         my xmlDoc $doc = .struct;
         my xmlParserCtxt $ctx .= new;
         $ctx.sax = $_ with $!sax;
-        my LibXML::ParserContext $pc = self!context: :$ctx;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         my $n = $doc.XIncludeProcessFlags($!flags);
         $ctx.Free;
-        $pc.ctx = Nil;
-        $pc.flush-errors: :$!recover;
+        $errors.flush: :$!recover;
         $n;
     }
 
@@ -80,9 +79,9 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ParserContext $pc = self!context: :$ctx;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         $ctx.ParseDocument;
-        self!finish: LibXML::Document.new(:$ctx), :$pc;
+        self!finish: LibXML::Document.new(:$ctx), :$errors;
     }
 
     multi method parse(Blob :$buf!,
@@ -97,9 +96,9 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ParserContext $pc = self!context: :$ctx;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         $ctx.ParseDocument;
-        self!finish: LibXML::Document.new(:$ctx), :$pc;
+        self!finish: LibXML::Document.new(:$ctx), :$errors;
     }
 
     multi method parse(IO() :$file!,
@@ -113,16 +112,9 @@ class LibXML::Parser {
            ?? htmlFileParserCtxt.new(:$file)
            !! xmlFileParserCtxt.new(:$file);
 
-        my LibXML::ParserContext $pc = self!context: :$ctx;
-
-        if $ctx.ParseDocument == 0 {
-            self!finish: LibXML::Document.new(:$ctx), :$URI, :$pc;
-        }
-        else {
-            $ctx.Free;
-            $pc.ctx = Nil;
-            $pc.flush-errors: :$!recover;
-        }
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
+        $ctx.ParseDocument;
+        self!finish: LibXML::Document.new(:$ctx), :$URI, :$errors;
     }
 
     multi method parse(IO::Handle :$io!,

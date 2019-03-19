@@ -167,7 +167,7 @@ $parser.keep-blanks = False;
 }
 
 for @badWFStrings -> $string {
-    dies-ok { $parser.parse: :$string; };
+    dies-ok({ $parser.parse: :$string; }, "keep-blanks error:'{shorten_string($string)}'");
 }
 
 $parser.keep-blanks = True;
@@ -186,7 +186,7 @@ $parser.expand-entities = False;
 dies-ok { $parser.parse: :string(Str); };
 
 for @badWFStrings -> $string {
-    dies-ok { $parser.parse: :$string; };
+    dies-ok { $parser.parse: :$string; }, "expand-entities error:'{shorten_string($string)}'";
 }
 
 $parser.expand-entities = True;
@@ -203,7 +203,7 @@ $parser.pedantic-parser = True;
 }
 
 for @badWFStrings -> $string {
-    dies-ok { $parser.parse(:$string); };
+    dies-ok { $parser.parse(:$string); }, "pedantic-parser error:'{shorten_string($string)}'";
 }
 
 $parser.pedantic-parser = 0;
@@ -373,13 +373,13 @@ my $badXInclude = q{
             $parser.parse-chunk( $_ );
         }
         my $doc = $parser.parse-chunk("",:terminate);
-        isa-ok($doc, 'LibXML::Document');
+        isa-ok($doc, 'LibXML::Document', "parse multipe chunks");
     }
 
     {
         # 2.2 PARSING BROKEN DOCUMENTS
         my $doc;
-        for %bad_strings.keys -> $key {
+        for %bad_strings.keys.sort -> $key {
             $doc = Nil;
 	    my $bad-chunk;
             my $err;
@@ -495,7 +495,7 @@ use LibXML::SAX;
 
     for @goodWFDTDStrings -> $string {
         my $doc = $generator.parse: :$string;
-        isa-ok( $doc , 'LibXML::Document');
+        isa-ok( $doc , 'LibXML::Document', "dtd $string");
     }
 
     # 3.5 PARSE FILE
@@ -521,8 +521,8 @@ use LibXML::SAX;
         }
 
         my $doc;
-        lives-ok {$doc = $parser.finish-push; };
-        isa-ok( $doc , 'LibXML::Document');
+        lives-ok {$doc = $parser.finish-push; }, "sax push parse $key";
+        isa-ok( $doc , 'LibXML::Document', "sax push parse $key");
     }
 }
 
@@ -795,22 +795,22 @@ SKIP: {
     $parser.clean-namespaces = True;
 
     is( $parser.parse(:string( $xsDoc1 )).documentElement.Str,
-        q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
+        q{<A:B xmlns:A="http://D"><A:C/></A:B>}, "string ns parse" );
     is( $parser.parse(:string( $xsDoc2 )).documentElement.Str,
-        $xsDoc2 );
+        $xsDoc2, "string ns parse" );
 
     is( $parser.parse(:file($fn1)).documentElement.Str,
-        q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
+        q{<A:B xmlns:A="http://D"><A:C/></A:B>}, "file ns parse" );
     is( $parser.parse(:file($fn2)).documentElement.Str,
-        $xsDoc2 );
+        $xsDoc2, "file ns parse" );
 
     my $fh1 = $fn1.IO;
     my $fh2 = $fn2.IO;
 
     is( $parser.parse(:io($fh1)).documentElement,
-        q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
+        q{<A:B xmlns:A="http://D"><A:C/></A:B>}, "io ns parse" );
     is( $parser.parse(:io($fh2 )).documentElement ,
-        $xsDoc2 );
+        $xsDoc2, "io ns parse" );
 
     my @xaDoc1 = ('<A:B xmlns:A="http://D">','<A:C xmlns:A="h','ttp://D"/>' ,'</A:B>');
     my @xaDoc2 = ('<A:B xmlns:A="http://D">','<A:C xmlns:A="h','ttp://E"/>' , '</A:B>');
@@ -823,7 +823,7 @@ SKIP: {
     $doc = $parser.parse-chunk: :terminate;
 
     is( $doc.documentElement,
-        q{<A:B xmlns:A="http://D"><A:C/></A:B>} );
+        q{<A:B xmlns:A="http://D"><A:C/></A:B>}, "chunk ns parse" );
 
 
     for @xaDoc2 {
@@ -831,7 +831,7 @@ SKIP: {
     }
     $doc = $parser.parse-chunk: :terminate;
     is( $doc.documentElement,
-        $xsDoc2 );
+        $xsDoc2, "chunk ns parse" );
 };
 
 ##
@@ -903,24 +903,24 @@ EOXML
 
    my $doc = $parser.parse: :string('<foo xml:base="foo.xml"/>'), :URI<bar.xml>;
    my $el = $doc.documentElement;
-   is( $doc.URI, "bar.xml" );
-   is( $doc.baseURI, "bar.xml" );
-   is( $el.baseURI, "foo.xml" );
+   is( $doc.URI, "bar.xml", "xml uris" );
+   is( $doc.baseURI, "bar.xml", "xml uris" );
+   is( $el.baseURI, "foo.xml", "xml uris" );
 
    $doc.URI = "baz.xml";
-   is( $doc.URI, "baz.xml" );
-   is( $doc.baseURI, "baz.xml" );
-   is( $el.baseURI, "foo.xml" );
+   is( $doc.URI, "baz.xml", "xml uris" );
+   is( $doc.baseURI, "baz.xml", "xml uris" );
+   is( $el.baseURI, "foo.xml", "xml uris" );
 
    $doc.baseURI = "bag.xml";
-   is( $doc.URI, "bag.xml" );
-   is( $doc.baseURI, "bag.xml" );
-   is( $el.baseURI, "foo.xml" );
+   is( $doc.URI, "bag.xml", "xml uris" );
+   is( $doc.baseURI, "bag.xml", "xml uris" );
+   is( $el.baseURI, "foo.xml", "xml uris" );
 
    $el.baseURI = "bam.xml" ;
-   is( $doc.URI, "bag.xml" );
-   is( $doc.baseURI, "bag.xml" );
-   is( $el.baseURI, "bam.xml" );
+   is( $doc.URI, "bag.xml", "xml uris" );
+   is( $doc.baseURI, "bag.xml", "xml uris" );
+   is( $el.baseURI, "bam.xml", "xml uris" );
 
 }
 
@@ -930,14 +930,14 @@ EOXML
 
    my $doc = $parser.parse: :html, :string('<html><head><base href="foo.html"></head><body></body></html>'), :URI<bar.html>;
    my $el = $doc.documentElement;
-   is( $doc.URI, "bar.html" );
-   is( $doc.baseURI, "foo.html" );
-   is( $el.baseURI, "foo.html" );
+   is( $doc.URI, "bar.html", "html uris" );
+   is( $doc.baseURI, "foo.html", "html uris" );
+   is( $el.baseURI, "foo.html", "html uris" );
 
    $doc.URI = "baz.html";
-   is( $doc.URI, "baz.html" );
-   is( $doc.baseURI, "foo.html" );
-   is( $el.baseURI, "foo.html" );
+   is( $doc.URI, "baz.html", "html uris" );
+   is( $doc.baseURI, "foo.html", "html uris" );
+   is( $el.baseURI, "foo.html", "html uris" );
 
 }
 
