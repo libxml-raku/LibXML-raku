@@ -10,7 +10,7 @@ use NativeCall;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :struct($)!) {}
 multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
-    my xmlDoc:D $doc = .struct with $doc-obj;
+    my xmlDoc:D $doc = .unbox with $doc-obj;
     my xmlDocFrag $doc-frag-struct .= new: :$doc;
     self.struct = $doc-frag-struct;
 }
@@ -27,7 +27,7 @@ method parse-balanced(Str() :$chunk!,
     die "balanced parse failed with status $stat"
         if $stat && !$repair;
 
-    $.struct.AddChildList($_) with $nodes.deref;
+    $.unbox.AddChildList($_) with $nodes.deref;
 
     $stat;
 }

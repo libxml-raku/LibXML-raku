@@ -7,12 +7,12 @@ use LibXML::Native;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :struct($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($owner), Str :$content!) {
-    my xmlDoc $doc = .struct with $owner;
+    my xmlDoc $doc = .unbox with $owner;
     my xmlTextNode $text-struct .= new: :$content, :$doc;
     self.struct = $text-struct;
 }
 
-method Str is rw handles <substr substr-rw> { $.struct.content; }
+method Str is rw handles <substr substr-rw> { $.unbox.content; }
 
 # DOM Boot-leather
 method substringData(UInt:D $off, UInt:D $len) { $.substr($off, $len) }

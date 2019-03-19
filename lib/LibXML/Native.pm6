@@ -360,7 +360,6 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
-    method xmlUnlinkNode(--> domNode) is native(LIB) {*}
     method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}

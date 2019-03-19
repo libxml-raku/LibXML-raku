@@ -40,10 +40,10 @@ multi method createElement(QName $name, Str:D :$href!) {
     $.createElementNS($href, $name);
 }
 multi method createElement(QName $name) {
-    self.dom-node: $.struct.createElement($name);
+    self.box: $.unbox.createElement($name);
 }
 method createElementNS(Str:D $href, QName:D $name) {
-    self.dom-node: $.struct.createElementNS($href, $name);
+    self.box: $.unbox.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -59,8 +59,8 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
-method importNode(LibXML::Node:D $node) { self.dom-node: $.struct.importNode($node.struct); }
-method adoptNode(LibXML::Node:D $node)  { self.dom-node: $.struct.adoptNode($node.struct); }
+method importNode(LibXML::Node:D $node) { self.box: $.unbox.importNode($node.unbox); }
+method adoptNode(LibXML::Node:D $node)  { self.box: $.unbox.adoptNode($node.unbox); }
 
 method getDocumentElement { $!documentElement }
 method setDocumentElement(LibXML::Element $_) {
@@ -73,7 +73,7 @@ method documentElement is rw {
         },
         STORE => sub ($, $!documentElement) {
             $!documentElement.doc = self;
-            $.struct.documentElement = $!documentElement.struct;
+            $.unbox.documentElement = $!documentElement.unbox;
         }
     );
 }
@@ -87,13 +87,13 @@ multi method createAttribute(QName:D $name,
                              Str $value = '',
                              Str:D :$href!,
                             ) {
-    self.dom-node: $.struct.createAttributeNS($href, $name, $value);
+    self.box: $.unbox.createAttributeNS($href, $name, $value);
 }
 
 multi method createAttribute(QName:D $name,
                              Str $value = '',
                             ) {
-    self.dom-node: $.struct.createAttribute($name, $value);
+    self.box: $.unbox.createAttribute($name, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
@@ -103,7 +103,7 @@ multi method createAttributeNS(Str $href,
                          QName:D $name,
                          Str $value = '',
                         ) {
-    self.dom-node: $.struct.createAttributeNS($href, $name, $value);
+    self.box: $.unbox.createAttributeNS($href, $name, $value);
 }
 
 method createDocument(Str :$version = '1.0',
@@ -160,7 +160,7 @@ method Str(Bool() :$format = False) {
         $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
     }
     else {
-        my xmlDoc $doc = $.struct;
+        my xmlDoc $doc = $.unbox;
         my Str $rv;
 
         if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
@@ -189,7 +189,7 @@ method Blob(Bool() :$format = False) {
         $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join.encode;
     }
     else {
-        my xmlDoc $doc = $.struct;
+        my xmlDoc $doc = $.unbox;
         my Blob $rv;
 
         if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {

@@ -55,7 +55,7 @@ class LibXML::Parser {
     }
 
     method process-xincludes(LibXML::Document $_, Bool :$recover = $!recover) {
-        my xmlDoc $doc = .struct;
+        my xmlDoc $doc = .unbox;
         my xmlParserCtxt $ctx .= new;
         $ctx.sax = $_ with $!sax;
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;

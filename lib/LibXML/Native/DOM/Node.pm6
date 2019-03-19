@@ -32,6 +32,8 @@ method domGetChildrenByTagNameNS { ... }
 
 enum <SkipBlanks KeepBlanks>;
 
+method unbox { self } # already unboxed
+
 method firstChild { self.first-child(KeepBlanks); }
 method firstNonBlankChild { self.first-child(SkipBlanks); }
 method lastChild { self.last }
@@ -44,10 +46,18 @@ method appendChild(Node $nNode) {
 my subset AttrNode of Node where .type == XML_ATTRIBUTE_NODE;
 
 method setAttribute(QName:D $name, Str:D $value) {
-    self.SetProp($name, $value);
+    with self.getAttributeNode($name) {
+        .nodeValue = $value;
+    }
+    else {
+        self.SetProp($name, $value);
+    }
 }
 
 method setAttributeNode(AttrNode $att) {
+    with self.getAttributeNode($att.name) {
+        .Release unless .isSameNode($att);
+    }
     self.domSetAttributeNode($att);
 }
 
@@ -55,7 +65,34 @@ method getAttributeNode(QName:D $att-name) {
     self.domGetAttributeNode($att-name);
 }
 
-method getAttributeNodeNS(Str $uri, QName:D $att-name) {
+method hasAttribute(Str $att-name --> Bool) {
+    self.getAttributeNode($att-name).defined;
+}
+
+method hasAttributeNS(Str $uri, Str $att-name --> Bool) {
+    self.getAttributeNS($uri, $att-name).defined;
+}
+
+method removeAttribute(Str:D $attr-name) {
+    .Release with self.getAttributeNode($attr-name);
+}
+
+method removeAttributeNode(AttrNode:D $attr --> Node) {
+    if $attr.type == XML_ATTRIBUTE_NODE
+    && self.isSameNode($attr.parent) {
+        $attr.Unlink;
+        $attr;
+    }
+    else {
+        Node;
+    }
+}
+
+method removeAttributeNS(Str $uri, Str $attr-name) {
+    .Release with self.getAttributeNodeNS($uri, $attr-name);
+}
+
+    method getAttributeNodeNS(Str $uri, QName:D $att-name) {
     self.NsPropNode($att-name, $uri);
 }
 

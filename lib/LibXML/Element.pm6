@@ -10,7 +10,7 @@ use LibXML::Namespace;
 
 multi submethod TWEAK(xmlNode:D :struct($)!) { }
 multi submethod TWEAK(:doc($owner), QName :$name!, xmlNs :$ns) {
-    my xmlDoc:D $doc = .struct with $owner;
+    my xmlDoc:D $doc = .unbox with $owner;
     self.struct = xmlNode.new: :$name, :$doc, :$ns;
 }
 
@@ -23,7 +23,7 @@ sub iterate(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
             my $this = $!cur;
             $_ = .next with $!cur;
             with $this -> $node {
-                $obj.dom-node: $node, :$doc
+                $obj.box: $node, :$doc
             }
             else {
                 IterationEnd;
@@ -33,6 +33,6 @@ sub iterate(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
 }
 
 method namespaces {
-    iterate(LibXML::Namespace, $.struct.nsDef, :$.doc);
+    iterate(LibXML::Namespace, $.unbox.nsDef, :$.doc);
 }
 

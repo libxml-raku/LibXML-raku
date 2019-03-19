@@ -14,8 +14,10 @@ class LibXML::Node {
     has domNode $.struct handles <
         domCheck
         Str string-value content
-        hasChildNodes hasAttributes
+        getAttribute getAttributeNS
+        hasChildNodes hasAttributes hasAttribute hasAttributeNS
         lookupNamespacePrefix lookupNamespaceURI
+        removeAttribute removeAttributeNS
         URI baseURI nodeName nodeValue
     >;
 
@@ -29,32 +31,32 @@ class LibXML::Node {
              parent parentNode
              prev previousSibling previousNonBlankSibling
         > {
-            $?CLASS.^add_method($_, method { self.dom-node: $!struct."$_"() });
+            $?CLASS.^add_method($_, method { self.box: $.unbox."$_"() });
         }
         # single node argument constructor
         for <appendChild> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $cont) { self.dom-node( $!struct."$_"($cont.struct), :$cont); });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $box) { self.box( $.unbox."$_"($box.unbox), :$box); });
         }
         for <replaceNode addSibling> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $new) { self.dom-node( $!struct."$_"($new.struct)); });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $new) { self.box( $.unbox."$_"($new.unbox)); });
         }
         # single node argument unconstructed
         for <isSameNode> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $!struct."$_"($n1.struct) });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $.unbox."$_"($n1.unbox) });
         }
         # two node arguments
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
-                $_, method (LibXML::Node:D $cont, LibXML::Node $ref) {
-                    self.dom-node($!struct."$_"($cont.struct, do with $ref {.struct} else {domNode}), :$cont);
+                $_, method (LibXML::Node:D $box, LibXML::Node $ref) {
+                    self.box($.unbox."$_"($box.unbox, do with $ref {.unbox} else {domNode}), :$box);
                 });
         }
     }
 
-    method replaceChild(LibXML::Node $new, $cont) {
-        self.dom-node(
-            $!struct.replaceChild($new.struct, $cont.struct),
-            :$cont
+    method replaceChild(LibXML::Node $new, $box) {
+        self.box(
+            $.unbox.replaceChild($new.unbox, $box.unbox),
+            :$box
         );
     }
 
@@ -69,17 +71,16 @@ class LibXML::Node {
         );
     }
 
-    submethod TWEAK(:$node) {
-        with $node { die }
+    submethod TWEAK {
         .add-reference with $!struct;
     }
 
     method doc is rw {
         Proxy.new(
             FETCH => sub ($) {
-                given self.struct.doc -> $struct {
+                given self.unbox.doc -> $struct {
                     $!doc .= new: :$struct
-                        if ! ($!doc && !$!doc.struct.isSameNode($struct));
+                        if ! ($!doc && !$!doc.unbox.isSameNode($struct));
                 }
                 $!doc;
             },
@@ -94,11 +95,12 @@ class LibXML::Node {
         );
     }
 
-    method nodeType { $!struct.type }
-    method localname { $!struct.name }
-    method prefix { .prefix with $!struct.ns }
-    method namespaceURI { .href with $!struct.ns }
-    method line-number { $!struct.GetLineNo }
+    method nodeType  { $.unbox.type }
+    method tagName   { $.nodeName }
+    method localname { $.unbox.name }
+    method prefix { .prefix with $.unbox.ns }
+    method namespaceURI { .href with $.unbox.ns }
+    method line-number { $.unbox.GetLineNo }
 
     sub delegate-class(domNode $node) {
         given +$node.type {
@@ -138,39 +140,40 @@ class LibXML::Node {
         nativecast( $delegate, $struct);
     }
 
-    method dom-node(LibXML::Native::DOM::Node $vanilla-struct,
+    method unbox {$!struct}
+
+    method box(LibXML::Native::DOM::Node $vanilla-struct,
                     LibXML::Node :$doc is copy = $.doc, # reusable document object
-                    LibXML::Node :$cont                  # reusable return container
+                    LibXML::Node :$box                  # reusable return container
                                  --> LibXML::Node) {
-        with $vanilla-struct {
-            my $struct := cast-struct($_);
-            given $struct {
-                when $cont.defined && $cont.struct.isSameNode($_) {
-                    $cont;
-                }
-                default {
-                    # create a new object. reuse document object, if possible
-                    with $struct.doc -> $doc-struct {
-                        # can we reuse the document object?
-                        with $doc {
-                            $doc = LibXML::Node
-                                unless .struct.isSameNode($doc-struct);
-                        }
-                    }
-                    else {
-                        # Not in a document
-                        $doc = LibXML::Node;
-                    }
-                    with $cont {
-                        # unable to reuse the container object for the returned node.
-                        # unexpected, except for document fragments, which are discarded.
-                        warn "hmm, returning unexpected node: {$struct.Str}"
-                            unless $cont.struct.type == XML_DOCUMENT_FRAG_NODE;
-                    }
-                    delegate-class($_).new: :struct($_), :$doc;
-                }
+        if $vanilla-struct.defined {
+            if $box.defined && $box.unbox.isSameNode($vanilla-struct) {
+                $box;
             }
-        } else {
+            else {
+                my $struct := cast-struct($vanilla-struct);
+                # create a new box object. reuse document object, if possible
+                with $struct.doc -> $doc-struct {
+                    # can we reuse the document object?
+                    with $doc {
+                        $doc = LibXML::Node
+                        unless .unbox.isSameNode($doc-struct);
+                    }
+                }
+                else {
+                    # Not in a document
+                    $doc = LibXML::Node;
+                }
+                with $box {
+                    # unable to reuse the container object for the returned node.
+                    # unexpected, except for document fragments, which are discarded.
+                    die "returned unexpected node: {$struct.Str}"
+                        unless $box.unbox.type == XML_DOCUMENT_FRAG_NODE;
+                }
+                delegate-class($struct).new: :$struct, :$doc;
+            }
+        }
+        else {
             LibXML::Node;
         }
     }
@@ -186,7 +189,7 @@ class LibXML::Node {
                 my $this = $!cur;
                 $_ = .next-node($keep-blanks) with $!cur;
                 with $this -> $node {
-                    $obj.dom-node: $node, :$doc
+                    $obj.box: $node, :$doc
                 }
                 else {
                     IterationEnd;
@@ -211,7 +214,7 @@ class LibXML::Node {
             method pull-one {
                 if $!set.defined && $!idx < $!set.nodeNr {
                     my domNode:D $node := nativecast(domNode, $!set.nodeTab[$!idx++]);
-                        $obj.dom-node: $node
+                        $obj.box: $node
                 }
                 else {
                     IterationEnd;
@@ -220,94 +223,84 @@ class LibXML::Node {
         }.new( :$set );
     }
 
-    method ownerDocument { $!doc }
+    method ownerDocument is rw { $!doc }
     method setOwnerDocument(LibXML::Node:D $_) { self.doc = $_ }
     my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
     multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
     method textContent { $.string-value }
     method unbindNode {
-        $!struct.Unlink;
+        $.unbox.Unlink;
         $!doc = LibXML::Node;
         self;
     }
     method childNodes {
-        iterate(self, $!struct.first-child(KeepBlanks));
+        iterate(self, $.unbox.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
-        iterate(self, $!struct.first-child(SkipBlanks), :!keep-blanks);
+        iterate(self, $.unbox.first-child(SkipBlanks), :!keep-blanks);
     }
     method getElementsByTagName(Str:D $name) {
-        iterate(self, $!struct.getElementsByTagName($name));
+        iterate(self, $.unbox.getElementsByTagName($name));
     }
     method getElementsByLocalName(Str:D $name) {
-        iterate(self, $!struct.getElementsByLocalName($name));
+        iterate(self, $.unbox.getElementsByLocalName($name));
     }
     method getElementsByTagNameNS(Str $uri, Str $name) {
-        iterate(self, $!struct.getElementsByTagNameNS($uri, $name));
+        iterate(self, $.unbox.getElementsByTagNameNS($uri, $name));
     }
     method getChildrenByLocalName(Str:D $name) {
-        iterate(self, $!struct.getChildrenByLocalName($name));
+        iterate(self, $.unbox.getChildrenByLocalName($name));
     }
     method getChildrenByTagName(Str:D $name) {
-        iterate(self, $!struct.getChildrenByTagName($name));
+        iterate(self, $.unbox.getChildrenByTagName($name));
     }
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
-        iterate(self, $!struct.getChildrenByTagNameNS($uri, $name));
+        iterate(self, $.unbox.getChildrenByTagNameNS($uri, $name));
     }
     method setAttribute(QName $name, Str:D $value) {
-        .Release with $!struct.getAttributeNode($name);
-        self.dom-node: $!struct.setAttribute($name, $value);
+        $.unbox.setAttribute($name, $value);
     }
-    method setAttributeNode(AttrNode:D $cont) {
-        .Release with $!struct.getAttributeNode($cont.name);
-        self.dom-node: $!struct.setAttributeNode($cont.struct), :$cont;
+    method setAttributeNode(AttrNode:D $box) {
+        self.box: $.unbox.setAttributeNode($box.unbox), :$box;
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
-        self.dom-node: $!struct.setAttributeNS($uri, .key, .value);
+        $.unbox.setAttributeNS($uri, .key, .value);
     }
     multi method setAttributeNS(Str $uri, QName $name, Str $value) {
-        self.dom-node: $!struct.setAttributeNS($uri, $name, $value);
+        self.box: $.unbox.setAttributeNS($uri, $name, $value);
     }
     method getAttributeNode(Str $att-name --> LibXML::Node) {
-        self.dom-node: $!struct.getAttributeNode($att-name);
+        self.box: $.unbox.getAttributeNode($att-name);
     }
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
-        self.dom-node: $!struct.getAttributeNodeNS($uri, $att-name);
-    }
-    method getAttributeNS(Str $uri, Str $att-name --> Str) {
-        $!struct.getAttributeNS($uri, $att-name);
+        self.box: $.unbox.getAttributeNodeNS($uri, $att-name);
     }
     method localNS {
-        LibXML::Namespace.dom-node: $!struct.localNS, :$!doc;
+        LibXML::Namespace.box: $.unbox.localNS, :$!doc;
     }
-    method getAttribute(Str:D $att-name --> Str) {
-        $!struct.getAttribute($att-name);
-    }
-    method removeAttribute(Str:D $attr-name) {
-        .Release with $!struct.getAttributeNode($attr-name);
-    }
-    method removeAttributeNS(Str $uri, Str $attr-name) {
-        .Release with $!struct.getAttributeNodeNS($uri, $attr-name);
-    }
+
     method getNamespaces {
-        $!struct.getNamespaces.map: { LibXML::Namespace.dom-node($_, :$!doc) }
+        $.unbox.getNamespaces.map: { LibXML::Namespace.box($_, :$!doc) }
     }
-    method removeChild(LibXML::Node:D $cont --> LibXML::Node) {
-        with $!struct.removeChild($cont.struct) {
-            $cont.doc = LibXML::Node;
-            self.dom-node: $_, :$cont;
+    method removeChild(LibXML::Node:D $box --> LibXML::Node) {
+        with $.unbox.removeChild($box.unbox) {
+            $box.doc = LibXML::Node;
+            self.box: $_, :$box;
         }
         else {
             # not a child
-            $cont.WHAT;
+            $box.WHAT;
         }
     }
+    method removeAttributeNode(AttrNode $box) {
+        self.box: $.unbox.removeAttributeNode($box.unbox), :$box;
+    }
     method removeChildNodes(--> LibXML::Node) {
-        self.dom-node: $!struct.removeChildNodes;
+        self.box: $.unbox.removeChildNodes;
     }
     method cloneNode(Bool() $deep) {
-        my $struct = $!struct.cloneNode($deep);
+        my $struct = $.unbox.cloneNode($deep);
         self.new: :$struct, :$!doc;
     }
     method !get-attributes {
@@ -315,12 +308,12 @@ class LibXML::Node {
         class AttrMap {...}
         class AttrMapNs does Associative {
             trusts AttrMap;
-            has LibXML::Node $.elem;
+            has LibXML::Node $.node;
             has Str:D $.uri is required;
             has AttrNode:D %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
 
             method !unlink(Str:D $key) {
-                $!elem.removeChild($_)
+                $!node.removeChild($_)
                     with %!store{$key}:delete;
             }
             method !store(Str:D $name, AttrNode:D $att) {
@@ -333,12 +326,12 @@ class LibXML::Node {
             }
 
             multi method ASSIGN-KEY(Str() $name, Str() $val) {
-                self!store($name,  $!elem.setAttributeNS($!uri, $name, $val));
+                self!store($name,  $!node.setAttributeNS($!uri, $name, $val));
             }
 
             method BIND-KEY(Str() $name, Str() $val) {
                 self!unlink($name);
-                %!store{$name} := $!elem.setAttributeNS($!uri, $name, $val);
+                %!store{$name} := $!node.setAttributeNS($!uri, $name, $val);
             }
 
             method DELETE-KEY(Str() $name) {
@@ -347,14 +340,14 @@ class LibXML::Node {
         }
 
         class AttrMap does Associative {
-            has LibXML::Node $.elem;
+            has LibXML::Node $.node;
             has xmlNs %!ns;
             my subset AttrMapNode where AttrNode:D|AttrMapNs:D;
             has AttrMapNode %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
 
             submethod TWEAK() {
-                with $!elem.struct.properties -> domNode $prop is copy {
-                    my LibXML::Node $doc = $!elem.doc;
+                with $!node.unbox.properties -> domNode $prop is copy {
+                    my LibXML::Node $doc = $!node.doc;
                     require LibXML::Attr;
                     while $prop.defined {
                         my $uri;
@@ -377,7 +370,7 @@ class LibXML::Node {
                          }
                      }
                      when LibXML::Node {
-                         $!elem.removeAttribute($key)
+                         $!node.removeAttribute($key)
                      }
                 }
             }
@@ -405,7 +398,7 @@ class LibXML::Node {
 
             multi method ASSIGN-KEY(Str() $uri, Hash $atts) {
                 # plain hash; need to coerce
-                my AttrMapNs $ns-map .= new: :$!elem, :$uri;
+                my AttrMapNs $ns-map .= new: :$!node, :$uri;
                 for $atts.pairs {
                     $ns-map{.key} = .value;
                 }
@@ -414,7 +407,8 @@ class LibXML::Node {
             }
 
             multi method ASSIGN-KEY(Str() $name, Str:D $val) is default {
-                self!store($name, $!elem.setAttribute($name, $val));
+                $!node.setAttribute($name, $val);
+                self!store($name, $!node.getAttributeNode($name));
             }
 
             method DELETE-KEY(Str() $key) {
@@ -423,17 +417,17 @@ class LibXML::Node {
 
             # DOM Support
             method setNamedItem($att) {
-                $!elem.addChild($att);
+                $!node.addChild($att);
                 self!tie-att($att);
             }
 
             method !tie-att(AttrNode:D $att, Bool :$add = True) {
-                my Str:D $name = $att.struct.domName;
+                my Str:D $name = $att.unbox.domName;
                 my Str $uri;
                 my ($prefix,$local-name) = $name.split(':', 2);
 
                 if $local-name {
-                    %!ns{$prefix} = $!elem.doc.struct.SearchNs($!elem.struct, $prefix)
+                    %!ns{$prefix} = $!node.doc.unbox.SearchNs($!node.unbox, $prefix)
                         unless %!ns{$prefix}:exists;
 
                     with %!ns{$prefix} -> $ns {
@@ -459,13 +453,13 @@ class LibXML::Node {
             }
         }
 
-        my AttrMap $atts .= new: :elem(self);
+        my AttrMap $atts .= new: :node(self);
         $atts;
     }
 
     method !set-attributes(%atts) {
         # clear out old attributes
-        with $!struct.properties -> domNode:D $node is copy {
+        with $.unbox.properties -> domNode:D $node is copy {
             while $node.defined {
                 my $next = $node.next;
                 $node.Release
@@ -496,7 +490,7 @@ class LibXML::Node {
     }
 
     method properties {
-        iterate(self, $.struct.properties);
+        iterate(self, $.unbox.properties);
     }
 
     multi method write(IO::Handle :$io!, Bool :$format = False) {
