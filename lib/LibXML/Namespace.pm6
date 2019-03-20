@@ -11,8 +11,5 @@ submethod TWEAK {
 }
 
 submethod DESTROY {
-    with $!struct {
-        .Free;
-        $_ = Nil;
-    }
+    .Free with $!struct;
 }

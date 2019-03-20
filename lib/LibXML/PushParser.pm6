@@ -50,10 +50,7 @@ class LibXML::PushParser {
     }
 
     submethod DESTROY {
-        with $!ctx {
-            .Free;
-            $_ = Nil;
-        }
+        .Free with $!ctx;
     }
 }
 

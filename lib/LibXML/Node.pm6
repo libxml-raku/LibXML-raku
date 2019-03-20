@@ -97,12 +97,11 @@ class LibXML::Node {
 
     method nodeType  { $.unbox.type }
     method tagName   { $.nodeName }
+    method name      { $.nodeName }
     method localname { $.unbox.name }
-    method prefix { .prefix with $.unbox.ns }
-    method namespaceURI { .href with $.unbox.ns }
     method line-number { $.unbox.GetLineNo }
 
-    sub delegate-class(domNode $node) {
+    sub box-class(domNode $node) {
         given +$node.type {
             when XML_ELEMENT_NODE       { require LibXML::Element }
             when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
@@ -170,7 +169,7 @@ class LibXML::Node {
                     die "returned unexpected node: {$struct.Str}"
                         unless $box.unbox.type == XML_DOCUMENT_FRAG_NODE;
                 }
-                delegate-class($struct).new: :$struct, :$doc;
+                box-class($struct).new: :$struct, :$doc;
             }
         }
         else {
@@ -205,10 +204,7 @@ class LibXML::Node {
             has UInt $!idx = 0;
             submethod DESTROY {
                 # xmlNodeSet is managed by us
-                with $!set { 
-                  ##  xmlFree( nativecast(Pointer, $_) ); # segfaulting
-                    $_ = Nil;
-                }
+                .Free with $!set;
             }
             method iterator { self }
             method pull-one {
@@ -263,6 +259,9 @@ class LibXML::Node {
     }
     method setAttributeNode(AttrNode:D $box) {
         self.box: $.unbox.setAttributeNode($box.unbox), :$box;
+    }
+    method setAttributeNodeNS(AttrNode:D $box) {
+        self.box: $.unbox.setAttributeNodeNS($box.unbox), :$box;
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
         $.unbox.setAttributeNS($uri, .key, .value);
@@ -516,7 +515,6 @@ class LibXML::Node {
                     .Free unless .is-referenced;
                 }
             }
-            $_ = Nil;
         }
     }
 }

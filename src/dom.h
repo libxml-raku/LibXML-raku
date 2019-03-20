@@ -216,6 +216,9 @@ domGetAttribute(xmlNodePtr node, const xmlChar *qname);
 DLLEXPORT xmlAttrPtr
 domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
 
+DLLEXPORT xmlAttrPtr
+domSetAttributeNodeNS( xmlNodePtr node , xmlAttrPtr attr );
+
 DLLEXPORT int
 domNodeNormalize( xmlNodePtr node );
 

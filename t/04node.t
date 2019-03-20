@@ -505,11 +505,8 @@ my $doc    = $parser.parse: :string( $xmlstring );
     %att := $root.attributes;
     # TEST
     ok(%att, ' TODO : Add test name');
-    warn "k = $_" for %att.keys;
-    warn "{.key} = {.value}" for %att.pairs.sort;
     # TEST
     is( +%att.keys, 2, ' TODO : Add test name');
-    warn %att.keys.perl;
     is( +%att<http://kungfoo>, 1, ' TODO : Add test name');
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );

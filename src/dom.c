@@ -1140,23 +1140,7 @@ domGetAttribute(xmlNodePtr node, const xmlChar *qname) {
     return rv;
 }
 
-DLLEXPORT xmlAttrPtr
-domSetAttributeNode( xmlNodePtr node, xmlAttrPtr attr ) {
-    if ( node == NULL || attr == NULL ) {
-        return attr;
-    }
-    if ( attr != NULL && attr->type != XML_ATTRIBUTE_NODE )
-        return NULL;
-    if ( node == attr->parent ) {
-        return attr; /* attribute is already part of the node */
-    }
-    if ( attr->doc != node->doc ){
-        attr = (xmlAttrPtr) domImportNode( node->doc, (xmlNodePtr) attr, 1, 1 );
-    }
-    else {
-        xmlUnlinkNode( (xmlNodePtr) attr );
-    }
-
+static void _addAttr(xmlNodePtr node, xmlAttrPtr attr) {
     /* stolen from libxml2 */
     if ( attr != NULL ) {
         if (node->properties == NULL) {
@@ -1170,6 +1154,72 @@ domSetAttributeNode( xmlNodePtr node, xmlAttrPtr attr ) {
         }
         attr->parent = node;
     }
+}
+
+
+DLLEXPORT xmlAttrPtr
+domSetAttributeNode( xmlNodePtr self, xmlAttrPtr attr ) {
+    xmlAttrPtr old = NULL;
+    xmlNsPtr ns = NULL;
+    if ( self == NULL || attr == NULL ) {
+        return attr;
+    }
+    if ( attr->type != XML_ATTRIBUTE_NODE )
+        return NULL;
+    if ( self == attr->parent ) {
+        return attr; /* attribute is already part of the node */
+    }
+    if ( attr->doc != self->doc ){
+        attr = (xmlAttrPtr) domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
+    }
+
+    old = domGetAttributeNode(self, attr->name);
+
+    if ( old && old->type == XML_ATTRIBUTE_NODE ) {
+      if ( old == attr) {
+        return attr;
+      }
+      domReleaseNode( (xmlNodePtr)old );
+    }
+    xmlUnlinkNode( (xmlNodePtr) attr );
+    _addAttr( self, attr);
+
+    return attr;
+}
+
+DLLEXPORT xmlAttrPtr
+domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
+    xmlAttrPtr old = NULL;
+    xmlNsPtr ns = NULL;
+    if ( self == NULL || attr == NULL ) {
+        return attr;
+    }
+    if ( attr->type != XML_ATTRIBUTE_NODE )
+        return NULL;
+    if ( self == attr->parent ) {
+        return attr; /* attribute is already part of the node */
+    }
+    if ( attr->doc != self->doc ){
+        attr = (xmlAttrPtr) domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
+    }
+    
+    ns = attr->ns;
+    if ( ns != NULL ) {
+      old = xmlHasNsProp( self, ns->href, attr->name );
+    }
+    else {
+      old = xmlHasNsProp( self, NULL, attr->name );
+    }
+
+    if ( old && old->type == XML_ATTRIBUTE_NODE ) {
+      if ( old == attr) {
+        return attr;
+      }
+      domReleaseNode( (xmlNodePtr)old );
+    }
+
+    xmlUnlinkNode( (xmlNodePtr) attr );
+    _addAttr( self, attr);
 
     return attr;
 }
@@ -1345,6 +1395,33 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
   return newAttr;
 }
 
+static xmlNsPtr _xmlNsSearch(xmlNodePtr self, xmlChar *nsURI) {
+  xmlNsPtr ns = xmlSearchNsByHref( self->doc, self, nsURI );
+
+  if ( ns && !ns->prefix ) {
+    /*
+     * check for any prefixed namespaces occluded by a default namespace
+     * because xmlSearchNsByHref will return default namespaces unless
+     * you are searching on an attribute node, which may not exist yet
+     */
+     xmlNsPtr *all_ns = xmlGetNsList(self->doc, self);
+
+    if ( all_ns ) {
+      int i = 0;
+      ns = all_ns[i];
+      while ( ns ) {
+        if ( ns->prefix && xmlStrEqual(ns->href, nsURI) ) {
+          break;
+        }
+        ns = all_ns[i++];
+      }
+      xmlFree(all_ns);
+    }
+  }
+
+  return ns;
+}
+
 DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value ) {
   xmlNsPtr   ns          = NULL;
@@ -1352,17 +1429,19 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
   xmlChar    * prefix    = NULL;
   xmlAttrPtr newAttr     = NULL;
 
-  if (self && nsURI && xmlStrlen(nsURI) && name && value) {
+  if (self && nsURI && name && value) {
 
     localname =  xmlSplitQName2(name, &prefix);
     if ( localname ) {
       name = localname;
     }
 
-    ns = xmlSearchNsByHref( self->doc, self, nsURI );
-    if ( ns == NULL ) {
-      /* create a new NS if the NS does not already exists */
-      ns = xmlNewNs(self, nsURI , prefix );
+    if (nsURI[0] != 0) {
+      ns = _xmlNsSearch(self, nsURI);
+      if ( ns == NULL && prefix != NULL && prefix[0] != 0 ) {
+        /* NS does not already exist; create it */
+        ns = xmlNewNs(self, nsURI , prefix );
+      }
     }
 
     newAttr = xmlSetNsProp( self, ns, name, value );

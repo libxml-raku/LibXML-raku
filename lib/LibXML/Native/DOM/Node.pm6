@@ -24,6 +24,7 @@ method domRemoveChild  { ... }
 method domGetAttributeNode { ... }
 method domGetAttribute { ... }
 method domSetAttributeNode { ... }
+method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
 method domXPathSelect  { ... }
 method domGetChildrenByLocalName { ... }
@@ -55,10 +56,11 @@ method setAttribute(QName:D $name, Str:D $value) {
 }
 
 method setAttributeNode(AttrNode $att) {
-    with self.getAttributeNode($att.name) {
-        .Release unless .isSameNode($att);
-    }
     self.domSetAttributeNode($att);
+}
+
+method setAttributeNodeNS(AttrNode $att) {
+    self.domSetAttributeNodeNS($att);
 }
 
 method getAttributeNode(QName:D $att-name) {
@@ -92,12 +94,17 @@ method removeAttributeNS(Str $uri, Str $attr-name) {
     .Release with self.getAttributeNodeNS($uri, $attr-name);
 }
 
-    method getAttributeNodeNS(Str $uri, QName:D $att-name) {
-    self.NsPropNode($att-name, $uri);
+method getAttributeNodeNS(Str $uri, QName:D $att-name) {
+    if $uri { 
+        self.NsPropNode($att-name, $uri);
+    }
+    else {
+        self.PropNode($att-name);
+    }
 }
 
 method getAttributeNS(Str $uri, QName:D $att-name) {
-    with $uri { 
+    if $uri { 
         self.NsProp($att-name, $uri);
     }
     else {

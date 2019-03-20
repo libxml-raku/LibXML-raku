@@ -100,7 +100,8 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 class xmlNodeSet is repr('CStruct') is export {
     has int32 $.nodeNr;
     has int32 $.nodeMax;
-    has CArray[Pointer] $.nodeTab; 
+    has CArray[Pointer] $.nodeTab;
+    method Free is native(LIB) is symbol('xmlXPathFreeNodeSet') {*}
 }
 
 class xmlParserInput is repr('CStruct') is export {
@@ -343,6 +344,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method PropNode(xmlCharP --> xmlAttr) is native(LIB) is symbol('xmlHasProp') {*}
     method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
+    method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method domError { die $_ with dom_error; }
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
@@ -359,6 +361,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
+    method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
@@ -581,7 +584,6 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
         }
         my buf8 $buf .= allocate($len);
         $buf[$_] = $p[$_] for 0 ..^ $len;
-        ## xmlFree($p); # segfaulting
         blob8.new: $buf;
     }
 
@@ -592,7 +594,6 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
         my Pointer[uint8] $p .= new;
         $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
         my Str $result := nativecast(str, $p);
-        ## xmlFree($p); # sefaulting
         $result;
     }
 }
@@ -908,11 +909,9 @@ class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
 sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
 our subset xmlCharEncoding of Str where {!.defined || xmlParseCharEncoding($_) > 0}
 
-sub xmlFree(Pointer) is export is native(LIB) {*}
-
 sub xmlGetLastError returns xmlError is export is native(LIB) { * }
 
-multi method GetLastError(parserCtxt $ctx) { $ctx.GetLastError() // $.GetLastError()  }
+multi method GetLastError(parserCtxt:D $ctx) { $ctx.GetLastError() // $.GetLastError()  }
 multi method GetLastError { xmlGetLastError()  }
 
 method KeepBlanksDefault is rw {

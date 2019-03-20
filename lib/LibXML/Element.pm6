@@ -32,6 +32,9 @@ sub iterate(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
     }.new( :cur($start) );
 }
 
+method prefix { .prefix with $.unbox.ns }
+method namespaceURI { .href with $.unbox.ns }
+
 method namespaces {
     iterate(LibXML::Namespace, $.unbox.nsDef, :$.doc);
 }
