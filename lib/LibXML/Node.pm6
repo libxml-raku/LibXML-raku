@@ -64,7 +64,7 @@ class LibXML::Node {
         Proxy.new(
             FETCH => sub ($) { $!struct },
             STORE => sub ($, domNode:D $new-struct) {
-                die "mismatch between DOM node and container object"
+                die "mismatch between DOM node of type {$new-struct.type} ({box-class($new-struct).perl}) and container object of class {self.WHAT.perl}"
                     unless self ~~ box-class($new-struct);
                 .remove-reference with $!struct;
                 .add-reference with $new-struct;
@@ -217,7 +217,7 @@ class LibXML::Node {
         }.new( :$set );
     }
 
-    method ownerDocument is rw { $!doc }
+    method ownerDocument is rw { $.doc }
     method setOwnerDocument(LibXML::Node:D $_) { self.doc = $_ }
     my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
     multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
@@ -274,11 +274,11 @@ class LibXML::Node {
         self.box: $.unbox.getAttributeNodeNS($uri, $att-name);
     }
     method localNS {
-        LibXML::Namespace.box: $.unbox.localNS, :$!doc;
+        LibXML::Namespace.box: $.unbox.localNS, :$.doc;
     }
 
     method getNamespaces {
-        $.unbox.getNamespaces.map: { LibXML::Namespace.box($_, :$!doc) }
+        $.unbox.getNamespaces.map: { LibXML::Namespace.box($_, :$.doc) }
     }
     method removeChild(LibXML::Node:D $box --> LibXML::Node) {
         with $.unbox.removeChild($box.unbox) {
@@ -298,7 +298,7 @@ class LibXML::Node {
     }
     method cloneNode(Bool() $deep) {
         my $struct = $.unbox.cloneNode($deep);
-        self.new: :$struct, :$!doc;
+        self.new: :$struct, :$.doc;
     }
     method !get-attributes {
 

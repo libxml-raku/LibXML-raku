@@ -178,12 +178,9 @@ my @badnames= ("1A", "<><", "&", "-:");
     }
 }
 
-skip("port remaining tests", 138);
-=begin POD
-
 # 2. unbound node
 {
-    my $elem = LibXML::Element.new($foo);
+    my $elem = LibXML::Element.new: :name($foo);
     # TEST
     ok($elem, ' TODO : Add test name');
     # TEST
@@ -203,7 +200,7 @@ skip("port remaining tests", 138);
     # TEST
     is($attr.value, $attvalue1, ' TODO : Add test name');
 
-    $elem.setAttributeNS( $nsURI, $prefix . ":". $foo, $attvalue2 );
+    $elem.setAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $attvalue2 );
     # TEST
     ok( $elem.hasAttributeNS( $nsURI, $foo ), ' TODO : Add test name' );
     # warn $elem.toString() , "\n";
@@ -213,7 +210,7 @@ skip("port remaining tests", 138);
     # TEST
     is($tattr.name, $foo, ' TODO : Add test name');
     # TEST
-    is($tattr.nodeName, $prefix .":".$foo, ' TODO : Add test name');
+    is($tattr.nodeName, $prefix~ ":" ~$foo, ' TODO : Add test name');
     # TEST
     is($tattr.value, $attvalue2, ' TODO : Add test name' );
 
@@ -226,14 +223,14 @@ skip("port remaining tests", 138);
 # 3. Namespace handling
 # 3.1 Namespace switching
 {
-    my $elem = LibXML::Element.new($foo);
+    my $elem = LibXML::Element.new: :name($foo);
     # TEST
     ok($elem, ' TODO : Add test name');
 
     my $doc = LibXML::Document.new();
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
-    my $nsAttr = $doc.createAttributeNS( $nsURI, $prefix . ":". $foo, $bar);
+    my $nsAttr = $doc.createAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $bar);
     # TEST
     ok( $nsAttr, ' TODO : Add test name' );
 
@@ -242,9 +239,12 @@ skip("port remaining tests", 138);
     ok( $elem.hasAttributeNS($nsURI, $foo), ' TODO : Add test name' );
 
     # TEST
-    ok( ! defined $nsAttr.ownerDocument, ' TODO : Add test name');
+    ok( ! defined($nsAttr.ownerDocument), ' TODO : Add test name');
     # warn $elem.toString() , "\n";
 }
+
+skip("port remaining tests", 121);
+=begin POD
 
 # 3.2 default Namespace and Attributes
 {
@@ -255,7 +255,7 @@ skip("port remaining tests", 138);
     $elem.setNamespace( "foo", "bar" );
 
     $elem.setAttributeNS( "foo", "x:attr",  "test" );
-    $elem.setAttributeNS( undef, "attr2",  "test" );
+    $elem.setAttributeNS( Str, "attr2",  "test" );
 
     # TEST
 

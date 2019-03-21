@@ -544,13 +544,12 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok( ! $rnode2.isSameNode( $rnode1 ), ' TODO : Add test name' ) ;
     $doc2.setDocumentElement( $rnode2 );
-
     my $node = $rnode2.cloneNode(0);
     # TEST
     ok( $node, ' TODO : Add test name' );
     my $cndoc = $node.ownerDocument;
     # TEST
-    ok( $cndoc, ' TODO : Add test name' );
+    ok( $cndoc.defined, ' TODO : Add test name' );
     # TEST
     ok( $cndoc.isSameNode( $doc2 ), ' TODO : Add test name' );
 

@@ -407,8 +407,8 @@ class xmlNode is domNode {
     method SetProp(Str, Str --> xmlAttr) is native(LIB) is symbol('xmlSetProp') {*}
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
-    method xmlCopyNode(int32) is native(LIB)  returns xmlNode {*}
-    method copy(Bool :$deep = True) { $.xmlCopyNode( $deep ?? 1 !! 2 ) }
+    method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlNode {*}
+    method DocCopy(xmlDoc, int32) is native(LIB) is symbol('xmlDocCopyNode') returns xmlNode {*}
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
         $doc.new-node(:$name, :$ns);
     }
@@ -531,8 +531,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
     method internal-dtd(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
-    method xmlCopyDoc(int32) is native(LIB)  returns xmlDoc {*}
-    method copy(Bool :$deep = True) { $.xmlCopyDoc(+$deep) }
+    method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlDoc {*}
+    method copy(Bool :$deep = True) { $.Copy(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}

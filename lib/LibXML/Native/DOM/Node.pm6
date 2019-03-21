@@ -197,7 +197,13 @@ method insertAfter(Node:D $nNode, Node $oNode) {
 }
 
 method cloneNode(Bool:D $deep) {
-    self.copy: :$deep;
+    my $extended := $deep ?? 1 !! 2;
+    with $.doc {
+        $.DocCopy($_, $extended);
+    }
+    else {
+        $.Copy( $extended );
+    }
 }
 
 method nodeName { self.domName; }
