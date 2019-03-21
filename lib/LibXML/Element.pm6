@@ -8,7 +8,7 @@ use LibXML::Types :QName;
 use LibXML::Attr;
 use LibXML::Namespace;
 
-multi submethod TWEAK(xmlNode:D :struct($)!) { }
+multi submethod TWEAK(domNode:D :struct($)!) { }
 multi submethod TWEAK(:doc($owner), QName :$name!, xmlNs :$ns) {
     my xmlDoc:D $doc = .unbox with $owner;
     self.struct = xmlNode.new: :$name, :$doc, :$ns;

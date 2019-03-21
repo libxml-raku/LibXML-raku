@@ -5,7 +5,7 @@ unit class LibXML::EntityRef
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlEntityRefNode:D :struct($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, domNode:D :struct($)!) { }
 multi submethod TWEAK(:doc($owner)!, Str :$name!) {
     my xmlDoc:D $doc = .unbox with $owner;
     my xmlEntityRefNode:D $entity-ref-struct = $doc.new-ent-ref: :$name;

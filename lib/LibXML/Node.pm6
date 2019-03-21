@@ -11,7 +11,7 @@ class LibXML::Node {
 
     has LibXML::Node $.doc;
 
-    has domNode $.struct handles <
+    has domNode $!struct handles <
         domCheck
         Str string-value content
         getAttribute getAttributeNS
@@ -63,24 +63,30 @@ class LibXML::Node {
     method struct is rw {
         Proxy.new(
             FETCH => sub ($) { $!struct },
-            STORE => sub ($, domNode $new-struct) {
+            STORE => sub ($, domNode:D $new-struct) {
+                die "mismatch between DOM node and container object"
+                    unless self ~~ box-class($new-struct);
                 .remove-reference with $!struct;
                 .add-reference with $new-struct;
-                $!struct = $new-struct;
+                $!struct = cast-struct($new-struct);
             },
         );
     }
 
-    submethod TWEAK {
-        .add-reference with $!struct;
+    submethod TWEAK(domNode :$struct) {
+        self.struct = $_
+            with $struct;
     }
 
     method doc is rw {
         Proxy.new(
             FETCH => sub ($) {
-                given self.unbox.doc -> $struct {
+                with self.unbox.doc -> $struct {
                     $!doc .= new: :$struct
                         if ! ($!doc && !$!doc.unbox.isSameNode($struct));
+                }
+                else {
+                    $!doc = Nil;
                 }
                 $!doc;
             },
@@ -111,6 +117,9 @@ class LibXML::Node {
             when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
             when XML_PI_NODE            { require LibXML::PI }
             when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
+            when XML_DOCUMENT_NODE
+               | XML_HTML_DOCUMENT_NODE { require LibXML::Document }
+
             default {
                 warn "node content-type not yet handled: $_";
                 LibXML::Node;
@@ -127,7 +136,8 @@ class LibXML::Node {
         when XML_CDATA_SECTION_NODE { xmlCDataNode }
         when XML_PI_NODE            { xmlPINode }
         when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
-        when XML_DOCUMENT_NODE      { xmlDoc }
+        when XML_DOCUMENT_NODE
+           | XML_HTML_DOCUMENT_NODE { xmlDoc }
         default {
             warn "node content-type not yet handled: $_";
             domNode;
@@ -141,35 +151,23 @@ class LibXML::Node {
 
     method unbox {$!struct}
 
-    method box(LibXML::Native::DOM::Node $vanilla-struct,
+    method box(LibXML::Native::DOM::Node $struct,
                     LibXML::Node :$doc is copy = $.doc, # reusable document object
                     LibXML::Node :$box                  # reusable return container
                                  --> LibXML::Node) {
-        if $vanilla-struct.defined {
-            if $box.defined && $box.unbox.isSameNode($vanilla-struct) {
+        with $struct {
+            if $box.defined && $box.unbox.isSameNode($_) {
                 $box;
             }
             else {
-                my $struct := cast-struct($vanilla-struct);
                 # create a new box object. reuse document object, if possible
-                with $struct.doc -> $doc-struct {
-                    # can we reuse the document object?
-                    with $doc {
-                        $doc = LibXML::Node
-                        unless .unbox.isSameNode($doc-struct);
-                    }
-                }
-                else {
-                    # Not in a document
-                    $doc = LibXML::Node;
-                }
                 with $box {
                     # unable to reuse the container object for the returned node.
                     # unexpected, except for document fragments, which are discarded.
-                    die "returned unexpected node: {$struct.Str}"
+                    die "returned unexpected node: {$.Str}"
                         unless $box.unbox.type == XML_DOCUMENT_FRAG_NODE;
                 }
-                box-class($struct).new: :$struct, :$doc;
+                box-class($_).new: :struct($_), :$doc;
             }
         }
         else {
