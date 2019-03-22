@@ -26,10 +26,12 @@ method domGetAttribute { ... }
 method domSetAttributeNode { ... }
 method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
+method domSetNamespace { ... }
 method domXPathSelect  { ... }
 method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
+method domNormalize { ... }
 
 enum <SkipBlanks KeepBlanks>;
 
@@ -121,7 +123,16 @@ method getAttribute(QName:D $att-name) {
 }
 
 method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
-    self.domSetAttributeNS($uri, $name, $value);
+    if $uri {
+        self.domSetAttributeNS($uri, $name, $value);
+    }
+    else {
+        self.setAttribute($name, $value);
+    }
+}
+
+method setNamespace(Str $uri, NCName $prefix) {
+    self.domSetNamespace($uri, $prefix);
 }
 
 method removeChild(Node:D $child) {
@@ -255,6 +266,8 @@ method lookupNamespaceURI(Str $prefix --> Str) {
         Str;
     }
 }
+
+method normalize { self.domNormalize }
 
 method getNamespaces {
     my @ns;

@@ -267,6 +267,9 @@ class LibXML::Node {
     multi method setAttributeNS(Str $uri, QName $name, Str $value) {
         self.box: $.unbox.setAttributeNS($uri, $name, $value);
     }
+    multi method setNamespace(Str $uri, NCName $prefix) {
+        $.unbox.setNamespace($uri, $prefix);
+    }
     method getAttributeNode(Str $att-name --> LibXML::Node) {
         self.box: $.unbox.getAttributeNode($att-name);
     }
@@ -296,6 +299,8 @@ class LibXML::Node {
     method removeChildNodes(--> LibXML::Node) {
         self.box: $.unbox.removeChildNodes;
     }
+    method normalise { self.unbox.normalize }
+    method normalize { self.unbox.normalize }
     method cloneNode(Bool() $deep) {
         my $struct = $.unbox.cloneNode($deep);
         self.new: :$struct, :$.doc;

@@ -298,13 +298,13 @@ my $badXInclude = q{
     isa-ok($doc, 'LibXML::Document');
 
     my $i;
-    lives-ok { $i = $parser.process-xincludes($doc); };
+    lives-ok { $i = $parser.processXincludes($doc); };
     is( $i, "1", "return value from processXIncludes == 1");
 
     $doc = $parser.parse: :string( $badXInclude );
     $i = Nil;
 
-    throws-like { $parser.process-xincludes($doc); },
+    throws-like { $parser.processXincludes($doc); },
         X::LibXML::Parser,
         :message(rx/'Extra content at the end of the document'/),
         "error parsing a bad include";
@@ -322,10 +322,10 @@ my $badXInclude = q{
     ok(!$doc.defined, "no doc returned");
 
     # some bad stuff
-    throws-like { $parser.process-xincludes(Str); },
+    throws-like { $parser.processXincludes(Str); },
     X::TypeCheck::Binding::Parameter, "Error parsing undef include";
 
-    throws-like { $parser.process-xincludes("blahblah"); },
+    throws-like { $parser.processXincludes("blahblah"); },
     X::TypeCheck::Binding::Parameter, "Error parsing bogus include";
 }
 

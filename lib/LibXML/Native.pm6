@@ -363,6 +363,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
+    method domSetNamespace(Str $URI, Str $prefix) is native(BIND-LIB) returns int {*}
     method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
@@ -376,6 +377,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domNormalize(--> int32) is native(BIND-LIB) {*}
 
     method Str(Bool() :$format = False) {
         nextsame without self;

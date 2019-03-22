@@ -49,12 +49,12 @@ class LibXML::Parser {
     method !finish(LibXML::Document:D $doc, :$URI, LibXML::ErrorHandler :$errors!) {
         $errors.flush: :$!recover;
         $doc.baseURI = $_ with $URI;
-        self.process-xincludes($doc)
+        self.processXincludes($doc)
             if $.expand-xinclude;
         $doc;
     }
 
-    method process-xincludes(LibXML::Document $_, Bool :$recover = $!recover) {
+    method processXincludes(LibXML::Document $_, Bool :$recover = $!recover) {
         my xmlDoc $doc = .unbox;
         my xmlParserCtxt $ctx .= new;
         $ctx.sax = $_ with $!sax;

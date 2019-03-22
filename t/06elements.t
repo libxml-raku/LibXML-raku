@@ -243,9 +243,6 @@ my @badnames= ("1A", "<><", "&", "-:");
     # warn $elem.toString() , "\n";
 }
 
-skip("port remaining tests", 121);
-=begin POD
-
 # 3.2 default Namespace and Attributes
 {
     my $doc  = LibXML::Document.new();
@@ -290,19 +287,19 @@ skip("port remaining tests", 121);
     # this is the correct behaviour for DOM. the nodes are still
     # referred
     # TEST
-    is( scalar( @cn ), 4, ' TODO : Add test name' );
+    is( +@cn , 4, ' TODO : Add test name' );
 
     $e.normalize;
 
     @cn = $e.childNodes;
     # TEST
-    is( scalar( @cn ), 2, ' TODO : Add test name' );
+    is( +@cn, 2, ' TODO : Add test name' );
 
     # TEST
 
-    ok(! defined $t2.parentNode, ' TODO : Add test name');
+    ok(! defined($t2.parentNode), ' TODO : Add test name');
     # TEST
-    ok(! defined $t3.parentNode, ' TODO : Add test name');
+    ok(! defined($t3.parentNode), ' TODO : Add test name');
 }
 
 # 4.2 Normalization on a Document node
@@ -324,21 +321,23 @@ skip("port remaining tests", 121);
     # this is the correct behaviour for DOM. the nodes are still
     # referred
     # TEST
-    is( scalar( @cn ), 4, ' TODO : Add test name' );
+    is( +@cn, 4, ' TODO : Add test name' );
 
     $doc.normalize;
 
     @cn = $e.childNodes;
     # TEST
-    is( scalar( @cn ), 2, ' TODO : Add test name' );
+    is( +@cn, 2, ' TODO : Add test name' );
 
     # TEST
 
-    ok(! defined $t2.parentNode, ' TODO : Add test name');
+    ok(! defined($t2.parentNode), ' TODO : Add test name');
     # TEST
-    ok(! defined $t3.parentNode, ' TODO : Add test name');
+    ok(! defined($t3.parentNode), ' TODO : Add test name');
 }
 
+skip("port remaining tests", 110);
+=begin POD
 
 # 5. LibXML extensions
 {
@@ -362,13 +361,13 @@ skip("port remaining tests", 121);
 
     my @cn = $elem.childNodes;
     # TEST
-    ok( scalar(@cn), ' TODO : Add test name' );
+    ok( @cn, ' TODO : Add test name' );
     # TEST
-    is( scalar(@cn), 3, ' TODO : Add test name' );
+    is( +@cn, 3, ' TODO : Add test name' );
     # TEST
-    ok( !$cn[1].hasChildNodes, ' TODO : Add test name');
+    ok( !@cn[1].hasChildNodes, ' TODO : Add test name');
     # TEST
-    ok( $cn[2].hasChildNodes, ' TODO : Add test name');
+    ok( @cn[2].hasChildNodes, ' TODO : Add test name');
 }
 
 # 6. LibXML::Attr nodes
