@@ -220,10 +220,10 @@ DLLEXPORT xmlAttrPtr
 domSetAttributeNodeNS( xmlNodePtr node , xmlAttrPtr attr );
 
 DLLEXPORT int
-domNodeNormalize( xmlNodePtr node );
+domNormalize( xmlNodePtr node );
 
 DLLEXPORT int
-domNodeNormalizeList( xmlNodePtr nodelist );
+domNormalizeList( xmlNodePtr nodelist );
 
 DLLEXPORT int
 domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns);
@@ -235,13 +235,16 @@ DLLEXPORT void
 domClearPSVI(xmlNodePtr tree);
 
 DLLEXPORT xmlAttrPtr
-domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value);
+domCreateAttribute( xmlDocPtr, unsigned char *name, unsigned char *value);
 
 DLLEXPORT xmlAttrPtr
-domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value );
+domCreateAttributeNS( xmlDocPtr, unsigned char *URI, unsigned char *name, unsigned char *value );
 
 DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr, xmlChar *URI, xmlChar *name, xmlChar *value );
+
+DLLEXPORT int
+domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix);
 
 DLLEXPORT char *dom_error;
 

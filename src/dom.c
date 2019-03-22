@@ -15,6 +15,7 @@ char *dom_error = NULL;
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
 #define croak(string) {dom_error = (string);return NULL;}
+#define croak_i(string) {dom_error = (string);return 0;}
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
@@ -865,7 +866,6 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
 
     if ( nNode->type == XML_DOCUMENT_FRAG_NODE ) {
         croak("Adding document fragments with addSibling not yet supported!");
-        return NULL;
     }
 
     if (self->type == XML_TEXT_NODE && nNode->type == XML_TEXT_NODE
@@ -1252,13 +1252,13 @@ domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr)
 
 
 DLLEXPORT int
-domNodeNormalize( xmlNodePtr node );
+domNormalize( xmlNodePtr node );
 
 DLLEXPORT int
-domNodeNormalizeList( xmlNodePtr nodelist )
+domNormalizeList( xmlNodePtr nodelist )
 {
     while ( nodelist ){
-        if ( domNodeNormalize( nodelist ) == 0 )
+        if ( domNormalize( nodelist ) == 0 )
             return(0);
         nodelist = nodelist->next;
     }
@@ -1266,7 +1266,7 @@ domNodeNormalizeList( xmlNodePtr nodelist )
 }
 
 DLLEXPORT int
-domNodeNormalize( xmlNodePtr node )
+domNormalize( xmlNodePtr node )
 {
     xmlNodePtr next = NULL;
 
@@ -1283,10 +1283,10 @@ domNodeNormalize( xmlNodePtr node )
         }
         break;
     case XML_ELEMENT_NODE:
-        domNodeNormalizeList( (xmlNodePtr) node->properties );
+        domNormalizeList( (xmlNodePtr) node->properties );
     case XML_ATTRIBUTE_NODE:
     case XML_DOCUMENT_NODE:
-        return( domNodeNormalizeList( node->children ) );
+        return( domNormalizeList( node->children ) );
         break;
     default:
         break;
@@ -1395,7 +1395,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
   return newAttr;
 }
 
-static xmlNsPtr _xmlNsSearch(xmlNodePtr self, xmlChar *nsURI) {
+static xmlNsPtr _domNsSearch(xmlNodePtr self, xmlChar *nsURI) {
   xmlNsPtr ns = xmlSearchNsByHref( self->doc, self, nsURI );
 
   if ( ns && !ns->prefix ) {
@@ -1431,13 +1431,13 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
 
   if (self && nsURI && name && value) {
 
-    localname =  xmlSplitQName2(name, &prefix);
+    localname = xmlSplitQName2(name, &prefix);
     if ( localname ) {
       name = localname;
     }
 
     if (nsURI[0] != 0) {
-      ns = _xmlNsSearch(self, nsURI);
+      ns = _domNsSearch(self, nsURI);
       if ( ns == NULL && prefix != NULL && prefix[0] != 0 ) {
         /* NS does not already exist; create it */
         ns = xmlNewNs(self, nsURI , prefix );
@@ -1457,4 +1457,40 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
   }
 
   return newAttr;
+}
+
+DLLEXPORT int
+domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix) {
+    xmlNsPtr ns = NULL;
+    int rv = 0;
+    if ( node == NULL ) {
+        croak_i( "lost node" );
+    }
+
+    if ( !nsURI || nsURI[0] == 0 ){
+        xmlSetNs((xmlNodePtr)node, NULL);
+        rv = 1;
+    }
+    if ( !node->parent ) {
+      return 0;
+    }
+
+    if ( (ns = xmlSearchNs(node->doc, node->parent, nsPrefix)) &&
+         xmlStrEqual( ns->href, nsURI) ) {
+        /* same uri and prefix */
+      rv = 1;
+    }
+    else if ( (ns = xmlSearchNsByHref(node->doc, node->parent, nsURI)) ) {
+        /* set uri, but with a different prefix */
+        rv = 1;
+    }
+
+    if ( ns ) {
+        if ( ns->prefix ) {
+            xmlSetNs((xmlNodePtr)node, ns);
+        } else {
+            rv = 0;
+        }
+    }
+    return rv;
 }
