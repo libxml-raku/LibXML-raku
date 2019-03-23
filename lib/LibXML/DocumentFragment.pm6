@@ -15,6 +15,8 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
     self.struct = $doc-frag-struct;
 }
 
+method keep(|c) { LibXML::Node.box(|c) }
+
 method parse-balanced(Str() :$chunk!,
                       xmlSAXHandler :$sax,
                       Pointer :$user-data,

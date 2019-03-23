@@ -40,10 +40,10 @@ multi method createElement(QName $name, Str:D :$href!) {
     $.createElementNS($href, $name);
 }
 multi method createElement(QName $name) {
-    self.box: $.unbox.createElement($name);
+    LibXML::Element.box: $.unbox.createElement($name);
 }
 method createElementNS(Str:D $href, QName:D $name) {
-    self.box: $.unbox.createElementNS($href, $name);
+    LibXML::Element.box: $.unbox.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -59,8 +59,8 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
-method importNode(LibXML::Node:D $node) { self.box: $.unbox.importNode($node.unbox); }
-method adoptNode(LibXML::Node:D $node)  { self.box: $.unbox.adoptNode($node.unbox); }
+method importNode(LibXML::Node:D $node) { LibXML::Node.box: $.unbox.importNode($node.unbox); }
+method adoptNode(LibXML::Node:D $node)  { LibXML::Node.box: $.unbox.adoptNode($node.unbox); }
 
 method getDocumentElement { $!documentElement }
 method setDocumentElement(LibXML::Element $_) {
@@ -87,13 +87,13 @@ multi method createAttribute(QName:D $name,
                              Str $value = '',
                              Str:D :$href!,
                             ) {
-    self.box: $.unbox.createAttributeNS($href, $name, $value);
+    LibXML::Attr.box: $.unbox.createAttributeNS($href, $name, $value);
 }
 
 multi method createAttribute(QName:D $name,
                              Str $value = '',
                             ) {
-    self.box: $.unbox.createAttribute($name, $value);
+    LibXML::Attr.box: $.unbox.createAttribute($name, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
@@ -103,7 +103,7 @@ multi method createAttributeNS(Str $href,
                          QName:D $name,
                          Str $value = '',
                         ) {
-    self.box: $.unbox.createAttributeNS($href, $name, $value);
+    LibXML::Attr.box: $.unbox.createAttributeNS($href, $name, $value);
 }
 
 method createDocument(Str :$version = '1.0',
