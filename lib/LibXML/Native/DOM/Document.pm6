@@ -62,8 +62,8 @@ multi method adoptNode(Node:D $node) is default {
 }
 
 method createAttributeNS(Str $href, Str:D $name, Str:D $value = '') {
-    with $href {
-        self.domCreateAttributeNS($_, $name, $value);
+    if $href {
+        self.domCreateAttributeNS($href, $name, $value);
     }
     else {
         self.domCreateAttribute($name, $value);

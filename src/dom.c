@@ -661,6 +661,18 @@ domAppendChild( xmlNodePtr self,
     return head;
 }
 
+DLLEXPORT void
+domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value) {
+  xmlChar *buffer;
+  xmlAttrPtr newAttr;
+  /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
+  buffer = xmlEncodeEntitiesReentrant(self->doc, value);
+  xmlNewChild( self, NULL, name, buffer );
+  if ( buffer ) {
+      xmlFree(buffer);
+  }
+}
+
 DLLEXPORT xmlNodePtr
 domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
     if ( self == NULL || old == NULL ) {

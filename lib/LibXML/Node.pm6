@@ -63,8 +63,10 @@ class LibXML::Node {
         Proxy.new(
             FETCH => sub ($) { $!struct },
             STORE => sub ($, domNode:D $new-struct) {
-                die "mismatch between DOM node of type {$new-struct.type} ({box-class($new-struct.type).perl}) and container object of class {self.WHAT.perl}"
-                    unless box-class($new-struct.type) ~~ self.WHAT;
+                given box-class($new-struct.type) -> $class {
+                    die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
+                        unless $class ~~ self.WHAT;
+                }
                 .remove-reference with $!struct;
                 .add-reference with $new-struct;
                 $!struct = cast-struct($new-struct);
@@ -302,6 +304,12 @@ class LibXML::Node {
     }
     method removeChildNodes(--> LibXML::Node) {
         LibXML::Node.box: $.unbox.removeChildNodes;
+    }
+    multi method appendTextChild(NameVal:D $_) {
+        $.unbox.appendTextChild(.key, .value);
+    }
+    multi method appendTextChild(QName:D $name, Str $value?) {
+        $.unbox.appendTextChild($name, $value);
     }
     method normalise { self.unbox.normalize }
     method normalize { self.unbox.normalize }

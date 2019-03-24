@@ -15,6 +15,8 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
     self.struct = $doc-frag-struct;
 }
 
+#| don't try to keep document fragment return values. They're unpacked
+#! and discarded by the DOM
 method keep(|c) { LibXML::Node.box(|c) }
 
 method parse-balanced(Str() :$chunk!,

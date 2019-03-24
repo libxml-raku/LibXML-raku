@@ -12,6 +12,7 @@ method last { ... }
 
 method domError { ... }
 method domAppendChild  { ... }
+method domAppendTextChild  { ... }
 method domReplaceNode  { ... }
 method domAddSibling  { ... }
 method domReplaceChild  { ... }
@@ -248,6 +249,14 @@ method parentNode returns Node { self.parent; }
 method previousSibling returns Node { self.prev-node(KeepBlanks); }
 
 method previousNonBlankSibling returns Node { self.prev-node(SkipBlanks); }
+
+method appendText(Str:D $text) {
+    self.AddContent($text);
+}
+
+method appendTextChild(QName:D $name, Str $text) {
+    self.domAppendTextChild($name, $text);
+}
 
 method lookupNamespacePrefix(Str $uri --> Str) {
     with self.doc.SearchNsByHref(self, $uri) {

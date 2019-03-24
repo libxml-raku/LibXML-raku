@@ -336,9 +336,6 @@ my @badnames= ("1A", "<><", "&", "-:");
     ok(! defined($t3.parentNode), ' TODO : Add test name');
 }
 
-skip("port remaining tests", 110);
-=begin POD
-
 # 5. LibXML extensions
 {
     my $plainstring = "foo";
@@ -350,11 +347,11 @@ skip("port remaining tests", 110);
 
     $elem.appendText( $plainstring );
     # TEST
-    is( $elem.string_value , $plainstring, ' TODO : Add test name' );
+    is( $elem.string-value , $plainstring, ' TODO : Add test name' );
 
     $elem.appendText( $stdentstring );
     # TEST
-    is( $elem.string_value , $plainstring.$stdentstring, ' TODO : Add test name' );
+    is( $elem.string-value , $plainstring ~ $stdentstring, ' TODO : Add test name' );
 
     $elem.appendTextChild( "foo");
     $elem.appendTextChild( "foo" => "foo&bar" );
@@ -369,6 +366,9 @@ skip("port remaining tests", 110);
     # TEST
     ok( @cn[2].hasChildNodes, ' TODO : Add test name');
 }
+
+skip("port remaining tests", 104);
+=begin POD
 
 # 6. LibXML::Attr nodes
 {

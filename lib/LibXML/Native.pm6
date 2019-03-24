@@ -346,6 +346,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
+    method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}
     method domError { die $_ with dom_error; }
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceNode(domNode) returns domNode is native(BIND-LIB) {*}
@@ -363,6 +364,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
+    method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
     method domSetNamespace(Str $URI, Str $prefix) is native(BIND-LIB) returns int {*}
     method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}

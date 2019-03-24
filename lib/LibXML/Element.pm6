@@ -39,3 +39,6 @@ method namespaces {
     iterate(LibXML::Namespace, $.unbox.nsDef, :$.doc);
 }
 
+method appendText(Str:D $text) {
+    $.unbox.appendText($text);
+}

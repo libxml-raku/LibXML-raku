@@ -126,6 +126,10 @@ domSetName( xmlNodePtr node, xmlChar* name );
 DLLEXPORT xmlNodePtr
 domAppendChild( xmlNodePtr self,
                 xmlNodePtr newChild );
+
+DLLEXPORT void
+domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value);
+
 DLLEXPORT xmlNodePtr
 domReplaceChild( xmlNodePtr self,
                  xmlNodePtr newChlid,
