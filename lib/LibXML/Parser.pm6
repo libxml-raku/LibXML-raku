@@ -46,15 +46,24 @@ class LibXML::Parser {
         LibXML::ErrorHandler.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
 
-    method !finish(LibXML::Document:D $doc, :$URI, LibXML::ErrorHandler :$errors!) {
-        $errors.flush: :$!recover;
+    method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$errors!, ) {
+        my LibXML::Document:D $doc .= new: :$ctx;
         $doc.baseURI = $_ with $URI;
-        self.processXincludes($doc)
+        $errors.flush: :$!recover;
+        self.processXincludes($doc, :$errors)
             if $.expand-xinclude;
         $doc;
     }
 
-    method processXincludes(LibXML::Document $_, Bool :$recover = $!recover) {
+    proto method processXincludes(LibXML::Document $_, LibXML::ErrorHandler :$errors) {*}
+
+    multi method processXincludes(LibXML::Document $_, LibXML::ErrorHandler:D :$errors!) {
+        my xmlDoc $doc = .unbox;
+        my $n = $doc.XIncludeProcessFlags($!flags);
+        $errors.flush: :$!recover;
+        $n;
+    }
+    multi method processXincludes(LibXML::Document $_) is default {
         my xmlDoc $doc = .unbox;
         my xmlParserCtxt $ctx .= new;
         $ctx.sax = $_ with $!sax;
@@ -81,7 +90,7 @@ class LibXML::Parser {
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         $ctx.ParseDocument;
-        self!finish: LibXML::Document.new(:$ctx), :$errors;
+        self!publish: :$ctx, :$errors;
     }
 
     multi method parse(Blob :$buf!,
@@ -98,7 +107,7 @@ class LibXML::Parser {
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         $ctx.ParseDocument;
-        self!finish: LibXML::Document.new(:$ctx), :$errors;
+        self!publish: :$ctx, :$errors;
     }
 
     multi method parse(IO() :$file!,
@@ -114,7 +123,7 @@ class LibXML::Parser {
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         $ctx.ParseDocument;
-        self!finish: LibXML::Document.new(:$ctx), :$URI, :$errors;
+        self!publish: :$ctx, :$URI, :$errors;
     }
 
     multi method parse(IO::Handle :$io!,

@@ -16,6 +16,7 @@
     "LibXML" : "lib/LibXML.pm6",
     "LibXML::Attr" : "lib/LibXML/Attr.pm6",
     "LibXML::CDATASection" : "lib/LibXML/CDATASection.pm6",
+    "LibXML::Dtd" : "lib/LibXML/Dtd.pm6",
     "LibXML::Document" : "lib/LibXML/Document.pm6",
     "LibXML::DocumentFragment" : "lib/LibXML/DocumentFragment.pm6",
     "LibXML::Comment" : "lib/LibXML/Comment.pm6",

@@ -9,6 +9,7 @@ use LibXML::Enums;
 use LibXML::Config;
 use LibXML::Element;
 use LibXML::Attr;
+use LibXML::Dtd;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
 use NativeCall;
@@ -151,6 +152,22 @@ multi method createPI(NCName $name, Str $content?) {
     LibXML::PI.new: :doc(self), :$name, :$content;
 }
 
+method createExternalSubset(Str $name, Str $external-id, Str $system-id) {
+    LibXML::Dtd.new: :external, :doc(self), :$name, :$external-id, :$system-id;
+}
+
+method createInternalSubset(Str $name, Str $external-id, Str $system-id) {
+    LibXML::Dtd.new: :internal, :doc(self), :$name, :$external-id, :$system-id;
+}
+
+method internalSubset {
+    LibXML::Dtd.box: self.unbox.intSubset;
+}
+
+method externalSubset {
+    LibXML::Dtd.box: self.unbox.extSubset;
+}
+
 our $lock = Lock.new;
 
 method Str(Bool() :$format = False) {
@@ -163,14 +180,14 @@ method Str(Bool() :$format = False) {
         my xmlDoc $doc = $.unbox;
         my Str $rv;
 
-        if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
+        if config.skip-dtd && (my $dtd = $doc.internalSubset).defined {
             $lock.protect: {
                 # temporarily remove the DTD
                 $dtd.Unlink;
 
                 $rv := $doc.Str(:$format);
 
-                $doc.internal-dtd = $dtd;
+                $doc.internalSubset = $dtd;
             }
         }
         else {
@@ -192,14 +209,14 @@ method Blob(Bool() :$format = False) {
         my xmlDoc $doc = $.unbox;
         my Blob $rv;
 
-        if config.skip-dtd && (my $dtd = $doc.internal-dtd).defined {
+        if config.skip-dtd && (my $dtd = $doc.internalSubset).defined {
             $lock.protect: {
                 # temporarily remove the DTD
                 $dtd.Unlink;
 
                 $rv := $doc.Blob(:$format);
 
-                $doc.internal-dtd = $dtd;
+                $doc.internalSubset = $dtd;
             }
         }
         else {

@@ -23,6 +23,7 @@ class xmlDocFrag is repr('CStruct') is export {...}
 class xmlError   is repr('CStruct') is export {...}
 class xmlNode    is repr('CStruct') is export {...}
 class xmlAttr    is repr('CStruct') is export {...}
+class xmlDtd     is repr('CStruct') is export {...}
 class parserCtxt is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
@@ -33,10 +34,6 @@ class xmlDict is repr(Stub) is export {
     sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
     method Free is native(LIB) is symbol('xmlDictFree') {*};
     method new returns xmlDict:D { Create() }
-}
-class xmlDtd is repr(Stub) is export {
-    method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
-    method copy() { $.xmlCopyDtd }
 }
 class xmlEntity is repr(Stub) is export {
     sub xmlGetPredefinedEntity(xmlCharP $name) is native(LIB) returns xmlEntity is export { * }
@@ -325,7 +322,8 @@ class xmlSAXHandler is repr('CStruct') is export {
 class domNode is export does LibXML::Native::DOM::Node {
     has Pointer         $._private;    # application data
     has int32           $.type;        # type number, must be second !
-    has xmlCharP        $.name;        # the name of the node, or the entity
+    has xmlCharP        $!name;        # the name of the node, or the entity
+    method name         { $!name }
     has xmlNode         $.children;    # parent->childs link
     has xmlNode         $.last;        # last child link
     has xmlNode         $.parent;      # child->parent link
@@ -536,13 +534,16 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
-    method internal-dtd(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
+    method internalSubset(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
     method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlDoc {*}
     method copy(Bool :$deep = True) { $.Copy(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
+    method NewDtd(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlNewDtd') {*}
+    method CreateIntSubset(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlCreateIntSubset') {*}
+
     method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlNode:D) {
         given self.NewNode($ns, $name, $content) -> xmlNode:D $node {
             $node.nsDef = $_ with $ns;
@@ -610,6 +611,28 @@ class xmlDocFrag is xmlNode is export {
         my xmlDocFrag:D $frag = xmlNewDocFragment($doc);
         $frag.set-nodes($_) with $nodes;
         $frag;
+    }
+}
+
+class xmlDtd is domNode is export {
+    has Pointer  $.notations;  # Hash table for notations if any
+    has Pointer  $.elements;   # Hash table for elements if any
+    has Pointer  $.attributes; # Hash table for attributes if any
+    has Pointer  $.entities;   # Hash table for entities if any
+    has xmlCharP $.ExternalID; # External identifier for PUBLIC DTD
+    has xmlCharP $.SystemID;   # URI for a SYSTEM or PUBLIC DTD
+    has Pointer  $.pentities;  # Hash table for param entities if any
+
+    method publicId { $!ExternalID }
+    method systemId { $!SystemID }
+
+    method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
+    method copy() { $.xmlCopyDtd }
+    multi method new(:internal($)! where .so, xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
+        $doc.CreateIntSubset( $name, $external-id, $system-id);
+    }
+    multi method new(:external($)! where .so, xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
+        $doc.NewDtd( $name, $external-id, $system-id);
     }
 }
 

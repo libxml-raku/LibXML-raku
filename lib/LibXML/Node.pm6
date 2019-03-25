@@ -126,6 +126,7 @@ class LibXML::Node {
         when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
         when XML_PI_NODE            { require LibXML::PI }
         when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
+        when XML_DTD_NODE           { require LibXML::Dtd }
         when XML_DOCUMENT_NODE
            | XML_HTML_DOCUMENT_NODE { require LibXML::Document }
 
@@ -144,6 +145,7 @@ class LibXML::Node {
         when XML_CDATA_SECTION_NODE { xmlCDataNode }
         when XML_PI_NODE            { xmlPINode }
         when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
+        when XML_DTD_NODE           { xmlDtd }
         when XML_DOCUMENT_NODE
            | XML_HTML_DOCUMENT_NODE { xmlDoc }
         default {
