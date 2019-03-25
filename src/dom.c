@@ -1121,6 +1121,44 @@ domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
     return rv;
 }
 
+DLLEXPORT int
+domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
+  int rv = 0;
+  xmlAttrPtr attr = NULL;
+
+  if ( name && name[0] ) {
+    if (nsURI && ! nsURI[0]) {
+      nsURI = NULL;
+    }
+
+    attr = xmlHasNsProp( self, name, nsURI );
+
+    if (attr) {
+      /* we don't want fixed attribute decls */
+      rv = attr->type == XML_ATTRIBUTE_NODE;
+    }
+  }
+
+  return rv;
+}
+
+DLLEXPORT xmlAttrPtr
+domGetAttributeNodeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
+  xmlAttrPtr rv = NULL;
+
+  if ( nsURI && nsURI[0] ) {
+    rv = xmlHasNsProp( self, name, nsURI );
+  }
+  else {
+    rv = xmlHasNsProp( self, name, NULL );
+  }
+  if (rv && rv->type != XML_ATTRIBUTE_NODE) {
+    /* we don't want fixed attribute decls */
+    rv = NULL;
+  }
+  return rv;
+}
+
 DLLEXPORT xmlChar*
 domGetAttribute(xmlNodePtr node, const xmlChar *qname) {
     xmlChar * prefix    = NULL;
@@ -1236,10 +1274,12 @@ domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
     return attr;
 }
 
-DLLEXPORT void
-domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr)
+DLLEXPORT xmlChar*
+domAttrSerializeContent(xmlAttrPtr attr)
 {
+    xmlBufferPtr buffer = xmlBufferCreate();
     xmlNodePtr children;
+    xmlChar* rv = NULL;
 
     children = attr->children;
     while (children != NULL) {
@@ -1260,6 +1300,9 @@ domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr)
         }
         children = children->next;
     }
+    rv = xmlStrdup( buffer->content );
+    xmlBufferFree( buffer );
+    return rv;
 }
 
 
@@ -1372,7 +1415,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
   xmlNsPtr ns = NULL;
   xmlNodePtr root = xmlDocGetRootElement(self);
 
-  if ( URI != NULL && xmlStrlen(URI) > 0 ) {
+  if ( URI != NULL && URI[0] > 0 ) {
     if ( xmlStrchr(name, ':') != NULL ) {
       localname = xmlSplitQName2(name, &prefix);
     }

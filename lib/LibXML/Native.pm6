@@ -4,6 +4,7 @@ unit class LibXML::Native;
 
 use NativeCall;
 use LibXML::Enums;
+use LibXML::Native::DOM::Attr;
 use LibXML::Native::DOM::Node;
 use LibXML::Native::DOM::Document;
 
@@ -340,8 +341,6 @@ class domNode is export does LibXML::Native::DOM::Node {
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native(LIB) is symbol('xmlIsBlankNode') {*}
-    method NsPropNode(xmlCharP, xmlCharP --> xmlAttr) is native(LIB) is symbol('xmlHasNsProp') {*}
-    method PropNode(xmlCharP --> xmlAttr) is native(LIB) is symbol('xmlHasProp') {*}
     method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
     method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
@@ -361,6 +360,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domRemoveChildNodes returns xmlDocFrag is native(BIND-LIB) {*}
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
+    method domHasAttributeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns int32 {*}
+    method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
@@ -474,7 +475,7 @@ class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
     }
 }
 
-class xmlAttr is domNode is export {
+class xmlAttr is domNode does LibXML::Native::DOM::Attr is export {
     has xmlAttr         $.nexth;        # next in hash table
     has int32           $.atype;        # the attribute type
     has int32           $.def;          # default mode (enum xmlAttributeDefault)
@@ -488,6 +489,7 @@ class xmlAttr is domNode is export {
     method new(Str :$name!, Str :$value!, xmlDoc :$doc --> xmlAttr:D) {
         $doc.NewProp($name, $value);
     }
+    method domAttrSerializeContent(--> xmlCharP) is native(BIND-LIB) {*}
 }
 
 class xmlDoc is domNode does LibXML::Native::DOM::Document is export {

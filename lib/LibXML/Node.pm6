@@ -53,10 +53,14 @@ class LibXML::Node {
         }
     }
 
+    method ownerElement { $.parentNode }
     method replaceChild(LibXML::Node $new, $box) {
         $box.keep(
             $.unbox.replaceChild($new.unbox, $box.unbox),
         );
+    }
+    method appendText(Str:D $text) {
+        $.unbox.appendText($text);
     }
 
     method struct is rw {
@@ -156,11 +160,11 @@ class LibXML::Node {
     method unbox {$!struct}
 
     method box(LibXML::Native::DOM::Node $struct,
-                    LibXML::Node :$doc is copy = $.doc, # reusable document object
-                    --> LibXML::Node) {
+               LibXML::Node :$doc is copy = $.doc, # reusable document object
+               --> LibXML::Node) {
         with $struct {
             my $class := box-class(.type);
-            die "mismatch between DOM node of type {.type} ($class.perl}) and container object of class {self.WHAT.perl}"
+            die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                     unless $class ~~ self.WHAT;
             $class.new: :struct($_), :$doc;
         }

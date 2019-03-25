@@ -214,6 +214,12 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 DLLEXPORT xmlAttrPtr
 domGetAttributeNode( xmlNodePtr node, const xmlChar *qname);
 
+DLLEXPORT int
+domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name);
+
+DLLEXPORT xmlAttrPtr
+domGetAttributeNodeNS(xmlNodePtr sef, const xmlChar *nsURI, const xmlChar *name);
+
 DLLEXPORT xmlChar*
 domGetAttribute(xmlNodePtr node, const xmlChar *qname);
 
@@ -232,8 +238,8 @@ domNormalizeList( xmlNodePtr nodelist );
 DLLEXPORT int
 domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns);
 
-DLLEXPORT void
-domAttrSerializeContent(xmlBufferPtr buffer, xmlAttrPtr attr);
+DLLEXPORT xmlChar*
+domAttrSerializeContent(xmlAttrPtr attr);
 
 DLLEXPORT void
 domClearPSVI(xmlNodePtr tree);

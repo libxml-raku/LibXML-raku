@@ -23,6 +23,7 @@ method domGetNodeValue { ... }
 method domSetNodeValue { ... }
 method domRemoveChild  { ... }
 method domGetAttributeNode { ... }
+method domGetAttributeNodeNS { ... }
 method domGetAttribute { ... }
 method domSetAttributeNode { ... }
 method domSetAttributeNodeNS { ... }
@@ -47,7 +48,7 @@ method appendChild(Node $nNode) {
         // self.domError // Node;
 }
 
-my subset AttrNode of Node where .type == XML_ATTRIBUTE_NODE;
+my subset AttrNode of Node where {!.defined || .type == XML_ATTRIBUTE_NODE};
 
 method setAttribute(QName:D $name, Str:D $value) {
     with self.getAttributeNode($name) {
@@ -75,7 +76,7 @@ method hasAttribute(Str $att-name --> Bool) {
 }
 
 method hasAttributeNS(Str $uri, Str $att-name --> Bool) {
-    self.getAttributeNS($uri, $att-name).defined;
+    ? self.domHasAttributeNS($uri, $att-name);
 }
 
 method removeAttribute(Str:D $attr-name) {
@@ -97,16 +98,11 @@ method removeAttributeNS(Str $uri, Str $attr-name) {
     .Release with self.getAttributeNodeNS($uri, $attr-name);
 }
 
-method getAttributeNodeNS(Str $uri, QName:D $att-name) {
-    if $uri { 
-        self.NsPropNode($att-name, $uri);
-    }
-    else {
-        self.PropNode($att-name);
-    }
+method getAttributeNodeNS(Str $uri, QName:D $att-name --> AttrNode) {
+    self.domGetAttributeNodeNS($uri, $att-name);
 }
 
-method getAttributeNS(Str $uri, QName:D $att-name) {
+method getAttributeNS(Str $uri, QName:D $att-name --> Str) {
     if $uri { 
         self.NsProp($att-name, $uri);
     }

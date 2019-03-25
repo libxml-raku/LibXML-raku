@@ -22,4 +22,8 @@ method nexth returns LibXML::Attr {
     self.box: $.unbox.nexth;
 }
 
+method serializeContent {
+    self.unbox.serializeContent;
+}
+
 method Str(:$raw) { $raw ?? nextsame() !! $.nodeValue}
