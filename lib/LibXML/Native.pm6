@@ -365,7 +365,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
     method domSetNamespace(Str $URI, Str $prefix) is native(BIND-LIB) returns int {*}
-    method Unlink(--> domNode) is native(LIB) is symbol('xmlUnlinkNode') {*}
+    method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
@@ -498,9 +498,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
                                        # -1 if there is no XML declaration
                                        # -2 if there is an XML declaration, but no
                                        #    standalone attribute was specified
-    has xmlDtd          $.intSubset is rw-ptr(
-            method domSetIntSubset(xmlDtd) is native(BIND-LIB) {*}
-    );   # the document internal subset
+    has xmlDtd          $.intSubset;   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
     has xmlCharP        $.version is rw-str(
@@ -534,7 +532,6 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
-    method internalSubset(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
     method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlDoc {*}
     method copy(Bool :$deep = True) { $.Copy(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
@@ -542,6 +539,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
     method NewDtd(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlNewDtd') {*}
+    method GetInternalSubset(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
     method CreateIntSubset(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlCreateIntSubset') {*}
 
     method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlNode:D) {
@@ -576,6 +574,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}
     method domCreateAttributeNS(Str, Str, Str --> xmlAttr) is native(BIND-LIB) {*}
     method domImportNode(domNode, int32, int32 --> domNode) is native(BIND-LIB) {*}
+    method domSetIntSubset(xmlDtd) is native(BIND-LIB) {*}
+    method domSetExtSubset(xmlDtd) is native(BIND-LIB) {*}
 
     #| Dump to a blob, using the inate encoding scheme
     method Blob(Bool() :$format = False) {
@@ -628,10 +628,10 @@ class xmlDtd is domNode is export {
 
     method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
     method copy() { $.xmlCopyDtd }
-    multi method new(:internal($)! where .so, xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
+    multi method new(:internal($)! where .so, xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.CreateIntSubset( $name, $external-id, $system-id);
     }
-    multi method new(:external($)! where .so, xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
+    multi method new(xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) is default {
         $doc.NewDtd( $name, $external-id, $system-id);
     }
 }

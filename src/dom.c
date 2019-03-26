@@ -252,20 +252,70 @@ _domImportFrag(xmlNodePtr frag) {
 
 DLLEXPORT void
 domSetIntSubset(xmlDocPtr self, xmlDtdPtr dtd) {
-  xmlDtdPtr old_dtd;
+  xmlDtdPtr ext_dtd = NULL;
+  xmlDtdPtr int_dtd = NULL;
 
   if (self == NULL) xml6_fail("unable to update null document");
 
-  old_dtd = self->intSubset;
-  if (old_dtd == dtd) {
+  int_dtd = xmlGetIntSubset(self);
+  ext_dtd = self->extSubset;
+
+  if (int_dtd == dtd) {
     return;
   }
 
-  if (old_dtd != NULL) {
-      domReleaseNode((xmlNodePtr) old_dtd);
+  if (int_dtd != NULL) {
+    domReleaseNode((xmlNodePtr) int_dtd);
   }
 
+  if (dtd->doc == NULL) {
+    xmlSetTreeDoc( (xmlNodePtr) dtd, self );
+  } else if ( dtd->doc != self ) {
+    domImportNode( self, (xmlNodePtr) dtd, 1, 1);
+  }
+
+  if (dtd != NULL) {
+    if (ext_dtd && ext_dtd != int_dtd) {
+      domReleaseNode((xmlNodePtr) ext_dtd);
+    }
+    self->extSubset = NULL;
+  }
   self->intSubset = dtd;
+}
+
+DLLEXPORT void
+domSetExtSubset(xmlDocPtr self, xmlDtdPtr dtd) {
+  xmlDtdPtr ext_dtd = NULL;
+  xmlDtdPtr int_dtd = NULL;
+
+  if (self == NULL) xml6_fail("unable to update null document");
+
+  int_dtd = xmlGetIntSubset(self);
+  ext_dtd = self->extSubset;
+
+  if (ext_dtd == dtd) {
+    return;
+  }
+
+  if (ext_dtd != NULL) {
+      domReleaseNode((xmlNodePtr) ext_dtd);
+  }
+
+  if ( dtd->doc == NULL ) {
+    xmlSetTreeDoc( (xmlNodePtr) dtd, self );
+  } else if (dtd->doc != self) {
+    domImportNode( self, (xmlNodePtr) dtd, 1, 1);
+  }
+
+  if (dtd != NULL && int_dtd != NULL) {
+    if (int_dtd == dtd) {
+      xmlUnlinkNode( (xmlNodePtr) int_dtd);
+    }
+    else {
+      domReleaseNode( (xmlNodePtr) int_dtd);
+    }
+  }
+  self->extSubset = dtd;
 }
 
 static xmlNodePtr
@@ -273,15 +323,15 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
     xmlNodePtr cur = head;
     while ( cur ) {
         /* we must reconcile all nodes in the fragment */
-        if (cur->type != XML_DTD_NODE) {
-            domReconcileNs(cur);
-        }
-        else {
+        if (cur->type == XML_DTD_NODE) {
           if (cur->doc) {
             domSetIntSubset(cur->doc, (xmlDtdPtr) cur);
-            }
+          }
         }
-        if ( !tail || cur == tail ) {
+        else {
+            domReconcileNs(cur);
+        }
+        if ( !tail || !cur || cur == tail ) {
             break;
         }
         cur = cur->next;

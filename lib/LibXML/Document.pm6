@@ -153,19 +153,39 @@ multi method createPI(NCName $name, Str $content?) {
 }
 
 method createExternalSubset(Str $name, Str $external-id, Str $system-id) {
-    LibXML::Dtd.new: :external, :doc(self), :$name, :$external-id, :$system-id;
+    LibXML::Dtd.new: :doc(self), :external, :$name, :$external-id, :$system-id;
 }
 
 method createInternalSubset(Str $name, Str $external-id, Str $system-id) {
-    LibXML::Dtd.new: :internal, :doc(self), :$name, :$external-id, :$system-id;
+    LibXML::Dtd.new: :doc(self), :internal, :$name, :$external-id, :$system-id;
+}
+
+method createDTD(Str $name, Str $external-id, Str $system-id) {
+    LibXML::Dtd.new: :$name, :$external-id, :$system-id;
 }
 
 method internalSubset {
-    LibXML::Dtd.box: self.unbox.intSubset;
+    LibXML::Dtd.box: self.unbox.GetInternalSubset;
 }
 
 method externalSubset {
     LibXML::Dtd.box: self.unbox.extSubset;
+}
+
+method setExternalSubset(LibXML::Dtd $dtd) {
+    self.unbox.setExternalSubset: $dtd.unbox;
+}
+
+method setInternalSubset(LibXML::Dtd $dtd) {
+    self.unbox.setInternalSubset: $dtd.unbox;
+}
+
+method removeExternalSubset {
+    LibXML::Dtd.box: self.unbox.removeExternalSubset;
+}
+
+method removeInternalSubset {
+    LibXML::Dtd.box: self.unbox.removeInternalSubset;
 }
 
 our $lock = Lock.new;

@@ -59,6 +59,9 @@ domReconcileNS(xmlNodePtr tree);
 DLLEXPORT void
 domSetIntSubset(xmlDocPtr, xmlDtdPtr dtd);
 
+DLLEXPORT void
+domSetExtSubset(xmlDocPtr, xmlDtdPtr dtd);
+
 /**
  * NAME domIsParent
  * TYPE function

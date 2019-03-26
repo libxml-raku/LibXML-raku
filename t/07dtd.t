@@ -32,12 +32,9 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     # TEST
     ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
-}; skip("port remaining tests", 49);
-=begin POD
-
     $doc.setExternalSubset( $dtd );
     # TEST
-    ok(!defined ($doc.internalSubset), ' TODO : Add test name' );
+    ok(!defined($doc.internalSubset), ' TODO : Add test name' );
     # TEST
     ok( $dtd.isSameNode( $doc.externalSubset ), ' TODO : Add test name' );
 
@@ -49,7 +46,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
     $doc.setInternalSubset( $dtd );
     # TEST
-    ok(!defined ($doc.externalSubset), ' TODO : Add test name' );
+    ok(!defined($doc.externalSubset), ' TODO : Add test name' );
     # TEST
     ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
@@ -77,6 +74,9 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     # TEST
     ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
     # TEST
+}; skip("port remaining tests", 38);
+=begin POD
+
     ok( !defined($doc.externalSubset), ' TODO : Add test name' );
 }
 
