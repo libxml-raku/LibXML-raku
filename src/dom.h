@@ -56,11 +56,17 @@ extern "C" {
 DLLEXPORT void
 domReconcileNS(xmlNodePtr tree);
 
-DLLEXPORT void
-domSetIntSubset(xmlDocPtr, xmlDtdPtr dtd);
+DLLEXPORT xmlDtdPtr
+domGetInternalSubset(xmlDocPtr self);
+
+DLLEXPORT xmlDtdPtr
+domGetExternalSubset(xmlDocPtr self);
 
 DLLEXPORT void
-domSetExtSubset(xmlDocPtr, xmlDtdPtr dtd);
+domSetInternalSubset(xmlDocPtr, xmlDtdPtr dtd);
+
+DLLEXPORT void
+domSetExternalSubset(xmlDocPtr, xmlDtdPtr dtd);
 
 /**
  * NAME domIsParent

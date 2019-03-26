@@ -8,7 +8,7 @@ class LibXML::PushParser {
     has parserCtxt $!ctx;
     has LibXML::ErrorHandler $!errors;
     has Int $.err = 0;
-    method ctx { $!ctx }
+##    method ctx { $!ctx }
 
     multi submethod TWEAK(Str :chunk($str), |c) {
         my $chunk = $str.encode;
@@ -41,10 +41,10 @@ class LibXML::PushParser {
     method finish-push(Str :$uri, Bool :$recover = False) {
         self!parse-chunk: :terminate;
 	$!errors.flush: :$recover;
+        $!errors = Nil;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
         my $doc := LibXML::Document.new( :$!ctx, :$uri);
-        $!errors = Nil;
         $!ctx = Nil;
         $doc;
     }

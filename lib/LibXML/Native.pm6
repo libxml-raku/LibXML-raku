@@ -539,7 +539,6 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
     method NewDtd(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlNewDtd') {*}
-    method GetInternalSubset(--> xmlDtd) is native(LIB) is symbol('xmlGetIntSubset') {*}
     method CreateIntSubset(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlCreateIntSubset') {*}
 
     method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlNode:D) {
@@ -574,8 +573,10 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}
     method domCreateAttributeNS(Str, Str, Str --> xmlAttr) is native(BIND-LIB) {*}
     method domImportNode(domNode, int32, int32 --> domNode) is native(BIND-LIB) {*}
-    method domSetIntSubset(xmlDtd) is native(BIND-LIB) {*}
-    method domSetExtSubset(xmlDtd) is native(BIND-LIB) {*}
+    method domGetInternalSubset(--> xmlDtd) is native(BIND-LIB) {*}
+    method domGetExternalSubset(--> xmlDtd) is native(BIND-LIB) {*}
+    method domSetInternalSubset(xmlDtd) is native(BIND-LIB) {*}
+    method domSetExternalSubset(xmlDtd) is native(BIND-LIB) {*}
 
     #| Dump to a blob, using the inate encoding scheme
     method Blob(Bool() :$format = False) {

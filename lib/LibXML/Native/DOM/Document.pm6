@@ -16,8 +16,10 @@ method NewProp { ... }
 method domCreateAttribute {...}
 method domCreateAttributeNS {...}
 method domImportNode {...}
-method domSetIntSubset { ... }
-method domSetExtSubset { ... }
+method domGetInternalSubset { ... }
+method domGetExternalSubset { ... }
+method domSetInternalSubset { ... }
+method domSetExternalSubset { ... }
 
 method documentElement is rw {
     Proxy.new(
@@ -73,22 +75,30 @@ method createAttributeNS(Str $href, Str:D $name, Str:D $value = '') {
     }
 }
 
+method getInternalSubset {
+    self.domGetInternalSubset;
+}
+
+method getExternalSubset {
+    self.domGetExternalSubset;
+}
+
 method setInternalSubset(DtdNode $dtd) {
-    self.domSetIntSubset($dtd);
+    self.domSetInternalSubset($dtd);
 }
 
 method setExternalSubset(DtdNode $dtd) {
-    self.domSetExtSubset($dtd);
+    self.domSetExternalSubset($dtd);
 }
 
 method removeInternalSubset {
-    my $ret := self.GetInternalSubset;
+    my $ret := self.getInternalSubset;
     .Unlink with $ret;
     $ret;
 }
 
 method removeExternalSubset {
-    my $ret := self.extSubset;
+    my $ret := self.getExternalSubset;
     .Unlink with $ret;
     $ret;
 }

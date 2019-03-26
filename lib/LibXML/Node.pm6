@@ -319,8 +319,8 @@ class LibXML::Node {
     }
     method normalise { self.unbox.normalize }
     method normalize { self.unbox.normalize }
-    method cloneNode(Bool() $deep) {
-        my $struct = $.unbox.cloneNode($deep);
+    method cloneNode(LibXML::Node:D: Bool() $deep) {
+        my domNode:D $struct = $.unbox.cloneNode($deep);
         self.new: :$struct, :$.doc;
     }
     method !get-attributes {

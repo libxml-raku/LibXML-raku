@@ -250,15 +250,25 @@ _domImportFrag(xmlNodePtr frag) {
     return fraglist;
 }
 
+DLLEXPORT xmlDtdPtr
+domGetInternalSubset(xmlDocPtr self) {
+  return xmlGetIntSubset(self);
+}
+
+DLLEXPORT xmlDtdPtr
+domGetExternalSubset(xmlDocPtr self) {
+  return self->extSubset;
+}
+
 DLLEXPORT void
-domSetIntSubset(xmlDocPtr self, xmlDtdPtr dtd) {
+domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
   xmlDtdPtr ext_dtd = NULL;
   xmlDtdPtr int_dtd = NULL;
 
   if (self == NULL) xml6_fail("unable to update null document");
 
-  int_dtd = xmlGetIntSubset(self);
-  ext_dtd = self->extSubset;
+  int_dtd = domGetInternalSubset(self);
+  ext_dtd = domGetExternalSubset(self);
 
   if (int_dtd == dtd) {
     return;
@@ -284,14 +294,14 @@ domSetIntSubset(xmlDocPtr self, xmlDtdPtr dtd) {
 }
 
 DLLEXPORT void
-domSetExtSubset(xmlDocPtr self, xmlDtdPtr dtd) {
+domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
   xmlDtdPtr ext_dtd = NULL;
   xmlDtdPtr int_dtd = NULL;
 
   if (self == NULL) xml6_fail("unable to update null document");
 
-  int_dtd = xmlGetIntSubset(self);
-  ext_dtd = self->extSubset;
+  int_dtd = domGetInternalSubset(self);
+  ext_dtd = domGetExternalSubset(self);
 
   if (ext_dtd == dtd) {
     return;
@@ -325,7 +335,7 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
         /* we must reconcile all nodes in the fragment */
         if (cur->type == XML_DTD_NODE) {
           if (cur->doc) {
-            domSetIntSubset(cur->doc, (xmlDtdPtr) cur);
+            domSetInternalSubset(cur->doc, (xmlDtdPtr) cur);
           }
         }
         else {
@@ -947,7 +957,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
         rv = xmlAddSibling( self, nNode );
 
         if ( rv && nNode->type == XML_DTD_NODE ) {
-          domSetIntSubset(self->doc, (xmlDtdPtr) nNode);
+          domSetInternalSubset(self->doc, (xmlDtdPtr) nNode);
         }
     }
     return rv;

@@ -3,6 +3,7 @@ use Test;
 plan 54;
 
 use LibXML;
+use LibXML::Enums;
 
 my $htmlPublic = "-//W3C//DTD XHTML 1.0 Transitional//EN";
 my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
@@ -74,16 +75,13 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     # TEST
     ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
     # TEST
-}; skip("port remaining tests", 38);
-=begin POD
-
     ok( !defined($doc.externalSubset), ' TODO : Add test name' );
 }
 
 {
     my $parser = LibXML.new();
 
-    my $doc = $parser.parse_file( "example/dtd.xml" );
+    my $doc = $parser.parse: :file( "example/dtd.xml" );
 
     # TEST
 
@@ -93,27 +91,30 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     # TEST
     is( $dtd.name, 'doc', ' TODO : Add test name' );
     # TEST
-    is( $dtd.publicId, undef, ' TODO : Add test name' );
+    is( $dtd.publicId, Str, ' TODO : Add test name' );
     # TEST
-    is( $dtd.systemId, undef, ' TODO : Add test name' );
+    is( $dtd.systemId, Str, ' TODO : Add test name' );
 
     my $entity = $doc.createEntityReference( "foo" );
     # TEST
     ok($entity, ' TODO : Add test name');
     # TEST
-    is($entity.nodeType, XML_ENTITY_REF_NODE, ' TODO : Add test name' );
+    is($entity.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name' );
 
     # TEST
 
     ok( $entity.hasChildNodes, ' TODO : Add test name' );
     # TEST
-    is( $entity.firstChild.nodeType, XML_ENTITY_DECL, ' TODO : Add test name' );
-    # TEST
-    is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
+    quietly {
+        # We don't have explicit EntityDecl or ElementDecl classes yet
+        is( $entity.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
+        # TEST
+        is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
 
-    my $edcl = $entity.firstChild;
-    # TEST
-    is( $edcl.previousSibling.nodeType, XML_ELEMENT_DECL, ' TODO : Add test name' );
+        my $edcl = $entity.firstChild;
+        # TEST
+        is( $edcl.previousSibling.nodeType, +XML_ELEMENT_DECL, ' TODO : Add test name' );
+    }
 
     {
         my $doc2  = LibXML::Document.new;
@@ -125,19 +126,21 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
         ok($dtd2, ' TODO : Add test name');
 
 #        $doc2.setInternalSubset( $dtd2 );
-#        warn $doc2.toString;
+#        warn $doc2.Str;
 
 #        $e.appendChild( $entity );
-#        warn $doc2.toString;
+#        warn $doc2.Str;
     }
 }
 
+skip("port remaining tests", 26);
+=begin POD
 
 {
     my $parser = LibXML.new();
-    $parser.validation(1);
-    $parser.keep_blanks(1);
-    my $doc=$parser.parse_string(<<'EOF');
+    $parser.validation = True;
+    $parser.keep-blanks = True;
+    my $doc=$parser.parse: :string(q:to<EOF>);
 <?xml version='1.0'?>
 <!DOCTYPE test [
  <!ELEMENT test (#PCDATA)>
@@ -150,7 +153,7 @@ EOF
     ok($doc.validate(), ' TODO : Add test name');
 
     # TEST
-    ok($doc.is_valid(), ' TODO : Add test name');
+    ok($doc.is-valid(), ' TODO : Add test name');
 
 }
 

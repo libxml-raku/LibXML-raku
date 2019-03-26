@@ -335,7 +335,7 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0], Node :$doc 
         @subpath.tail++;
         with $next {
             oops($_, $ok, @subpath, "inconsistant prev link")
-                unless addr(.prev) ~~ addr($sibling);
+                unless addr(.prev) == addr($sibling);
         }
         $last = $sibling;
         $sibling = $next;

@@ -235,7 +235,7 @@ throws-like( { $parser.parse(:file($badfile1))},
 # 1.3 PARSE A HANDLE
 
 my $io = $goodfile.IO;
-my $chunk-size = 256; # process multiple chunks
+my $chunk-size = 256; # reduce to process multiple chunks
 isa-ok($io, IO::Path);
 my $doc = $parser.parse: :$io, :$chunk-size;
 isa-ok($doc, 'LibXML::Document');
@@ -247,11 +247,9 @@ isa-ok($doc, 'LibXML::Document');
 
 $io = $badfile1.IO;
 isa-ok($io, IO::Path);
-
 throws-like
     { $parser.parse: :$io; },
     X::LibXML::Parser, :message(rx/:s Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
-
 {
     $parser.expand-entities = True;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
@@ -408,7 +406,7 @@ my $badXInclude = q{
         quietly {
             $doc = $parser.finish-push(:recover);
         };
-        isa-ok( $doc, 'LibXML::Document' );
+        isa-ok( $doc, 'LibXML::Document', 'RECOVERING PUSH PARSER' );
     }
 }
 
@@ -421,7 +419,7 @@ use LibXML::SAX;
     my $string  = q{<bar foo="bar">foo</bar>};
 
     $doc = $generator.parse: :$string;
-    isa-ok( $doc , 'XML::Document');
+    isa-ok( $doc , 'XML::Document', 'SAX PARSER');
 
 }
 
@@ -437,7 +435,7 @@ use LibXML::SAX;
     # 3.1 GENERAL TESTS
     for @goodWFStrings -> $string {
         my $doc = $generator.parse: :$string;
-        isa-ok( $doc , 'LibXML::Document');
+        isa-ok( $doc , 'LibXML::Document', 'SAX Handler on good strings');
     }
 
     # CDATA Sections
@@ -458,9 +456,7 @@ use LibXML::SAX;
         my $doc = $generator.parse: :$string;
         isa-ok( $doc , 'LibXML::Document');
 
-        # skip the nested node tests until there is a xmlNormalizeNs().
-        #ok(1),next if $i > 2;
-        is( $doc.Str.subst(/' encoding="UTF-8"'/, ''), $string );
+        is( $doc.Str.subst(/' encoding="UTF-8"'/, ''), $string, "Good NS $i" );
         $i++
     }
 

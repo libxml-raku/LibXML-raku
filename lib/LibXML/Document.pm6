@@ -164,29 +164,45 @@ method createDTD(Str $name, Str $external-id, Str $system-id) {
     LibXML::Dtd.new: :$name, :$external-id, :$system-id;
 }
 
-method internalSubset {
-    LibXML::Dtd.box: self.unbox.GetInternalSubset;
-}
-
-method externalSubset {
-    LibXML::Dtd.box: self.unbox.extSubset;
-}
-
-method setExternalSubset(LibXML::Dtd $dtd) {
-    self.unbox.setExternalSubset: $dtd.unbox;
+method getInternalSubset {
+    LibXML::Dtd.box: self.unbox.getInternalSubset;
 }
 
 method setInternalSubset(LibXML::Dtd $dtd) {
     self.unbox.setInternalSubset: $dtd.unbox;
 }
 
+method removeInternalSubset {
+    LibXML::Dtd.box: self.unbox.removeInternalSubset;
+}
+
+method internalSubset is rw {
+    Proxy.new( FETCH => sub ($) { self.getInternalSubset },
+               STORE => sub ($, LibXML::Dtd $dtd) {
+                     self.setInternalSubset($dtd);
+                 }
+             );
+    }
+
+method getExternalSubset {
+    LibXML::Dtd.box: self.unbox.getExternalSubset;
+}
+
+method setExternalSubset(LibXML::Dtd $dtd) {
+    self.unbox.setExternalSubset: $dtd.unbox;
+}
+
 method removeExternalSubset {
     LibXML::Dtd.box: self.unbox.removeExternalSubset;
 }
 
-method removeInternalSubset {
-    LibXML::Dtd.box: self.unbox.removeInternalSubset;
-}
+method externalSubset is rw {
+    Proxy.new( FETCH => sub ($) { self.getExternalSubset },
+               STORE => sub ($, LibXML::Dtd $dtd) {
+                     self.setExternalSubset($dtd);
+                 }
+             );
+    }
 
 our $lock = Lock.new;
 
