@@ -5,4 +5,6 @@
 
 DLLEXPORT void xml6_input_set_filename(xmlParserInputPtr, char *url);
 
+DLLEXPORT int xml6_input_push(xmlParserInputPtr, char *str)
+
 #endif /* __XML6_INPUT_H */

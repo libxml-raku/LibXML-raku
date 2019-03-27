@@ -170,25 +170,17 @@ EOF
     ok($doc.defined, ' TODO : Add test name');
 }
 
-skip("port remaining tests", 22);
-=begin POD
-
 {
     my $bad = 'example/bad.dtd';
     # TEST
-    ok( -f $bad, ' TODO : Add test name' );
-    eval { LibXML::Dtd.new("-//Foo//Test DTD 1.0//EN", $bad) };
-    # TEST
-    ok ($@, ' TODO : Add test name');
+    ok($bad.IO.f, ' TODO : Add test name' );
+    dies-ok { LibXML::Dtd.new(:external("-//Foo//Test DTD 1.0//EN"), :system($bad)) }, ' TODO : Add test name';
 
-    undef $@;
-    my $dtd = slurp($bad);
+    my $dtd = $bad.IO.slurp;
 
     # TEST
-    ok( length($dtd) > 5, ' TODO : Add test name' );
-    eval { LibXML::Dtd.parse_string($dtd) };
-    # TEST
-    ok ($@, ' TODO : Add test name');
+    ok( $dtd.chars > 5, ' TODO : Add test name' );
+    dies-ok { LibXML::Dtd.parse: :string($dtd) }, ' TODO : Add test name';
 
     my $xml = "<!DOCTYPE test SYSTEM \"example/bad.dtd\">\n<test/>";
 
@@ -204,12 +196,12 @@ skip("port remaining tests", 22);
         my $parser = LibXML.new;
         $parser.load-ext-dtd = True;
         $parser.validation = False;
-        undef $@;
-        eval { $parser.parse: :string($xml) };
-        # TEST
-        ok( $@, ' TODO : Add test name' );
+        dies-ok { $parser.parse: :string($xml) }, ' TODO : Add test name';
     }
 }
+
+skip("port remaining tests", 16);
+=begin POD
 
 {
     # RT #71076: https://rt.cpan.org/Public/Bug/Display.html?id=71076

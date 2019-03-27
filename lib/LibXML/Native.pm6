@@ -13,8 +13,13 @@ constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
 constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 constant dom_error is export := cglobal(BIND-LIB, 'dom_error', Str);
 
+
 # type defs
 constant xmlCharP = Str;
+
+# subsets
+sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
+my subset xmlCharEncoding of Str is export where {!.defined || xmlParseCharEncoding($_) > 0}
 
 # forward declarations
 class domNode    is repr('CStruct') is export {...}
@@ -44,7 +49,13 @@ class xmlEntity is repr(Stub) is export {
 class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
-class xmlParserInputBuffer is repr(Stub) is export {}
+class xmlParserInputBuffer is repr(Stub) is export {
+    sub xmlAllocParserInputBuffer(xmlCharEncoding:D --> xmlParserInputBuffer) is native(LIB) {*}
+    method new(xmlCharEncoding:D :$enc!) {
+         xmlAllocParserInputBuffer($enc);
+    }
+    method push(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_push') {*}
+}
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
@@ -629,11 +640,24 @@ class xmlDtd is domNode is export {
 
     method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
     method copy() { $.xmlCopyDtd }
+    sub xmlIOParseDtd(xmlSAXHandler, xmlParserInputBuffer:D, xmlCharEncoding:D --> xmlDtd) is native(LIB) {*}
+    sub xmlSAXParseDtd(xmlSAXHandler, Str, Str --> xmlDtd) is native(LIB) {*}
+
     multi method new(:internal($)! where .so, xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.CreateIntSubset( $name, $external-id, $system-id);
     }
     multi method new(xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) is default {
         $doc.NewDtd( $name, $external-id, $system-id);
+    }
+    multi method parse(Str:D :$string!, xmlSAXHandler :$sax, xmlCharEncoding:D :$enc!) {
+        my xmlParserInputBuffer $buffer .= new: :$enc;
+        my $n := $buffer.push($string);
+        die "push to input buffer failed"
+            if $n < 0;
+        xmlIOParseDtd($sax, $buffer, $enc);
+    }
+    multi method parse(Str :$external-id, Str :$system-id, xmlSAXHandler :$sax) is default {
+        xmlSAXParseDtd($sax, $external-id, $system-id);
     }
 }
 
@@ -946,9 +970,6 @@ class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
          htmlCreateMemoryParserCtxt($buf, $bytes);
     }
 }
-
-sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
-our subset xmlCharEncoding of Str where {!.defined || xmlParseCharEncoding($_) > 0}
 
 sub xmlGetLastError returns xmlError is export is native(LIB) { * }
 
