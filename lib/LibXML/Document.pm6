@@ -182,7 +182,7 @@ method internalSubset is rw {
                      self.setInternalSubset($dtd);
                  }
              );
-    }
+}
 
 method getExternalSubset {
     LibXML::Dtd.box: self.unbox.getExternalSubset;
@@ -202,7 +202,17 @@ method externalSubset is rw {
                      self.setExternalSubset($dtd);
                  }
              );
-    }
+}
+
+method validate(LibXML::Dtd :dtd($dtd-obj) --> Bool) {
+    my xmlValidCtxt $cvp .= new;
+    my xmlDoc:D $doc = self.unbox;
+    my xmlDtd $dtd = .unbox with $dtd-obj;
+    # todo: set up error handling
+    ? $cvp.validate(:$doc, :$dtd);
+}
+
+method is-valid(|c) { $.validate(|c) }
 
 our $lock = Lock.new;
 

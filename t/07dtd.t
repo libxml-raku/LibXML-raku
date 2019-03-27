@@ -133,9 +133,6 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     }
 }
 
-skip("port remaining tests", 26);
-=begin POD
-
 {
     my $parser = LibXML.new();
     $parser.validation = True;
@@ -159,30 +156,28 @@ EOF
 
 {
     my $parser = LibXML.new();
-    $parser.validation(0);
-    $parser.load_ext_dtd(0); # This should make libxml not try to get the DTD
+    $parser.validation = False;
+    $parser.load-ext-dtd = False; # This should make libxml not try to get the DTD
 
     my $xml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://localhost/does_not_exist.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml"><head><title>foo</title></head><body><p>bar</p></body></html>';
-    my $doc = eval {
-        $parser.parse_string($xml);
-    };
+    my $doc;
+    lives-ok {
+        $doc = $parser.parse: :string($xml);
+    }, ' TODO : Add test name';
 
     # TEST
-    ok(!$@, ' TODO : Add test name');
-    if ($@) {
-        warn "Parsing error: $@\n";
-    }
-
-    # TEST
-    ok($doc, ' TODO : Add test name');
+    ok($doc.defined, ' TODO : Add test name');
 }
+
+skip("port remaining tests", 22);
+=begin POD
 
 {
     my $bad = 'example/bad.dtd';
     # TEST
     ok( -f $bad, ' TODO : Add test name' );
-    eval { LibXML::Dtd.new("-//Foo//Test DTD 1.0//EN", 'example/bad.dtd') };
+    eval { LibXML::Dtd.new("-//Foo//Test DTD 1.0//EN", $bad) };
     # TEST
     ok ($@, ' TODO : Add test name');
 
@@ -199,18 +194,18 @@ EOF
 
     {
         my $parser = LibXML.new;
-        $parser.load_ext_dtd(0);
-        $parser.validation(0);
-        my $doc = $parser.parse_string($xml);
+        $parser.load-ext-dtd = False;
+        $parser.validation = False;
+        my $doc = $parser.parse: :string($xml);
         # TEST
         ok( $doc, ' TODO : Add test name' );
     }
     {
         my $parser = LibXML.new;
-        $parser.load_ext_dtd(1);
-        $parser.validation(0);
+        $parser.load-ext-dtd = True;
+        $parser.validation = False;
         undef $@;
-        eval { $parser.parse_string($xml) };
+        eval { $parser.parse: :string($xml) };
         # TEST
         ok( $@, ' TODO : Add test name' );
     }

@@ -667,6 +667,17 @@ class xmlValidCtxt is repr('CStruct') is export {
     # Regex preocessing
     has xmlAutomata            $.am;        # the automata
     has xmlAutomataState       $.state;     # used to build the automata
+
+    method ValidateDtd(xmlDoc, xmlDtd --> int32) is native(LIB) is symbol('xmlValidateDtd') {*}
+    method ValidateDocument(xmlDoc --> int32) is native(LIB) is symbol('xmlValidateDocument') {*}
+    method validate(xmlDoc:D :$doc!, xmlDtd :$dtd) {
+        with $dtd {
+            self.ValidateDtd($doc, $_);
+        }
+        else {
+            self.ValidateDocument($doc);
+        }
+    }
 }
 
 class xmlError is export {
