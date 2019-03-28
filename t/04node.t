@@ -104,7 +104,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             ok( $attributes, 'got attributes' );
             # TEST
 
-            isa-ok( $attributes, "LibXML::Node::AttrMap", ' TODO : Add test name' );
+            isa-ok( $attributes, "Element::AttrMap", ' TODO : Add test name' );
             # TEST
             is( +$attributes, 1, ' TODO : Add test name' );
             my $attr = $attributes<foo>;

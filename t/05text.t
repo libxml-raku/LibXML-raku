@@ -19,12 +19,7 @@ my $doc = LibXML::Document.new();
     # TEST
     is( $textnode.nodeValue(), $foo,  'creation 3',);
 
-    {
-        # Test for https://rt.cpan.org/Ticket/Display.html?id=112470
-        my %attributes := $textnode.attributes();
-        # TEST
-        is(+%attributes, 0, '::Text.attributes() returns an empty hash');
-    }
+    dies-ok {$textnode.attributes();}, 'Attributes not applicable to text nodes';
 
     # 2. substring
     my $tnstr = $textnode.substringData( 1,2 );

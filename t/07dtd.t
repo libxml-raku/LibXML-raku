@@ -200,14 +200,11 @@ EOF
     }
 }
 
-skip("port remaining tests", 16);
-=begin POD
-
 {
     # RT #71076: https://rt.cpan.org/Public/Bug/Display.html?id=71076
 
     my $parser = LibXML.new();
-    my $doc = $parser.parse_string(<<'EOF');
+    my $doc = $parser.parse: :string(q:to<EOF>);
 <!DOCTYPE test [
  <!ELEMENT test (#PCDATA)>
  <!ATTLIST test
@@ -222,19 +219,19 @@ EOF
     # TEST
     ok( !$dtd.hasAttributes, 'hasAttributes' );
     # TEST
-    is_deeply( [ $dtd.attributes ], [], 'attributes' );
+    dies-ok { $dtd.attributes }, 'attributes N/A to DTD nodes';
 }
 
 # Remove DTD nodes
 
 sub test_remove_dtd {
-    my ($test_name, $remove_sub) = @_;
+    my ($test_name, &remove_sub) = @_;
 
     my $parser = LibXML.new;
-    my $doc    = $parser.parse_file('example/dtd.xml');
+    my $doc    = $parser.parse: :file('example/dtd.xml');
     my $dtd    = $doc.internalSubset;
 
-    $remove_sub.($doc, $dtd);
+    remove_sub($doc, $dtd);
 
     # TEST*3
     ok( !$doc.internalSubset, "remove DTD via $test_name" );
@@ -256,14 +253,14 @@ test_remove_dtd( "removeChildNodes", sub {
 # Insert DTD nodes
 
 sub test_insert_dtd {
-    my ($test_name, $insert_sub) = @_;
+    my ($test_name, &insert_sub) = @_;
 
     my $parser  = LibXML.new;
-    my $src_doc = $parser.parse_file('example/dtd.xml');
+    my $src_doc = $parser.parse: :file('example/dtd.xml');
     my $dtd     = $src_doc.internalSubset;
-    my $doc     = $parser.parse_file('example/dtd.xml');
+    my $doc     = $parser.parse: :file('example/dtd.xml');
 
-    $insert_sub.($doc, $dtd);
+    insert_sub($doc, $dtd);
 
     # TEST*11
     ok( $doc.internalSubset.isSameNode($dtd), "insert DTD via $test_name" );
@@ -314,4 +311,3 @@ test_insert_dtd( "addSibling documentElement", sub {
     $doc.documentElement.addSibling($dtd);
 } );
 
-=end POD

@@ -26,6 +26,7 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
   }
   else {
     xml6NodeProxyPtr proxy = (xml6NodeProxyPtr) self->_private;
+
     if (proxy->magic != XML_NODE_MAGIC) {
       sprintf(msg, "node %ld is not owned by us, or is corrupted", (long) self);
       xml6_warn(msg);
@@ -87,21 +88,21 @@ DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int keep_blanks) {
 
 DLLEXPORT void xml6_node_set_doc(xmlNodePtr self, xmlDocPtr doc) {
   if (self == NULL) xml6_fail("unable to update null node");
-  if (self->doc && self->doc != doc) xml6_warn("possible memory leak");
+  if (self->doc && self->doc != doc) xml6_warn("possible memory leak in setting node->doc");
 
   self->doc = doc;
 }
 
 DLLEXPORT void xml6_node_set_ns(xmlNodePtr self, xmlNsPtr ns) {
   if (self == NULL) xml6_fail("unable to update null node");
-  if (self->ns && self->ns != ns) xml6_warn("possible memory leak");
+  if (self->ns && self->ns != ns) xml6_warn("possible memory leak in setting node->ns");
 
   self->ns = ns;
 }
 
 DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr self, xmlNsPtr ns) {
   if (self == NULL) xml6_fail("unable to update null node");
-  if (self->nsDef && self->nsDef != ns) xml6_warn("possible memory leak");
+  if (self->nsDef && self->nsDef != ns) xml6_warn("possible memory leak in setting node->nsDef");
 
   self->nsDef = ns;
 }

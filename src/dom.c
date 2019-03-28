@@ -236,7 +236,7 @@ domReconcileNs(xmlNodePtr tree)
 }
 
 static xmlNodePtr
-_domImportFrag(xmlNodePtr frag) {
+_domExtractFrag(xmlNodePtr frag) {
     xmlNodePtr fraglist = frag->children;
     xmlNodePtr n = fraglist;
 
@@ -386,7 +386,7 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
        }
 
        if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
-           head = _domImportFrag(cur);
+           head = _domExtractFrag(cur);
 
            n = head;
            while ( n ){
@@ -700,7 +700,7 @@ domAppendChild( xmlNodePtr self,
     }
     else if (newChild->type == XML_DOCUMENT_FRAG_NODE) {
         xmlNodePtr c1 = NULL;
-        head = _domImportFrag(newChild);
+        head = _domExtractFrag(newChild);
         self->children = head;
         c1 = head;
         while ( c1 ){
@@ -798,10 +798,10 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     else {
         head = _domAddNodeToList(new, old->prev, old->next, &tail );
         old->parent = old->next = old->prev = NULL;
-    }
+        if ( head ) {
+          _domAssimulate(head, tail);
+        }
 
-    if ( head ) {
-       _domAssimulate(head, tail);
     }
 
     return old;
@@ -871,21 +871,21 @@ domInsertAfter( xmlNodePtr self,
 }
 
 DLLEXPORT xmlNodePtr
-domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
+domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
     xmlNodePtr prev = NULL, next = NULL, par = NULL;
     xmlNodePtr head = newNode;
     xmlNodePtr tail = newNode;
 
-    if ( oldNode == NULL
+    if ( self == NULL
          || newNode == NULL ) {
         /* NOT_FOUND_ERROR */
         return NULL;
     }
 
-    if ( oldNode->type == XML_ATTRIBUTE_NODE
+    if ( self->type == XML_ATTRIBUTE_NODE
          || newNode->type == XML_ATTRIBUTE_NODE
          || newNode->type == XML_DOCUMENT_NODE
-         || domIsParent( newNode, oldNode ) ) {
+         || domIsParent( newNode, self ) ) {
         /* HIERARCHY_REQUEST_ERR
          * wrong node type
          * new node is parent of itself
@@ -893,23 +893,29 @@ domReplaceNode( xmlNodePtr oldNode, xmlNodePtr newNode ) {
         croak("replaceNode: HIERARCHY_REQUEST_ERR");
     }
 
-    par  = oldNode->parent;
-    prev = oldNode->prev;
-    next = oldNode->next;
+    par  = self->parent;
+    prev = self->prev;
+    next = self->next;
 
-    xmlUnlinkNode( oldNode );
+    xmlUnlinkNode( self );
 
     if( prev == NULL && next == NULL ) {
-        /* oldNode was the only child */
+        /* self was the only child */
         domAppendChild( par , newNode );
     }
     else {
+      if ( newNode->doc == self->doc ){
+        xmlUnlinkNode( newNode );
+      }
+      else {
+        domImportNode( self->doc, newNode, 1, 0 );
+      }
+
       head = _domAddNodeToList( newNode, prev,  next, &tail );
+      _domAssimulate(head, tail);
     }
 
-    _domAssimulate(head, tail);
-
-    return oldNode;
+    return self;
 }
 
 DLLEXPORT xmlNodePtr
