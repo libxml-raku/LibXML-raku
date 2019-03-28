@@ -274,18 +274,6 @@ method lookupNamespaceURI(Str $prefix --> Str) {
 
 method normalize { self.domNormalize }
 
-method getNamespaces {
-    my @ns;
-    my $ns = self.nsDef;
-    while $ns.defined {
-        @ns.push: $ns
-            if $ns.prefix.defined || $ns.href.defined;
-        $ns .= next;
-    }
-    @ns;
-}
-
-
 sub addr($d) { +nativecast(Pointer, $_) with $d;  }
 
 method isSameNode(Node $oNode) {

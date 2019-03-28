@@ -18,10 +18,6 @@ method struct handles <atype def defaultValue tree prefix elem name> {
 
 method value is rw { $.nodeValue }
 
-method nexth returns LibXML::Attr {
-    self.box: $.unbox.nexth;
-}
-
 method serializeContent {
     self.unbox.serializeContent;
 }

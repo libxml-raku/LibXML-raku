@@ -5,8 +5,9 @@ unit class LibXML::Native;
 use NativeCall;
 use LibXML::Enums;
 use LibXML::Native::DOM::Attr;
-use LibXML::Native::DOM::Node;
 use LibXML::Native::DOM::Document;
+use LibXML::Native::DOM::Element;
+use LibXML::Native::DOM::Node;
 
 constant LIB = 'xml2';
 constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
@@ -54,7 +55,7 @@ class xmlParserInputBuffer is repr(Stub) is export {
     method new(xmlCharEncoding:D :$enc!) {
          xmlAllocParserInputBuffer($enc);
     }
-    method push(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_push') {*}
+    method push(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push') {*}
 }
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
@@ -403,7 +404,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
 
-class xmlNode is domNode {
+class xmlNode is domNode does LibXML::Native::DOM::Element {
     has xmlNs           $.ns is rw-ptr(   # pointer to the associated namespace
         method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
     );
@@ -485,13 +486,11 @@ class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
 }
 
 class xmlAttr is domNode does LibXML::Native::DOM::Attr is export {
-    has xmlAttr         $.nexth;        # next in hash table
-    has int32           $.atype;        # the attribute type
-    has int32           $.def;          # default mode (enum xmlAttributeDefault)
-    has xmlCharP        $.defaultValue; # or the default value
-    has xmlEnumeration  $.tree;         # or the enumeration tree if any
-    has xmlCharP        $.prefix;       # the namespace prefix if any
-    has xmlCharP        $.elem;         # Element holding the attribute
+
+    has xmlNs           $.ns;      # the associated namespace
+    has int32           $.atype;   # the attribute type if validating
+    has Pointer         $.psvi;    # for type/PSVI informations
+
     method Free is native(LIB) is symbol('xmlFreeProp') {*}
     method xmlCopyProp is native(LIB)  returns xmlAttr {*}
     method copy() { $.xmlCopyProp }
@@ -499,6 +498,17 @@ class xmlAttr is domNode does LibXML::Native::DOM::Attr is export {
         $doc.NewProp($name, $value);
     }
     method domAttrSerializeContent(--> xmlCharP) is native(BIND-LIB) {*}
+}
+
+class xmlAttrDecl is domNode is export {
+    has xmlAttr         $.nexth;        # next in hash table
+    has int32           $.atype;        # the attribute type
+    has int32           $.def;          # default mode (enum xmlAttributeDefault)
+    has xmlCharP        $.defaultValue; # or the default value
+    has xmlEnumeration  $.tree;         # or the enumeration tree if any
+    has xmlCharP        $.prefix;       # the namespace prefix if any
+    has xmlCharP        $.elem;         # Element holding the attribute
+
 }
 
 class xmlDoc is domNode does LibXML::Native::DOM::Document is export {

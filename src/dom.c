@@ -690,9 +690,7 @@ domAppendChild( xmlNodePtr self,
         xmlUnlinkNode( newChild );
     }
     else {
-      //        warn("WRONG_DOCUMENT_ERR - non conform implementation\n");
-        /* xmlGenericError(xmlGenericErrorContext,"WRONG_DOCUMENT_ERR\n"); */
-        newChild = domImportNode( self->doc, newChild, 1, 0 );
+        domImportNode( self->doc, newChild, 1, 0 );
     }
 
     if ( self->children != NULL ) {
@@ -781,8 +779,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
         xmlUnlinkNode( new );
     }
     else {
-        /* WRONG_DOCUMENT_ERR - non conform implementation */
-        new = domImportNode( self->doc, new, 1, 1 );
+        domImportNode( self->doc, new, 1, 1 );
     }
 
     if( old == self->children && old == self->last ) {
@@ -844,7 +841,7 @@ domInsertBefore( xmlNodePtr self,
         xmlUnlinkNode( newChild );
     }
     else {
-        newChild = domImportNode( self->doc, newChild, 1, 0 );
+        domImportNode( self->doc, newChild, 1, 0 );
     }
 
     if ( refChild == NULL ) {
@@ -1286,7 +1283,7 @@ domSetAttributeNode( xmlNodePtr self, xmlAttrPtr attr ) {
         return attr; /* attribute is already part of the node */
     }
     if ( attr->doc != self->doc ){
-        attr = (xmlAttrPtr) domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
+        domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
     }
 
     old = domGetAttributeNode(self, attr->name);
@@ -1316,7 +1313,7 @@ domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
         return attr; /* attribute is already part of the node */
     }
     if ( attr->doc != self->doc ){
-        attr = (xmlAttrPtr) domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
+        domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
     }
     
     ns = attr->ns;
