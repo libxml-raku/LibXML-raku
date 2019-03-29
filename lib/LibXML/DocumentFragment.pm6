@@ -19,14 +19,16 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
 #! and discarded by the DOM
 method keep(|c) { LibXML::Node.box(|c) }
 
-method parse-balanced(Str() :$chunk!,
-                      xmlSAXHandler :$sax,
-                      Pointer :$user-data,
-                      Bool() :$repair = False) {
+multi method parse(
+    Str() :$string!,
+    Bool :balanced($)! where .so,
+    xmlSAXHandler :$sax,
+    Pointer :$user-data,
+    Bool() :$repair = False) {
     my Pointer[xmlNode] $nodes .= new;
     # may return a linked list of nodes
     my $stat = xmlDoc.xmlParseBalancedChunkMemoryRecover(
-        $sax, $user-data, 0, $chunk, $nodes, +$repair
+        $sax, $user-data, 0, $string, $nodes, +$repair
     );
     die "balanced parse failed with status $stat"
         if $stat && !$repair;

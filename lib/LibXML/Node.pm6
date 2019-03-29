@@ -130,6 +130,7 @@ class LibXML::Node {
         when XML_ELEMENT_DECL       { require LibXML::ElementDecl }
         when XML_ENTITY_DECL        { require LibXML::EntityDecl }
         when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
+        when XML_NAMESPACE_DECL     { require LibXML::NamespaceDecl }
         when XML_PI_NODE            { require LibXML::PI }
         when XML_TEXT_NODE          { require LibXML::Text }
 
@@ -149,9 +150,10 @@ class LibXML::Node {
         when XML_DOCUMENT_NODE
            | XML_HTML_DOCUMENT_NODE { xmlDoc }
         when XML_ELEMENT_NODE       { xmlNode }
-        when XML_ELEMENT_DECL       { xmlNodeDecl }
+        when XML_ELEMENT_DECL       { xmlElemDecl }
         when XML_ENTITY_DECL        { xmlEntityDecl }
         when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
+        when XML_NAMESPACE_DECL     { xmlNsDecl }
         when XML_PI_NODE            { xmlPINode }
         when XML_TEXT_NODE          { xmlTextNode }
         default {
@@ -276,6 +278,9 @@ class LibXML::Node {
     }
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(LibXML::Node, $.unbox.getChildrenByTagNameNS($uri, $name));
+    }
+    method findnodes(Str:D $xpath-expr) {
+        iterate(LibXML::Node, $.unbox.domXPathSelect($xpath-expr));
     }
     method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);

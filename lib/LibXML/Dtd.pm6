@@ -5,7 +5,7 @@ unit class LibXML::Dtd
 
 use LibXML::Native;
 
-method unbox handles<publicId systemId> {
+method unbox handles <publicId systemId> {
     nextsame;
 }
 

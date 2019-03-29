@@ -235,3 +235,10 @@ method attributes is rw {
 method properties {
     iterate(LibXML::Attr, $.unbox.properties);
 }
+
+method appendWellBalancedChunk(Str:D $string) {
+    require LibXML::DocumentFragment;
+    my $frag = LibXML::DocumentFragment.new;
+    my $frag.parse: :balanced, :$string;
+    self.appendChild( $frag );
+}

@@ -18,8 +18,8 @@ my LibXML::Document $doc = $parser.parse: :$string;
 is $doc.Str,  $tstr;
 is-deeply $doc.doc, $doc, 'doc self-root';
 
-my LibXML::DocumentFragment $frag = $parser.parse-balanced: :chunk( $sDoc);
-my LibXML::DocumentFragment $chk = $parser.parse-balanced: :chunk( $sChunk);
+my LibXML::DocumentFragment $frag = $parser.parse-balanced: :string( $sDoc);
+my LibXML::DocumentFragment $chk = $parser.parse-balanced: :string( $sChunk);
 
 lives-ok {$frag.appendChild( $chk )}, 'appendChild lives';
 

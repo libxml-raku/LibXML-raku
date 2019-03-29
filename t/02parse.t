@@ -575,17 +575,17 @@ use LibXML::SAX;
     # 5.1 DOM CHUNK PARSER
 
     for ( 1..$MAX_WF_C ) -> $_ is copy {
-        my Str:D $chunk = %chunks{'wellformed' ~ $_};
-        my $frag = $pparser.parse-balanced: :$chunk;
+        my Str:D $string = %chunks{'wellformed' ~ $_};
+        my $frag = $pparser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes {
             if $frag.firstChild.isSameNode($frag.lastChild) {
-                if ( $chunk ~~ /'<A></A>'/ ) {
+                if ( $string ~~ /'<A></A>'/ ) {
                     $_--; # because we cannot distinguish between <a/> and <a></a>
                 }
 
-                is($frag.Str, %chunks{'wellformed' ~ $_}, $chunk ~ " is well formed");
+                is($frag.Str, %chunks{'wellformed' ~ $_}, $string ~ " is well formed");
                 next;
             }
         }
@@ -593,26 +593,26 @@ use LibXML::SAX;
     }
 
     for ( 1..$MAX_WB_C ) -> $_ is copy {
-        my Str:D $chunk = %chunks{'wellbalance' ~ $_};
-        my $frag = $pparser.parse-balanced: :$chunk;
+        my Str:D $string = %chunks{'wellbalance' ~ $_};
+        my $frag = $pparser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes {
-            if ( $chunk ~~ /'<A></A>'/ ) {
+            if ( $string ~~ /'<A></A>'/ ) {
                 $_--;
             }
-            is($frag.Str, %chunks{'wellbalance' ~ $_}, $chunk ~ " is well balanced");
+            is($frag.Str, %chunks{'wellbalance' ~ $_}, $string ~ " is well balanced");
             next;
         }
         flunk("Can't test balancedness");
     }
 
-    dies-ok { $pparser.parse-balanced: :chunk(Mu); };
+    dies-ok { $pparser.parse-balanced: :string(Mu); };
 
-    dies-ok { $pparser.parse-balanced: :chunk(""); };
+    dies-ok { $pparser.parse-balanced: :string(""); };
 
-    for @badWBStrings -> $chunk {
-        dies-ok({ $pparser.parse-balanced: :$chunk; }, "parse-balanced fails: $chunk");
+    for @badWBStrings -> $string {
+        dies-ok({ $pparser.parse-balanced: :$string; }, "parse-balanced fails: $string");
     }
 
     {
@@ -622,8 +622,8 @@ use LibXML::SAX;
         my $sChunk = '<A/><B/>';
 
         my LibXML $parser .= new();
-        my $doc = $parser.parse-balanced: :chunk( $sDoc);
-        my $chk = $parser.parse-balanced: :chunk( $sChunk);
+        my $doc = $parser.parse-balanced: :string( $sDoc);
+        my $chk = $parser.parse-balanced: :string( $sChunk);
 
         my $fc = $doc.firstChild;
         isa-ok($fc, 'LibXML::Element');
@@ -640,8 +640,8 @@ use LibXML::SAX;
         my $sChunk = '<A/><B/>';
 
         my LibXML $parser .= new();
-        my $doc = $parser.parse-balanced: :chunk($sDoc);
-        my $chk = $parser.parse-balanced: :chunk($sChunk);
+        my $doc = $parser.parse-balanced: :string($sDoc);
+        my $chk = $parser.parse-balanced: :string($sChunk);
 
         my $fc = $doc.firstChild;
         isa-ok($fc, 'LibXML::Element');
@@ -658,8 +658,8 @@ use LibXML::SAX;
         my $sChunk = '<A/><B/>';
 
         my LibXML $parser .= new();
-        my $doc = $parser.parse-balanced: :chunk($sDoc);
-        my $chk = $parser.parse-balanced: :chunk($sChunk);
+        my $doc = $parser.parse-balanced: :string($sDoc);
+        my $chk = $parser.parse-balanced: :string($sChunk);
 
         my $fc = $doc.firstChild;
 
@@ -676,16 +676,16 @@ use LibXML::SAX;
     my LibXML::SAX $parser .= new: :$handler;
 
     for ( 1..$MAX_WF_C ) -> $_ is copy {
-        my $chunk = %chunks{'wellformed' ~ $_};
-        my $frag = $parser.parse-balanced: :$chunk;
+        my $string = %chunks{'wellformed' ~ $_};
+        my $frag = $parser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if ( $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes ) {
             if ( $frag.firstChild.isSameNode( $frag.lastChild ) ) {
-                if ( $chunk ~~ /'<A></A>'/ ) {
+                if ( $string ~~ /'<A></A>'/ ) {
                     $_--;
                 }
-                is($frag.Str, %chunks{'wellformed' ~ $_}, $chunk ~ ' is well formed');
+                is($frag.Str, %chunks{'wellformed' ~ $_}, $string ~ ' is well formed');
                 next;
             }
         }
@@ -693,15 +693,15 @@ use LibXML::SAX;
     }
 
     for ( 1..$MAX_WB_C ) -> $_ is copy {
-        my Str:D $chunk = %chunks{'wellbalance' ~ $_};
-        my $frag = $parser.parse-balanced: :$chunk;
+        my Str:D $string = %chunks{'wellbalance' ~ $_};
+        my $frag = $parser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if ( $frag.nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes ) {
-            if ( $chunk ~~ /'<A></A>'/ ) {
+            if ( $string ~~ /'<A></A>'/ ) {
                 $_--;
             }
-            is($frag.Str, %chunks{'wellbalance' ~ $_}, $chunk ~ " is well balanced");
+            is($frag.Str, %chunks{'wellbalance' ~ $_}, $string ~ " is well balanced");
             next;
         }
         flunk("Couldn't pass well balanced test since frag was bad");

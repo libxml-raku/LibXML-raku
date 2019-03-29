@@ -66,7 +66,6 @@ class xmlValidState is repr(Stub) is export {}
 sub xmlStrdup(Str --> Pointer) is native(LIB) {*};
 sub xmlStrndup(Blob, int32 --> Pointer) is native(LIB) {*};
 
-
 multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
 
     my role PointerSetter[&setter] {
@@ -690,14 +689,16 @@ class xmlEntityDecl is repr('CStruct') is domNode is export {
                                          # and if it contains '<' */
 }
 
-class xmlNodeDecl is repr('CStruct') is domNode is export {
+class xmlElemDecl is repr('CStruct') is domNode is export {
 
     has int32                $.etype;    # The type */
     has xmlElementContent  $.content;    # the allowed element content */
     has xmlAttrDecl     $.attributes;    # List of the declared attributes */
     has xmlCharP            $.prefix;    # the namespace prefix if any */
-#ifdef LIBXML_REGEXP_ENABLED
     has xmlRegexp        $.contModel;    # the validating regexp */
+}
+
+class xmlNsDecl is repr('CStruct') is xmlElemDecl is export {
 }
 
 class xmlParserNodeInfoSeq is repr('CStruct') is export {

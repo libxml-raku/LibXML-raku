@@ -184,10 +184,10 @@ class LibXML::Parser {
         }
     }
 
-    method parse-balanced(Str() :$chunk!, Bool() :$recover = False, LibXML::Document :$doc) {
+    method parse-balanced(Str() :$string!, Bool() :$recover = False, LibXML::Document :$doc) {
         use LibXML::DocumentFragment;
         my LibXML::DocumentFragment $frag .= new: :$doc;
-        my UInt $ret = $frag.parse-balanced: :$chunk, :$!sax;
+        my UInt $ret = $frag.parse: :balanced, :$string, :$!sax;
         $frag;
     }
 
