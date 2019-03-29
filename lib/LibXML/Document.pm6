@@ -8,8 +8,11 @@ use LibXML::Native;
 use LibXML::Enums;
 use LibXML::Config;
 use LibXML::Element;
+use LibXML::ElementDecl;
 use LibXML::Attr;
+use LibXML::AttrDecl;
 use LibXML::Dtd;
+use LibXML::EntityDecl;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
 use NativeCall;
@@ -18,7 +21,7 @@ constant config = LibXML::Config;
 has parserCtxt $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 
-method struct is rw handles <compression standalone version encoding URI> { callsame() }
+method unbox is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
 submethod TWEAK(

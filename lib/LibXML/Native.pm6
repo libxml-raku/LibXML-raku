@@ -59,6 +59,7 @@ class xmlParserInputBuffer is repr(Stub) is export {
 }
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
+class xmlRegexp is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 
@@ -500,17 +501,6 @@ class xmlAttr is domNode does LibXML::Native::DOM::Attr is export {
     method domAttrSerializeContent(--> xmlCharP) is native(BIND-LIB) {*}
 }
 
-class xmlAttrDecl is domNode is export {
-    has xmlAttr         $.nexth;        # next in hash table
-    has int32           $.atype;        # the attribute type
-    has int32           $.def;          # default mode (enum xmlAttributeDefault)
-    has xmlCharP        $.defaultValue; # or the default value
-    has xmlEnumeration  $.tree;         # or the enumeration tree if any
-    has xmlCharP        $.prefix;       # the namespace prefix if any
-    has xmlCharP        $.elem;         # Element holding the attribute
-
-}
-
 class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone is rw;  # standalone document (no external refs)
@@ -669,6 +659,45 @@ class xmlDtd is domNode is export {
     multi method parse(Str :$external-id, Str :$system-id, xmlSAXHandler :$sax) is default {
         xmlSAXParseDtd($sax, $external-id, $system-id);
     }
+}
+
+class xmlAttrDecl is repr('CStruct') is domNode is export {
+    has xmlAttr         $.nexth;        # next in hash table
+    has int32           $.atype;        # the attribute type
+    has int32           $.def;          # default mode (enum xmlAttributeDefault)
+    has xmlCharP        $.defaultValue; # or the default value
+    has xmlEnumeration  $.tree;         # or the enumeration tree if any
+    has xmlCharP        $.prefix;       # the namespace prefix if any
+    has xmlCharP        $.elem;         # Element holding the attribute
+
+}
+
+class xmlEntityDecl is repr('CStruct') is domNode is export {
+
+    has xmlCharP              $.orig;    # content without ref substitution */
+    has xmlCharP           $.content;    # content or ndata if unparsed */
+    has int32               $.length;    # the content length */
+    has int32                $.etype;    # The entity type */
+    has xmlCharP        $.ExternalID;    # External identifier for PUBLIC */
+    has xmlCharP          $.SystemID;    # URI for a SYSTEM or PUBLIC Entity */
+
+    has xmlEntityDecl        $.nexte;    # unused */
+    has xmlCharP               $.URI;    # the full URI as computed */
+    has int32                $.owner;    # does the entity own the childrens */
+    has int32               $.checked;   # was the entity content checked */
+                                         # this is also used to count entities
+                                         # references done from that entity
+                                         # and if it contains '<' */
+}
+
+class xmlNodeDecl is repr('CStruct') is domNode is export {
+
+    has int32                $.etype;    # The type */
+    has xmlElementContent  $.content;    # the allowed element content */
+    has xmlAttrDecl     $.attributes;    # List of the declared attributes */
+    has xmlCharP            $.prefix;    # the namespace prefix if any */
+#ifdef LIBXML_REGEXP_ENABLED
+    has xmlRegexp        $.contModel;    # the validating regexp */
 }
 
 class xmlParserNodeInfoSeq is repr('CStruct') is export {

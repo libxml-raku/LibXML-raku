@@ -12,7 +12,7 @@ multi submethod TWEAK(LibXML::Node :$doc!, :$name!, Str :$value!) {
     self.struct = $doc.unbox.NewProp( $name, $value );
 }
 
-method struct handles <atype def defaultValue tree prefix elem name> {
+method unbox handles <atype def defaultValue tree prefix elem name> {
     nextsame;
 }
 

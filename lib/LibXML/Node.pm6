@@ -118,17 +118,20 @@ class LibXML::Node {
     method line-number { $.unbox.GetLineNo }
 
     sub box-class(UInt $_) {
-        when XML_ELEMENT_NODE       { require LibXML::Element }
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
-        when XML_TEXT_NODE          { require LibXML::Text }
-        when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
-        when XML_COMMENT_NODE       { require LibXML::Comment }
+        when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
         when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
-        when XML_PI_NODE            { require LibXML::PI }
-        when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
+        when XML_COMMENT_NODE       { require LibXML::Comment }
         when XML_DTD_NODE           { require LibXML::Dtd }
+        when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
         when XML_DOCUMENT_NODE
            | XML_HTML_DOCUMENT_NODE { require LibXML::Document }
+        when XML_ELEMENT_NODE       { require LibXML::Element }
+        when XML_ELEMENT_DECL       { require LibXML::ElementDecl }
+        when XML_ENTITY_DECL        { require LibXML::EntityDecl }
+        when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
+        when XML_PI_NODE            { require LibXML::PI }
+        when XML_TEXT_NODE          { require LibXML::Text }
 
         default {
             warn "node content-type not yet handled: $_";
@@ -137,17 +140,20 @@ class LibXML::Node {
     }
 
     sub delegate-struct(UInt $_) {
-        when XML_ELEMENT_NODE       { xmlNode }
         when XML_ATTRIBUTE_NODE     { xmlAttr }
-        when XML_TEXT_NODE          { xmlTextNode }
-        when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
-        when XML_COMMENT_NODE       { xmlCommentNode }
+        when XML_ATTRIBUTE_DECL     { xmlAttrDecl }
         when XML_CDATA_SECTION_NODE { xmlCDataNode }
-        when XML_PI_NODE            { xmlPINode }
+        when XML_COMMENT_NODE       { xmlCommentNode }
         when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
         when XML_DTD_NODE           { xmlDtd }
         when XML_DOCUMENT_NODE
            | XML_HTML_DOCUMENT_NODE { xmlDoc }
+        when XML_ELEMENT_NODE       { xmlNode }
+        when XML_ELEMENT_DECL       { xmlNodeDecl }
+        when XML_ENTITY_DECL        { xmlEntityDecl }
+        when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
+        when XML_PI_NODE            { xmlPINode }
+        when XML_TEXT_NODE          { xmlTextNode }
         default {
             warn "node content-type not yet handled: $_";
             domNode;

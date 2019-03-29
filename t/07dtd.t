@@ -105,16 +105,14 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
     ok( $entity.hasChildNodes, ' TODO : Add test name' );
     # TEST
-    quietly {
-        # We don't have explicit EntityDecl or ElementDecl classes yet
-        is( $entity.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
-        # TEST
-        is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
+    # We don't have explicit EntityDecl or ElementDecl classes yet
+    is( $entity.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
+    # TEST
+    is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
 
-        my $edcl = $entity.firstChild;
-        # TEST
-        is( $edcl.previousSibling.nodeType, +XML_ELEMENT_DECL, ' TODO : Add test name' );
-    }
+    my $edcl = $entity.firstChild;
+    # TEST
+    is( $edcl.previousSibling.nodeType, +XML_ELEMENT_DECL, ' TODO : Add test name' );
 
     {
         my $doc2  = LibXML::Document.new;
