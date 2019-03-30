@@ -5,7 +5,7 @@ unit class LibXML::Text
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, domNode :struct($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :struct($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
     my xmlDoc $doc = .unbox with $owner;
     my xmlTextNode $text-struct .= new: :$content, :$doc;

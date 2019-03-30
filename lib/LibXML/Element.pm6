@@ -13,7 +13,7 @@ use LibXML::Namespace;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
-multi submethod TWEAK(domNode:D :struct($)!) { }
+multi submethod TWEAK(xmlNode:D :struct($)!) { }
 multi submethod TWEAK(:doc($owner), QName :$name!, xmlNs :$ns) {
     my xmlDoc:D $doc = .unbox with $owner;
     self.struct = xmlNode.new: :$name, :$doc, :$ns;
@@ -239,6 +239,6 @@ method properties {
 method appendWellBalancedChunk(Str:D $string) {
     require LibXML::DocumentFragment;
     my $frag = LibXML::DocumentFragment.new;
-    my $frag.parse: :balanced, :$string;
+    $frag.parse: :balanced, :$string;
     self.appendChild( $frag );
 }

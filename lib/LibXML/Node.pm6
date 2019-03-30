@@ -11,7 +11,7 @@ class LibXML::Node {
 
     has LibXML::Node $.doc;
 
-    has domNode $!struct handles <
+    has domNode $.struct handles <
         domCheck
         Str string-value content
         getAttribute getAttributeNS
@@ -69,7 +69,7 @@ class LibXML::Node {
             STORE => sub ($, domNode:D $new-struct) {
                 given box-class($new-struct.type) -> $class {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-                        unless $class ~~ self.WHAT;
+                        unless $class ~~ self.WHAT|LibXML::Namespace;
                 }
                 .remove-reference with $!struct;
                 .add-reference with $new-struct;
@@ -78,9 +78,8 @@ class LibXML::Node {
         );
     }
 
-    submethod TWEAK(domNode :$struct) {
-        self.struct = $_
-            with $struct;
+    submethod TWEAK {
+        .add-reference with $!struct;
     }
 
     method doc is rw {
@@ -130,7 +129,7 @@ class LibXML::Node {
         when XML_ELEMENT_DECL       { require LibXML::ElementDecl }
         when XML_ENTITY_DECL        { require LibXML::EntityDecl }
         when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
-        when XML_NAMESPACE_DECL     { require LibXML::NamespaceDecl }
+        when XML_NAMESPACE_DECL     { require LibXML::Namespace }
         when XML_PI_NODE            { require LibXML::PI }
         when XML_TEXT_NODE          { require LibXML::Text }
 
@@ -150,10 +149,10 @@ class LibXML::Node {
         when XML_DOCUMENT_NODE
            | XML_HTML_DOCUMENT_NODE { xmlDoc }
         when XML_ELEMENT_NODE       { xmlNode }
-        when XML_ELEMENT_DECL       { xmlElemDecl }
+        when XML_ELEMENT_DECL       { xmlElementDecl }
         when XML_ENTITY_DECL        { xmlEntityDecl }
         when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
-        when XML_NAMESPACE_DECL     { xmlNsDecl }
+        when XML_NAMESPACE_DECL     { xmlNs }
         when XML_PI_NODE            { xmlPINode }
         when XML_TEXT_NODE          { xmlTextNode }
         default {
@@ -171,12 +170,12 @@ class LibXML::Node {
 
     method box(LibXML::Native::DOM::Node $struct,
                LibXML::Node :$doc is copy = $.doc, # reusable document object
-               --> LibXML::Node) {
+              ) {
         with $struct {
             my $class := box-class(.type);
             die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-                    unless $class ~~ self.WHAT;
-            $class.new: :struct($_), :$doc;
+                    unless $class ~~ self.WHAT|LibXML::Namespace;
+            $class.new: :struct(cast-struct($_)), :$doc;
         }
         else {
             self.WHAT
@@ -202,9 +201,7 @@ class LibXML::Node {
         }
     }
 
-    our proto sub iterate(LibXML::Node, $struct, :doc($), :keep-blanks($)) {*}
-
-    multi sub iterate(LibXML::Node $obj, $start, :$doc = $obj.doc, Bool :$keep-blanks = True) is export(:iterate) {
+    multi sub iterate($obj, domNode $start, :$doc = $obj.doc, Bool :$keep-blanks = True) is export(:iterate) {
         # follow a chain of .next links.
         my class NodeList does Iterable does Iterator {
             has $.cur;
@@ -222,7 +219,7 @@ class LibXML::Node {
         }.new( :cur($start) );
     }
 
-    multi sub iterate(LibXML::Node $obj, xmlNodeSet $set, :$doc = $obj.doc) {
+    multi sub iterate($range, xmlNodeSet $set) {
         # iterate through a set of nodes
         my class Node does Iterable does Iterator {
             has xmlNodeSet $.set;
@@ -234,8 +231,13 @@ class LibXML::Node {
             method iterator { self }
             method pull-one {
                 if $!set.defined && $!idx < $!set.nodeNr {
-                    my domNode:D $struct := nativecast(domNode, $!set.nodeTab[$!idx++]);
-                        $obj.box: $struct
+                    given nativecast(domNode, $!set.nodeTab[$!idx++]) {
+                        my $class = box-class(.type);
+                        die "unexpected node of type {$class.perl} in node-set"
+                            unless $class ~~ $range;
+
+                        $class.box: cast-struct($_);
+                    }
                 }
                 else {
                     IterationEnd;
@@ -279,8 +281,9 @@ class LibXML::Node {
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(LibXML::Node, $.unbox.getChildrenByTagNameNS($uri, $name));
     }
+    my subset XPathRange where LibXML::Node|LibXML::Namespace;
     method findnodes(Str:D $xpath-expr) {
-        iterate(LibXML::Node, $.unbox.domXPathSelect($xpath-expr));
+        iterate(XPathRange, $.unbox.domXPathSelect($xpath-expr));
     }
     method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);

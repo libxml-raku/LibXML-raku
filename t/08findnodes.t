@@ -103,7 +103,6 @@ is(+@b, 1, ' TODO : Add test name');
 my @none = $root.findnodes('//b:foo');
 @none.push($_) for $root.findnodes('//foo');
 # TEST
-warn @none[0].Str;
 
 is(+@none, 0, ' TODO : Add test name');
 

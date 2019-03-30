@@ -5,4 +5,4 @@ unit class LibXML::AttrDecl
 
 use LibXML::Native;
 
-submethod TWEAK(LibXML::Node :doc($)!, domNode:D :struct($)!) { }
+submethod TWEAK(LibXML::Node :doc($)!, xmlAttrDecl:D :struct($)!) { }

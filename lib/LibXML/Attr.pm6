@@ -6,7 +6,7 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, domNode:D :struct($)!) {
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :struct($)!) {
 }
 multi submethod TWEAK(LibXML::Node :$doc!, :$name!, Str :$value!) {
     self.struct = $doc.unbox.NewProp( $name, $value );

@@ -29,7 +29,6 @@
     "LibXML::EntityRef"  : "lib/LibXML/EntityRef.pm6",
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
     "LibXML::Namespace" : "lib/LibXML/Namespace.pm6",
-    "LibXML::NamespaceDecl" : "lib/LibXML/NamespaceDecl.pm6",
     "LibXML::Native" : "lib/LibXML/Native.pm6",
     "LibXML::Native::DOM::Attr" : "lib/LibXML/Native/DOM/Attr.pm6",
     "LibXML::Native::DOM::Element" : "lib/LibXML/Native/DOM/Element.pm6",

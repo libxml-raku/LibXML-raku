@@ -5,4 +5,4 @@ unit class LibXML::ElementDecl
 
 use LibXML::Native;
 
-submethod TWEAK(LibXML::Node :doc($)!, domNode:D :struct($)!) { }
+submethod TWEAK(LibXML::Node :doc($)!, xmlElementDecl:D :struct($)!) { }

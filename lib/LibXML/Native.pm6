@@ -166,7 +166,7 @@ class xmlNs is repr('CStruct') is export {
     method new(Str:D :$href!, Str :$prefix, domNode :$node) {
         xmlNewNs($node, $href, $prefix);
     }
-    method xmlCopyNamespace is native(LIB)  returns xmlNs {*}
+    method xmlCopyNamespace is native(LIB) returns xmlNs {*}
     method Free is native(LIB) is symbol('xmlFreeNs') {*}
     method copy() { $.xmlCopyNamespace }
     method Str {
@@ -689,16 +689,13 @@ class xmlEntityDecl is repr('CStruct') is domNode is export {
                                          # and if it contains '<' */
 }
 
-class xmlElemDecl is repr('CStruct') is domNode is export {
+class xmlElementDecl is repr('CStruct') is domNode is export {
 
     has int32                $.etype;    # The type */
     has xmlElementContent  $.content;    # the allowed element content */
     has xmlAttrDecl     $.attributes;    # List of the declared attributes */
     has xmlCharP            $.prefix;    # the namespace prefix if any */
     has xmlRegexp        $.contModel;    # the validating regexp */
-}
-
-class xmlNsDecl is repr('CStruct') is xmlElemDecl is export {
 }
 
 class xmlParserNodeInfoSeq is repr('CStruct') is export {

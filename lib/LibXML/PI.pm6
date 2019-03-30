@@ -5,7 +5,7 @@ unit class LibXML::PI
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, domNode:D :struct($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlPINode:D :struct($)!) { }
 multi submethod TWEAK(:doc($owner)!, Str :$name!, Str :$content!) {
     my xmlDoc:D $doc = .unbox with $owner;
     my xmlPINode:D $pi-struct .= new: :$name, :$content, :$doc;

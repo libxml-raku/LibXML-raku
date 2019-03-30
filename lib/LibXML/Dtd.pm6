@@ -9,7 +9,7 @@ method unbox handles <publicId systemId> {
     nextsame;
 }
 
-multi submethod TWEAK(domNode:D :struct($)!) { }
+multi submethod TWEAK(xmlDtd:D :struct($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($owner), Str :$name!, Str :$external-id, Str :$system-id, :$internal, :$external) {
     my xmlDoc $doc = .unbox with $owner;
     my xmlDtd:D $dtd-struct .= new: :$doc, :$name, :$external-id, :$system-id, :$internal, :$external;
