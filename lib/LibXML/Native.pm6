@@ -128,7 +128,7 @@ class xmlNodeSet is repr('CStruct') is export {
     has int32 $.nodeMax;
     has CArray[xmlNodeSetElemPtr] $.nodeTab;
 
-    method Free is native(LIB) is symbol('xmlXPathFreeNodeSet') {*}
+    method Free is native(BIND-LIB) is symbol('domFreeNodeSet') {*}
 }
 
 class xmlParserInput is repr('CStruct') is export {

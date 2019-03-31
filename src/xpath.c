@@ -4,6 +4,7 @@
  * Perl itself.
  *
  * Copyright 2001-2003 AxKit.com Ltd., 2002-2006 Christian Glahn, 2006-2009 Petr Pajas
+ * Ported from Perl 5 to 6 by David Warring
 */
 
 #include <libxml/tree.h>
@@ -13,6 +14,7 @@
 
 #include "dom.h"
 #include "xpath.h"
+#include "xml6_node.h"
 
 void
 perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
@@ -142,8 +144,8 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
 
 /**
  * Most of the code is stolen from testXPath.
- * The almost only thing I added, is the storeing of the data, so
- * we can access the data easily - or say more easiely than through
+ * The almost only thing I added, is the storing of the data, so
+ * we can access the data easily - or say more easily than through
  * libxml2.
  **/
 
@@ -299,8 +301,8 @@ domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
 
 /**
  * Most of the code is stolen from testXPath.
- * The almost only thing I added, is the storeing of the data, so
- * we can access the data easily - or say more easiely than through
+ * The almost only thing I added, is the storing of the data, so
+ * we can access the data easily - or say more easily than through
  * libxml2.
  **/
 
@@ -400,3 +402,40 @@ domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar * path ) {
 
     return rv;
 }
+
+void
+domFreeNodeSet(xmlNodeSetPtr self) {
+  xmlNodePtr last_root = NULL;
+  int last_was_referenced;
+  int i;
+
+  for (i = 0; i < self->nodeNr; i++) {
+    xmlNodePtr this_node = self->nodeTab[i];
+
+    if (this_node != NULL) {
+      xmlNodePtr this_root = xml6_node_find_root(this_node);
+      int this_is_referenced = 0;
+
+      if (this_node->type == XML_NAMESPACE_DECL) {
+        xmlFreeNs( (xmlNsPtr) this_node);
+      }
+      else {
+
+        if ( this_root == last_root) {
+          this_is_referenced = last_was_referenced;
+        }
+        else {
+          this_is_referenced = domNodeIsReferenced(this_root);
+          last_root = this_root;
+          last_was_referenced = this_is_referenced;
+        }
+
+        if (this_is_referenced == 0) {
+          xmlFreeNode(this_root);
+        }
+      }
+    }
+  }
+  xmlFree(self);
+}
+
