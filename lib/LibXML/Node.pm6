@@ -166,6 +166,12 @@ class LibXML::Node {
         nativecast( $delegate, $struct);
     }
 
+    sub cast-elem(xmlNodeSetElem:D $elem is raw) {
+        $elem.type == XML_NAMESPACE_DECL
+            ?? nativecast(xmlNs, $elem)
+            !! cast-struct( nativecast(domNode, $elem) );
+    }
+
     method unbox {$!struct}
 
     method box(LibXML::Native::DOM::Node $struct,
@@ -231,12 +237,12 @@ class LibXML::Node {
             method iterator { self }
             method pull-one {
                 if $!set.defined && $!idx < $!set.nodeNr {
-                    given nativecast(domNode, $!set.nodeTab[$!idx++]) {
+                    given $!set.nodeTab[$!idx++].deref {
                         my $class = box-class(.type);
                         die "unexpected node of type {$class.perl} in node-set"
                             unless $class ~~ $range;
 
-                        $class.box: cast-struct($_);
+                        $class.box: cast-elem($_);
                     }
                 }
                 else {

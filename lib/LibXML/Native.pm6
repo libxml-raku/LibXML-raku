@@ -106,11 +106,21 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
     $att does StringSetter[&rw-str]
 }
 
+# A node-set element can be either a domNode or xmlNs. Distinguished
+# by the second 'type' field.
+class xmlNodeSetElem is repr('CStruct') is export {
+    has Pointer $._; # first field depends on type
+    has int32 $.type;
+    # + other fields, which also depend on type
+}
+my constant xmlNodeSetElemPtr = Pointer[xmlNodeSetElem];
+
 # Defined Structs/Pointers
 class xmlNodeSet is repr('CStruct') is export {
     has int32 $.nodeNr;
     has int32 $.nodeMax;
-    has CArray[Pointer] $.nodeTab;
+    has CArray[xmlNodeSetElemPtr] $.nodeTab;
+
     method Free is native(LIB) is symbol('xmlXPathFreeNodeSet') {*}
 }
 
