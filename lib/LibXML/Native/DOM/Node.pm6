@@ -30,6 +30,7 @@ method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
 method domSetNamespace { ... }
 method domXPathSelect  { ... }
+method domXPathCompSelect  { ... }
 method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }

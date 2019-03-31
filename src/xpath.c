@@ -253,7 +253,6 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
     return res;
 }
 
-/* this function is not actually used: */
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
     xmlNodeSetPtr rv = NULL;
@@ -276,7 +275,6 @@ domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
     return rv;
 }
 
-/* this function is not actually used: */
 xmlNodeSetPtr
 domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
     xmlNodeSetPtr rv = NULL;

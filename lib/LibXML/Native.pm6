@@ -59,6 +59,13 @@ class xmlParserInputBuffer is repr(Stub) is export {
 }
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
+class xmlXPathCompExpr is repr(Stub) is export {
+    sub xmlXPathCompile(xmlCharP:D --> xmlXPathCompExpr) is native(LIB) {*}
+    method Free is native(LIB) is symbol('xmlXPathFreeCompExpr') {*}
+    method new(Str:D :$expr) {
+        xmlXPathCompile($expr);
+    }
+}
 class xmlRegexp is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
@@ -397,6 +404,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
     method domXPathSelect(Str --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathCompSelect(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}

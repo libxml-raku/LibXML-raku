@@ -3,6 +3,7 @@ class LibXML::Node {
     use LibXML::Native::DOM::Node;
     use LibXML::Enums;
     use LibXML::Namespace;
+    use LibXML::XPathExpression;
     use LibXML::Types :NCName, :QName;
     use NativeCall;
 
@@ -288,7 +289,10 @@ class LibXML::Node {
         iterate(LibXML::Node, $.unbox.getChildrenByTagNameNS($uri, $name));
     }
     my subset XPathRange where LibXML::Node|LibXML::Namespace;
-    method findnodes(Str:D $xpath-expr) {
+    multi method findnodes(LibXML::XPathExpression:D $xpath-expr) is default {
+        iterate(XPathRange, $.unbox.domXPathCompSelect($xpath-expr.unbox));
+    }
+    multi method findnodes(Str:D $xpath-expr) is default {
         iterate(XPathRange, $.unbox.domXPathSelect($xpath-expr));
     }
     method setAttribute(QName $name, Str:D $value) {
