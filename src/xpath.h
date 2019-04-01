@@ -29,6 +29,9 @@ xmlXPathObjectPtr
 domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool );
 
 void
+domReferenceNodeSet(xmlNodeSetPtr self);
+
+void
 domFreeNodeSet(xmlNodeSetPtr self);
 
 #endif

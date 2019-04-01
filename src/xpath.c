@@ -7,6 +7,7 @@
  * Ported from Perl 5 to 6 by David Warring
 */
 
+#include <libxml/hash.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
@@ -141,6 +142,72 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
      */
 }
 
+void
+domReferenceNodeSet(xmlNodeSetPtr self) {
+  int i;
+
+  for (i = 0; i < self->nodeNr; i++) {
+    xmlNodePtr cur = self->nodeTab[i];
+
+    if (cur != NULL) {
+      if (cur->type != XML_NAMESPACE_DECL) {
+        xml6_node_add_reference(cur);
+      }
+    }
+  }
+}
+
+static void
+_domUnreferenceNodeSet(xmlNodeSetPtr self) {
+  int i;
+ 
+  for (i = 0; i < self->nodeNr; i++) {
+    xmlNodePtr cur = self->nodeTab[i];
+
+    if (cur != NULL) {
+      if (cur->type != XML_NAMESPACE_DECL) {
+        xml6_node_remove_reference(cur);
+      }
+    }
+  }
+}
+
+
+void
+domFreeNodeSet(xmlNodeSetPtr self) {
+  int i;
+  xmlHashTablePtr seen = xmlHashCreate(self->nodeNr);
+  xmlChar* strval;
+
+  _domUnreferenceNodeSet(self);
+ 
+  for (i = 0; i < self->nodeNr; i++) {
+    xmlNodePtr cur = self->nodeTab[i];
+
+    if (cur != NULL) {
+      if (cur->type == XML_NAMESPACE_DECL) {
+        xmlXPathNodeSetFreeNs((xmlNsPtr) cur);
+      }
+      else {
+        cur = xml6_node_find_root(cur);
+        strval = xmlXPathCastNodeToString(cur);
+
+        if (xmlHashLookup(seen, strval) == NULL) {
+          xmlHashAddEntry(seen, strval, strval);
+          if (domNodeIsReferenced(cur) == 0) {
+            xmlFreeNode(cur);
+          }
+        }
+        else {
+          xmlFree(strval);
+        }
+      }
+    }
+  }
+
+  xmlHashFree(seen, NULL);
+  xmlFree(self);
+}
 
 /**
  * Most of the code is stolen from testXPath.
@@ -277,6 +344,7 @@ domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
     return rv;
 }
 
+
 xmlNodeSetPtr
 domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
     xmlNodeSetPtr rv = NULL;
@@ -401,41 +469,5 @@ domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar * path ) {
     xmlXPathFreeObject(res);
 
     return rv;
-}
-
-void
-domFreeNodeSet(xmlNodeSetPtr self) {
-  xmlNodePtr last_root = NULL;
-  int last_was_referenced;
-  int i;
-
-  for (i = 0; i < self->nodeNr; i++) {
-    xmlNodePtr this_node = self->nodeTab[i];
-
-    if (this_node != NULL) {
-      xmlNodePtr this_root = xml6_node_find_root(this_node);
-      int this_is_referenced = 0;
-
-      if (this_node->type == XML_NAMESPACE_DECL) {
-        xmlFreeNs( (xmlNsPtr) this_node);
-      }
-      else {
-
-        if ( this_root == last_root) {
-          this_is_referenced = last_was_referenced;
-        }
-        else {
-          this_is_referenced = domNodeIsReferenced(this_root);
-          last_root = this_root;
-          last_was_referenced = this_is_referenced;
-        }
-
-        if (this_is_referenced == 0) {
-          xmlFreeNode(this_root);
-        }
-      }
-    }
-  }
-  xmlFree(self);
 }
 

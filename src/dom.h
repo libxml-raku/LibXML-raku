@@ -10,12 +10,12 @@
  * The Functions are sorted in four parts:
  * part 0 ..... general wrapper functions which do not belong
  *              to any of the other parts and not specified in DOM.
- * part A ..... wrapper functions for general nodeaccess
+ * part A ..... wrapper functions for general node access
  * part B ..... document wrapper
  * part C ..... element wrapper
  *
  * I did not implement any Text, CDATASection or comment wrapper functions,
- * since it is pretty straightforeward to access these nodes.
+ * since it is pretty straight-forward to access these nodes.
  */
 
 #ifndef __LIBXML_DOM_H__
@@ -86,13 +86,13 @@ DLLEXPORT int
 domIsParent( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
- * NAME domTestHierarchy
+ * NAME _domCanInsert
  * TYPE function
  *
  * tests the general hierarchy error
  *
  * SYNOPSIS
- * if ( domTestHierarchy(cur, ref) ) ...
+ * if ( _domCanInsert(cur, ref) ) ...
  *
  * this function tests the general hierarchy error.
  * it tests if the ref node would cause any hierarchical error for
@@ -102,7 +102,7 @@ domIsParent( xmlNodePtr cur, xmlNodePtr ref );
  * otherwise it returns 0.
  */
 DLLEXPORT int
-domTestHierarchy( xmlNodePtr cur, xmlNodePtr ref );
+_domCanInsert( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
 * NAME domTestDocument
@@ -110,7 +110,7 @@ domTestHierarchy( xmlNodePtr cur, xmlNodePtr ref );
 * SYNOPSIS
 * if ( domTestDocument(cur, ref) )...
 *
-* this function extends the domTestHierarchy() function. It tests if the
+* this function extends the _domCanInsert() function. It tests if the
 * cur node is a document and if so, it will check if the ref node can be
 * inserted. (e.g. Attribute or Element nodes must not be appended to a
 * document node)

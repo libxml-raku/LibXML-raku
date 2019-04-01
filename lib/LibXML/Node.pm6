@@ -231,6 +231,9 @@ class LibXML::Node {
         my class Node does Iterable does Iterator {
             has xmlNodeSet $.set;
             has UInt $!idx = 0;
+            submethod TWEAK {
+                .Reference with $!set;
+            }
             submethod DESTROY {
                 # xmlNodeSet is managed by us
                 .Free with $!set;

@@ -128,6 +128,7 @@ class xmlNodeSet is repr('CStruct') is export {
     has int32 $.nodeMax;
     has CArray[xmlNodeSetElemPtr] $.nodeTab;
 
+    method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Free is native(BIND-LIB) is symbol('domFreeNodeSet') {*}
 }
 
