@@ -172,11 +172,19 @@ _domUnreferenceNodeSet(xmlNodeSetPtr self) {
   }
 }
 
+static void
+_domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
+  xmlNodePtr cur = (xmlNodePtr) entry;
+  if (domNodeIsReferenced(cur) == 0) {
+    xmlFreeNode(cur);
+  }
+}
+
 
 void
 domFreeNodeSet(xmlNodeSetPtr self) {
   int i;
-  xmlHashTablePtr seen = xmlHashCreate(self->nodeNr);
+  xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
   xmlChar* strval;
 
   _domUnreferenceNodeSet(self);
@@ -192,12 +200,9 @@ domFreeNodeSet(xmlNodeSetPtr self) {
         cur = xml6_node_find_root(cur);
         strval = xmlXPathCastNodeToString(cur);
 
-        if (xmlHashLookup(seen, strval) == NULL) {
-          xmlHashAddEntry(seen, strval, strval);
-          if (domNodeIsReferenced(cur) == 0) {
-            xmlFreeNode(cur);
-          }
-        }
+        if (xmlHashLookup(hash, strval) == NULL) {
+          xmlHashAddEntry(hash, strval, cur);
+         }
         else {
           xmlFree(strval);
         }
@@ -205,7 +210,7 @@ domFreeNodeSet(xmlNodeSetPtr self) {
     }
   }
 
-  xmlHashFree(seen, NULL);
+  xmlHashFree(hash, _domNodeSetDeallocator);
   xmlFree(self);
 }
 
