@@ -327,6 +327,37 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
     return res;
 }
 
+static xmlNodeSetPtr
+_domFilterNodeSet(xmlNodeSetPtr ns) {
+  int i = 0;
+  int skipped = 0;
+
+  for (i = 0; i + skipped < ns->nodeNr; i++) {
+    xmlNodePtr tnode = ns->nodeTab[i];
+    int skip = 0;
+    if (tnode == NULL) {
+      skip = 1;
+    }
+    else if (tnode->type == XML_NAMESPACE_DECL) {
+      xmlNsPtr ns = (xmlNsPtr)tnode;
+      const xmlChar *prefix = ns->prefix;
+      const xmlChar *href = ns->href;
+      if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
+        if (xmlStrEqual(href, XML_XML_NAMESPACE))
+	  skip = 1;
+      }
+    }
+    if (skip) {
+      skipped++;
+    }
+    else if (skipped) {
+      ns->nodeTab[i - skipped] = ns->nodeTab[i];
+    }
+  }
+  ns->nodeNr -= skipped;
+  return ns;
+}
+
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
     xmlNodeSetPtr rv = NULL;
@@ -346,7 +377,7 @@ domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
 
     xmlXPathFreeObject(res);
 
-    return rv;
+    return _domFilterNodeSet(rv);
 }
 
 
@@ -369,7 +400,7 @@ domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
 
     xmlXPathFreeObject(res);
 
-    return rv;
+    return _domFilterNodeSet(rv);
 }
 
 /**
@@ -473,6 +504,6 @@ domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar * path ) {
 
     xmlXPathFreeObject(res);
 
-    return rv;
+    return _domFilterNodeSet(rv);
 }
 

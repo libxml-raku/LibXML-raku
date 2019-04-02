@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 45;
+plan 46;
 
 use LibXML;
 
@@ -127,10 +127,10 @@ my $docstring = q{
 my @ns = $root.findnodes('namespace::*');
 # TEST
 
+is(+@ns, 2, ' TODO : Add test name' );
+
 skip("todo - port remaining tests", 32);
 =begin TODO
-
-is(+@ns, 2, ' TODO : Add test name' );
 
 # bad xpaths
 # TEST:$badxpath=4;
