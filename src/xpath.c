@@ -328,12 +328,12 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
 }
 
 static xmlNodeSetPtr
-_domFilterNodeSet(xmlNodeSetPtr ns) {
+_domFilterNodeSet(xmlNodeSetPtr node_set) {
   int i = 0;
   int skipped = 0;
 
-  for (i = 0; i + skipped < ns->nodeNr; i++) {
-    xmlNodePtr tnode = ns->nodeTab[i];
+  for (i = 0; i + skipped < node_set->nodeNr; i++) {
+    xmlNodePtr tnode = node_set->nodeTab[i];
     int skip = 0;
     if (tnode == NULL) {
       skip = 1;
@@ -344,6 +344,7 @@ _domFilterNodeSet(xmlNodeSetPtr ns) {
       const xmlChar *href = ns->href;
       if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
         if (xmlStrEqual(href, XML_XML_NAMESPACE))
+	  xmlFreeNs(ns);
 	  skip = 1;
       }
     }
@@ -351,11 +352,11 @@ _domFilterNodeSet(xmlNodeSetPtr ns) {
       skipped++;
     }
     else if (skipped) {
-      ns->nodeTab[i - skipped] = ns->nodeTab[i];
+      node_set->nodeTab[i - skipped] = node_set->nodeTab[i];
     }
   }
-  ns->nodeNr -= skipped;
-  return ns;
+  node_set->nodeNr -= skipped;
+  return node_set;
 }
 
 xmlNodeSetPtr
