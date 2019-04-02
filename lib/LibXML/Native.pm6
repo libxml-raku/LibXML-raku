@@ -158,8 +158,8 @@ class xmlBuffer is repr('CStruct') is export {
     has uint32    $.compat_size; # for binary compatibility
     has int32     $.alloc is rw; # The realloc method
     has xmlCharP  $.contentIO;   # in IO mode we may have a different base
-    has size_t    $.use;         # The buffer size used
-    has size_t    $.size;        # The buffer size
+    has int32     $.use;         # The buffer size used
+    has int32     $.size;        # The buffer size
     has xmlBuffer $.buffer;      # wrapper for an old buffer
     has int32     $.error;       # an error code if a failure occurred
 
