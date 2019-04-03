@@ -36,6 +36,8 @@ class parserCtxt is repr('CStruct') is export {...}
 constant Stub = 'CPointer';
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
+# old buffer limited to 2Gb. replaced by xmlBuf
+class xmlBuffer is repr(Stub) is export {}
 class xmlDict is repr(Stub) is export {
     sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
     method Free is native(LIB) is symbol('xmlDictFree') {*};
@@ -152,7 +154,7 @@ class xmlParserInput is repr('CStruct') is export {
     has int32                     $.id;          # int id
 }
 
-class xmlBuffer is repr('CStruct') is export {
+class xmlBuf is repr('CStruct') is export {
     has xmlCharP  $.content;     # The buffer content UTF8
     has uint32    $.compat_use;  # for binary compatibility
     has uint32    $.compat_size; # for binary compatibility
@@ -163,13 +165,13 @@ class xmlBuffer is repr('CStruct') is export {
     has xmlBuffer $.buffer;      # wrapper for an old buffer
     has int32     $.error;       # an error code if a failure occurred
 
-    sub Create is native(LIB) is symbol('xmlBufferCreate') returns xmlBuffer {*}
-    method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufferCat') {*}
-    method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufferWriteQuotedString') {*}
+    sub Create is native(LIB) is symbol('xmlBufCreate') returns xmlBuf {*}
+    method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufCat') {*}
+    method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufWriteQuotedString') {*}
     method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format) is native(LIB) returns int32 is export { * }
-    method Content is symbol('xmlBufferContent') is native(LIB) returns Str is export { * }
-    method Free is symbol('xmlBufferFree') is native(LIB) is export { * }
-    method new returns xmlBuffer:D { Create() }
+    method Content is symbol('xmlBufContent') is native(LIB) returns Str is export { * }
+    method Free is symbol('xmlBufFree') is native(LIB) is export { * }
+    method new returns xmlBuf:D { Create() }
 }
 
 class xmlNs is repr('CStruct') is export {
@@ -191,8 +193,7 @@ class xmlNs is repr('CStruct') is export {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';
         # approximation of xmlsave.c: xmlNsDumpOutput(...)
-        # but using xmlBuffer rather than xmlBuf
-        my xmlBuffer $buf .= new;
+        my xmlBuf $buf .= new;
 
         $buf.Write('xmlns');
         $buf.Write(':' ~ $_)
@@ -413,7 +414,7 @@ class domNode is export does LibXML::Native::DOM::Node {
 
     method Str(Bool() :$format = False) {
         nextsame without self;
-        my xmlBuffer $buf .= new;
+        my xmlBuf $buf .= new;
         $buf.xmlNodeDump($.doc // xmlDoc, self, 0, +$format);
         my str $content = $buf.Content;
         $buf.Free;
