@@ -384,9 +384,9 @@ class LibXML::Node {
     submethod DESTROY {
         with $!struct {
             if .remove-reference {
-                # this node is no longer referenced
+                # this particular node is no longer referenced directly
                 given .root {
-                    # release the entire tree, if possible
+                    # release or keep the tree, in it's entirety
                     .Free unless .is-referenced;
                 }
             }

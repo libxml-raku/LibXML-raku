@@ -14,6 +14,11 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
   while (node && node->parent) {
     node = node->parent;
   }
+  // take the left-most node, if the root has multiple nodes
+  while (node && node->prev) {
+    node = node->prev;
+  }
+  if (node && node->parent) xml6_warn("sibling nodes have inconsistant parents");
   return node;
 }
 
