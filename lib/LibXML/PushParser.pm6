@@ -8,7 +8,6 @@ class LibXML::PushParser {
     has parserCtxt $!ctx;
     has LibXML::ErrorHandler $!errors;
     has Int $.err = 0;
-##    method ctx { $!ctx }
 
     multi submethod TWEAK(Str :chunk($str), |c) {
         my $chunk = $str.encode;
@@ -18,6 +17,7 @@ class LibXML::PushParser {
     multi submethod TWEAK(Blob :$chunk!, Str :$path, xmlSAXHandler :$sax, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
         $!ctx = ctx-class.new: :$chunk, :$path, :$sax;
+        $!ctx.add-reference;
         $!errors .= new: :$!ctx, |c;
     }
 
@@ -44,13 +44,13 @@ class LibXML::PushParser {
         $!errors = Nil;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
-        my $doc := LibXML::Document.new( :$!ctx, :$uri);
-        $!ctx = Nil;
-        $doc;
+        LibXML::Document.new( :$!ctx, :$uri);
     }
 
     submethod DESTROY {
-        .Free with $!ctx;
+        given $!ctx {
+            .Free if .remove-reference;
+        }
     }
 }
 

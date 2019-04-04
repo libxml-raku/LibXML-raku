@@ -15,9 +15,11 @@ class X::LibXML::Parser is Exception {
 class LibXML::ErrorHandler {
     use LibXML::Native;
     use LibXML::Enums;
+    has parserCtxt:D $.ctx is required;
     has @!errors;
 
-    submethod TWEAK(parserCtxt:D :$ctx!, :$flags! is copy, :$line-numbers!, Bool :$recover) {
+    submethod TWEAK(:$flags! is copy, :$line-numbers!, Bool :$recover) {
+        $!ctx.add-reference;
 
         unless $flags +& XML_PARSE_DTDLOAD {
             for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
@@ -26,8 +28,8 @@ class LibXML::ErrorHandler {
         }
         $flags +|= XML_PARSE_RECOVER if $recover;
 
-        $ctx.UseOptions($flags);     # Note: sets ctxt.linenumbers = 1
-        $ctx.linenumbers = +$line-numbers;
+        $!ctx.UseOptions($flags);     # Note: sets ctxt.linenumbers = 1
+        $!ctx.linenumbers = +$line-numbers;
         # error handling
         sub structured-err-func(parserCtxt $, xmlError $_) {
             constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
@@ -58,9 +60,15 @@ class LibXML::ErrorHandler {
             @!errors.push: %( :$level, :$msg);
         }
 
-        $ctx.xmlSetGenericErrorFunc( sub (parserCtxt $, Str $msg) { @!errors.push: %( :level(XML_ERR_FATAL), :$msg ) });
-        $ctx.xmlSetStructuredErrorFunc( &structured-err-func );
-        $ctx;
+        $!ctx.xmlSetGenericErrorFunc( sub (parserCtxt $, Str $msg) { @!errors.push: %( :level(XML_ERR_FATAL), :$msg ) });
+        $!ctx.xmlSetStructuredErrorFunc( &structured-err-func );
+        $!ctx;
+    }
+
+    submethod DESTROY {
+        given $!ctx {
+            .Free if .remove-reference;
+        }
     }
 
     method flush(Bool :$recover = False) {

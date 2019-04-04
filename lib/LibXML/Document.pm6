@@ -30,6 +30,7 @@ submethod TWEAK(
                 Str :$URI,
                ) {
     my xmlDoc:D $struct = self.struct //= do with $!ctx {.myDoc} else {xmlDoc.new};
+    .add-reference with $!ctx;
     $struct.version = $_ with $version;
     $struct.encoding = $_ with $encoding;
     $struct.URI = $_ with $URI;
@@ -277,6 +278,8 @@ method Blob(Bool() :$format = False) {
 }
 
 submethod DESTROY {
-    .Free with $!ctx;
-    # we're already invoking LibXML::Node.DESTROY
+    with $!ctx {
+        .Free if .remove-reference;
+    }
+    # we're already invoking LibXML::Node.DESTROY to cleanup $.struct
 }

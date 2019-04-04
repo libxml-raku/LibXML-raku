@@ -1,21 +1,21 @@
 unit class LibXML::Namespace;
 use LibXML::Native;
 use NativeCall;
-has xmlNs $struct handles <type prefix href Str>;
-method unbox { $!struct }
+has xmlNs $!struct handles <type prefix href Str>;
+has Bool $!is-copy;
+
 method box(xmlNs:D $struct!) {
     self.new: :$struct;
 }
 
-submethod TWEAK(xmlNs:D :struct($ns)!) {
+submethod TWEAK(xmlNs:D :$!struct!) {
     # LibXML refuses to copy 'xml' namespaces
-    $!struct := $ns.prefix ~~ 'xml' ?? $ns !! $ns.copy;
+    $!is-copy := $!struct.prefix !~~ 'xml';
+    $!struct .= copy if $!is-copy;
 }
 
-method nodeType  { $.unbox.type }
+method nodeType  { $!struct.type }
 
 submethod DESTROY {
-    with $!struct {
-        .Free unless .prefix ~~ 'xml';
-    }
+    $!struct.Free if $!is-copy;
 }

@@ -69,7 +69,6 @@ class LibXML::Parser {
         $ctx.sax = $_ with $!sax;
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
         my $n = $doc.XIncludeProcessFlags($!flags);
-        $ctx.Free;
         $errors.flush: :$!recover;
         $n;
     }
