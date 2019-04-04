@@ -151,7 +151,7 @@ class xmlXPathObject is repr('CStruct') is export {
     sub xmlXPathIsInf(num64 --> int32) is native(LIB) {*}
     sub xmlXPathIsNaN(num64 --> int32) is native(LIB) {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
-    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_objects_remove_reference') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
     method Free is native(BIND-LIB) is symbol('domFreeXPathObject') {*}
 
     method user-object {
