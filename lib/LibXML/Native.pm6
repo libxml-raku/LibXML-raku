@@ -250,9 +250,8 @@ class xmlNs is repr('CStruct') is export {
     method new(Str:D :$href!, Str :$prefix, domNode :$node) {
         xmlNewNs($node, $href, $prefix);
     }
-    method xmlCopyNamespace is native(LIB) returns xmlNs {*}
     method Free is native(LIB) is symbol('xmlFreeNs') {*}
-    method copy() { $.xmlCopyNamespace }
+    method Copy(--> xmlNs) is native(BIND-LIB) is symbol('xml6_ns_copy') {*}
     method Str {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';

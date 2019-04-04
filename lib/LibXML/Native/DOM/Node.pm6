@@ -113,7 +113,7 @@ method getAttributeNS(Str $uri, QName:D $att-name --> Str) {
 }
 
 method localNS {
-    .copy with self.ns;
+    self.ns;
 }
 
 method getAttribute(QName:D $att-name) {
