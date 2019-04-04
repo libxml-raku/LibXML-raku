@@ -36,7 +36,7 @@ class LibXML::Node {
         }
         # single node argument constructor
         for <appendChild> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $box) { $box.keep( $.unbox."$_"($box.unbox)); });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $node) { $node.keep( $.unbox."$_"($node.unbox)); });
         }
         for <replaceNode addSibling> {
             $?CLASS.^add_method($_, method (LibXML::Node:D $new) { LibXML::Node.box( $.unbox."$_"($new.unbox)); });
@@ -48,17 +48,15 @@ class LibXML::Node {
         # two node arguments
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
-                $_, method (LibXML::Node:D $box, LibXML::Node $ref) {
-                    $box.keep($.unbox."$_"($box.unbox, do with $ref {.unbox} else {domNode}));
+                $_, method (LibXML::Node:D $node, LibXML::Node $ref) {
+                    $node.keep: $.unbox."$_"($node.unbox, do with $ref {.unbox} else {domNode});
                 });
         }
     }
 
     method ownerElement { $.parentNode }
-    method replaceChild(LibXML::Node $new, $box) {
-        $box.keep(
-            $.unbox.replaceChild($new.unbox, $box.unbox),
-        );
+    method replaceChild(LibXML::Node $new, LibXML::Node $node) {
+        $node.keep: $.unbox.replaceChild($new.unbox, $node.unbox),
     }
     method appendText(Str:D $text) {
         $.unbox.appendText($text);
@@ -140,7 +138,7 @@ class LibXML::Node {
         }
     }
 
-    sub delegate-struct(UInt $_) {
+    sub struct-class(UInt $_) {
         when XML_ATTRIBUTE_NODE     { xmlAttr }
         when XML_ATTRIBUTE_DECL     { xmlAttrDecl }
         when XML_CDATA_SECTION_NODE { xmlCDataNode }
@@ -168,7 +166,7 @@ class LibXML::Node {
     multi sub unbox($_) is default  { $_ }
 
     our sub cast-struct(domNode:D $struct is raw) {
-        my $delegate := delegate-struct($struct.type);
+        my $delegate := struct-class($struct.type);
         nativecast( $delegate, $struct);
     }
 
@@ -319,11 +317,11 @@ class LibXML::Node {
     method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);
     }
-    method setAttributeNode(AttrNode:D $box) {
-        $box.keep: $.unbox.setAttributeNode($box.unbox);
+    method setAttributeNode(AttrNode:D $att) {
+        $att.keep: $.unbox.setAttributeNode($att.unbox);
     }
-    method setAttributeNodeNS(AttrNode:D $box) {
-        $box.keep: $.unbox.setAttributeNodeNS($box.unbox);
+    method setAttributeNodeNS(AttrNode:D $att) {
+        $att.keep: $.unbox.setAttributeNodeNS($att.unbox);
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
         $.unbox.setAttributeNS($uri, .key, .value);
@@ -341,17 +339,17 @@ class LibXML::Node {
         $.unbox.setNamespace($uri, $prefix);
     }
     method localNS {
-        LibXML::Namespace.box: $.unbox.localNS, :$.doc;
+        LibXML::Namespace.box: $.unbox.localNS;
     }
 
     method getNamespaces {
-        $.unbox.getNamespaces.map: { LibXML::Namespace.box($_, :$.doc) }
+        $.unbox.getNamespaces.map: { LibXML::Namespace.box($_) }
     }
-    method removeChild(LibXML::Node:D $box --> LibXML::Node) {
-        $box.keep: $.unbox.removeChild($box.unbox);
+    method removeChild(LibXML::Node:D $node --> LibXML::Node) {
+        $node.keep: $.unbox.removeChild($node.unbox);
     }
-    method removeAttributeNode(AttrNode $box) {
-        $box.keep: $.unbox.removeAttributeNode($box.unbox);
+    method removeAttributeNode(AttrNode $att) {
+        $att.keep: $.unbox.removeAttributeNode($att.unbox);
     }
     method removeChildNodes(--> LibXML::Node) {
         LibXML::Node.box: $.unbox.removeChildNodes;
