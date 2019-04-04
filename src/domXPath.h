@@ -1,8 +1,9 @@
-#ifndef __LIBXML_XPATH_H__
-#define __LIBXML_XPATH_H__
+#ifndef __LIBXML_DOM_XPATH_H__
+#define __LIBXML_DOM_XPATH_H__
 
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
+#include "xml6.h"
 
 void
 perlDocumentFunction( xmlXPathParserContextPtr ctxt, int nargs );

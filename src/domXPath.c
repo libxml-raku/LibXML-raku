@@ -14,7 +14,8 @@
 #include <libxml/uri.h>
 
 #include "dom.h"
-#include "xpath.h"
+#include "domXPath.h"
+#include "xml6.h"
 #include "xml6_node.h"
 
 void
@@ -180,7 +181,6 @@ _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
   }
 }
 
-
 void
 domFreeNodeSet(xmlNodeSetPtr self) {
   int i;
@@ -221,6 +221,18 @@ domFreeNodeSet(xmlNodeSetPtr self) {
  * libxml2.
  **/
 
+void
+domFreeXPathObject(xmlXPathObjectPtr self) {
+  if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
+    domFreeNodeSet(self->nodesetval);
+    self->nodesetval = NULL;
+  }
+  else if (self->type == XPATH_RANGE) {
+    xml6_warn("todo: cleanup of XPath range objects");
+  }
+  xmlXPathFreeObject(self);
+}
+
 xmlXPathObjectPtr
 domXPathFind( xmlNodePtr refNode, xmlChar * path, int to_bool ) {
     xmlXPathObjectPtr res = NULL;
@@ -232,6 +244,46 @@ domXPathFind( xmlNodePtr refNode, xmlChar * path, int to_bool ) {
     res = domXPathCompFind(refNode,comp,to_bool);
     xmlXPathFreeCompExpr(comp);
     return res;
+}
+
+static xmlNodeSetPtr
+__domFilterNodeSet(xmlNodeSetPtr node_set) {
+  int i = 0;
+  int skipped = 0;
+
+  for (i = 0; i + skipped < node_set->nodeNr; i++) {
+    xmlNodePtr tnode = node_set->nodeTab[i];
+    int skip = 0;
+    if (tnode == NULL) {
+      skip = 1;
+    }
+    else if (tnode->type == XML_NAMESPACE_DECL) {
+      xmlNsPtr ns = (xmlNsPtr)tnode;
+      const xmlChar *prefix = ns->prefix;
+      const xmlChar *href = ns->href;
+      if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
+        if (xmlStrEqual(href, XML_XML_NAMESPACE))
+          xmlFreeNs(ns);
+          skip = 1;
+      }
+    }
+    if (skip) {
+      skipped++;
+    }
+    else if (skipped) {
+      node_set->nodeTab[i - skipped] = node_set->nodeTab[i];
+    }
+  }
+  node_set->nodeNr -= skipped;
+  return node_set;
+}
+
+static xmlXPathObjectPtr
+_domFilterXPathObject(xmlXPathObjectPtr self) {
+  if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
+    __domFilterNodeSet(self->nodesetval);
+  }
+  return self;
 }
 
 xmlXPathObjectPtr
@@ -265,7 +317,7 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
             }
             xmlAddChild((xmlNodePtr)tdoc, froot);
             xmlSetTreeDoc(froot, tdoc); /* probably no need to clean psvi */
-	    froot->doc = tdoc;
+            froot->doc = tdoc;
             /* refNode->doc = tdoc; */
         }
 
@@ -289,21 +341,21 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
         xmlXPathRegisterFunc(ctxt,
                              (const xmlChar *) "document",
                              perlDocumentFunction);
-	if (to_bool) {
+        if (to_bool) {
 #if LIBXML_VERSION >= 20627
-	  int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
-	  res = xmlXPathNewBoolean(val);
+          int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
+          res = xmlXPathNewBoolean(val);
 #else
-	  res = xmlXPathCompiledEval(comp, ctxt);
-	  if (res!=NULL) {
-	    int val = xmlXPathCastToBoolean(res);
+          res = xmlXPathCompiledEval(comp, ctxt);
+          if (res!=NULL) {
+            int val = xmlXPathCastToBoolean(res);
             xmlXPathFreeObject(res);
-	    res = xmlXPathNewBoolean(val);
-	  }
+            res = xmlXPathNewBoolean(val);
+          }
 #endif
-	} else {
-	  res = xmlXPathCompiledEval(comp, ctxt);
-	}
+        } else {
+          res = xmlXPathCompiledEval(comp, ctxt);
+        }
         if (ctxt->namespaces != NULL) {
             xmlFree( ctxt->namespaces );
         }
@@ -314,8 +366,8 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
             /* after looking through a fragment, we need to drop the
                fake document again */
             xmlSetTreeDoc(froot, NULL); /* probably no need to clean psvi */
-	    froot->doc = NULL;
-	    froot->parent = NULL;
+            froot->doc = NULL;
+            froot->parent = NULL;
             tdoc->children = NULL;
             tdoc->last     = NULL;
             /* next line is not required anymore */
@@ -324,39 +376,7 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
             xmlFreeDoc( tdoc );
         }
     }
-    return res;
-}
-
-static xmlNodeSetPtr
-_domFilterNodeSet(xmlNodeSetPtr node_set) {
-  int i = 0;
-  int skipped = 0;
-
-  for (i = 0; i + skipped < node_set->nodeNr; i++) {
-    xmlNodePtr tnode = node_set->nodeTab[i];
-    int skip = 0;
-    if (tnode == NULL) {
-      skip = 1;
-    }
-    else if (tnode->type == XML_NAMESPACE_DECL) {
-      xmlNsPtr ns = (xmlNsPtr)tnode;
-      const xmlChar *prefix = ns->prefix;
-      const xmlChar *href = ns->href;
-      if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
-        if (xmlStrEqual(href, XML_XML_NAMESPACE))
-	  xmlFreeNs(ns);
-	  skip = 1;
-      }
-    }
-    if (skip) {
-      skipped++;
-    }
-    else if (skipped) {
-      node_set->nodeTab[i - skipped] = node_set->nodeTab[i];
-    }
-  }
-  node_set->nodeNr -= skipped;
-  return node_set;
+    return _domFilterXPathObject(res);
 }
 
 xmlNodeSetPtr
@@ -369,16 +389,16 @@ domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
     if (res != NULL) {
             /* here we have to transfer the result from the internal
                structure to the return value */
-        	/* get the result from the query */
-        	/* we have to unbind the nodelist, so free object can
-        	   not kill it */
+                /* get the result from the query */
+                /* we have to unbind the nodelist, so free object can
+                   not kill it */
         rv = res->nodesetval;
         res->nodesetval = 0 ;
     }
 
     xmlXPathFreeObject(res);
 
-    return _domFilterNodeSet(rv);
+    return rv;
 }
 
 
@@ -392,16 +412,16 @@ domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
     if (res != NULL) {
             /* here we have to transfer the result from the internal
                structure to the return value */
-        	/* get the result from the query */
-        	/* we have to unbind the nodelist, so free object can
-        	   not kill it */
+            /* get the result from the query */
+            /* we have to unbind the nodelist, so free object can
+               not kill it */
         rv = res->nodesetval;
         res->nodesetval = 0 ;
     }
 
     xmlXPathFreeObject(res);
 
-    return _domFilterNodeSet(rv);
+    return rv;
 }
 
 /**
@@ -450,40 +470,40 @@ domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_
                 froot = froot->parent;
             }
             xmlAddChild((xmlNodePtr)tdoc, froot);
-	    xmlSetTreeDoc(froot,tdoc);  /* probably no need to clean psvi */
+            xmlSetTreeDoc(froot,tdoc);  /* probably no need to clean psvi */
             froot->doc = tdoc;
-	    /* ctxt->node->doc = tdoc; */
+            /* ctxt->node->doc = tdoc; */
         }
-	if (to_bool) {
+        if (to_bool) {
 #if LIBXML_VERSION >= 20627
-	  int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
-	  res = xmlXPathNewBoolean(val);
+          int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
+          res = xmlXPathNewBoolean(val);
 #else
-	  res = xmlXPathCompiledEval(comp, ctxt);
-	  if (res!=NULL) {
-	    int val = xmlXPathCastToBoolean(res);
+          res = xmlXPathCompiledEval(comp, ctxt);
+          if (res!=NULL) {
+            int val = xmlXPathCastToBoolean(res);
             xmlXPathFreeObject(res);
-	    res = xmlXPathNewBoolean(val);
-	  }
+            res = xmlXPathNewBoolean(val);
+          }
 #endif
-	} else {
-	  res = xmlXPathCompiledEval(comp, ctxt);
-	}
+        } else {
+          res = xmlXPathCompiledEval(comp, ctxt);
+        }
         if ( tdoc != NULL ) {
             /* after looking through a fragment, we need to drop the
                fake document again */
-	    xmlSetTreeDoc(froot,NULL); /* probably no need to clean psvi */
+            xmlSetTreeDoc(froot,NULL); /* probably no need to clean psvi */
             froot->doc = NULL;
             froot->parent  = NULL;
             tdoc->children = NULL;
             tdoc->last     = NULL;
-	    if (ctxt->node) {
-	      ctxt->node->doc = NULL;
-	    }
+            if (ctxt->node) {
+              ctxt->node->doc = NULL;
+            }
             xmlFreeDoc( tdoc );
         }
     }
-    return res;
+    return _domFilterXPathObject(res);
 }
 
 xmlNodeSetPtr
@@ -496,15 +516,15 @@ domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar * path ) {
     if (res != NULL) {
             /* here we have to transfer the result from the internal
                structure to the return value */
-        	/* get the result from the query */
-        	/* we have to unbind the nodelist, so free object can
-        	   not kill it */
+                /* get the result from the query */
+                /* we have to unbind the nodelist, so free object can
+                   not kill it */
         rv = res->nodesetval;
         res->nodesetval = 0 ;
     }
 
     xmlXPathFreeObject(res);
 
-    return _domFilterNodeSet(rv);
+    return rv;
 }
 

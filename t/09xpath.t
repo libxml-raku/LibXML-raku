@@ -57,94 +57,96 @@ EOSTR
         is( +@nodes, 6, 'Found child nodes' );
     }
 
-}
-skip("todo - port remaining tests", 36);
-=begin TODO
-
     {
         my $result = $doc.find( "/foo/bar" );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
-        ok( $result.isa( "LibXML::NodeList" ), ' TODO : Add test name' );
+        isa-ok( $result, "LibXML::Node::Set", ' TODO : Add test name' );
         # TEST
-        is( $result.size, 2, ' TODO : Add test name' );
+        skip("numeric on nodes");
+##        is( +$result, 2, ' TODO : Add test name' );
 
         # TEST
 
-        ok( $doc.isSameNode($$result[0].ownerDocument), ' TODO : Add test name' );
+        ok( $doc.isSameNode($result.pull-one.ownerDocument), ' TODO : Add test name' );
 
         $result = $doc.find( LibXML::XPathExpression.new: :expr("/foo/bar") );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
-        ok( $result.isa( "LibXML::NodeList" ), ' TODO : Add test name' );
+        isa-ok( $result, "LibXML::Node::Set", ' TODO : Add test name' );
         # TEST
-        is( $result.size, 2, ' TODO : Add test name' );
+        skip("numeric on nodes");
+##        is( +$result, 2, ' TODO : Add test name' );
 
         # TEST
 
-        ok( $doc.isSameNode($$result[0].ownerDocument), ' TODO : Add test name' );
-
-        $result = $doc.find( "string(/foo/bar)" );
-        # TEST
-        ok( $result, ' TODO : Add test name' );
-        # TEST
-        ok( $result.isa( "LibXML::Literal" ), ' TODO : Add test name' );
-        # TEST
-        ok( $result.string_value ~~ /'test 1'/, ' TODO : Add test name' );
+        ok( $doc.isSameNode($result.pull-one.ownerDocument), ' TODO : Add test name' );
 
         $result = $doc.find( "string(/foo/bar)" );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
-        ok( $result.isa( "LibXML::Literal" ), ' TODO : Add test name' );
+        ok( $result.isa(Str), ' TODO : Add test name' );
         # TEST
-        ok( $result.string_value ~~ /'test 1'/, ' TODO : Add test name' );
+        ok( $result ~~ /'test 1'/, ' TODO : Add test name' );
+
+        $result = $doc.find( "string(/foo/bar)" );
+        # TEST
+        ok( $result, ' TODO : Add test name' );
+        # TEST
+        ok( $result.isa(Str), ' TODO : Add test name' );
+        # TEST
+        ok( $result.Str ~~ /'test 1'/, ' TODO : Add test name' );
 
         $result = $doc.find( LibXML::XPathExpression.new: :expr("count(/foo/bar)") );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
-        ok( $result.isa( "LibXML::Number" ), ' TODO : Add test name' );
+        todo("returning num64?");
+        ok( $result.isa( Numeric ), ' TODO : Add test name' );
         # TEST
-        is( $result.value, 2, ' TODO : Add test name' );
+        is( $result, 2, ' TODO : Add test name' );
 
         $result = $doc.find( "contains(/foo/bar[1], 'test 1')" );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
-        ok( $result.isa( "LibXML::Boolean" ), ' TODO : Add test name' );
+        ok( $result.isa( Bool ), ' TODO : Add test name' );
         # TEST
-        is( $result.string_value, "true", ' TODO : Add test name' );
+        is( $result, True, ' TODO : Add test name' );
 
         $result = $doc.find( LibXML::XPathExpression.new: :expr("contains(/foo/bar[1], 'test 1')") );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
-        ok( $result.isa( "LibXML::Boolean" ), ' TODO : Add test name' );
+        ok( $result.isa( Bool ), ' TODO : Add test name' );
         # TEST
-        is( $result.string_value, "true", ' TODO : Add test name' );
+        is( $result, True, ' TODO : Add test name' );
 
         $result = $doc.find( "contains(/foo/bar[3], 'test 1')" );
         # TEST
-        ok( $result == 0, ' TODO : Add test name' );
+        is( $result, False, ' TODO : Add test name' );
 
         # TEST
+
+}}; skip("todo - port remaining tests", 12);
+=begin TODO
 
         ok( $doc.exists("/foo/bar[2]"), ' TODO : Add test name' );
         # TEST
-        is( $doc.exists("/foo/bar[3]"), 0, ' TODO : Add test name' );
+        is( $doc.exists("/foo/bar[3]"), False, ' TODO : Add test name' );
         # TEST
-        is( $doc.exists("-7.2"),1, ' TODO : Add test name' );
+        is( $doc.exists("-7.2"), True, ' TODO : Add test name' );
         # TEST
-        is( $doc.exists("0"),0, ' TODO : Add test name' );
+        is( $doc.exists("0"), False, ' TODO : Add test name' );
         # TEST
-        is( $doc.exists("'foo'"),1, ' TODO : Add test name' );
+        is( $doc.exists("'foo'"), True, ' TODO : Add test name' );
         # TEST
-        is( $doc.exists("''"),0, ' TODO : Add test name' );
+        is( $doc.exists("''"), False, ' TODO : Add test name' );
         # TEST
-        is( $doc.exists("'0'"),1, ' TODO : Add test name' );
+        is( $doc.exists("'0'"), True, ' TODO : Add test name' );
 
         my ($node) = $doc.findnodes("/foo/bar[1]" );
         # TEST

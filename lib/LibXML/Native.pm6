@@ -52,6 +52,7 @@ class xmlEntity is repr(Stub) is export {
 class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
+class xmlLocationSet is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {
     sub xmlAllocParserInputBuffer(xmlCharEncoding:D --> xmlParserInputBuffer) is native(LIB) {*}
     method new(xmlCharEncoding:D :$enc!) {
@@ -132,6 +133,69 @@ class xmlNodeSet is repr('CStruct') is export {
 
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Free is native(BIND-LIB) is symbol('domFreeNodeSet') {*}
+}
+
+class xmlXPathObject is repr('CStruct') is export {
+    has int32 $.type;
+
+    has xmlNodeSet $.nodeset;
+    has int32      $.bool;
+    has num64      $.float;
+    has xmlCharP   $.string;
+
+    has Pointer    $.user;
+    has int32      $.index;
+    has Pointer    $.user2;
+    has int32      $.index2;
+
+    sub xmlXPathIsInf(num64 --> int32) is native(LIB) {*}
+    sub xmlXPathIsNaN(num64 --> int32) is native(LIB) {*}
+    method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_objects_remove_reference') {*}
+    method Free is native(BIND-LIB) is symbol('domFreeXPathObject') {*}
+
+    method user-object {
+        fail "XPath Object is user defined";
+    }
+
+    submethod TWEAK {
+        self.add-reference;
+    }
+    submethod DESTROY {
+        self.Free
+            if self.remove-reference;
+    }
+    method value {
+        given $!type {
+            when XPATH_UNDEFINED { Mu }
+            when XPATH_NODESET | XPATH_XSLT_TREE { $!nodeset }
+            when XPATH_BOOLEAN { ? $!bool }
+            when XPATH_NUMBER {
+                given xmlXPathIsInf($!float) {
+                    when +1 { Inf }
+                    when -1 { -Inf }
+                    default {
+                        xmlXPathIsNaN($!float)
+                            ?? NaN
+                            !! $!float.Numeric;
+                    }
+                }
+            }
+            when XPATH_STRING { $!string }
+            when XPATH_POINT {
+                fail "todo: XPath point values";
+            }
+            when XPATH_LOCATIONSET {
+                nativecast(xmlLocationSet, $!user);
+            }
+            when XPATH_USERS {
+                self.user-object;
+            }
+            default {
+                fail "unhandled node-set type: $_";
+            }
+        }
+    }
 }
 
 class xmlParserInput is repr('CStruct') is export {
@@ -407,10 +471,18 @@ class domNode is export does LibXML::Native::DOM::Node {
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
     method domXPathSelect(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domXPathCompSelect(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathFind(Str, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathCompFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domNormalize(--> int32) is native(BIND-LIB) {*}
+
+    multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) { self.domXPathCompFind($expr, $to-bool).value; }
+    multi method find(Str:D $expr,  Bool $to-bool) is default { self.domXPathFind($expr, $to-bool).value; }
+
+    multi method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathCompSelect($expr); }
+    multi method findnodes(Str:D $expr --> xmlNodeSet) is default { self.domXPathSelect($expr); }
 
     method Str(Bool() :$format = False) {
         nextsame without self;

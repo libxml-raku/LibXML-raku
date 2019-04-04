@@ -162,6 +162,11 @@ class LibXML::Node {
         }
     }
 
+    multi sub unbox(LibXML::XPathExpression:D $_) { .unbox }
+    multi sub unbox(LibXML::Node:D $_) { .unbox }
+    multi sub unbox(LibXML::Namespace:D $_) { .unbox }
+    multi sub unbox($_) is default  { $_ }
+
     our sub cast-struct(domNode:D $struct is raw) {
         my $delegate := delegate-struct($struct.type);
         nativecast( $delegate, $struct);
@@ -189,11 +194,11 @@ class LibXML::Node {
         }
     }
 
-    method keep(LibXML::Native::DOM::Node $struct,
+    method keep(LibXML::Native::DOM::Node $raw,
                 LibXML::Node :$doc is copy = $.doc, # reusable document object
                 --> LibXML::Node) {
-        with $struct {
-            if self.defined && self.unbox.isSameNode($_) {
+        with $raw {
+            if self.defined && unbox(self).isSameNode($_) {
                 self;
             }
             else {
@@ -210,7 +215,7 @@ class LibXML::Node {
 
     multi sub iterate($obj, domNode $start, :$doc = $obj.doc, Bool :$keep-blanks = True) is export(:iterate) {
         # follow a chain of .next links.
-        my class NodeList does Iterable does Iterator {
+        my class List does Iterable does Iterator {
             has $.cur;
             method iterator { self }
             method pull-one {
@@ -228,7 +233,7 @@ class LibXML::Node {
 
     multi sub iterate($range, xmlNodeSet $set) {
         # iterate through a set of nodes
-        my class Node does Iterable does Iterator {
+        my class Set does Iterable does Iterator {
             has xmlNodeSet $.set;
             has UInt $!idx = 0;
             submethod TWEAK {
@@ -291,12 +296,17 @@ class LibXML::Node {
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(LibXML::Node, $.unbox.getChildrenByTagNameNS($uri, $name));
     }
+    my subset XPathDomain where LibXML::XPathExpression|Str;
     my subset XPathRange where LibXML::Node|LibXML::Namespace;
-    multi method findnodes(LibXML::XPathExpression:D $xpath-expr) is default {
-        iterate(XPathRange, $.unbox.domXPathCompSelect($xpath-expr.unbox));
+    method findnodes(XPathDomain:D $xpath-expr) {
+        my xmlNodeSet:D $node-set := $.unbox.findnodes: unbox($xpath-expr);
+        iterate(XPathRange, $node-set);
     }
-    multi method findnodes(Str:D $xpath-expr) is default {
-        iterate(XPathRange, $.unbox.domXPathSelect($xpath-expr));
+    method find(XPathDomain:D $xpath-expr, Bool:D $to-bool = False) {
+        given  $.unbox.find( unbox($xpath-expr), $to-bool) {
+            when xmlNodeSet:D { iterate(XPathRange, $_) }
+            default { $_ }
+        }
     }
     method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);
@@ -319,7 +329,7 @@ class LibXML::Node {
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
         box-class(XML_ATTRIBUTE_NODE).box: $.unbox.getAttributeNodeNS($uri, $att-name);
     }
-    multi method setNamespace(Str $uri, NCName $prefix) {
+    method setNamespace(Str $uri, NCName $prefix) {
         $.unbox.setNamespace($uri, $prefix);
     }
     method localNS {

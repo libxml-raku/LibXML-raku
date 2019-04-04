@@ -9,6 +9,7 @@ method doc { ... }
 method type { ... }
 method children { ... }
 method last { ... }
+method findnodes { ... }
 
 method domError { ... }
 method domAppendChild  { ... }
@@ -29,8 +30,6 @@ method domSetAttributeNode { ... }
 method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
 method domSetNamespace { ... }
-method domXPathSelect  { ... }
-method domXPathCompSelect  { ... }
 method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }

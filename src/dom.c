@@ -9,7 +9,6 @@
 
 #include "dom.h"
 #include "xml6.h"
-#include "xml6_node.h"
 
 char *dom_error = NULL;
 

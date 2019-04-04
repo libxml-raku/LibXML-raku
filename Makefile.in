@@ -4,16 +4,16 @@ all : lib doc
 
 lib : resources/libraries/%LIB-NAME%
 
-resources/libraries/%LIB-NAME% : $(SRC)/dom%O%  $(SRC)/xpath%O% $(SRC)/xml6_ctx%O%  $(SRC)/xml6_doc%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_sax%O%
+resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_ctx%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_xpath%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
-        $(SRC)/dom%O%  $(SRC)/xpath%O% $(SRC)/xml6_ctx%O%  $(SRC)/xml6_doc%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_sax%O% \
+        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_ctx%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_xpath%O% \
         %LIB-LDFLAGS% 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/dom%O% $(SRC)/dom.c %LIB-CFLAGS%
 
-$(SRC)/xpath%O% : $(SRC)/xpath.c $(SRC)/xpath.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xpath%O% $(SRC)/xpath.c %LIB-CFLAGS%
+$(SRC)/domXPath%O% : $(SRC)/domXPath.c $(SRC)/domXPath.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/domXPath%O% $(SRC)/domXPath.c %LIB-CFLAGS%
 
 $(SRC)/xml6_ctx%O% : $(SRC)/xml6_ctx.c $(SRC)/xml6_ctx.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ctx%O% $(SRC)/xml6_ctx.c %LIB-CFLAGS%
@@ -30,11 +30,17 @@ $(SRC)/xml6_node%O% : $(SRC)/xml6_node.c $(SRC)/xml6_node.h
 $(SRC)/xml6_sax%O% : $(SRC)/xml6_sax.c $(SRC)/xml6_sax.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_sax%O% $(SRC)/xml6_sax.c %LIB-CFLAGS%
 
+$(SRC)/xml6_ref%O% : $(SRC)/xml6_ref.c $(SRC)/xml6_ref.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ref%O% $(SRC)/xml6_ref.c %LIB-CFLAGS%
+
+$(SRC)/xml6_xpath%O% : $(SRC)/xml6_xpath.c $(SRC)/xml6_xpath.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_xpath%O% $(SRC)/xml6_xpath.c %LIB-CFLAGS%
+
 test : all
 	@prove -e"perl6 -I ." -v t
 
 clean :
-	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/xpath%O% resources/libraries/*%LIB-NAME%
+	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%
 
 realclean : clean
 	@rm -f Makefile

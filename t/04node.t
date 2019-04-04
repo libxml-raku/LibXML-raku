@@ -206,7 +206,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         ok( defined($children), ' TODO : Add test name' );
         # TEST
-        isa-ok( $children, "LibXML::Node::NodeList", ' TODO : Add test name' );
+        isa-ok( $children, "LibXML::Node::List", ' TODO : Add test name' );
     }
 
 

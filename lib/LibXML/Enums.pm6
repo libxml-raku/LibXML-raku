@@ -77,3 +77,16 @@ my enum xmlAttributeDefault is export (
     'XML_ATTRIBUTE_IMPLIED',
     'XML_ATTRIBUTE_FIXED'
 );
+
+my enum xmlXPathObjectType is export (
+    XPATH_UNDEFINED => 0,
+    XPATH_NODESET => 1,
+    XPATH_BOOLEAN => 2,
+    XPATH_NUMBER => 3,
+    XPATH_STRING => 4,
+    XPATH_POINT => 5,
+    XPATH_RANGE => 6,
+    XPATH_LOCATIONSET => 7,
+    XPATH_USERS => 8,
+    XPATH_XSLT_TREE => 9  # An XSLT value tree, non modifiable
+);
