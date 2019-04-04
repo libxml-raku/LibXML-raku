@@ -213,52 +213,60 @@ class LibXML::Node {
         }
     }
 
-    multi sub iterate($obj, domNode $start, :$doc = $obj.doc, Bool :$keep-blanks = True) is export(:iterate) {
+    my class List does Iterable does Iterator {
+        has Bool $.keep-blanks;
+        has $.doc is required;
+        has $.cur is required;
+        has $.type = LibXML::Node;
+        method iterator { self }
+        method pull-one {
+            my $this = $!cur;
+            $_ = .next-node($!keep-blanks) with $!cur;
+            with $this {
+                $!type.box: $_, :$!doc
+            }
+            else {
+                IterationEnd;
+            }
+        }
+    }
+    proto sub iterate(|) is export(:iterate) {*}
+    multi sub iterate($obj, domNode $start, :$doc = $obj.doc, Bool :$keep-blanks = True) {
         # follow a chain of .next links.
-        my class List does Iterable does Iterator {
-            has $.cur;
-            method iterator { self }
-            method pull-one {
-                my $this = $!cur;
-                $_ = .next-node($keep-blanks) with $!cur;
-                with $this {
-                    $obj.box: $_, :$doc
-                }
-                else {
-                    IterationEnd;
+        List.new: :type($obj), :cur($start), :$doc, :$keep-blanks;
+    }
+
+    my class Set does Iterable does Iterator {
+        has $.range is required;
+        has xmlNodeSet $.set is required;
+        has UInt $!idx = 0;
+        submethod TWEAK {
+            .Reference with $!set;
+        }
+        submethod DESTROY {
+            # xmlNodeSet is managed by us
+            .Release with $!set;
+        }
+        method iterator { self }
+        method pull-one {
+            if $!set.defined && $!idx < $!set.nodeNr {
+                given $!set.nodeTab[$!idx++].deref {
+                    my $class = box-class(.type);
+                    die "unexpected node of type {$class.perl} in node-set"
+                        unless $class ~~ $!range;
+
+                    $class.box: cast-elem($_);
                 }
             }
-        }.new( :cur($start) );
+            else {
+                IterationEnd;
+            }
+        }
     }
 
     multi sub iterate($range, xmlNodeSet $set) {
         # iterate through a set of nodes
-        my class Set does Iterable does Iterator {
-            has xmlNodeSet $.set;
-            has UInt $!idx = 0;
-            submethod TWEAK {
-                .Reference with $!set;
-            }
-            submethod DESTROY {
-                # xmlNodeSet is managed by us
-                .Free with $!set;
-            }
-            method iterator { self }
-            method pull-one {
-                if $!set.defined && $!idx < $!set.nodeNr {
-                    given $!set.nodeTab[$!idx++].deref {
-                        my $class = box-class(.type);
-                        die "unexpected node of type {$class.perl} in node-set"
-                            unless $class ~~ $range;
-
-                        $class.box: cast-elem($_);
-                    }
-                }
-                else {
-                    IterationEnd;
-                }
-            }
-        }.new( :$set );
+        Set.new( :$set, :$range )
     }
 
     method ownerDocument is rw { $.doc }

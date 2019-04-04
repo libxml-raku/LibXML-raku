@@ -9,6 +9,7 @@ method doc { ... }
 method type { ... }
 method children { ... }
 method last { ... }
+method find { ... }
 method findnodes { ... }
 
 method domError { ... }

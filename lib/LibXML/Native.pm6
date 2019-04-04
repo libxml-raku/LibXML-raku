@@ -132,7 +132,7 @@ class xmlNodeSet is repr('CStruct') is export {
     has CArray[xmlNodeSetElemPtr] $.nodeTab;
 
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
-    method Free is native(BIND-LIB) is symbol('domFreeNodeSet') {*}
+    method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
 }
 
 class xmlXPathObject is repr('CStruct') is export {

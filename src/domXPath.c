@@ -182,7 +182,7 @@ _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
 }
 
 void
-domFreeNodeSet(xmlNodeSetPtr self) {
+domReleaseNodeSet(xmlNodeSetPtr self) {
   int i;
   xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
   xmlChar* strval;
@@ -224,7 +224,7 @@ domFreeNodeSet(xmlNodeSetPtr self) {
 void
 domFreeXPathObject(xmlXPathObjectPtr self) {
   if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
-    domFreeNodeSet(self->nodesetval);
+    domReleaseNodeSet(self->nodesetval);
     self->nodesetval = NULL;
   }
   else if (self->type == XPATH_RANGE) {
@@ -251,7 +251,7 @@ __domFilterNodeSet(xmlNodeSetPtr node_set) {
   int i = 0;
   int skipped = 0;
 
-  for (i = 0; i + skipped < node_set->nodeNr; i++) {
+  for (i = 0; i < node_set->nodeNr; i++) {
     xmlNodePtr tnode = node_set->nodeTab[i];
     int skip = 0;
     if (tnode == NULL) {

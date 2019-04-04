@@ -11,6 +11,9 @@ perlDocumentFunction( xmlXPathParserContextPtr ctxt, int nargs );
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlChar * xpathstring );
 
+void
+domFreeXPathObject(xmlXPathObjectPtr);
+
 xmlXPathObjectPtr
 domXPathFind( xmlNodePtr refNode, xmlChar * xpathstring, int to_bool );
 
@@ -33,6 +36,6 @@ void
 domReferenceNodeSet(xmlNodeSetPtr self);
 
 void
-domFreeNodeSet(xmlNodeSetPtr self);
+domReleaseNodeSet(xmlNodeSetPtr self);
 
 #endif
