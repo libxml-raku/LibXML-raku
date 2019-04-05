@@ -513,9 +513,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
 }
 
 DLLEXPORT int
-domNodeIsReferenced(xmlNodePtr self) {
-
-  xmlNodePtr cur = self;
+domNodeIsReferenced(xmlNodePtr cur) {
 
   while (cur) {
     xmlNodePtr kids = cur->children;

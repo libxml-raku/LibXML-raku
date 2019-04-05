@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 45;
+plan 54;
 
 use LibXML;
 
@@ -131,9 +131,6 @@ EOSTR
 
         # TEST
 
-}}; skip("todo - port remaining tests", 12);
-=begin TODO
-
         ok( $doc.exists("/foo/bar[2]"), ' TODO : Add test name' );
         # TEST
         is( $doc.exists("/foo/bar[3]"), False, ' TODO : Add test name' );
@@ -175,6 +172,7 @@ EOSTR
         ok(1, ' TODO : Add test name');
     }
 }
+
 
 {
     # from #39178
@@ -218,7 +216,7 @@ EOSTR
 
 {
     # from #69096
-    my $doc = LibXML::Document.createDocument('1.0', 'utf-8');
+    my $doc = LibXML::Document.createDocument();
     my $root = $doc.createElement('root');
     $doc.setDocumentElement($root);
     my $e = $doc.createElement("child");
@@ -255,4 +253,3 @@ sub _utf16_content_test
     }
 }
 
-=end TODO

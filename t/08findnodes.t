@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 46;
+plan 37;
 
 use LibXML;
 
@@ -129,9 +129,6 @@ my @ns = $root.findnodes('namespace::*');
 
 is(+@ns, 2, ' TODO : Add test name' );
 
-skip("todo - port remaining tests", 32);
-=begin TODO
-
 # bad xpaths
 # TEST:$badxpath=4;
 my @badxpath = (
@@ -232,10 +229,9 @@ for @badxpath -> $xp {
 
     $root.removeChild( $lastc );
     # TEST
-    is( $root.Str(), $xmlstr, ' TODO : Add test name' );
+    is( $root.Str(), $xmlstr, 'findnode/remove' );
 }
 
-=end TODO
 # --------------------------------------------------------------------------- #
 sub finddoc($doc) {
     return unless $doc.defined;

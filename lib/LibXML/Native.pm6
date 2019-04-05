@@ -158,9 +158,6 @@ class xmlXPathObject is repr('CStruct') is export {
         fail "XPath Object is user defined";
     }
 
-    submethod TWEAK {
-        self.add-reference;
-    }
     submethod DESTROY {
         self.Free
             if self.remove-reference;
@@ -477,8 +474,16 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domNormalize(--> int32) is native(BIND-LIB) {*}
 
-    multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) { self.domXPathCompFind($expr, $to-bool).value; }
-    multi method find(Str:D $expr,  Bool $to-bool) is default { self.domXPathFind($expr, $to-bool).value; }
+    multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
+        my xmlXPathObject:D $obj := self.domXPathCompFind($expr, $to-bool);
+        $obj.add-reference;
+        $obj.value;
+    }
+    multi method find(Str:D $expr,  Bool $to-bool) is default {
+        my xmlXPathObject:D $obj := self.domXPathFind($expr, $to-bool);
+        $obj.add-reference;
+        $obj.value;
+    }
 
     multi method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathCompSelect($expr); }
     multi method findnodes(Str:D $expr --> xmlNodeSet) is default { self.domXPathSelect($expr); }
@@ -1060,10 +1065,10 @@ class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
 # HTML file parser context
 class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 
-    sub htmlCreateFileParserCtxt(Str $file) is native(LIB) returns htmlFileParserCtxt {*};
+    sub htmlCreateFileParserCtxt(Str $file, Str $encoding) is native(LIB) returns htmlFileParserCtxt {*};
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method new(Str() :$file!) { htmlCreateFileParserCtxt($file) }
+    method new(Str() :$file!, Str :$encoding) { htmlCreateFileParserCtxt($file, $encoding) }
 }
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks

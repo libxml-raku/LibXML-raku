@@ -314,6 +314,9 @@ class LibXML::Node {
             default { $_ }
         }
     }
+    method exists(XPathDomain:D $xpath-expr --> Bool:D) {
+        $.find($xpath-expr, True);
+    }
     method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);
     }

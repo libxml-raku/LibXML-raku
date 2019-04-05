@@ -7,7 +7,7 @@ DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
 }
 
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
-  return xml6_ref_remove( &(self->_private) );
+  return xml6_ref_remove( &(self->_private), "node", (void*) self);
 }
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
