@@ -1578,36 +1578,47 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
 
 DLLEXPORT int
 domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix) {
+    int flag = 1;
     xmlNsPtr ns = NULL;
     int rv = 0;
-    if ( node == NULL ) {
-        croak_i( "lost node" );
-    }
 
-    if ( !nsURI || nsURI[0] == 0 ){
-        xmlSetNs((xmlNodePtr)node, NULL);
-        rv = 1;
-    }
-    if ( !node->parent ) {
-      return 0;
-    }
-
-    if ( (ns = xmlSearchNs(node->doc, node->parent, nsPrefix)) &&
-         xmlStrEqual( ns->href, nsURI) ) {
-        /* same uri and prefix */
-      rv = 1;
-    }
-    else if ( (ns = xmlSearchNsByHref(node->doc, node->parent, nsURI)) ) {
-        /* set uri, but with a different prefix */
-        rv = 1;
-    }
-
-    if ( ns ) {
-        if ( ns->prefix ) {
-            xmlSetNs((xmlNodePtr)node, ns);
+    if (nsPrefix && *nsPrefix == 0) nsPrefix = NULL;
+    if (nsURI && *nsURI == 0) nsURI = NULL;
+  
+    if ( nsPrefix == NULL && nsURI == NULL ) {
+        /* special case: empty namespace */
+        if ( (ns = xmlSearchNs(node->doc, node, NULL)) &&
+             ( ns->href && xmlStrlen( ns->href ) != 0 ) ) {
+            /* won't take it */
+            rv = 0;
+        } else if ( flag ) {
+            /* no namespace */
+            xmlSetNs(node, NULL);
+            rv = 1;
         } else {
             rv = 0;
         }
+    }
+    else if ( flag && (ns = xmlSearchNs(node->doc, node, nsPrefix)) ) {
+      /* user just wants to set the namespace for the node */
+      /* try to reuse an existing declaration for the prefix */
+        if ( xmlStrEqual( ns->href, nsURI ) ) {
+            rv = 1;
+        }
+        else if ( (ns = xmlNewNs( node, nsURI, nsPrefix )) ) {
+            rv = 1;
+        }
+        else {
+            rv = 0;
+        }
+    }
+    else if ( (ns = xmlNewNs( node, nsURI, nsPrefix )) )
+      rv = 1;
+    else
+      rv = 0;
+
+    if ( flag && ns ) {
+        xmlSetNs(node, ns);
     }
     return rv;
 }

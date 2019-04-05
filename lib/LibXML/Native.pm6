@@ -455,7 +455,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
-    method domSetNamespace(Str $URI, Str $prefix) is native(BIND-LIB) returns int {*}
+    method domSetNamespace(Str $URI, Str $prefix) is native(BIND-LIB) returns int32 {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
