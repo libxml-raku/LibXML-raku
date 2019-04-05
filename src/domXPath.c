@@ -69,6 +69,7 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
                 newobj = valuePop(ctxt);
                 ret->nodesetval = xmlXPathNodeSetMerge(ret->nodesetval,
                                                        newobj->nodesetval);
+                newobj->nodesetval = NULL;
                 xmlXPathFreeObject(newobj);
             }
         }
@@ -175,9 +176,9 @@ _domUnreferenceNodeSet(xmlNodeSetPtr self) {
 
 static void
 _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
-  xmlNodePtr cur = (xmlNodePtr) entry;
-  if (domNodeIsReferenced(cur) == 0) {
-    xmlFreeNode(cur);
+  xmlNodePtr twig = (xmlNodePtr) entry;
+  if (domNodeIsReferenced(twig) == 0) {
+    xmlFreeNode(twig);
   }
 }
 
@@ -186,6 +187,7 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
   int i;
   xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
   xmlChar* strval;
+  xmlNodePtr last_twig = NULL;
 
   _domUnreferenceNodeSet(self);
  
@@ -197,14 +199,18 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
         xmlXPathNodeSetFreeNs((xmlNsPtr) cur);
       }
       else {
-        cur = xml6_node_find_root(cur);
-        strval = xmlXPathCastNodeToString(cur);
+        xmlNodePtr twig = xml6_node_find_root(cur);
+        if (twig != last_twig) {
+          strval = xmlXPathCastNodeToString(twig);
 
-        if (xmlHashLookup(hash, strval) == NULL) {
-          xmlHashAddEntry(hash, strval, cur);
-         }
-        else {
-          xmlFree(strval);
+          if (xmlHashLookup(hash, strval) == NULL) {
+            xmlHashAddEntry(hash, strval, twig);
+          }
+          else {
+            xmlFree(strval);
+          }
+
+          last_twig = twig;
         }
       }
     }
@@ -247,7 +253,7 @@ domXPathFind( xmlNodePtr refNode, xmlChar * path, int to_bool ) {
 }
 
 static xmlNodeSetPtr
-__domFilterNodeSet(xmlNodeSetPtr node_set) {
+__domCookNodeSet(xmlNodeSetPtr node_set) {
   int i = 0;
   int skipped = 0;
 
@@ -279,9 +285,9 @@ __domFilterNodeSet(xmlNodeSetPtr node_set) {
 }
 
 static xmlXPathObjectPtr
-_domFilterXPathObject(xmlXPathObjectPtr self) {
+_domCookXPathObject(xmlXPathObjectPtr self) {
   if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
-    __domFilterNodeSet(self->nodesetval);
+    __domCookNodeSet(self->nodesetval);
   }
   return self;
 }
@@ -376,7 +382,7 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
             xmlFreeDoc( tdoc );
         }
     }
-    return _domFilterXPathObject(res);
+    return _domCookXPathObject(res);
 }
 
 xmlNodeSetPtr
@@ -503,7 +509,7 @@ domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_
             xmlFreeDoc( tdoc );
         }
     }
-    return _domFilterXPathObject(res);
+    return _domCookXPathObject(res);
 }
 
 xmlNodeSetPtr

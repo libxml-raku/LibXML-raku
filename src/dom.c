@@ -515,18 +515,15 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr self) {
 
-  xmlNodePtr cld;
-  if (self->_private != NULL ) {
-    return 1;
-  }
+  xmlNodePtr cur = self;
 
-  // Look for child references
-  cld = self->children;
-  while ( cld ) {
-    if (domNodeIsReferenced( cld )) {
+  while (cur) {
+    xmlNodePtr kids = cur->children;
+    if (cur->_private != NULL
+        || (kids != NULL && domNodeIsReferenced(kids))) {
       return 1;
     }
-    cld = cld->next;
+    cur = cur->next;
   }
 
   return 0;
@@ -1025,8 +1022,13 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     if( n->type == XML_ATTRIBUTE_NODE ){
       /* can't use xmlNodeSetContent - for Attrs it parses entities */
         if ( n->children != NULL ) {
+            xmlNodePtr att = n->children;
+            while (att) {
+              xmlNodePtr next = n->next;
+              domReleaseNode(att);
+              att = next;
+            }
             n->last = NULL;
-            xmlFreeNodeList( n->children );
         }
         n->children = xmlNewText( val );
         n->children->parent = n;
