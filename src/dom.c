@@ -1022,13 +1022,13 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     if( n->type == XML_ATTRIBUTE_NODE ){
       /* can't use xmlNodeSetContent - for Attrs it parses entities */
         if ( n->children != NULL ) {
-            xmlNodePtr att = n->children;
-            while (att) {
-              xmlNodePtr next = n->next;
-              domReleaseNode(att);
-              att = next;
+            // clear existing attribute content
+            xmlNodePtr content = n->children;
+            while (content) {
+              xmlNodePtr next = content->next;
+              domReleaseNode(content);
+              content = next;
             }
-            n->last = NULL;
         }
         n->children = xmlNewText( val );
         n->children->parent = n;
