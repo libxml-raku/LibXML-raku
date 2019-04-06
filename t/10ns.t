@@ -34,7 +34,7 @@ my $xml3 = q:to<EOX>;
 </a>
 EOX
 
-print "# 1.   single namespace \n";
+diag "# 1.   single namespace \n";
 
 {
     my $doc1 = $parser.parse: :string( $xml1 );
@@ -48,7 +48,7 @@ print "# 1.   single namespace \n";
     is(@cn[1].namespaceURI, "http://whatever", ' TODO : Add test name' );
 }
 
-print "# 2.    multiple namespaces \n";
+diag "# 2.    multiple namespaces \n";
 
 {
     my $doc2 = $parser.parse: :string( $xml2 );
@@ -73,7 +73,7 @@ print "# 2.    multiple namespaces \n";
     is(@cn[2].namespaceURI, "http://kungfoo", ' TODO : Add test name' );
 }
 
-print "# 3.   nested names \n";
+diag "# 3.   nested names \n";
 
 {
     my $doc3 = $parser.parse: :string( $xml3 );
@@ -96,7 +96,7 @@ print "# 3.   nested names \n";
     ok( !defined($elem.lookupNamespacePrefix( "http://foobar" )), ' TODO : Add test name' );
 }
 
-print "# 4. post creation namespace setting\n";
+diag "# 4. post creation namespace setting\n";
 {
     my $e1 = LibXML::Element.new: :name("foo");
     my $e2 = LibXML::Element.new: :name("bar:foo");
@@ -114,10 +114,7 @@ print "# 4. post creation namespace setting\n";
     is( $a.nodeName, "bar:kung", ' TODO : Add test name' );
 }
 
-; skip("port remaining tests", 121);
-=begin TODO
-
-print "# 5. importing namespaces\n";
+diag "# 5. importing namespaces\n";
 
 {
 
@@ -129,8 +126,7 @@ EOX
     my $b = $docb.documentElement.firstChild;
 
     my $c = $doca.importNode( $b );
-
-    my @attra = $c.properties;
+    my @attra = flat $c.properties, $c.namespaces;
     # TEST
     is( +@attra, 1, ' TODO : Add test name' );
     # TEST
@@ -140,14 +136,14 @@ EOX
     # TEST
 
     ok( $d.isSameNode( $b ), ' TODO : Add test name' );
-    my @attrb = $d.properties;
+    my @attrb = flat $d.properties, $c.namespaces;
     # TEST
     is( +@attrb, 1, ' TODO : Add test name' );
     # TEST
     is( @attrb[0].nodeType, 18, ' TODO : Add test name' );
 }
 
-print "# 6. lossless setting of namespaces with setAttribute\n";
+diag "# 6. lossless setting of namespaces with setAttribute\n";
 # reported by Kurt George Gjerde
 {
     my $doc = LibXML.createDocument;
@@ -156,12 +152,12 @@ print "# 6. lossless setting of namespaces with setAttribute\n";
     $root.setAttribute('xmlns:yyy', 'http://yonder.com');
     $doc.setDocumentElement( $root );
 
-    my $strnode = $root.toString();
+    my $strnode = $root.Str();
     # TEST
     ok( ($strnode ~~ /'xmlns:xxx'/ and $strnode ~~ /'xmlns='/), ' TODO : Add test name' );
 }
 
-print "# 7. namespaced attributes\n";
+diag "# 7. namespaced attributes\n";
 {
     my $doc = LibXML.new.parse: :string(q:to<EOF>);
 <test xmlns:xxx="http://example.com"/>
@@ -173,7 +169,7 @@ EOF
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    print $root.toString(1),"\n";
+    diag $root.Str(:format)~"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -182,14 +178,14 @@ EOF
     is( $root.getAttributeNode('xxx:attr').getNamespaceURI(), 'http://example.com', ' TODO : Add test name');
 
     #change encoding to UTF-8 and retest
-    $doc.setEncoding('UTF-8');
+    $doc.encoding = 'UTF-8';
     # namespaced attributes
     $root.setAttribute('xxx:attr', 'value');
     # TEST
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    print $root.toString(1),"\n";
+    diag $root.Str(:format)~"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -199,7 +195,10 @@ EOF
         'http://example.com', ' TODO : Add test name');
 }
 
-print "# 8. changing namespace declarations\n";
+; skip("port remaining tests", 105);
+=begin TODO
+
+diag "# 8. changing namespace declarations\n";
 {
     my $xmlns = 'http://www.w3.org/2000/xmlns/';
 
@@ -268,7 +267,7 @@ print "# 8. changing namespace declarations\n";
     # TEST
     is( $root.lookupNamespaceURI('zzz'), Str, ' TODO : Add test name' );
 
-    my $strnode = $root.toString();
+    my $strnode = $root.Str();
     # TEST
     ok( $strnode !~~ /'xmlns:zzz'/, ' TODO : Add test name' );
 
@@ -314,7 +313,7 @@ print "# 8. changing namespace declarations\n";
     # TEST
     is-deeply( $root.getNamespaceURI(), Str, ' TODO : Add test name' );
 
-    $strnode = $root.toString();
+    $strnode = $root.Str();
     # TEST
     ok( $strnode !~~ /'xmlns='/, ' TODO : Add test name' );
 
@@ -324,7 +323,7 @@ print "# 8. changing namespace declarations\n";
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    print $root.toString(1),"\n";
+    diag $root.Str(1),"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -348,7 +347,7 @@ print "# 8. changing namespace declarations\n";
     is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
 
 
-    print $root.toString(1),"\n";
+    diag $root.Str(1),"\n";
     # check namespaced attributes
     # TEST
     is-deeply( $root.getAttributeNode('xxx:attr'), Str, ' TODO : Add test name' );
@@ -366,7 +365,7 @@ print "# 8. changing namespace declarations\n";
     is-deeply( $root.getAttributeNode('attr').getNamespaceURI(), Str, ' TODO : Add test name');
 
 
-    $strnode = $root.toString();
+    $strnode = $root.Str();
     # TEST
     ok( $strnode !~~ /'xmlns='/, ' TODO : Add test name' );
     # TEST
@@ -409,7 +408,7 @@ print "# 8. changing namespace declarations\n";
     is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
 }
 
-print "# 9. namespace reconciliation\n";
+diag "# 9. namespace reconciliation\n";
 {
     my $doc = LibXML.createDocument( 'http://default', 'root' );
     my $root = $doc.documentElement;
@@ -533,7 +532,7 @@ print "# 9. namespace reconciliation\n";
     ok( defined($doca.documentElement.getAttribute( 'xmlns:other' )), ' TODO : Add test name' );
 }
 
-print "# 10. xml namespace\n";
+diag "# 10. xml namespace\n";
 {
     my $docOne = LibXML.new.parse: :string(
         '<foo><inc xml:id="test"/></foo>'
@@ -551,7 +550,7 @@ print "# 10. xml namespace\n";
     ok($inc.isSameNode($docOne.getElementById('test')), ' TODO : Add test name');
 }
 
-print "# 11. empty namespace\n";
+diag "# 11. empty namespace\n";
 {
     my $doc = LibXML.load_xml(string => $xml1);
     my $node = $doc.find('/a/b:c').[0];

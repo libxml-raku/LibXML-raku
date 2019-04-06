@@ -344,10 +344,12 @@ class LibXML::Node {
     method localNS {
         LibXML::Namespace.box: $.unbox.localNS;
     }
-
     method getNamespaces {
         $.unbox.getNamespaces.map: { LibXML::Namespace.box($_) }
     }
+    method namespaces { $.getNamespaces }
+    method namespaceURI { .href with $.unbox.ns }
+    method getNamespaceURI { $.namespaceURI }
     method removeChild(LibXML::Node:D $node --> LibXML::Node) {
         $node.keep: $.unbox.removeChild($node.unbox);
     }

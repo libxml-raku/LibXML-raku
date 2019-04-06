@@ -613,7 +613,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     $attr.appendChild($ent);
     $attr.appendChild($text);
     # TEST
-    is($attr.Str(:raw), ' test="bar&foo;baz"', ' TODO : Add test name');
+    is($attr.gist, ' test="bar&foo;baz"', ' TODO : Add test name');
 }
 
 {

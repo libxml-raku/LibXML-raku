@@ -6,10 +6,11 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :struct($)!) {
+multi submethod TWEAK(LibXML::Node :$doc!, xmlAttr:D :struct($)!) {
 }
-multi submethod TWEAK(LibXML::Node :$doc!, :$name!, Str :$value!) {
-    self.struct = $doc.unbox.NewProp( $name, $value );
+multi submethod TWEAK(LibXML::Node :doc($doc-obj), Str:D :$name!, Str :$value!) {
+    my xmlDoc $doc = do with $doc-obj { .unbox } else { xmlDoc };
+    self.struct = xmlAttr.new: :$name, :$value, :$doc;
 }
 
 method unbox handles <atype def defaultValue tree prefix elem name> {
@@ -23,3 +24,4 @@ method serializeContent {
 }
 
 method Str(:$raw) { $raw ?? nextsame() !! $.nodeValue}
+method gist { $.Str(:raw) }
