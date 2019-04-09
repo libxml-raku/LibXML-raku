@@ -338,8 +338,8 @@ class LibXML::Node {
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
         box-class(XML_ATTRIBUTE_NODE).box: $.unbox.getAttributeNodeNS($uri, $att-name);
     }
-    method setNamespace(Str $uri, NCName $prefix) {
-        $.unbox.setNamespace($uri, $prefix);
+    method setNamespace(Str $uri, NCName $prefix, Bool:D $flag = True) {
+        $.unbox.setNamespace($uri, $prefix, $flag);
     }
     method localNS {
         LibXML::Namespace.box: $.unbox.localNS;

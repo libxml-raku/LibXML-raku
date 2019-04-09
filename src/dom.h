@@ -53,6 +53,9 @@ extern "C" {
  * unsortet.
  **/
 
+
+#define XML_XMLNS_NS "http://www.w3.org/2000/xmlns/"
+
 DLLEXPORT void
 domReconcileNS(xmlNodePtr tree);
 
@@ -226,11 +229,20 @@ domGetAttributeNode( xmlNodePtr node, const xmlChar *qname);
 DLLEXPORT int
 domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name);
 
+DLLEXPORT const xmlChar*
+domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix );
+
+DLLEXPORT const xmlChar*
+domGetAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name);
+
 DLLEXPORT xmlAttrPtr
-domGetAttributeNodeNS(xmlNodePtr sef, const xmlChar *nsURI, const xmlChar *name);
+domGetAttributeNodeNS(xmlNodePtr, const xmlChar *nsURI, const xmlChar *name);
 
 DLLEXPORT xmlChar*
 domGetAttribute(xmlNodePtr node, const xmlChar *qname);
+
+DLLEXPORT void
+domSetAttribute( xmlNodePtr self, xmlChar *name, xmlChar *value );
 
 DLLEXPORT xmlAttrPtr
 domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
@@ -263,7 +275,7 @@ DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr, xmlChar *URI, xmlChar *name, xmlChar *value );
 
 DLLEXPORT int
-domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix);
+domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int flag);
 
 DLLEXPORT char *dom_error;
 

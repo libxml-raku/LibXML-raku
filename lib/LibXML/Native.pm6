@@ -430,8 +430,6 @@ class domNode is export does LibXML::Native::DOM::Node {
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native(LIB) is symbol('xmlIsBlankNode') {*}
-    method NsProp(xmlCharP, xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetNsProp') {*}
-    method Prop(xmlCharP --> xmlCharP) is native(LIB) is symbol('xmlGetProp') {*}
     method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}
@@ -450,12 +448,16 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetAttributeNode(xmlCharP $qname) is native(BIND-LIB) returns xmlAttr {*}
     method domGetAttribute(xmlCharP $qname) is native(BIND-LIB) returns xmlCharP {*}
     method domHasAttributeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns int32 {*}
+    method domSetNamespaceDeclURI(xmlCharP $prefix, xmlCharP $uri) is native(BIND-LIB) returns int32 {*}
+    method domGetNamespaceDeclURI(xmlCharP $prefix) is native(BIND-LIB) returns xmlCharP {*}
+    method domGetAttributeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns xmlCharP {*}
     method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns xmlAttr {*}
+    method domSetAttribute(Str, Str) is native(BIND-LIB) {*}
     method domSetAttributeNode(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
-    method domSetNamespace(Str $URI, Str $prefix) is native(BIND-LIB) returns int32 {*}
+    method domSetNamespace(Str $URI, Str $prefix, int32 $flag) is native(BIND-LIB) returns int32 {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}

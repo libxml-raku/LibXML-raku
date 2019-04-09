@@ -195,8 +195,6 @@ EOF
         'http://example.com', ' TODO : Add test name');
 }
 
-; skip("port remaining tests", 105);
-=begin TODO
 
 diag "# 8. changing namespace declarations\n";
 {
@@ -247,6 +245,8 @@ diag "# 8. changing namespace declarations\n";
     # TEST
     is-deeply( $root.getAttribute('xmlns:foo'), Str, ' TODO : Add test name' );
 
+}; skip("port remaining tests", 90);
+=begin TODO
     # changing namespace declaration URI and prefix
     # TEST
     ok( $root.setNamespaceDeclURI('yyy', 'http://changed.com'), ' TODO : Add test name' );
@@ -323,7 +323,7 @@ diag "# 8. changing namespace declarations\n";
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    diag $root.Str(1),"\n";
+    diag $root.Str(:format)~"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -347,7 +347,7 @@ diag "# 8. changing namespace declarations\n";
     is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
 
 
-    diag $root.Str(1),"\n";
+    diag $root.Str(:format)~"\n";
     # check namespaced attributes
     # TEST
     is-deeply( $root.getAttributeNode('xxx:attr'), Str, ' TODO : Add test name' );

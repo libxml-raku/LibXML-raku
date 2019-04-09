@@ -716,7 +716,6 @@ domAppendChild( xmlNodePtr self,
 DLLEXPORT void
 domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value) {
   xmlChar *buffer;
-  xmlAttrPtr newAttr;
   /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
   buffer = xmlEncodeEntitiesReentrant(self->doc, value);
   xmlNewChild( self, NULL, name, buffer );
@@ -1188,8 +1187,8 @@ domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
   int rv = 0;
   xmlAttrPtr attr = NULL;
 
-  if ( name && name[0] ) {
-    if (nsURI && ! nsURI[0]) {
+  if ( name && *name ) {
+    if (nsURI && *nsURI == 0) {
       nsURI = NULL;
     }
 
@@ -1204,11 +1203,86 @@ domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
   return rv;
 }
 
+DLLEXPORT int
+domSetNamespaceDeclURI( xmlNodePtr self, xmlChar* prefix, xmlChar* nsURI ) {
+  xmlNsPtr ns = self->nsDef;
+  int rv = 0;
+
+  /* null empty values */
+  if ( prefix && *prefix == 0) {
+    prefix = NULL;
+  }
+  if ( nsURI && *nsURI == 0) {
+    nsURI = NULL;
+  }
+
+  while ( ns ) {
+    if ((ns->prefix || ns->href ) &&
+        ( xmlStrcmp( ns->prefix, prefix ) == 0 )) {
+      if (ns->href) xmlFree((char*)ns->href);
+      ns->href = xmlStrdup(nsURI);
+      if ( nsURI == NULL ) {
+        domRemoveNsRefs( self, ns );
+      } else {
+        nsURI = NULL; /* do not free it */
+      }
+      rv = 1;
+      break;
+    } else {
+      ns = ns->next;
+    }
+  }
+  return rv;
+}
+
+DLLEXPORT const xmlChar*
+domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix ) {
+  const xmlChar* rv = NULL;
+  xmlNsPtr ns = self->nsDef;
+
+  if ( prefix != NULL && *prefix == 0) {
+    prefix = NULL;
+  }
+
+  while ( ns != NULL ) {
+    if ( (ns->prefix != NULL || ns->href != NULL) &&
+         xmlStrcmp( ns->prefix, prefix ) == 0 ) {
+      rv = ns->href;
+      break;
+    } else {
+      ns = ns->next;
+    }
+  }
+  return rv;
+}
+
+DLLEXPORT const xmlChar*
+domGetAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
+  const xmlChar* rv = NULL;
+
+  if ( nsURI && *nsURI != 0 ) {
+    if ( xmlStrcmp(nsURI, XML_XMLNS_NS) == 0) {
+      if (name && xmlStrcmp(name, "xmlns") == 0)
+        name = NULL;
+      rv = domGetNamespaceDeclURI(self, name);
+    }
+    else {
+      rv = xmlGetNsProp( self, name, nsURI );
+    }
+  }
+  else {
+    rv = xmlGetProp( self, name );
+  }
+  return rv;
+}
+
 DLLEXPORT xmlAttrPtr
 domGetAttributeNodeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
   xmlAttrPtr rv = NULL;
+  if (nsURI && *nsURI == 0)
+    nsURI = NULL;
 
-  if ( nsURI && nsURI[0] ) {
+  if ( nsURI ) {
     rv = xmlHasNsProp( self, name, nsURI );
   }
   else {
@@ -1268,11 +1342,38 @@ static void _addAttr(xmlNodePtr node, xmlAttrPtr attr) {
     }
 }
 
+DLLEXPORT void
+domSetAttribute( xmlNodePtr self, xmlChar *name, xmlChar *value ) {
+  xmlChar *prefix = NULL;
+  xmlChar *localname = xmlSplitQName2(name, &prefix);
+
+#if LIBXML_VERSION >= 20621
+	/*
+	 * For libxml2-2.6.21 and later we can use just xmlSetProp
+         */
+        xmlSetProp(self,name,value);
+#else
+
+      if (localname != NULL) {
+        xmlNsPtr ns = xmlSearchNs(self->doc, self, prefix);
+
+        if (prefix != NULL)
+          xmlFree(prefix);
+        if (ns != NULL)
+          xmlSetNsProp(self, ns, localname, value);
+        else
+          xmlSetNsProp(self, NULL, name, value);
+        xmlFree(localname);
+      } else {
+        xmlSetNsProp(self, NULL, name, value);
+      }
+#endif
+}
 
 DLLEXPORT xmlAttrPtr
 domSetAttributeNode( xmlNodePtr self, xmlAttrPtr attr ) {
     xmlAttrPtr old = NULL;
-    xmlNsPtr ns = NULL;
+
     if ( self == NULL || attr == NULL ) {
         return attr;
     }
@@ -1477,7 +1578,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
   xmlNsPtr ns = NULL;
   xmlNodePtr root = xmlDocGetRootElement(self);
 
-  if ( URI != NULL && URI[0] > 0 ) {
+  if ( URI != NULL && *URI != 0 ) {
     if ( xmlStrchr(name, ':') != NULL ) {
       localname = xmlSplitQName2(name, &prefix);
     }
@@ -1546,18 +1647,22 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
   xmlChar    * prefix    = NULL;
   xmlAttrPtr newAttr     = NULL;
 
-  if (self && nsURI && name && value) {
+  if (self && name && value) {
 
     localname = xmlSplitQName2(name, &prefix);
     if ( localname ) {
       name = localname;
     }
 
-    if (nsURI[0] != 0) {
+    if (nsURI && *nsURI != 0) {
       ns = _domNsSearch(self, nsURI);
-      if ( ns == NULL && prefix != NULL && prefix[0] != 0 ) {
+      if ( ns == NULL && prefix != NULL && *prefix != 0 ) {
         /* NS does not already exist; create it */
         ns = xmlNewNs(self, nsURI , prefix );
+        if (ns == NULL) {
+          xml6_warn("bad namespace");
+          return NULL;
+        }
       }
     }
 
@@ -1577,13 +1682,12 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
 }
 
 DLLEXPORT int
-domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix) {
-    int flag = 1;
+domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
     xmlNsPtr ns = NULL;
     int rv = 0;
 
-    if (nsPrefix && *nsPrefix == 0) nsPrefix = NULL;
-    if (nsURI && *nsURI == 0) nsURI = NULL;
+    if (nsPrefix != NULL && *nsPrefix == 0) nsPrefix = NULL;
+    if (nsURI    != NULL && *nsURI    == 0) nsURI = NULL;
   
     if ( nsPrefix == NULL && nsURI == NULL ) {
         /* special case: empty namespace */
@@ -1612,13 +1716,15 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix) {
             rv = 0;
         }
     }
-    else if ( (ns = xmlNewNs( node, nsURI, nsPrefix )) )
+    else if ( (ns = xmlNewNs( node, nsURI, nsPrefix )) ) {
       rv = 1;
+    }
     else
       rv = 0;
 
-    if ( flag && ns ) {
+    if ( ns && flag ) {
         xmlSetNs(node, ns);
     }
+
     return rv;
 }
