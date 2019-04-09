@@ -224,25 +224,28 @@ DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
 DLLEXPORT xmlAttrPtr
-domGetAttributeNode( xmlNodePtr node, const xmlChar *qname);
+domGetAttributeNode( xmlNodePtr node, const xmlChar* qname);
 
 DLLEXPORT int
-domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name);
+domHasAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name);
 
 DLLEXPORT const xmlChar*
 domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix );
 
+DLLEXPORT int
+domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix );
+
 DLLEXPORT const xmlChar*
-domGetAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name);
+domGetAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name);
 
 DLLEXPORT xmlAttrPtr
-domGetAttributeNodeNS(xmlNodePtr, const xmlChar *nsURI, const xmlChar *name);
+domGetAttributeNodeNS(xmlNodePtr, const xmlChar* nsURI, const xmlChar* name);
 
 DLLEXPORT xmlChar*
-domGetAttribute(xmlNodePtr node, const xmlChar *qname);
+domGetAttribute(xmlNodePtr node, const xmlChar* qname);
 
 DLLEXPORT void
-domSetAttribute( xmlNodePtr self, xmlChar *name, xmlChar *value );
+domSetAttribute( xmlNodePtr self, xmlChar* name, xmlChar* value );
 
 DLLEXPORT xmlAttrPtr
 domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
@@ -272,11 +275,14 @@ DLLEXPORT xmlAttrPtr
 domCreateAttributeNS( xmlDocPtr, unsigned char *URI, unsigned char *name, unsigned char *value );
 
 DLLEXPORT xmlAttrPtr
-domSetAttributeNS(xmlNodePtr, xmlChar *URI, xmlChar *name, xmlChar *value );
+domSetAttributeNS(xmlNodePtr, xmlChar* URI, xmlChar* name, xmlChar* value );
 
 DLLEXPORT int
 domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int flag);
 
 DLLEXPORT char *dom_error;
+
+DLLEXPORT xmlNodePtr
+domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
 #endif

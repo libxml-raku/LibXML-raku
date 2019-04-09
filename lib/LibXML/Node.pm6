@@ -15,10 +15,11 @@ class LibXML::Node {
     has domNode $.struct handles <
         domCheck
         Str string-value content
-        getAttribute getAttributeNS
+        getAttribute getAttributeNS getNamespaceDeclURI
         hasChildNodes hasAttributes hasAttribute hasAttributeNS
         lookupNamespacePrefix lookupNamespaceURI
         removeAttribute removeAttributeNS
+        setNamespaceDeclURI setNamespaceDeclPrefix
         URI baseURI nodeName nodeValue
     >;
 
@@ -245,6 +246,7 @@ class LibXML::Node {
             # xmlNodeSet is managed by us
             .Release with $!set;
         }
+        method size { $!set.nodeNr }
         method iterator { self }
         method pull-one {
             if $!set.defined && $!idx < $!set.nodeNr {
@@ -348,7 +350,7 @@ class LibXML::Node {
         $.unbox.getNamespaces.map: { LibXML::Namespace.box($_) }
     }
     method namespaces { $.getNamespaces }
-    method namespaceURI { .href with $.unbox.ns }
+    method namespaceURI(--> Str) { with $.unbox.ns {.href} else {Str} }
     method getNamespaceURI { $.namespaceURI }
     method removeChild(LibXML::Node:D $node --> LibXML::Node) {
         $node.keep: $.unbox.removeChild($node.unbox);
@@ -364,6 +366,9 @@ class LibXML::Node {
     }
     multi method appendTextChild(QName:D $name, Str $value?) {
         $.unbox.appendTextChild($name, $value);
+    }
+    method addNewChild(Str $uri, QName $name) {
+        LibXML::Node.box: $.unbox.domAddNewChild($uri, $name);
     }
     method normalise { self.unbox.normalize }
     method normalize { self.unbox.normalize }

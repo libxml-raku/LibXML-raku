@@ -28,6 +28,7 @@ method domGetAttributeNode { ... }
 method domGetAttributeNodeNS { ... }
 method domGetAttribute { ... }
 method domGetAttributeNS { ... }
+method domSetNamespaceDeclPrefix { ... }
 method domSetNamespaceDeclURI { ... }
 method domGetNamespaceDeclURI { ... }
 method domSetAttribute { ... }
@@ -38,6 +39,7 @@ method domSetNamespace { ... }
 method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
+method domAddNewChild { ... }
 method domNormalize { ... }
 
 my constant XML_XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
@@ -64,8 +66,8 @@ method setAttribute(QName:D $name, Str:D $value) {
         # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
         # probably declare an attribute which looks like XML namespace declaration
         # but isn't)
-        my Str:D $prefix = ($0 // '').Str;
-        my Str:D $nn = self.nodeName;
+        my NCName $prefix = ($0 // '').Str;
+        my QName $nn = self.nodeName;
 
         if $nn.starts-with($prefix ~ ':') {
 	    # the element has the same prefix
@@ -133,6 +135,10 @@ method getAttributeNodeNS(Str $uri, QName:D $att-name --> AttrNode) {
     self.domGetAttributeNodeNS($uri, $att-name);
 }
 
+method setNamespaceDeclPrefix(NCName $prefix, NCName $new-prefix --> Int) {
+    self.domSetNamespaceDeclPrefix($prefix, $new-prefix);
+}
+
 method getAttributeNS(Str $uri, QName:D $att-name --> Str) {
     self.domGetAttributeNS($uri, $att-name);
 }
@@ -156,9 +162,17 @@ method getAttribute(QName:D $name) {
     }
 }
 
+method getNamespaceDeclURI(NCName $prefix) {
+    self.domGetNamespaceDeclURI($prefix);
+}
+
+method setNamespaceDeclURI(NCName $prefix, Str $uri) {
+    self.domSetNamespaceDeclURI($prefix, $uri);
+}
+
 sub opt(Str $_) { $_ ?? $_ !! Str }
 
-multi method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
+method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
     if $name ~~ /^xmlns[\:|$]/ {
         if $uri !~~ XML_XMLNS_NS {
             fail("NAMESPACE ERROR: Namespace declarations must have the prefix 'xmlns'");
@@ -307,7 +321,7 @@ method appendTextChild(QName:D $name, Str $text) {
     self.domAppendTextChild($name, $text);
 }
 
-method lookupNamespacePrefix(Str:D $uri --> Str) {
+method lookupNamespacePrefix(Str $uri --> Str) {
     with self.doc.SearchNsByHref(self, opt($uri)) {
         .prefix // '';
     }
@@ -316,7 +330,7 @@ method lookupNamespacePrefix(Str:D $uri --> Str) {
     }
 }
 
-method lookupNamespaceURI(Str:D $prefix --> Str) {
+method lookupNamespaceURI(NCName $prefix --> Str) {
     with self.doc.SearchNs(self, opt($prefix)) {
         .href // '';
     }
@@ -324,6 +338,11 @@ method lookupNamespaceURI(Str:D $prefix --> Str) {
         Str;
     }
 }
+
+method addNewChild(Str $uri, QName $name) {
+    self.box: self.domAddNewChild($uri, $name);
+}
+
 
 method normalize { self.domNormalize }
 

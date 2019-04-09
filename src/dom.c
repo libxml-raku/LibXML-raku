@@ -237,13 +237,13 @@ domReconcileNs(xmlNodePtr tree)
 static xmlNodePtr
 _domExtractFrag(xmlNodePtr frag) {
     xmlNodePtr fraglist = frag->children;
-    xmlNodePtr n = fraglist;
+    xmlNodePtr cur = fraglist;
 
     frag->children = frag->last = NULL;
     // detach fragment list
-    while ( n ){
-      n->parent = NULL;
-      n = n->next;
+    while ( cur ){
+      cur->parent = NULL;
+      cur = cur->next;
     }
 
     return fraglist;
@@ -576,9 +576,9 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
  **/
 DLLEXPORT xmlChar*
 domName(xmlNodePtr node) {
-    const xmlChar *prefix = NULL;
-    const xmlChar *name   = NULL;
-    xmlChar *qname        = NULL;
+    const xmlChar* prefix = NULL;
+    const xmlChar* name   = NULL;
+    xmlChar* rv           = NULL;
 
     if ( node == NULL ) {
         return NULL;
@@ -599,26 +599,26 @@ domName(xmlNodePtr node) {
         break;
 
     case XML_COMMENT_NODE :
-        name = (const xmlChar *) "#comment";
+        name = (const xmlChar*) "#comment";
         break;
 
     case XML_CDATA_SECTION_NODE :
-        name = (const xmlChar *) "#cdata-section";
+        name = (const xmlChar*) "#cdata-section";
         break;
 
     case XML_TEXT_NODE :
-        name = (const xmlChar *) "#text";
+        name = (const xmlChar*) "#text";
         break;
 
 
     case XML_DOCUMENT_NODE :
     case XML_HTML_DOCUMENT_NODE :
     case XML_DOCB_DOCUMENT_NODE :
-        name = (const xmlChar *) "#document";
+        name = (const xmlChar*) "#document";
         break;
 
     case XML_DOCUMENT_FRAG_NODE :
-        name = (const xmlChar *) "#document-fragment";
+        name = (const xmlChar*) "#document-fragment";
         break;
 
     case XML_ELEMENT_NODE :
@@ -641,15 +641,15 @@ domName(xmlNodePtr node) {
     }
 
     if ( prefix != NULL ) {
-        qname = xmlStrdup( prefix );
-        qname = xmlStrcat( qname , (const xmlChar *) ":" );
-        qname = xmlStrcat( qname , name );
+        rv = xmlStrdup( prefix );
+        rv = xmlStrcat( rv , (const xmlChar*) ":" );
+        rv = xmlStrcat( rv , name );
     }
     else {
-        qname = xmlStrdup( name );
+        rv = xmlStrdup( name );
     }
 
-    return qname;
+    return rv;
 }
 
 /**
@@ -715,7 +715,7 @@ domAppendChild( xmlNodePtr self,
 
 DLLEXPORT void
 domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value) {
-  xmlChar *buffer;
+  xmlChar* buffer;
   /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
   buffer = xmlEncodeEntitiesReentrant(self->doc, value);
   xmlNewChild( self, NULL, name, buffer );
@@ -961,7 +961,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
 
 DLLEXPORT xmlChar*
 domGetNodeValue( xmlNodePtr n ) {
-    xmlChar * retval = NULL;
+    xmlChar*  rv = NULL;
     if( n != NULL ) {
         switch ( n->type ) {
         case XML_ATTRIBUTE_NODE:
@@ -973,15 +973,15 @@ domGetNodeValue( xmlNodePtr n ) {
         case XML_ENTITY_REF_NODE:
             break;
         default:
-            return retval;
+            return rv;
             break;
         }
         if ( n->type != XML_ENTITY_DECL ) {
-            retval = xmlXPathCastNodeToString(n);
+            rv = xmlXPathCastNodeToString(n);
         }
         else {
             if ( n->content != NULL ) {
-                retval = xmlStrdup(n->content);
+                rv = xmlStrdup(n->content);
             }
             else if ( n->children != NULL ) {
                 xmlNodePtr cnode = n->children;
@@ -991,11 +991,11 @@ domGetNodeValue( xmlNodePtr n ) {
                     /* buffer = xmlBufferCreate(); */
                     xmlNodeDump( buffer, n->doc, cnode, 0, 0 );
                     if ( buffer->content != NULL ) {
-                        if ( retval != NULL ) {
-                            retval = xmlStrcat( retval, buffer->content );
+                        if ( rv != NULL ) {
+                            rv = xmlStrcat( rv, buffer->content );
                         }
                         else {
-                            retval = xmlStrdup( buffer->content );
+                            rv = xmlStrdup( buffer->content );
                         }
                     }
                     xmlBufferFree( buffer );
@@ -1005,7 +1005,7 @@ domGetNodeValue( xmlNodePtr n ) {
         }
     }
 
-    return retval;
+    return rv;
 }
 
 DLLEXPORT void
@@ -1013,7 +1013,7 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     if ( n == NULL )
         return;
     if ( val == NULL ){
-        val = (xmlChar *) "";
+        val = (xmlChar*) "";
     }
 
     if( n->type == XML_ATTRIBUTE_NODE ){
@@ -1063,9 +1063,9 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     return rv;
 }
 
-static int _domNamecmp(xmlNodePtr self, const xmlChar *pname) {
+static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
   int rv;
-  xmlChar *name = domName(self);
+  xmlChar* name = domName(self);
   rv = xmlStrcmp( name, pname );
   xmlFree(name);
   return rv;
@@ -1131,7 +1131,7 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
 }
 
 DLLEXPORT xmlNsPtr
-domNewNs ( xmlNodePtr elem , xmlChar *prefix, xmlChar *href ) {
+domNewNs ( xmlNodePtr elem , xmlChar* prefix, xmlChar* href ) {
     xmlNsPtr ns = NULL;
 
     if (elem != NULL) {
@@ -1151,9 +1151,9 @@ domNewNs ( xmlNodePtr elem , xmlChar *prefix, xmlChar *href ) {
 }
 
 DLLEXPORT xmlAttrPtr
-domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
-    xmlChar * prefix    = NULL;
-    xmlChar * localname = NULL;
+domGetAttributeNode(xmlNodePtr node, const xmlChar* qname) {
+    xmlChar*  prefix    = NULL;
+    xmlChar*  localname = NULL;
     xmlAttrPtr rv = NULL;
     xmlNsPtr ns = NULL;
 
@@ -1183,12 +1183,12 @@ domGetAttributeNode(xmlNodePtr node, const xmlChar *qname) {
 }
 
 DLLEXPORT int
-domHasAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
+domHasAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
   int rv = 0;
   xmlAttrPtr attr = NULL;
 
   if ( name && *name ) {
-    if (nsURI && *nsURI == 0) {
+    if (nsURI && !*nsURI) {
       nsURI = NULL;
     }
 
@@ -1209,10 +1209,10 @@ domSetNamespaceDeclURI( xmlNodePtr self, xmlChar* prefix, xmlChar* nsURI ) {
   int rv = 0;
 
   /* null empty values */
-  if ( prefix && *prefix == 0) {
+  if ( prefix && !*prefix) {
     prefix = NULL;
   }
-  if ( nsURI && *nsURI == 0) {
+  if ( nsURI && !*nsURI) {
     nsURI = NULL;
   }
 
@@ -1240,7 +1240,7 @@ domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix ) {
   const xmlChar* rv = NULL;
   xmlNsPtr ns = self->nsDef;
 
-  if ( prefix != NULL && *prefix == 0) {
+  if ( prefix != NULL && !*prefix) {
     prefix = NULL;
   }
 
@@ -1256,11 +1256,52 @@ domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix ) {
   return rv;
 }
 
+DLLEXPORT int
+domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix ) {
+  xmlNsPtr ns;
+  int rv = 0;
+
+  if (prefix && !*prefix) prefix = NULL;
+  if (new_prefix && !*new_prefix) new_prefix = NULL;
+
+  if ( xmlStrcmp( prefix, new_prefix ) == 0 ) {
+	  rv = 1;
+  } else {
+    /* check that new prefix is not in scope */
+    ns = xmlSearchNs( self->doc, self, new_prefix );
+    if ( ns != NULL ) {
+      char msg[80];
+      sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
+      croak_i(msg);
+    }
+	  /* lookup the declaration */
+    ns = self->nsDef;
+    while ( ns != NULL ) {
+      if ((ns->prefix != NULL || ns->href != NULL) &&
+          xmlStrcmp( ns->prefix, prefix ) == 0 ) {
+        if ( ns->href == NULL && new_prefix != NULL ) {
+          /* xmlns:foo="" - no go */
+          croak_i("setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
+        }
+        if ( ns->prefix != NULL )
+          xmlFree( (xmlChar*)ns->prefix );
+        ns->prefix = xmlStrdup(new_prefix);
+        new_prefix = NULL; /* do not free it */
+        rv = 1;
+        break;
+      } else {
+        ns = ns->next;
+      }
+    }
+  }
+  return rv;
+}
+
 DLLEXPORT const xmlChar*
-domGetAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
+domGetAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
   const xmlChar* rv = NULL;
 
-  if ( nsURI && *nsURI != 0 ) {
+  if ( nsURI && *nsURI) {
     if ( xmlStrcmp(nsURI, XML_XMLNS_NS) == 0) {
       if (name && xmlStrcmp(name, "xmlns") == 0)
         name = NULL;
@@ -1277,9 +1318,9 @@ domGetAttributeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
 }
 
 DLLEXPORT xmlAttrPtr
-domGetAttributeNodeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name) {
+domGetAttributeNodeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
   xmlAttrPtr rv = NULL;
-  if (nsURI && *nsURI == 0)
+  if (nsURI && !*nsURI)
     nsURI = NULL;
 
   if ( nsURI ) {
@@ -1296,10 +1337,10 @@ domGetAttributeNodeNS(xmlNodePtr self, const xmlChar *nsURI, const xmlChar *name
 }
 
 DLLEXPORT xmlChar*
-domGetAttribute(xmlNodePtr node, const xmlChar *qname) {
-    xmlChar * prefix    = NULL;
-    xmlChar * localname = NULL;
-    xmlChar * rv = NULL;
+domGetAttribute(xmlNodePtr node, const xmlChar* qname) {
+    xmlChar*  prefix    = NULL;
+    xmlChar*  localname = NULL;
+    xmlChar*  rv = NULL;
     xmlNsPtr ns = NULL;
 
     if ( qname == NULL || node == NULL )
@@ -1343,9 +1384,9 @@ static void _addAttr(xmlNodePtr node, xmlAttrPtr attr) {
 }
 
 DLLEXPORT void
-domSetAttribute( xmlNodePtr self, xmlChar *name, xmlChar *value ) {
-  xmlChar *prefix = NULL;
-  xmlChar *localname = xmlSplitQName2(name, &prefix);
+domSetAttribute( xmlNodePtr self, xmlChar* name, xmlChar* value ) {
+  xmlChar* prefix = NULL;
+  xmlChar* localname = xmlSplitQName2(name, &prefix);
 
 #if LIBXML_VERSION >= 20621
 	/*
@@ -1561,7 +1602,7 @@ domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns) {
 
 DLLEXPORT xmlAttrPtr
 domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value) {
-  xmlChar *buffer;
+  xmlChar* buffer;
   xmlAttrPtr newAttr;
   /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
   buffer = xmlEncodeEntitiesReentrant(self, value);
@@ -1572,13 +1613,13 @@ domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value) {
 
 DLLEXPORT xmlAttrPtr
 domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value ) {
-  xmlChar * prefix = NULL;
-  xmlChar * localname = NULL;
+  xmlChar*  prefix = NULL;
+  xmlChar*  localname = NULL;
   xmlAttrPtr newAttr = NULL;
   xmlNsPtr ns = NULL;
   xmlNodePtr root = xmlDocGetRootElement(self);
 
-  if ( URI != NULL && *URI != 0 ) {
+  if ( URI != NULL && *URI) {
     if ( xmlStrchr(name, ':') != NULL ) {
       localname = xmlSplitQName2(name, &prefix);
     }
@@ -1613,7 +1654,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
   return newAttr;
 }
 
-static xmlNsPtr _domNsSearch(xmlNodePtr self, xmlChar *nsURI) {
+static xmlNsPtr _domNsSearch(xmlNodePtr self, xmlChar* nsURI) {
   xmlNsPtr ns = xmlSearchNsByHref( self->doc, self, nsURI );
 
   if ( ns && !ns->prefix ) {
@@ -1641,10 +1682,10 @@ static xmlNsPtr _domNsSearch(xmlNodePtr self, xmlChar *nsURI) {
 }
 
 DLLEXPORT xmlAttrPtr
-domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value ) {
+domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value ) {
   xmlNsPtr   ns          = NULL;
-  xmlChar    * localname = NULL;
-  xmlChar    * prefix    = NULL;
+  xmlChar*   localname = NULL;
+  xmlChar*   prefix    = NULL;
   xmlAttrPtr newAttr     = NULL;
 
   if (self && name && value) {
@@ -1654,7 +1695,7 @@ domSetAttributeNS(xmlNodePtr self, xmlChar *nsURI, xmlChar *name, xmlChar *value
       name = localname;
     }
 
-    if (nsURI && *nsURI != 0) {
+    if (nsURI && *nsURI) {
       ns = _domNsSearch(self, nsURI);
       if ( ns == NULL && prefix != NULL && *prefix != 0 ) {
         /* NS does not already exist; create it */
@@ -1686,8 +1727,8 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
     xmlNsPtr ns = NULL;
     int rv = 0;
 
-    if (nsPrefix != NULL && *nsPrefix == 0) nsPrefix = NULL;
-    if (nsURI    != NULL && *nsURI    == 0) nsURI = NULL;
+    if (nsPrefix != NULL && !*nsPrefix) nsPrefix = NULL;
+    if (nsURI    != NULL && !*nsURI) nsURI = NULL;
   
     if ( nsPrefix == NULL && nsURI == NULL ) {
         /* special case: empty namespace */
@@ -1727,4 +1768,53 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
     }
 
     return rv;
+}
+
+DLLEXPORT xmlNodePtr
+domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
+  xmlNodePtr newNode = NULL;
+  xmlNodePtr prev = NULL;
+  xmlNsPtr ns = NULL;
+
+  if (nsURI && !*nsURI) nsURI = NULL;
+  if (name && !*name) name = NULL;
+  
+  if ( nsURI != NULL ) {
+    xmlChar* prefix     = NULL;
+    xmlChar* localname = xmlSplitQName2(name, &prefix);
+    ns = xmlSearchNsByHref(self->doc, self, nsURI);
+
+    newNode = xmlNewDocNode(self->doc,
+                            ns,
+                            localname ? localname :name,
+                            NULL);
+    if ( ns == NULL )  {
+      xmlSetNs(newNode,xmlNewNs(newNode, nsURI, prefix));
+    }
+
+    xmlFree(localname);
+    xmlFree(prefix);
+  }
+  else {
+    newNode = xmlNewDocNode(self->doc,
+                            NULL,
+                            name,
+                            NULL);
+  }
+  /* add the node to the parent node */
+  newNode->type = XML_ELEMENT_NODE;
+  newNode->parent = self;
+  newNode->doc = self->doc;
+
+  if (self->children == NULL) {
+    self->children = newNode;
+    self->last = newNode;
+  } else {
+    prev = self->last;
+    prev->next = newNode;
+    newNode->prev = prev;
+    self->last = newNode;
+  }
+
+  return newNode;
 }

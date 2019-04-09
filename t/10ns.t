@@ -245,8 +245,6 @@ diag "# 8. changing namespace declarations\n";
     # TEST
     is-deeply( $root.getAttribute('xmlns:foo'), Str, ' TODO : Add test name' );
 
-}; skip("port remaining tests", 90);
-=begin TODO
     # changing namespace declaration URI and prefix
     # TEST
     ok( $root.setNamespaceDeclURI('yyy', 'http://changed.com'), ' TODO : Add test name' );
@@ -254,6 +252,7 @@ diag "# 8. changing namespace declarations\n";
     is( $root.getAttribute('xmlns:yyy'), 'http://changed.com', ' TODO : Add test name');
     # TEST
     is( $root.lookupNamespaceURI('yyy'), 'http://changed.com', ' TODO : Add test name');
+todo "pass 'prefix occupied' test";
     dies-ok { $root.setNamespaceDeclPrefix('yyy','xxx'); }, 'prefix occupied';
     do { $root.setNamespaceDeclPrefix('yyy',''); };
     # TEST
@@ -350,9 +349,9 @@ diag "# 8. changing namespace declarations\n";
     diag $root.Str(:format)~"\n";
     # check namespaced attributes
     # TEST
-    is-deeply( $root.getAttributeNode('xxx:attr'), Str, ' TODO : Add test name' );
+    is-deeply( $root.getAttributeNode('xxx:attr'), LibXML::Attr, ' TODO : Add test name' );
     # TEST
-    is-deeply( $root.getAttributeNodeNS('http://example.com', 'attr'), Str, ' TODO : Add test name' );
+    is-deeply( $root.getAttributeNodeNS('http://example.com', 'attr'), LibXML::Attr, ' TODO : Add test name' );
     # TEST
     ok( $root.getAttributeNode('attr'), ' TODO : Add test name' );
     # TEST
@@ -387,6 +386,8 @@ diag "# 8. changing namespace declarations\n";
     # TEST
     is( $doc.findnodes('/document[@attr and foo]').size(), 1, ' TODO : Add test name' );
     # TEST
+}; skip("port remaining tests", 36);
+=begin TODO
     is( $doc.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
 
     my $xp = LibXML::XPathContext.new($doc);

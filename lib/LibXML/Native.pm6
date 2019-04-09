@@ -450,6 +450,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domHasAttributeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns int32 {*}
     method domSetNamespaceDeclURI(xmlCharP $prefix, xmlCharP $uri) is native(BIND-LIB) returns int32 {*}
     method domGetNamespaceDeclURI(xmlCharP $prefix) is native(BIND-LIB) returns xmlCharP {*}
+    method domSetNamespaceDeclPrefix(xmlCharP $prefix, xmlCharP $ns-prefix) is native(BIND-LIB) returns int32 {*}
     method domGetAttributeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns xmlCharP {*}
     method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttribute(Str, Str) is native(BIND-LIB) {*}
@@ -457,6 +458,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetAttributeNodeNS(xmlAttr) is native(BIND-LIB) returns xmlAttr {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value) is native(BIND-LIB) returns xmlAttr {*}
     method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
+    method domAddNewChild(Str $uri, Str $name --> domNode) is native(BIND-LIB) {*}
     method domSetNamespace(Str $URI, Str $prefix, int32 $flag) is native(BIND-LIB) returns int32 {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}

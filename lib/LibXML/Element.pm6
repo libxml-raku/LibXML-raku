@@ -37,7 +37,7 @@ sub iterate-ns(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
     }.new( :cur($start) );
 }
 
-method prefix { .prefix with $.unbox.ns }
+method prefix { with $.unbox.ns {.prefix} else { Str } }
 
 method namespaces {
     iterate-ns(LibXML::Namespace, $.unbox.nsDef, :$.doc);
