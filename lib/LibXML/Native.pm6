@@ -28,8 +28,11 @@ class xmlDoc     is repr('CStruct') is export {...}
 class xmlDocFrag is repr('CStruct') is export {...}
 class xmlError   is repr('CStruct') is export {...}
 class xmlNode    is repr('CStruct') is export {...}
+class xmlNodeSet is repr('CStruct') is export {...}
 class xmlAttr    is repr('CStruct') is export {...}
 class xmlDtd     is repr('CStruct') is export {...}
+class xmlXPathObject
+                 is repr('CStruct') is export {...}
 class parserCtxt is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
@@ -68,6 +71,23 @@ class xmlXPathCompExpr is repr(Stub) is export {
     method new(Str:D :$expr) {
         xmlXPathCompile($expr);
     }
+}
+class xmlXPathContext is repr(Stub) is export {
+    sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
+    method Free is symbol('domXPathFreeContext') is native(BIND-LIB) {*}
+    method domXPathFindCtxt(Str, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathCompFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathSelectCtxt(Str --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathCompSelectCtxt(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
+    multi method new(domNode :$node!) {
+        domXPathNewCtxt($node);
+    }
+    multi method new(xmlDoc :$doc!) {
+        domXPathNewCtxt($doc);
+    }
+    multi method findnodes(xmlXPathCompExpr:D $expr, Bool() --> xmlNodeSet) { self.domXPathCompSelectCtxt($expr); }
+    multi method findnodes(Str:D $expr --> xmlNodeSet) is default { self.domXPathSelectCtxt($expr); }
+
 }
 class xmlRegexp is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
@@ -126,7 +146,7 @@ class xmlNodeSetElem is repr('CStruct') is export {
 my constant xmlNodeSetElemPtr = Pointer[xmlNodeSetElem];
 
 # Defined Structs/Pointers
-class xmlNodeSet is repr('CStruct') is export {
+class xmlNodeSet is export {
     has int32 $.nodeNr;
     has int32 $.nodeMax;
     has CArray[xmlNodeSetElemPtr] $.nodeTab;
@@ -135,7 +155,7 @@ class xmlNodeSet is repr('CStruct') is export {
     method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
 }
 
-class xmlXPathObject is repr('CStruct') is export {
+class xmlXPathObject is export {
     has int32 $.type;
 
     has xmlNodeSet $.nodeset;
@@ -433,6 +453,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}
+    method XPathSetContext(xmlXPathContext --> int32) is symbol('xmlXPathSetContextNode') is native(LIB) {*}
+    method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native(LIB) {*}
     method domError { die $_ with dom_error; }
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceNode(domNode) returns domNode is native(BIND-LIB) {*}

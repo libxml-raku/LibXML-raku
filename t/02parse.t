@@ -777,7 +777,7 @@ EOXML
 
 SKIP: {
     unless LibXML.parser-version >= v2.06.00 {
-        skip("LibXML version is below 20600", 8);
+        skip("LibXML version is below 2.06.00", 8);
         last SKIP;
     }
     my Str ( $xsDoc1, $xsDoc2 );

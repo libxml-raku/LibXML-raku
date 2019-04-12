@@ -20,6 +20,15 @@ domXPathFind( xmlNodePtr refNode, xmlChar * xpathstring, int to_bool );
 xmlNodeSetPtr
 domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp );
 
+xmlXPathContextPtr
+domXPathNewContext(xmlNodePtr refNode);
+
+void
+domXPathFreeContext(xmlXPathContextPtr ctxt);
+
+xmlXPathObjectPtr
+domXPathContextCompFind(xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool );
+
 xmlXPathObjectPtr
 domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool );
 

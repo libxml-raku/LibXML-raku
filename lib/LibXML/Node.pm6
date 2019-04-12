@@ -161,6 +161,7 @@ class LibXML::Node {
         }
     }
 
+    proto sub unbox($) is export(:unbox) {*}
     multi sub unbox(LibXML::XPathExpression:D $_) { .unbox }
     multi sub unbox(LibXML::Node:D $_) { .unbox }
     multi sub unbox(LibXML::Namespace:D $_) { .unbox }
@@ -304,8 +305,8 @@ class LibXML::Node {
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(LibXML::Node, $.unbox.getChildrenByTagNameNS($uri, $name));
     }
-    my subset XPathDomain where LibXML::XPathExpression|Str;
-    my subset XPathRange where LibXML::Node|LibXML::Namespace;
+    my subset XPathDomain is export(:XPathDomain) where LibXML::XPathExpression|Str;
+    my subset XPathRange is export(:XPathRange) where LibXML::Node|LibXML::Namespace;
     method findnodes(XPathDomain:D $xpath-expr) {
         my xmlNodeSet:D $node-set := $.unbox.findnodes: unbox($xpath-expr);
         iterate(XPathRange, $node-set);
@@ -314,6 +315,16 @@ class LibXML::Node {
         given  $.unbox.find( unbox($xpath-expr), $to-bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_) }
             default { $_ }
+        }
+    }
+    method findvalue(XPathDomain:D $xpath-expr) {
+        given $.unbox.find( unbox($xpath-expr), False) {
+            with iterate(XPathRange, $_).pull-one {
+                .string-value;
+            }
+            else {
+                Str;
+            }
         }
     }
     method exists(XPathDomain:D $xpath-expr --> Bool:D) {

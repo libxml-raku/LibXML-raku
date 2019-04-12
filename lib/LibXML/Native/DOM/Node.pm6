@@ -136,7 +136,9 @@ method getAttributeNodeNS(Str $uri, QName:D $att-name --> AttrNode) {
 }
 
 method setNamespaceDeclPrefix(NCName $prefix, NCName $new-prefix --> Int) {
-    self.domSetNamespaceDeclPrefix($prefix, $new-prefix);
+    my $ret := self.domSetNamespaceDeclPrefix($prefix, $new-prefix);
+    self.domError if $ret < 0;
+    $ret;
 }
 
 method getAttributeNS(Str $uri, QName:D $att-name --> Str) {

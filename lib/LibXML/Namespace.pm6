@@ -19,6 +19,8 @@ multi submethod TWEAK(Str:D :$href!, NCName :$prefix, :node($node-obj)) {
 
 method nodeType  { $!struct.type }
 
+method string-value { $!struct.href }
+
 submethod DESTROY {
     $!struct.Free;
 }

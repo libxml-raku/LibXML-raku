@@ -3,6 +3,7 @@ plan 137;
 
 use LibXML;
 use LibXML::Enums;
+use LibXML::XPathContext;
 
 my $parser = LibXML.new();
 
@@ -252,9 +253,8 @@ diag "# 8. changing namespace declarations\n";
     is( $root.getAttribute('xmlns:yyy'), 'http://changed.com', ' TODO : Add test name');
     # TEST
     is( $root.lookupNamespaceURI('yyy'), 'http://changed.com', ' TODO : Add test name');
-todo "pass 'prefix occupied' test";
     dies-ok { $root.setNamespaceDeclPrefix('yyy','xxx'); }, 'prefix occupied';
-    do { $root.setNamespaceDeclPrefix('yyy',''); };
+    dies-ok { $root.setNamespaceDeclPrefix('yyy',''); };
     # TEST
     ok( $root.setNamespaceDeclPrefix('yyy', 'zzz'), ' TODO : Add test name' );
     # TEST
@@ -386,11 +386,9 @@ todo "pass 'prefix occupied' test";
     # TEST
     is( $doc.findnodes('/document[@attr and foo]').size(), 1, ' TODO : Add test name' );
     # TEST
-}; skip("port remaining tests", 36);
-=begin TODO
     is( $doc.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
 
-    my $xp = LibXML::XPathContext.new($doc);
+    my LibXML::XPathContext $xp .= new: :$doc;
     # TEST
     is( $xp.findnodes('/document/foo').size(), 1, ' TODO : Add test name' );
     # TEST
@@ -402,6 +400,8 @@ todo "pass 'prefix occupied' test";
 
     is( $xp.findnodes('/document[@attr and foo]').size(), 1, ' TODO : Add test name' );
     # TEST
+}; skip("port remaining tests", 30);
+=begin TODO
     is( $xp.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
 
     # TEST

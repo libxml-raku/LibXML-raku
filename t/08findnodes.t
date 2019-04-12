@@ -116,7 +116,7 @@ ok(+@doc, ' TODO : Add test name');
 my @nodes = $root.findnodes( "/humpty/dumpty" );
 # TEST
 
-is( +@nodes, 0, ' TODO : Add test name' );
+is( +@nodes, 0, 'Empty array' );
 
 my $docstring = q{
 <foo xmlns="http://kungfoo" xmlns:bar="http://foo"/>
@@ -127,7 +127,7 @@ my $docstring = q{
 my @ns = $root.findnodes('namespace::*');
 # TEST
 
-is(+@ns, 2, ' TODO : Add test name' );
+is(+@ns, 2, 'Find namespace nodes' );
 
 # bad xpaths
 # TEST:$badxpath=4;
@@ -140,9 +140,9 @@ my @badxpath = (
 
 for @badxpath -> $xp {
     my $res;
-    dies-ok { $res = $root.findnodes( $xp ); };
-    dies-ok { $res = $root.find( $xp ); };
-    dies-ok { $res = $root.findvalue( $xp ); };
+    dies-ok { $res = $root.findnodes( $xp ); }, "findnodes('$xp'); - dies";
+    dies-ok { $res = $root.find( $xp ); }, "find('$xp'); - dies";
+    dies-ok { $res = $root.findvalue( $xp ); }, "findvalue('$xp'); - dies";
 }
 
 

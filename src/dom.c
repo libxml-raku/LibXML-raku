@@ -14,7 +14,7 @@ char *dom_error = NULL;
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
 #define croak(string) {dom_error = (string);return NULL;}
-#define croak_i(string) {dom_error = (string);return 0;}
+#define croak_i(string) {dom_error = (string);return -1;}
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
@@ -1272,7 +1272,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
     if ( ns != NULL ) {
       char msg[80];
       sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-      croak_i(msg);
+      croak_i(xmlStrdup(msg));
     }
 	  /* lookup the declaration */
     ns = self->nsDef;
