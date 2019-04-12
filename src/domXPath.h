@@ -21,13 +21,10 @@ xmlNodeSetPtr
 domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp );
 
 xmlXPathContextPtr
-domXPathNewContext(xmlNodePtr refNode);
+domXPathNewCtxt(xmlNodePtr refNode);
 
 void
-domXPathFreeContext(xmlXPathContextPtr ctxt);
-
-xmlXPathObjectPtr
-domXPathContextCompFind(xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool );
+domXPathFreeCtxt(xmlXPathContextPtr ctxt);
 
 xmlXPathObjectPtr
 domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool );

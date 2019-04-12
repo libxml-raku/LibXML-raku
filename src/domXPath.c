@@ -323,7 +323,7 @@ domXPathNewCtxt(xmlNodePtr refNode) {
 }
 
 void
-domXPathFreeContext(xmlXPathContextPtr ctxt) {
+domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
   if (ctxt->namespaces != NULL) {
     xmlFree( ctxt->namespaces );
     ctxt->namespaces = NULL;
@@ -331,34 +331,14 @@ domXPathFreeContext(xmlXPathContextPtr ctxt) {
   xmlXPathFreeContext(ctxt);
 }
 
-xmlXPathObjectPtr
-domXPathContextCompFind(xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool ) {
-  xmlXPathObjectPtr res = NULL;
-  if (to_bool) {
-#if LIBXML_VERSION >= 20627
-    int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
-    res = xmlXPathNewBoolean(val);
-#else
-    res = xmlXPathCompiledEval(comp, ctxt);
-    if (res!=NULL) {
-      int val = xmlXPathCastToBoolean(res);
-      xmlXPathFreeObject(res);
-      res = xmlXPathNewBoolean(val);
-    }
-#endif
-  } else {
-    res = xmlXPathCompiledEval(comp, ctxt);
-  }
-  return _domVetXPathObject(res);
-}
 
 xmlXPathObjectPtr
 domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
     xmlXPathObjectPtr res = NULL;
     if ( refNode != NULL && comp != NULL ) {
         xmlXPathContextPtr ctxt = domXPathNewCtxt(refNode);
-        res = domXPathContextCompFind(ctxt, comp, to_bool);
-        domXPathFreeContext(ctxt);
+        res = domXPathCompFindCtxt(ctxt, comp, to_bool);
+        domXPathFreeCtxt(ctxt);
     }
     return res;
 }

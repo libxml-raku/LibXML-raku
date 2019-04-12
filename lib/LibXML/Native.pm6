@@ -74,7 +74,7 @@ class xmlXPathCompExpr is repr(Stub) is export {
 }
 class xmlXPathContext is repr(Stub) is export {
     sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
-    method Free is symbol('domXPathFreeContext') is native(BIND-LIB) {*}
+    method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
     method domXPathFindCtxt(Str, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
     method domXPathCompFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
     method domXPathSelectCtxt(Str --> xmlNodeSet) is native(BIND-LIB) {*}
