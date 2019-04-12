@@ -384,33 +384,13 @@ _domSelect(xmlXPathObjectPtr res) {
 
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
-    xmlNodeSetPtr rv = NULL;
-    xmlXPathObjectPtr res = NULL;
-
     return _domSelect( domXPathFind( refNode, path, 0 ) );
 }
 
 
 xmlNodeSetPtr
 domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
-    xmlNodeSetPtr rv = NULL;
-    xmlXPathObjectPtr res = NULL;
-
-    res = domXPathCompFind( refNode, comp, 0 );
-
-    if (res != NULL) {
-            /* here we have to transfer the result from the internal
-               structure to the return value */
-            /* get the result from the query */
-            /* we have to unbind the nodelist, so free object can
-               not kill it */
-        rv = res->nodesetval;
-        res->nodesetval = 0 ;
-    }
-
-    xmlXPathFreeObject(res);
-
-    return rv;
+    return _domSelect( domXPathCompFind( refNode, comp, 0 ));
 }
 
 /**
@@ -465,9 +445,6 @@ domXPathCompSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp) {
 
 xmlNodeSetPtr
 domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar * path ) {
-    xmlNodeSetPtr rv = NULL;
-    xmlXPathObjectPtr res = NULL;
-
     return _domSelect( domXPathFindCtxt( ctxt, path, 0 ) );
 }
 

@@ -10,11 +10,11 @@
 #include "dom.h"
 #include "xml6.h"
 
-char *dom_error = NULL;
+xmlChar* dom_error = NULL;
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
-#define croak(string) {dom_error = (string);return NULL;}
-#define croak_i(string) {dom_error = (string);return -1;}
+#define croak(string) {dom_error = (xmlChar*)(string);return NULL;}
+#define croak_i(string) {dom_error = (xmlChar*)(string);return -1;}
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
@@ -1272,7 +1272,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
     if ( ns != NULL ) {
       char msg[80];
       sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-      croak_i(xmlStrdup(msg));
+      croak_i(xmlStrdup((xmlChar*) msg));
     }
 	  /* lookup the declaration */
     ns = self->nsDef;
@@ -1303,7 +1303,7 @@ domGetAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
 
   if ( nsURI && *nsURI) {
     if ( xmlStrcmp(nsURI, XML_XMLNS_NS) == 0) {
-      if (name && xmlStrcmp(name, "xmlns") == 0)
+      if (name && xmlStrcmp(name, (xmlChar*)"xmlns") == 0)
         name = NULL;
       rv = domGetNamespaceDeclURI(self, name);
     }
@@ -1385,15 +1385,14 @@ static void _addAttr(xmlNodePtr node, xmlAttrPtr attr) {
 
 DLLEXPORT void
 domSetAttribute( xmlNodePtr self, xmlChar* name, xmlChar* value ) {
-  xmlChar* prefix = NULL;
-  xmlChar* localname = xmlSplitQName2(name, &prefix);
-
 #if LIBXML_VERSION >= 20621
 	/*
 	 * For libxml2-2.6.21 and later we can use just xmlSetProp
          */
-        xmlSetProp(self,name,value);
+      xmlSetProp(self,name,value);
 #else
+      xmlChar* prefix = NULL;
+      xmlChar* localname = xmlSplitQName2(name, &prefix);
 
       if (localname != NULL) {
         xmlNsPtr ns = xmlSearchNs(self->doc, self, prefix);

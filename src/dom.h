@@ -54,7 +54,7 @@ extern "C" {
  **/
 
 
-#define XML_XMLNS_NS "http://www.w3.org/2000/xmlns/"
+#define XML_XMLNS_NS (xmlChar*)"http://www.w3.org/2000/xmlns/"
 
 DLLEXPORT void
 domReconcileNS(xmlNodePtr tree);
@@ -280,7 +280,7 @@ domSetAttributeNS(xmlNodePtr, xmlChar* URI, xmlChar* name, xmlChar* value );
 DLLEXPORT int
 domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int flag);
 
-DLLEXPORT char *dom_error;
+DLLEXPORT xmlChar* dom_error;
 
 DLLEXPORT xmlNodePtr
 domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
