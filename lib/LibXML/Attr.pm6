@@ -13,7 +13,7 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!
     self.struct = xmlAttr.new: :$name, :$value, :$doc;
 }
 
-method unbox handles <atype def defaultValue tree prefix elem name> {
+method unbox handles <atype name> {
     nextsame;
 }
 

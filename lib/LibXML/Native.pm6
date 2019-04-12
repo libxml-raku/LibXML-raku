@@ -85,8 +85,20 @@ class xmlXPathContext is repr(Stub) is export {
     multi method new(xmlDoc :$doc!) {
         domXPathNewCtxt($doc);
     }
+
     multi method findnodes(xmlXPathCompExpr:D $expr, Bool() --> xmlNodeSet) { self.domXPathCompSelectCtxt($expr); }
     multi method findnodes(Str:D $expr --> xmlNodeSet) is default { self.domXPathSelectCtxt($expr); }
+
+    multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
+        my xmlXPathObject:D $obj := self.domXPathCompFindCtxt($expr, $to-bool);
+        $obj.add-reference;
+        $obj.value;
+    }
+    multi method find(Str:D $expr,  Bool $to-bool) is default {
+        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $to-bool);
+        $obj.add-reference;
+        $obj.value;
+    }
 
 }
 class xmlRegexp is repr(Stub) is export {}
@@ -694,9 +706,10 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method XIncludeProcessFlags(uint32 $flags --> int32) is symbol('xmlXIncludeProcessFlags') is native(LIB) {*}
     method SearchNs(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNs') {*}
     method SearchNsByHref(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNsByHref') {*}
+    method GetID(Str --> domNode) is native(LIB) is symbol('xmlGetID') {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
-    method new(Str() :$version = '1.0') {
+    method new(Str:D() :$version = '1.0') {
         my xmlDoc:D $doc = xmlNewDoc($version);
         $doc.dict = xmlDict.new;
         $doc;

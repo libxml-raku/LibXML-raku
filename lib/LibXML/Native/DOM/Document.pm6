@@ -13,6 +13,7 @@ my subset DtdNode of Node where { !.defined || .type == XML_DTD_NODE }
 method GetRootElement  { ... }
 method SetRootElement  { ... }
 method NewProp { ... }
+method GetID { ... }
 method domCreateAttribute {...}
 method domCreateAttributeNS {...}
 method domImportNode {...}
@@ -101,4 +102,13 @@ method removeExternalSubset {
     my $ret := self.getExternalSubset;
     .Unlink with $ret;
     $ret;
+}
+
+method getElementById(Str:D $id --> Node) {
+    my Node $elem = self.GetID($id);
+    with $elem {
+        $_ .= parent
+            if .type == XML_ATTRIBUTE_NODE
+    }
+    $elem;
 }

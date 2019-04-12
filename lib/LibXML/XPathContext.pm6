@@ -22,6 +22,23 @@ class LibXML::XPathContext {
     method findnodes(XPathDomain:D $xpath-expr) {
         my xmlNodeSet:D $node-set := $.unbox.findnodes: unbox($xpath-expr);
         iterate(XPathRange, $node-set);
+    }
 
+    method find(XPathDomain:D $xpath-expr, Bool:D $to-bool = False) {
+        given  $.unbox.find( unbox($xpath-expr), $to-bool) {
+            when xmlNodeSet:D { iterate(XPathRange, $_) }
+            default { $_ }
+        }
+    }
+
+    method findvalue(XPathDomain:D $xpath-expr) {
+        given $.unbox.find( unbox($xpath-expr), False) {
+            with iterate(XPathRange, $_).pull-one {
+                .string-value;
+            }
+            else {
+                Str;
+            }
+        }
     }
 }

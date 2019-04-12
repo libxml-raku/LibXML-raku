@@ -400,8 +400,6 @@ diag "# 8. changing namespace declarations\n";
 
     is( $xp.findnodes('/document[@attr and foo]').size(), 1, ' TODO : Add test name' );
     # TEST
-}; skip("port remaining tests", 30);
-=begin TODO
     is( $xp.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
 
     # TEST
@@ -553,8 +551,8 @@ diag "# 10. xml namespace\n";
 
 diag "# 11. empty namespace\n";
 {
-    my $doc = LibXML.load_xml(string => $xml1);
-    my $node = $doc.find('/a/b:c').[0];
+    my $doc = LibXML.load: string => $xml1;
+    my $node = $doc.find('/a/b:c')[0];
 
     # TEST
     ok($node.setNamespace(""), 'removing ns from elemenet');
@@ -565,7 +563,7 @@ diag "# 11. empty namespace\n";
     # TEST
     is($node.getName, 'c', 'ns removed from element name');
 
-    my $attr = $doc.find('/a/x/@b:href').[0];
+    my $attr = $doc.find('/a/x/@b:href')[0];
 
     # TEST
     ok($attr.setNamespace("", ""), 'removing ns from attr');
@@ -576,4 +574,3 @@ diag "# 11. empty namespace\n";
     # TEST
     is($attr.getName, 'href', 'ns removed from attr name');
 }
-=end TODO

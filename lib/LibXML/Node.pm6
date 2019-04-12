@@ -110,11 +110,13 @@ class LibXML::Node {
         );
     }
 
-    method nodeType  { $.unbox.type }
-    method tagName   { $.nodeName }
-    method name      { $.nodeName }
-    method localname { $.unbox.name }
+    method nodeType    { $.unbox.type }
+    method tagName     { $.nodeName }
+    method name        { $.nodeName }
+    method getName     { $.nodeName }
+    method localname   { $.unbox.name }
     method line-number { $.unbox.GetLineNo }
+    method prefix      { with $.unbox.ns {.prefix} else { Str } }
 
     sub box-class(UInt $_) {
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
@@ -247,17 +249,21 @@ class LibXML::Node {
             # xmlNodeSet is managed by us
             .Release with $!set;
         }
+        multi method AT-POS(UInt:D $pos where $_ >= $!set.nodeNr) { Nil }
+        multi method AT-POS(UInt:D $pos) {
+            given $!set.nodeTab[$pos].deref {
+                my $class = box-class(.type);
+                die "unexpected node of type {$class.perl} in node-set"
+                    unless $class ~~ $!range;
+
+                $class.box: cast-elem($_);
+            }
+        }
         method size { $!set.nodeNr }
         method iterator { self }
         method pull-one {
             if $!set.defined && $!idx < $!set.nodeNr {
-                given $!set.nodeTab[$!idx++].deref {
-                    my $class = box-class(.type);
-                    die "unexpected node of type {$class.perl} in node-set"
-                        unless $class ~~ $!range;
-
-                    $class.box: cast-elem($_);
-                }
+                self.AT-POS($!idx++);
             }
             else {
                 IterationEnd;
@@ -312,7 +318,7 @@ class LibXML::Node {
         iterate(XPathRange, $node-set);
     }
     method find(XPathDomain:D $xpath-expr, Bool:D $to-bool = False) {
-        given  $.unbox.find( unbox($xpath-expr), $to-bool) {
+        given $.unbox.find( unbox($xpath-expr), $to-bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_) }
             default { $_ }
         }
@@ -330,7 +336,10 @@ class LibXML::Node {
     method exists(XPathDomain:D $xpath-expr --> Bool:D) {
         $.find($xpath-expr, True);
     }
-    method setAttribute(QName $name, Str:D $value) {
+    multi method setAttribute(NameVal:D $_) {
+        $.unbox.setAttribute(.key, .value);
+    }
+    multi method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);
     }
     method setAttributeNode(AttrNode:D $att) {
@@ -351,7 +360,7 @@ class LibXML::Node {
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
         box-class(XML_ATTRIBUTE_NODE).box: $.unbox.getAttributeNodeNS($uri, $att-name);
     }
-    method setNamespace(Str $uri, NCName $prefix, Bool:D $flag = True) {
+    method setNamespace(Str $uri, NCName $prefix?, Bool:D() $flag = True) {
         $.unbox.setNamespace($uri, $prefix, $flag);
     }
     method localNS {

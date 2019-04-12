@@ -111,12 +111,15 @@ multi method createAttributeNS(Str $href,
     LibXML::Attr.box: $.unbox.createAttributeNS($href, $name, $value);
 }
 
-method createDocument(Str :$version = '1.0',
-                      Str :$encoding,
-                      Str :$URI,
-                      LibXML::Element :$root,
-                     ) {
-    self.new: :$version, :$encoding, :$URI, :$root;
+method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str :URI($uri), *%opt) {
+    $URI //= $uri;
+    my $doc = self.new: :$URI, |%opt;
+    with $name {
+        my LibXML::Node:D $elem = $doc.createElementNS($URI, $_);
+        $doc.setDocumentElement($elem);
+    }
+    $doc.setExternalSubset($_) with $doc-type;
+    $doc;
 }
 
 method createDocumentFragment() {
@@ -198,6 +201,10 @@ method setExternalSubset(LibXML::Dtd $dtd) {
 
 method removeExternalSubset {
     LibXML::Dtd.box: self.unbox.removeExternalSubset;
+}
+
+method getElementById(Str:D $id --> LibXML::Node) {
+    LibXML::Node.box: self.unbox.getElementById($id);
 }
 
 method externalSubset is rw {
