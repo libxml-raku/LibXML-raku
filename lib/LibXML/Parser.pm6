@@ -4,13 +4,14 @@ class LibXML::Parser {
     use LibXML::Enums;
     use LibXML::Document;
     use LibXML::PushParser;
+    use LibXML::ErrorHandler;
 
     has Bool $.html;
     has Bool $.line-numbers is rw = False;
     has Bool $.recover;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.baseURI is rw;
-    has xmlSAXHandler $.sax is rw;
+    has $.sax-handler;
 
     constant %FLAGS = %(
         :recover(XML_PARSE_RECOVER),
@@ -42,14 +43,13 @@ class LibXML::Parser {
     }
 
     method !error-handler(parserCtxt:D :$ctx!) {
-        $ctx.sax = $_ with $!sax;
+        $ctx.sax = .unbox with $.sax-handler;
         LibXML::ErrorHandler.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
     }
 
     method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$errors!, ) {
         my LibXML::Document:D $doc .= new: :$ctx;
         $doc.baseURI = $_ with $URI;
-        $errors.flush: :$!recover;
         self.processXincludes($doc, :$errors)
             if $.expand-xinclude;
         $doc;
@@ -57,20 +57,18 @@ class LibXML::Parser {
 
     proto method processXincludes(LibXML::Document $_, LibXML::ErrorHandler :$errors) {*}
 
-    multi method processXincludes(LibXML::Document $_, LibXML::ErrorHandler:D :$errors!) {
+    multi method processXincludes(LibXML::Document $_, LibXML::ErrorHandler:D :$errors! --> UInt) {
         my xmlDoc $doc = .unbox;
-        my $n = $doc.XIncludeProcessFlags($!flags);
-        $errors.flush: :$!recover;
-        $n;
+        $errors.try: { $doc.XIncludeProcessFlags($!flags); }
     }
     multi method processXincludes(LibXML::Document $_) is default {
         my xmlDoc $doc = .unbox;
         my xmlParserCtxt $ctx .= new;
-        $ctx.sax = $_ with $!sax;
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
-        my $n = $doc.XIncludeProcessFlags($!flags);
-        $errors.flush: :$!recover;
-        $n;
+        $ctx.sax = .unbox with $.sax-handler;
+        my LibXML::ErrorHandler $error-handler = self!error-handler: :$ctx;
+        $error-handler.try: { 
+            $doc.XIncludeProcessFlags($!flags);
+        }
     }
 
     method load(|c) { self.new.parse(|c) }
@@ -88,7 +86,7 @@ class LibXML::Parser {
         $ctx.input.filename = $_ with $URI;
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
-        $ctx.ParseDocument;
+        $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$errors;
     }
 
@@ -105,7 +103,7 @@ class LibXML::Parser {
         $ctx.input.filename = $_ with $URI;
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
-        $ctx.ParseDocument;
+        $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$errors;
     }
 
@@ -121,7 +119,7 @@ class LibXML::Parser {
            !! xmlFileParserCtxt.new(:$file);
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
-        $ctx.ParseDocument;
+        $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$URI, :$errors;
     }
 
@@ -134,7 +132,7 @@ class LibXML::Parser {
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$!flags, :$!line-numbers, :$!sax;
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$!flags, :$!line-numbers, :$.sax-handler;
 
         my Bool $more = ?$chunk;
 
@@ -160,7 +158,7 @@ class LibXML::Parser {
             .push($chunk)
         }
         else {
-            $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$!sax;
+            $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
         }
     }
     method parse-chunk($chunk?, :$terminate) {
@@ -186,7 +184,7 @@ class LibXML::Parser {
     method parse-balanced(Str() :$string!, Bool() :$recover = False, LibXML::Document :$doc) {
         use LibXML::DocumentFragment;
         my LibXML::DocumentFragment $frag .= new: :$doc;
-        my UInt $ret = $frag.parse: :balanced, :$string, :$!sax;
+        my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler;
         $frag;
     }
 
@@ -204,7 +202,7 @@ class LibXML::Parser {
             });
     }
 
-    submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax($), :handler($), *%flags) {
+    submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax-handler($), *%flags) {
         for %flags.pairs.sort -> $f {
             with %FLAGS{$f.key} {
                 self!flag-accessor($_) = $f.value;

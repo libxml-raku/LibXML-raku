@@ -3,19 +3,21 @@ use LibXML::SAX::Handler::SAX2;
 class LibXML::SAX::Handler::XML
     is LibXML::SAX::Handler::SAX2 {
 
+    # This class demonstrates use of the 
+
     use XML::Document;
     use XML::Element;
     use XML::Text;
     use NativeCall;
     use LibXML::Document;
 
-    has XML::Element  $!node;
-    has XML::Document $.doc;
+    has XML::Document $.doc; # The document that we're really building
+    has XML::Element  $!node; # Current node
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
-    method finish(:$doc) {
-        # replace with our own
+    method finish(LibXML::Document :doc($)) {
+        # ignore SAX created document; replace with our own
         $!doc;
     }
 

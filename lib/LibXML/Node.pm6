@@ -282,6 +282,7 @@ class LibXML::Node {
     multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
     method textContent { $.string-value }
+    method to-literal { $.string-value }
     method unbindNode {
         $.unbox.Unlink;
         $!doc = LibXML::Node;

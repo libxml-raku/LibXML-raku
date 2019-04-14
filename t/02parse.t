@@ -413,8 +413,8 @@ my $badXInclude = q{
 # 3 SAX PARSER
 use LibXML::SAX;
 {
-    my LibXML::SAX::Handler::XML $handler .= new;
-    my LibXML::SAX $generator .= new: :$handler;
+    my LibXML::SAX::Handler::XML $sax-handler .= new;
+    my LibXML::SAX $generator .= new: :$sax-handler;
 
     my $string  = q{<bar foo="bar">foo</bar>};
 
@@ -424,8 +424,8 @@ use LibXML::SAX;
 }
 
 {
-    my LibXML::SAX::Handler::SAX2 $handler .= new;
-    my LibXML::SAX $generator .= new: :$handler;
+    my LibXML::SAX::Handler::SAX2 $sax-handler .= new;
+    my LibXML::SAX $generator .= new: :$sax-handler;
 
     my $string  = q{<bar foo="bar">foo</bar>};
 
@@ -504,8 +504,8 @@ use LibXML::SAX;
 # 4 SAXY PUSHER
 
 {
-    my LibXML::SAX::Handler::SAX2 $handler .= new;
-    my LibXML::SAX $parser .= new: :$handler;
+    my LibXML::SAX::Handler::SAX2 $sax-handler .= new;
+    my LibXML::SAX $parser .= new: :$sax-handler;
 
     $parser.push( '<foo/>' );
     my $doc = $parser.finish-push;
@@ -672,8 +672,8 @@ use LibXML::SAX;
 
     # 5.2 SAX CHUNK PARSER
 
-    my LibXML::SAX::Handler::SAX2 $handler .= new;
-    my LibXML::SAX $parser .= new: :$handler;
+    my LibXML::SAX::Handler::SAX2 $sax-handler .= new;
+    my LibXML::SAX $parser .= new: :$sax-handler;
 
     for ( 1..$MAX_WF_C ) -> $_ is copy {
         my $string = %chunks{'wellformed' ~ $_};

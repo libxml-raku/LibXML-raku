@@ -15,10 +15,11 @@ class X::LibXML::Parser is Exception {
 class LibXML::ErrorHandler {
     use LibXML::Native;
     use LibXML::Enums;
-    has parserCtxt:D $.ctx is required;
+    has parserCtxt:D $.ctx = xmlParserCtxt.new;
     has @!errors;
+    has Bool $.recover;
 
-    submethod TWEAK(:$flags! is copy, :$line-numbers!, Bool :$recover) {
+    submethod TWEAK(:$flags is copy = 0, Bool :$line-numbers) {
         $!ctx.add-reference;
 
         unless $flags +& XML_PARSE_DTDLOAD {
@@ -26,11 +27,38 @@ class LibXML::ErrorHandler {
                 $flags -= $_ if $flags +& $_
             }
         }
-        $flags +|= XML_PARSE_RECOVER if $recover;
+        $flags +|= XML_PARSE_RECOVER if $!recover;
 
         $!ctx.UseOptions($flags);     # Note: sets ctxt.linenumbers = 1
-        $!ctx.linenumbers = +$line-numbers;
+        $!ctx.linenumbers = +$_ with $line-numbers;
         # error handling
+
+        $!ctx;
+    }
+
+    submethod DESTROY {
+        given $!ctx {
+            .Free if .remove-reference;
+        }
+    }
+
+    method !flush(:$recover = $!recover) {
+        if @!errors {
+            my Str $text = @!errors.map(*<msg>).join;
+            my $fatal = @!errors.first: { .<level> >= XML_ERR_ERROR };
+            @!errors = ();
+            my X::LibXML::Parser $err .= new: :$text;
+            if !$fatal || $recover {
+                warn $err;
+            }
+            else {
+                die $err;
+            }
+        }
+    }
+
+    method try(&action, Bool :$recover = $!recover) {
+
         sub structured-err-func(parserCtxt $, xmlError $_) {
             constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
                                       "HTML parser", "memory", "output", "I/O", "ftp",
@@ -62,28 +90,10 @@ class LibXML::ErrorHandler {
 
         $!ctx.xmlSetGenericErrorFunc( sub (parserCtxt $, Str $msg) { @!errors.push: %( :level(XML_ERR_FATAL), :$msg ) });
         $!ctx.xmlSetStructuredErrorFunc( &structured-err-func );
-        $!ctx;
-    }
 
-    submethod DESTROY {
-        given $!ctx {
-            .Free if .remove-reference;
-        }
-    }
-
-    method flush(Bool :$recover = False) {
-        if @!errors {
-            my Str $text = @!errors.map(*<msg>).join;
-            my $fatal = @!errors.first: { .<level> >= XML_ERR_ERROR };
-            @!errors = ();
-            my X::LibXML::Parser $err .= new: :$text;
-            if !$fatal || $recover {
-                warn $err;
-            }
-            else {
-                die $err;
-            }
-        }
+        my $ret := action();
+        self!flush: :$recover;
+        $ret;
     }
 
 }

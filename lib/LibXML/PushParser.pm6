@@ -14,8 +14,9 @@ class LibXML::PushParser {
         self.TWEAK(:$chunk, |c);
     }
 
-    multi submethod TWEAK(Blob :$chunk!, Str :$path, xmlSAXHandler :$sax, |c) {
+    multi submethod TWEAK(Blob :$chunk!, Str :$path, :$sax-handler, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
+        my xmlSAXHandler $sax = .unbox with $sax-handler;
         $!ctx = ctx-class.new: :$chunk, :$path, :$sax;
         $!ctx.add-reference;
         $!errors .= new: :$!ctx, |c;
@@ -39,8 +40,9 @@ class LibXML::PushParser {
     }
 
     method finish-push(Str :$uri, Bool :$recover = False) {
-        self!parse-chunk: :terminate;
-	$!errors.flush: :$recover;
+        $!errors.try: :$recover, {
+            self!parse-chunk: :terminate;
+        }
         $!errors = Nil;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;

@@ -334,6 +334,7 @@ class xmlSAXHandler is repr('CStruct') is export {
             self."{.key}"() = .value;
         }
     }
+    method unbox { self } # already unboxed
 
     has Pointer   $.internalSubset is rw-ptr(
         method xml6_sax_set_internalSubset(&cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
@@ -679,8 +680,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlDoc {*}
     method copy(Bool :$deep = True) { $.Copy(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
-    method xmlParseBalancedChunkMemory(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
-    method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
+    method xmlParseBalancedChunkMemory(xmlSAXHandler $sax-handler, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
+    method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax-handler, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
     method NewDtd(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlNewDtd') {*}
     method CreateIntSubset(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlCreateIntSubset') {*}
@@ -774,24 +775,24 @@ class xmlDtd is domNode is export {
 
     method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
     method copy() { $.xmlCopyDtd }
-    sub xmlIOParseDtd(xmlSAXHandler, xmlParserInputBuffer:D, xmlCharEncoding:D --> xmlDtd) is native(LIB) {*}
-    sub xmlSAXParseDtd(xmlSAXHandler, Str, Str --> xmlDtd) is native(LIB) {*}
+    sub xmlIOParseDTD(xmlSAXHandler, xmlParserInputBuffer:D, xmlCharEncoding:D --> xmlDtd) is native(LIB) {*}
+    sub xmlSAXParseDTD(xmlSAXHandler, Str, Str --> xmlDtd) is native(LIB) {*}
 
-    multi method new(:internal($)! where .so, xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
+    multi method new(:type($)! where 'internal', xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.CreateIntSubset( $name, $external-id, $system-id);
     }
-    multi method new(xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) is default {
+    multi method new(:type($)! where 'external', xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.NewDtd( $name, $external-id, $system-id);
     }
-    multi method parse(Str:D :$string!, xmlSAXHandler :$sax, xmlCharEncoding:D :$enc!) {
+    multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlCharEncoding:D :$enc!) {
         my xmlParserInputBuffer $buffer .= new: :$enc;
         my $n := $buffer.push($string);
         die "push to input buffer failed"
             if $n < 0;
-        xmlIOParseDtd($sax, $buffer, $enc);
+        xmlIOParseDTD($sax-handler, $buffer, $enc);
     }
-    multi method parse(Str :$external-id, Str :$system-id, xmlSAXHandler :$sax) is default {
-        xmlSAXParseDtd($sax, $external-id, $system-id);
+    multi method parse(Str :$external-id, Str :$system-id, xmlSAXHandler :$sax-handler) is default {
+        xmlSAXParseDTD($sax-handler, $external-id, $system-id);
     }
 }
 
@@ -1085,8 +1086,8 @@ class xmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 #| an incremental XML push parser context. Determines encoding and reads data in binary chunks
 class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
-    sub xmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns xmlPushParserCtxt {*};
-    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
+    sub xmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns xmlPushParserCtxt {*};
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path) }
     method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('xmlParseChunk') returns int32 {*};
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 };
@@ -1113,8 +1114,8 @@ class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
 class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
-    sub htmlCreatePushParserCtxt(xmlSAXHandler $sax, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns htmlPushParserCtxt {*};
-    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax, Pointer :$user-data, Str :$path) { htmlCreatePushParserCtxt($sax, $user-data, $chunk, $size, $path) }
+    sub htmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns htmlPushParserCtxt {*};
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path) { htmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path) }
     method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') returns int32 { *};
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
 };

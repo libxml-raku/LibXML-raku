@@ -42,7 +42,7 @@ ok $sax-handler.startElement.defined, 'startElement initialization';
 my $string = '<html><body><h1 working="yup">Hello World</h1></body></html>';
 my Blob $chunk = $string.encode;
 
-my $ctx = xmlPushParserCtxt.new: :sax($sax-handler), :$chunk;
+my $ctx = xmlPushParserCtxt.new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
@@ -65,12 +65,13 @@ class SaxHandler is LibXML::SAX::Handler {
     }
 }
 
+# low-level tests on native sax handlers
 @start-tags = ();
 @end-tags = ();
 %atts-seen = ();
-my xmlSAXHandler $sax = SaxHandler.new.sax;
+$sax-handler = SaxHandler.new.unbox;
 
-$ctx .= new: :$sax, :$chunk;
+$ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
@@ -82,9 +83,9 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 use XML::Document;
 use LibXML::SAX::Handler::XML;
 my $handler = LibXML::SAX::Handler::XML.new;
-$sax = $handler.sax;
+$sax-handler = $handler.unbox;
 
-$ctx .= new: :$sax, :$chunk;
+$ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 my XML::Document:D $doc = $handler.doc;
@@ -104,10 +105,9 @@ class SAXShouter is LibXML::SAX::Handler::SAX2 {
     }
 }
 
-$handler = SAXShouter.new;
-$sax = $handler.sax;
+$sax-handler = SAXShouter.new.unbox;
 
-$ctx .= new: :$sax, :$chunk;
+$ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 is $ctx.myDoc.Str.lines.tail, '<HTML><BODY><H1 working="yup">HELLO WORLD</H1></BODY></HTML>', 'Simple transform';

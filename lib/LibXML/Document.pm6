@@ -160,15 +160,15 @@ multi method createPI(NCName $name, Str $content?) {
 }
 
 method createExternalSubset(Str $name, Str $external-id, Str $system-id) {
-    LibXML::Dtd.new: :doc(self), :external, :$name, :$external-id, :$system-id;
+    LibXML::Dtd.new: :doc(self), :type<external>, :$name, :$external-id, :$system-id;
 }
 
 method createInternalSubset(Str $name, Str $external-id, Str $system-id) {
-    LibXML::Dtd.new: :doc(self), :internal, :$name, :$external-id, :$system-id;
+    LibXML::Dtd.new: :doc(self), :type<internal>, :$name, :$external-id, :$system-id;
 }
 
 method createDTD(Str $name, Str $external-id, Str $system-id) {
-    LibXML::Dtd.new: :$name, :$external-id, :$system-id;
+    LibXML::Dtd.new: :$name, :$external-id, :$system-id, :type<external>;
 }
 
 method getInternalSubset {

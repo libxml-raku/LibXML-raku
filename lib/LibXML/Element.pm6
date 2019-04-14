@@ -7,17 +7,24 @@ use NativeCall;
 
 use LibXML::Enums;
 use LibXML::Native;
-use LibXML::Types :QName;
+use LibXML::Types :QName, :NCName;
 use LibXML::Attr;
 use LibXML::Namespace;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
 multi submethod TWEAK(xmlNode:D :struct($)!) { }
-multi submethod TWEAK(:doc($owner), QName :$name!, xmlNs :$ns) {
-    my xmlDoc:D $doc = .unbox with $owner;
+multi submethod TWEAK(:doc($doc-obj), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
+    my xmlDoc:D $doc = .unbox with $doc-obj;
+    my xmlNs:D $ns = .unbox with $ns-obj;
     self.struct = xmlNode.new: :$name, :$doc, :$ns;
 }
+
+multi method new($name, *%o) {
+    self.new(:$name, |%o);
+}
+
+multi method new(|c) is default { nextsame }
 
 sub iterate-ns(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
     # follow a chain of .next links.

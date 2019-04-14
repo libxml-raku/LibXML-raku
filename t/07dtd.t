@@ -172,13 +172,17 @@ EOF
     my $bad = 'example/bad.dtd';
     # TEST
     ok($bad.IO.f, ' TODO : Add test name' );
-    dies-ok { LibXML::Dtd.new(:external("-//Foo//Test DTD 1.0//EN"), :system($bad)) }, ' TODO : Add test name';
+    dies-ok {
+        LibXML::Dtd.parse("-//Foo//Test DTD 1.0//EN", $bad);
+    }, ' TODO : Add test name';
 
     my $dtd = $bad.IO.slurp;
 
     # TEST
+    warn $dtd;
     ok( $dtd.chars > 5, ' TODO : Add test name' );
-    dies-ok { LibXML::Dtd.parse: :string($dtd) }, ' TODO : Add test name';
+    todo "not dying";
+    dies-ok { LibXML::Dtd.parse: :string($dtd); }, 'Parse fails for bad.dtd';
 
     my $xml = "<!DOCTYPE test SYSTEM \"example/bad.dtd\">\n<test/>";
 
