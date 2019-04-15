@@ -184,6 +184,7 @@ class xmlXPathObject is export {
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceXPathObject') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseXPathObject') {*}
+    method domSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
 
     method user-object {
         fail "XPath Object is user defined";
@@ -202,10 +203,7 @@ class xmlXPathObject is export {
         given $!type {
             when XPATH_UNDEFINED { Mu }
             when XPATH_NODESET | XPATH_XSLT_TREE {
-                # flush the value, so that we no longer own it
-                my $val := $!nodeset;
-                $!nodeset := xmlNodeSet;
-                $val;
+                self.domSelectNodeSet;
             }
             when XPATH_BOOLEAN { ? $!bool }
             when XPATH_NUMBER {

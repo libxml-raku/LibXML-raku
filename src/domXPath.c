@@ -186,6 +186,7 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
         xmlNodePtr twig = xml6_node_find_root(cur);
         if (twig != last_twig) {
           char key[20];
+          sprintf(key, "%d", (long) cur);
 
           if (xmlHashLookup(hash, key) == NULL) {
             xmlHashAddEntry(hash, xmlStrdup(key), twig);
@@ -333,8 +334,8 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
 }
 
 
-static xmlNodeSetPtr
-_domSelect(xmlXPathObjectPtr res) {
+xmlNodeSetPtr
+domSelectNodeSet(xmlXPathObjectPtr res) {
     xmlNodeSetPtr rv = NULL;
     if (res != NULL) {
       /* here we have to transfer the result from the internal
@@ -345,7 +346,12 @@ _domSelect(xmlXPathObjectPtr res) {
       rv = res->nodesetval;
       res->nodesetval = NULL;
     }
+    return rv;
+}
 
+static xmlNodeSetPtr
+_domSelect(xmlXPathObjectPtr res) {
+    xmlNodeSetPtr rv = domSelectNodeSet(res);
     xmlXPathFreeObject(res);
     _domVetNodeSet(rv);
     return rv;
@@ -361,13 +367,6 @@ xmlNodeSetPtr
 domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
     return _domSelect( domXPathCompFind( refNode, comp, 0 ));
 }
-
-/**
- * Most of the code is stolen from testXPath.
- * The almost only thing I added, is the storing of the data, so
- * we can access the data easily - or say more easily than through
- * libxml2.
- **/
 
 xmlXPathObjectPtr
 domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlChar* path, int to_bool ) {
