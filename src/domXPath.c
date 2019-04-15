@@ -21,7 +21,8 @@
 void
 perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
     xmlXPathObjectPtr obj = NULL, obj2 = NULL;
-    xmlChar *base = NULL, *URI = NULL;
+    xmlChar* base = NULL;
+    xmlChar* URI = NULL;
 
 
     if ((nargs < 1) || (nargs > 2)) {
@@ -160,21 +161,6 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
 }
 
 static void
-_domUnreferenceNodeSet(xmlNodeSetPtr self) {
-  int i;
- 
-  for (i = 0; i < self->nodeNr; i++) {
-    xmlNodePtr cur = self->nodeTab[i];
-
-    if (cur != NULL) {
-      if (cur->type != XML_NAMESPACE_DECL) {
-        xml6_node_remove_reference(cur);
-      }
-    }
-  }
-}
-
-static void
 _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
   xmlNodePtr twig = (xmlNodePtr) entry;
   if (domNodeIsReferenced(twig) == 0) {
@@ -189,8 +175,6 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
   xmlChar* strval;
   xmlNodePtr last_twig = NULL;
 
-  _domUnreferenceNodeSet(self);
- 
   for (i = 0; i < self->nodeNr; i++) {
     xmlNodePtr cur = self->nodeTab[i];
 
@@ -201,17 +185,15 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
       else {
         xmlNodePtr twig = xml6_node_find_root(cur);
         if (twig != last_twig) {
-          strval = xmlXPathCastNodeToString(twig);
+          char key[20];
 
-          if (xmlHashLookup(hash, strval) == NULL) {
-            xmlHashAddEntry(hash, strval, twig);
-          }
-          else {
-            xmlFree(strval);
+          if (xmlHashLookup(hash, key) == NULL) {
+            xmlHashAddEntry(hash, xmlStrdup(key), twig);
           }
 
           last_twig = twig;
         }
+        xml6_node_remove_reference(cur);
       }
     }
   }
@@ -228,7 +210,14 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
  **/
 
 void
-domFreeXPathObject(xmlXPathObjectPtr self) {
+domReferenceXPathObject(xmlXPathObjectPtr self) {
+  if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
+    domReferenceNodeSet(self->nodesetval);
+  }
+}
+
+void
+domReleaseXPathObject(xmlXPathObjectPtr self) {
   if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
     domReleaseNodeSet(self->nodesetval);
     self->nodesetval = NULL;
@@ -240,7 +229,7 @@ domFreeXPathObject(xmlXPathObjectPtr self) {
 }
 
 xmlXPathObjectPtr
-domXPathFind( xmlNodePtr refNode, xmlChar * path, int to_bool ) {
+domXPathFind( xmlNodePtr refNode, xmlChar* path, int to_bool ) {
     xmlXPathObjectPtr res = NULL;
     xmlXPathCompExprPtr comp;
     comp = xmlXPathCompile( path );
@@ -267,8 +256,8 @@ _domVetNodeSet(xmlNodeSetPtr node_set) {
       }
       else if (tnode->type == XML_NAMESPACE_DECL) {
         xmlNsPtr ns = (xmlNsPtr)tnode;
-        const xmlChar *prefix = ns->prefix;
-        const xmlChar *href = ns->href;
+        const xmlChar* prefix = ns->prefix;
+        const xmlChar* href = ns->href;
         if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
           if (xmlStrEqual(href, XML_XML_NAMESPACE))
             xmlFreeNs(ns);
@@ -317,7 +306,7 @@ domXPathNewCtxt(xmlNodePtr refNode) {
   }
 
   xmlXPathRegisterFunc(ctxt,
-                       (const xmlChar *) "document",
+                       (const xmlChar*) "document",
                        perlDocumentFunction);
   return ctxt;
 }
@@ -363,7 +352,7 @@ _domSelect(xmlXPathObjectPtr res) {
 }
 
 xmlNodeSetPtr
-domXPathSelect( xmlNodePtr refNode, xmlChar * path ) {
+domXPathSelect( xmlNodePtr refNode, xmlChar* path ) {
     return _domSelect( domXPathFind( refNode, path, 0 ) );
 }
 
@@ -381,7 +370,7 @@ domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
  **/
 
 xmlXPathObjectPtr
-domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlChar * path, int to_bool ) {
+domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlChar* path, int to_bool ) {
     xmlXPathObjectPtr res = NULL;
     if ( ctxt->node != NULL && path != NULL ) {
         xmlXPathCompExprPtr comp;
@@ -424,7 +413,7 @@ domXPathCompSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp) {
 }
 
 xmlNodeSetPtr
-domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar * path ) {
+domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar* path ) {
     return _domSelect( domXPathFindCtxt( ctxt, path, 0 ) );
 }
 

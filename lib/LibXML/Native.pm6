@@ -91,13 +91,11 @@ class xmlXPathContext is repr(Stub) is export {
 
     multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
         my xmlXPathObject:D $obj := self.domXPathCompFindCtxt($expr, $to-bool);
-        $obj.add-reference;
-        $obj.value;
+        $obj.select;
     }
     multi method find(Str:D $expr,  Bool $to-bool) is default {
         my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $to-bool);
-        $obj.add-reference;
-        $obj.value;
+        $obj.select;
     }
 
 }
@@ -170,7 +168,7 @@ class xmlNodeSet is export {
 class xmlXPathObject is export {
     has int32 $.type;
 
-    has xmlNodeSet $.nodeset;
+    has xmlNodeSet $.nodeset is rw;
     has int32      $.bool;
     has num64      $.float;
     has xmlCharP   $.string;
@@ -184,20 +182,31 @@ class xmlXPathObject is export {
     sub xmlXPathIsNaN(num64 --> int32) is native(LIB) {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
-    method Free is native(BIND-LIB) is symbol('domFreeXPathObject') {*}
+    method Reference is native(BIND-LIB) is symbol('domReferenceXPathObject') {*}
+    method Release is native(BIND-LIB) is symbol('domReleaseXPathObject') {*}
 
     method user-object {
         fail "XPath Object is user defined";
     }
 
+    method select {
+        $.add-reference;
+        self!value;
+    }
+
     submethod DESTROY {
-        self.Free
+        self.Release
             if self.remove-reference;
     }
-    method value {
+    method !value {
         given $!type {
             when XPATH_UNDEFINED { Mu }
-            when XPATH_NODESET | XPATH_XSLT_TREE { $!nodeset }
+            when XPATH_NODESET | XPATH_XSLT_TREE {
+                # flush the value, so that we no longer own it
+                my $val := $!nodeset;
+                $!nodeset := xmlNodeSet;
+                $val;
+            }
             when XPATH_BOOLEAN { ? $!bool }
             when XPATH_NUMBER {
                 given xmlXPathIsInf($!float) {
@@ -215,10 +224,10 @@ class xmlXPathObject is export {
                 fail "todo: XPath point values";
             }
             when XPATH_LOCATIONSET {
-                nativecast(xmlLocationSet, $!user);
+                fail "todo: location-set values";
             }
             when XPATH_USERS {
-                self.user-object;
+                fail "todo: XPath user objects";
             }
             default {
                 fail "unhandled node-set type: $_";
@@ -515,13 +524,11 @@ class domNode is export does LibXML::Native::DOM::Node {
 
     multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
         my xmlXPathObject:D $obj := self.domXPathCompFind($expr, $to-bool);
-        $obj.add-reference;
-        $obj.value;
+        $obj.select;
     }
     multi method find(Str:D $expr,  Bool $to-bool) is default {
         my xmlXPathObject:D $obj := self.domXPathFind($expr, $to-bool);
-        $obj.add-reference;
-        $obj.value;
+        $obj.select;
     }
 
     multi method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathCompSelect($expr); }

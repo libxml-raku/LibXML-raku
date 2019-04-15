@@ -179,9 +179,11 @@ EOF
     my $dtd = $bad.IO.slurp;
 
     # TEST
-    warn $dtd;
     ok( $dtd.chars > 5, ' TODO : Add test name' );
-    todo "not dying";
+    # could be an introduced libxml2 bug. currently known to
+    # fail on >= 20.90.9.* libxml2 blead;
+    todo "bisect introduced dtd parse non-failure"
+       if LibXML.parser-version > v2.09.04;
     dies-ok { LibXML::Dtd.parse: :string($dtd); }, 'Parse fails for bad.dtd';
 
     my $xml = "<!DOCTYPE test SYSTEM \"example/bad.dtd\">\n<test/>";
