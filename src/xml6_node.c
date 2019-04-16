@@ -72,6 +72,6 @@ DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr self, xmlNsPtr ns) {
 
 DLLEXPORT void xml6_node_set_content(xmlNodePtr self, xmlChar* new_content) {
   if (self == NULL) xml6_fail("unable to update null node");
-    if (self->content) xmlFree(self->content);
-    self->content = new_content ? xmlStrdup((const xmlChar *) new_content) : NULL;
+  if (self->content) xmlFree(self->content);
+  self->content = xmlStrdup((const xmlChar *) new_content);
 }

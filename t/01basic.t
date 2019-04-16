@@ -9,7 +9,6 @@ plan 8;
 
 my LibXML $p .= new();
 
-
 ok $p, 'Can initialize a new LibXML instance';
 
 my $version = $p.parser-version;

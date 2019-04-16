@@ -15,3 +15,44 @@ DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr self, xmlSAXHandlerPtr sax) {
 
   self->sax = sax;
 }
+
+
+DLLEXPORT htmlParserCtxtPtr
+xml6_ctx_html_create(const xmlChar *buf, const char *encoding) {
+    int len;
+    htmlParserCtxtPtr ctxt;
+    xmlCharEncoding enc;
+    xmlCharEncodingHandlerPtr handler;
+
+    if (encoding = NULL) encoding = "UTF-8";
+
+    if (buf == NULL)
+	return(NULL);
+    len = xmlStrlen(buf);
+    ctxt = htmlCreateMemoryParserCtxt((char *)buf, len);
+    if (ctxt == NULL)
+	return(NULL);
+
+    if (ctxt->input->encoding != NULL)
+        xmlFree((xmlChar *) ctxt->input->encoding);
+
+    ctxt->input->encoding = xmlStrdup((const xmlChar *) encoding);
+
+    enc = xmlParseCharEncoding(encoding);
+    /*
+     * registered set of known encodings
+     */
+    if (enc != XML_CHAR_ENCODING_ERROR) {
+        xmlSwitchEncoding(ctxt, enc);
+    } else {
+        /*
+         * fallback for unknown encodings
+         */
+        handler = xmlFindCharEncodingHandler((const char *) encoding);
+        if (handler != NULL) {
+            xmlSwitchToEncoding(ctxt, handler);
+        }
+    }
+
+    return(ctxt);
+}

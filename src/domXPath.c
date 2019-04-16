@@ -172,7 +172,6 @@ void
 domReleaseNodeSet(xmlNodeSetPtr self) {
   int i;
   xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
-  xmlChar* strval;
   xmlNodePtr last_twig = NULL;
 
   for (i = 0; i < self->nodeNr; i++) {
@@ -189,7 +188,7 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
           sprintf(key, "%d", (long) cur);
 
           if (xmlHashLookup(hash, key) == NULL) {
-            xmlHashAddEntry(hash, xmlStrdup(key), twig);
+            xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
           }
 
           last_twig = twig;
@@ -202,13 +201,6 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
   xmlHashFree(hash, _domNodeSetDeallocator);
   xmlFree(self);
 }
-
-/**
- * Most of the code is stolen from testXPath.
- * The almost only thing I added, is the storing of the data, so
- * we can access the data easily - or say more easily than through
- * libxml2.
- **/
 
 void
 domReferenceXPathObject(xmlXPathObjectPtr self) {
@@ -231,15 +223,15 @@ domReleaseXPathObject(xmlXPathObjectPtr self) {
 
 xmlXPathObjectPtr
 domXPathFind( xmlNodePtr refNode, xmlChar* path, int to_bool ) {
-    xmlXPathObjectPtr res = NULL;
+    xmlXPathObjectPtr rv = NULL;
     xmlXPathCompExprPtr comp;
     comp = xmlXPathCompile( path );
     if ( comp == NULL ) {
         return NULL;
     }
-    res = domXPathCompFind(refNode,comp,to_bool);
+    rv = domXPathCompFind(refNode,comp,to_bool);
     xmlXPathFreeCompExpr(comp);
-    return res;
+    return rv;
 }
 
 static xmlNodeSetPtr
@@ -324,35 +316,35 @@ domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
 
 xmlXPathObjectPtr
 domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
-    xmlXPathObjectPtr res = NULL;
+    xmlXPathObjectPtr rv = NULL;
     if ( refNode != NULL && comp != NULL ) {
         xmlXPathContextPtr ctxt = domXPathNewCtxt(refNode);
-        res = domXPathCompFindCtxt(ctxt, comp, to_bool);
+        rv = domXPathCompFindCtxt(ctxt, comp, to_bool);
         domXPathFreeCtxt(ctxt);
     }
-    return res;
+    return rv;
 }
 
 
 xmlNodeSetPtr
-domSelectNodeSet(xmlXPathObjectPtr res) {
+domSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
     xmlNodeSetPtr rv = NULL;
-    if (res != NULL) {
+    if (xpath_obj != NULL) {
       /* here we have to transfer the result from the internal
          structure to the return value */
-      /* get the result from the query */
+      /* get the result from an xpath query */
       /* we have to unbind the nodelist, so free object can
          not kill it */
-      rv = res->nodesetval;
-      res->nodesetval = NULL;
+      rv = xpath_obj->nodesetval;
+      xpath_obj->nodesetval = NULL;
     }
     return rv;
 }
 
 static xmlNodeSetPtr
-_domSelect(xmlXPathObjectPtr res) {
-    xmlNodeSetPtr rv = domSelectNodeSet(res);
-    xmlXPathFreeObject(res);
+_domSelect(xmlXPathObjectPtr xpath_obj) {
+    xmlNodeSetPtr rv = domSelectNodeSet(xpath_obj);
+    xmlXPathFreeObject(xpath_obj);
     _domVetNodeSet(rv);
     return rv;
 }
@@ -370,40 +362,40 @@ domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
 
 xmlXPathObjectPtr
 domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlChar* path, int to_bool ) {
-    xmlXPathObjectPtr res = NULL;
+    xmlXPathObjectPtr rv = NULL;
     if ( ctxt->node != NULL && path != NULL ) {
         xmlXPathCompExprPtr comp;
         comp = xmlXPathCompile( path );
         if ( comp == NULL ) {
             return NULL;
         }
-        res = domXPathCompFindCtxt(ctxt,comp,to_bool);
+        rv = domXPathCompFindCtxt(ctxt,comp,to_bool);
         xmlXPathFreeCompExpr(comp);
     }
-    return res;
+    return rv;
 }
 
 xmlXPathObjectPtr
 domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool ) {
-    xmlXPathObjectPtr res = NULL;
+    xmlXPathObjectPtr rv = NULL;
     if ( ctxt != NULL && ctxt->node != NULL && comp != NULL ) {
         if (to_bool) {
 #if LIBXML_VERSION >= 20627
           int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
-          res = xmlXPathNewBoolean(val);
+          rv = xmlXPathNewBoolean(val);
 #else
-          res = xmlXPathCompiledEval(comp, ctxt);
-          if (res!=NULL) {
-            int val = xmlXPathCastToBoolean(res);
-            xmlXPathFreeObject(res);
-            res = xmlXPathNewBoolean(val);
+          rv = xmlXPathCompiledEval(comp, ctxt);
+          if (rv!=NULL) {
+            int val = xmlXPathCastToBoolean(rv);
+            xmlXPathFreeObject(rv);
+            rv = xmlXPathNewBoolean(val);
           }
 #endif
         } else {
-          res = xmlXPathCompiledEval(comp, ctxt);
+          rv = xmlXPathCompiledEval(comp, ctxt);
         }
     }
-    return _domVetXPathObject(res);
+    return _domVetXPathObject(rv);
 }
 
 xmlNodeSetPtr

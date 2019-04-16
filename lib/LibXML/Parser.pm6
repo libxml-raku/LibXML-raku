@@ -8,7 +8,7 @@ class LibXML::Parser {
 
     has Bool $.html;
     has Bool $.line-numbers is rw = False;
-    has Bool $.recover;
+    has Bool $.recover is rw;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.baseURI is rw;
     has $.sax-handler;
@@ -50,20 +50,20 @@ class LibXML::Parser {
     method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$errors!, ) {
         my LibXML::Document:D $doc .= new: :$ctx;
         $doc.baseURI = $_ with $URI;
-        self.processXincludes($doc, :$errors)
+        self.processXIncludes($doc, :$errors)
             if $.expand-xinclude;
         $doc;
     }
 
-    proto method processXincludes(LibXML::Document $_, LibXML::ErrorHandler :$errors) {*}
+    proto method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler :$errors) {*}
 
-    multi method processXincludes(LibXML::Document $_, LibXML::ErrorHandler:D :$errors! --> UInt) {
+    multi method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler:D :$errors! --> UInt) {
         my xmlDoc $doc = .unbox;
         $errors.try: { $doc.XIncludeProcessFlags($!flags); }
     }
-    multi method processXincludes(LibXML::Document $_) is default {
-        my xmlDoc $doc = .unbox;
-        my xmlParserCtxt $ctx .= new;
+    multi method processXIncludes(LibXML::Document $_) is default {
+        my xmlDoc:D $doc = .unbox;
+        my xmlParserCtxt:D $ctx .= new;
         $ctx.sax = .unbox with $.sax-handler;
         my LibXML::ErrorHandler $error-handler = self!error-handler: :$ctx;
         $error-handler.try: { 
@@ -79,7 +79,7 @@ class LibXML::Parser {
                       ) {
 
         # gives better diagnositics
-        my parserCtxt $ctx = $html
+        my parserCtxt:D $ctx = $html
            ?? htmlMemoryParserCtxt.new: :$string
            !! xmlMemoryParserCtxt.new: :$string;
 
@@ -96,7 +96,7 @@ class LibXML::Parser {
                       ) {
 
         # gives better diagnositics
-        my parserCtxt $ctx = $html
+        my parserCtxt:D $ctx = $html
            ?? htmlMemoryParserCtxt.new: :$buf
            !! xmlMemoryParserCtxt.new: :$buf;
 

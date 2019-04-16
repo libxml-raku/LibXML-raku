@@ -1139,15 +1139,15 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
 }
 
 class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
-    sub htmlCreateMemoryParserCtxt(Blob $buf, int32 $len --> htmlMemoryParserCtxt) is native(LIB) {*}
+    sub Create(xmlCharP:D, xmlCharEncoding --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create') {*}
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    multi method new( Str() :$string! ) {
-        my Blob $buf = $string.encode;
-        self.new: :$buf;
+    multi method new( Blob() :$buf!) {
+        my Str:D $string = $buf.encode;
+        self.new: :$string;
     }
-    multi method new( Blob() :$buf!, UInt :$bytes = $buf.bytes ) {
-         htmlCreateMemoryParserCtxt($buf, $bytes);
+    multi method new( Str() :$string! ) {
+         Create($string, 'UTF-8');
     }
 }
 
