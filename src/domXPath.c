@@ -185,9 +185,9 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
         xmlNodePtr twig = xml6_node_find_root(cur);
         if (twig != last_twig) {
           char key[20];
-          sprintf(key, "%d", (long) cur);
+          sprintf(key, "%ld", (long) cur);
 
-          if (xmlHashLookup(hash, key) == NULL) {
+          if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
             xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
           }
 

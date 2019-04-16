@@ -4,7 +4,6 @@
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #include <libxml/HTMLparser.h>
-#include <libxml/xmlerror.h>
 
 DLLEXPORT void xml6_ctx_add_reference(xmlParserCtxtPtr);
 DLLEXPORT int xml6_ctx_remove_reference(xmlParserCtxtPtr);
