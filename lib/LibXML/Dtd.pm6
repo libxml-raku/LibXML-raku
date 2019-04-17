@@ -26,7 +26,7 @@ multi method new($name, $external-id, *%o) {
 
 multi method new(|c) is default { nextsame }
 
-multi method parse(Str :$string!, xmlCharEncoding:D :$enc = 'UTF-8') {
+multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     my xmlDtd:D $struct = LibXML::ErrorHandler.new.try: {xmlDtd.parse: :$string, :$enc};
     self.new: :$struct;
 }

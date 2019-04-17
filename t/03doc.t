@@ -127,7 +127,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     # TEST
     is( $doc.URI, "localhost/here.xml", 'URI is set.' );
 
-    my $doc2 = LibXML::Document.createDocument(:version<1.1>, :encoding<iso-8859-2>);
+    my $doc2 = LibXML::Document.createDocument(:version<1.1>, :enc<iso-8859-2>);
     # TEST
     is( $doc2.encoding, "iso-8859-2", 'doc2 encoding was set.' );
     # TEST

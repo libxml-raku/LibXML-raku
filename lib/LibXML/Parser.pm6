@@ -93,7 +93,7 @@ class LibXML::Parser {
     multi method parse(Blob :$buf!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
-                       xmlCharEncoding :$enc = 'UTF-8',
+                       xmlEncodingStr :$enc = 'UTF-8',
                       ) {
 
         # gives better diagnositics
@@ -110,7 +110,7 @@ class LibXML::Parser {
 
     multi method parse(IO() :$file!,
                        Bool() :$html = $!html,
-                       xmlCharEncoding :$enc,
+                       xmlEncodingStr :$enc,
                        Str :$URI = $!baseURI) {
 
         die "file not found: $file"
@@ -128,7 +128,7 @@ class LibXML::Parser {
                        Str :$URI = $!baseURI,
                        Bool() :$html = $!html,
                        UInt :$chunk-size = 4096,
-                       xmlCharEncoding :$enc,
+                       xmlEncodingStr :$enc,
                       ) {
 
         # read initial block to determine encoding

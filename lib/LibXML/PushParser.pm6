@@ -14,7 +14,7 @@ class LibXML::PushParser {
         self.TWEAK(:$chunk, |c);
     }
 
-    multi submethod TWEAK(Blob :$chunk!, Str :$path, :$sax-handler, xmlCharEncoding :$enc, |c) {
+    multi submethod TWEAK(Blob :$chunk!, Str :$path, :$sax-handler, xmlEncodingStr :$enc, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
         my xmlSAXHandler $sax = .unbox with $sax-handler;
         $!ctx = ctx-class.new: :$chunk, :$path, :$sax, :$enc;

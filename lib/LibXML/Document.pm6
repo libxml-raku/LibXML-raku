@@ -26,13 +26,13 @@ method doc { self }
 
 submethod TWEAK(
                 Str :$version,
-                Str :$encoding,
+                xmlEncodingStr :$enc,
                 Str :$URI,
                ) {
     my xmlDoc:D $struct = self.struct //= do with $!ctx {.myDoc} else {xmlDoc.new};
     .add-reference with $!ctx;
     $struct.version = $_ with $version;
-    $struct.encoding = $_ with $encoding;
+    $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;
     with $struct.documentElement {
         $!documentElement .= new: :struct($_), :doc(self);

@@ -20,7 +20,7 @@ constant xmlCharP = Str;
 
 # subsets
 sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
-my subset xmlCharEncoding of Str is export where {!.defined || xmlParseCharEncoding($_) > 0}
+my subset xmlEncodingStr of Str is export where {!.defined || xmlParseCharEncoding($_) > 0}
 
 # forward declarations
 class domNode    is repr('CStruct') is export {...}
@@ -57,8 +57,8 @@ class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {
-    sub xmlAllocParserInputBuffer(xmlCharEncoding:D --> xmlParserInputBuffer) is native(LIB) {*}
-    method new(xmlCharEncoding:D :$enc!) {
+    sub xmlAllocParserInputBuffer(xmlEncodingStr:D --> xmlParserInputBuffer) is native(LIB) {*}
+    method new(xmlEncodingStr:D :$enc!) {
          xmlAllocParserInputBuffer($enc);
     }
     method push(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push') {*}
@@ -780,7 +780,7 @@ class xmlDtd is domNode is export {
 
     method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
     method copy() { $.xmlCopyDtd }
-    sub xmlIOParseDTD(xmlSAXHandler, xmlParserInputBuffer:D, xmlCharEncoding:D --> xmlDtd) is native(LIB) {*}
+    sub xmlIOParseDTD(xmlSAXHandler, xmlParserInputBuffer:D, xmlEncodingStr:D --> xmlDtd) is native(LIB) {*}
     sub xmlSAXParseDTD(xmlSAXHandler, Str, Str --> xmlDtd) is native(LIB) {*}
 
     multi method new(:type($)! where 'internal', xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
@@ -789,7 +789,7 @@ class xmlDtd is domNode is export {
     multi method new(:type($)! where 'external', xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.NewDtd( $name, $external-id, $system-id);
     }
-    multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlCharEncoding:D :$enc!) {
+    multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlEncodingStr:D :$enc!) {
         my xmlParserInputBuffer $buffer .= new: :$enc;
         my $n := $buffer.push($string);
         die "push to input buffer failed"
@@ -965,7 +965,7 @@ class parserCtxt is export {
     has int32                  $.depth;        # to prevent entity substitution loops
     has xmlParserInput         $.entity;       # used to check entities boundaries
     has int32                  $.charset;      # encoding of the in-memory content
-                                               # actually an xmlCharEncoding
+                                               # actually an xmlEncodingStr
     has int32                  $.nodelen;      # Those two fields are there to
     has int32                  $.nodemem;      # Speed up large node parsing
     has int32                  $.pedantic;     # signal pedantic warnings
@@ -1073,8 +1073,8 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub xmlNewParserCtxt is native(LIB) returns xmlParserCtxt {*};
     method new { xmlNewParserCtxt() }
-    method ReadDoc(Str $xml, Str $uri, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
-    method ReadFile(Str $xml, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
+    method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
+    method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 
 };
@@ -1103,24 +1103,24 @@ class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
     sub htmlNewParserCtxt is native(LIB) returns htmlParserCtxt {*};
     method new { htmlNewParserCtxt() }
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method ReadDoc(Str $xml, Str $uri, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
-    method ReadFile(Str $xml, Str $uri, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
+    method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
+    method ReadFile(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
 };
 
 # HTML file parser context
 class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 
-    sub htmlCreateFileParserCtxt(Str $file, xmlCharEncoding $enc) is native(LIB) returns htmlFileParserCtxt {*};
+    sub htmlCreateFileParserCtxt(Str $file, xmlEncodingStr $enc) is native(LIB) returns htmlFileParserCtxt {*};
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method new(Str() :$file!, xmlCharEncoding :$enc) { htmlCreateFileParserCtxt($file, $enc) }
+    method new(Str() :$file!, xmlEncodingStr :$enc) { htmlCreateFileParserCtxt($file, $enc) }
 }
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
 class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub htmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path, int32 $encoding) is native(LIB) returns htmlPushParserCtxt {*};
-    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path, xmlCharEncoding :$enc) {
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path, xmlEncodingStr :$enc) {
         my UInt $encoding = do with $enc { xmlParseCharEncoding($_) } else { 0 };
         htmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path, $encoding);
     }
@@ -1142,11 +1142,11 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
 }
 
 class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
-    sub CreateStr(xmlCharP:D, xmlCharEncoding --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_str') {*}
-    sub CreateBuf(Blob:D, int32, xmlCharEncoding --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_buf') {*}
+    sub CreateStr(xmlCharP:D, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_str') {*}
+    sub CreateBuf(Blob:D, int32, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_buf') {*}
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    multi method new( Blob() :$buf!, xmlCharEncoding :$enc = 'UTF-8') {
+    multi method new( Blob() :$buf!, xmlEncodingStr :$enc = 'UTF-8') {
         CreateBuf($buf, $buf.bytes, $enc);
     }
     multi method new( Str() :$string! ) {
