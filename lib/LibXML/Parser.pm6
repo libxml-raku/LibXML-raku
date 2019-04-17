@@ -93,12 +93,13 @@ class LibXML::Parser {
     multi method parse(Blob :$buf!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
+                       xmlCharEncoding :$enc = 'UTF-8',
                       ) {
 
         # gives better diagnositics
         my parserCtxt:D $ctx = $html
-           ?? htmlMemoryParserCtxt.new: :$buf
-           !! xmlMemoryParserCtxt.new: :$buf;
+           ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
+           !! xmlMemoryParserCtxt.new(:$buf, :$enc);
 
         $ctx.input.filename = $_ with $URI;
 
@@ -109,13 +110,13 @@ class LibXML::Parser {
 
     multi method parse(IO() :$file!,
                        Bool() :$html = $!html,
+                       xmlCharEncoding :$enc,
                        Str :$URI = $!baseURI) {
 
         die "file not found: $file"
             unless $file.IO.e;
-
         my parserCtxt $ctx = $html
-           ?? htmlFileParserCtxt.new(:$file)
+           ?? htmlFileParserCtxt.new(:$file, :$enc)
            !! xmlFileParserCtxt.new(:$file);
 
         my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
@@ -127,12 +128,13 @@ class LibXML::Parser {
                        Str :$URI = $!baseURI,
                        Bool() :$html = $!html,
                        UInt :$chunk-size = 4096,
+                       xmlCharEncoding :$enc,
                       ) {
 
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$!flags, :$!line-numbers, :$.sax-handler;
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$!flags, :$!line-numbers, :$.sax-handler, :$enc;
 
         my Bool $more = ?$chunk;
 
@@ -143,7 +145,7 @@ class LibXML::Parser {
                 if $more;
         }
 
-        $push-parser.finish-push;
+        $push-parser.finish-push: :$URI;
     }
 
     multi method parse(IO() :io($path)!, |c) {

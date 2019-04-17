@@ -1073,8 +1073,8 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
     sub xmlNewParserCtxt is native(LIB) returns xmlParserCtxt {*};
     method new { xmlNewParserCtxt() }
-    method ReadDoc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
-    method ReadFile(Str $xml, Str $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
+    method ReadDoc(Str $xml, Str $uri, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
+    method ReadFile(Str $xml, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
 
 };
@@ -1103,24 +1103,27 @@ class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
     sub htmlNewParserCtxt is native(LIB) returns htmlParserCtxt {*};
     method new { htmlNewParserCtxt() }
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method ReadDoc(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
-    method ReadFile(Str $xml, Str $uri, Str $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
+    method ReadDoc(Str $xml, Str $uri, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
+    method ReadFile(Str $xml, Str $uri, xmlCharEncoding $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
 };
 
 # HTML file parser context
 class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 
-    sub htmlCreateFileParserCtxt(Str $file, Str $encoding) is native(LIB) returns htmlFileParserCtxt {*};
+    sub htmlCreateFileParserCtxt(Str $file, xmlCharEncoding $enc) is native(LIB) returns htmlFileParserCtxt {*};
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method new(Str() :$file!, Str :$encoding) { htmlCreateFileParserCtxt($file, $encoding) }
+    method new(Str() :$file!, xmlCharEncoding :$enc) { htmlCreateFileParserCtxt($file, $enc) }
 }
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
 class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 
-    sub htmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path) is native(LIB) returns htmlPushParserCtxt {*};
-    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path) { htmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path) }
+    sub htmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path, int32 $encoding) is native(LIB) returns htmlPushParserCtxt {*};
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path, xmlCharEncoding :$enc) {
+        my UInt $encoding = do with $enc { xmlParseCharEncoding($_) } else { 0 };
+        htmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path, $encoding);
+    }
     method ParseChunk(Blob $chunk, int32 $size, int32 $terminate) is native(LIB) is symbol('htmlParseChunk') returns int32 { *};
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
 };
@@ -1139,15 +1142,15 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
 }
 
 class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
-    sub Create(xmlCharP:D, xmlCharEncoding --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create') {*}
+    sub CreateStr(xmlCharP:D, xmlCharEncoding --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_str') {*}
+    sub CreateBuf(Blob:D, int32, xmlCharEncoding --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_buf') {*}
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    multi method new( Blob() :$buf!) {
-        my Str:D $string = $buf.encode;
-        self.new: :$string;
+    multi method new( Blob() :$buf!, xmlCharEncoding :$enc = 'UTF-8') {
+        CreateBuf($buf, $buf.bytes, $enc);
     }
     multi method new( Str() :$string! ) {
-         Create($string, 'UTF-8');
+        CreateStr($string, 'UTF-8');
     }
 }
 

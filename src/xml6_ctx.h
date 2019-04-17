@@ -8,6 +8,7 @@
 DLLEXPORT void xml6_ctx_add_reference(xmlParserCtxtPtr);
 DLLEXPORT int xml6_ctx_remove_reference(xmlParserCtxtPtr);
 DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr, xmlSAXHandlerPtr);
-DLLEXPORT htmlParserCtxtPtr xml6_ctx_html_create(const xmlChar *buf, const char *en);
+DLLEXPORT htmlParserCtxtPtr xml6_ctx_html_create_str(const xmlChar *str, const char *en);
+DLLEXPORT htmlParserCtxtPtr xml6_ctx_html_create_buf(const xmlChar *buf, int len, const char *en);
 
 #endif /* __XML6_CTX_H */

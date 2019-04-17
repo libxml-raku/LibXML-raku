@@ -16,42 +16,47 @@ DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr self, xmlSAXHandlerPtr sax) {
   self->sax = sax;
 }
 
+DLLEXPORT htmlParserCtxtPtr
+xml6_ctx_html_create_str(const xmlChar *str, const char *encoding) {
+    int len;
+    if (str == NULL)
+	return(NULL);
+
+    len = xmlStrlen(str);
+    return xml6_ctx_html_create_buf(str, len, encoding);
+}
 
 DLLEXPORT htmlParserCtxtPtr
-xml6_ctx_html_create(const xmlChar *buf, const char *encoding) {
-    int len;
+xml6_ctx_html_create_buf(const xmlChar *buf, int len, const char *encoding) {
     htmlParserCtxtPtr ctxt;
-    xmlCharEncoding enc;
-    xmlCharEncodingHandlerPtr handler;
 
-    if (encoding = NULL) encoding = "UTF-8";
+    if (encoding == NULL) encoding = "UTF-8";
 
-    if (buf == NULL)
-	return(NULL);
-    len = xmlStrlen(buf);
     ctxt = htmlCreateMemoryParserCtxt((char *)buf, len);
-    if (ctxt == NULL)
-	return(NULL);
 
-    if (ctxt->input->encoding != NULL)
+    if (ctxt != NULL) {
+      xmlCharEncoding enc = xmlParseCharEncoding(encoding);
+
+      if (ctxt->input->encoding != NULL)
         xmlFree((xmlChar *) ctxt->input->encoding);
 
-    ctxt->input->encoding = xmlStrdup((const xmlChar *) encoding);
+      ctxt->input->encoding = xmlStrdup((const xmlChar *) encoding);
 
-    enc = xmlParseCharEncoding(encoding);
-    /*
-     * registered set of known encodings
-     */
-    if (enc != XML_CHAR_ENCODING_ERROR) {
+      
+      /*
+       * registered set of known encodings
+       */
+      if (enc != XML_CHAR_ENCODING_ERROR) {
         xmlSwitchEncoding(ctxt, enc);
-    } else {
+      } else {
         /*
          * fallback for unknown encodings
          */
-        handler = xmlFindCharEncodingHandler((const char *) encoding);
+            xmlCharEncodingHandlerPtr handler = xmlFindCharEncodingHandler((const char *) encoding);
         if (handler != NULL) {
-            xmlSwitchToEncoding(ctxt, handler);
+          xmlSwitchToEncoding(ctxt, handler);
         }
+      }
     }
 
     return(ctxt);

@@ -252,9 +252,10 @@ _domVetNodeSet(xmlNodeSetPtr node_set) {
         const xmlChar* prefix = ns->prefix;
         const xmlChar* href = ns->href;
         if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
-          if (xmlStrEqual(href, XML_XML_NAMESPACE))
+          if (xmlStrEqual(href, XML_XML_NAMESPACE)) {
             xmlFreeNs(ns);
             skip = 1;
+          }
         }
       }
       if (skip) {

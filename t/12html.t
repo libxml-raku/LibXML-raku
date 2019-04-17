@@ -70,7 +70,6 @@ ok( $htmldoc, ' TODO : Add test name' );
 # encodings
 {
     my $utf_str = "ěščř";
-
     # w/o 'meta' charset
     $strhref = qq:to<EOHTML>;
 <html>
@@ -81,7 +80,6 @@ ok( $htmldoc, ' TODO : Add test name' );
 EOHTML
 
     # TEST
-warn $strhref.perl;
     ok($strhref, ' TODO : Add test name' );
     $htmldoc = $parser.parse: :html, :string( $strhref );
     # TEST
@@ -89,61 +87,49 @@ warn $strhref.perl;
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-}; skip "port remaining tests", 33;
-=begin TODO
-
-
-    $htmldoc = $parser.parse_html_string( $strhref,
-        {
-            encoding => 'UTF-8'
-        }
-    );
+    $htmldoc = $parser.parse: :html, :string($strhref);
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-
-    my $iso_str = Encode::encode('iso-8859-2', $strhref);
-    $htmldoc = $parser.parse_html_string( $iso_str,
-        {
-            encoding => 'iso-8859-2'
-        }
-    );
+    my $enc = 'iso-8859-2';
+    my $iso_8859_str = buf8.new(0xEC, 0xB9, 0xE8, 0xF8).decode("latin-1");
+    my Blob $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
+    
+    $htmldoc = $parser.parse: :html, :$buf, :$enc;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     # w/ 'meta' charset
-    $strhref = <<EOHTML;
+    $strhref = qq:to<EOHTML>;
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html;
       charset=iso-8859-2">
   </head>
   <body>
-    <p>$utf_str</p>
+    <p>{$utf_str}</p>
   </body>
 </html>
 EOHTML
 
-    $htmldoc = $parser.parse_html_string( $strhref, { encoding => 'UTF-8' });
+    $htmldoc = $parser.parse: :html, :string( $strhref,);
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    $iso_str = Encode::encode('iso-8859-2', $strhref);
-    $htmldoc = $parser.parse_html_string( $iso_str );
+    $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
+    $htmldoc = $parser.parse: :html, :$buf, :$enc;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    $htmldoc = $parser.parse_html_string( $iso_str, { encoding => 'iso-8859-2',
-            URI => 'foo'
-        } );
+    $htmldoc = $parser.parse: :html, :$buf, :$enc, :URI<foo>;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
@@ -155,20 +141,19 @@ EOHTML
 # parse example/enc_latin2.html
 # w/ 'meta' charset
 {
-    use utf8;
+
     my $utf_str = "ěščř";
     my $test_file = 'example/enc_latin2.html';
     my $fh;
 
-    $htmldoc = $parser.parse_html_file( $test_file );
+    $htmldoc = $parser.parse: :html, :file( $test_file );
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
+
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    $htmldoc = $parser.parse_html_file( $test_file, { encoding => 'iso-8859-2',
-            URI => 'foo'
-        });
+    $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>, :URI<foo>;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
@@ -176,21 +161,16 @@ EOHTML
     # TEST
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
 
-    open $fh, '<', $test_file
-        or die "Cannot open '$test_file' for reading - $!";
-    $htmldoc = $parser.parse_html_fh( $fh );
-    close $fh;
+    my $io = $test_file.IO;
+    $htmldoc = $parser.parse: :html, :$io;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    open $fh, '<', $test_file
-        or die "Cannot open '$test_file' for reading - $!";
-    $htmldoc = $parser.parse_html_fh( $fh, { encoding => 'iso-8859-2',
-            URI => 'foo',
-        });
-    close $fh;
+    $io = $test_file.IO.open(:r);
+    $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>, :URI<foo>;
+    $io.close;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
@@ -198,56 +178,49 @@ EOHTML
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    SKIP:
+# iso-8859-2 encoding is NYI Rakudo.
+skip "iso-8859-2 nyi", 2;
+=begin TODO
     {
         my $num_tests = 2;
 
-        # LibXML_read_perl doesn't play well with encoding layers. Skip
-        # unconditionally for now.
-        skip("skipping until LibXML_read_perl is fixed", $num_tests);
-
-        if (1000*$] < 5008)
-        {
-            skip("skipping for Perl < 5.8", $num_tests);
-        }
-        elsif (20627 > LibXML::LIBXML_VERSION)
-        {
+        if v2.06.27 > LibXML.parser-version {
             skip("skipping for libxml2 < 2.6.27", $num_tests);
         }
         # translate to UTF8 on perl-side
-        open $fh, '<:encoding(iso-8859-2)', $test_file
-            or die "Cannot open '$test_file' for reading - $!";
-        $htmldoc = $parser.parse_html_fh( $fh, { encoding => 'UTF-8' });
-        close $fh;
+        $io = $test_file.IO.open( :r,  :enc<iso-8859-2>);
+        $htmldoc = $parser.parse, :html, :$io, :enc<utf-8>;
+        $io.close;
         # TEST
         ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
         # TEST
         is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
     }
+=end TODO
 }
 
 # parse example/enc2_latin2.html
 # w/o 'meta' charset
 {
-    use utf8;
     my $utf_str = "ěščř";
     my $test_file = 'example/enc2_latin2.html';
     my $fh;
 
-    $htmldoc = $parser.parse_html_file( $test_file, { encoding => 'iso-8859-2' });
+    $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    open $fh, '<', $test_file
-        or die "Cannot open '$test_file' for reading - $!";
-    $htmldoc = $parser.parse_html_fh( $fh, { encoding => 'iso-8859-2' });
-    close $fh;
+    $io = $test_file.IO;
+    $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>;
     # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+
+}; skip "port remaining tests", 6;
+=begin TODO
 
     SKIP:
     {
@@ -294,7 +267,7 @@ EOHTML
 EOF
   my $parser = LibXML.new;
   eval {
-    $doc = $parser.parse_html_string(
+    $doc = $parser.parse: :html, :string(
       $html => { recover => 1, suppress_errors => 1 }
      );
   };
@@ -320,13 +293,13 @@ EOF
         my $p = LibXML.new;
 
         # TEST
-        like( $p.parse_html_string( $html, {
+        like( $p.parse: :html, :string( $html, {
                     recover => 2,
                     no_defdtd => 1,
                     encoding => 'UTF-8' } ).toStringHTML, qr/^\Q<html>\E/, 'do not add a default DOCTYPE' );
 
         # TEST
-        like ( $p.parse_html_string( $html, {
+        like ( $p.parse: :html, :string( $html, {
                     recover => 2,
                     encoding => 'UTF-8' } ).toStringHTML, qr/^\Q<!DOCTYPE html\E/, 'add a default DOCTYPE' );
     }
