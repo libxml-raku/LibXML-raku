@@ -5,6 +5,7 @@ use LibXML;
 plan 42;
 
 use LibXML;
+use LibXML::Native;
 
 # TEST
 ok(1, ' TODO : Add test name');
@@ -16,6 +17,7 @@ my $parser = LibXML.new();
     my $doc = $parser.parse: :html, :file($html);
     # TEST
     ok($doc, ' TODO : Add test name');
+    isa-ok($doc.unbox, htmlDoc, 'HTML, under the hood');
 }
 
 my $io = $html.IO.open(:r);
@@ -219,38 +221,12 @@ skip "iso-8859-2 nyi", 2;
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-}; skip "port remaining tests", 6;
-=begin TODO
-
-    SKIP:
-    {
-        my $num_tests = 2;
-
-        # LibXML_read_perl doesn't play well with encoding layers. Skip
-        # unconditionally for now.
-        skip("skipping until LibXML_read_perl is fixed", $num_tests);
-
-        if (1000*$] < 5008)
-        {
-            skip("skipping for Perl < 5.8", $num_tests);
-        }
-        # translate to UTF8 on perl-side
-        open my $fh, '<:encoding(iso-8859-2)', $test_file
-            or die "Cannot open '$test_file' for reading - $!";
-        $htmldoc = $parser.parse_html_fh( $fh, { encoding => 'UTF-8' } );
-        close $fh;
-        # TEST
-        ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-        # TEST
-        is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
-    }
 }
-
 
 {
   # 44715
 
-  my $html = <<'EOF';
+    my $html = q:to<EOF>;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -265,44 +241,45 @@ skip "iso-8859-2 nyi", 2;
 </body>
 </html>
 EOF
-  my $parser = LibXML.new;
-  eval {
-    $doc = $parser.parse: :html, :string(
-      $html => { recover => 1, suppress_errors => 1 }
-     );
-  };
-  # TEST
-  ok (!$@, 'No exception was thrown.');
-  # TEST
-  ok ($doc, ' Parsing was successful.');
-  my $root = $doc && $doc.documentElement;
-  my $val = $root && $root.findvalue('//input[@id="foo"]/@value');
-  # TEST
-  is ($val, 'working', 'XPath');
+
+    my $parser = LibXML.new;
+    $doc = Nil;
+    lives-ok {
+        $doc = $parser.parse: :html, :string($html), :recover, :suppress-errors;
+    };
+    ok ($doc.defined, ' Parsing was successful.');
+    my $root = $doc && $doc.documentElement;
+    my $val = $root && $root.findvalue('//input[@id="foo"]/@value');
+    # TEST
+    is($val, 'working', 'XPath');
 }
 
 
 {
+
     # 70878
     # HTML_PARSE_NODEFDTD
 
-    SKIP: {
-        skip("LibXML version is below 20708", 2) unless ( LibXML::LIBXML_VERSION >= 20708 );
-
-        my $html = q(<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">);
+    when LibXML.parser-version < v2.07.08 {
+        skip("LibXML version is below 2.07.08", 2);
+    }
+        
+    default {
+        my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
         my $p = LibXML.new;
+        
+        # TEST
+        like( $p.parse( :html, :string( $html),
+                        :recover,
+                        :no_defdtd,
+                        :enc<UTF-8>).Str, /^'<html>'/, 'do not add a default DOCTYPE' );
 
         # TEST
-        like( $p.parse: :html, :string( $html, {
-                    recover => 2,
-                    no_defdtd => 1,
-                    encoding => 'UTF-8' } ).toStringHTML, qr/^\Q<html>\E/, 'do not add a default DOCTYPE' );
-
-        # TEST
-        like ( $p.parse: :html, :string( $html, {
-                    recover => 2,
-                    encoding => 'UTF-8' } ).toStringHTML, qr/^\Q<!DOCTYPE html\E/, 'add a default DOCTYPE' );
+}}; skip "port remaining test", 1;
+=begin TODO
+        like( $p.parse(:html, :string( $html),
+                        :recover,
+                        :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
     }
 }
-
 =end TODO

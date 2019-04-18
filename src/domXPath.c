@@ -17,7 +17,6 @@
 #include "domXPath.h"
 #include "xml6.h"
 #include "xml6_node.h"
-#include "xml6_ns.h"
 
 void
 perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
@@ -154,10 +153,7 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
     xmlNodePtr cur = self->nodeTab[i];
 
     if (cur != NULL) {
-      if (cur->type == XML_NAMESPACE_DECL) {
-        xml6_ns_add_reference((xmlNsPtr)cur);
-      }
-      else {
+      if (cur->type != XML_NAMESPACE_DECL) {
         xml6_node_add_reference(cur);
       }
     }
@@ -172,6 +168,10 @@ _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
     if (ns->_private == NULL) {
       // not referenced
       xmlXPathNodeSetFreeNs(ns);
+    }
+    else {
+      // sanity check for externally referenced namespaces. shouldn't really happen
+      xml6_warn("namespace node is inuse or private");
     }
   }
   else {
@@ -194,8 +194,6 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
       xmlNodePtr twig;
 
       if (cur->type == XML_NAMESPACE_DECL) {
-        xmlNsPtr ns = (xmlNsPtr)cur;
-        xml6_ns_remove_reference(ns);
         twig = cur;
       }
       else {
@@ -273,7 +271,6 @@ _domVetNodeSet(xmlNodeSetPtr node_set) {
           if (xmlStrEqual(href, XML_XML_NAMESPACE)) {
             if (ns->_private != NULL) {
               // sanity check for externally referenced namespaces. shouldn't really happen
-
               xml6_warn("namespace node is inuse or private");
             }
             else {
@@ -353,7 +350,7 @@ domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
 
 
 xmlNodeSetPtr
-domSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
+domXPathSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
     xmlNodeSetPtr rv = NULL;
     if (xpath_obj != NULL) {
       /* here we have to transfer the result from the internal
@@ -364,14 +361,13 @@ domSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
       rv = xpath_obj->nodesetval;
       xpath_obj->nodesetval = NULL;
     }
-    return rv;
+    return _domVetNodeSet(rv);
 }
 
 static xmlNodeSetPtr
 _domSelect(xmlXPathObjectPtr xpath_obj) {
-    xmlNodeSetPtr rv = domSelectNodeSet(xpath_obj);
+    xmlNodeSetPtr rv = domXPathSelectNodeSet(xpath_obj);
     xmlXPathFreeObject(xpath_obj);
-    _domVetNodeSet(rv);
     return rv;
 }
 

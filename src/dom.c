@@ -229,13 +229,14 @@ DLLEXPORT void
 domReconcileNs(xmlNodePtr tree)
 {
   xmlNsPtr unused = NULL;
-  int is_referenced = 0;
   _domReconcileNs(tree, &unused);
   if( unused != NULL ) {
     // sanity check for externally referenced namespaces. shouldn't really happen
-    xmlNsPtr cur = (xmlNsPtr) cur;
+    int is_referenced = 0;
+    xmlNsPtr cur = unused;
     while (cur && is_referenced == 0) {
-      if (is_referenced = (cur->_private != NULL)) {
+      is_referenced = (cur->_private != NULL);
+      if (is_referenced != 0) {
         xml6_warn("namespace node is inuse or private");
       }
       cur = cur->next;

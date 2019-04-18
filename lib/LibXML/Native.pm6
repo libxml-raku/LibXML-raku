@@ -184,7 +184,7 @@ class xmlXPathObject is export {
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceXPathObject') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseXPathObject') {*}
-    method domSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
+    method domXPathSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
 
     method user-object {
         fail "XPath Object is user defined";
@@ -203,7 +203,7 @@ class xmlXPathObject is export {
         given $!type {
             when XPATH_UNDEFINED { Mu }
             when XPATH_NODESET | XPATH_XSLT_TREE {
-                self.domSelectNodeSet;
+                self.domXPathSelectNodeSet;
             }
             when XPATH_BOOLEAN { ? $!bool }
             when XPATH_NUMBER {
@@ -759,6 +759,13 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     }
 }
 
+class htmlDoc is xmlDoc is repr('CStruct') is export {
+    method htmlDocDumpMemoryFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is native(LIB) {*}
+    method DumpFormatMemoryEnc(Pointer[uint8] $buf is rw, Int $size is rw, Str $enc, $format ) {
+        $.htmlDocDumpMemoryFormat($buf, $size, $format);
+    }
+}
+
 class xmlDocFrag is xmlNode is export {
     sub xmlNewDocFragment(xmlDoc $doc) returns xmlDocFrag is native(LIB) {*}
     method new(xmlDoc :$doc, xmlNode :$nodes) {
@@ -1070,6 +1077,10 @@ class parserCtxt is export {
     method xmlSAX2CDataBlock(Blob $chars, int32 $len) is native(LIB) {*};
 }
 
+class _htmlParserCtxt is parserCtxt is repr('CStruct') {
+    method myDoc { nativecast(htmlDoc, callsame) }
+}
+
 #| a vanilla XML parser context - can be used to read files or strings
 class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
 
@@ -1100,17 +1111,17 @@ class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 };
 
 #| a vanilla HTML parser context - can be used to read files or strings
-class htmlParserCtxt is parserCtxt is repr('CStruct') is export {
+class htmlParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
 
     sub htmlNewParserCtxt is native(LIB) returns htmlParserCtxt {*};
     method new { htmlNewParserCtxt() }
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns xmlDoc {*};
-    method ReadFile(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns xmlDoc {*};
+    method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns htmlDoc {*};
+    method ReadFile(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns htmlDoc {*};
 };
 
 # HTML file parser context
-class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
+class htmlFileParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
 
     sub htmlCreateFileParserCtxt(Str $file, xmlEncodingStr $enc) is native(LIB) returns htmlFileParserCtxt {*};
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
@@ -1119,7 +1130,7 @@ class htmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 }
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
-class htmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
+class htmlPushParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
 
     sub htmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path, int32 $encoding) is native(LIB) returns htmlPushParserCtxt {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path, xmlEncodingStr :$enc) {
@@ -1143,7 +1154,7 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
     }
 }
 
-class htmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
+class htmlMemoryParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
     sub CreateStr(xmlCharP:D, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_str') {*}
     sub CreateBuf(Blob:D, int32, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_buf') {*}
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}

@@ -9,7 +9,7 @@ void
 perlDocumentFunction( xmlXPathParserContextPtr ctxt, int nargs );
 
 xmlNodeSetPtr
-domSelectNodeSet(xmlXPathObjectPtr);
+domXPathSelectNodeSet(xmlXPathObjectPtr);
 
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlChar* xpathstring );

@@ -4,40 +4,44 @@ all : lib doc
 
 lib : resources/libraries/%LIB-NAME%
 
+# 'all', with compilation warnings and debug symbols enabled
+debug :
+	%MAKE% "CF=-Wall -g"  all
+
 resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_ctx%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_xpath%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
         $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_ctx%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_xpath%O% \
         %LIB-LDFLAGS% 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/dom%O% $(SRC)/dom.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/dom%O% $(SRC)/dom.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/domXPath%O% : $(SRC)/domXPath.c $(SRC)/domXPath.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/domXPath%O% $(SRC)/domXPath.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/domXPath%O% $(SRC)/domXPath.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_ctx%O% : $(SRC)/xml6_ctx.c $(SRC)/xml6_ctx.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ctx%O% $(SRC)/xml6_ctx.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ctx%O% $(SRC)/xml6_ctx.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_doc%O% : $(SRC)/xml6_doc.c $(SRC)/xml6_doc.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_doc%O% $(SRC)/xml6_doc.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_doc%O% $(SRC)/xml6_doc.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_input%O% : $(SRC)/xml6_input.c $(SRC)/xml6_input.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_input%O% $(SRC)/xml6_input.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_input%O% $(SRC)/xml6_input.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_node%O% : $(SRC)/xml6_node.c $(SRC)/xml6_node.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_node%O% $(SRC)/xml6_node.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_node%O% $(SRC)/xml6_node.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_ns%O% : $(SRC)/xml6_ns.c $(SRC)/xml6_ns.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ns%O% $(SRC)/xml6_ns.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ns%O% $(SRC)/xml6_ns.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_sax%O% : $(SRC)/xml6_sax.c $(SRC)/xml6_sax.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_sax%O% $(SRC)/xml6_sax.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_sax%O% $(SRC)/xml6_sax.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_ref%O% : $(SRC)/xml6_ref.c $(SRC)/xml6_ref.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ref%O% $(SRC)/xml6_ref.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ref%O% $(SRC)/xml6_ref.c %LIB-CFLAGS% $(CF)
 
 $(SRC)/xml6_xpath%O% : $(SRC)/xml6_xpath.c $(SRC)/xml6_xpath.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_xpath%O% $(SRC)/xml6_xpath.c %LIB-CFLAGS%
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_xpath%O% $(SRC)/xml6_xpath.c %LIB-CFLAGS% $(CF)
 
 test : all
 	@prove -e"perl6 -I ." -v t
@@ -50,5 +54,3 @@ realclean : clean
 
 doc :
 	echo doc stub
-
-

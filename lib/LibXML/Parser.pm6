@@ -42,9 +42,9 @@ class LibXML::Parser {
                      })
     }
 
-    method !error-handler(parserCtxt:D :$ctx!) {
+    method !error-handler(parserCtxt:D :$ctx!, :$recover = $!recover) {
         $ctx.sax = .unbox with $.sax-handler;
-        LibXML::ErrorHandler.new: :$ctx, :$!flags, :$!line-numbers, :$!recover;
+        LibXML::ErrorHandler.new: :$ctx, :$!flags, :$!line-numbers, :$recover;
     }
 
     method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$errors!, ) {
@@ -76,6 +76,7 @@ class LibXML::Parser {
     multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
+                       Bool() :$recover = $!recover,
                       ) {
 
         # gives better diagnositics
@@ -85,7 +86,7 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$recover;
         $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$errors;
     }

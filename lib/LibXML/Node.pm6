@@ -148,8 +148,8 @@ class LibXML::Node {
         when XML_COMMENT_NODE       { xmlCommentNode }
         when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
         when XML_DTD_NODE           { xmlDtd }
-        when XML_DOCUMENT_NODE
-           | XML_HTML_DOCUMENT_NODE { xmlDoc }
+        when XML_DOCUMENT_NODE      { xmlDoc }
+        when XML_HTML_DOCUMENT_NODE { htmlDoc }
         when XML_ELEMENT_NODE       { xmlNode }
         when XML_ELEMENT_DECL       { xmlElementDecl }
         when XML_ENTITY_DECL        { xmlEntityDecl }

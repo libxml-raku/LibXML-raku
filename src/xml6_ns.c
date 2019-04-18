@@ -1,5 +1,6 @@
 #include "xml6.h"
 #include "xml6_ns.h"
+#include "xml6_ref.h"
 #include <string.h>
 
 DLLEXPORT void xml6_ns_add_reference(xmlNsPtr self) {
