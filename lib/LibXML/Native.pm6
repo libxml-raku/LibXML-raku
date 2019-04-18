@@ -279,9 +279,11 @@ class xmlNs is repr('CStruct') is export {
     has int32    $.type;       # global or local (enum xmlNsType)
     has xmlCharP $.href;       # URL for the namespace
     has xmlCharP $.prefix;     # prefix for the namespace
-    has Pointer  $.private;    # application data
+    has Pointer  $._private;   # application data
     has xmlDoc   $.context;    # normally an xmlDoc
 
+    method add-reference is native(BIND-LIB) is symbol('xml6_ns_add_reference') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ns_remove_reference') {*}
     sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
     method new(Str:D :$href!, Str :$prefix, domNode :$node) {
         xmlNewNs($node, $href, $prefix);

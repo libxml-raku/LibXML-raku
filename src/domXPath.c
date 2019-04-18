@@ -17,6 +17,7 @@
 #include "domXPath.h"
 #include "xml6.h"
 #include "xml6_node.h"
+#include "xml6_ns.h"
 
 void
 perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
@@ -153,7 +154,10 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
     xmlNodePtr cur = self->nodeTab[i];
 
     if (cur != NULL) {
-      if (cur->type != XML_NAMESPACE_DECL) {
+      if (cur->type == XML_NAMESPACE_DECL) {
+        xml6_ns_add_reference((xmlNsPtr)cur);
+      }
+      else {
         xml6_node_add_reference(cur);
       }
     }
@@ -163,8 +167,17 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
 static void
 _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
   xmlNodePtr twig = (xmlNodePtr) entry;
-  if (domNodeIsReferenced(twig) == 0) {
-    xmlFreeNode(twig);
+  if (twig->type == XML_NAMESPACE_DECL) {
+    xmlNsPtr ns = (xmlNsPtr) twig;
+    if (ns->_private == NULL) {
+      // not referenced
+      xmlXPathNodeSetFreeNs(ns);
+    }
+  }
+  else {
+    if (domNodeIsReferenced(twig) == 0) {
+      xmlFreeNode(twig);
+    }
   }
 }
 
@@ -178,22 +191,27 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
     xmlNodePtr cur = self->nodeTab[i];
 
     if (cur != NULL) {
+      xmlNodePtr twig;
+
       if (cur->type == XML_NAMESPACE_DECL) {
-        xmlXPathNodeSetFreeNs((xmlNsPtr) cur);
+        xmlNsPtr ns = (xmlNsPtr)cur;
+        xml6_ns_remove_reference(ns);
+        twig = cur;
       }
       else {
-        xmlNodePtr twig = xml6_node_find_root(cur);
-        if (twig != last_twig) {
-          char key[20];
-          sprintf(key, "%ld", (long) cur);
-
-          if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
-            xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
-          }
-
-          last_twig = twig;
-        }
         xml6_node_remove_reference(cur);
+        twig = xml6_node_find_root(cur);
+      }
+
+      if (twig != last_twig) {
+        char key[20];
+        sprintf(key, "%ld", (long) cur);
+
+        if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
+          xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
+        }
+
+        last_twig = twig;
       }
     }
   }
@@ -253,7 +271,14 @@ _domVetNodeSet(xmlNodeSetPtr node_set) {
         const xmlChar* href = ns->href;
         if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
           if (xmlStrEqual(href, XML_XML_NAMESPACE)) {
-            xmlFreeNs(ns);
+            if (ns->_private != NULL) {
+              // sanity check for externally referenced namespaces. shouldn't really happen
+
+              xml6_warn("namespace node is inuse or private");
+            }
+            else {
+              xmlFreeNs(ns);
+            }
             skip = 1;
           }
         }

@@ -48,7 +48,6 @@ use LibXML;
             # TEST
             ok($doc, 'Make doc in sub 1.');
             # TEST
-            warn $doc.Str;
             ok($doc.Str.defined, 'Make doc in sub 1 - Str().');
         }
         check_mem();
