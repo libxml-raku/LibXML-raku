@@ -229,22 +229,23 @@ our $lock = Lock.new;
 
 method Str(Bool() :$format = False) {
 
+    my \skip-dtd = config.skip-dtd;
+
     if config.skip-xml-declaration {
-        my \skip-dtd = config.skip-dtd;
         $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
     }
     else {
         my xmlDoc $doc = $.unbox;
         my Str $rv;
 
-        if config.skip-dtd && (my $dtd = $doc.internalSubset).defined {
+        if skip-dtd && (my $dtd = self.internalSubset).defined {
             $lock.protect: {
                 # temporarily remove the DTD
-                $dtd.Unlink;
+                self.removeInternalSubset;
 
                 $rv := $doc.Str(:$format);
 
-                $doc.internalSubset = $dtd;
+                self.setInternalSubset($dtd);
             }
         }
         else {

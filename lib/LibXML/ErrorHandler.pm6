@@ -17,21 +17,17 @@ class LibXML::ErrorHandler {
     use LibXML::Enums;
     has parserCtxt:D $.ctx = xmlParserCtxt.new;
     has @!errors;
-    has Bool $.recover;
+    has uint32 $.flags;
 
-    submethod TWEAK(:$flags is copy = 0, Bool :$line-numbers) {
+    method recover { ?($!flags +& XML_PARSE_RECOVER) }
+    method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
+    method suppress-errors { ?($!flags +& XML_PARSE_NOERROR) }
+
+    submethod TWEAK(Bool :$line-numbers) {
         $!ctx.add-reference;
 
-        unless $flags +& XML_PARSE_DTDLOAD {
-            for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
-                $flags -= $_ if $flags +& $_
-            }
-        }
-        $flags +|= XML_PARSE_RECOVER if $!recover;
-
-        $!ctx.UseOptions($flags);     # Note: sets ctxt.linenumbers = 1
+        $!ctx.UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
         $!ctx.linenumbers = +$_ with $line-numbers;
-        # error handling
 
         $!ctx;
     }
@@ -42,22 +38,35 @@ class LibXML::ErrorHandler {
         }
     }
 
-    method !flush(:$recover = $!recover) {
+    method !flush-errors(:$recover = $.recover) {
         if @!errors {
-            my Str $text = @!errors.map(*<msg>).join;
-            my $fatal = @!errors.first: { .<level> >= XML_ERR_ERROR };
+            my @errs = @!errors;
             @!errors = ();
-            my X::LibXML::Parser $err .= new: :$text;
-            if !$fatal || $recover {
-                warn $err;
+
+            if $.suppress-errors {
+                @errs .= grep({ .<level> > XML_ERR_ERROR })
             }
-            else {
-                die $err;
+            elsif $.suppress-warnings {
+                @errs .= grep({ .<level> >= XML_ERR_ERROR })
+            }
+
+            if @errs {
+                my Str $text = @errs.map(*<msg>).join;
+                my $fatal = @errs.first: { .<level> >= XML_ERR_ERROR };
+
+
+                my X::LibXML::Parser $err .= new: :$text;
+                if !$fatal || $recover {
+                    warn $err; 
+                }
+                else {
+                    die $err;
+                }
             }
         }
     }
 
-    method try(&action, Bool :$recover = $!recover) {
+    method try(&action, Bool :$recover = $.recover) {
 
         sub structured-err-func(parserCtxt $, xmlError $_) {
             constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
@@ -79,7 +88,7 @@ class LibXML::ErrorHandler {
                 @text.push: 'warning';
             }
             $msg = (@text.join(' '), ' : ', $msg).join
-            if @text;
+                if @text;
 
             my $file = .file // '';
             if .line && !$file.ends-with('/') {
@@ -92,7 +101,7 @@ class LibXML::ErrorHandler {
         $!ctx.xmlSetStructuredErrorFunc( &structured-err-func );
 
         my $ret := action();
-        self!flush: :$recover;
+        self!flush-errors: :$recover;
         $ret;
     }
 

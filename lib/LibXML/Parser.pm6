@@ -8,7 +8,6 @@ class LibXML::Parser {
 
     has Bool $.html;
     has Bool $.line-numbers is rw = False;
-    has Bool $.recover is rw;
     has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.baseURI is rw;
     has $.sax-handler;
@@ -33,6 +32,7 @@ class LibXML::Parser {
         :no-base-fix(XML_PARSE_NOBASEFIX),
         :huge(XML_PARSE_HUGE),
         :oldsax(XML_PARSE_OLDSAX),
+        :no-def-dtd(HTML_PARSE_NODEFDTD),
     );
 
     method keep-blanks is rw {
@@ -42,9 +42,45 @@ class LibXML::Parser {
                      })
     }
 
-    method !error-handler(parserCtxt:D :$ctx!, :$recover = $!recover) {
+    method !process-flags(%flags, :$html) {
+        my $flags = $!flags;
+        $flags -= XML_PARSE_DTDLOAD
+            if $html && $flags +& XML_PARSE_DTDLOAD;
+        for %flags.pairs.sort -> $f {
+            my $key = $f.key;
+            my $set =  $f.value.so;
+            if %FLAGS{'no-' ~ $key}:exists {
+                $key = 'no-' ~ $key;
+                $set := !$set;
+            }
+            with %FLAGS{$key} -> $v {
+                if $set {
+                    $flags +|= $v;
+                }
+                else {
+                    # unset
+                    my uint32 $mask = 0xffffffff +^ $v;
+                    $flags +&= $mask;
+                }
+            }
+            else {
+                warn "ignoring parser option: {$f.key}";
+            }
+        }
+
+        unless $html || $flags +& XML_PARSE_DTDLOAD {
+            for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
+                $flags -= $_ if $flags +& $_
+            }
+        }
+
+        $flags;
+    }
+
+    method !error-handler(parserCtxt:D :$ctx!, :$html, *%flags) {
+        my UInt $flags = self!process-flags(%flags, :$html);
         $ctx.sax = .unbox with $.sax-handler;
-        LibXML::ErrorHandler.new: :$ctx, :$!flags, :$!line-numbers, :$recover;
+        LibXML::ErrorHandler.new: :$ctx, :$flags, :$!line-numbers;
     }
 
     method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$errors!, ) {
@@ -76,17 +112,18 @@ class LibXML::Parser {
     multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
-                       Bool() :$recover = $!recover,
+                       xmlEncodingStr :$enc = 'UTF-8',
+                       *%flags,
                       ) {
 
         # gives better diagnositics
         my parserCtxt:D $ctx = $html
-           ?? htmlMemoryParserCtxt.new: :$string
+           ?? htmlMemoryParserCtxt.new: :$string, :$enc
            !! xmlMemoryParserCtxt.new: :$string;
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$recover;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$html, |%flags;
         $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$errors;
     }
@@ -95,6 +132,7 @@ class LibXML::Parser {
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
                        xmlEncodingStr :$enc = 'UTF-8',
+                       *%flags,
                       ) {
 
         # gives better diagnositics
@@ -104,7 +142,7 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$html, |%flags;
         $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$errors;
     }
@@ -112,7 +150,9 @@ class LibXML::Parser {
     multi method parse(IO() :$file!,
                        Bool() :$html = $!html,
                        xmlEncodingStr :$enc,
-                       Str :$URI = $!baseURI) {
+                       Str :$URI = $!baseURI,
+                       *%flags,
+                      ) {
 
         die "file not found: $file"
             unless $file.IO.e;
@@ -120,7 +160,7 @@ class LibXML::Parser {
            ?? htmlFileParserCtxt.new(:$file, :$enc)
            !! xmlFileParserCtxt.new(:$file);
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx;
+        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$html, |%flags;
         $errors.try: { $ctx.ParseDocument };
         self!publish: :$ctx, :$URI, :$errors;
     }
@@ -130,12 +170,14 @@ class LibXML::Parser {
                        Bool() :$html = $!html,
                        UInt :$chunk-size = 4096,
                        xmlEncodingStr :$enc,
+                       *%flags,
                       ) {
 
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$!flags, :$!line-numbers, :$.sax-handler, :$enc;
+        my UInt $flags = self!process-flags(%flags, :$html);
+        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$flags, :$!line-numbers, :$.sax-handler, :$enc;
 
         my Bool $more = ?$chunk;
 
@@ -169,9 +211,9 @@ class LibXML::Parser {
         $.finish-push
             if $terminate;
     }
-    method finish-push(
+    method finish-push (
         Str :$URI = $!baseURI,
-        Bool :$recover = $!recover,
+        Bool :$recover = $.recover,
     )
     {
         with $!push-parser {
@@ -184,7 +226,7 @@ class LibXML::Parser {
         }
     }
 
-    method parse-balanced(Str() :$string!, Bool() :$recover = False, LibXML::Document :$doc) {
+    method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
         use LibXML::DocumentFragment;
         my LibXML::DocumentFragment $frag .= new: :$doc;
         my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler;

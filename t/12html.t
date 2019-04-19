@@ -271,15 +271,12 @@ EOF
         # TEST
         like( $p.parse( :html, :string( $html),
                         :recover,
-                        :no_defdtd,
+                        :!def-dtd,
                         :enc<UTF-8>).Str, /^'<html>'/, 'do not add a default DOCTYPE' );
 
         # TEST
-}}; skip "port remaining test", 1;
-=begin TODO
         like( $p.parse(:html, :string( $html),
                         :recover,
                         :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
     }
 }
-=end TODO
