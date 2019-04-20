@@ -8,7 +8,7 @@ class LibXML::Parser {
 
     has Bool $.html;
     has Bool $.line-numbers is rw = False;
-    has uint32 $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
+    has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.baseURI is rw;
     has $.sax-handler;
 
@@ -35,40 +35,59 @@ class LibXML::Parser {
         :no-def-dtd(HTML_PARSE_NODEFDTD),
     );
 
+    sub get-flag(UInt $flags, Str:D $k) {
+        with %FLAGS{'no-' ~ $k} {
+               ! ($flags +& $_)
+        }
+        else {
+            with %FLAGS{$k} {
+                ? ($flags +& $_)
+            }
+            else {
+                fail "uknown parser flag: $_";
+            }
+        }
+    }
+
+    sub set-flag(UInt $flags is rw, Str:D $k, Bool() $v) {
+        with %FLAGS{'no-' ~ $k} {
+            set-flag($flags, 'no-' ~ $k, ! $v);
+        }
+        else {
+            with %FLAGS{$k} {
+                if $v {
+                    $flags += $_
+                        unless $flags +& $_;
+                }
+                else {
+                    $flags -= $_
+                        if $flags +& $_;
+                }
+            }
+            else {
+                fail "uknown parser flag: $_";
+            }
+        }
+        $v;
+    }
+
     method keep-blanks is rw {
         Proxy.new(FETCH => sub ($) { ! self.no-blanks },
                   STORE => sub ($, Bool() $kb) {
-                         self.no-blanks = ! $kb
+                         self.blanks = $kb
                      })
     }
 
     method !process-flags(%flags, :$html) {
-        my $flags = $!flags;
-        $flags -= XML_PARSE_DTDLOAD
-            if $html && $flags +& XML_PARSE_DTDLOAD;
-        for %flags.pairs.sort -> $f {
-            my $key = $f.key;
-            my $set =  $f.value.so;
-            if %FLAGS{'no-' ~ $key}:exists {
-                $key = 'no-' ~ $key;
-                $set := !$set;
-            }
-            with %FLAGS{$key} -> $v {
-                if $set {
-                    $flags +|= $v;
-                }
-                else {
-                    # unset
-                    my uint32 $mask = 0xffffffff +^ $v;
-                    $flags +&= $mask;
-                }
-            }
-            else {
-                warn "ignoring parser option: {$f.key}";
-            }
+        my UInt $flags = $!flags;
+        set-flag($flags, 'load-ext-dtd', False)
+            if $html;
+        for %flags.pairs.sort {
+            set-flag($flags, .key, .value.so);
         }
 
         unless $html || $flags +& XML_PARSE_DTDLOAD {
+            
             for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
                 $flags -= $_ if $flags +& $_
             }
@@ -233,38 +252,27 @@ class LibXML::Parser {
         $frag;
     }
 
-    method !flag-accessor(uint32 $flag) is rw {
+    method !flag-accessor(Str:D $key) is rw {
         Proxy.new(
-            FETCH => sub ($) { ? ($!flags +& $flag) },
+            FETCH => sub ($) { get-flag($!flags, $key) },
             STORE => sub ($, Bool() $_) {
-                if .so {
-                    $!flags +|= $flag;
-                }
-                else {
-                    my uint32 $mask = 0xffffffff +^ $flag;
-                    $!flags +&= $mask;
-                }
+                set-flag($!flags, $key, $_);
             });
     }
 
     submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax-handler($), *%flags) {
         for %flags.pairs.sort -> $f {
-            with %FLAGS{$f.key} {
-                self!flag-accessor($_) = $f.value;
-            }
-            else {
-                warn "ignoring option: {$f.key}";
-            }
+            set-flag($!flags, .key, .value);
         }
     }
 
-    method FALLBACK($method, |c) is rw {
+    method FALLBACK($key, |c) is rw {
         # set up flag accessors;
-        with %FLAGS{$method} {
-            self!flag-accessor($_,|c);
+        with %FLAGS{$key} // %FLAGS{'no-' ~ $key} {
+            self!flag-accessor($key);
         }
         else {
-            die X::Method::NotFound.new( :$method, :typename(self.^name) )
+            die X::Method::NotFound.new( :method($key), :typename(self.^name) )
         }
     }
 
