@@ -57,11 +57,12 @@ class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {
-    sub xmlAllocParserInputBuffer(xmlEncodingStr:D --> xmlParserInputBuffer) is native(LIB) {*}
+    sub xmlAllocParserInputBuffer(int32 $enc --> xmlParserInputBuffer) is native(LIB) {*}
     method new(xmlEncodingStr:D :$enc!) {
-         xmlAllocParserInputBuffer($enc);
+        my Int $encoding = xmlParseCharEncoding($enc);
+        xmlAllocParserInputBuffer($encoding);
     }
-    method push(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push') {*}
+    method PushStr(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push_str') {*}
 }
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
@@ -789,7 +790,7 @@ class xmlDtd is domNode is export {
 
     method xmlCopyDtd is native(LIB)  returns xmlDtd {*}
     method copy() { $.xmlCopyDtd }
-    sub xmlIOParseDTD(xmlSAXHandler, xmlParserInputBuffer:D, xmlEncodingStr:D --> xmlDtd) is native(LIB) {*}
+    sub xmlIOParseDTD(xmlSAXHandler, xmlParserInputBuffer:D, int32 $enc --> xmlDtd) is native(LIB) {*}
     sub xmlSAXParseDTD(xmlSAXHandler, Str, Str --> xmlDtd) is native(LIB) {*}
 
     multi method new(:type($)! where 'internal', xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
@@ -799,11 +800,12 @@ class xmlDtd is domNode is export {
         $doc.NewDtd( $name, $external-id, $system-id);
     }
     multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlEncodingStr:D :$enc!) {
+        my Int $encoding = xmlParseCharEncoding($enc);
         my xmlParserInputBuffer $buffer .= new: :$enc;
-        my $n := $buffer.push($string);
+        my $n := $buffer.PushStr($string);
         die "push to input buffer failed"
             if $n < 0;
-        xmlIOParseDTD($sax-handler, $buffer, $enc);
+        xmlIOParseDTD($sax-handler, $buffer, $encoding);
     }
     multi method parse(Str :$external-id, Str :$system-id, xmlSAXHandler :$sax-handler) is default {
         xmlSAXParseDTD($sax-handler, $external-id, $system-id);

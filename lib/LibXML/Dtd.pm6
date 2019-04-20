@@ -20,8 +20,9 @@ multi submethod TWEAK(
     self.struct = $dtd-struct;
 }
 
-multi method new($name, $external-id, *%o) {
-    self.new(:$name, :$external-id, :type<external>, |%o);
+# for Perl 5 compat
+multi method new($external-id, $system-id) {
+    self.parse(:$external-id, :$system-id);
 }
 
 multi method new(|c) is default { nextsame }
@@ -30,7 +31,7 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     my xmlDtd:D $struct = LibXML::ErrorHandler.new.try: {xmlDtd.parse: :$string, :$enc};
     self.new: :$struct;
 }
-multi method parse(Str :$external-id, Str :$system-id) {
+multi method parse(Str:D :$external-id, Str:D :$system-id) {
     my xmlDtd:D $struct = LibXML::ErrorHandler.new.try: {xmlDtd.parse: :$external-id, :$system-id;};
     self.new: :$struct;
 }

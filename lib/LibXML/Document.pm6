@@ -15,6 +15,7 @@ use LibXML::Dtd;
 use LibXML::EntityDecl;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
+use LibXML::ErrorHandler;
 use NativeCall;
 
 constant config = LibXML::Config;
@@ -215,7 +216,7 @@ method externalSubset is rw {
              );
 }
 
-method validate(LibXML::Dtd :dtd($dtd-obj) --> Bool) {
+method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset --> Bool) {
     my xmlValidCtxt $cvp .= new;
     my xmlDoc:D $doc = self.unbox;
     my xmlDtd $dtd = .unbox with $dtd-obj;
@@ -223,7 +224,8 @@ method validate(LibXML::Dtd :dtd($dtd-obj) --> Bool) {
     ? $cvp.validate(:$doc, :$dtd);
 }
 
-method is-valid(|c) { $.validate(|c) }
+method validate(|c) { LibXML::ErrorHandler.new.try: {self!validate(|c)} }
+method is-valid(|c) { self!validate(|c) }
 
 our $lock = Lock.new;
 
