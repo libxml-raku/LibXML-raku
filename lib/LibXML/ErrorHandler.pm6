@@ -68,7 +68,7 @@ class LibXML::ErrorHandler {
 
     method try(&action, Bool :$recover = $.recover) {
 
-        sub structured-err-func(parserCtxt $, xmlError $_) {
+        sub structured-err-func(parserCtxt $ctx, xmlError $_) {
             constant @ErrorDomains = ("", "parser", "tree", "namespace", "validity",
                                       "HTML parser", "memory", "output", "I/O", "ftp",
                                       "http", "XInclude", "XPath", "xpointer", "regexp",
@@ -82,7 +82,9 @@ class LibXML::ErrorHandler {
             my @text;
             @text.push: $_ with @ErrorDomains[.domain];
             if $level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
-                @text.push: 'error'
+                @text.push: 'error';
+                $ctx.StopParser
+                    if $level ~~ XML_ERR_FATAL || !$recover;
             }
             elsif $level == XML_ERR_WARNING {
                 @text.push: 'warning';

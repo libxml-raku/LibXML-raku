@@ -1034,7 +1034,7 @@ class parserCtxt is export {
     method xmlSetGenericErrorFunc( &error-func (parserCtxt $, Str $fmt)) is native(LIB) {*};
     method xmlSetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) {*};
     method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
-    method Halt is native(LIB) is symbol('xmlHaltParser') { * }
+    method StopParser is native(LIB) is symbol('xmlStopParser') { * }
     method add-reference is native(BIND-LIB) is symbol('xml6_ctx_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ctx_remove_reference') {*}
     method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
