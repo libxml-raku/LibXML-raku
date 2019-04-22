@@ -115,7 +115,7 @@ class LibXML::SAX::Builder {
                     method($obj, $name, :$ctx, :$atts);
                 }
         },
-        'endElement'|'reference'|'comment'|'warring'|'error'|'fatalError'|'getParameterEntity' =>
+        'endElement'|'reference'|'comment'|'warning'|'error'|'fatalError'|'getParameterEntity' =>
             -> $obj, &method {
                 sub (parserCtxt $ctx, Str $text) {
                     method($obj, $text, :$ctx);

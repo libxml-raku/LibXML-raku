@@ -25,7 +25,7 @@ class LibXML::SAX::Handler::XML
         callsame;
         my %attribs := atts2Hash($atts);
         my XML::Element $elem .= new: :$name, :%attribs;
-        # append and walk down
+        # append and step down
         with $!doc {
             $!node.append: $elem;
         }
@@ -37,7 +37,7 @@ class LibXML::SAX::Handler::XML
 
     method endElement(Str $name) is sax-cb {
         callsame;
-        # walk up the tree
+        # step up the tree
         $!node = $!node.parent // Nil;
     }
 

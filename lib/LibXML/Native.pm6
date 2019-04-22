@@ -40,7 +40,7 @@ constant Stub = 'CPointer';
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
 # old buffer limited to 2Gb. replaced by xmlBuf
-class xmlBuffer is repr(Stub) is export {}
+class xmlBufOld is repr(Stub) is export {}
 class xmlDict is repr(Stub) is export {
     sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
     method Free is native(LIB) is symbol('xmlDictFree') {*};
@@ -263,7 +263,7 @@ class xmlBuf is repr('CStruct') is export {
     has xmlCharP  $.contentIO;   # in IO mode we may have a different base
     has size_t    $.use;         # The buffer size used
     has size_t    $.size;        # The buffer size
-    has xmlBuffer $.buffer;      # wrapper for an old buffer
+    has xmlBufOld $.buffer;      # wrapper for an old buffer
     has int32     $.error;       # an error code if a failure occurred
 
     sub Create is native(LIB) is symbol('xmlBufCreate') returns xmlBuf {*}

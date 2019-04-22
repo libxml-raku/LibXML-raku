@@ -23,4 +23,12 @@ class LibXML::SAX
         my LibXML::DocumentFragment $doc = callsame;
         $!sax-handler.finish: :$doc;
     }
+
+    method generate(:$doc!, |c) {
+        # hacky stub implementation. should really traverse the existing
+        # document DOM with the SAX handler
+        warn "fixme - stub";
+        my $string = $doc.Str;
+        $.parse( :$string, |c );
+    }
 }
