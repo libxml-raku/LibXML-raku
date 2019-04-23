@@ -6,6 +6,7 @@ use LibXML;
 use LibXML::SAX;
 #use LibXML::SAX::Parser;
 use LibXML::SAX::Builder;
+use LibXML::SAX::Handler::SAX2;
 use LibXML::Node;
 use LibXML::Element;
 
@@ -112,17 +113,13 @@ my $parser;
     # TEST
     ok($generator, ' TODO : Add test name');
 
-    $SAXTester_start_document_counter.cb.();
-    $generator.generate(:$doc); # start_element*10
+    $generator.reparse($doc); # start_element*10
 
     # TEST
     $SAXTester_start_element_stacker.test(
         ['true' xx 10],
         'start_element was successful 10 times.',
     );
-
-}; skip("todo: port remaining tests", 50);
-=begin TODO
 
     # TEST
     $SAXTester_start_document_counter.test(1, 'start_document called once.');
@@ -132,39 +129,39 @@ my $parser;
     my $builder = LibXML::SAX::Builder.new();
     # TEST
     ok($builder, ' TODO : Add test name');
-    my $gen2 = LibXML::SAX::Parser.new(Handler => $builder);
-    my $dom2 = $gen2.generate($doc);
+    my $gen2 = LibXML::SAX.new(sax-builder => $builder);
+    my $dom2 = $gen2.reparse($doc);
     # TEST
     ok($dom2, ' TODO : Add test name');
 
     # TEST
-    is($dom2.toString, $str, ' TODO : Add test name');
+    is($dom2.Str, $str, ' TODO : Add test name');
     # warn($dom2.toString);
 
-########### XML::SAX Tests ###########
-    $parser = XML::SAX::ParserFactory.parser(Handler => $sax);
+########### XML::SAX Replacement Tests ###########
+    $parser = LibXML::SAX.new(sax-handler => $sax);
     # TEST
     ok($parser, ' TODO : Add test name');
-    $parser.parse_uri("example/dromeds.xml"); # start_element*10
+    $parser.parse: :file("example/dromeds.xml"); # start_element*10
 
     # TEST
     $SAXTester_start_element_stacker.test(
-        [(qw(true)) x 10],
-        'parse_uri(): start_element was successful 10 times.',
+        ['true' xx 10],
+        'parse: file(): start_element was successful 10 times.',
     );
     # TEST
     $SAXTester_start_document_counter.test(1, 'start_document called once.');
     # TEST
     $SAXTester_end_document_counter.test(1, 'end_document called once.');
 
-    $parser.parse_string(<<EOT); # start_element*1
+    $parser.parse: :string(q:to<EOT>); # start_element*1
 <?xml version='1.0' encoding="US-ASCII"?>
 <dromedaries one="1" />
 EOT
     # TEST
     $SAXTester_start_element_stacker.test(
-        [qw(true)],
-        'parse_string() : start_element was successful 1 times.',
+        ['true'],
+        'parse: :string() : start_element was successful 1 times.',
     );
     # TEST
     $SAXTester_start_document_counter.test(1, 'start_document called once.');
@@ -173,7 +170,10 @@ EOT
 }
 
 {
+}; skip("todo: port remaining tests", 38);
+=begin TODO
     my $sax = SAXNSTester.new;
+
     # TEST
     ok($sax, ' TODO : Add test name');
 
@@ -355,6 +355,16 @@ class SAXTester
 
     use NativeCall;
     use LibXML::SAX::Builder :sax-cb;
+
+    method startDocument(parserCtxt :$ctx!, |) is sax-cb {
+        callsame;
+        $SAXTester_start_document_counter.cb.()
+    }
+
+    method endDocument(parserCtxt :$ctx!, |) is sax-cb {
+        callsame;
+        $SAXTester_end_document_counter.cb.()
+    }
 
     method startElement(parserCtxt :$ctx!, |) is sax-cb {
         callsame;

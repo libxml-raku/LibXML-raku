@@ -31,6 +31,14 @@ class LibXML::SAX::Handler::SAX2
         ? $ctx.xmlSAX2IsStandalone;
     }
 
+    method startDocument(Ctx :$ctx!) {
+        $ctx.xmlSAX2StartDocument;
+    }
+
+    method endDocument(Ctx :$ctx!) {
+        $ctx.xmlSAX2EndDocument;
+    }
+
     method startElement(Str $name, CArray :$atts!, Ctx :$ctx!) {
         $ctx.xmlSAX2StartElement($name, $atts);
     }

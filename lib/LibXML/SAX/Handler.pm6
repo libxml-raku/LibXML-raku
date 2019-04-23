@@ -3,10 +3,11 @@ class LibXML::SAX::Handler {
     use LibXML::SAX::Builder;
 
     use LibXML::Native;
-    has xmlSAXHandler $!sax;
-    submethod TWEAK(xmlSAXHandler :$!sax) { }
+    has xmlSAXHandler $!struct;
+    has $.sax-builder = LibXML::SAX::Builder;
+    submethod TWEAK(xmlSAXHandler :$!struct) { }
     method unbox {
-        $!sax //= LibXML::SAX::Builder.build-sax(self);
+        $!struct //= $!sax-builder.build-sax-handler(self);
     }
 }
 

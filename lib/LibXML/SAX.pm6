@@ -2,8 +2,10 @@ use LibXML::Parser;
 
 class LibXML::SAX
     is LibXML::Parser {
+    use LibXML::Native;
     use LibXML::SAX::Handler;
-    has LibXML::SAX::Handler $.sax-handler is required;
+    use LibXML::SAX::Handler::SAX2;
+    has LibXML::SAX::Handler $.sax-handler = LibXML::SAX::Handler::SAX2;
 
     use LibXML::Native;
     use LibXML::Document;
@@ -24,11 +26,12 @@ class LibXML::SAX
         $!sax-handler.finish: :$doc;
     }
 
-    method generate(:$doc!, |c) {
-        # hacky stub implementation. should really traverse the existing
+    method reparse(LibXML::Document:D $doc!, |c) {
         # document DOM with the SAX handler
-        warn "fixme - stub";
         my $string = $doc.Str;
         $.parse( :$string, |c );
+    }
+    method generate(LibXML::Document:D :$doc, |c) is DEPRECATED("use 'reparse' method") {
+        $.reparse($doc, |c);
     }
 }

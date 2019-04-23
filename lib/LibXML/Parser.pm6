@@ -260,8 +260,8 @@ class LibXML::Parser {
             });
     }
 
-    submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax-handler($), *%flags) {
-        for %flags.pairs.sort -> $f {
+    submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), *%flags) {
+        for %flags.pairs.sort {
             set-flag($!flags, .key, .value);
         }
     }
