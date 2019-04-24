@@ -118,7 +118,7 @@ class LibXML::Node {
     method line-number { $.unbox.GetLineNo }
     method prefix      { with $.unbox.ns {.prefix} else { Str } }
 
-    sub box-class(UInt $_) {
+    sub box-class(UInt $_) is export(:box-class) {
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
         when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
         when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
@@ -174,7 +174,7 @@ class LibXML::Node {
         nativecast( $delegate, $struct);
     }
 
-    sub cast-elem(xmlNodeSetElem:D $elem is raw) {
+    sub cast-elem(xmlNodeSetElem:D $elem is raw) is export(:cast-elem) {
         $elem.type == XML_NAMESPACE_DECL
             ?? nativecast(xmlNs, $elem)
             !! cast-struct( nativecast(domNode, $elem) );
@@ -215,105 +215,16 @@ class LibXML::Node {
         }
     }
 
-    my class List does Iterable does Iterator {
-        has Bool $.keep-blanks;
-        has $.doc is required;
-        has $.list is required handles <string-value>;
-        has $cur;
-        has $.type = LibXML::Node;
-        has @!array;
-        has Bool $!slurped;
-        submethod TWEAK { $!cur = $!list }
-        method Array handles<AT-POS elems List pairs keys values map grep shift pop> {
-            unless $!slurped++ {
-                $!cur = $!list;
-                @!array = self;
-            }
-            @!array;
-        }
-        multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
-        multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-        method Str  { $.to-literal }
-        method iterator { self }
-        method pull-one {
-            with $!cur -> $this {
-                $!cur = $this.next-node($!keep-blanks);
-                $!type.box: $this, :$!doc
-            }
-            else {
-                IterationEnd;
-            }
-        }
-    }
     proto sub iterate(|) is export(:iterate) {*}
     multi sub iterate($obj, domNode $list, :$doc = $obj.doc, Bool :$keep-blanks = True) {
         # follow a chain of .next links.
-        List.new: :type($obj), :$list, :$doc, :$keep-blanks;
-    }
-
-    my class Set does Iterable does Iterator {
-        has $.range is required;
-        has xmlNodeSet $.set is required;
-        has UInt $!idx = 0;
-        has @!array;
-        has Bool $!slurped;
-        has Bool $.values;
-        submethod TWEAK {
-            .Reference with $!set;
-        }
-        submethod DESTROY {
-            # xmlNodeSet is managed by us
-            .Release with $!set;
-        }
-        method elems { $!slurped ?? @!array.elems !! $!set.nodeNr }
-        method Array handles<List pairs keys values map grep shift pop> {
-            unless $!slurped {
-                $!idx = 0;
-                @!array = self;
-                $!slurped = True;
-            }
-            @!array;
-        }
-        multi method AT-POS(UInt:D $pos where $_ >= $!set.nodeNr) { $!range }
-        multi method AT-POS(UInt:D $pos) {
-            if $!slurped {
-                @!array[$pos];
-            }
-            else {
-                with $!set.nodeTab[$pos].deref {
-                    my $class = box-class(.type);
-                    die "unexpected node of type {$class.perl} in node-set"
-                        unless $class ~~ $!range;
-
-                    with $class.box: cast-elem($_) {
-                        $!values ?? .string-value !! $_;
-                    }
-                }
-                else {
-                    $!range;
-                }
-            }
-        }
-
-        method string-value { with self.AT-POS(0) { $!values ?? $_ !! .string-value }}
-        multi method to-literal( :list($)! where .so ) { self.map({$!values ?? $_ !! .string-value}) }
-        multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-        method Str  { $.to-literal }
-        method size { $!set.nodeNr }
-        method iterator { self }
-        method pull-one {
-            if $!set.defined && $!idx < $!set.nodeNr {
-                self.AT-POS($!idx++);
-            }
-            else {
-                IterationEnd;
-            }
-        }
+        use LibXML::Node::List;
+        LibXML::Node::List.new: :type($obj), :$list, :$doc, :$keep-blanks;
     }
 
     multi sub iterate($range, xmlNodeSet $set, Bool :$values) {
         # iterate through a set of nodes
-        Set.new( :$set, :$range, :$values )
+        (require ::('LibXML::Node::Set')).new( :$set, :$range, :$values )
     }
 
     method ownerDocument is rw { $.doc }
@@ -375,7 +286,7 @@ class LibXML::Node {
     multi method findvalue(Str:D $expr) {
         $.findvalue( LibXML::XPathExpression.new(:$expr));
     }
-    my subset XPathDomain is export(:XPathDomain) where LibXML::XPathExpression|Str;
+    my subset XPathDomain where LibXML::XPathExpression|Str;
     multi method exists(XPathDomain:D $xpath-expr --> Bool:D) {
         $.find($xpath-expr, True);
     }

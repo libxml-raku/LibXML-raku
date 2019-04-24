@@ -2,6 +2,7 @@ use v6;
 use LibXML::Parser;
 use LibXML::Config;
 
+# Preload stuff to avoid some Rakudo buglets
 use LibXML::Attr;
 use LibXML::CDATASection;
 use LibXML::Comment;
@@ -10,6 +11,8 @@ use LibXML::DocumentFragment;
 use LibXML::Element;
 use LibXML::Text;
 use LibXML::Native;
+use LibXML::Node::Set;
+use LibXML::Node::List;
 
 unit class LibXML
     is LibXML::Parser;
