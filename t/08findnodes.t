@@ -139,10 +139,9 @@ my @badxpath = (
                );
 
 for @badxpath -> $xp {
-    my $res;
-    dies-ok { $res = $root.findnodes( $xp ); }, "findnodes('$xp'); - dies";
-    dies-ok { $res = $root.find( $xp ); }, "find('$xp'); - dies";
-    dies-ok { $res = $root.findvalue( $xp ); }, "findvalue('$xp'); - dies";
+    dies-ok { $root.findnodes( $xp ); }, "findnodes('$xp'); - dies";
+    dies-ok { $root.find( $xp ); }, "find('$xp'); - dies";
+    dies-ok { $root.findvalue( $xp ); }, "findvalue('$xp'); - dies";
 }
 
 

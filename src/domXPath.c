@@ -237,15 +237,15 @@ domReleaseXPathObject(xmlXPathObjectPtr self) {
   xmlXPathFreeObject(self);
 }
 
-xmlXPathObjectPtr
-domXPathFind( xmlNodePtr refNode, xmlChar* path, int to_bool ) {
+static xmlXPathObjectPtr
+_domXPathFindStr( xmlNodePtr refNode, xmlChar* path) {
     xmlXPathObjectPtr rv = NULL;
-    xmlXPathCompExprPtr comp;
-    comp = xmlXPathCompile( path );
+    xmlXPathCompExprPtr comp = xmlXPathCompile( path );
     if ( comp == NULL ) {
+      fprintf(stderr, "%s:%d: invalid xpath expression: %s\n", __FILE__, __LINE__, path);
         return NULL;
     }
-    rv = domXPathCompFind(refNode,comp,to_bool);
+    rv = domXPathFind(refNode, comp, 0);
     xmlXPathFreeCompExpr(comp);
     return rv;
 }
@@ -294,7 +294,9 @@ _domVetNodeSet(xmlNodeSetPtr node_set) {
 
 static xmlXPathObjectPtr
 _domVetXPathObject(xmlXPathObjectPtr self) {
-  if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
+  if (self != NULL
+      && self->type == XPATH_NODESET
+      && self->nodesetval != NULL) {
     _domVetNodeSet(self->nodesetval);
   }
   return self;
@@ -338,11 +340,11 @@ domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
 
 
 xmlXPathObjectPtr
-domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
+domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
     xmlXPathObjectPtr rv = NULL;
     if ( refNode != NULL && comp != NULL ) {
         xmlXPathContextPtr ctxt = domXPathNewCtxt(refNode);
-        rv = domXPathCompFindCtxt(ctxt, comp, to_bool);
+        rv = domXPathFindCtxt(ctxt, comp, to_bool);
         domXPathFreeCtxt(ctxt);
     }
     return rv;
@@ -372,33 +374,18 @@ _domSelect(xmlXPathObjectPtr xpath_obj) {
 }
 
 xmlNodeSetPtr
-domXPathSelect( xmlNodePtr refNode, xmlChar* path ) {
-    return _domSelect( domXPathFind( refNode, path, 0 ) );
+domXPathSelectStr( xmlNodePtr refNode, xmlChar* path ) {
+    return _domSelect( _domXPathFindStr( refNode, path ) );
 }
 
 
 xmlNodeSetPtr
-domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
-    return _domSelect( domXPathCompFind( refNode, comp, 0 ));
+domXPathSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
+    return _domSelect( domXPathFind( refNode, comp, 0 ));
 }
 
 xmlXPathObjectPtr
-domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlChar* path, int to_bool ) {
-    xmlXPathObjectPtr rv = NULL;
-    if ( ctxt->node != NULL && path != NULL ) {
-        xmlXPathCompExprPtr comp;
-        comp = xmlXPathCompile( path );
-        if ( comp == NULL ) {
-            return NULL;
-        }
-        rv = domXPathCompFindCtxt(ctxt,comp,to_bool);
-        xmlXPathFreeCompExpr(comp);
-    }
-    return rv;
-}
-
-xmlXPathObjectPtr
-domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool ) {
+domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool ) {
     xmlXPathObjectPtr rv = NULL;
     if ( ctxt != NULL && ctxt->node != NULL && comp != NULL ) {
         if (to_bool) {
@@ -421,12 +408,8 @@ domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_
 }
 
 xmlNodeSetPtr
-domXPathCompSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp) {
-  return _domSelect(domXPathCompFindCtxt(ctxt, comp, 0));
+domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp) {
+  return _domSelect(domXPathFindCtxt(ctxt, comp, 0));
 }
 
-xmlNodeSetPtr
-domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar* path ) {
-    return _domSelect( domXPathFindCtxt( ctxt, path, 0 ) );
-}
 

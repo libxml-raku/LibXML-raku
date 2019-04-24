@@ -65,7 +65,7 @@ class LibXML::Parser {
                 }
             }
             else {
-                fail "unknown parser flag: $_";
+                fail "unknown parser flag: $k";
             }
         }
         $v;

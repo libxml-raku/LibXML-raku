@@ -16,6 +16,7 @@ use Counter;
 use Stacker;
 
 class SAXTester { ... }
+class SAXNSTester { ... }
 
 # TEST
 ok(1, 'Loaded');
@@ -170,35 +171,35 @@ EOT
 }
 
 {
-}; skip("todo: port remaining tests", 38);
-=begin TODO
     my $sax = SAXNSTester.new;
 
     # TEST
     ok($sax, ' TODO : Add test name');
 
-    $parser.set_handler($sax);
+    $parser.sax-handler = $sax;
+}; skip("todo: port remaining tests", 37);
+=begin TODO
 
-    $parser.parse_uri("example/ns.xml");
+    $parser.parse: :file("example/ns.xml");
 
     # TEST
     $SAXNSTester_start_element_stacker.test(
         [
-            qw(true true true)
+            'true' xx 3
         ],
         'Three successful SAXNSTester elements.',
     );
     # TEST
     $SAXNSTester_start_prefix_mapping_stacker.test(
         [
-            qw(true true true)
+            'true' xx 3
         ],
         'Three successful SAXNSTester start_prefix_mapping.',
     );
     # TEST
     $SAXNSTester_end_prefix_mapping_stacker.test(
         [
-            qw(true true true)
+            'true' xx 3
         ],
         'Three successful SAXNSTester end_prefix_mapping.',
     );
@@ -373,32 +374,29 @@ class SAXTester
             $SAXTester_start_element_stacker.cb.($node);
         }
     }
+
     method endElement(parserCtxt :$ctx!, |) is sax-cb {
         callsame;
     }
 }
 
-=begin TODO2
 
-package SAXNSTester;
-use Test::More;
+class  SAXNSTester
+    is LibXML::SAX::Handler::SAX2 {
 
-sub new {
-    bless {}, shift;
-}
+    use LibXML::SAX::Builder :sax-cb;
 
-sub start_element {
-    my ($self, $node) = @_;
+    method startElementNs($name, parserCtxt :$ctx!, |c) is sax-cb {
+        callsame;
+        with $ctx.node {
+            my LibXML::Node $node .= box($_);
+            $SAXNSTester_start_element_stacker.cb.($node);
+        }
+    }
 
-    $SAXNSTester_start_element_stacker.cb().($node);
-
-    return;
-}
-
-sub end_element {
-    my ($self, $node) = @_;
-    # warn("end_element: $node.{Name}\n");
-}
+    method endElementNs(parserCtxt :$ctx!, |) is sax-cb {
+        callsame;
+   }
 
 sub start_prefix_mapping {
     my ($self, $node) = @_;
@@ -416,7 +414,9 @@ sub end_prefix_mapping {
     return;
 }
 
-1;
+}
+
+=begin TODO2
 
 package SAXNS2Tester;
 use Test::More;

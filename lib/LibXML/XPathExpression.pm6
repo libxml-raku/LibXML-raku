@@ -6,7 +6,9 @@ class LibXML::XPathExpression {
     method unbox { $!struct }
 
     submethod TWEAK(Str:D :$expr!) {
-        $!struct .= new: :$expr;
+        $!struct .= new(:$expr);
+        die "invalid xpath expression: $expr"
+            without $!struct;
     }
     submethod DESTROY {
         .Free with $!struct;

@@ -221,7 +221,7 @@ method replaceNode(Node $new) {
 }
 
 method !descendants(Str:D $expr = '') {
-   self.domXPathSelect("descendant::*" ~ $expr);
+   self.domXPathSelectStr("descendant::*" ~ $expr);
 }
 
 multi method getElementsByTagName('*') {

@@ -5,7 +5,7 @@ class LibXML::SAX
     use LibXML::Native;
     use LibXML::SAX::Handler;
     use LibXML::SAX::Handler::SAX2;
-    has LibXML::SAX::Handler $.sax-handler = LibXML::SAX::Handler::SAX2;
+    has LibXML::SAX::Handler $.sax-handler is rw = LibXML::SAX::Handler::SAX2;
 
     use LibXML::Native;
     use LibXML::Document;

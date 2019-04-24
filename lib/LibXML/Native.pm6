@@ -76,10 +76,8 @@ class xmlXPathCompExpr is repr(Stub) is export {
 class xmlXPathContext is repr(Stub) is export {
     sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
     method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
-    method domXPathFindCtxt(Str, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
-    method domXPathCompFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
-    method domXPathSelectCtxt(Str --> xmlNodeSet) is native(BIND-LIB) {*}
-    method domXPathCompSelectCtxt(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathSelectCtxt(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
     multi method new(domNode :$node!) {
         domXPathNewCtxt($node);
     }
@@ -87,14 +85,9 @@ class xmlXPathContext is repr(Stub) is export {
         domXPathNewCtxt($doc);
     }
 
-    multi method findnodes(xmlXPathCompExpr:D $expr, Bool() --> xmlNodeSet) { self.domXPathCompSelectCtxt($expr); }
-    multi method findnodes(Str:D $expr --> xmlNodeSet) is default { self.domXPathSelectCtxt($expr); }
+    method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelectCtxt($expr); }
 
-    multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
-        my xmlXPathObject:D $obj := self.domXPathCompFindCtxt($expr, $to-bool);
-        $obj.select;
-    }
-    multi method find(Str:D $expr,  Bool $to-bool) is default {
+    method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
         my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $to-bool);
         $obj.select;
     }
@@ -192,6 +185,7 @@ class xmlXPathObject is export {
     }
 
     method select {
+        return Nil unless self.defined;
         $.add-reference;
         self!value;
     }
@@ -514,26 +508,20 @@ class domNode is export does LibXML::Native::DOM::Node {
     method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
-    method domXPathSelect(Str --> xmlNodeSet) is native(BIND-LIB) {*}
-    method domXPathCompSelect(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
-    method domXPathFind(Str, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
-    method domXPathCompFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathSelectStr(Str --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathSelect(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domNormalize(--> int32) is native(BIND-LIB) {*}
 
-    multi method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
-        my xmlXPathObject:D $obj := self.domXPathCompFind($expr, $to-bool);
-        $obj.select;
-    }
-    multi method find(Str:D $expr,  Bool $to-bool) is default {
-        my xmlXPathObject:D $obj := self.domXPathFind($expr, $to-bool);
+    method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
+        my xmlXPathObject $obj := self.domXPathFind($expr, $to-bool);
         $obj.select;
     }
 
-    multi method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathCompSelect($expr); }
-    multi method findnodes(Str:D $expr --> xmlNodeSet) is default { self.domXPathSelect($expr); }
+    method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
     method Str(Bool() :$format = False) {
         nextsame without self;

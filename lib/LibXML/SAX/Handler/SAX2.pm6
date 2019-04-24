@@ -10,6 +10,8 @@ class LibXML::SAX::Handler::SAX2
 
     use LibXML::Document;
     use LibXML::DocumentFragment;
+    use LibXML::Types :QName, :NCName;
+
     multi method finish(LibXML::Document :$doc!) {
         $doc;
     }
@@ -17,7 +19,6 @@ class LibXML::SAX::Handler::SAX2
         $doc;
     }
 
-    constant LIB = LibXML::Native::LIB;
     constant Ctx = parserCtxt;
 
     method setDocumentLocator(xmlSAXLocator $loc, :$ctx!) {
@@ -27,7 +28,7 @@ class LibXML::SAX::Handler::SAX2
         $ctx.xmlSAX2SetDocumentLocator($loc);
     }
 
-    method isStandalone(:$ctx!) returns Bool {
+    method isStandalone(Ctx :$ctx!) returns Bool {
         ? $ctx.xmlSAX2IsStandalone;
     }
 
@@ -39,12 +40,20 @@ class LibXML::SAX::Handler::SAX2
         $ctx.xmlSAX2EndDocument;
     }
 
-    method startElement(Str $name, CArray :$atts!, Ctx :$ctx!) {
+    method startElement(QName:D $name, CArray :$atts!, Ctx :$ctx!) {
         $ctx.xmlSAX2StartElement($name, $atts);
     }
 
-    method endElement(Str $name, Ctx :$ctx!) {
+    method endElement(QName:D $name, Ctx :$ctx!) {
         $ctx.xmlSAX2EndElement($name);
+    }
+
+    method startElementNs($local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts, Ctx :$ctx!) {
+        $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts);
+    }
+
+    method endElementNs($local-name, Str :$prefix, Str :$uri, Ctx :$ctx!) {
+        $ctx.xmlSAX2EndElementNs($local-name, $prefix, $uri);
     }
 
     method characters(Str $chars, Ctx :$ctx!) {

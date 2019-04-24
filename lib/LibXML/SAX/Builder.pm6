@@ -130,14 +130,14 @@ class LibXML::SAX::Builder {
         # Introduced with SAX2 
         'startElementNs' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) {
-                    callb($obj, $local-name, :$ctx, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-attributes, :$num-defaulted, :$attributes);
+                sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts) {
+                    callb($obj, $local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts, :$ctx );
                 }
         },
         'endElementNs' =>
             -> $obj, &callb {
                 sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
-                    callb($obj, $local-name, :$ctx, :$prefix, :$uri);
+                    callb($obj, $local-name, :$prefix, :$uri, :$ctx);
                 }
         },
         'serror' =>

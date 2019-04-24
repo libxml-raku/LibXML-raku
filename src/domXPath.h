@@ -12,7 +12,7 @@ xmlNodeSetPtr
 domXPathSelectNodeSet(xmlXPathObjectPtr);
 
 xmlNodeSetPtr
-domXPathSelect( xmlNodePtr refNode, xmlChar* xpathstring );
+domXPathSelectStr( xmlNodePtr refNode, xmlChar* xpathstring );
 
 void
 domReferenceXPathObject(xmlXPathObjectPtr);
@@ -20,11 +20,8 @@ domReferenceXPathObject(xmlXPathObjectPtr);
 void
 domReleaseXPathObject(xmlXPathObjectPtr);
 
-xmlXPathObjectPtr
-domXPathFind( xmlNodePtr refNode, xmlChar* xpathstring, int to_bool );
-
 xmlNodeSetPtr
-domXPathCompSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp );
+domXPathSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp );
 
 xmlXPathContextPtr
 domXPathNewCtxt(xmlNodePtr refNode);
@@ -33,16 +30,10 @@ void
 domXPathFreeCtxt(xmlXPathContextPtr ctxt);
 
 xmlXPathObjectPtr
-domXPathCompFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool );
-
-xmlNodeSetPtr
-domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlChar* xpathstring );
+domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool );
 
 xmlXPathObjectPtr
-domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlChar* xpathstring, int to_bool );
-
-xmlXPathObjectPtr
-domXPathCompFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool );
+domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool );
 
 void
 domReferenceNodeSet(xmlNodeSetPtr self);
