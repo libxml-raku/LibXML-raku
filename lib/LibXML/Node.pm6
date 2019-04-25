@@ -110,13 +110,15 @@ class LibXML::Node {
         );
     }
 
-    method nodeType    { $.unbox.type }
-    method tagName     { $.nodeName }
-    method name        { $.nodeName }
-    method getName     { $.nodeName }
-    method localname   { $.unbox.name }
-    method line-number { $.unbox.GetLineNo }
-    method prefix      { with $.unbox.ns {.prefix} else { Str } }
+    method nodeType      { $.unbox.type }
+    method tagName       { $.nodeName }
+    method name          { $.nodeName }
+    method getName       { $.nodeName }
+    method localname     { $.unbox.name }
+    method line-number   { $.unbox.GetLineNo }
+    method prefix        { with $.unbox.ns {.prefix} else { Str } }
+    method getFirstChild { $.firstChild }
+    method getLastChild  { $.lastChild }
 
     sub box-class(UInt $_) is export(:box-class) {
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
@@ -242,6 +244,7 @@ class LibXML::Node {
     method childNodes {
         iterate(LibXML::Node, $.unbox.first-child(KeepBlanks));
     }
+    method getChildnodes { $.childNodes }
     method nonBlankChildNodes {
         iterate(LibXML::Node, $.unbox.first-child(SkipBlanks), :!keep-blanks);
     }
@@ -295,6 +298,11 @@ class LibXML::Node {
     }
     multi method setAttribute(QName $name, Str:D $value) {
         $.unbox.setAttribute($name, $value);
+    }
+    multi method setAttribute(*%atts) {
+        for %atts.pairs.sort -> NameVal $_ {
+            $.setAttribute(.key, .value);
+        }
     }
     method setAttributeNode(AttrNode:D $att) {
         $att.keep: $.unbox.setAttributeNode($att.unbox);
