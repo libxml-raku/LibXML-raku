@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 177 * 3;
+plan 177;
 
 use LibXML;
 use LibXML::Enums;
