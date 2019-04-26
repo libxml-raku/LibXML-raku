@@ -280,9 +280,9 @@ domSetAttributeNS(xmlNodePtr, xmlChar* URI, xmlChar* name, xmlChar* value );
 DLLEXPORT int
 domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int flag);
 
-DLLEXPORT xmlChar* dom_error;
-
 DLLEXPORT xmlNodePtr
 domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
+
+DLLEXPORT xmlChar* domError(xmlNodePtr);
 
 #endif

@@ -9,12 +9,11 @@
 
 #include "dom.h"
 #include "xml6.h"
-
-xmlChar* dom_error = NULL;
+#include "xml6_ref.h"
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
-#define croak(string) {dom_error = (xmlChar*)(string);return NULL;}
-#define croak_i(string) {dom_error = (xmlChar*)(string);return -1;}
+#define croak(self, string) {xml6_ref_set_msg(self->_private, (xmlChar*)string);return NULL;}
+#define croak_i(self, string) {xml6_ref_set_msg(self->_private, (xmlChar*)string);return -1;}
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
@@ -445,10 +444,10 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
  **/
 DLLEXPORT int
 domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
-    xmlNodePtr helper = NULL;
+    xmlNodePtr ancestor = NULL;
 
     if ( cur == NULL || refNode == NULL) return 0;
-    if (refNode==cur) return 1;
+    if (refNode == cur) return 1;
     if ( cur->doc != refNode->doc
          || refNode->children == NULL
          || cur->parent == (xmlNodePtr)cur->doc
@@ -457,15 +456,15 @@ domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
     }
 
     if( refNode->type == XML_DOCUMENT_NODE ) {
-        return 1;
+      return 1;
     }
 
-    helper= cur;
-    while ( helper && (xmlDocPtr) helper != cur->doc ) {
-        if( helper == refNode ) {
+    ancestor = cur;
+    while ( ancestor && (xmlDocPtr) ancestor != cur->doc ) {
+        if( ancestor == refNode ) {
             return 1;
         }
-        helper = helper->parent;
+        ancestor = ancestor->parent;
     }
 
     return 0;
@@ -691,7 +690,7 @@ domAppendChild( xmlNodePtr self,
 
     if ( !(domTestHierarchy(self, newChild)
            && domTestDocument(self, newChild))){
-        croak("appendChild: HIERARCHY_REQUEST_ERR");
+        croak(self, "appendChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( newChild->doc == self->doc ){
@@ -779,7 +778,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
 
     if ( !(domTestHierarchy(self, new)
            && domTestDocument(self, new))){
-        croak("replaceChild: HIERARCHY_REQUEST_ERR");
+      croak(self, "replaceChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( new->doc == self->doc ) {
@@ -841,7 +840,7 @@ domInsertBefore( xmlNodePtr self,
 
     if ( !(domTestHierarchy( self, newChild )
            && domTestDocument( self, newChild ))) {
-        croak("insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
+        croak(self, "insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
     }
 
     if ( self->doc == newChild->doc ){
@@ -894,7 +893,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
          * wrong node type
          * new node is parent of itself
          */
-        croak("replaceNode: HIERARCHY_REQUEST_ERR");
+        croak(self, "replaceNode: HIERARCHY_REQUEST_ERR");
     }
 
     par  = self->parent;
@@ -947,7 +946,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
     xmlNodePtr rv = NULL;
 
     if ( nNode->type == XML_DOCUMENT_FRAG_NODE ) {
-        croak("Adding document fragments with addSibling not yet supported!");
+        croak(self, "Adding document fragments with addSibling not yet supported!");
     }
 
     if (self->type == XML_TEXT_NODE && nNode->type == XML_TEXT_NODE
@@ -1286,7 +1285,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
     if ( ns != NULL ) {
       char msg[80];
       sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-      croak_i(xmlStrdup((xmlChar*) msg));
+      croak_i(self, xmlStrdup((xmlChar*) msg));
     }
 	  /* lookup the declaration */
     ns = self->nsDef;
@@ -1295,7 +1294,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
           xmlStrcmp( ns->prefix, prefix ) == 0 ) {
         if ( ns->href == NULL && new_prefix != NULL ) {
           /* xmlns:foo="" - no go */
-          croak_i("setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
+          croak_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
         }
         if ( ns->prefix != NULL )
           xmlFree( (xmlChar*)ns->prefix );
@@ -1649,7 +1648,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
     }
 
     if ( ns == NULL ) {
-      croak("unable to create Attribute namespace");
+      croak(self, "unable to create Attribute namespace");
     }
 
     newAttr = xmlNewDocProp( self, localname, value );
@@ -1830,4 +1829,8 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
   }
 
   return newNode;
+}
+
+DLLEXPORT xmlChar* domError(xmlNodePtr self) {
+    return xml6_ref_get_msg(self->_private);
 }

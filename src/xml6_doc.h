@@ -3,8 +3,9 @@
 
 #include <libxml/parser.h>
 
-DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr, char *enc);
-DLLEXPORT void xml6_doc_set_URI(xmlDocPtr, char *URI) ;
-DLLEXPORT void xml6_doc_set_version(xmlDocPtr, char *);
+DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr, char* enc);
+DLLEXPORT void xml6_doc_set_URI(xmlDocPtr, char* URI) ;
+DLLEXPORT void xml6_doc_set_version(xmlDocPtr, char*);
+DLLEXPORT void xml6_doc_set_dict(xmlDocPtr, xmlDictPtr);
 
 #endif /* __XML6_DOC_H */

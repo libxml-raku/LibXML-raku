@@ -7,5 +7,7 @@
 
 DLLEXPORT void xml6_ref_add(void**);
 DLLEXPORT int xml6_ref_remove(void**, const char*, void*);
+DLLEXPORT void xml6_ref_set_msg(void*, xmlChar*);
+DLLEXPORT xmlChar* xml6_ref_get_msg(void*);
 
 #endif /* __XML6_REF_H */

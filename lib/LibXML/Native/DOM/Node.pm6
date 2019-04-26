@@ -54,7 +54,7 @@ method lastChild { self.last }
 
 method appendChild(Node $nNode) {
     self.domAppendChild($nNode)
-        // self.domError // Node;
+        // self.dom-error // Node;
 }
 
 my subset AttrNode of Node where {!.defined || .type == XML_ATTRIBUTE_NODE};
@@ -137,7 +137,7 @@ method getAttributeNodeNS(Str $uri, QName:D $att-name --> AttrNode) {
 
 method setNamespaceDeclPrefix(NCName $prefix, NCName $new-prefix --> Int) {
     my $ret := self.domSetNamespaceDeclPrefix($prefix, $new-prefix);
-    self.domError if $ret < 0;
+    self.dom-error if $ret < 0;
     $ret;
 }
 
@@ -207,17 +207,17 @@ method removeChild(Node:D $child) {
 
 method replaceChild(Node $child, Node $old) {
     self.domReplaceChild($child, $old)
-        // self.domError;
+        // self.dom-error;
 }
 
 method addSibling(Node $new) {
     self.domAddSibling($new)
-        // self.domError;
+        // self.dom-error;
 }
 
 method replaceNode(Node $new) {
     self.domReplaceNode($new)
-        // self.domError;
+        // self.dom-error;
 }
 
 method !descendants(Str:D $expr = '') {
@@ -265,12 +265,12 @@ method getChildrenByTagNameNS(Str $URI, Str $name) {
 
 method insertBefore(Node:D $nNode, Node $oNode) {
     self.domInsertBefore($nNode, $oNode)
-        // self.domError;
+        // self.dom-error;
 }
 
 method insertAfter(Node:D $nNode, Node $oNode) {
     self.domInsertAfter($nNode, $oNode)
-        // self.domError;
+        // self.dom-error;
 }
 
 method cloneNode(Bool:D $deep) {

@@ -5,6 +5,7 @@
 struct _xml6Ref {
   uint magic;     /* for verification */
   int ref_count;
+  xmlChar *msg;
 };
 
 typedef struct _xml6Ref xml6Ref;
@@ -62,6 +63,12 @@ xml6_ref_remove(void** self_ptr, const char* what, void* where) {
       }
       else {
         if (self->ref_count == 1) {
+          if (self->msg != NULL) {
+            char msg[120];
+            sprintf(msg, "uncaught error on %s %ld: %s", what, (long) where, self->msg);
+            xml6_warn(msg);
+            xmlFree(self->msg);
+          }
           *self_ptr = NULL;
           xmlFree((void*) self);
           released = 1;
@@ -73,4 +80,28 @@ xml6_ref_remove(void** self_ptr, const char* what, void* where) {
     }
   }
   return released;
+}
+
+DLLEXPORT void
+xml6_ref_set_msg(void* _self, xmlChar* msg) {
+  xml6RefPtr self = (xml6RefPtr) _self;
+  if (self != NULL && self->magic == XML6_REF_MAGIC) {
+    if (self->msg) xmlFree(self->msg);
+    self->msg = xmlStrdup(msg);
+  }
+  else if (msg != NULL) {
+    // nowhere to attach the message
+    xml6_warn(msg);
+  }
+}
+
+DLLEXPORT xmlChar*
+xml6_ref_get_msg(void* _self) {
+  xml6RefPtr self = (xml6RefPtr) _self;
+  xmlChar* msg = NULL;
+  if (self != NULL && self->magic == XML6_REF_MAGIC) {
+     msg = self->msg;
+     self->msg = NULL;
+  }
+  return msg;
 }

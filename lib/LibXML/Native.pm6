@@ -12,11 +12,12 @@ use LibXML::Native::DOM::Node;
 constant LIB = 'xml2';
 constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
 constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
-constant dom_error is export := cglobal(BIND-LIB, 'dom_error', Str);
 
 
 # type defs
 constant xmlCharP = Str;
+
+sub domError returns xmlCharP is native(BIND-LIB) {*}
 
 # subsets
 sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
@@ -472,7 +473,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}
     method XPathSetContext(xmlXPathContext --> int32) is symbol('xmlXPathSetContextNode') is native(LIB) {*}
     method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native(LIB) {*}
-    method domError { die $_ with dom_error; }
+    method domError returns xmlCharP is native(BIND-LIB) {*}
+    method dom-error { die $_ with self.domError }
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceNode(domNode) returns domNode is native(BIND-LIB) {*}
     method domAddSibling(domNode) returns domNode is native(BIND-LIB) {*}
@@ -654,16 +656,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
             method xml6_doc_set_URI(Str) is native(BIND-LIB) {*});         # The URI for that document
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
-    has xmlDict         $.dict;        # dict used to allocate names or NULL
-    method dict is rw {
-        Proxy.new(
-            FETCH => sub ($) { $!dict },
-            STORE => sub ($, xmlDict $new-dict) {
-                .Free with $!dict;
-                $!dict := $new-dict
-            }
-        );
-    }
+    has xmlDict         $.dict is rw-ptr(  # dict used to allocate names or NULL
+        method xml6_doc_set_dict(xmlDict) is native(BIND-LIB) {*});
     has Pointer         $.psvi;        # for type/PSVI informations
     has int32           $.parseFlags;  # set of xmlParserOption used to parse the
                                        # document

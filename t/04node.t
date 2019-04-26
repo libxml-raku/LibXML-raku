@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 177;
+plan 177 * 3;
 
 use LibXML;
 use LibXML::Enums;
@@ -577,9 +577,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
     my $xnode2 = LibXML::Element.new: :name<test>;
     $xnode2.setOwnerDocument( $doc3 ); # alternate version of adopt node
     # TEST
-    ok( $xnode2.ownerDocument, ' TODO : Add test name' );
+    ok( $xnode2.ownerDocument, 'setOwnerDocument' );
     # TEST
-    ok( $doc3.isSameNode( $xnode2.ownerDocument ), ' TODO : Add test name' );
+    ok( $doc3.isSameNode( $xnode2.ownerDocument ), 'setOwnerDocument' );
 }
 
 {
@@ -589,17 +589,14 @@ my $doc    = $parser.parse: :string( $xmlstring );
   my $root = $doc.createElement( 'foo' );
   my $r = $root.appendChild( $frag );
   # TEST
-  nok( $r, ' TODO : Add test name' );
+  nok( $r, 'append empty fragment' );
 }
 
 {
    my $doc = LibXML::Document.new();
    my $schema = $doc.createElement('sphinx:schema');
-   dies-ok { $schema.appendChild( $schema ) };
+   dies-ok { $schema.appendChild( $schema ) }, 'self appendChild dies';
    # TEST
-##   like ($@, qr/HIERARCHY_REQUEST_ERR/,
-##       ' Thrown HIERARCHY_REQUEST_ERR exception'
-##   );
 }
 
 {
@@ -608,7 +605,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     my $doc = LibXML::Document.new();
     my $attr = $doc.createAttribute('test','bar');
     my $ent = $doc.createEntityReference('foo');
-    is $ent.Str, '&foo;';
+    is $ent.Str, '&foo;', 'createEntityReference';
     my $text = $doc.createTextNode('baz');
     $attr.appendChild($ent);
     $attr.appendChild($text);
@@ -734,4 +731,3 @@ EOF
     # TEST
     is( $ret.textContent, 'Double Free', 'merge text nodes with addSibling' );
 }
-
