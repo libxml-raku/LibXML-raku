@@ -21,7 +21,8 @@ sub domError returns xmlCharP is native(BIND-LIB) {*}
 
 # subsets
 sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
-my subset xmlEncodingStr of Str is export where {!.defined || xmlParseCharEncoding($_) > 0}
+sub xmlFindCharEncodingHandler(Str --> Pointer) is export is native(LIB) {*}
+my subset xmlEncodingStr of Str is export where {!.defined || xmlFindCharEncodingHandler($_).defined}
 
 # forward declarations
 class domNode    is repr('CStruct') is export {...}
