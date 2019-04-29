@@ -15,7 +15,7 @@ my class Context {
 
     has $.fh;
     has Pointer $!addr; # Just because libxml2 expects a pointer
-    has CallbackGroup $.cb is required handles <match>;
+    has CallbackGroup $.cb is required;
     has Blob $!overflow;
 
     sub malloc(size_t --> Pointer) is native {*}
@@ -23,6 +23,12 @@ my class Context {
     sub memcpy(CArray[uint8], CArray[uint8], size_t --> CArray[uint8]) is native {*}
 
     submethod DESTROY { free($_) with $!addr }
+
+    method match {
+        -> Str:D $file --> Int {
+            + $!cb.match.($file).so;
+        }
+    }
 
     method open {
         -> Str:D $file --> Pointer {
@@ -54,7 +60,8 @@ my class Context {
                 }
 
                 my CArray[uint8] $io-arr := nativecast(CArray[uint8], $io-buf);
-                memcpy($out-arr, $io-arr, $n-read);
+                memcpy($out-arr, $io-arr, $n-read)
+                    if $n-read;
                 $n-read;
             }
         }
@@ -63,7 +70,7 @@ my class Context {
     method close {
         -> Pointer:D $addr --> Int {
             warn "perculiar" unless +$addr == +$!addr;
-            my $rv = $!cb.close.($!fh);
+            $!cb.close.($!fh);
             $!fh = Nil;
 
             with $!addr {
@@ -71,8 +78,7 @@ my class Context {
                 $_ = Nil;
             }
             # Perl 6 IO functions return True on successful close
-            $rv = 0 if $rv.so;
-            $rv;
+            0;
         }
     }
 }

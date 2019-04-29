@@ -93,15 +93,15 @@ method setExternalSubset(DtdNode $dtd) {
 }
 
 method removeInternalSubset {
-    my $ret := self.getInternalSubset;
-    .Unlink with $ret;
-    $ret;
+    my $rv := self.getInternalSubset;
+    .Unlink with $rv;
+    $rv;
 }
 
 method removeExternalSubset {
-    my $ret := self.getExternalSubset;
-    .Unlink with $ret;
-    $ret;
+    my $rv := self.getExternalSubset;
+    .Unlink with $rv;
+    $rv;
 }
 
 method getElementById(Str:D $id --> Node) {

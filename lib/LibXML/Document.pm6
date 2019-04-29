@@ -224,7 +224,7 @@ method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset --> Bool) {
     ? $cvp.validate(:$doc, :$dtd);
 }
 
-method validate(|c) { LibXML::ErrorHandler.new.try: {self!validate(|c)} }
+method validate(|c) { LibXML::ErrorHandler.try: {self!validate(|c)} }
 method is-valid(|c) { self!validate(|c) }
 
 our $lock = Lock.new;

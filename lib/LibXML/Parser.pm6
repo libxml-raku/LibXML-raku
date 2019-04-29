@@ -97,13 +97,13 @@ class LibXML::Parser {
         $flags;
     }
 
-    method !error-handler(parserCtxt:D :$ctx!, :$html, *%flags) {
+    method !error-handler(parserCtxt :$ctx, :$html, *%flags) {
         my UInt $flags = self!process-flags(%flags, :$html);
-        $ctx.sax = .unbox with $.sax-handler;
-        LibXML::ErrorHandler.new: :$ctx, :$flags, :$!line-numbers, :$!input-callbacks;
+        LibXML::ErrorHandler.new: :$ctx, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
-    method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$handler!, ) {
+    method !publish(:$URI, LibXML::ErrorHandler :$handler!, ) {
+        my parserCtxt:D $ctx = $handler.ctx;
         my LibXML::Document:D $doc .= new: :$ctx;
         $doc.baseURI = $_ with $URI;
         self.processXIncludes($doc, :$handler)
@@ -145,7 +145,7 @@ class LibXML::Parser {
 
         my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
         $handler.try: { $ctx.ParseDocument };
-        self!publish: :$ctx, :$handler;
+        self!publish: :$handler;
     }
 
     multi method parse(Blob :$buf!,
@@ -164,7 +164,7 @@ class LibXML::Parser {
 
         my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
         $handler.try: { $ctx.ParseDocument };
-        self!publish: :$ctx, :$handler;
+        self!publish: :$handler;
     }
 
     multi method parse(IO() :$file!,
@@ -174,17 +174,19 @@ class LibXML::Parser {
                        *%flags,
                       ) {
 
-        die "file not found: $file"
-            unless $file.IO.e;
-        my parserCtxt $ctx = $html
-           ?? htmlFileParserCtxt.new(:$file, :$enc)
-           !! xmlFileParserCtxt.new(:$file);
+        my LibXML::ErrorHandler $handler = self!error-handler: :$html, |%flags;
 
-        my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
+        $handler.try: {
+            my parserCtxt $ctx = $html
+               ?? htmlFileParserCtxt.new(:$file, :$enc)
+               !! xmlFileParserCtxt.new(:$file);
+            die "unable to load file: $file"
+                without $ctx;
+            $handler.ctx = $ctx;
+            $ctx.ParseDocument;
+        };
 
-        $handler.try: { $ctx.ParseDocument };
-
-        self!publish: :$ctx, :$URI, :$handler;
+        self!publish: :$URI, :$handler;
     }
 
     multi method parse(IO::Handle :$io!,

@@ -28,11 +28,11 @@ multi method new($external-id, $system-id) {
 multi method new(|c) is default { nextsame }
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $struct = LibXML::ErrorHandler.new.try: {xmlDtd.parse: :$string, :$enc};
+    my xmlDtd:D $struct = LibXML::ErrorHandler.try: {xmlDtd.parse: :$string, :$enc};
     self.new: :$struct;
 }
 multi method parse(Str:D :$external-id, Str:D :$system-id) {
-    my xmlDtd:D $struct = LibXML::ErrorHandler.new.try: {xmlDtd.parse: :$external-id, :$system-id;};
+    my xmlDtd:D $struct = LibXML::ErrorHandler.try: {xmlDtd.parse: :$external-id, :$system-id;};
     self.new: :$struct;
 }
 multi method parse(Str $external-id, Str $system-id) is default {
