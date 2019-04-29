@@ -2,6 +2,7 @@
 #define __XML6_INPUT_H
 
 #include <libxml/parser.h>
+#include <libxml/xmlIO.h>
 
 DLLEXPORT void xml6_input_set_filename(xmlParserInputPtr, char *url);
 

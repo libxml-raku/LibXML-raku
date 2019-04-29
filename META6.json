@@ -1,5 +1,5 @@
 {
-  "auth" : "github:p6-css",
+  "auth" : "github:p6-xml",
   "authors" : [
     "David Warring"
   ],
@@ -28,6 +28,8 @@
     "LibXML::EntityDecl"  : "lib/LibXML/EntityDecl.pm6",
     "LibXML::EntityRef"  : "lib/LibXML/EntityRef.pm6",
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
+    "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
+    "LibXML::InputCallback" : "lib/LibXML/InputCallback.pm6",
     "LibXML::Namespace" : "lib/LibXML/Namespace.pm6",
     "LibXML::Native" : "lib/LibXML/Native.pm6",
     "LibXML::Native::DOM::Attr" : "lib/LibXML/Native/DOM/Attr.pm6",

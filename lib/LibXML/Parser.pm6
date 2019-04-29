@@ -11,6 +11,7 @@ class LibXML::Parser {
     has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.baseURI is rw;
     has $.sax-handler;
+    has $.input-callbacks is rw;
 
     constant %FLAGS = %(
         :recover(XML_PARSE_RECOVER),
@@ -99,22 +100,22 @@ class LibXML::Parser {
     method !error-handler(parserCtxt:D :$ctx!, :$html, *%flags) {
         my UInt $flags = self!process-flags(%flags, :$html);
         $ctx.sax = .unbox with $.sax-handler;
-        LibXML::ErrorHandler.new: :$ctx, :$flags, :$!line-numbers;
+        LibXML::ErrorHandler.new: :$ctx, :$flags, :$!line-numbers, :$!input-callbacks;
     }
 
-    method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$errors!, ) {
+    method !publish(:$ctx!, :$URI, LibXML::ErrorHandler :$handler!, ) {
         my LibXML::Document:D $doc .= new: :$ctx;
         $doc.baseURI = $_ with $URI;
-        self.processXIncludes($doc, :$errors)
+        self.processXIncludes($doc, :$handler)
             if $.expand-xinclude;
         $doc;
     }
 
-    proto method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler :$errors) {*}
+    proto method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler :$handler) {*}
 
-    multi method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler:D :$errors! --> UInt) {
+    multi method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler:D :$handler! --> UInt) {
         my xmlDoc $doc = .unbox;
-        $errors.try: { $doc.XIncludeProcessFlags($!flags); }
+        $handler.try: { $doc.XIncludeProcessFlags($!flags); }
     }
     multi method processXIncludes(LibXML::Document $_) is default {
         my xmlDoc:D $doc = .unbox;
@@ -142,9 +143,9 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$html, |%flags;
-        $errors.try: { $ctx.ParseDocument };
-        self!publish: :$ctx, :$errors;
+        my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
+        $handler.try: { $ctx.ParseDocument };
+        self!publish: :$ctx, :$handler;
     }
 
     multi method parse(Blob :$buf!,
@@ -161,9 +162,9 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$html, |%flags;
-        $errors.try: { $ctx.ParseDocument };
-        self!publish: :$ctx, :$errors;
+        my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
+        $handler.try: { $ctx.ParseDocument };
+        self!publish: :$ctx, :$handler;
     }
 
     multi method parse(IO() :$file!,
@@ -179,9 +180,11 @@ class LibXML::Parser {
            ?? htmlFileParserCtxt.new(:$file, :$enc)
            !! xmlFileParserCtxt.new(:$file);
 
-        my LibXML::ErrorHandler $errors = self!error-handler: :$ctx, :$html, |%flags;
-        $errors.try: { $ctx.ParseDocument };
-        self!publish: :$ctx, :$URI, :$errors;
+        my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
+
+        $handler.try: { $ctx.ParseDocument };
+
+        self!publish: :$ctx, :$URI, :$handler;
     }
 
     multi method parse(IO::Handle :$io!,

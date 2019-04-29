@@ -12,4 +12,8 @@ method keep-blanks-default is rw {
     LibXML::Native.KeepBlanksDefault;
 }
 
+method tag-expansion is rw {
+    LibXML::Native.TagExpansion;
+}
+
 

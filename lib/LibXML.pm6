@@ -21,7 +21,7 @@ method parser-version {
     Version.new(xmlParserVersion.match(/ (.)? (..)+ $/).list.join: '.');
 }
 
-method config {
+method config handles <skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
     LibXML::Config;
 }
 

@@ -343,7 +343,7 @@ class xmlSAXHandler is repr('CStruct') is export {
     method unbox { self } # already unboxed
 
     has Pointer   $.internalSubset is rw-ptr(
-        method xml6_sax_set_internalSubset(&cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_internalSubset( &cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.isStandalone is rw-ptr(
         method xml6_sax_set_isStandalone( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
@@ -535,6 +535,9 @@ class domNode is export does LibXML::Native::DOM::Node {
         $content;
     }
 
+    method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlNode {*}
+    method DocCopy(xmlDoc, int32) is native(LIB) is symbol('xmlDocCopyNode') returns xmlNode {*}
+
     method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
 
@@ -556,8 +559,6 @@ class xmlNode is domNode does LibXML::Native::DOM::Element {
     method SetProp(Str, Str --> xmlAttr) is native(LIB) is symbol('xmlSetProp') {*}
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
-    method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlNode {*}
-    method DocCopy(xmlDoc, int32) is native(LIB) is symbol('xmlDocCopyNode') returns xmlNode {*}
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
         $doc.new-node(:$name, :$ns);
     }
@@ -733,13 +734,12 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     }
 
     #| Dump to a string as UTF-8
-    method Str(Bool() :$format = False) {
+    method Str(Bool() :$format = False --> Str) {
 
         nextsame without self;
         my Pointer[uint8] $p .= new;
         $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
-        my Str $result := nativecast(str, $p);
-        $result;
+        nativecast(str, $p);
     }
 }
 
@@ -1157,6 +1157,20 @@ sub xmlGetLastError returns xmlError is export is native(LIB) { * }
 multi method GetLastError(parserCtxt:D $ctx) { $ctx.GetLastError() // $.GetLastError()  }
 multi method GetLastError { xmlGetLastError()  }
 
+## Input callbacks
+
+sub xmlCleanupInputCallbacks is native(LIB) is export {*}
+sub xmlPopInputCallbacks(--> int32) is native(LIB) is export {*}
+sub xmlRegisterDefaultInputCallbacks is native(LIB) is export {*}
+sub xmlRegisterInputCallbacks(
+    &match (Str --> int32),
+    &open (Str --> Pointer),
+    &read (Pointer, CArray[uint8], int32 --> int32),
+    &close (Pointer --> int32)
+--> int32) is native(LIB) is export {*}
+
+## Globals aren't yet writable in Rakudo
+
 method KeepBlanksDefault is rw {
     constant value = cglobal(LIB, "xmlKeepBlanksDefaultValue", int32);
     sub xmlKeepBlanksDefault(int32 $v) is native(LIB) returns int32 is export { * }
@@ -1165,6 +1179,18 @@ method KeepBlanksDefault is rw {
         FETCH => sub ($) { ? value },
         STORE => sub ($, Bool() $_) {
             xmlKeepBlanksDefault($_);
+        },
+    );
+}
+
+method TagExpansion is rw {
+    constant value = cglobal(LIB, "xmlSaveNoEmptyTags", int32);
+    sub xml6_gbl_set_tag_expansion(int32 $v) is native(BIND-LIB) returns int32 is export { * }
+
+    Proxy.new(
+        FETCH => sub ($) { ? value },
+        STORE => sub ($, Bool() $_) {
+            xml6_gbl_set_tag_expansion($_);
         },
     );
 }

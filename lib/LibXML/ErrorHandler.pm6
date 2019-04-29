@@ -18,6 +18,7 @@ class LibXML::ErrorHandler {
     has parserCtxt:D $.ctx = xmlParserCtxt.new;
     has @!errors;
     has uint32 $.flags;
+    has $.input-callbacks;
 
     method recover { ?($!flags +& XML_PARSE_RECOVER) }
     method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
@@ -102,9 +103,23 @@ class LibXML::ErrorHandler {
         $!ctx.xmlSetGenericErrorFunc( sub (parserCtxt $, Str $msg) { @!errors.push: %( :level(XML_ERR_FATAL), :$msg ) });
         $!ctx.xmlSetStructuredErrorFunc( &structured-err-func );
 
-        my $ret := action();
+        my @contexts = .make-contexts
+           with $!input-callbacks;
+
+        for @contexts {
+            xmlRegisterInputCallbacks(
+                .match, .open, .read, .close
+            );
+        }
+
+        my $rv := action();
+
+        xmlPopInputCallbacks()
+            for @contexts;
+
         self!flush-errors: :$recover;
-        $ret;
+
+        $rv;
     }
 
 }
