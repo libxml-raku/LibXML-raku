@@ -2,65 +2,65 @@
 #include "xml6_sax.h"
 
 DLLEXPORT void xml6_sax_set_internalSubset(xmlSAXHandlerPtr self, internalSubsetSAXFunc func) {
-  self->internalSubset = func;
+    self->internalSubset = func;
 }
 
 DLLEXPORT void xml6_sax_set_isStandalone(xmlSAXHandlerPtr self, isStandaloneSAXFunc func) {
-  self->isStandalone = func;
+    self->isStandalone = func;
 }
 
 DLLEXPORT void xml6_sax_set_hasInternalSubset(xmlSAXHandlerPtr self, hasInternalSubsetSAXFunc func) {
-  self->hasInternalSubset = func;
+    self->hasInternalSubset = func;
 }
 
 DLLEXPORT void xml6_sax_set_hasExternalSubset(xmlSAXHandlerPtr self, hasExternalSubsetSAXFunc func) {
-  self->hasExternalSubset = func;
+    self->hasExternalSubset = func;
 }
 
 DLLEXPORT void xml6_sax_set_resolveEntity(xmlSAXHandlerPtr self, resolveEntitySAXFunc func) {
-  self->resolveEntity = func;
+    self->resolveEntity = func;
 }
 
 DLLEXPORT void xml6_sax_set_getEntity(xmlSAXHandlerPtr self, getEntitySAXFunc func) {
-  self->getEntity = func;
+    self->getEntity = func;
 }
 
 DLLEXPORT void xml6_sax_set_entityDecl(xmlSAXHandlerPtr self, entityDeclSAXFunc func) {
-  self->entityDecl = func;
+    self->entityDecl = func;
 }
 
 DLLEXPORT void xml6_sax_set_notationDecl(xmlSAXHandlerPtr self, notationDeclSAXFunc func) {
-  self->notationDecl = func;
+    self->notationDecl = func;
 }
 
 DLLEXPORT void xml6_sax_set_attributeDecl(xmlSAXHandlerPtr self, attributeDeclSAXFunc func) {
-  self->attributeDecl = func;
+    self->attributeDecl = func;
 }
 
 DLLEXPORT void xml6_sax_set_unparsedEntityDecl(xmlSAXHandlerPtr self, unparsedEntityDeclSAXFunc func) {
-  self->unparsedEntityDecl = func;
+    self->unparsedEntityDecl = func;
 }
 
 DLLEXPORT void xml6_sax_set_setDocumentLocator(xmlSAXHandlerPtr self, setDocumentLocatorSAXFunc func) {
-  self->setDocumentLocator = func;
+    self->setDocumentLocator = func;
 }
 
 DLLEXPORT void xml6_sax_set_startDocument(xmlSAXHandlerPtr self, startDocumentSAXFunc func) {
-  self->startDocument = func;
+    self->startDocument = func;
 }
 
 DLLEXPORT void xml6_sax_set_endDocument(xmlSAXHandlerPtr self, endDocumentSAXFunc func) {
-  self->endDocument = func;
+    self->endDocument = func;
 }
 
 DLLEXPORT void xml6_sax_set_startElement(xmlSAXHandlerPtr self, startElementSAXFunc func) {
-  self->startElementNs = NULL;
-  self->startElement = func;
+    self->startElementNs = NULL;
+    self->startElement = func;
 }
 
 DLLEXPORT void xml6_sax_set_endElement(xmlSAXHandlerPtr self, endElementSAXFunc func) {
-  self->endElementNs = NULL;
-  self->endElement = func;
+    self->endElementNs = NULL;
+    self->endElement = func;
 }
 
 DLLEXPORT void xml6_sax_set_reference(xmlSAXHandlerPtr self, referenceSAXFunc func) {

@@ -1,6 +1,8 @@
 use v6;
 use Test;
 
+# bootstrapping tests for Input callbacks
+
 use LibXML;
 use LibXML::InputCallback;
 

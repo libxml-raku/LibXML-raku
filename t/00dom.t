@@ -1,10 +1,12 @@
 use Test;
+plan 27;
+
+# bootstrapping tests for the DOM
+
 use LibXML;
 use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Native;
-
-plan 27;
 
 my $string = "<a>    <b/> </a>";
 my $tstr= "<a><b/></a>";

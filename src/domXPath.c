@@ -5,7 +5,7 @@
  *
  * Copyright 2001-2003 AxKit.com Ltd., 2002-2006 Christian Glahn, 2006-2009 Petr Pajas
  * Ported from Perl 5 to 6 by David Warring
-*/
+ */
 
 #include <libxml/hash.h>
 #include <libxml/tree.h>
@@ -23,7 +23,6 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
     xmlXPathObjectPtr obj = NULL, obj2 = NULL;
     xmlChar* base = NULL;
     xmlChar* URI = NULL;
-
 
     if ((nargs < 1) || (nargs > 2)) {
         ctxt->error = XPATH_INVALID_ARITY;
@@ -46,7 +45,7 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
 
     /* first assure the XML::LibXML error handler is deactivated
        otherwise strange things might happen
-     */
+    */
 
     if (ctxt->value->type == XPATH_NODESET) {
         int i;
@@ -147,94 +146,94 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
 
 void
 domReferenceNodeSet(xmlNodeSetPtr self) {
-  int i;
+    int i;
 
-  for (i = 0; i < self->nodeNr; i++) {
-    xmlNodePtr cur = self->nodeTab[i];
+    for (i = 0; i < self->nodeNr; i++) {
+        xmlNodePtr cur = self->nodeTab[i];
 
-    if (cur != NULL) {
-      if (cur->type != XML_NAMESPACE_DECL) {
-        xml6_node_add_reference(cur);
-      }
+        if (cur != NULL) {
+            if (cur->type != XML_NAMESPACE_DECL) {
+                xml6_node_add_reference(cur);
+            }
+        }
     }
-  }
 }
 
 static void
 _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
-  xmlNodePtr twig = (xmlNodePtr) entry;
-  if (twig->type == XML_NAMESPACE_DECL) {
-    xmlNsPtr ns = (xmlNsPtr) twig;
-    if (ns->_private == NULL) {
-      // not referenced
-      xmlXPathNodeSetFreeNs(ns);
+    xmlNodePtr twig = (xmlNodePtr) entry;
+    if (twig->type == XML_NAMESPACE_DECL) {
+        xmlNsPtr ns = (xmlNsPtr) twig;
+        if (ns->_private == NULL) {
+            // not referenced
+            xmlXPathNodeSetFreeNs(ns);
+        }
+        else {
+            // sanity check for externally referenced namespaces. shouldn't really happen
+            xml6_warn("namespace node is inuse or private");
+        }
     }
     else {
-      // sanity check for externally referenced namespaces. shouldn't really happen
-      xml6_warn("namespace node is inuse or private");
+        if (domNodeIsReferenced(twig) == 0) {
+            xmlFreeNode(twig);
+        }
     }
-  }
-  else {
-    if (domNodeIsReferenced(twig) == 0) {
-      xmlFreeNode(twig);
-    }
-  }
 }
 
 void
 domReleaseNodeSet(xmlNodeSetPtr self) {
-  int i;
-  xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
-  xmlNodePtr last_twig = NULL;
+    int i;
+    xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
+    xmlNodePtr last_twig = NULL;
 
-  for (i = 0; i < self->nodeNr; i++) {
-    xmlNodePtr cur = self->nodeTab[i];
+    for (i = 0; i < self->nodeNr; i++) {
+        xmlNodePtr cur = self->nodeTab[i];
 
-    if (cur != NULL) {
-      xmlNodePtr twig;
+        if (cur != NULL) {
+            xmlNodePtr twig;
 
-      if (cur->type == XML_NAMESPACE_DECL) {
-        twig = cur;
-      }
-      else {
-        xml6_node_remove_reference(cur);
-        twig = xml6_node_find_root(cur);
-      }
+            if (cur->type == XML_NAMESPACE_DECL) {
+                twig = cur;
+            }
+            else {
+                xml6_node_remove_reference(cur);
+                twig = xml6_node_find_root(cur);
+            }
 
-      if (twig != last_twig) {
-        char key[20];
-        sprintf(key, "%ld", (long) cur);
+            if (twig != last_twig) {
+                char key[20];
+                sprintf(key, "%ld", (long) cur);
 
-        if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
-          xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
+                if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
+                    xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
+                }
+
+                last_twig = twig;
+            }
         }
-
-        last_twig = twig;
-      }
     }
-  }
 
-  xmlHashFree(hash, _domNodeSetDeallocator);
-  xmlFree(self);
+    xmlHashFree(hash, _domNodeSetDeallocator);
+    xmlFree(self);
 }
 
 void
 domReferenceXPathObject(xmlXPathObjectPtr self) {
-  if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
-    domReferenceNodeSet(self->nodesetval);
-  }
+    if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
+        domReferenceNodeSet(self->nodesetval);
+    }
 }
 
 void
 domReleaseXPathObject(xmlXPathObjectPtr self) {
-  if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
-    domReleaseNodeSet(self->nodesetval);
-    self->nodesetval = NULL;
-  }
-  else if (self->type == XPATH_RANGE) {
-    xml6_warn("todo: cleanup of XPath range objects");
-  }
-  xmlXPathFreeObject(self);
+    if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
+        domReleaseNodeSet(self->nodesetval);
+        self->nodesetval = NULL;
+    }
+    else if (self->type == XPATH_RANGE) {
+        xml6_warn("todo: cleanup of XPath range objects");
+    }
+    xmlXPathFreeObject(self);
 }
 
 static xmlXPathObjectPtr
@@ -242,7 +241,7 @@ _domXPathFindStr( xmlNodePtr refNode, xmlChar* path) {
     xmlXPathObjectPtr rv = NULL;
     xmlXPathCompExprPtr comp = xmlXPathCompile( path );
     if ( comp == NULL ) {
-      fprintf(stderr, "%s:%d: invalid xpath expression: %s\n", __FILE__, __LINE__, path);
+        fprintf(stderr, "%s:%d: invalid xpath expression: %s\n", __FILE__, __LINE__, path);
         return NULL;
     }
     rv = domXPathFind(refNode, comp, 0);
@@ -253,89 +252,89 @@ _domXPathFindStr( xmlNodePtr refNode, xmlChar* path) {
 static xmlNodeSetPtr
 _domVetNodeSet(xmlNodeSetPtr node_set) {
 
-  if (node_set != NULL ) {
-    int i = 0;
-    int skipped = 0;
+    if (node_set != NULL ) {
+        int i = 0;
+        int skipped = 0;
 
-    for (i = 0; i < node_set->nodeNr; i++) {
-      xmlNodePtr tnode = node_set->nodeTab[i];
-      int skip = 0;
-      if (tnode == NULL) {
-        skip = 1;
-      }
-      else if (tnode->type == XML_NAMESPACE_DECL) {
-        xmlNsPtr ns = (xmlNsPtr)tnode;
-        const xmlChar* prefix = ns->prefix;
-        const xmlChar* href = ns->href;
-        if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
-          if (xmlStrEqual(href, XML_XML_NAMESPACE)) {
-            if (ns->_private != NULL) {
-              // sanity check for externally referenced namespaces. shouldn't really happen
-              xml6_warn("namespace node is inuse or private");
+        for (i = 0; i < node_set->nodeNr; i++) {
+            xmlNodePtr tnode = node_set->nodeTab[i];
+            int skip = 0;
+            if (tnode == NULL) {
+                skip = 1;
             }
-            else {
-              xmlFreeNs(ns);
+            else if (tnode->type == XML_NAMESPACE_DECL) {
+                xmlNsPtr ns = (xmlNsPtr)tnode;
+                const xmlChar* prefix = ns->prefix;
+                const xmlChar* href = ns->href;
+                if ((prefix != NULL) && (xmlStrEqual(prefix, BAD_CAST "xml"))) {
+                    if (xmlStrEqual(href, XML_XML_NAMESPACE)) {
+                        if (ns->_private != NULL) {
+                            // sanity check for externally referenced namespaces. shouldn't really happen
+                            xml6_warn("namespace node is inuse or private");
+                        }
+                        else {
+                            xmlFreeNs(ns);
+                        }
+                        skip = 1;
+                    }
+                }
             }
-            skip = 1;
-          }
+            if (skip) {
+                skipped++;
+            }
+            else if (skipped) {
+                node_set->nodeTab[i - skipped] = node_set->nodeTab[i];
+            }
         }
-      }
-      if (skip) {
-        skipped++;
-      }
-      else if (skipped) {
-        node_set->nodeTab[i - skipped] = node_set->nodeTab[i];
-      }
+        node_set->nodeNr -= skipped;
     }
-    node_set->nodeNr -= skipped;
-  }
-  return node_set;
+    return node_set;
 }
 
 static xmlXPathObjectPtr
 _domVetXPathObject(xmlXPathObjectPtr self) {
-  if (self != NULL
-      && self->type == XPATH_NODESET
-      && self->nodesetval != NULL) {
-    _domVetNodeSet(self->nodesetval);
-  }
-  return self;
+    if (self != NULL
+        && self->type == XPATH_NODESET
+        && self->nodesetval != NULL) {
+        _domVetNodeSet(self->nodesetval);
+    }
+    return self;
 }
 
 xmlXPathContextPtr
 domXPathNewCtxt(xmlNodePtr refNode) {
-  xmlXPathContextPtr ctxt;
+    xmlXPathContextPtr ctxt;
 
-  /* prepare the xpath context */
-  ctxt = xmlXPathNewContext( refNode->doc );
-  ctxt->node = refNode;
-  /* get the namespace information */
-  if (refNode->type == XML_DOCUMENT_NODE) {
-    ctxt->namespaces = xmlGetNsList( refNode->doc,
-                                     xmlDocGetRootElement( refNode->doc ) );
-  }
-  else {
-    ctxt->namespaces = xmlGetNsList(refNode->doc, refNode);
-  }
-  ctxt->nsNr = 0;
-  if (ctxt->namespaces != NULL) {
-    while (ctxt->namespaces[ctxt->nsNr] != NULL)
-      ctxt->nsNr++;
-  }
+    /* prepare the xpath context */
+    ctxt = xmlXPathNewContext( refNode->doc );
+    ctxt->node = refNode;
+    /* get the namespace information */
+    if (refNode->type == XML_DOCUMENT_NODE) {
+        ctxt->namespaces = xmlGetNsList( refNode->doc,
+                                         xmlDocGetRootElement( refNode->doc ) );
+    }
+    else {
+        ctxt->namespaces = xmlGetNsList(refNode->doc, refNode);
+    }
+    ctxt->nsNr = 0;
+    if (ctxt->namespaces != NULL) {
+        while (ctxt->namespaces[ctxt->nsNr] != NULL)
+            ctxt->nsNr++;
+    }
 
-  xmlXPathRegisterFunc(ctxt,
-                       (const xmlChar*) "document",
-                       perlDocumentFunction);
-  return ctxt;
+    xmlXPathRegisterFunc(ctxt,
+                         (const xmlChar*) "document",
+                         perlDocumentFunction);
+    return ctxt;
 }
 
 void
 domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
-  if (ctxt->namespaces != NULL) {
-    xmlFree( ctxt->namespaces );
-    ctxt->namespaces = NULL;
-  }
-  xmlXPathFreeContext(ctxt);
+    if (ctxt->namespaces != NULL) {
+        xmlFree( ctxt->namespaces );
+        ctxt->namespaces = NULL;
+    }
+    xmlXPathFreeContext(ctxt);
 }
 
 
@@ -355,13 +354,13 @@ xmlNodeSetPtr
 domXPathSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
     xmlNodeSetPtr rv = NULL;
     if (xpath_obj != NULL) {
-      /* here we have to transfer the result from the internal
-         structure to the return value */
-      /* get the result from an xpath query */
-      /* we have to unbind the nodelist, so free object can
-         not kill it */
-      rv = xpath_obj->nodesetval;
-      xpath_obj->nodesetval = NULL;
+        /* here we have to transfer the result from the internal
+           structure to the return value */
+        /* get the result from an xpath query */
+        /* we have to unbind the nodelist, so free object can
+           not kill it */
+        rv = xpath_obj->nodesetval;
+        xpath_obj->nodesetval = NULL;
     }
     return _domVetNodeSet(rv);
 }
@@ -390,18 +389,18 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool
     if ( ctxt != NULL && ctxt->node != NULL && comp != NULL ) {
         if (to_bool) {
 #if LIBXML_VERSION >= 20627
-          int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
-          rv = xmlXPathNewBoolean(val);
-#else
-          rv = xmlXPathCompiledEval(comp, ctxt);
-          if (rv!=NULL) {
-            int val = xmlXPathCastToBoolean(rv);
-            xmlXPathFreeObject(rv);
+            int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
             rv = xmlXPathNewBoolean(val);
-          }
+#else
+            rv = xmlXPathCompiledEval(comp, ctxt);
+            if (rv!=NULL) {
+                int val = xmlXPathCastToBoolean(rv);
+                xmlXPathFreeObject(rv);
+                rv = xmlXPathNewBoolean(val);
+            }
 #endif
         } else {
-          rv = xmlXPathCompiledEval(comp, ctxt);
+            rv = xmlXPathCompiledEval(comp, ctxt);
         }
     }
     return _domVetXPathObject(rv);
@@ -409,7 +408,7 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool
 
 xmlNodeSetPtr
 domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp) {
-  return _domSelect(domXPathFindCtxt(ctxt, comp, 0));
+    return _domSelect(domXPathFindCtxt(ctxt, comp, 0));
 }
 
 

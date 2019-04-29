@@ -108,16 +108,16 @@ DLLEXPORT int
 _domCanInsert( xmlNodePtr cur, xmlNodePtr ref );
 
 /**
-* NAME domTestDocument
-* TYPE function
-* SYNOPSIS
-* if ( domTestDocument(cur, ref) )...
-*
-* this function extends the _domCanInsert() function. It tests if the
-* cur node is a document and if so, it will check if the ref node can be
-* inserted. (e.g. Attribute or Element nodes must not be appended to a
-* document node)
-*/
+ * NAME domTestDocument
+ * TYPE function
+ * SYNOPSIS
+ * if ( domTestDocument(cur, ref) )...
+ *
+ * this function extends the _domCanInsert() function. It tests if the
+ * cur node is a document and if so, it will check if the ref node can be
+ * inserted. (e.g. Attribute or Element nodes must not be appended to a
+ * document node)
+ */
 DLLEXPORT int
 domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 

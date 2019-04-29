@@ -4,26 +4,27 @@
 #include <string.h>
 
 DLLEXPORT void xml6_ns_add_reference(xmlNsPtr self) {
-  xml6_ref_add( &(self->_private) );
+    xml6_ref_add( &(self->_private) );
 }
 
 DLLEXPORT int xml6_ns_remove_reference(xmlNsPtr self) {
-  return xml6_ref_remove( &(self->_private), "namespace", (void*) self);
+    return xml6_ref_remove( &(self->_private), "namespace", (void*) self);
 }
 
 DLLEXPORT xmlNsPtr xml6_ns_copy(xmlNsPtr self) {
-  xmlNsPtr new = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
-  if (new == NULL) {
-    xml6_warn("Error building namespace");
-  }
-  else {
-    memset(new, 0, sizeof(xmlNs));
-    new->type = XML_LOCAL_NAMESPACE;
+    xmlNsPtr new = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
 
-    if (self->href != NULL)
-      new->href = xmlStrdup(self->href);
-    if (self->prefix != NULL)
-      new->prefix = xmlStrdup(self->prefix);
-  }
-  return new;
+    if (new == NULL) {
+        xml6_warn("Error building namespace");
+    }
+    else {
+        memset(new, 0, sizeof(xmlNs));
+        new->type = XML_LOCAL_NAMESPACE;
+
+        if (self->href != NULL)
+            new->href = xmlStrdup(self->href);
+        if (self->prefix != NULL)
+            new->prefix = xmlStrdup(self->prefix);
+    }
+    return new;
 }

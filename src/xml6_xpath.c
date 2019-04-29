@@ -4,10 +4,10 @@
 
 DLLEXPORT void
 xml6_xpath_object_add_reference(xmlXPathObjectPtr self) {
-  xml6_ref_add( &(self->user2) );
+    xml6_ref_add( &(self->user2) );
 }
 
 DLLEXPORT int
 xml6_xpath_object_remove_reference(xmlXPathObjectPtr self) {
-  return xml6_ref_remove( &(self->user2), "xpath object", (void*) self );
+    return xml6_ref_remove( &(self->user2), "xpath object", (void*) self );
 }

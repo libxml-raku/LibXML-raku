@@ -5,7 +5,7 @@
  *
  * Copyright 2001-2003 AxKit.com Ltd., 2002-2006 Christian Glahn, 2006-2009 Petr Pajas
  * Ported from Perl 5 to 6 by David Warring
-*/
+ */
 
 #include "dom.h"
 #include "xml6.h"
@@ -54,107 +54,93 @@ domClearPSVIInList(xmlNodePtr list) {
 }
 
 DLLEXPORT void
-domAddNsDef(xmlNodePtr tree, xmlNsPtr ns)
-{
-        xmlNsPtr i = tree->nsDef;
-        while(i != NULL && i != ns)
-                i = i->next;
-        if( i == NULL )
-        {
-                ns->next = tree->nsDef;
-                tree->nsDef = ns;
-        }
+domAddNsDef(xmlNodePtr tree, xmlNsPtr ns) {
+    xmlNsPtr i = tree->nsDef;
+    while(i != NULL && i != ns)
+        i = i->next;
+    if( i == NULL ) {
+        ns->next = tree->nsDef;
+        tree->nsDef = ns;
+    }
 }
 
 DLLEXPORT char
-domRemoveNsDef(xmlNodePtr tree, xmlNsPtr ns)
-{
-        xmlNsPtr i = tree->nsDef;
+domRemoveNsDef(xmlNodePtr tree, xmlNsPtr ns) {
+    xmlNsPtr i = tree->nsDef;
 
-        if( ns == tree->nsDef )
-        {
-                tree->nsDef = tree->nsDef->next;
-                ns->next = NULL;
-                return(1);
+    if( ns == tree->nsDef ) {
+        tree->nsDef = tree->nsDef->next;
+        ns->next = NULL;
+        return(1);
+    }
+    while( i != NULL ) {
+        if( i->next == ns ) {
+            i->next = ns->next;
+            ns->next = NULL;
+            return(1);
         }
-        while( i != NULL )
-        {
-                if( i->next == ns )
-                {
-                        i->next = ns->next;
-                        ns->next = NULL;
-                        return(1);
-                }
-                i = i->next;
-        }
-        return(0);
+        i = i->next;
+    }
+    return(0);
 }
 
 /* ns->next must be NULL, or bad things could happen */
 static xmlNsPtr
-_domAddNsChain(xmlNsPtr c, xmlNsPtr ns)
-{
-        if( c == NULL )
-                return(ns);
-        else
-        {
-                xmlNsPtr i = c;
-                while(i != NULL && i != ns)
-                        i = i->next;
-                if(i == NULL)
-                {
-                        ns->next = c;
-                        return(ns);
-                }
+_domAddNsChain(xmlNsPtr c, xmlNsPtr ns) {
+    if( c == NULL )
+        return(ns);
+    else {
+        xmlNsPtr i = c;
+        while(i != NULL && i != ns)
+            i = i->next;
+        if(i == NULL) {
+            ns->next = c;
+            return(ns);
         }
-        return(c);
+    }
+    return(c);
 }
 
 /* We need to be smarter with attributes, because the declaration is on the parent element */
 static void
-_domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused)
-{
-        xmlNodePtr tree = attr->parent;
-	if (tree == NULL)
-		return;
-        if( attr->ns != NULL )
-        {
-		xmlNsPtr ns;
-		if ((attr->ns->prefix != NULL) &&
-		    (xmlStrEqual(attr->ns->prefix, BAD_CAST "xml"))) {
-			/* prefix 'xml' has no visible declaration */
-			ns = xmlSearchNsByHref(tree->doc, tree, XML_XML_NAMESPACE);
-			attr->ns = ns;
-			return;
-		} else {
-			ns = xmlSearchNs( tree->doc, tree->parent, attr->ns->prefix );
-		}
-                if( ns != NULL && ns->href != NULL && attr->ns->href != NULL &&
-                    xmlStrcmp(ns->href,attr->ns->href) == 0 )
-                {
-                        /* Remove the declaration from the element */
-                        if( domRemoveNsDef(tree, attr->ns) )
-                                /* Queue up this namespace for freeing */
-                                *unused = _domAddNsChain(*unused, attr->ns);
-
-                        /* Replace the namespace with the one found */
-                        attr->ns = ns;
-                }
-                else
-                {
-                        /* If the declaration is here, we don't need to do anything */
-                        if( domRemoveNsDef(tree, attr->ns) )
-                                domAddNsDef(tree, attr->ns);
-                        else
-                        {
-                                /* Replace/Add the namespace declaration on the element */
-                                attr->ns = xmlCopyNamespace(attr->ns);
-				if (attr->ns) {
-				  domAddNsDef(tree, attr->ns);
-				}
-                        }
-                }
+_domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused) {
+    xmlNodePtr tree = attr->parent;
+    if (tree == NULL)
+        return;
+    if( attr->ns != NULL ) {
+        xmlNsPtr ns;
+        if ((attr->ns->prefix != NULL) &&
+            (xmlStrEqual(attr->ns->prefix, BAD_CAST "xml"))) {
+            /* prefix 'xml' has no visible declaration */
+            ns = xmlSearchNsByHref(tree->doc, tree, XML_XML_NAMESPACE);
+            attr->ns = ns;
+            return;
+        } else {
+            ns = xmlSearchNs( tree->doc, tree->parent, attr->ns->prefix );
         }
+        if( ns != NULL && ns->href != NULL && attr->ns->href != NULL &&
+            xmlStrcmp(ns->href,attr->ns->href) == 0 ) {
+            /* Remove the declaration from the element */
+            if( domRemoveNsDef(tree, attr->ns) )
+                /* Queue up this namespace for freeing */
+                *unused = _domAddNsChain(*unused, attr->ns);
+
+            /* Replace the namespace with the one found */
+            attr->ns = ns;
+        }
+        else {
+            /* If the declaration is here, we don't need to do anything */
+            if( domRemoveNsDef(tree, attr->ns) )
+                domAddNsDef(tree, attr->ns);
+            else {
+                /* Replace/Add the namespace declaration on the element */
+                attr->ns = xmlCopyNamespace(attr->ns);
+                if (attr->ns) {
+                    domAddNsDef(tree, attr->ns);
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -168,83 +154,74 @@ _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused)
  **/
 
 static void
-_domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused)
-{
-        if( tree->ns != NULL
-            && ((tree->type == XML_ELEMENT_NODE)
-                || (tree->type == XML_ATTRIBUTE_NODE)))
-        {
-                xmlNsPtr ns = xmlSearchNs( tree->doc, tree->parent, tree->ns->prefix );
-                if( ns != NULL && ns->href != NULL && tree->ns->href != NULL &&
-                    xmlStrcmp(ns->href,tree->ns->href) == 0 )
-                {
-                        /* Remove the declaration (if present) */
-                        if( domRemoveNsDef(tree, tree->ns) )
-                                /* Queue the namespace for freeing */
-                                *unused = _domAddNsChain(*unused, tree->ns);
+_domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
+    if( tree->ns != NULL
+        && ((tree->type == XML_ELEMENT_NODE)
+            || (tree->type == XML_ATTRIBUTE_NODE))) {
+        xmlNsPtr ns = xmlSearchNs( tree->doc, tree->parent, tree->ns->prefix );
+        if( ns != NULL && ns->href != NULL && tree->ns->href != NULL &&
+            xmlStrcmp(ns->href,tree->ns->href) == 0 ) {
+            /* Remove the declaration (if present) */
+            if( domRemoveNsDef(tree, tree->ns) )
+                /* Queue the namespace for freeing */
+                *unused = _domAddNsChain(*unused, tree->ns);
 
-                        /* Replace the namespace with the one found */
-                        tree->ns = ns;
-                }
-                else
-                {
-                        /* If the declaration is here, we don't need to do anything */
-                        if( domRemoveNsDef(tree, tree->ns) ) {
-                              domAddNsDef(tree, tree->ns);
-                        }
-                        else
-                        {
-                                /* Restart the namespace at this point */
-                                tree->ns = xmlCopyNamespace(tree->ns);
-                                domAddNsDef(tree, tree->ns);
-                        }
-                }
+            /* Replace the namespace with the one found */
+            tree->ns = ns;
         }
-        /* Fix attribute namespacing */
-        if( tree->type == XML_ELEMENT_NODE )
-        {
-                xmlElementPtr ele = (xmlElementPtr) tree;
-                /* attributes is set to xmlAttributePtr,
-                   but is an xmlAttrPtr??? */
-                xmlAttrPtr attr = (xmlAttrPtr) ele->attributes;
-                while( attr != NULL )
-                {
-                        _domReconcileNsAttr(attr, unused);
-                        attr = attr->next;
-                }
-        }
-        {
-          /* Recurse through all child nodes */
-          xmlNodePtr child = tree->children;
-          while( child != NULL )
-          {
-              _domReconcileNs(child, unused);
-              child = child->next;
+        else {
+            /* If the declaration is here, we don't need to do anything */
+            if( domRemoveNsDef(tree, tree->ns) ) {
+                domAddNsDef(tree, tree->ns);
+            }
+            else {
+                /* Restart the namespace at this point */
+                tree->ns = xmlCopyNamespace(tree->ns);
+                domAddNsDef(tree, tree->ns);
             }
         }
+    }
+    /* Fix attribute namespacing */
+    if( tree->type == XML_ELEMENT_NODE ) {
+        xmlElementPtr ele = (xmlElementPtr) tree;
+        /* attributes is set to xmlAttributePtr,
+           but is an xmlAttrPtr??? */
+        xmlAttrPtr attr = (xmlAttrPtr) ele->attributes;
+        while( attr != NULL ) {
+            _domReconcileNsAttr(attr, unused);
+            attr = attr->next;
+        }
+    }
+    {
+        /* Recurse through all child nodes */
+        xmlNodePtr child = tree->children;
+        while( child != NULL ) {
+            _domReconcileNs(child, unused);
+            child = child->next;
+        }
+    }
 }
 
 DLLEXPORT void
-domReconcileNs(xmlNodePtr tree)
-{
-  xmlNsPtr unused = NULL;
-  _domReconcileNs(tree, &unused);
-  if( unused != NULL ) {
-    // sanity check for externally referenced namespaces. shouldn't really happen
-    int is_referenced = 0;
-    xmlNsPtr cur = unused;
-    while (cur && is_referenced == 0) {
-      is_referenced = (cur->_private != NULL);
-      if (is_referenced != 0) {
-        xml6_warn("namespace node is inuse or private");
-      }
-      cur = cur->next;
-    }
+domReconcileNs(xmlNodePtr tree) {
+    xmlNsPtr unused = NULL;
+    _domReconcileNs(tree, &unused);
+    if( unused != NULL ) {
+        // sanity check for externally referenced namespaces. shouldn't really happen
+        int is_referenced = 0;
+        xmlNsPtr cur = unused;
+        while (cur && is_referenced == 0) {
+            is_referenced = (cur->_private != NULL);
+            if (is_referenced != 0) {
+                xml6_warn("namespace node is inuse or private");
+            }
+            cur = cur->next;
+        }
 
-    if (is_referenced == 0) {    
-      xmlFreeNsList(unused);
+        if (is_referenced == 0) {    
+            xmlFreeNsList(unused);
+        }
     }
-  }
 }
 
 static xmlNodePtr
@@ -255,8 +232,8 @@ _domExtractFrag(xmlNodePtr frag) {
     frag->children = frag->last = NULL;
     // detach fragment list
     while ( cur ){
-      cur->parent = NULL;
-      cur = cur->next;
+        cur->parent = NULL;
+        cur = cur->next;
     }
 
     return fraglist;
@@ -264,80 +241,80 @@ _domExtractFrag(xmlNodePtr frag) {
 
 DLLEXPORT xmlDtdPtr
 domGetInternalSubset(xmlDocPtr self) {
-  return xmlGetIntSubset(self);
+    return xmlGetIntSubset(self);
 }
 
 DLLEXPORT xmlDtdPtr
 domGetExternalSubset(xmlDocPtr self) {
-  return self->extSubset;
+    return self->extSubset;
 }
 
 DLLEXPORT void
 domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
-  xmlDtdPtr ext_dtd = NULL;
-  xmlDtdPtr int_dtd = NULL;
+    xmlDtdPtr ext_dtd = NULL;
+    xmlDtdPtr int_dtd = NULL;
 
-  if (self == NULL) xml6_fail("unable to update null document");
+    if (self == NULL) xml6_fail("unable to update null document");
 
-  int_dtd = domGetInternalSubset(self);
-  ext_dtd = domGetExternalSubset(self);
+    int_dtd = domGetInternalSubset(self);
+    ext_dtd = domGetExternalSubset(self);
 
-  if (int_dtd == dtd) {
-    return;
-  }
-
-  if (int_dtd != NULL) {
-    domReleaseNode((xmlNodePtr) int_dtd);
-  }
-
-  if (dtd->doc == NULL) {
-    xmlSetTreeDoc( (xmlNodePtr) dtd, self );
-  } else if ( dtd->doc != self ) {
-    domImportNode( self, (xmlNodePtr) dtd, 1, 1);
-  }
-
-  if (dtd != NULL) {
-    if (ext_dtd && ext_dtd != int_dtd) {
-      domReleaseNode((xmlNodePtr) ext_dtd);
+    if (int_dtd == dtd) {
+        return;
     }
-    self->extSubset = NULL;
-  }
-  self->intSubset = dtd;
+
+    if (int_dtd != NULL) {
+        domReleaseNode((xmlNodePtr) int_dtd);
+    }
+
+    if (dtd->doc == NULL) {
+        xmlSetTreeDoc( (xmlNodePtr) dtd, self );
+    } else if ( dtd->doc != self ) {
+        domImportNode( self, (xmlNodePtr) dtd, 1, 1);
+    }
+
+    if (dtd != NULL) {
+        if (ext_dtd && ext_dtd != int_dtd) {
+            domReleaseNode((xmlNodePtr) ext_dtd);
+        }
+        self->extSubset = NULL;
+    }
+    self->intSubset = dtd;
 }
 
 DLLEXPORT void
 domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
-  xmlDtdPtr ext_dtd = NULL;
-  xmlDtdPtr int_dtd = NULL;
+    xmlDtdPtr ext_dtd = NULL;
+    xmlDtdPtr int_dtd = NULL;
 
-  if (self == NULL) xml6_fail("unable to update null document");
+    if (self == NULL) xml6_fail("unable to update null document");
 
-  int_dtd = domGetInternalSubset(self);
-  ext_dtd = domGetExternalSubset(self);
+    int_dtd = domGetInternalSubset(self);
+    ext_dtd = domGetExternalSubset(self);
 
-  if (ext_dtd == dtd) {
-    return;
-  }
-
-  if (ext_dtd != NULL) {
-      domReleaseNode((xmlNodePtr) ext_dtd);
-  }
-
-  if ( dtd->doc == NULL ) {
-    xmlSetTreeDoc( (xmlNodePtr) dtd, self );
-  } else if (dtd->doc != self) {
-    domImportNode( self, (xmlNodePtr) dtd, 1, 1);
-  }
-
-  if (dtd != NULL && int_dtd != NULL) {
-    if (int_dtd == dtd) {
-      xmlUnlinkNode( (xmlNodePtr) int_dtd);
+    if (ext_dtd == dtd) {
+        return;
     }
-    else {
-      domReleaseNode( (xmlNodePtr) int_dtd);
+
+    if (ext_dtd != NULL) {
+        domReleaseNode((xmlNodePtr) ext_dtd);
     }
-  }
-  self->extSubset = dtd;
+
+    if ( dtd->doc == NULL ) {
+        xmlSetTreeDoc( (xmlNodePtr) dtd, self );
+    } else if (dtd->doc != self) {
+        domImportNode( self, (xmlNodePtr) dtd, 1, 1);
+    }
+
+    if (dtd != NULL && int_dtd != NULL) {
+        if (int_dtd == dtd) {
+            xmlUnlinkNode( (xmlNodePtr) int_dtd);
+        }
+        else {
+            domReleaseNode( (xmlNodePtr) int_dtd);
+        }
+    }
+    self->extSubset = dtd;
 }
 
 static xmlNodePtr
@@ -346,9 +323,9 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
     while ( cur ) {
         /* we must reconcile all nodes in the fragment */
         if (cur->type == XML_DTD_NODE) {
-          if (cur->doc) {
-            domSetInternalSubset(cur->doc, (xmlDtdPtr) cur);
-          }
+            if (cur->doc) {
+                domSetInternalSubset(cur->doc, (xmlDtdPtr) cur);
+            }
         }
         else {
             domReconcileNs(cur);
@@ -378,62 +355,61 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
  * Level 2 and 3 do.
  **/
 static xmlNodePtr
-_domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *ptail)
-{
-  xmlNodePtr head = NULL, tail = NULL, p = NULL, n = NULL;
-   if ( cur ) {
-       head = tail = cur;
-       if ( leader ) {
-          p = leader->parent;
-       }
-       else if ( followup ) {
-          p = followup->parent;
-       }
-       else {
-          return 0; /* can't insert */
-       }
+_domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *ptail) {
+    xmlNodePtr head = NULL, tail = NULL, p = NULL, n = NULL;
+    if ( cur ) {
+        head = tail = cur;
+        if ( leader ) {
+            p = leader->parent;
+        }
+        else if ( followup ) {
+            p = followup->parent;
+        }
+        else {
+            return 0; /* can't insert */
+        }
 
-       if (leader && followup && p != followup->parent) {
-         warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
-       }
+        if (leader && followup && p != followup->parent) {
+            warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
+        }
 
-       if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
-           head = _domExtractFrag(cur);
+        if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
+            head = _domExtractFrag(cur);
 
-           n = head;
-           while ( n ){
-               n->parent = p;
-               n->doc = p->doc;
-               tail = n;
-               n = n->next;
-           }
-       }
-       else {
-           cur->parent = p;
-       }
+            n = head;
+            while ( n ){
+                n->parent = p;
+                n->doc = p->doc;
+                tail = n;
+                n = n->next;
+            }
+        }
+        else {
+            cur->parent = p;
+        }
 
-       if (head && tail && head != leader) {
-           if ( leader ) {
-               leader->next = head;
-               head->prev = leader;
-           }
-           else if ( p ) {
-               p->children = head;
-           }
+        if (head && tail && head != leader) {
+            if ( leader ) {
+                leader->next = head;
+                head->prev = leader;
+            }
+            else if ( p ) {
+                p->children = head;
+            }
 
-           if ( followup ) {
-               followup->prev = tail;
-               tail->next = followup;
-           }
-           else if ( p ) {
-               p->last = tail;
-           }
-       }
-       *ptail = tail;
-       return head;
-   }
-   *ptail = NULL;
-   return NULL;
+            if ( followup ) {
+                followup->prev = tail;
+                tail->next = followup;
+            }
+            else if ( p ) {
+                p->last = tail;
+            }
+        }
+        *ptail = tail;
+        return head;
+    }
+    *ptail = NULL;
+    return NULL;
 }
 
 /**
@@ -456,7 +432,7 @@ domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
     }
 
     if( refNode->type == XML_DOCUMENT_NODE ) {
-      return 1;
+        return 1;
     }
 
     ancestor = cur;
@@ -471,21 +447,20 @@ domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
 }
 
 DLLEXPORT int
-domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode)
-{
+domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode) {
     if ( !refNode || !cur ) {
         return 0;
     }
     if (cur->type == XML_ATTRIBUTE_NODE) {
-      switch ( refNode->type ){
-      case XML_TEXT_NODE:
-      case XML_ENTITY_REF_NODE:
-        return 1;
-        break;
-      default:
-        return 0;
-        break;
-      }
+        switch ( refNode->type ){
+        case XML_TEXT_NODE:
+        case XML_ENTITY_REF_NODE:
+            return 1;
+            break;
+        default:
+            return 0;
+            break;
+        }
     }
 
     switch ( refNode->type ){
@@ -505,8 +480,7 @@ domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode)
 }
 
 DLLEXPORT int
-domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
-{
+domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     if ( cur->type == XML_DOCUMENT_NODE ) {
         switch ( refNode->type ) {
         case XML_ATTRIBUTE_NODE:
@@ -528,16 +502,16 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode)
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr cur) {
 
-  while (cur) {
-    xmlNodePtr kids = cur->children;
-    if (cur->_private != NULL
-        || (kids != NULL && domNodeIsReferenced(kids))) {
-      return 1;
+    while (cur) {
+        xmlNodePtr kids = cur->children;
+        if (cur->_private != NULL
+            || (kids != NULL && domNodeIsReferenced(kids))) {
+            return 1;
+        }
+        cur = cur->next;
     }
-    cur = cur->next;
-  }
 
-  return 0;
+    return 0;
 }
 
 DLLEXPORT void
@@ -573,7 +547,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
 
     if ( reconcileNS && doc && imported_node
          && imported_node->type != XML_ENTITY_REF_NODE ) {
-                domReconcileNs(imported_node);
+        domReconcileNs(imported_node);
     }
 
     return imported_node;
@@ -701,7 +675,7 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( self->children != NULL ) {
-      head = _domAddNodeToList( newChild, self->last, NULL, &tail );
+        head = _domAddNodeToList( newChild, self->last, NULL, &tail );
     }
     else if (newChild->type == XML_DOCUMENT_FRAG_NODE) {
         xmlNodePtr c1 = NULL;
@@ -728,28 +702,28 @@ domAppendChild( xmlNodePtr self,
 
 DLLEXPORT void
 domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value) {
-  xmlChar* buffer;
-  /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
-  buffer = xmlEncodeEntitiesReentrant(self->doc, value);
-  xmlNewChild( self, NULL, name, buffer );
-  if ( buffer ) {
-      xmlFree(buffer);
-  }
+    xmlChar* buffer;
+    /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
+    buffer = xmlEncodeEntitiesReentrant(self->doc, value);
+    xmlNewChild( self, NULL, name, buffer );
+    if ( buffer ) {
+        xmlFree(buffer);
+    }
 }
 
 DLLEXPORT xmlNodePtr
 domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
     if ( self == NULL || old == NULL ) {
-      return NULL;
+        return NULL;
     }
     if ( self != old->parent ) {
-      /* not a child! */
-      return NULL;
+        /* not a child! */
+        return NULL;
     }
 
     xmlUnlinkNode( old );
     if ( old->type == XML_ELEMENT_NODE ) {
-      domReconcileNs( old );
+        domReconcileNs( old );
     }
 
     return old ;
@@ -778,7 +752,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
 
     if ( !(domTestHierarchy(self, new)
            && domTestDocument(self, new))){
-      croak(self, "replaceChild: HIERARCHY_REQUEST_ERR");
+        croak(self, "replaceChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( new->doc == self->doc ) {
@@ -802,7 +776,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
         head = _domAddNodeToList(new, old->prev, old->next, &tail );
         old->parent = old->next = old->prev = NULL;
         if ( head ) {
-          _domAssimulate(head, tail);
+            _domAssimulate(head, tail);
         }
 
     }
@@ -851,10 +825,10 @@ domInsertBefore( xmlNodePtr self,
     }
 
     if ( refChild == NULL ) {
-      head = _domAddNodeToList(newChild, self->last, NULL, &tail);
+        head = _domAddNodeToList(newChild, self->last, NULL, &tail);
     }
     else {
-      head = _domAddNodeToList(newChild, refChild->prev, refChild, &tail);
+        head = _domAddNodeToList(newChild, refChild->prev, refChild, &tail);
     }
 
     return _domAssimulate(head, tail);
@@ -907,15 +881,15 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
         domAppendChild( par , newNode );
     }
     else {
-      if ( newNode->doc == self->doc ){
-        xmlUnlinkNode( newNode );
-      }
-      else {
-        domImportNode( self->doc, newNode, 1, 0 );
-      }
+        if ( newNode->doc == self->doc ){
+            xmlUnlinkNode( newNode );
+        }
+        else {
+            domImportNode( self->doc, newNode, 1, 0 );
+        }
 
-      head = _domAddNodeToList( newNode, prev,  next, &tail );
-      _domAssimulate(head, tail);
+        head = _domAddNodeToList( newNode, prev,  next, &tail );
+        _domAssimulate(head, tail);
     }
 
     return self;
@@ -923,21 +897,21 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
 
 DLLEXPORT xmlNodePtr
 domRemoveChildNodes( xmlNodePtr self) {
-  xmlNodePtr frag = xmlNewDocFragment( self->doc );
-  xmlNodePtr elem = self->children;
-  // transfer kids
-  frag->children = self->children;
-  frag->last = self->last;
-  self->children = self->last = NULL;
-  while ( elem ) {
-    xmlNodePtr next = elem->next;
-    if (elem->type == XML_ATTRIBUTE_NODE
-        || elem->type == XML_DTD_NODE) {
-      domReleaseNode( elem );
+    xmlNodePtr frag = xmlNewDocFragment( self->doc );
+    xmlNodePtr elem = self->children;
+    // transfer kids
+    frag->children = self->children;
+    frag->last = self->last;
+    self->children = self->last = NULL;
+    while ( elem ) {
+        xmlNodePtr next = elem->next;
+        if (elem->type == XML_ATTRIBUTE_NODE
+            || elem->type == XML_DTD_NODE) {
+            domReleaseNode( elem );
+        }
+        elem = next;
     }
-    elem = next;
-  }
-  return frag;
+    return frag;
 }
 
 DLLEXPORT xmlNodePtr
@@ -966,7 +940,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
         rv = xmlAddSibling( self, nNode );
 
         if ( rv && nNode->type == XML_DTD_NODE ) {
-          domSetInternalSubset(self->doc, (xmlDtdPtr) nNode);
+            domSetInternalSubset(self->doc, (xmlDtdPtr) nNode);
         }
     }
     return rv;
@@ -1030,14 +1004,14 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     }
 
     if( n->type == XML_ATTRIBUTE_NODE ){
-      /* can't use xmlNodeSetContent - for Attrs it parses entities */
+        /* can't use xmlNodeSetContent - for Attrs it parses entities */
         if ( n->children != NULL ) {
             // clear existing attribute content
             xmlNodePtr content = n->children;
             while (content) {
-              xmlNodePtr next = content->next;
-              domReleaseNode(content);
-              content = next;
+                xmlNodePtr next = content->next;
+                domReleaseNode(content);
+                content = next;
             }
         }
         n->children = xmlNewText( val );
@@ -1060,8 +1034,8 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
         any_name = xmlStrcmp( name, (unsigned char*) "*" ) == 0;
         cld = self->children;
         while ( cld != NULL ) {
-          if ( ((any_name && cld->type == XML_ELEMENT_NODE)
-                || xmlStrcmp( name, cld->name ) == 0 )) {
+            if ( ((any_name && cld->type == XML_ELEMENT_NODE)
+                  || xmlStrcmp( name, cld->name ) == 0 )) {
                 if ( rv == NULL ) {
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }
@@ -1077,11 +1051,11 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
 }
 
 static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
-  int rv;
-  xmlChar* name = domName(self);
-  rv = xmlStrcmp( name, pname );
-  xmlFree(name);
-  return rv;
+    int rv;
+    xmlChar* name = domName(self);
+    rv = xmlStrcmp( name, pname );
+    xmlFree(name);
+    return rv;
 }
 
 DLLEXPORT xmlNodeSetPtr
@@ -1094,8 +1068,8 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
         any_name =  xmlStrcmp( name, (unsigned char *) "*" ) == 0;
         cld = self->children;
         while ( cld != NULL ) {
-          if ( ((any_name && cld->type == XML_ELEMENT_NODE)
-                || _domNamecmp( cld, name ) == 0 )) {
+            if ( ((any_name && cld->type == XML_ELEMENT_NODE)
+                  || _domNamecmp( cld, name ) == 0 )) {
                 if ( rv == NULL ) {
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }
@@ -1117,27 +1091,27 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
     xmlNodePtr cld;
 
     if ( self != NULL && name != NULL && nsURI != NULL ) {
-      if ( xmlStrcmp( nsURI, (unsigned char *) "*" ) == 0) {
-        rv = domGetChildrenByLocalName(self, name);
-      }
-      else {
-        any_name = xmlStrcmp( name, (unsigned char *) "*" ) == 0;
-        cld = self->children;
-        while ( cld != NULL ) {
-          if (((any_name &&  cld->type == XML_ELEMENT_NODE)
-               || xmlStrcmp( name, cld->name ) == 0)
-               && cld->ns != NULL
-               && xmlStrcmp( nsURI, cld->ns->href ) == 0  ){
-            if ( rv == NULL ) {
-              rv = xmlXPathNodeSetCreate( cld ) ;
-            }
-            else {
-              xmlXPathNodeSetAdd( rv, cld );
-            }
-          }
-          cld = cld->next;
+        if ( xmlStrcmp( nsURI, (unsigned char *) "*" ) == 0) {
+            rv = domGetChildrenByLocalName(self, name);
         }
-      }
+        else {
+            any_name = xmlStrcmp( name, (unsigned char *) "*" ) == 0;
+            cld = self->children;
+            while ( cld != NULL ) {
+                if (((any_name &&  cld->type == XML_ELEMENT_NODE)
+                     || xmlStrcmp( name, cld->name ) == 0)
+                    && cld->ns != NULL
+                    && xmlStrcmp( nsURI, cld->ns->href ) == 0  ){
+                    if ( rv == NULL ) {
+                        rv = xmlXPathNodeSetCreate( cld ) ;
+                    }
+                    else {
+                        xmlXPathNodeSetAdd( rv, cld );
+                    }
+                }
+                cld = cld->next;
+            }
+        }
     }
 
     return rv;
@@ -1171,182 +1145,182 @@ domGetAttributeNode(xmlNodePtr node, const xmlChar* qname) {
     xmlNsPtr ns = NULL;
 
     if ( qname == NULL || node == NULL )
-       return NULL;
+        return NULL;
 
     /* first try qname without namespace */
     rv = xmlHasNsProp(node, qname, NULL);
     if ( rv == NULL ) {
-      localname = xmlSplitQName2(qname, &prefix);
-      if ( localname != NULL ) {
-        ns = xmlSearchNs( node->doc, node, prefix );
-        if ( ns != NULL ) {
-          /* then try localname with the namespace bound to prefix */
-          rv = xmlHasNsProp( node, localname, ns->href );
+        localname = xmlSplitQName2(qname, &prefix);
+        if ( localname != NULL ) {
+            ns = xmlSearchNs( node->doc, node, prefix );
+            if ( ns != NULL ) {
+                /* then try localname with the namespace bound to prefix */
+                rv = xmlHasNsProp( node, localname, ns->href );
+            }
+            if ( prefix != NULL) {
+                xmlFree( prefix );
+            }
+            xmlFree( localname );
         }
-        if ( prefix != NULL) {
-          xmlFree( prefix );
-        }
-        xmlFree( localname );
-      }
     }
     if (rv && rv->type != XML_ATTRIBUTE_NODE) {
-      rv = NULL;  /* we don't want fixed attribute decls */
+        rv = NULL;  /* we don't want fixed attribute decls */
     }
     return rv;
 }
 
 DLLEXPORT int
 domHasAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
-  int rv = 0;
-  xmlAttrPtr attr = NULL;
+    int rv = 0;
+    xmlAttrPtr attr = NULL;
 
-  if ( name && *name ) {
-    if (nsURI && !*nsURI) {
-      nsURI = NULL;
+    if ( name && *name ) {
+        if (nsURI && !*nsURI) {
+            nsURI = NULL;
+        }
+
+        attr = xmlHasNsProp( self, name, nsURI );
+
+        if (attr) {
+            /* we don't want fixed attribute decls */
+            rv = attr->type == XML_ATTRIBUTE_NODE;
+        }
     }
 
-    attr = xmlHasNsProp( self, name, nsURI );
-
-    if (attr) {
-      /* we don't want fixed attribute decls */
-      rv = attr->type == XML_ATTRIBUTE_NODE;
-    }
-  }
-
-  return rv;
+    return rv;
 }
 
 DLLEXPORT int
 domSetNamespaceDeclURI( xmlNodePtr self, xmlChar* prefix, xmlChar* nsURI ) {
-  xmlNsPtr ns = self->nsDef;
-  int rv = 0;
+    xmlNsPtr ns = self->nsDef;
+    int rv = 0;
 
-  /* null empty values */
-  if ( prefix && !*prefix) {
-    prefix = NULL;
-  }
-  if ( nsURI && !*nsURI) {
-    nsURI = NULL;
-  }
-
-  while ( ns ) {
-    if ((ns->prefix || ns->href ) &&
-        ( xmlStrcmp( ns->prefix, prefix ) == 0 )) {
-      if (ns->href) xmlFree((char*)ns->href);
-      ns->href = xmlStrdup(nsURI);
-      if ( nsURI == NULL ) {
-        domRemoveNsRefs( self, ns );
-      } else {
-        nsURI = NULL; /* do not free it */
-      }
-      rv = 1;
-      break;
-    } else {
-      ns = ns->next;
+    /* null empty values */
+    if ( prefix && !*prefix) {
+        prefix = NULL;
     }
-  }
-  return rv;
+    if ( nsURI && !*nsURI) {
+        nsURI = NULL;
+    }
+
+    while ( ns ) {
+        if ((ns->prefix || ns->href ) &&
+            ( xmlStrcmp( ns->prefix, prefix ) == 0 )) {
+            if (ns->href) xmlFree((char*)ns->href);
+            ns->href = xmlStrdup(nsURI);
+            if ( nsURI == NULL ) {
+                domRemoveNsRefs( self, ns );
+            } else {
+                nsURI = NULL; /* do not free it */
+            }
+            rv = 1;
+            break;
+        } else {
+            ns = ns->next;
+        }
+    }
+    return rv;
 }
 
 DLLEXPORT const xmlChar*
 domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix ) {
-  const xmlChar* rv = NULL;
-  xmlNsPtr ns = self->nsDef;
+    const xmlChar* rv = NULL;
+    xmlNsPtr ns = self->nsDef;
 
-  if ( prefix != NULL && !*prefix) {
-    prefix = NULL;
-  }
-
-  while ( ns != NULL ) {
-    if ( (ns->prefix != NULL || ns->href != NULL) &&
-         xmlStrcmp( ns->prefix, prefix ) == 0 ) {
-      rv = ns->href;
-      break;
-    } else {
-      ns = ns->next;
+    if ( prefix != NULL && !*prefix) {
+        prefix = NULL;
     }
-  }
-  return rv;
+
+    while ( ns != NULL ) {
+        if ( (ns->prefix != NULL || ns->href != NULL) &&
+             xmlStrcmp( ns->prefix, prefix ) == 0 ) {
+            rv = ns->href;
+            break;
+        } else {
+            ns = ns->next;
+        }
+    }
+    return rv;
 }
 
 DLLEXPORT int
 domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix ) {
-  xmlNsPtr ns;
-  int rv = 0;
+    xmlNsPtr ns;
+    int rv = 0;
 
-  if (prefix && !*prefix) prefix = NULL;
-  if (new_prefix && !*new_prefix) new_prefix = NULL;
+    if (prefix && !*prefix) prefix = NULL;
+    if (new_prefix && !*new_prefix) new_prefix = NULL;
 
-  if ( xmlStrcmp( prefix, new_prefix ) == 0 ) {
-	  rv = 1;
-  } else {
-    /* check that new prefix is not in scope */
-    ns = xmlSearchNs( self->doc, self, new_prefix );
-    if ( ns != NULL ) {
-      char msg[80];
-      sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-      croak_i(self, xmlStrdup((xmlChar*) msg));
-    }
-	  /* lookup the declaration */
-    ns = self->nsDef;
-    while ( ns != NULL ) {
-      if ((ns->prefix != NULL || ns->href != NULL) &&
-          xmlStrcmp( ns->prefix, prefix ) == 0 ) {
-        if ( ns->href == NULL && new_prefix != NULL ) {
-          /* xmlns:foo="" - no go */
-          croak_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
-        }
-        if ( ns->prefix != NULL )
-          xmlFree( (xmlChar*)ns->prefix );
-        ns->prefix = xmlStrdup(new_prefix);
-        new_prefix = NULL; /* do not free it */
+    if ( xmlStrcmp( prefix, new_prefix ) == 0 ) {
         rv = 1;
-        break;
-      } else {
-        ns = ns->next;
-      }
+    } else {
+        /* check that new prefix is not in scope */
+        ns = xmlSearchNs( self->doc, self, new_prefix );
+        if ( ns != NULL ) {
+            char msg[80];
+            sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
+            croak_i(self, xmlStrdup((xmlChar*) msg));
+        }
+        /* lookup the declaration */
+        ns = self->nsDef;
+        while ( ns != NULL ) {
+            if ((ns->prefix != NULL || ns->href != NULL) &&
+                xmlStrcmp( ns->prefix, prefix ) == 0 ) {
+                if ( ns->href == NULL && new_prefix != NULL ) {
+                    /* xmlns:foo="" - no go */
+                    croak_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
+                }
+                if ( ns->prefix != NULL )
+                    xmlFree( (xmlChar*)ns->prefix );
+                ns->prefix = xmlStrdup(new_prefix);
+                new_prefix = NULL; /* do not free it */
+                rv = 1;
+                break;
+            } else {
+                ns = ns->next;
+            }
+        }
     }
-  }
-  return rv;
+    return rv;
 }
 
 DLLEXPORT const xmlChar*
 domGetAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
-  const xmlChar* rv = NULL;
+    const xmlChar* rv = NULL;
 
-  if ( nsURI && *nsURI) {
-    if ( xmlStrcmp(nsURI, XML_XMLNS_NS) == 0) {
-      if (name && xmlStrcmp(name, (xmlChar*)"xmlns") == 0)
-        name = NULL;
-      rv = domGetNamespaceDeclURI(self, name);
+    if ( nsURI && *nsURI) {
+        if ( xmlStrcmp(nsURI, XML_XMLNS_NS) == 0) {
+            if (name && xmlStrcmp(name, (xmlChar*)"xmlns") == 0)
+                name = NULL;
+            rv = domGetNamespaceDeclURI(self, name);
+        }
+        else {
+            rv = xmlGetNsProp( self, name, nsURI );
+        }
     }
     else {
-      rv = xmlGetNsProp( self, name, nsURI );
+        rv = xmlGetProp( self, name );
     }
-  }
-  else {
-    rv = xmlGetProp( self, name );
-  }
-  return rv;
+    return rv;
 }
 
 DLLEXPORT xmlAttrPtr
 domGetAttributeNodeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
-  xmlAttrPtr rv = NULL;
-  if (nsURI && !*nsURI)
-    nsURI = NULL;
+    xmlAttrPtr rv = NULL;
+    if (nsURI && !*nsURI)
+        nsURI = NULL;
 
-  if ( nsURI ) {
-    rv = xmlHasNsProp( self, name, nsURI );
-  }
-  else {
-    rv = xmlHasNsProp( self, name, NULL );
-  }
-  if (rv && rv->type != XML_ATTRIBUTE_NODE) {
-    /* we don't want fixed attribute decls */
-    rv = NULL;
-  }
-  return rv;
+    if ( nsURI ) {
+        rv = xmlHasNsProp( self, name, nsURI );
+    }
+    else {
+        rv = xmlHasNsProp( self, name, NULL );
+    }
+    if (rv && rv->type != XML_ATTRIBUTE_NODE) {
+        /* we don't want fixed attribute decls */
+        rv = NULL;
+    }
+    return rv;
 }
 
 DLLEXPORT xmlChar*
@@ -1357,24 +1331,24 @@ domGetAttribute(xmlNodePtr node, const xmlChar* qname) {
     xmlNsPtr ns = NULL;
 
     if ( qname == NULL || node == NULL )
-       return NULL;
+        return NULL;
 
     /* first try qname without namespace */
     rv = xmlGetNoNsProp(node, qname);
 
     if ( rv == NULL ) {
-      localname = xmlSplitQName2(qname, &prefix);
-      if ( localname != NULL ) {
-        ns = xmlSearchNs( node->doc, node, prefix );
-        if ( ns != NULL ) {
-          /* then try localname with the namespace bound to prefix */
-          rv = xmlGetNsProp( node, localname, ns->href );
+        localname = xmlSplitQName2(qname, &prefix);
+        if ( localname != NULL ) {
+            ns = xmlSearchNs( node->doc, node, prefix );
+            if ( ns != NULL ) {
+                /* then try localname with the namespace bound to prefix */
+                rv = xmlGetNsProp( node, localname, ns->href );
+            }
+            if ( prefix != NULL) {
+                xmlFree( prefix );
+            }
+            xmlFree( localname );
         }
-        if ( prefix != NULL) {
-          xmlFree( prefix );
-        }
-        xmlFree( localname );
-      }
     }
 
     return rv;
@@ -1399,27 +1373,27 @@ static void _addAttr(xmlNodePtr node, xmlAttrPtr attr) {
 DLLEXPORT void
 domSetAttribute( xmlNodePtr self, xmlChar* name, xmlChar* value ) {
 #if LIBXML_VERSION >= 20621
-	/*
-	 * For libxml2-2.6.21 and later we can use just xmlSetProp
-         */
-      xmlSetProp(self,name,value);
+    /*
+     * For libxml2-2.6.21 and later we can use just xmlSetProp
+     */
+    xmlSetProp(self,name,value);
 #else
-      xmlChar* prefix = NULL;
-      xmlChar* localname = xmlSplitQName2(name, &prefix);
+    xmlChar* prefix = NULL;
+    xmlChar* localname = xmlSplitQName2(name, &prefix);
 
-      if (localname != NULL) {
+    if (localname != NULL) {
         xmlNsPtr ns = xmlSearchNs(self->doc, self, prefix);
 
         if (prefix != NULL)
-          xmlFree(prefix);
+            xmlFree(prefix);
         if (ns != NULL)
-          xmlSetNsProp(self, ns, localname, value);
+            xmlSetNsProp(self, ns, localname, value);
         else
-          xmlSetNsProp(self, NULL, name, value);
+            xmlSetNsProp(self, NULL, name, value);
         xmlFree(localname);
-      } else {
+    } else {
         xmlSetNsProp(self, NULL, name, value);
-      }
+    }
 #endif
 }
 
@@ -1442,10 +1416,10 @@ domSetAttributeNode( xmlNodePtr self, xmlAttrPtr attr ) {
     old = domGetAttributeNode(self, attr->name);
 
     if ( old && old->type == XML_ATTRIBUTE_NODE ) {
-      if ( old == attr) {
-        return attr;
-      }
-      domReleaseNode( (xmlNodePtr)old );
+        if ( old == attr) {
+            return attr;
+        }
+        domReleaseNode( (xmlNodePtr)old );
     }
     xmlUnlinkNode( (xmlNodePtr) attr );
     _addAttr( self, attr);
@@ -1471,17 +1445,17 @@ domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
     
     ns = attr->ns;
     if ( ns != NULL ) {
-      old = xmlHasNsProp( self, ns->href, attr->name );
+        old = xmlHasNsProp( self, ns->href, attr->name );
     }
     else {
-      old = xmlHasNsProp( self, NULL, attr->name );
+        old = xmlHasNsProp( self, NULL, attr->name );
     }
 
     if ( old && old->type == XML_ATTRIBUTE_NODE ) {
-      if ( old == attr) {
-        return attr;
-      }
-      domReleaseNode( (xmlNodePtr)old );
+        if ( old == attr) {
+            return attr;
+        }
+        domReleaseNode( (xmlNodePtr)old );
     }
 
     xmlUnlinkNode( (xmlNodePtr) attr );
@@ -1491,8 +1465,7 @@ domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
 }
 
 DLLEXPORT xmlChar*
-domAttrSerializeContent(xmlAttrPtr attr)
-{
+domAttrSerializeContent(xmlAttrPtr attr) {
     xmlBufferPtr buffer = xmlBufferCreate();
     xmlNodePtr children;
     xmlChar* rv = NULL;
@@ -1500,19 +1473,19 @@ domAttrSerializeContent(xmlAttrPtr attr)
     children = attr->children;
     while (children != NULL) {
         switch (children->type) {
-            case XML_TEXT_NODE:
-                xmlAttrSerializeTxtContent(buffer, attr->doc,
-                                           attr, children->content);
-                break;
-            case XML_ENTITY_REF_NODE:
-                xmlBufferAdd(buffer, BAD_CAST "&", 1);
-                xmlBufferAdd(buffer, children->name,
-                             xmlStrlen(children->name));
-                xmlBufferAdd(buffer, BAD_CAST ";", 1);
-                break;
-            default:
-                /* should not happen unless we have a badly built tree */
-                break;
+        case XML_TEXT_NODE:
+            xmlAttrSerializeTxtContent(buffer, attr->doc,
+                                       attr, children->content);
+            break;
+        case XML_ENTITY_REF_NODE:
+            xmlBufferAdd(buffer, BAD_CAST "&", 1);
+            xmlBufferAdd(buffer, children->name,
+                         xmlStrlen(children->name));
+            xmlBufferAdd(buffer, BAD_CAST ";", 1);
+            break;
+        default:
+            /* should not happen unless we have a badly built tree */
+            break;
         }
         children = children->next;
     }
@@ -1526,8 +1499,7 @@ DLLEXPORT int
 domNormalize( xmlNodePtr node );
 
 DLLEXPORT int
-domNormalizeList( xmlNodePtr nodelist )
-{
+domNormalizeList( xmlNodePtr nodelist ) {
     while ( nodelist ){
         if ( domNormalize( nodelist ) == 0 )
             return(0);
@@ -1537,8 +1509,7 @@ domNormalizeList( xmlNodePtr nodelist )
 }
 
 DLLEXPORT int
-domNormalize( xmlNodePtr node )
-{
+domNormalize( xmlNodePtr node ) {
     xmlNodePtr next = NULL;
 
     if ( node == NULL )
@@ -1614,124 +1585,124 @@ domRemoveNsRefs(xmlNodePtr tree, xmlNsPtr ns) {
 
 DLLEXPORT xmlAttrPtr
 domCreateAttribute( xmlDocPtr self, unsigned char *name, unsigned char *value) {
-  xmlChar* buffer;
-  xmlAttrPtr newAttr;
-  /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
-  buffer = xmlEncodeEntitiesReentrant(self, value);
-  newAttr = xmlNewDocProp( self, name, buffer );
-  xmlFree(buffer);
-  return newAttr;
+    xmlChar* buffer;
+    xmlAttrPtr newAttr;
+    /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
+    buffer = xmlEncodeEntitiesReentrant(self, value);
+    newAttr = xmlNewDocProp( self, name, buffer );
+    xmlFree(buffer);
+    return newAttr;
 }
 
 DLLEXPORT xmlAttrPtr
 domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, unsigned char *value ) {
-  xmlChar*  prefix = NULL;
-  xmlChar*  localname = NULL;
-  xmlAttrPtr newAttr = NULL;
-  xmlNsPtr ns = NULL;
-  xmlNodePtr root = xmlDocGetRootElement(self);
+    xmlChar*  prefix = NULL;
+    xmlChar*  localname = NULL;
+    xmlAttrPtr newAttr = NULL;
+    xmlNsPtr ns = NULL;
+    xmlNodePtr root = xmlDocGetRootElement(self);
 
-  if ( URI != NULL && *URI) {
-    if ( xmlStrchr(name, ':') != NULL ) {
-      localname = xmlSplitQName2(name, &prefix);
+    if ( URI != NULL && *URI) {
+        if ( xmlStrchr(name, ':') != NULL ) {
+            localname = xmlSplitQName2(name, &prefix);
+        }
+        else {
+            localname = xmlStrdup( name );
+        }
+
+        if ( root != NULL ) {
+            ns = xmlSearchNsByHref( self, root, URI );
+        }
+        if ( ns == NULL ) {
+            /* create a new NS if the NS does not already exists */
+            ns = xmlNewNs(root, URI , prefix );
+        }
+
+        if ( ns == NULL ) {
+            croak(self, "unable to create Attribute namespace");
+        }
+
+        newAttr = xmlNewDocProp( self, localname, value );
+        xmlSetNs((xmlNodePtr)newAttr, ns);
+
+        if ( prefix ) {
+            xmlFree(prefix);
+        }
+        xmlFree(localname);
     }
     else {
-      localname = xmlStrdup( name );
+        newAttr = domCreateAttribute(self, name, value);
     }
 
-    if ( root != NULL ) {
-      ns = xmlSearchNsByHref( self, root, URI );
-    }
-    if ( ns == NULL ) {
-      /* create a new NS if the NS does not already exists */
-      ns = xmlNewNs(root, URI , prefix );
-    }
-
-    if ( ns == NULL ) {
-      croak(self, "unable to create Attribute namespace");
-    }
-
-    newAttr = xmlNewDocProp( self, localname, value );
-    xmlSetNs((xmlNodePtr)newAttr, ns);
-
-    if ( prefix ) {
-      xmlFree(prefix);
-    }
-    xmlFree(localname);
-  }
-  else {
-    newAttr = domCreateAttribute(self, name, value);
-  }
-
-  return newAttr;
+    return newAttr;
 }
 
 static xmlNsPtr _domNsSearch(xmlNodePtr self, xmlChar* nsURI) {
-  xmlNsPtr ns = xmlSearchNsByHref( self->doc, self, nsURI );
+    xmlNsPtr ns = xmlSearchNsByHref( self->doc, self, nsURI );
 
-  if ( ns && !ns->prefix ) {
-    /*
-     * check for any prefixed namespaces occluded by a default namespace
-     * because xmlSearchNsByHref will return default namespaces unless
-     * you are searching on an attribute node, which may not exist yet
-     */
-     xmlNsPtr *all_ns = xmlGetNsList(self->doc, self);
+    if ( ns && !ns->prefix ) {
+        /*
+         * check for any prefixed namespaces occluded by a default namespace
+         * because xmlSearchNsByHref will return default namespaces unless
+         * you are searching on an attribute node, which may not exist yet
+         */
+        xmlNsPtr *all_ns = xmlGetNsList(self->doc, self);
 
-    if ( all_ns ) {
-      int i = 0;
-      ns = all_ns[i];
-      while ( ns ) {
-        if ( ns->prefix && xmlStrEqual(ns->href, nsURI) ) {
-          break;
+        if ( all_ns ) {
+            int i = 0;
+            ns = all_ns[i];
+            while ( ns ) {
+                if ( ns->prefix && xmlStrEqual(ns->href, nsURI) ) {
+                    break;
+                }
+                ns = all_ns[i++];
+            }
+            xmlFree(all_ns);
         }
-        ns = all_ns[i++];
-      }
-      xmlFree(all_ns);
     }
-  }
 
-  return ns;
+    return ns;
 }
 
 DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value ) {
-  xmlNsPtr   ns          = NULL;
-  xmlChar*   localname = NULL;
-  xmlChar*   prefix    = NULL;
-  xmlAttrPtr newAttr     = NULL;
+    xmlNsPtr   ns          = NULL;
+    xmlChar*   localname = NULL;
+    xmlChar*   prefix    = NULL;
+    xmlAttrPtr newAttr     = NULL;
 
-  if (self && name && value) {
+    if (self && name && value) {
 
-    localname = xmlSplitQName2(name, &prefix);
-    if ( localname ) {
-      name = localname;
-    }
-
-    if (nsURI && *nsURI) {
-      ns = _domNsSearch(self, nsURI);
-      if ( ns == NULL && prefix != NULL && *prefix != 0 ) {
-        /* NS does not already exist; create it */
-        ns = xmlNewNs(self, nsURI , prefix );
-        if (ns == NULL) {
-          xml6_warn("bad namespace");
-          return NULL;
+        localname = xmlSplitQName2(name, &prefix);
+        if ( localname ) {
+            name = localname;
         }
-      }
+
+        if (nsURI && *nsURI) {
+            ns = _domNsSearch(self, nsURI);
+            if ( ns == NULL && prefix != NULL && *prefix != 0 ) {
+                /* NS does not already exist; create it */
+                ns = xmlNewNs(self, nsURI , prefix );
+                if (ns == NULL) {
+                    xml6_warn("bad namespace");
+                    return NULL;
+                }
+            }
+        }
+
+        newAttr = xmlSetNsProp( self, ns, name, value );
+
+        if ( prefix ) {
+            xmlFree( prefix );
+        }
+
+        if ( localname ) {
+            xmlFree( localname );
+        }
+
     }
 
-    newAttr = xmlSetNsProp( self, ns, name, value );
-
-    if ( prefix ) {
-      xmlFree( prefix );
-    }
-
-    if ( localname ) {
-      xmlFree( localname );
-    }
-
-  }
-
-  return newAttr;
+    return newAttr;
 }
 
 DLLEXPORT int
@@ -1757,8 +1728,8 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
         }
     }
     else if ( flag && (ns = xmlSearchNs(node->doc, node, nsPrefix)) ) {
-      /* user just wants to set the namespace for the node */
-      /* try to reuse an existing declaration for the prefix */
+        /* user just wants to set the namespace for the node */
+        /* try to reuse an existing declaration for the prefix */
         if ( xmlStrEqual( ns->href, nsURI ) ) {
             rv = 1;
         }
@@ -1770,10 +1741,10 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
         }
     }
     else if ( (ns = xmlNewNs( node, nsURI, nsPrefix )) ) {
-      rv = 1;
+        rv = 1;
     }
     else
-      rv = 0;
+        rv = 0;
 
     if ( ns && flag ) {
         xmlSetNs(node, ns);
@@ -1784,51 +1755,51 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
 
 DLLEXPORT xmlNodePtr
 domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
-  xmlNodePtr newNode = NULL;
-  xmlNodePtr prev = NULL;
-  xmlNsPtr ns = NULL;
+    xmlNodePtr newNode = NULL;
+    xmlNodePtr prev = NULL;
+    xmlNsPtr ns = NULL;
 
-  if (nsURI && !*nsURI) nsURI = NULL;
-  if (name && !*name) name = NULL;
+    if (nsURI && !*nsURI) nsURI = NULL;
+    if (name && !*name) name = NULL;
   
-  if ( nsURI != NULL ) {
-    xmlChar* prefix     = NULL;
-    xmlChar* localname = xmlSplitQName2(name, &prefix);
-    ns = xmlSearchNsByHref(self->doc, self, nsURI);
+    if ( nsURI != NULL ) {
+        xmlChar* prefix     = NULL;
+        xmlChar* localname = xmlSplitQName2(name, &prefix);
+        ns = xmlSearchNsByHref(self->doc, self, nsURI);
 
-    newNode = xmlNewDocNode(self->doc,
-                            ns,
-                            localname ? localname :name,
-                            NULL);
-    if ( ns == NULL )  {
-      xmlSetNs(newNode,xmlNewNs(newNode, nsURI, prefix));
+        newNode = xmlNewDocNode(self->doc,
+                                ns,
+                                localname ? localname :name,
+                                NULL);
+        if ( ns == NULL )  {
+            xmlSetNs(newNode,xmlNewNs(newNode, nsURI, prefix));
+        }
+
+        xmlFree(localname);
+        xmlFree(prefix);
+    }
+    else {
+        newNode = xmlNewDocNode(self->doc,
+                                NULL,
+                                name,
+                                NULL);
+    }
+    /* add the node to the parent node */
+    newNode->type = XML_ELEMENT_NODE;
+    newNode->parent = self;
+    newNode->doc = self->doc;
+
+    if (self->children == NULL) {
+        self->children = newNode;
+        self->last = newNode;
+    } else {
+        prev = self->last;
+        prev->next = newNode;
+        newNode->prev = prev;
+        self->last = newNode;
     }
 
-    xmlFree(localname);
-    xmlFree(prefix);
-  }
-  else {
-    newNode = xmlNewDocNode(self->doc,
-                            NULL,
-                            name,
-                            NULL);
-  }
-  /* add the node to the parent node */
-  newNode->type = XML_ELEMENT_NODE;
-  newNode->parent = self;
-  newNode->doc = self->doc;
-
-  if (self->children == NULL) {
-    self->children = newNode;
-    self->last = newNode;
-  } else {
-    prev = self->last;
-    prev->next = newNode;
-    newNode->prev = prev;
-    self->last = newNode;
-  }
-
-  return newNode;
+    return newNode;
 }
 
 DLLEXPORT xmlChar* domError(xmlNodePtr self) {
