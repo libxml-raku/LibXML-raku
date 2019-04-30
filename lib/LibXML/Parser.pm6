@@ -1,17 +1,20 @@
 class LibXML::Parser {
 
+    use LibXML::Config;
     use LibXML::Native;
     use LibXML::Enums;
     use LibXML::Document;
     use LibXML::PushParser;
     use LibXML::ErrorHandler;
 
+    constant config = LibXML::Config;
+
     has Bool $.html;
     has Bool $.line-numbers is rw = False;
     has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
     has Str $.baseURI is rw;
-    has $.sax-handler;
-    has $.input-callbacks is rw;
+    has $.sax-handler is rw;
+    has $.input-callbacks is rw = config.input-callbacks;
 
     constant %FLAGS = %(
         :recover(XML_PARSE_RECOVER),
@@ -137,14 +140,17 @@ class LibXML::Parser {
                       ) {
 
         # gives better diagnositics
-        my parserCtxt:D $ctx = $html
-           ?? htmlMemoryParserCtxt.new: :$string, :$enc
-           !! xmlMemoryParserCtxt.new: :$string;
 
-        $ctx.input.filename = $_ with $URI;
+        my LibXML::ErrorHandler $handler = self!error-handler: :$html, |%flags;
+        $handler.try: {
+            my parserCtxt:D $ctx = $html
+            ?? htmlMemoryParserCtxt.new: :$string, :$enc
+            !! xmlMemoryParserCtxt.new: :$string;
 
-        my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
-        $handler.try: { $ctx.ParseDocument };
+            $ctx.input.filename = $_ with $URI;
+            $handler.ctx = $ctx;
+            $ctx.ParseDocument
+        };
         self!publish: :$handler;
     }
 

@@ -26,12 +26,14 @@ my class Context {
 
     method match {
         -> Str:D $file --> Int {
+            CATCH { default { warn $_; return False; } }
             + $!cb.match.($file).so;
         }
     }
 
     method open {
         -> Str:D $file --> Pointer {
+            CATCH { default { warn $_; return Pointer; } }
             $!fh = $!cb.open.($file);
             with $!fh {
                 $_ = Nil if !.so;
@@ -45,7 +47,8 @@ my class Context {
 
     method read {
         -> Pointer $addr, CArray $out-arr, UInt $bytes --> Int {
-            warn "perculiar" unless +$addr == +$!addr;
+            CATCH { default { warn $_; return -1; } }
+            warn "perculiar" unless +($addr//0) == +($!addr//0);
             with $!overflow // $!cb.read.($!fh, $bytes) -> Blob $io-buf {
                 my $n-read := $io-buf.bytes;
                 if $n-read > $bytes {
@@ -62,6 +65,7 @@ my class Context {
                 my CArray[uint8] $io-arr := nativecast(CArray[uint8], $io-buf);
                 memcpy($out-arr, $io-arr, $n-read)
                     if $n-read;
+
                 $n-read;
             }
         }
@@ -69,7 +73,8 @@ my class Context {
 
     method close {
         -> Pointer:D $addr --> Int {
-            warn "perculiar" unless +$addr == +$!addr;
+            CATCH { default { warn $_; return -1 } }
+            warn "perculiar" unless +($addr//0) == +($!addr//0);
             $!cb.close.($!fh);
             $!fh = Nil;
 
