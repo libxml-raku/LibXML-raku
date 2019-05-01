@@ -7,22 +7,25 @@ my class CallbackGroup {
     has &.open  is required;
     has &.read  is required;
     has &.close is required;
-
 }
 
 my class Context {
     use NativeCall;
 
-    has $.fh;
-    has Pointer $!addr; # Just because libxml2 expects a pointer
     has CallbackGroup $.cb is required;
-    has Blob $!overflow;
 
-    sub malloc(size_t --> Pointer) is native {*}
-    sub free(Pointer:D) is native {*}
+    my class Handle {
+        has Pointer $.addr;
+        has $.fh;
+        has Blob $.buf is rw;
+        sub malloc(size_t --> Pointer) is native {*}
+        sub free(Pointer:D) is native {*}
+        submethod TWEAK   { $!addr = malloc(1); }
+        submethod DESTROY { free($_) with $!addr }
+    }
+    has Handle %.handles{UInt};
+
     sub memcpy(CArray[uint8], CArray[uint8], size_t --> CArray[uint8]) is native {*}
-
-    submethod DESTROY { free($_) with $!addr }
 
     method match {
         -> Str:D $file --> Int {
@@ -33,33 +36,34 @@ my class Context {
 
     method open {
         -> Str:D $file --> Pointer {
+            my Handle $handle;
             CATCH { default { warn $_; return Pointer; } }
-            $!fh = $!cb.open.($file);
-            with $!fh {
-                $_ = Nil if !.so;
+            my $fh = $!cb.open.($file);
+            with $fh {
+                $handle .= new: :$fh;
+                %!handles{+$handle.addr} = $handle;
             }
 
-            $!addr = malloc(1) with $!fh;
-            $!addr;
-
+            $handle.addr;
         }
     }
 
     method read {
         -> Pointer $addr, CArray $out-arr, UInt $bytes --> Int {
-            CATCH { default { warn $_; return -1; } }
-            warn "perculiar" unless +($addr//0) == +($!addr//0);
-            with $!overflow // $!cb.read.($!fh, $bytes) -> Blob $io-buf {
+            CATCH { default { warn $_; return Pointer; } }
+            my Handle $handle = %!handles{+$addr}
+                // die "read on unknown handle";
+            with $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf {
                 my $n-read := $io-buf.bytes;
                 if $n-read > $bytes {
                     # read-buffer exceeds output buffer size;
-                    # hold the excess
-                    $!overflow := $io-buf.subbuf($bytes);
+                    # buffer the excess
+                    $handle.buf = $io-buf.subbuf($bytes);
                     $io-buf .= subbuf(0, $bytes);
                     $n-read = $bytes;
                 }
                 else {
-                    $!overflow = Nil;
+                    $handle.buf = Nil;
                 }
 
                 my CArray[uint8] $io-arr := nativecast(CArray[uint8], $io-buf);
@@ -74,14 +78,12 @@ my class Context {
     method close {
         -> Pointer:D $addr --> Int {
             CATCH { default { warn $_; return -1 } }
-            warn "perculiar" unless +($addr//0) == +($!addr//0);
-            $!cb.close.($!fh);
-            $!fh = Nil;
+            my Handle $handle = %!handles{+$addr}
+                // die "read on unknown handle";
 
-            with $!addr {
-                free($_);
-                $_ = Nil;
-            }
+            $!cb.close.($handle.fh);
+            %!handles{+$addr}:delete;
+
             # Perl 6 IO functions return True on successful close
             0;
         }
@@ -105,5 +107,3 @@ method make-contexts {
     @!callbacks.map: -> $cb { Context.new: :$cb }
 }
 
-method pop {
-}

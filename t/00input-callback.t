@@ -7,7 +7,7 @@ use NativeCall;
 use LibXML;
 use LibXML::InputCallback;
 
-plan 18;
+plan 19;
 
 my $fh;
 my %seen;
@@ -27,14 +27,16 @@ $match = ($context.match)("example/does-not-exist.xml");
 is-deeply $match, 0, "match callback when not found";
 my $ptr := ($context.open)("example/test2.xml");
 isa-ok $ptr, Pointer, 'matcher returns a pointer';
-isa-ok $context.fh, IO::Handle, 'Context.fh';
+my ($handle, @guff) = $context.handles.values;
+ok ($handle.defined && !@guff), 'Exactly one open handle';
+isa-ok $handle.fh, IO::Handle, '$handle.fh';
 my CArray[uint8] $buf .= new(0 xx 5);
 my $n = ($context.read)($ptr, $buf, $buf.elems);
 is $n, 5, 'read callback return value';
 is $buf.map(*.chr).join, '<xsl>', 'return read buffer';
 $n = ($context.close)($ptr);
 is $n, 0, 'close callback return value';
-ok !$context.fh.defined, 'No longer have an open fh';
+ok !$context.handles, 'No longer have an open fh';
 check-seen();
 
 my $parser = LibXML.new: :$input-callbacks;
