@@ -137,13 +137,15 @@ class LibXML::ErrorHandler {
         $recover //= $obj.recover;
 
         my @contexts = .make-contexts
-           with $obj.input-callbacks;
+            with $obj.input-callbacks;
 
         for @contexts {
             xmlRegisterInputCallbacks(
                 .match, .open, .read, .close
             );
         }
+
+        &*chdir(~$*CWD);
 
         my $rv := action();
 

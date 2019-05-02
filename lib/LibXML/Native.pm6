@@ -1188,3 +1188,15 @@ method TagExpansion is rw {
         },
     );
 }
+
+method ExternalEntityLoader is rw {
+    sub xmlSetExternalEntityLoader( &loader (xmlCharP, xmlCharP --> xmlParserInput) ) is native(LIB) {*}
+    sub xmlGetExternalEntityLoader( --> Pointer ) is native(LIB) {*}
+    Proxy.new(
+        FETCH => sub ($) { nativecast( :(xmlCharP, xmlCharP --> xmlParserInput), xmlGetExternalEntityLoader()) },
+        STORE => sub ($, &loader) {
+             xmlSetExternalEntityLoader(&loader)
+        }
+    );
+}
+

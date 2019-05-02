@@ -18,6 +18,10 @@ method tag-expansion is rw {
     LibXML::Native.TagExpansion;
 }
 
+method external-entity-loader is rw {
+    LibXML::Native.ExternalEntityLoader;
+}
+
 method input-callbacks is rw {
     Proxy.new(
         FETCH => sub ($) { $inputCallbacks },
