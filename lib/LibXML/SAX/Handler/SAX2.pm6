@@ -48,7 +48,7 @@ class LibXML::SAX::Handler::SAX2
         $ctx.xmlSAX2EndElement($name);
     }
 
-    method startElementNs($local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts, Ctx :$ctx!) {
+    method startElementNs($local-name, Str :$prefix, Str :$uri, UInt :$num-namespaces, CArray :$namespaces, UInt :$num-atts, UInt :$num-defaulted, CArray :$atts, Ctx :$ctx!) {
         $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts);
     }
 

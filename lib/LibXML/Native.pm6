@@ -1153,7 +1153,6 @@ multi method GetLastError { xmlGetLastError()  }
 
 ## Input callbacks
 
-sub xmlCleanupInputCallbacks is native(LIB) is export {*}
 sub xmlPopInputCallbacks(--> int32) is native(LIB) is export {*}
 sub xmlRegisterDefaultInputCallbacks is native(LIB) is export {*}
 sub xmlRegisterInputCallbacks(
@@ -1162,6 +1161,7 @@ sub xmlRegisterInputCallbacks(
     &read (Pointer, CArray[uint8], int32 --> int32),
     &close (Pointer --> int32)
 --> int32) is native(LIB) is export {*}
+sub xmlCleanupInputCallbacks is native(LIB) is export {*}
 
 ## Globals aren't yet writable in Rakudo
 

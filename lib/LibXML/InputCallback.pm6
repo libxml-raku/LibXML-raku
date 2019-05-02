@@ -79,12 +79,11 @@ my class Context {
         -> Pointer:D $addr --> Int {
             CATCH { default { warn $_; return -1 } }
             my Handle $handle = %!handles{+$addr}
-                // die "read on unknown handle";
+                // die (+$addr).fmt("read on unknown input callback context: 0x%X");
 
             $!cb.close.($handle.fh);
             %!handles{+$addr}:delete;
 
-            # Perl 6 IO functions return True on successful close
             0;
         }
     }

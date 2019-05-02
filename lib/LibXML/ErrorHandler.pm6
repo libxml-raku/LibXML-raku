@@ -147,8 +147,10 @@ class LibXML::ErrorHandler {
 
         my $rv := action();
 
-        xmlPopInputCallbacks()
-            for @contexts;
+        if @contexts {
+            xmlCleanupInputCallbacks();
+            xmlRegisterDefaultInputCallbacks();
+        }
 
         $obj.flush-errors: :$recover;
 
