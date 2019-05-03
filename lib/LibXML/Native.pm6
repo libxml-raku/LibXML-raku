@@ -287,6 +287,7 @@ class xmlNs is repr('CStruct') is export {
     }
     method Free is native(LIB) is symbol('xmlFreeNs') {*}
     method Copy(--> xmlNs) is native(BIND-LIB) is symbol('xml6_ns_copy') {*}
+    method copy { $.Copy }
     method Str {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';
@@ -526,17 +527,42 @@ class domNode is export does LibXML::Native::DOM::Node {
 
     method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
-    method Str(Bool() :$format = False) {
-        nextsame without self;
-        my xmlBuf $buf .= new;
-        $buf.xmlNodeDump($.doc // xmlDoc, self, 0, +$format);
-        my str $content = $buf.Content;
-        $buf.Free;
-        $content;
+    method Str(UInt :$options = 0 --> Str) {
+        method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
+        with self {
+            .xml6_node_to_str($options);
+        }
+        else {
+            Str
+        }
     }
 
-    method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlNode {*}
-    method DocCopy(xmlDoc, int32) is native(LIB) is symbol('xmlDocCopyNode') returns xmlNode {*}
+    method Blob(UInt :$options = 0, Str :$enc --> Blob) {
+        method xml6_node_to_buf(int32 $opts, size_t $len is rw, Str $enc  --> Pointer[uint8]) is native(BIND-LIB) {*}
+        sub memcpy(Blob, Pointer, size_t) is native {*}
+        sub free(Pointer) is native {*}
+        my buf8 $buf;
+        with self {
+            with .xml6_node_to_buf($options, my size_t $len, $enc) {
+                $buf .= allocate($len);
+                memcpy($buf, $_, $len);
+                free($_);
+            }
+        }
+        $buf;
+    }
+
+    method xmlCopyNode (int32 $extended) is native(LIB) returns xmlNode {*}
+    method xmlDocCopyNode(xmlDoc, int32) is native(LIB) returns xmlNode {*}
+    method copy(Bool :$deep) {
+        my $extended := $deep ?? 1 !! 2;
+        with $.doc {
+            $.xmlDocCopyNode($_, $extended);
+        }
+        else {
+            $.xmlCopyNode( $extended );
+        }
+    }
 
     method string-value is native(LIB) is symbol('xmlXPathCastNodeToString') returns xmlCharP {*}
 }
@@ -669,8 +695,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     method GetRootElement is symbol('xmlDocGetRootElement') is native(LIB) returns xmlNode is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
-    method Copy(int32) is native(LIB) is symbol('xmlCopyNode') returns xmlDoc {*}
-    method copy(Bool :$deep = True) { $.Copy(+$deep) }
+    method xmlCopyDoc(int32 $deep) is native(LIB) returns xmlDoc {*}
+    method copy(Bool :$deep = True) { $.xmlCopyDoc(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax-handler, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw) returns int32 is native(LIB) {*}
     method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax-handler, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair) returns int32 is native(LIB) {*}
@@ -716,31 +742,6 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method domSetInternalSubset(xmlDtd) is native(BIND-LIB) {*}
     method domSetExternalSubset(xmlDtd) is native(BIND-LIB) {*}
 
-    #| Dump to a blob, using the inate encoding scheme
-    method Blob(Bool() :$format = False) {
-
-        nextsame without self;
-        my Pointer[uint8] $p .= new;
-        my int32 $len;
-        with self.encoding {
-            $.DumpFormatMemoryEnc($p, $len, $_, +$format);
-        }
-        else {
-            $.DumpFormatMemoryEnc($p, $len, Str, +$format);
-        }
-        my buf8 $buf .= allocate($len);
-        $buf[$_] = $p[$_] for 0 ..^ $len;
-        blob8.new: $buf;
-    }
-
-    #| Dump to a string as UTF-8
-    method Str(Bool() :$format = False --> Str) {
-
-        nextsame without self;
-        my Pointer[uint8] $p .= new;
-        $.DumpFormatMemoryEnc($p, my int32 $, 'UTF-8', +$format);
-        nativecast(str, $p);
-    }
 }
 
 class htmlDoc is xmlDoc is repr('CStruct') is export {
@@ -1145,6 +1146,8 @@ class htmlMemoryParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
         CreateStr($string, 'UTF-8');
     }
 }
+
+sub xmlFree(Pointer) is native(LIB) { * }
 
 sub xmlGetLastError returns xmlError is export is native(LIB) { * }
 

@@ -1,12 +1,14 @@
 class LibXML::Node {
     use LibXML::Native;
     use LibXML::Native::DOM::Node;
+    use LibXML::Config;
     use LibXML::Enums;
     use LibXML::Namespace;
     use LibXML::XPathExpression;
     use LibXML::Types :NCName, :QName;
     use NativeCall;
 
+    constant config = LibXML::Config;
     my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
     enum <SkipBlanks KeepBlanks>;
 
@@ -14,7 +16,7 @@ class LibXML::Node {
 
     has domNode $.struct handles <
         domCheck
-        Str string-value content
+        string-value content
         getAttribute getAttributeNS getNamespaceDeclURI
         hasChildNodes hasAttributes hasAttribute hasAttributeNS
         lookupNamespacePrefix lookupNamespaceURI
@@ -185,7 +187,7 @@ class LibXML::Node {
     method unbox {$!struct}
 
     method box(LibXML::Native::DOM::Node $struct,
-               LibXML::Node :$doc is copy = $.doc, # reusable document object
+               LibXML::Node :$doc = $.doc, # reusable document object
               ) {
         with $struct {
             my $class := box-class(.type);
@@ -354,9 +356,8 @@ class LibXML::Node {
     }
     method normalise { self.unbox.normalize }
     method normalize { self.unbox.normalize }
-    method cloneNode(LibXML::Node:D: Bool() $deep) {
-        my domNode:D $struct = $.unbox.cloneNode($deep);
-        self.new: :$struct, :$.doc;
+    method cloneNode(LibXML::Node:D: Bool() $deep = False) {
+        LibXML::Node.box: $.unbox.cloneNode($deep), :doc(LibXML::Node);
     }
 
     multi method write(IO::Handle :$io!, Bool :$format = False) {
@@ -371,6 +372,32 @@ class LibXML::Node {
 
     multi method write(IO() :file($io)!, |c) {
         $.write(:$io, |c).close;
+    }
+
+    sub output-options(UInt :$options is copy = 0,
+                       Bool :$format,
+                       Bool :$skip-decl = config.skip-xml-declaration,
+                       Bool :$expand = config.tag-expansion,
+                      ) is export(:output-options) {
+
+        $options +|= XML_SAVE_FORMAT
+            if $format;
+        $options +|= XML_SAVE_NO_DECL
+            if $skip-decl;
+        $options +|= XML_SAVE_NO_EMPTY
+           if $expand;
+
+        $options;
+    }
+
+    method Str(|c) {
+        my $options = output-options(|c);
+        $.unbox.Str(:$options);
+    }
+
+    method Blob(Str :$enc, |c) {
+        my $options = output-options(|c);
+        $.unbox.Blob(:$enc, :$options);
     }
 
     submethod DESTROY {

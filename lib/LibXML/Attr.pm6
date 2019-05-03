@@ -13,15 +13,11 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!
     self.struct = xmlAttr.new: :$name, :$value, :$doc;
 }
 
-method unbox handles <atype name> {
+method unbox handles <atype name serializeContent> {
     nextsame;
 }
 
 method value is rw { $.nodeValue }
 
-method serializeContent {
-    self.unbox.serializeContent;
-}
-
-method Str(:$raw) { $raw ?? nextsame() !! $.nodeValue}
-method gist { $.Str(:raw) }
+method Str { $.nodeValue}
+method gist(|c) { $.unbox.Str(|c) }

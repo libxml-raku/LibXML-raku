@@ -7,8 +7,13 @@ our $skipXMLDeclaration;
 our $skipDTD;
 our $inputCallbacks;
 
-method skip-xml-declaration is rw { $skipXMLDeclaration }
-method skip-dtd is rw { $skipDTD }
+sub flag-proxy($flag is rw) is rw {
+    Proxy.new( FETCH => sub ($) { $flag.so },
+               STORE => sub ($, $_) { $flag = .so } ); 
+}
+
+method skip-xml-declaration is rw { flag-proxy($skipXMLDeclaration) }
+method skip-dtd is rw { flag-proxy($skipDTD) }
 
 method keep-blanks-default is rw {
     LibXML::Native.KeepBlanksDefault;

@@ -9,7 +9,7 @@ use LibXML::DocumentFragment;
 use LibXML::Native;
 
 my $string = "<a>    <b/> </a>";
-my $tstr= "<a><b/></a>";
+my $tstr= "<a><b/></a>\n";
 my $sDoc   = '<C/><D/>';
 my $sChunk = '<A/><B/>';
 
@@ -34,7 +34,7 @@ $doc.documentElement = $root;
 my LibXML::Element:D $root2 = $doc.documentElement;
 ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
-is $doc, '<Test/>', 'Document';
+is ~$doc, "<Test/>\n", 'Document';
 
 # attribute basics
 my $elem = $doc.createElement('foo');

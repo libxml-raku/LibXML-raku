@@ -1,5 +1,5 @@
 use v6;
-use LibXML::Node;
+use LibXML::Node :output-options;
 
 unit class LibXML::Document
     is LibXML::Node;
@@ -229,62 +229,57 @@ method is-valid(|c) { self!validate(|c) }
 
 our $lock = Lock.new;
 
-method Str(Bool() :$format = False) {
+method Str(Bool :$skip-dtd = config.skip-dtd, |c --> Str) {
+    my Str $rv;
 
-    my \skip-dtd = config.skip-dtd;
+    with self.unbox -> xmlDoc:D $doc {
+        my $options = output-options(|c);
 
-    if config.skip-xml-declaration {
-        $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join;
-    }
-    else {
-        my xmlDoc $doc = $.unbox;
-        my Str $rv;
-
-        if skip-dtd && (my $dtd = self.internalSubset).defined {
-            $lock.protect: {
-                # temporarily remove the DTD
-                self.removeInternalSubset;
-
-                $rv := $doc.Str(:$format);
-
-                self.setInternalSubset($dtd);
-            }
-        }
-        else {
-            $rv := $doc.Str(:$format);
-        }
-
-        $rv;
-    }
-
-}
-
-method Blob(Bool() :$format = False) {
-    if config.skip-xml-declaration {
-        # losing encoding declaration; switch to UTF-8
-        my \skip-dtd = config.skip-dtd;
-        $.childNodes.grep({ !(skip-dtd && .type == XML_DTD_NODE) }).map(*.Str(:$format)).join.encode;
-    }
-    else {
-        my xmlDoc $doc = $.unbox;
-        my Blob $rv;
-
-        if config.skip-dtd && (my $dtd = $doc.internalSubset).defined {
+        if $skip-dtd && (my $dtd = $doc.getInternalSubset).defined {
             $lock.protect: {
                 # temporarily remove the DTD
                 $dtd.Unlink;
-
-                $rv := $doc.Blob(:$format);
-
-                $doc.internalSubset = $dtd;
+                $rv := $doc.Str(:$options);
+                $doc.setInternalSubset($dtd);
             }
         }
         else {
-            $rv := $doc.Blob(:$format);
+            $rv := $doc.Str(:$options);
         }
-
-        $rv;
     }
+
+    $rv;
+}
+
+method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
+            Bool() :$skip-dtd =  config.skip-dtd,
+            xmlEncodingStr:D :$enc is copy = self.encoding // 'UTF-8',
+            |c  --> Blob) {
+
+    my Blob $rv;
+
+    if $skip-decl {
+        # losing encoding declaration; switch to UTF-8
+        $enc = 'UTF-8';
+    }
+
+    with self.unbox -> xmlDoc:D $doc {
+        my $options = output-options(|c);
+
+        if $skip-dtd && (my $dtd = $doc.getInternalSubset).defined {
+            $lock.protect: {
+                # temporarily remove the DTD
+                $dtd.Unlink;
+                $rv := $doc.Blob(:$enc, :$options);
+                $doc.setInternalSubset($dtd);
+            }
+        }
+        else {
+            $rv := $doc.Blob(:$enc, :$options);
+        }
+    }
+
+    $rv;
 }
 
 submethod DESTROY {

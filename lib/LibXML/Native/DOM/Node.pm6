@@ -11,6 +11,7 @@ method children { ... }
 method last { ... }
 method find { ... }
 method findnodes { ... }
+method copy { ... }
 
 method domError { ... }
 method domAppendChild  { ... }
@@ -274,13 +275,7 @@ method insertAfter(Node:D $nNode, Node $oNode) {
 }
 
 method cloneNode(Bool:D $deep) {
-    my $extended := $deep ?? 1 !! 2;
-    with $.doc {
-        $.DocCopy($_, $extended);
-    }
-    else {
-        $.Copy( $extended );
-    }
+    self.copy(:$deep);
 }
 
 method nodeName { self.domName; }

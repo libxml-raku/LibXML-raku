@@ -90,3 +90,14 @@ my enum xmlXPathObjectType is export (
     XPATH_USERS => 8,
     XPATH_XSLT_TREE => 9  # An XSLT value tree, non modifiable
 );
+
+enum xmlSaveOption is export (
+   XML_SAVE_FORMAT => 1,
+   XML_SAVE_NO_DECL => 2,
+   XML_SAVE_NO_EMPTY => 4,
+   XML_SAVE_NO_XHTML => 8,
+   XML_SAVE_XHTML => 16,
+   XML_SAVE_AS_XML => 32,
+   XML_SAVE_AS_HTML => 64,
+   XML_SAVE_NO_WS => 128,
+);

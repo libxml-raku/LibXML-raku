@@ -37,3 +37,4 @@ DLLEXPORT void xml6_doc_set_dict(xmlDocPtr self, xmlDictPtr dict) {
     }
     self->dict = dict;
 }
+

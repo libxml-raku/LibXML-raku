@@ -38,7 +38,7 @@ multi method parse(
     $stat;
 }
 
-method Str(Bool :$format = False) {
-    $.childNodes.map(*.Str(:$format)).join;
+method Str(|c) {
+    $.childNodes.map(*.Str(|c)).join;
 }
 

@@ -28,7 +28,7 @@ my $doc = $p.parse: :$string;
 
 config.skip-xml-declaration = True;
 
-is $doc.Str, $string, '$doc.Str';
+is $doc.Str.chomp, $string, '$doc.Str';
 is-deeply $doc.Str(:format).lines, (
     '<html>',
     '  <body>',

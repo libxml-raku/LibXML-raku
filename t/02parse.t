@@ -222,14 +222,14 @@ throws-like( { $parser.parse(:file($badfile1))},
 
 {
     my $string = "<a>    <b/> </a>";
-    my $tstr = "<a><b/></a>";
+    my $tstr = "<a><b/></a>\n";
     temp $parser.keep-blanks = False;
     temp config.skip-xml-declaration = True;
     my $docA = $parser.parse: :$string;
     my $docB = $parser.parse: :file("example/test3.xml");
     use LibXML::Document;
-    is( ~$docA, $tstr, "xml string round trips as expected");
-    is( ~$docB, $tstr, "test3.xml round trips as expected");
+    is( $docA, $tstr, "xml string round trips as expected");
+    is( $docB, $tstr, "test3.xml round trips as expected");
 }
 
 # 1.3 PARSE A HANDLE
