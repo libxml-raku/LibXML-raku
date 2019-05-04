@@ -1166,6 +1166,8 @@ sub xmlRegisterInputCallbacks(
 --> int32) is native(LIB) is export {*}
 sub xmlCleanupInputCallbacks is native(LIB) is export {*}
 
+sub xmlLoadCatalog(Str --> int32) is native(LIB) is export {*}
+
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {

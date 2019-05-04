@@ -263,6 +263,10 @@ class LibXML::Parser {
         $frag;
     }
 
+    method load-catalog(Str:D $filename) {
+        xmlLoadCatalog($filename);
+    }
+
     method !flag-accessor(Str:D $key) is rw {
         Proxy.new(
             FETCH => sub ($) { get-flag($!flags, $key) },
@@ -271,7 +275,8 @@ class LibXML::Parser {
             });
     }
 
-    submethod TWEAK(:html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), *%flags) {
+    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), *%flags) {
+        self.load-catalog($_) with $catalog;
         for %flags.pairs.sort {
             set-flag($!flags, .key, .value);
         }
