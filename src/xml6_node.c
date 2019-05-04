@@ -12,6 +12,9 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
 }
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
+    if (node->doc != NULL) {
+        return (xmlNodePtr)node->doc;
+    }
     while (node && node->parent) {
         node = node->parent;
     }
@@ -80,7 +83,7 @@ DLLEXPORT void xml6_node_set_content(xmlNodePtr self, xmlChar* new_content) {
 }
 
 DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr self, int options, size_t* len, char* encoding) {
-    char* rv = NULL;
+    xmlChar* rv = NULL;
 
     if (!encoding || !encoding[0]) encoding = "UTF-8";
     if (len != NULL) *len = 0;
@@ -92,7 +95,7 @@ DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr self, int options, size_t* len, c
         xmlSaveClose(save_ctx);
 
         if (stat >= 0) {
-            rv = (char*) buffer->content;
+            rv = buffer->content;
             buffer->content = NULL;
             if (len != NULL) {
                 *len = buffer->use;

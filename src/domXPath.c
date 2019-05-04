@@ -43,7 +43,7 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
     }
 
 
-    /* first assure the XML::LibXML error handler is deactivated
+    /* first assure the LibXML error handler is deactivated
        otherwise strange things might happen
     */
 
