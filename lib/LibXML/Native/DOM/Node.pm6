@@ -350,12 +350,12 @@ method isSameNode(Node $oNode) {
 }
 
 sub oops($node, Bool $ok is rw, @path, Str:D $msg) {
-    my $where = '[' ~ @path.join(',') ~ '] ' ~ $node.domName;
-    note $where ~ ' : ' ~ $msg;
+    my $where = '[' ~ @path.join(',') ~ '] ' ~ $node.domName ~ '(' ~ $node.type ~ ')';
+    die $where ~ ' : ' ~ $msg;
     $ok = False;
 }
 
-method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0], Node :$doc = self.doc) {
+method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
     # perform various integrity checks on the current node
     # - uniqueness of nodes
     # - parent child links (parent.child === child.parent)
@@ -368,37 +368,38 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0], Node :$doc 
     return oops(self, $ok, @path, "duplicate node")
         if %seen{addr(self)}++;
 
-    oops(self, $ok, @path, "inconsistant owner document")
-         unless addr(self.doc) ~~ addr($doc);
     my Node $last;
-    my Node $sibling = self.children;
+    my Node $kid = self.children;
+    my $is-doc = ? (self.type == XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE);
+    my $is-ent-ref = ?(self.type == XML_ENTITY_REF_NODE);
     my @subpath = @path;
     @subpath.push: 0;
-    my %siblings-seen;
-    while $sibling.defined {
-        oops($sibling, $ok, @subpath, "inconsistant parent link")
-            unless addr($sibling.parent) ~~ addr(self);
-        if %siblings-seen{addr($sibling)}++ {
-            oops($sibling, $ok, @subpath, "cycle detected in sibling links");
+    my %kids-seen;
+    while $kid.defined {
+        oops($kid, $ok, @subpath, "inconsistant parent link (" ~ self.type ~ ')')
+            if addr($kid.parent) !~~ addr(self)
+            && !($is-ent-ref && $kid.type == XML_ENTITY_DECL);
+        if %kids-seen{addr($kid)}++ {
+            oops($kid, $ok, @subpath, "cycle detected in sibling links");
             last;
         }
         if $recursive {
             $ok = False
-                unless $sibling.domCheck(:%seen, :@subpath, :$doc);
+                unless $kid.domCheck(:%seen, :@subpath);
         }
 
-        my $next = $sibling.next;
+        my $next = $kid.next;
 
         @subpath.tail++;
         with $next {
             oops($_, $ok, @subpath, "inconsistant prev link")
-                unless addr(.prev) == addr($sibling);
+                unless addr(.prev) == addr($kid);
         }
-        $last = $sibling;
-        $sibling = $next;
+        $last = $kid;
+        $kid = $next;
     }
 
-    oops(self, $ok, @path, "wrong last link")
+    oops(self, $ok, @path, "wrong last link {self.last.Str} => {$last.Str}")
         unless addr(self.last) ~~ addr($last);
 
     $ok

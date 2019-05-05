@@ -1,5 +1,5 @@
 use Test;
-plan 27;
+plan 29;
 
 # bootstrapping tests for the DOM
 
@@ -35,6 +35,8 @@ my LibXML::Element:D $root2 = $doc.documentElement;
 ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';
+ok $root.doc.isSameNode($doc);
+ok $doc.unbox.isSameNode($root.unbox.doc);
 
 # attribute basics
 my $elem = $doc.createElement('foo');

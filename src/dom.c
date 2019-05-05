@@ -481,7 +481,7 @@ domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode) {
 
 DLLEXPORT int
 domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
-    if ( cur->type == XML_DOCUMENT_NODE ) {
+    if ( cur->type == XML_DOCUMENT_NODE | cur->type == XML_HTML_DOCUMENT_NODE) {
         switch ( refNode->type ) {
         case XML_ATTRIBUTE_NODE:
         case XML_ELEMENT_NODE:
@@ -501,6 +501,18 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
 
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr cur) {
+
+    if (cur->type == XML_DOCUMENT_NODE | cur->type == XML_HTML_DOCUMENT_NODE) {
+        xmlDocPtr doc = (xmlDocPtr) cur;
+        if (doc->intSubset != NULL
+            && domNodeIsReferenced((xmlNodePtr)doc->intSubset)) {
+                return 1;
+        }
+        if (doc->extSubset != NULL
+            && domNodeIsReferenced((xmlNodePtr)doc->extSubset)) {
+                return 1;
+        }
+    }
 
     while (cur) {
         xmlNodePtr kids = cur->children;
@@ -898,18 +910,20 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
 DLLEXPORT xmlNodePtr
 domRemoveChildNodes( xmlNodePtr self) {
     xmlNodePtr frag = xmlNewDocFragment( self->doc );
-    xmlNodePtr elem = self->children;
+    xmlNodePtr cur = self->children;
     // transfer kids
     frag->children = self->children;
     frag->last = self->last;
     self->children = self->last = NULL;
-    while ( elem ) {
-        xmlNodePtr next = elem->next;
-        if (elem->type == XML_ATTRIBUTE_NODE
-            || elem->type == XML_DTD_NODE) {
-            domReleaseNode( elem );
+
+    while ( cur ) {
+        xmlNodePtr next = cur->next;
+        if (cur->type == XML_ATTRIBUTE_NODE
+            || cur->type == XML_DTD_NODE) {
+            domReleaseNode( cur );
         }
-        elem = next;
+        cur->parent = frag;
+        cur = next;
     }
     return frag;
 }

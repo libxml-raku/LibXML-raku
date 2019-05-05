@@ -729,8 +729,9 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str:D() :$version = '1.0') {
+        state $dict //= xmlDict.new;
         my xmlDoc:D $doc = xmlNewDoc($version);
-        $doc.dict = xmlDict.new;
+        $doc.dict = $dict;
         $doc;
     }
 

@@ -201,7 +201,7 @@ class LibXML::Node {
     }
 
     method keep(LibXML::Native::DOM::Node $raw,
-                LibXML::Node :$doc is copy = $.doc, # reusable document object
+                LibXML::Node :$doc = $.doc, # reusable document object
                 --> LibXML::Node) {
         with $raw {
             if self.defined && unbox(self).isSameNode($_) {
@@ -337,13 +337,13 @@ class LibXML::Node {
     method namespaceURI(--> Str) { with $.unbox.ns {.href} else {Str} }
     method getNamespaceURI { $.namespaceURI }
     method removeChild(LibXML::Node:D $node --> LibXML::Node) {
-        $node.keep: $.unbox.removeChild($node.unbox);
+        $node.keep: $.unbox.removeChild($node.unbox), :doc(LibXML::Node);
     }
     method removeAttributeNode(AttrNode $att) {
-        $att.keep: $.unbox.removeAttributeNode($att.unbox);
+        $att.keep: $.unbox.removeAttributeNode($att.unbox), :doc(LibXML::Node);
     }
     method removeChildNodes(--> LibXML::Node) {
-        LibXML::Node.box: $.unbox.removeChildNodes;
+        LibXML::Node.box: $.unbox.removeChildNodes, :doc(LibXML::Node);
     }
     multi method appendTextChild(NameVal:D $_) {
         $.unbox.appendTextChild(.key, .value);

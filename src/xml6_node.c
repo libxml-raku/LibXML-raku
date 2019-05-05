@@ -12,9 +12,7 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
 }
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
-    if (node->doc != NULL) {
-        return (xmlNodePtr)node->doc;
-    }
+
     while (node && node->parent) {
         node = node->parent;
     }
@@ -23,6 +21,16 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
         node = node->prev;
     }
     if (node && node->parent) xml6_warn("sibling nodes have inconsistant parents");
+
+    if (node->type == XML_DTD_NODE) {
+        xmlDocPtr doc = node->doc;
+        if (doc != NULL) {
+            xmlDtdPtr dtd = (xmlDtdPtr)node;
+            if (doc->intSubset == dtd || doc->extSubset == dtd) {
+                node = (xmlNodePtr) doc;
+            }
+        }
+    }
 
     return node;
 }
