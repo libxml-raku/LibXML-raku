@@ -12,8 +12,6 @@
 #include "xml6_ref.h"
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
-#define croak(self, string) {xml6_ref_set_msg(self->_private, (xmlChar*)string);return NULL;}
-#define croak_i(self, string) {xml6_ref_set_msg(self->_private, (xmlChar*)string);return -1;}
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
@@ -678,7 +676,7 @@ domAppendChild( xmlNodePtr self,
 
     if ( !(domTestHierarchy(self, newChild)
            && domTestDocument(self, newChild))){
-        croak(self, "appendChild: HIERARCHY_REQUEST_ERR");
+        fail(self, "appendChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( newChild->doc == self->doc ){
@@ -766,7 +764,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
 
     if ( !(domTestHierarchy(self, new)
            && domTestDocument(self, new))){
-        croak(self, "replaceChild: HIERARCHY_REQUEST_ERR");
+        fail(self, "replaceChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( new->doc == self->doc ) {
@@ -828,7 +826,7 @@ domInsertBefore( xmlNodePtr self,
 
     if ( !(domTestHierarchy( self, newChild )
            && domTestDocument( self, newChild ))) {
-        croak(self, "insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
+        fail(self, "insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
     }
 
     if ( self->doc == newChild->doc ){
@@ -881,7 +879,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
          * wrong node type
          * new node is parent of itself
          */
-        croak(self, "replaceNode: HIERARCHY_REQUEST_ERR");
+        fail(self, "replaceNode: HIERARCHY_REQUEST_ERR");
     }
 
     par  = self->parent;
@@ -936,7 +934,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
     xmlNodePtr rv = NULL;
 
     if ( nNode->type == XML_DOCUMENT_FRAG_NODE ) {
-        croak(self, "Adding document fragments with addSibling not yet supported!");
+        fail(self, "Adding document fragments with addSibling not yet supported!");
     }
 
     if (self->type == XML_TEXT_NODE && nNode->type == XML_TEXT_NODE
@@ -1275,7 +1273,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
         if ( ns != NULL ) {
             char msg[80];
             sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-            croak_i(self, xmlStrdup((xmlChar*) msg));
+            fail_i(self, xmlStrdup((xmlChar*) msg));
         }
         /* lookup the declaration */
         ns = self->nsDef;
@@ -1284,7 +1282,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
                 xmlStrcmp( ns->prefix, prefix ) == 0 ) {
                 if ( ns->href == NULL && new_prefix != NULL ) {
                     /* xmlns:foo="" - no go */
-                    croak_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
+                    fail_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
                 }
                 if ( ns->prefix != NULL )
                     xmlFree( (xmlChar*)ns->prefix );
@@ -1635,7 +1633,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
         }
 
         if ( ns == NULL ) {
-            croak(self, "unable to create Attribute namespace");
+            fail(self, "unable to create Attribute namespace");
         }
 
         newAttr = xmlNewDocProp( self, localname, value );
@@ -1700,8 +1698,7 @@ domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value
                 /* NS does not already exist; create it */
                 ns = xmlNewNs(self, nsURI , prefix );
                 if (ns == NULL) {
-                    xml6_warn("bad namespace");
-                    return NULL;
+                    fail(self, "bad namespace");
                 }
             }
         }
@@ -1818,6 +1815,6 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
     return newNode;
 }
 
-DLLEXPORT xmlChar* domError(xmlNodePtr self) {
-    return xml6_ref_get_msg(self->_private);
+DLLEXPORT xmlChar* domFailure(xmlNodePtr self) {
+    return xml6_ref_get_fail(self->_private);
 }

@@ -17,8 +17,6 @@ constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 # type defs
 constant xmlCharP = Str;
 
-sub domError returns xmlCharP is native(BIND-LIB) {*}
-
 # subsets
 sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
 sub xmlFindCharEncodingHandler(Str --> Pointer) is export is native(LIB) {*}
@@ -475,8 +473,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}
     method XPathSetContext(xmlXPathContext --> int32) is symbol('xmlXPathSetContextNode') is native(LIB) {*}
     method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native(LIB) {*}
-    method domError returns xmlCharP is native(BIND-LIB) {*}
-    method dom-error { die $_ with self.domError }
+    method domFailure returns xmlCharP is native(BIND-LIB) {*}
+    method dom-error { die $_ with self.domFailure }
     method domAppendChild(domNode) returns domNode is native(BIND-LIB) {*}
     method domReplaceNode(domNode) returns domNode is native(BIND-LIB) {*}
     method domAddSibling(domNode) returns domNode is native(BIND-LIB) {*}
@@ -527,7 +525,19 @@ class domNode is export does LibXML::Native::DOM::Node {
 
     method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
-    method Str(UInt :$options = 0 --> Str) {
+    multi method Str(:C14N($)! where .so,
+                     Bool :$comments,
+                     --> Str) {
+        method xml6_node_to_str_C14N(int32 $comments, int32 $exclusive, xmlCharP $path, CArray[Str] $inc-prefix, xmlXPathContext $xpath-ctx --> Str) is native(BIND-LIB) {*}
+        my Str $rv;
+        with self {
+            $rv := .xml6_node_to_str_C14N($comments, 0, xmlCharP, CArray[Str], xmlXPathContext);
+            die $_ with .domFailure;
+        }
+        $rv;
+    }
+
+    multi method Str(UInt :$options = 0 --> Str) is default {
         method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
         with self {
             .xml6_node_to_str($options);

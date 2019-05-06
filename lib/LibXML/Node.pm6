@@ -390,9 +390,13 @@ class LibXML::Node {
         $options;
     }
 
-    method Str(|c) {
+    method Str(:$C14N, Bool() :$comments, :$xpath, :$prefix, |c) {
+        warn "todo xpath" if $xpath;
+        warn "todo prefix" if $prefix;
+
         my $options = output-options(|c);
-        $.unbox.Str(:$options);
+
+        $.unbox.Str(:$C14N, :$comments, :$options);
     }
 
     method Blob(Str :$enc, |c) {

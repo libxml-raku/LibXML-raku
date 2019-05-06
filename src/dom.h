@@ -283,6 +283,6 @@ domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int flag);
 DLLEXPORT xmlNodePtr
 domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
-DLLEXPORT xmlChar* domError(xmlNodePtr);
+DLLEXPORT xmlChar* domFailure(xmlNodePtr);
 
 #endif

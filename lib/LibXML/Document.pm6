@@ -248,8 +248,6 @@ method Str(Bool :$skip-dtd = config.skip-dtd, |c --> Str) {
             $doc.setInternalSubset($_);
             $lock.unlock;
         }
-
-        $rv;
     }
 
     $rv;
@@ -284,8 +282,6 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
             $doc.setInternalSubset($_);
             $lock.unlock;
         }
-
-        $rv;
     }
 
     $rv;

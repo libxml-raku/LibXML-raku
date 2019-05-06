@@ -13,7 +13,6 @@ method find { ... }
 method findnodes { ... }
 method copy { ... }
 
-method domError { ... }
 method domAppendChild  { ... }
 method domAppendTextChild  { ... }
 method domReplaceNode  { ... }
