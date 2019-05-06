@@ -280,6 +280,7 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
         self->extSubset = NULL;
     }
     self->intSubset = dtd;
+    dtd->parent = self;
 }
 
 DLLEXPORT void
@@ -315,6 +316,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
         }
     }
     self->extSubset = dtd;
+    dtd->parent = self;
 }
 
 static xmlNodePtr
@@ -481,7 +483,7 @@ domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode) {
 
 DLLEXPORT int
 domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
-    if ( cur->type == XML_DOCUMENT_NODE | cur->type == XML_HTML_DOCUMENT_NODE) {
+    if ( cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE) {
         switch ( refNode->type ) {
         case XML_ATTRIBUTE_NODE:
         case XML_ELEMENT_NODE:
@@ -502,7 +504,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr cur) {
 
-    if (cur->type == XML_DOCUMENT_NODE | cur->type == XML_HTML_DOCUMENT_NODE) {
+    if (cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE) {
         xmlDocPtr doc = (xmlDocPtr) cur;
         if (doc->intSubset != NULL
             && domNodeIsReferenced((xmlNodePtr)doc->intSubset)) {

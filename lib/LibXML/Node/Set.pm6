@@ -15,7 +15,7 @@ class LibXML::Node::Set does Iterable does Iterator {
         .Release with $!set;
     }
     method elems { $!slurped ?? @!array.elems !! $!set.nodeNr }
-    method Array handles<List pairs keys values map grep shift pop> {
+    method Array handles<List pairs keys values map grep shift pop push append> {
         unless $!slurped {
             $!idx = 0;
             @!array = self;
@@ -23,25 +23,22 @@ class LibXML::Node::Set does Iterable does Iterator {
         }
         @!array;
     }
+    multi method AT-POS(UInt:D $pos where $!slurped) { @!array[$pos] }
     multi method AT-POS(UInt:D $pos where $_ >= $!set.nodeNr) { $!range }
-    multi method AT-POS(UInt:D $pos) {
-        if $!slurped {
-            @!array[$pos];
-        }
-        else {
-            with $!set.nodeTab[$pos].deref {
-                my $class = box-class(.type);
-                die "unexpected node of type {$class.perl} in node-set"
-                    unless $class ~~ $!range;
+    multi method AT-POS(UInt:D $pos) is default {
+        my $rv := $!values ?? Str !! $!range;
 
-                with $class.box: cast-elem($_) {
-                    $!values ?? .string-value !! $_;
-                }
-            }
-            else {
-                $!range;
+        with $!set.nodeTab[$pos].deref {
+            my $class = box-class(.type);
+            die "unexpected node of type {$class.perl} in node-set"
+            unless $class ~~ $!range;
+
+            with $class.box: cast-elem($_) {
+                $rv := $!values ?? .string-value !! $_;
             }
         }
+
+        $rv;
     }
 
     method string-value { with self.AT-POS(0) { $!values ?? $_ !! .string-value }}

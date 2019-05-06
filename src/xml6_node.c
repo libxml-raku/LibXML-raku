@@ -16,19 +16,28 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr node) {
     while (node && node->parent) {
         node = node->parent;
     }
-    // take the left-most node, if the root has multiple nodes
-    while (node && node->prev) {
-        node = node->prev;
-    }
-    if (node && node->parent) xml6_warn("sibling nodes have inconsistant parents");
 
-    if (node->type == XML_DTD_NODE) {
+    if (node && node->type == XML_ENTITY_DECL) {
         xmlDocPtr doc = node->doc;
+        const xmlChar* name = node->name;
         if (doc != NULL) {
-            xmlDtdPtr dtd = (xmlDtdPtr)node;
-            if (doc->intSubset == dtd || doc->extSubset == dtd) {
-                node = (xmlNodePtr) doc;
+            if ((doc->intSubset != NULL
+                 && xmlHashLookup(doc->intSubset->entities, name) == node)
+                ||
+                (doc->extSubset != NULL
+                 && xmlHashLookup(doc->extSubset->entities, name) == node)) {
+                node = (xmlNodePtr)doc;
             }
+        }
+    }
+
+    if (node && node->prev) {
+        // Unexpected, if we're using the DOM properly. The node should be either:
+        // newly unlinked, or parented to a unique xmlDoc/xmlDocFrag.
+        xml6_warn("root node has multiple elements");
+        // Take the left-most element, anyway
+        while (node && node->prev) {
+            node = node->prev;
         }
     }
 

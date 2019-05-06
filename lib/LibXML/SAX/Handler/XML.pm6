@@ -3,7 +3,7 @@ use LibXML::SAX::Handler::SAX2;
 class LibXML::SAX::Handler::XML
     is LibXML::SAX::Handler::SAX2 {
 
-    # This class demonstrates use of the 
+    # This class Builds a pure perl 'XML' document,
 
     use XML::Document;
     use XML::Element;
@@ -16,7 +16,7 @@ class LibXML::SAX::Handler::XML
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
-    method finish(LibXML::Document :doc($)) {
+    method finish(LibXML::Document:D :doc($)!) {
         # ignore SAX created document; replace with our own
         $!doc;
     }

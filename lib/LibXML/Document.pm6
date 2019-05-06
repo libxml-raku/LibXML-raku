@@ -233,19 +233,23 @@ method Str(Bool :$skip-dtd = config.skip-dtd, |c --> Str) {
     my Str $rv;
 
     with self.unbox -> xmlDoc:D $doc {
-        my $options = output-options(|c);
 
-        if $skip-dtd && (my $dtd = $doc.getInternalSubset).defined {
-            $lock.protect: {
-                # temporarily remove the DTD
-                $dtd.Unlink;
-                $rv := $doc.Str(:$options);
-                $doc.setInternalSubset($dtd);
-            }
+        my $skipped-dtd = $doc.getInternalSubset
+            if $skip-dtd;
+
+        with $skipped-dtd {
+            $lock.lock;
+            .Unlink;
         }
-        else {
-            $rv := $doc.Str(:$options);
+
+        $rv := callwith(|c);
+
+        with $skipped-dtd {
+            $doc.setInternalSubset($_);
+            $lock.unlock;
         }
+
+        $rv;
     }
 
     $rv;
@@ -259,24 +263,29 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
     my Blob $rv;
 
     if $skip-decl {
-        # losing encoding declaration; switch to UTF-8
+        # losing the declaration that encludes the encoding scheme; we need
+        # to switch to UTF-8 (default encoding) to stay conformant.
         $enc = 'UTF-8';
     }
 
     with self.unbox -> xmlDoc:D $doc {
-        my $options = output-options(|c);
 
-        if $skip-dtd && (my $dtd = $doc.getInternalSubset).defined {
-            $lock.protect: {
-                # temporarily remove the DTD
-                $dtd.Unlink;
-                $rv := $doc.Blob(:$enc, :$options);
-                $doc.setInternalSubset($dtd);
-            }
+        my $skipped-dtd = $doc.getInternalSubset
+            if $skip-dtd;
+
+        with $skipped-dtd {
+            $lock.lock;
+            .Unlink;
         }
-        else {
-            $rv := $doc.Blob(:$enc, :$options);
+
+        $rv := callwith(:$enc, :$skip-decl, |c);
+
+        with $skipped-dtd {
+            $doc.setInternalSubset($_);
+            $lock.unlock;
         }
+
+        $rv;
     }
 
     $rv;
