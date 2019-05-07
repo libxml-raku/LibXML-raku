@@ -9,7 +9,7 @@ class LibXML::Node {
     use NativeCall;
 
     constant config = LibXML::Config;
-    my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
+    my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
     enum <SkipBlanks KeepBlanks>;
 
     has LibXML::Node $.doc;
@@ -391,29 +391,29 @@ class LibXML::Node {
         $options;
     }
 
-    method !c14n-str(Bool() :$comments, XPathDomain :$xpath is copy, :$prefix --> Str) {
-        warn "todo prefix" if $prefix;
+    method !c14n-str(Bool() :$comments, Bool() :$exclusive, XPathDomain :$xpath is copy, :$selector = self, :@prefix --> Str) {
         my Str $rv;
-        my xmlNodeSet $nodes;
+        my CArray[Str] $prefix .= new: |@prefix, Str;
 
         if self.defined {
             if $.nodeType != XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE {
                 ## due to how c14n is implemented, the nodeset it receives must
                 ## include child nodes; ie, child nodes aren't assumed to be rendered.
                 ## so we use an xpath expression to find all of the child nodes.
-                constant AllNodes = LibXML::XPathExpression.new: expr => "(. | .//node() | .//@* | .//namespace::*)";
-                constant NonCommentNodes = LibXML::XPathExpression.new: expr => "(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]";
+                constant AllNodes = '(. | .//node() | .//@* | .//namespace::*)';
+                constant NonCommentNodes = '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
                 $xpath //= $comments ?? AllNodes !! NonCommentNodes;
             }
-            with $xpath {
-                my xmlXPathContext:D $ctx .= new: :node(self.unbox);
-                $_ = LibXML::XPathExpression.new: :expr($_)
-                    if $_ ~~ Str;
-                $nodes = $ctx.findnodes: .unbox;
-                $ctx.Free;
-            }
+            my $nodes = $selector.findnodes($_)
+                with $xpath;
 
-            $rv := $.unbox.xml6_node_to_str_C14N(+$comments, 0, CArray[Str], $nodes // xmlNodeSet);
+            $rv := $.unbox.xml6_node_to_str_C14N(
+                +$comments,
+                +$exclusive,
+                $prefix,
+                do with $nodes { .unbox } else { xmlNodeSet },
+            );
+
             die $_ with $.domFailure;
         }
         $rv;

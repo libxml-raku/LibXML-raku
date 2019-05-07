@@ -2,18 +2,19 @@ class LibXML::Node::Set does Iterable does Iterator {
     use LibXML::Native;
     use LibXML::Node :box-class, :cast-elem;
     has $.range is required;
-    has xmlNodeSet $.set is required;
+    has xmlNodeSet $!set;
     has UInt $!idx = 0;
     has @!array;
     has Bool $!slurped;
     has Bool $.values;
-    submethod TWEAK {
+    submethod TWEAK(xmlNodeSet :$!set!) {
         .Reference with $!set;
     }
     submethod DESTROY {
         # xmlNodeSet is managed by us
         .Release with $!set;
     }
+    method unbox { $!set }
     method elems { $!slurped ?? @!array.elems !! $!set.nodeNr }
     method Array handles<List pairs keys values map grep shift pop push append> {
         unless $!slurped {

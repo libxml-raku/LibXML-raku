@@ -128,50 +128,8 @@ DLLEXPORT xmlChar* xml6_node_to_str(xmlNodePtr self, int options) {
 }
 
 
-
-static void
-_configure_namespaces( xmlXPathContextPtr ctxt ) {
-    xmlNodePtr node = ctxt->node;
-
-    if (ctxt->namespaces != NULL) {
-        xmlFree( ctxt->namespaces );
-        ctxt->namespaces = NULL;
-    }
-    if (node != NULL) {
-        if (node->type == XML_DOCUMENT_NODE) {
-            ctxt->namespaces = xmlGetNsList( node->doc,
-                                             xmlDocGetRootElement( node->doc ) );
-        } else {
-            ctxt->namespaces = xmlGetNsList(node->doc, node);
-        }
-        ctxt->nsNr = 0;
-        if (ctxt->namespaces != NULL) {
-	  int cur=0;
-	  xmlNsPtr ns;
-	  /* we now walk through the list and
-	     drop every ns that was declared via registration */
-	  while (ctxt->namespaces[cur] != NULL) {
-	    ns = ctxt->namespaces[cur];
-	    if (ns->prefix==NULL ||
-		xmlHashLookup(ctxt->nsHash, ns->prefix) != NULL) {
-	      /* drop it */
-	      ctxt->namespaces[cur]=NULL;
-	    } else {
-	      if (cur != ctxt->nsNr) {
-		/* move the item to the new tail */
-		ctxt->namespaces[ctxt->nsNr]=ns;
-		ctxt->namespaces[cur]=NULL;
-	      }
-	      ctxt->nsNr++;
-	    }
-	    cur++;
-	  }
-        }
-    }
-}
-
 DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int exclusive, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist) {
-    xmlChar *rv  = NULL;
+    xmlChar *rv = NULL;
     int stat;
 
     if ( self->doc == NULL ) {

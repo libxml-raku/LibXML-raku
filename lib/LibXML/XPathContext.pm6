@@ -2,9 +2,11 @@ use v6;
 class LibXML::XPathContext {
 
     use LibXML::Native;
-    use LibXML::Node :iterate, :XPathRange, :unbox;
+    use LibXML::Node :iterate, :XPathRange, :unbox, :NameVal;
     use LibXML::Document;
     use LibXML::XPathExpression;
+    use LibXML::Types :QName;
+
     has xmlXPathContext $!struct;
     method unbox { $!struct }
 
@@ -52,4 +54,25 @@ class LibXML::XPathContext {
         $.findvalue(LibXML::XPathExpression.new: :$expr);
     }
 
+    multi method registerNs(QName:D :$prefix!, Str :$uri) {
+        $.registerNs($prefix, $uri);
+    }
+    multi method registerNs(QName:D $prefix!, Str $uri?) {
+        my $stat = $uri
+        ?? $.unbox.RegisterNs($prefix, $uri)
+        !! $.unbox.RegisterNs($prefix, Str);
+        die "XPathContext: cannot {$uri ?? '' !! 'un'}register namespace"
+           if $stat == -1;
+        $stat;
+    }
+    multi method registerNs(NameVal $_) {
+        $.registerNs(.key, .value);
+    }
+
+    multi method unregisterNs(QName:D :$prefix!) {
+        $.registerNs($prefix);
+    }
+    multi method unregisterNs(QName:D $prefix!) {
+        $.registerNs($prefix);
+    }
 }

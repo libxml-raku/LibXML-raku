@@ -3,6 +3,7 @@ plan 23;
 
 use LibXML;
 use LibXML::Document;
+use LibXML::XPathContext;
 
 my $parser = LibXML.new;
 
@@ -103,11 +104,8 @@ EOX
     my $c14n_res;
     $c14n_res = $doc.Str(:C14N, :xpath<//d> );
     # TEST
-    is( $c14n_res, '<d></d>', ' TODO : Add test name' );
+    is( $c14n_res, '<d></d>', 'xpath 1' );
 }
-
-skip("todo - port tests", 12);
-=begin TODO
 
 {
     my $doc = $parser.parse: :string( q:to<EOX> );
@@ -115,12 +113,12 @@ skip("todo - port tests", 12);
 <a xmlns="http://foo/test#"><b><c/><d><e/></d></b></a>
 EOX
     my $rootnode=$doc.documentElement;
-    my $c14n_res;
+      my $c14n_res;
     $c14n_res = $rootnode.Str( :C14N, :xpath("//*[local-name()='d']"));
     # TEST
-    is( $c14n_res, '<d></d>', ' TODO : Add test name' );
-    ($rootnode) = $doc.findnodes("//*[local-name()='d']");
-    $c14n_res = $rootnode.Str( :C14N );
+    is( $c14n_res, '<d></d>', 'xpath 2' );
+    ($rootnode, ) = $doc.findnodes("//*[local-name()='d']");
+      $c14n_res = $rootnode.Str( :C14N );
     # TEST
     is( $c14n_res, '<d xmlns="http://foo/test#"><e></e></d>', ' TODO : Add test name' );
     $rootnode = $doc.documentElement.firstChild;
@@ -159,32 +157,32 @@ EOX
   my $doc2 = $parser.parse: :string( $xml2 );
 
   {
-    my $c14n_res = $doc1.Str(:C14N, :$xpath);
+    my $c14n_res = $doc1.Str(:C14N, :$xpath, :exclusive);
     # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
-    my $c14n_res = $doc2.Str(:C14N, :$xpath);
+    my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive);
     # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
-    my $c14n_res = $doc1.Str(:C14N, :$xpath,:prefix[]);
+    my $c14n_res = $doc1.Str(:C14N, :$xpath, :exclusive, :prefix[]);
     # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
-    my $c14n_res = $doc2.Str(:C14N, :$xpath, :prefix[]);
+    my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive, :prefix[]);
     # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
-    my $c14n_res = $doc2.Str(:C14N, :$xpath, :prefix<n1 n3>);
+    my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive, :prefix<n1 n3>);
     # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
-    my $c14n_res = $doc2.Str(:C14N, :$xpath, :prefix<n0 n2>);
+    my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive, :prefix<n0 n2>);
     # TEST
     is( $c14n_res, $result_n0n2, ' TODO : Add test name');
   }
@@ -200,21 +198,24 @@ EOF
 my $xpath = q{(//. | //@* | //namespace::*)[ancestor-or-self::x:MessageID]};
 my $xpath2 = q{(//. | //@* | //namespace::*)[ancestor-or-self::*[local-name()='MessageID' and namespace-uri()='http://www.w3.org/2005/08/addressing']]};
 
-my $doc = LibXML.load: :xml, string=>$xml;
-my $xpc = LibXML::XPathContext.new($doc);
-$xpc.registerNs(x => "http://www.w3.org/2005/08/addressing");
+my $doc = LibXML.load: string=>$xml;
+my $selector = LibXML::XPathContext.new(:$doc);
+$selector.registerNs('x' => "http://www.w3.org/2005/08/addressing");
 my $expect = '<wsa:MessageID xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="MessageID">urn:www.sve.man.ac.uk-54690551758351720271010843310</wsa:MessageID>';
 # TEST
 
-is( $doc.Str(:C14N, $xpath2, :prefix<soap> ), $expect, ' TODO : Add test name' );
+}; skip("todo - port tests", 3);
+=begin TODO
+
+is( $doc.Str(:C14N, :extended, :xpath($xpath2), :prefix['soap'] ), $expect, ' TODO : Add test name' );
 # TEST
 
-is( $doc.Str(:C14N, $xpath, $xpc, :prefix<soap> ), $expect, ' TODO : Add test name' );
+is( $doc.Str(:C14N, :extended, :$xpath, :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
 # TEST
 
-is( $doc.Str(:C14N, $xpath2, $xpc, :prefix<soap> ), $expect, ' TODO : Add test name' );
+is( $doc.Str(:C14N, :extended, :xpath($xpath2), :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
+# TEST
 
 }
 
 =end TODO
-
