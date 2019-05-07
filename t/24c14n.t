@@ -94,9 +94,6 @@ EOX
     is( $c14n_res, '<a><b></b></a>', ' TODO : Add test name' );
 }
 
-skip("todo - port tests", 13);
-=begin TODO
-
 # canonize with xpath expressions
 {
     my $doc = $parser.parse: :string( q:to<EOX> );
@@ -108,6 +105,9 @@ EOX
     # TEST
     is( $c14n_res, '<d></d>', ' TODO : Add test name' );
 }
+
+skip("todo - port tests", 12);
+=begin TODO
 
 {
     my $doc = $parser.parse: :string( q:to<EOX> );

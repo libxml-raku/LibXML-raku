@@ -15,7 +15,7 @@ class LibXML::Node {
     has LibXML::Node $.doc;
 
     has domNode $.struct handles <
-        domCheck
+        domCheck domFailure
         string-value content
         getAttribute getAttributeNS getNamespaceDeclURI
         hasChildNodes hasAttributes hasAttribute hasAttributeNS
@@ -291,7 +291,8 @@ class LibXML::Node {
     multi method findvalue(Str:D $expr) {
         $.findvalue( LibXML::XPathExpression.new(:$expr));
     }
-    my subset XPathDomain where LibXML::XPathExpression|Str;
+    my subset XPathDomain where LibXML::XPathExpression|Str|Any:U;
+
     multi method exists(XPathDomain:D $xpath-expr --> Bool:D) {
         $.find($xpath-expr, True);
     }
@@ -390,13 +391,42 @@ class LibXML::Node {
         $options;
     }
 
-    method Str(:$C14N, Bool() :$comments, :$xpath, :$prefix, |c) {
-        warn "todo xpath" if $xpath;
+    method !c14n-str(Bool() :$comments, XPathDomain :$xpath is copy, :$prefix --> Str) {
         warn "todo prefix" if $prefix;
+        my Str $rv;
+        my xmlNodeSet $nodes;
 
-        my $options = output-options(|c);
+        if self.defined {
+            if $.nodeType != XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE {
+                ## due to how c14n is implemented, the nodeset it receives must
+                ## include child nodes; ie, child nodes aren't assumed to be rendered.
+                ## so we use an xpath expression to find all of the child nodes.
+                constant AllNodes = LibXML::XPathExpression.new: expr => "(. | .//node() | .//@* | .//namespace::*)";
+                constant NonCommentNodes = LibXML::XPathExpression.new: expr => "(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]";
+                $xpath //= $comments ?? AllNodes !! NonCommentNodes;
+            }
+            with $xpath {
+                my xmlXPathContext:D $ctx .= new: :node(self.unbox);
+                $_ = LibXML::XPathExpression.new: :expr($_)
+                    if $_ ~~ Str;
+                $nodes = $ctx.findnodes: .unbox;
+                $ctx.Free;
+            }
 
-        $.unbox.Str(:$C14N, :$comments, :$options);
+            $rv := $.unbox.xml6_node_to_str_C14N(+$comments, 0, CArray[Str], $nodes // xmlNodeSet);
+            die $_ with $.domFailure;
+        }
+        $rv;
+    }
+
+    method Str(:$C14N, |c) is default {
+        if $C14N {
+            self!c14n-str(|c);
+        }
+        else {
+            my $options = output-options(|c);
+            $.unbox.Str(:$options);
+        }
     }
 
     method Blob(Str :$enc, |c) {

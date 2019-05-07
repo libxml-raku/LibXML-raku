@@ -525,20 +525,10 @@ class domNode is export does LibXML::Native::DOM::Node {
 
     method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
-    multi method Str(:C14N($)! where .so,
-                     Bool :$comments,
-                     --> Str) {
-        method xml6_node_to_str_C14N(int32 $comments, int32 $exclusive, xmlCharP $path, CArray[Str] $inc-prefix, xmlXPathContext $xpath-ctx --> Str) is native(BIND-LIB) {*}
-        my Str $rv;
-        with self {
-            $rv := .xml6_node_to_str_C14N($comments, 0, xmlCharP, CArray[Str], xmlXPathContext);
-            die $_ with .domFailure;
-        }
-        $rv;
-    }
+    method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
+    method xml6_node_to_str_C14N(int32 $comments, int32 $exclusive, CArray[Str] $inc-prefix, xmlNodeSet $nodes --> Str) is native(BIND-LIB) {*}
 
-    multi method Str(UInt :$options = 0 --> Str) is default {
-        method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
+    method Str(UInt :$options = 0 --> Str) is default {
         with self {
             .xml6_node_to_str($options);
         }

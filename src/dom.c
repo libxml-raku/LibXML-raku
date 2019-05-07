@@ -1272,8 +1272,8 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
         ns = xmlSearchNs( self->doc, self, new_prefix );
         if ( ns != NULL ) {
             char msg[80];
-            sprintf(msg, "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-            fail_i(self, xmlStrdup((xmlChar*) msg));
+            snprintf(msg, sizeof(msg), "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
+            fail_i(self, msg);
         }
         /* lookup the declaration */
         ns = self->nsDef;

@@ -170,79 +170,20 @@ _configure_namespaces( xmlXPathContextPtr ctxt ) {
     }
 }
 
-DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int exclusive, xmlChar* nodepath, xmlChar** inc_prefix_list, xmlXPathContextPtr xpath_ctxt) {
-    xmlChar *rv                   = NULL;
-    xmlXPathObjectPtr xpath_res   = NULL;
-    xmlNodeSetPtr nodelist        = NULL;
-    xmlNodePtr refNode            = self;
-    xmlXPathContextPtr child_ctxt = xpath_ctxt;
+DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int exclusive, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist) {
+    xmlChar *rv  = NULL;
     int stat;
 
-    /* due to how c14n is implemented, the nodeset it receives must
-       include child nodes; ie, child nodes aren't assumed to be rendered.
-       so we use an xpath expression to find all of the child nodes.
-    */
     if ( self->doc == NULL ) {
         fail(self, "Node passed to toStringC14N must be part of a document");
     }
 
-    refNode = self;
-
-    if ( nodepath != NULL && xmlStrlen( nodepath ) == 0 ) {
-        nodepath = NULL;
-    }
-
-    if ( nodepath == NULL
-         && self->type != XML_DOCUMENT_NODE
-         && self->type != XML_HTML_DOCUMENT_NODE
-         && self->type != XML_DOCB_DOCUMENT_NODE
-        ) {
-        if (comments)
-            nodepath = (xmlChar *) "(. | .//node() | .//@* | .//namespace::*)";
-        else
-            nodepath = (xmlChar *) "(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]";
-    }
-
-    if ( nodepath != NULL ) {
-        if ( self->type == XML_DOCUMENT_NODE
-             || self->type == XML_HTML_DOCUMENT_NODE
-             || self->type == XML_DOCB_DOCUMENT_NODE ) {
-            refNode = xmlDocGetRootElement( self->doc );
-        }
-
-        if (!child_ctxt) {
-            child_ctxt = xmlXPathNewContext(self->doc);
-        }
-
-        child_ctxt->node = self;
-        _configure_namespaces(child_ctxt);
-
-        xpath_res = xmlXPathEval(nodepath, child_ctxt);
-        if (child_ctxt->namespaces != NULL) {
-            xmlFree( child_ctxt->namespaces );
-            child_ctxt->namespaces = NULL;
-        }
-        if (!xpath_ctxt) xmlXPathFreeContext(child_ctxt);
-
-        if (xpath_res == NULL) {
-            fail(self, "failed to compile xpath expression");
-        }
-
-        nodelist = xpath_res->nodesetval;
-        if ( nodelist == NULL ) {
-            xmlXPathFreeObject(xpath_res);
-            fail(self, "cannot canonize empty nodeset!" );
-        }
-
-    }
-    xml6_warn("");
     stat = xmlC14NDocDumpMemory( self->doc,
                                  nodelist,
                                  exclusive,
                                  inc_prefix_list,
                                  comments,
                                  &rv );
-    if ( xpath_res ) xmlXPathFreeObject(xpath_res);
 
     if (stat < 0) {
         char msg[80];
