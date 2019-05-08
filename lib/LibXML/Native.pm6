@@ -527,7 +527,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
     method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
-    method xml6_node_to_str_C14N(int32 $comments, int32 $exclusive, CArray[Str] $inc-prefix, xmlNodeSet --> Str) is native(BIND-LIB) {*}
+    method xml6_node_to_str_C14N(int32 $comments, int32 $exclusive, CArray[Str] $inc-prefix is rw, xmlNodeSet --> Str) is native(BIND-LIB) {*}
 
     method Str(UInt :$options = 0 --> Str) is default {
         with self {

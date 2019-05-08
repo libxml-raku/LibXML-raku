@@ -204,18 +204,13 @@ $selector.registerNs('x' => "http://www.w3.org/2005/08/addressing");
 my $expect = '<wsa:MessageID xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="MessageID">urn:www.sve.man.ac.uk-54690551758351720271010843310</wsa:MessageID>';
 # TEST
 
-}; skip("todo - port tests", 3);
-=begin TODO
-
-is( $doc.Str(:C14N, :extended, :xpath($xpath2), :prefix['soap'] ), $expect, ' TODO : Add test name' );
+is( $doc.Str(:C14N, :exclusive, :xpath($xpath2), :prefix['soap'] ), $expect, ' TODO : Add test name' );
 # TEST
 
-is( $doc.Str(:C14N, :extended, :$xpath, :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
+is( $doc.Str(:C14N, :exclusive, :$xpath, :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
 # TEST
 
-is( $doc.Str(:C14N, :extended, :xpath($xpath2), :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
+is( $doc.Str(:C14N, :exclusive, :xpath($xpath2), :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
 # TEST
 
 }
-
-=end TODO

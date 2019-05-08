@@ -400,9 +400,9 @@ class LibXML::Node {
                 ## due to how c14n is implemented, the nodeset it receives must
                 ## include child nodes; ie, child nodes aren't assumed to be rendered.
                 ## so we use an xpath expression to find all of the child nodes.
-                constant AllNodes = '(. | .//node() | .//@* | .//namespace::*)';
-                constant NonCommentNodes = '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
-                $xpath //= $comments ?? AllNodes !! NonCommentNodes;
+                state $AllNodes //= LibXML::XPathExpression.new: expr => '(. | .//node() | .//@* | .//namespace::*)';
+                state $NonCommentNodes //= LibXML::XPathExpression.new: expr => '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
+                $xpath //= $comments ?? $AllNodes !! $NonCommentNodes;
             }
             my $nodes = $selector.findnodes($_)
                 with $xpath;

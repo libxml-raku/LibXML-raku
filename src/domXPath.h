@@ -41,4 +41,7 @@ domReferenceNodeSet(xmlNodeSetPtr self);
 void
 domReleaseNodeSet(xmlNodeSetPtr self);
 
+xmlNodeSetPtr
+domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp);
+
 #endif
