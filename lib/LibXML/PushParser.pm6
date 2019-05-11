@@ -1,12 +1,11 @@
 class LibXML::PushParser {
     use LibXML::Native;
-    use LibXML::ErrorHandler;
+    use LibXML::ParserContext;
     use LibXML::Document;
 
     has Bool $.html;
     has @!errors;
-    has parserCtxt $!ctx;
-    has LibXML::ErrorHandler $!errors;
+    has LibXML::ParserContext $!ctx;
     has Int $.err = 0;
 
     multi submethod TWEAK(Str :chunk($str), |c) {
@@ -17,13 +16,12 @@ class LibXML::PushParser {
     multi submethod TWEAK(Blob :$chunk!, Str :$path, :$sax-handler, xmlEncodingStr :$enc, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
         my xmlSAXHandler $sax = .unbox with $sax-handler;
-        $!ctx = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
-        $!ctx.add-reference;
-        $!errors .= new: :$!ctx, |c;
+        my parserCtxt:D $struct = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
+        $!ctx .= new: :$struct, |c;
     }
 
     method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$terminate = False) {
-        with $!ctx {
+        with $!ctx.unbox {
             .ParseChunk($chunk, $size, +$terminate);
         }
         else {
@@ -40,19 +38,15 @@ class LibXML::PushParser {
     }
 
     method finish-push(Str :$URI, Bool :$recover = False) {
-        $!errors.try: :$recover, {
+        $!ctx.try: :$recover, {
             self!parse-chunk: :terminate;
         }
-        $!errors = Nil;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
-        LibXML::Document.new( :$!ctx, :$URI);
+        my $rv := LibXML::Document.new( :$!ctx, :$URI);
+        $!ctx = Nil;
+        $rv;
     }
 
-    submethod DESTROY {
-        given $!ctx {
-            .Free if .remove-reference;
-        }
-    }
 }
 

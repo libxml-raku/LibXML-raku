@@ -27,7 +27,7 @@ multi method parse(
     Bool() :$repair = False) {
     my Pointer[xmlNode] $nodes .= new;
     # may return a linked list of nodes
-    my $stat = xmlDoc.xmlParseBalancedChunkMemoryRecover(
+    my $stat = (self.unbox.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
         $sax, $user-data, 0, $string, $nodes, +$repair
     );
     die "balanced parse failed with status $stat"

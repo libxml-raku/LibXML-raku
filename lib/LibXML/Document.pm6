@@ -15,11 +15,11 @@ use LibXML::Dtd;
 use LibXML::EntityDecl;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
-use LibXML::ErrorHandler;
+use LibXML::ParserContext;
 use NativeCall;
 
 constant config = LibXML::Config;
-has parserCtxt $.ctx handles <wellFormed valid>;
+has LibXML::ParserContext $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 
 method unbox is rw handles <compression standalone version encoding URI> { callsame() }
@@ -30,8 +30,12 @@ submethod TWEAK(
                 xmlEncodingStr :$enc,
                 Str :$URI,
                ) {
-    my xmlDoc:D $struct = self.struct //= do with $!ctx {.myDoc} else {xmlDoc.new};
-    .add-reference with $!ctx;
+    my xmlDoc:D $struct = self.struct //= do with $!ctx.unbox {
+        .myDoc
+    }
+    else {
+        xmlDoc.new
+    };
     $struct.version = $_ with $version;
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;
@@ -224,7 +228,7 @@ method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset --> Bool) {
     ? $cvp.validate(:$doc, :$dtd);
 }
 
-method validate(|c) { LibXML::ErrorHandler.try: {self!validate(|c)} }
+method validate(|c) { LibXML::ParserContext.try: {self!validate(|c)} }
 method is-valid(|c) { self!validate(|c) }
 
 our $lock = Lock.new;
@@ -287,9 +291,3 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
     $rv;
 }
 
-submethod DESTROY {
-    with $!ctx {
-        .Free if .remove-reference;
-    }
-    # we're already invoking LibXML::Node.DESTROY to cleanup $.struct
-}

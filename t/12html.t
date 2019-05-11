@@ -101,7 +101,7 @@ EOHTML
     
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
     # TEST
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
+    ok( $htmldoc && $htmldoc.getDocumentElement.defined, ' TODO : Add test name' );
     # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 

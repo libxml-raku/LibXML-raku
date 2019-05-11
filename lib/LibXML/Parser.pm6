@@ -5,7 +5,7 @@ class LibXML::Parser {
     use LibXML::Enums;
     use LibXML::Document;
     use LibXML::PushParser;
-    use LibXML::ErrorHandler;
+    use LibXML::ParserContext;
 
     constant config = LibXML::Config;
 
@@ -100,23 +100,22 @@ class LibXML::Parser {
         $flags;
     }
 
-    method !error-handler(parserCtxt :$ctx, :$html, *%flags) {
+    method !make-handler(parserCtxt :$ctx, :$html, *%flags) {
         my UInt $flags = self!process-flags(%flags, :$html);
-        LibXML::ErrorHandler.new: :$ctx, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
+        LibXML::ParserContext.new: :struct($ctx), :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
-    method !publish(:$URI, LibXML::ErrorHandler :$handler!, ) {
-        my parserCtxt:D $ctx = $handler.ctx;
-        my LibXML::Document:D $doc .= new: :$ctx;
+    method !publish(:$URI, LibXML::ParserContext :$handler!, ) {
+        my LibXML::Document:D $doc .= new: :ctx($handler);
         $doc.baseURI = $_ with $URI;
         self.processXIncludes($doc, :$handler)
             if $.expand-xinclude;
         $doc;
     }
 
-    proto method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler :$handler) {*}
+    proto method processXIncludes(LibXML::Document $_, LibXML::ParserContext :$handler) {*}
 
-    multi method processXIncludes(LibXML::Document $_, LibXML::ErrorHandler:D :$handler! --> UInt) {
+    multi method processXIncludes(LibXML::Document $_, LibXML::ParserContext:D :$handler! --> UInt) {
         my xmlDoc $doc = .unbox;
         $handler.try: { $doc.XIncludeProcessFlags($!flags); }
     }
@@ -124,7 +123,7 @@ class LibXML::Parser {
         my xmlDoc:D $doc = .unbox;
         my xmlParserCtxt:D $ctx .= new;
         $ctx.sax = .unbox with $.sax-handler;
-        my LibXML::ErrorHandler $error-handler = self!error-handler: :$ctx;
+        my LibXML::ParserContext $error-handler = self!make-handler: :$ctx;
         $error-handler.try: { 
             $doc.XIncludeProcessFlags($!flags);
         }
@@ -141,15 +140,16 @@ class LibXML::Parser {
 
         # gives better diagnositics
 
-        my LibXML::ErrorHandler $handler = self!error-handler: :$html, |%flags;
+        my LibXML::ParserContext $handler = self!make-handler: :$html, |%flags;
+
         $handler.try: {
             my parserCtxt:D $ctx = $html
             ?? htmlMemoryParserCtxt.new: :$string, :$enc
             !! xmlMemoryParserCtxt.new: :$string;
 
             $ctx.input.filename = $_ with $URI;
-            $handler.ctx = $ctx;
-            $ctx.ParseDocument
+            $handler.struct = $ctx;
+            $ctx.ParseDocument;
         };
         self!publish: :$handler;
     }
@@ -168,7 +168,7 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ErrorHandler $handler = self!error-handler: :$ctx, :$html, |%flags;
+        my LibXML::ParserContext $handler = self!make-handler: :$ctx, :$html, |%flags;
         $handler.try: { $ctx.ParseDocument };
         self!publish: :$handler;
     }
@@ -179,8 +179,7 @@ class LibXML::Parser {
                        Str :$URI = $!baseURI,
                        *%flags,
                       ) {
-
-        my LibXML::ErrorHandler $handler = self!error-handler: :$html, |%flags;
+        my LibXML::ParserContext $handler = self!make-handler: :$html, |%flags;
 
         $handler.try: {
             my parserCtxt $ctx = $html
@@ -188,7 +187,7 @@ class LibXML::Parser {
                !! xmlFileParserCtxt.new(:$file);
             die "unable to load file: $file"
                 without $ctx;
-            $handler.ctx = $ctx;
+            $handler.struct = $ctx;
             $ctx.ParseDocument;
         };
 

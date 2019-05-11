@@ -66,6 +66,15 @@ class xmlParserInputBuffer is repr(Stub) is export {
 }
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
+class xmlRelaxNG is repr(Stub) is export {
+}
+class xmlRelaxNGParserCtxt is repr(Stub) is export {
+    sub xmlRelaxNGNewParserCtxt(Str --> xmlRelaxNGParserCtxt) is native(LIB) {*}
+    method xmlRelaxNGSetParserError( &err-func (Pointer $ctx1, Str $msg1), &warn-func (Pointer $ctx2, Str $msg2), Pointer $ctx) is native(LIB) {*}
+    method xmlRelaxNGParse(-->xmlRelaxNG) is native(LIB) {*}
+    method Free is symbol('xmlRelaxNGFreeParserCtxt') is native(LIB) {*}
+    method new(Str:D :$url) { xmlRelaxNGNewParserCtxt($url) }
+}
 class xmlXPathCompExpr is repr(Stub) is export {
     sub xmlXPathCompile(xmlCharP:D --> xmlXPathCompExpr) is native(LIB) {*}
     method Free is native(LIB) is symbol('xmlXPathFreeCompExpr') {*}

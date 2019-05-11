@@ -12,10 +12,10 @@ class X::LibXML::Parser is Exception {
     }
 }
 
-class LibXML::ErrorHandler {
+class LibXML::ParserContext {
     use LibXML::Native;
     use LibXML::Enums;
-    has parserCtxt $!ctx;
+    has parserCtxt $!struct handles <wellFormed valid>;
     has @!errors;
     has uint32 $.flags;
     has Bool $.line-numbers;
@@ -26,32 +26,33 @@ class LibXML::ErrorHandler {
     method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
     method suppress-errors { ?($!flags +& XML_PARSE_NOERROR) }
 
-    method ctx is rw {
+    method unbox { with self { $!struct } else { parserCtxt }  }
+    method struct is rw {
         Proxy.new(
-            FETCH => sub ($) { $!ctx },
-            STORE => sub ($, parserCtxt $ctx) {
-                with $!ctx {
+            FETCH => sub ($) { $!struct },
+            STORE => sub ($, parserCtxt $struct) {
+                with $!struct {
                     .Free if .remove-reference;
                 }
-                with $ctx {
+                with $struct {
                     .add-reference;
 
                     .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
                     .linenumbers = +?$!line-numbers;
                     .xmlSetGenericErrorFunc( self!generic-error-func );
                     .xmlSetStructuredErrorFunc( self!structured-error-func );
-                    $!ctx = $_;
-                    $!ctx.sax = .unbox with $!sax-handler;
+                    $!struct = $_;
+                    $!struct.sax = .unbox with $!sax-handler;
                 }
             });
         }
 
-    submethod TWEAK(parserCtxt :$ctx) {
-        self.ctx = $_ with $ctx;
+    submethod TWEAK(parserCtxt :$struct) {
+        self.struct = $_ with $struct;
     }
 
     submethod DESTROY {
-        with $!ctx {
+        with $!struct {
             .Free if .remove-reference;
         }
     }
@@ -75,7 +76,7 @@ class LibXML::ErrorHandler {
             "Schematron validity"
         );
 
-        -> $ctx, xmlError $_ {
+        -> parserCtxt:D $ctx, xmlError $_ {
             my Int $level = .level;
             my Str $msg = .message;
             my @text;
@@ -131,7 +132,7 @@ class LibXML::ErrorHandler {
     method try(&action, Bool :$recover is copy) {
 
         my $obj = self;
-        $_ = .new: :ctx(parserCtxt.new)
+        $_ = .new: :struct(parserCtxt.new)
             without $obj;
 
         $recover //= $obj.recover;

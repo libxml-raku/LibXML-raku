@@ -35,7 +35,7 @@ my $xml3 = q:to<EOX>;
 </a>
 EOX
 
-diag "# 1.   single namespace \n";
+print "# 1.   single namespace \n";
 
 {
     my $doc1 = $parser.parse: :string( $xml1 );
@@ -49,7 +49,7 @@ diag "# 1.   single namespace \n";
     is(@cn[1].namespaceURI, "http://whatever", ' TODO : Add test name' );
 }
 
-diag "# 2.    multiple namespaces \n";
+print "# 2.    multiple namespaces \n";
 
 {
     my $doc2 = $parser.parse: :string( $xml2 );
@@ -74,7 +74,7 @@ diag "# 2.    multiple namespaces \n";
     is(@cn[2].namespaceURI, "http://kungfoo", ' TODO : Add test name' );
 }
 
-diag "# 3.   nested names \n";
+print "# 3.   nested names \n";
 
 {
     my $doc3 = $parser.parse: :string( $xml3 );
@@ -97,7 +97,7 @@ diag "# 3.   nested names \n";
     ok( !defined($elem.lookupNamespacePrefix( "http://foobar" )), ' TODO : Add test name' );
 }
 
-diag "# 4. post creation namespace setting\n";
+print "# 4. post creation namespace setting\n";
 {
     my $e1 = LibXML::Element.new: :name("foo");
     my $e2 = LibXML::Element.new: :name("bar:foo");
@@ -115,7 +115,7 @@ diag "# 4. post creation namespace setting\n";
     is( $a.nodeName, "bar:kung", ' TODO : Add test name' );
 }
 
-diag "# 5. importing namespaces\n";
+print "# 5. importing namespaces\n";
 
 {
 
@@ -144,7 +144,7 @@ EOX
     is( @attrb[0].nodeType, 18, ' TODO : Add test name' );
 }
 
-diag "# 6. lossless setting of namespaces with setAttribute\n";
+print "# 6. lossless setting of namespaces with setAttribute\n";
 # reported by Kurt George Gjerde
 {
     my $doc = LibXML.createDocument;
@@ -158,7 +158,7 @@ diag "# 6. lossless setting of namespaces with setAttribute\n";
     ok( ($strnode ~~ /'xmlns:xxx'/ and $strnode ~~ /'xmlns='/), ' TODO : Add test name' );
 }
 
-diag "# 7. namespaced attributes\n";
+print "# 7. namespaced attributes\n";
 {
     my $doc = LibXML.new.parse: :string(q:to<EOF>);
 <test xmlns:xxx="http://example.com"/>
@@ -197,7 +197,7 @@ EOF
 }
 
 
-diag "# 8. changing namespace declarations\n";
+print "# 8. changing namespace declarations\n";
 {
     my $xmlns = 'http://www.w3.org/2000/xmlns/';
 
@@ -407,7 +407,7 @@ diag "# 8. changing namespace declarations\n";
     is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
 }
 
-diag "# 9. namespace reconciliation\n";
+print "# 9. namespace reconciliation\n";
 {
     my $doc = LibXML.createDocument( 'http://default', 'root' );
     my $root = $doc.documentElement;
@@ -531,7 +531,7 @@ diag "# 9. namespace reconciliation\n";
     ok( defined($doca.documentElement.getAttribute( 'xmlns:other' )), ' TODO : Add test name' );
 }
 
-diag "# 10. xml namespace\n";
+print "# 10. xml namespace\n";
 {
     my $docOne = LibXML.new.parse: :string(
         '<foo><inc xml:id="test"/></foo>'
@@ -549,7 +549,7 @@ diag "# 10. xml namespace\n";
     ok($inc.isSameNode($docOne.getElementById('test')), ' TODO : Add test name');
 }
 
-diag "# 11. empty namespace\n";
+print "# 11. empty namespace\n";
 {
     my $doc = LibXML.load: string => $xml1;
     my $node = $doc.find('/a/b:c')[0];

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 29;
+plan 30;
 
 use LibXML;
 
@@ -69,11 +69,11 @@ isa-ok($dom.find("'Hello World'"), Str, ' TODO : Add test name');
 # TEST
 isa-ok($dom.find("32 + 13"), Num, ' TODO : Add test name');
 
+# TEST
+isa-ok($dom.find("//CCC"), "LibXML::Node::Set", ' TODO : Add test name');
+
 skip("port remaining tests", 14);
 =begin TODO
-
-# TEST
-isa-ok($dom.find("//CCC"), "LibXML::Node::List", ' TODO : Add test name');
 
 my $numbers = LibXML::NodeList.new(1..10);
 my $oddify  = sub { $_ + ($_%2?0:9) }; # add 9 to even numbers
