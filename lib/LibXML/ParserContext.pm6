@@ -58,7 +58,7 @@ class LibXML::ParserContext {
     }
 
     method !generic-error-func {
-        -> parserCtxt $, Str:D $msg {
+        -> parserCtxt:D $, Str:D $msg {
             @!errors.push: %( :level(XML_ERR_FATAL), :$msg );
         }
     }
@@ -96,6 +96,8 @@ class LibXML::ParserContext {
             if .line && !$file.ends-with('/') {
                 $msg = ($file, .line, ' ' ~ $msg).join: ':';
             }
+            $*ERR.print($msg)
+                if $level ~~ XML_ERR_FATAL;
             @!errors.push: %( :$level, :$msg);
         }
 
