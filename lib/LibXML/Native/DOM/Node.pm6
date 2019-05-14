@@ -1,4 +1,4 @@
-#| low level DOM. Works directly on Native XML Nodes
+#| low level unsugared DOM. Works directly on native XML Nodes
 unit role LibXML::Native::DOM::Node;
 my constant Node = LibXML::Native::DOM::Node;
 use LibXML::Enums;
@@ -50,7 +50,6 @@ method unbox { self } # already unboxed
 
 method firstChild { self.first-child(KeepBlanks); }
 method firstNonBlankChild { self.first-child(SkipBlanks); }
-method lastChild { self.last }
 
 method appendChild(Node $nNode) {
     self.domAppendChild($nNode)
@@ -302,8 +301,6 @@ method hasChildNodes returns Bool {
 
 method nextSibling returns Node { self.next-node(KeepBlanks); }
 method nextNonBlankSibling returns Node { self.next-node(SkipBlanks); }
-
-method parentNode returns Node { self.parent; }
 
 method previousSibling returns Node { self.prev-node(KeepBlanks); }
 

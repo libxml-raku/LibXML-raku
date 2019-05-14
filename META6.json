@@ -7,7 +7,7 @@
     "LibraryMake",
     "Pod::To::Markdown"
   ],
-  "depends" : [ "XML" ],
+    "depends" : [ "XML", "Method::Also" ],
   "description" : "Interface to libxml2; offering xml and html parsers",
   "license" : "Artistic-2.0",
   "name" : "LibXML",

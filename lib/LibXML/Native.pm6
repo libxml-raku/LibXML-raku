@@ -70,8 +70,8 @@ class xmlRelaxNG is repr(Stub) is export {
 }
 class xmlRelaxNGParserCtxt is repr(Stub) is export {
     sub xmlRelaxNGNewParserCtxt(Str --> xmlRelaxNGParserCtxt) is native(LIB) {*}
-    method xmlRelaxNGSetParserError( &err-func (Pointer $ctx1, Str $msg1), &warn-func (Pointer $ctx2, Str $msg2), Pointer $ctx) is native(LIB) {*}
-    method xmlRelaxNGParse(-->xmlRelaxNG) is native(LIB) {*}
+    method SetParserErrors( &err-func (xmlRelaxNGParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlRelaxNGParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetParserErrors') {*}
+    method Parse(-->xmlRelaxNG) is native(LIB) is symbol('xmlRelaxNGParse') {*}
     method Free is symbol('xmlRelaxNGFreeParserCtxt') is native(LIB) {*}
     method new(Str:D :$url) { xmlRelaxNGNewParserCtxt($url) }
 }
@@ -118,7 +118,7 @@ multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
             my &accessor = sub (\obj) is rw {
                 Proxy.new(
-                    FETCH => sub ($) { self.get_value(obj) },
+                    FETCH => { self.get_value(obj) },
                     STORE => sub ($, $val is raw) {
                         setter(obj, $val);
                     });
@@ -137,7 +137,7 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
             my &accessor = sub (\obj) is rw {
                 Proxy.new(
-                    FETCH => sub ($) { self.get_value(obj) },
+                    FETCH => { self.get_value(obj) },
                     STORE => sub ($, $val) {
                         my $str := do with $val {.Str} else { Str };
                         setter(obj, $str);
@@ -1186,7 +1186,7 @@ method KeepBlanksDefault is rw {
     sub xmlKeepBlanksDefault(int32 $v) is native(LIB) returns int32 is export { * }
 
     Proxy.new(
-        FETCH => sub ($) { ? value },
+        FETCH => { ? value },
         STORE => sub ($, Bool() $_) {
             xmlKeepBlanksDefault($_);
         },
@@ -1198,7 +1198,7 @@ method TagExpansion is rw {
     sub xml6_gbl_set_tag_expansion(int32 $v) is native(BIND-LIB) returns int32 is export { * }
 
     Proxy.new(
-        FETCH => sub ($) { ? value },
+        FETCH => { ? value },
         STORE => sub ($, Bool() $_) {
             xml6_gbl_set_tag_expansion($_);
         },
@@ -1209,7 +1209,7 @@ method ExternalEntityLoader is rw {
     sub xmlSetExternalEntityLoader( &loader (xmlCharP, xmlCharP --> xmlParserInput) ) is native(LIB) {*}
     sub xmlGetExternalEntityLoader( --> Pointer ) is native(LIB) {*}
     Proxy.new(
-        FETCH => sub ($) { nativecast( :(xmlCharP, xmlCharP --> xmlParserInput), xmlGetExternalEntityLoader()) },
+        FETCH => { nativecast( :(xmlCharP, xmlCharP --> xmlParserInput), xmlGetExternalEntityLoader()) },
         STORE => sub ($, &loader) {
              xmlSetExternalEntityLoader(&loader)
         }

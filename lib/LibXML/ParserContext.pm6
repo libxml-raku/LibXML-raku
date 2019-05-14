@@ -39,8 +39,8 @@ class LibXML::ParserContext {
 
                     .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
                     .linenumbers = +?$!line-numbers;
-                    .xmlSetGenericErrorFunc( self!generic-error-func );
-                    .xmlSetStructuredErrorFunc( self!structured-error-func );
+                    .xmlSetGenericErrorFunc( generic-error-func(@!errors) );
+                    .xmlSetStructuredErrorFunc( structured-error-func(@!errors) );
                     $!struct = $_;
                     $!struct.sax = .unbox with $!sax-handler;
                 }
@@ -57,13 +57,13 @@ class LibXML::ParserContext {
         }
     }
 
-    method !generic-error-func {
+    sub generic-error-func(@errors) {
         -> parserCtxt:D $, Str:D $msg {
-            @!errors.push: %( :level(XML_ERR_FATAL), :$msg );
+            @errors.push: %( :level(XML_ERR_FATAL), :$msg );
         }
     }
 
-    method !structured-error-func {
+    sub structured-error-func(@errors) {
 
         constant @ErrorDomains = (
             "", "parser", "tree", "namespace", "validity",
@@ -98,7 +98,7 @@ class LibXML::ParserContext {
             }
             $*ERR.print($msg)
                 if $level ~~ XML_ERR_FATAL;
-            @!errors.push: %( :$level, :$msg);
+            @errors.push: %( :$level, :$msg);
         }
 
     }
