@@ -6,9 +6,11 @@ use LibXML::RelaxNG;
 
 plan 13;
 
-if LibXML.parser-version < v20.51.0 {
-   skip-rest 'Skip No RNG Support compiled';
-   exit;
+given LibXML.parser-version {
+    when * < v20.51.0 {
+        skip-rest "Skip No RNG Support compiled for libxml2 $_";
+        exit;
+    }
 }
 
 sub slurp(Str $_) { .IO.slurp }
@@ -23,30 +25,27 @@ my $demo4        = "test/relaxng/demo4.rng";
 
 diag "# 1 parse schema from a file\n";
 {
-    my $rngschema = LibXML::RelaxNG.new( location => $file );
+    my $rngschema = LibXML::RelaxNG.parse( location => $file );
     # TEST
     ok ( $rngschema, ' TODO : Add test name' );
-}; skip("Port remaining tests", 12);
-=begin TODO
 
-    eval { $rngschema = LibXML::RelaxNG.new( location => $badfile ); };
-    # TEST
-    ok( $@, ' TODO : Add test name' );
+    dies-ok { $rngschema = LibXML::RelaxNG.parse( location => $badfile ); }, 'parse of bad file';
+
 }
 
 print "# 2 parse schema from a string\n";
 {
     my $string = slurp($file);
 
-    my $rngschema = LibXML::RelaxNG.new( string => $string );
+    my $rngschema = LibXML::RelaxNG.parse( string => $string );
     # TEST
     ok ( $rngschema, ' TODO : Add test name' );
 
     $string = slurp($badfile);
 
-    eval { $rngschema = LibXML::RelaxNG.new( string => $string ); };
-    # TEST
-    ok( $@, ' TODO : Add test name' );
+}; skip("Port remaining tests", 10);
+=begin TODO
+    dies-ok { $rngschema = LibXML::RelaxNG.new( string => $string ); }, 'bad rng schema dies';
 }
 
 print "# 3 parse schema from a document\n";

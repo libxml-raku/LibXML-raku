@@ -2,7 +2,6 @@
 #include "xml6_node.h"
 #include "xml6_ref.h"
 #include "libxml/xmlsave.h"
-#include "libxml/xpath.h"
 #include "libxml/c14n.h"
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {

@@ -70,10 +70,15 @@ class xmlRelaxNG is repr(Stub) is export {
 }
 class xmlRelaxNGParserCtxt is repr(Stub) is export {
     sub xmlRelaxNGNewParserCtxt(Str --> xmlRelaxNGParserCtxt) is native(LIB) {*}
-    method SetParserErrors( &err-func (xmlRelaxNGParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlRelaxNGParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetParserErrors') {*}
+    sub xmlRelaxNGNewMemParserCtxt(Blob, int32 --> xmlRelaxNGParserCtxt) is native(LIB) {*}
+    method SetGenericErrorFunc( &err-func (xmlRelaxNGParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlRelaxNGParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetParserErrors') {*}
+    method SetStructuredErrorFunc( &error-func (xmlRelaxNGParserCtxt $, xmlError $)) is native(LIB) is symbol('xmlRelaxNGSetParserStructuredErrors') {*};
     method Parse(-->xmlRelaxNG) is native(LIB) is symbol('xmlRelaxNGParse') {*}
     method Free is symbol('xmlRelaxNGFreeParserCtxt') is native(LIB) {*}
-    method new(Str:D :$url) { xmlRelaxNGNewParserCtxt($url) }
+    multi method new(Str:D :$url) { xmlRelaxNGNewParserCtxt($url) }
+    multi method new( Blob() :$buf!, UInt :$bytes = $buf.bytes --> xmlRelaxNGParserCtxt:D) {
+         xmlRelaxNGNewMemParserCtxt($buf, $bytes);
+    }
 }
 class xmlXPathCompExpr is repr(Stub) is export {
     sub xmlXPathCompile(xmlCharP:D --> xmlXPathCompExpr) is native(LIB) {*}
@@ -1027,8 +1032,8 @@ class parserCtxt is export {
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }
-    method xmlSetGenericErrorFunc( &error-func (parserCtxt $, Str $fmt)) is native(LIB) {*};
-    method xmlSetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) {*};
+    method SetGenericErrorFunc( &error-func (parserCtxt $, Str $fmt, Pointer $arg)) is symbol('xmlSetGenericErrorFunc') is native(LIB) {*};
+    method SetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) is symbol('xmlSetStructuredErrorFunc') {*};
     method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
     method StopParser is native(LIB) is symbol('xmlStopParser') { * }
     method add-reference is native(BIND-LIB) is symbol('xml6_ctx_add_reference') {*}

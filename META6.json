@@ -29,6 +29,7 @@
     "LibXML::EntityRef"  : "lib/LibXML/EntityRef.pm6",
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
+    "LibXML::ErrorHandler" : "lib/LibXML/ErrorHandler.pm6",
     "LibXML::InputCallback" : "lib/LibXML/InputCallback.pm6",
     "LibXML::Namespace" : "lib/LibXML/Namespace.pm6",
     "LibXML::Native" : "lib/LibXML/Native.pm6",

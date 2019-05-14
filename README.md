@@ -2,7 +2,6 @@
 
 A fresh attempt at a Perl 6 LibXML port
 
-Will use this + CSS::Module to implement CSS Selectors.
 
 ## Porting Notes:
 
@@ -12,11 +11,11 @@ Subject to review before releasing this module:
 
 ### LibXML::Node
 
-->toString maps to .Str, except for attributes (see below). For
-formatted strings $node->toString(1) maps to $node.Str(:format)
+`->toString` maps to `.Str`, except for attributes (see below). For
+formatted strings `$node->toString(1)` maps to `$node.Str(:format)`
 
-->properties has been been replaced .properties and .attributes method;
-Name spaces are returned separately via the .namespaces method:
+`->properties` has been been replaced `.properties` and `.attributes` method;
+Name spaces are returned separately via the `.namespaces` method:
 
     my %atts := $node.attributes;   # assoc view, tied
     my LibXML::Attr @props = $node.properties;   # list view
@@ -33,10 +32,7 @@ Name spaces are returned separately via the .namespaces method:
     say $att.gist; # output: foo="bar"
     say $att.Str;  # output: bar
 
-## General
 
-A bit inconsistant atm wrt to getXxx setXxx accessors:
+## LibXML::Parser
 
-    $doc.encoding = 'UTF-8'; # vs $doc->setEncoding('UTF-8');
-
-Will need a refactor one-way or the other, for consistency, before going live.
+Issue #3 - would like to max all parsers 32bit safe (no 2.1Gb size limits). Needs to bw investigated.

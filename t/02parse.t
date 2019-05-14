@@ -16,9 +16,6 @@ my \config = LibXML.config;
 
 constant XML_DECL = "<?xml version=\"1.0\"?>\n";
 
-##use Errno qw(ENOENT);
-
-##
 # test values
 my @goodWFStrings = (
 '<foobar/>',
