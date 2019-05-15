@@ -25,11 +25,11 @@ my $demo4        = "test/relaxng/demo4.rng";
 
 diag "# 1 parse schema from a file\n";
 {
-    my $rngschema = LibXML::RelaxNG.parse( location => $file );
+    my $rngschema = LibXML::RelaxNG.new( location => $file );
     # TEST
     ok ( $rngschema, ' TODO : Add test name' );
 
-    dies-ok { $rngschema = LibXML::RelaxNG.parse( location => $badfile ); }, 'parse of bad file';
+    dies-ok { $rngschema = LibXML::RelaxNG.new( location => $badfile ); }, 'parse of bad file';
 
 }
 
@@ -37,28 +37,25 @@ print "# 2 parse schema from a string\n";
 {
     my $string = slurp($file);
 
-    my $rngschema = LibXML::RelaxNG.parse( string => $string );
+    my $rngschema = LibXML::RelaxNG.new( string => $string );
     # TEST
     ok ( $rngschema, ' TODO : Add test name' );
 
     $string = slurp($badfile);
 
-}; skip("Port remaining tests", 10);
-=begin TODO
     dies-ok { $rngschema = LibXML::RelaxNG.new( string => $string ); }, 'bad rng schema dies';
 }
 
 print "# 3 parse schema from a document\n";
 {
-    my $doc       = $xmlparser.parse: :file( $file );
-    my $rngschema = LibXML::RelaxNG.new( DOM => $doc );
+    my LibXML::Document:D $doc       = $xmlparser.parse: :file( $file );
+    my $rngschema = LibXML::RelaxNG.new( :$doc );
     # TEST
     ok ( $rngschema, ' TODO : Add test name' );
 
     $doc       = $xmlparser.parse: :file( $badfile );
-    eval { $rngschema = LibXML::RelaxNG.new( DOM => $doc ); };
+    dies-ok { $rngschema = LibXML::RelaxNG.new( :$doc ); }, 'parse of invalid doc dies';
     # TEST
-    ok( $@, ' TODO : Add test name' );
 }
 
 print "# 4 validate a document\n";
@@ -67,53 +64,45 @@ print "# 4 validate a document\n";
     my $rngschema = LibXML::RelaxNG.new( location => $file );
 
     my $valid = 0;
-    eval { $valid = $rngschema.validate( $doc ); };
+    ##lives-ok {
+ $valid = $rngschema.validate( $doc ); ##}, 'validate valid document';
     # TEST
     is( $valid, 0, ' TODO : Add test name' );
 
-    $doc       = $xmlparser.parse: :file( $invalidfile );
+    $doc       = $xmlparser.new: :file( $invalidfile );
     $valid     = 0;
-    eval { $valid = $rngschema.validate( $doc ); };
-    # TEST
-    ok ( $@, ' TODO : Add test name' );
+    dies-ok { $valid = $rngschema.validate( $doc ); }, 'validate invalid document';
 }
 
 print "# 5 re-validate a modified document\n";
 {
   my $rng = LibXML::RelaxNG.new(location => $demo4);
-  my $seed_xml = <<'EOXML';
+  my $seed_xml = q:to<EOXML>;
 <?xml version="1.0" encoding="UTF-8"?>
 <root/>
 EOXML
 
-  my $doc = $xmlparser.parse_string($seed_xml);
+  my $doc = $xmlparser.parse: :string($seed_xml);
   my $rootElem = $doc.documentElement;
   my $bogusElem = $doc.createElement('bogus-element');
 
-  eval{$rng.validate($doc);};
+  dies-ok {$rng.validate($doc);}, 'unmodified (invalid) document dies';
   # TEST
-  ok ($@, ' TODO : Add test name');
 
   $rootElem.setAttribute('name', 'rootElem');
-  eval{ $rng.validate($doc); };
+  lives-ok { $rng.validate($doc); }, 'modified (valid) document lives';
   # TEST
-  ok (!$@, ' TODO : Add test name');
 
   $rootElem.appendChild($bogusElem);
-  eval{$rng.validate($doc);};
+  dies-ok {$rng.validate($doc);}, 'modified (invalid) document dies';
   # TEST
-  ok ($@, ' TODO : Add test name');
 
   $bogusElem.unlinkNode();
-  eval{$rng.validate($doc);};
+  lives-ok {$rng.validate($doc);}, 'modified (fixed) document lives';
   # TEST
-  ok (!$@, ' TODO : Add test name');
 
   $rootElem.removeAttribute('name');
-  eval{$rng.validate($doc);};
+  dies-ok {$rng.validate($doc);}, 'modified (broken) document dies';
   # TEST
-  ok ($@, ' TODO : Add test name');
 
 }
-
-=end TODO

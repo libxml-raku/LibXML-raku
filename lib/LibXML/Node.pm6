@@ -250,7 +250,7 @@ class LibXML::Node {
     method string-value is also<textContent to-literal> {
         $.unbox.string-value;
     }
-    method unbindNode {
+    method unbindNode is also<unlinkNode> {
         $.unbox.Unlink;
         $!doc = LibXML::Node;
         self;

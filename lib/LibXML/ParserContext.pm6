@@ -9,7 +9,7 @@ class LibXML::ParserContext {
     has Bool $.line-numbers;
     has $.input-callbacks;
     has $.sax-handler;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors>;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
     method recover { ?($!flags +& XML_PARSE_RECOVER) }
     method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
@@ -28,7 +28,7 @@ class LibXML::ParserContext {
 
                     .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
                     .linenumbers = +?$!line-numbers;
-                    .SetStructuredErrorFunc: -> parserCtxt:D $ctx, xmlError $err {
+                    .SetStructuredErrorFunc: -> parserCtxt:D $ctx, xmlError:D $err {
                         self.structured-error($err);
                         $ctx.StopParser
                             if $err.level ~~ XML_ERR_FATAL;
@@ -41,7 +41,6 @@ class LibXML::ParserContext {
 
     submethod TWEAK(parserCtxt :$struct) {
         self.struct = $_ with $struct;
-        $!errors .= new: :recover(self.recover), :suppress-warnings(self.suppress-warnings), :suppress-errors(self.suppress-errors);
     }
 
     submethod DESTROY {

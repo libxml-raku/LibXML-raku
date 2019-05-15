@@ -60,8 +60,6 @@ class LibXML::ErrorHandler {
         if .line && !$file.ends-with('/') {
             $msg = ($file, .line, ' ' ~ $msg).join: ':';
         }
-        $*ERR.print($msg)
-            if $level ~~ XML_ERR_FATAL;
         @!errors.push: %( :$level, :$msg);
 
     }

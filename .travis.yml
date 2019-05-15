@@ -3,7 +3,7 @@ sudo: false
 os:
   - linux
 perl6:
-  - latest
+  - '2019.03'
   - '2018.11'
 install:
   - rakudobrew build zef
