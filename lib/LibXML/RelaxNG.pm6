@@ -5,17 +5,11 @@ unit class LibXML::RelaxNG;
 use NativeCall;
 use LibXML::Document;
 use LibXML::Native;
+use LibXML::Native::RelaxNG;
 use LibXML::ParserContext;
 has xmlRelaxNG $!struct;
 
 method unbox { $!struct }
-
-sub callback(&s) {
-    -> |c {
-        CATCH { default { warn $_ } }
-        s(|c)
-    }
-}
 
 my class ParserContext {
     has xmlRelaxNGParserCtxt $!struct;
@@ -97,7 +91,9 @@ submethod TWEAK(|c) {
     $!struct = $parser-ctx.parse;
 }
 
+has ValidContext $!valid-ctx;
 method validate(LibXML::Document:D $doc) {
-    my ValidContext $valid-ctx .= new: :schema(self);
-    $valid-ctx.validate($doc);
+    $_ .= new: :schema(self)
+        without $!valid-ctx;
+    $!valid-ctx.validate($doc);
 }

@@ -244,7 +244,7 @@ EOF
 
     my $parser = LibXML.new;
     $doc = Nil;
-    lives-ok {
+    quietly lives-ok {
         $doc = $parser.parse: :html, :string($html), :recover, :suppress-errors;
     };
     ok ($doc.defined, ' Parsing was successful.');
