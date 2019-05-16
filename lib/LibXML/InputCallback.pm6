@@ -16,6 +16,7 @@ my class Context {
 
     my class Handle {
         has Pointer $.addr;
+        method addr { with self { $!addr } else { 0 } }
         has $.fh;
         has Blob $.buf is rw;
         sub malloc(size_t --> Pointer) is native {*}
@@ -79,8 +80,7 @@ my class Context {
         -> Pointer:D $addr --> Int {
             CATCH { default { warn $_; return -1 } }
             my Handle $handle = %!handles{+$addr}
-                // die (+$addr).fmt("read on unknown input callback context: 0x%X");
-
+                // die (+$addr).fmt("read on unopened input callback context: 0x%X");
             $!cb.close.($handle.fh);
             %!handles{+$addr}:delete;
 
@@ -97,7 +97,7 @@ multi method TWEAK( Hash :$callbacks ) {
         with $callbacks;
 }
 
-method add( :&match!, :&open!, :&read!, :&close! ) {
+method add-callbacks( :&match!, :&open!, :&read!, :&close! ) {
     my CallbackGroup $cb .= new: :&match, :&open, :&read, :&close;
     @!callbacks.push: $cb;
 }
