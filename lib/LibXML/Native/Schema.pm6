@@ -33,6 +33,7 @@ class xmlSchemaValidCtxt is repr(Stub) is export {
     method SetStructuredErrorFunc( &error-func (xmlSchemaValidCtxt $, xmlError $)) is native(LIB) is symbol('xmlSchemaSetValidStructuredErrors') {*};
     method ValidateDoc(xmlDoc:D --> int32) is native(LIB) is symbol('xmlSchemaValidateDoc') {*}
     method ValidateElement(xmlNode:D --> int32) is native(LIB) is symbol('xmlSchemaValidateOneElement') {*}
+    method Free is symbol('xmlSchemaFreeValidCtxt') is native(LIB) {*}
     method new(xmlSchema:D :$schema!) {
         xmlSchemaNewValidCtxt($schema);
     }

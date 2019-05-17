@@ -17,7 +17,7 @@ my class Context {
     my class Handle {
         has Pointer $.addr;
         method addr { with self { $!addr } else { 0 } }
-        has $.fh;
+        has $.fh is rw;
         has Blob $.buf is rw;
         sub malloc(size_t --> Pointer) is native {*}
         sub free(Pointer:D) is native {*}
@@ -97,9 +97,13 @@ multi method TWEAK( Hash :$callbacks ) {
         with $callbacks;
 }
 
-method add-callbacks( :&match!, :&open!, :&read!, :&close! ) {
+multi method register-callbacks( :&match!, :&open!, :&read!, :&close! ) {
     my CallbackGroup $cb .= new: :&match, :&open, :&read, :&close;
     @!callbacks.push: $cb;
+}
+
+multi method register-callbacks( &match, &open, &read, &close ) is default {
+    $.register-callbacks( :&match, :&open, :&read, :&close );
 }
 
 method make-contexts {

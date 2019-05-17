@@ -92,8 +92,8 @@ my $open_hash_counter = Counter.new(
 my $close_hash_counter = Counter.new(
     gen-cb => -> &inc-cb {
 
-        -> $fh {
-            $fh.keys:delete;
+        -> $h is rw {
+            $h = Nil;
             &inc-cb();
 
             1;
@@ -104,11 +104,11 @@ my $close_hash_counter = Counter.new(
 my $read_hash_counter = Counter.new(
     gen-cb => -> &inc-cb {
 
-        -> $fh, $n {
+        -> $h, $n {
 
-            my $id = $fh<line>;
-            $fh<line> += 1;
-            my $str = $fh<lines>[$id];
+            my $id = $h<line>;
+            $h<line> += 1;
+            my $str = $h<lines>[$id];
 
             $str //= "";
 
