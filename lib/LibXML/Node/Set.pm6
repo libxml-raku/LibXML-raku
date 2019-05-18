@@ -1,6 +1,6 @@
 class LibXML::Node::Set does Iterable does Iterator {
     use LibXML::Native;
-    use LibXML::Node :box-class, :cast-elem;
+    use LibXML::Node :native-class, :cast-elem;
     has $.range is required;
     has xmlNodeSet $!set;
     has UInt $!idx = 0;
@@ -14,7 +14,7 @@ class LibXML::Node::Set does Iterable does Iterator {
         # xmlNodeSet is managed by us
         .Release with $!set;
     }
-    method unbox { $!set }
+    method native { $!set }
     method elems { $!slurped ?? @!array.elems !! $!set.nodeNr }
     method Array handles<List pairs keys values map grep shift pop push append> {
         unless $!slurped {
@@ -30,7 +30,7 @@ class LibXML::Node::Set does Iterable does Iterator {
         my $rv := $!values ?? Str !! $!range;
 
         with $!set.nodeTab[$pos].deref {
-            my $class = box-class(.type);
+            my $class = native-class(.type);
             die "unexpected node of type {$class.perl} in node-set"
             unless $class ~~ $!range;
 

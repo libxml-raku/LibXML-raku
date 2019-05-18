@@ -8,48 +8,46 @@ use LibXML::Element;
 use LibXML::Native;
 use LibXML::Native::Schema;
 use LibXML::ParserContext;
-has xmlSchema $!struct;
-
-method unbox { $!struct }
+has xmlSchema $.native;
 
 my class ParserContext {
-    has xmlSchemaParserCtxt $!struct;
+    has xmlSchemaParserCtxt $!native;
     has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
-    multi submethod BUILD( xmlSchemaParserCtxt:D :$!struct! ) {
+    multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
     }
     multi submethod BUILD(Str:D :$url!) {
-        $!struct .= new: :$url;
+        $!native .= new: :$url;
     }
     multi submethod BUILD(Str:D :location($url)!) {
         self.BUILD: :$url;
     }
     multi submethod BUILD(Blob:D :$buf!) {
-        $!struct .= new: :$buf;
+        $!native .= new: :$buf;
     }
     multi submethod BUILD(Str:D :$string!) {
         my Blob:D $buf = $string.encode;
         self.BUILD: :$buf;
     }
     multi submethod BUILD(LibXML::Document:D :doc($_)!) {
-        my xmlDoc:D $doc = .unbox;
-        $!struct .= new: :$doc;
+        my xmlDoc:D $doc = .native;
+        $!native .= new: :$doc;
     }
 
     submethod TWEAK {
-        $!struct.SetStructuredErrorFunc: -> xmlSchemaParserCtxt $ctx, xmlError:D $err {
+        $!native.SetStructuredErrorFunc: -> xmlSchemaParserCtxt $ctx, xmlError:D $err {
                 self.structured-error($err);
         };
 
     }
 
     submethod DESTROY {
-        .Free with $!struct;
+        .Free with $!native;
     }
 
     method parse {
-        my $rv := $!struct.Parse;
+        my $rv := $!native.Parse;
         self.flush-errors;
         $rv;
     }
@@ -57,37 +55,37 @@ my class ParserContext {
 }
 
 my class ValidContext {
-    has xmlSchemaValidCtxt $!struct;
+    has xmlSchemaValidCtxt $!native;
     has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
-    multi submethod BUILD( xmlSchemaValidCtxt:D :$!struct! ) { }
+    multi submethod BUILD( xmlSchemaValidCtxt:D :$!native! ) { }
     multi submethod BUILD( LibXML::Schema:D :schema($_)! ) {
-        my xmlSchema:D $schema = .unbox;
-        $!struct .= new: :$schema;
+        my xmlSchema:D $schema = .native;
+        $!native .= new: :$schema;
     }
 
     submethod TWEAK {
-        $!struct.SetStructuredErrorFunc: -> xmlSchemaValidCtxt $ctx, xmlError:D $err {
+        $!native.SetStructuredErrorFunc: -> xmlSchemaValidCtxt $ctx, xmlError:D $err {
                 self.structured-error($err);
         };
 
     }
 
     submethod DESTROY {
-        .Free with $!struct;
+        .Free with $!native;
     }
 
     multi method validate(LibXML::Document:D $_) {
-        my xmlDoc:D $doc = .unbox;
-        my $rv := $!struct.ValidateDoc($doc);
+        my xmlDoc:D $doc = .native;
+        my $rv := $!native.ValidateDoc($doc);
         self.flush-errors;
         $rv;
     }
 
     multi method validate(LibXML::Node:D $_) is default {
-        my domNode:D $node = .unbox;
-        my $rv := $!struct.ValidateElement($node);
+        my domNode:D $node = .native;
+        my $rv := $!native.ValidateElement($node);
         self.flush-errors;
         $rv;
     }
@@ -96,7 +94,7 @@ my class ValidContext {
 
 submethod TWEAK(|c) {
     my ParserContext:D $parser-ctx .= new: |c;
-    $!struct = $parser-ctx.parse;
+    $!native = $parser-ctx.parse;
 }
 
 has ValidContext $!valid-ctx;

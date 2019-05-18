@@ -46,7 +46,7 @@ my constant XML_XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 my constant XML_XML_NS   = 'http://www.w3.org/XML/1998/namespace';
 enum <SkipBlanks KeepBlanks>;
 
-method unbox { self } # already unboxed
+method native { self } # already native
 
 method firstChild { self.first-child(KeepBlanks); }
 method firstNonBlankChild { self.first-child(SkipBlanks); }

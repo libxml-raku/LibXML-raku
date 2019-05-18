@@ -5,14 +5,14 @@ unit class LibXML::Text
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :struct($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :native($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
-    my xmlDoc $doc = .unbox with $owner;
+    my xmlDoc $doc = .native with $owner;
     my xmlTextNode $text-struct .= new: :$content, :$doc;
-    self.struct = $text-struct;
+    self.native = $text-struct;
 }
 
-method Str is rw handles <substr substr-rw> { $.unbox.content; }
+method Str is rw handles <substr substr-rw> { $.native.content; }
 
 # DOM Boot-leather
 method substringData(UInt:D $off, UInt:D $len) { $.substr($off, $len) }

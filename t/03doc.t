@@ -178,7 +178,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     {
         # namespaced element test
         my $node = $doc.createElementNS( "http://kungfoo", "foo:bar" );
-        is $node.unbox.nsDef, 'xmlns:foo="http://kungfoo"', 'Node namespace';
+        is $node.native.nsDef, 'xmlns:foo="http://kungfoo"', 'Node namespace';
         # TEST
         is $node, '<foo:bar xmlns:foo="http://kungfoo"/>', '$doc.createElement';
         # TEST

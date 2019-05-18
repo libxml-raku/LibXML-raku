@@ -15,13 +15,13 @@ class LibXML::PushParser {
 
     multi submethod TWEAK(Blob :$chunk!, Str :$path, :$sax-handler, xmlEncodingStr :$enc, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
-        my xmlSAXHandler $sax = .unbox with $sax-handler;
-        my parserCtxt:D $struct = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
-        $!ctx .= new: :$struct, |c;
+        my xmlSAXHandler $sax = .native with $sax-handler;
+        my parserCtxt:D $native = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
+        $!ctx .= new: :$native, |c;
     }
 
     method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$terminate = False) {
-        with $!ctx.unbox {
+        with $!ctx.native {
             .ParseChunk($chunk, $size, +$terminate);
         }
         else {

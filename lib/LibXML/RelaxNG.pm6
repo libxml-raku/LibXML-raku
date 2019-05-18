@@ -7,48 +7,46 @@ use LibXML::Document;
 use LibXML::Native;
 use LibXML::Native::RelaxNG;
 use LibXML::ParserContext;
-has xmlRelaxNG $!struct;
-
-method unbox { $!struct }
+has xmlRelaxNG $.native;
 
 my class ParserContext {
-    has xmlRelaxNGParserCtxt $!struct;
+    has xmlRelaxNGParserCtxt $!native;
     has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
-    multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!struct! ) {
+    multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {
     }
     multi submethod BUILD(Str:D :$url!) {
-        $!struct .= new: :$url;
+        $!native .= new: :$url;
     }
     multi submethod BUILD(Str:D :location($url)!) {
         self.BUILD: :$url;
     }
     multi submethod BUILD(Blob:D :$buf!) {
-        $!struct .= new: :$buf;
+        $!native .= new: :$buf;
     }
     multi submethod BUILD(Str:D :$string!) {
         my Blob:D $buf = $string.encode;
         self.BUILD: :$buf;
     }
     multi submethod BUILD(LibXML::Document:D :doc($_)!) {
-        my xmlDoc:D $doc = .unbox;
-        $!struct .= new: :$doc;
+        my xmlDoc:D $doc = .native;
+        $!native .= new: :$doc;
     }
 
     submethod TWEAK {
-        $!struct.SetStructuredErrorFunc: -> xmlRelaxNGParserCtxt $ctx, xmlError:D $err {
-                self.structured-error($err);
+        $!native.SetStructuredErrorFunc: -> xmlRelaxNGParserCtxt $ctx, xmlError:D $err {
+            self.structured-error($err);
         };
 
     }
 
     submethod DESTROY {
-        .Free with $!struct;
+        .Free with $!native;
     }
 
     method parse {
-        my $rv := $!struct.Parse;
+        my $rv := $!native.Parse;
         self.flush-errors;
         $rv;
     }
@@ -56,30 +54,30 @@ my class ParserContext {
 }
 
 my class ValidContext {
-    has xmlRelaxNGValidCtxt $!struct;
+    has xmlRelaxNGValidCtxt $!native;
     has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
-    multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!struct! ) { }
+    multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!native! ) { }
     multi submethod BUILD( LibXML::RelaxNG:D :schema($_)! ) {
-        my xmlRelaxNG:D $schema = .unbox;
-        $!struct .= new: :$schema;
+        my xmlRelaxNG:D $schema = .native;
+        $!native .= new: :$schema;
     }
 
     submethod TWEAK {
-        $!struct.SetStructuredErrorFunc: -> xmlRelaxNGValidCtxt $ctx, xmlError:D $err {
+        $!native.SetStructuredErrorFunc: -> xmlRelaxNGValidCtxt $ctx, xmlError:D $err {
                 self.structured-error($err);
         };
 
     }
 
     submethod DESTROY {
-        .Free with $!struct;
+        .Free with $!native;
     }
 
     method validate(LibXML::Document:D $_) {
-        my xmlDoc:D $doc = .unbox;
-        my $rv := $!struct.Validate($doc);
+        my xmlDoc:D $doc = .native;
+        my $rv := $!native.Validate($doc);
         self.flush-errors;
         $rv;
     }
@@ -88,7 +86,7 @@ my class ValidContext {
 
 submethod TWEAK(|c) {
     my ParserContext:D $parser-ctx .= new: |c;
-    $!struct = $parser-ctx.parse;
+    $!native = $parser-ctx.parse;
 }
 
 has ValidContext $!valid-ctx;

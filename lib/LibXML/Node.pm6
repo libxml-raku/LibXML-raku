@@ -16,7 +16,7 @@ class LibXML::Node {
 
     has LibXML::Node $.doc;
 
-    has domNode $.struct handles <
+    has domNode $.native handles <
         domCheck domFailure
         content
         getAttribute getAttributeNS getNamespaceDeclURI
@@ -35,58 +35,58 @@ class LibXML::Node {
              next nextSibling nextNonBlankSibling
              prev previousSibling previousNonBlankSibling
         > {
-            $?CLASS.^add_method($_, method { LibXML::Node.box: $.unbox."$_"() });
+            $?CLASS.^add_method($_, method { LibXML::Node.box: $.native."$_"() });
         }
         # single node argument constructor
         for <appendChild> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $node) { $node.keep( $.unbox."$_"($node.unbox)); });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $node) { $node.keep( $.native."$_"($node.native)); });
         }
         for <replaceNode addSibling> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $new) { LibXML::Node.box( $.unbox."$_"($new.unbox)); });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $new) { LibXML::Node.box( $.native."$_"($new.native)); });
         }
         # single node argument unconstructed
         for <isSameNode> {
-            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $.unbox."$_"($n1.unbox) });
+            $?CLASS.^add_method($_, method (LibXML::Node:D $n1) { $.native."$_"($n1.native) });
         }
         # two node arguments
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
                 $_, method (LibXML::Node:D $node, LibXML::Node $ref) {
-                    $node.keep: $.unbox."$_"($node.unbox, do with $ref {.unbox} else {domNode});
+                    $node.keep: $.native."$_"($node.native, do with $ref {.native} else {domNode});
                 });
         }
     }
 
     method ownerElement is also<parent parentNode> {
-        LibXML::Node.box: $.unbox.parent;
+        LibXML::Node.box: $.native.parent;
     }
     method last is also<lastChild> {
-        LibXML::Node.box: self.unbox.last;
+        LibXML::Node.box: self.native.last;
     }
     method replaceChild(LibXML::Node $new, LibXML::Node $node) {
-        $node.keep: $.unbox.replaceChild($new.unbox, $node.unbox),
+        $node.keep: $.native.replaceChild($new.native, $node.native),
     }
     method appendText(Str:D $text) {
-        $.unbox.appendText($text);
+        $.native.appendText($text);
     }
 
-    method struct is rw {
+    method native is rw {
         Proxy.new(
-            FETCH => sub ($) { $!struct },
+            FETCH => sub ($) { $!native },
             STORE => sub ($, domNode:D $new-struct) {
-                given box-class($new-struct.type) -> $class {
+                given native-class($new-struct.type) -> $class {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                         unless $class ~~ self.WHAT|LibXML::Namespace;
                 }
-                .remove-reference with $!struct;
+                .remove-reference with $!native;
                 .add-reference with $new-struct;
-                $!struct = cast-struct($new-struct);
+                $!native = cast-struct($new-struct);
             },
         );
     }
 
     submethod TWEAK {
-        .add-reference with $!struct;
+        .add-reference with $!native;
     }
 
     method setOwnerDocument( LibXML::Node $doc) {
@@ -100,9 +100,9 @@ class LibXML::Node {
 
     method getOwnerDocument {
         with self {
-            with .unbox.doc -> xmlDoc $struct {
-                $!doc = box-class(XML_DOCUMENT_NODE).box($struct)
-                    if ! ($!doc && !$!doc.unbox.isSameNode($struct));
+            with .native.doc -> xmlDoc $struct {
+                $!doc = native-class(XML_DOCUMENT_NODE).box($struct)
+                    if ! ($!doc && !$!doc.native.isSameNode($struct));
             }
             else {
                 $!doc = Nil;
@@ -125,17 +125,17 @@ class LibXML::Node {
         );
     }
 
-    method nodeType      { $.unbox.type }
+    method nodeType      { $.native.type }
     method nodeName is also<getName name tagName> {
-        $.unbox.nodeName;
+        $.native.nodeName;
     }
-    method localname     { $.unbox.name }
-    method line-number   { $.unbox.GetLineNo }
-    method prefix        { with $.unbox.ns {.prefix} else { Str } }
+    method localname     { $.native.name }
+    method line-number   { $.native.GetLineNo }
+    method prefix        { with $.native.ns {.prefix} else { Str } }
     method getFirstChild { $.firstChild }
     method getLastChild  { $.lastChild }
 
-    sub box-class(UInt $_) is export(:box-class) {
+    sub native-class(UInt $_) is export(:native-class) {
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
         when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
         when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
@@ -180,11 +180,11 @@ class LibXML::Node {
         }
     }
 
-    proto sub unbox($) is export(:unbox) {*}
-    multi sub unbox(LibXML::XPathExpression:D $_) { .unbox }
-    multi sub unbox(LibXML::Node:D $_) { .unbox }
-    multi sub unbox(LibXML::Namespace:D $_) { .unbox }
-    multi sub unbox($_) is default  { $_ }
+    proto sub native($) is export(:native) {*}
+    multi sub native(LibXML::XPathExpression:D $_) { .native }
+    multi sub native(LibXML::Node:D $_) { .native }
+    multi sub native(LibXML::Namespace:D $_) { .native }
+    multi sub native($_) is default  { $_ }
 
     our sub cast-struct(domNode:D $struct is raw) {
         my $delegate := struct-class($struct.type);
@@ -197,16 +197,14 @@ class LibXML::Node {
             !! cast-struct( nativecast(domNode, $elem) );
     }
 
-    method unbox {$!struct}
-
     method box(LibXML::Native::DOM::Node $struct,
                LibXML::Node :$doc = $.doc, # reusable document object
               ) {
         with $struct {
-            my $class := box-class(.type);
+            my $class := native-class(.type);
             die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                     unless $class ~~ self.WHAT|LibXML::Namespace;
-            $class.new: :struct(cast-struct($_)), :$doc;
+            $class.new: :native(cast-struct($_)), :$doc;
         }
         else {
             self.WHAT
@@ -217,7 +215,7 @@ class LibXML::Node {
                 LibXML::Node :$doc = $.doc, # reusable document object
                 --> LibXML::Node) {
         with $raw {
-            if self.defined && unbox(self).isSameNode($_) {
+            if self.defined && native(self).isSameNode($_) {
                 self;
             }
             else {
@@ -248,47 +246,47 @@ class LibXML::Node {
     multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
     multi method addChild(LibXML::Node $c) is default { $.appendChild($c) };
     method string-value is also<textContent to-literal> {
-        $.unbox.string-value;
+        $.native.string-value;
     }
     method unbindNode is also<unlinkNode> {
-        $.unbox.Unlink;
+        $.native.Unlink;
         $!doc = LibXML::Node;
         self;
     }
     method childNodes is also<getChildnodes> {
-        iterate(LibXML::Node, $.unbox.first-child(KeepBlanks));
+        iterate(LibXML::Node, $.native.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
-        iterate(LibXML::Node, $.unbox.first-child(SkipBlanks), :!keep-blanks);
+        iterate(LibXML::Node, $.native.first-child(SkipBlanks), :!keep-blanks);
     }
     method getElementsByTagName(Str:D $name) {
-        iterate(LibXML::Node, $.unbox.getElementsByTagName($name));
+        iterate(LibXML::Node, $.native.getElementsByTagName($name));
     }
     method getElementsByLocalName(Str:D $name) {
-        iterate(LibXML::Node, $.unbox.getElementsByLocalName($name));
+        iterate(LibXML::Node, $.native.getElementsByLocalName($name));
     }
     method getElementsByTagNameNS(Str $uri, Str $name) {
-        iterate(LibXML::Node, $.unbox.getElementsByTagNameNS($uri, $name));
+        iterate(LibXML::Node, $.native.getElementsByTagNameNS($uri, $name));
     }
     method getChildrenByLocalName(Str:D $name) {
-        iterate(LibXML::Node, $.unbox.getChildrenByLocalName($name));
+        iterate(LibXML::Node, $.native.getChildrenByLocalName($name));
     }
     method getChildrenByTagName(Str:D $name) {
-        iterate(LibXML::Node, $.unbox.getChildrenByTagName($name));
+        iterate(LibXML::Node, $.native.getChildrenByTagName($name));
     }
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
-        iterate(LibXML::Node, $.unbox.getChildrenByTagNameNS($uri, $name));
+        iterate(LibXML::Node, $.native.getChildrenByTagNameNS($uri, $name));
     }
     my subset XPathRange is export(:XPathRange) where LibXML::Node|LibXML::Namespace;
     multi method findnodes(LibXML::XPathExpression:D $xpath-expr) {
-        my xmlNodeSet:D $node-set := $.unbox.findnodes: unbox($xpath-expr);
+        my xmlNodeSet:D $node-set := $.native.findnodes: native($xpath-expr);
         iterate(XPathRange, $node-set);
     }
     multi method findnodes(Str:D $expr) {
         self.findnodes( LibXML::XPathExpression.new: :$expr);
     }
     multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False, Bool :$values) {
-        given $.unbox.find( unbox($xpath-expr), $to-bool) {
+        given $.native.find( native($xpath-expr), $to-bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
             default { $_ }
         }
@@ -308,10 +306,10 @@ class LibXML::Node {
         $.find($xpath-expr, True);
     }
     multi method setAttribute(NameVal:D $_) {
-        $.unbox.setAttribute(.key, .value);
+        $.native.setAttribute(.key, .value);
     }
     multi method setAttribute(QName $name, Str:D $value) {
-        $.unbox.setAttribute($name, $value);
+        $.native.setAttribute($name, $value);
     }
     multi method setAttribute(*%atts) {
         for %atts.pairs.sort -> NameVal $_ {
@@ -319,54 +317,54 @@ class LibXML::Node {
         }
     }
     method setAttributeNode(AttrNode:D $att) {
-        $att.keep: $.unbox.setAttributeNode($att.unbox);
+        $att.keep: $.native.setAttributeNode($att.native);
     }
     method setAttributeNodeNS(AttrNode:D $att) {
-        $att.keep: $.unbox.setAttributeNodeNS($att.unbox);
+        $att.keep: $.native.setAttributeNodeNS($att.native);
     }
     multi method setAttributeNS(Str $uri, NameVal:D $_) {
-        $.unbox.setAttributeNS($uri, .key, .value);
+        $.native.setAttributeNS($uri, .key, .value);
     }
     multi method setAttributeNS(Str $uri, QName $name, Str $value) {
-        box-class(XML_ATTRIBUTE_NODE).box: $.unbox.setAttributeNS($uri, $name, $value);
+        native-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
     }
     method getAttributeNode(Str $att-name --> LibXML::Node) {
-        box-class(XML_ATTRIBUTE_NODE).box: $.unbox.getAttributeNode($att-name);
+        native-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
     }
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
-        box-class(XML_ATTRIBUTE_NODE).box: $.unbox.getAttributeNodeNS($uri, $att-name);
+        native-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNodeNS($uri, $att-name);
     }
     method setNamespace(Str $uri, NCName $prefix?, Bool:D() $flag = True) {
-        $.unbox.setNamespace($uri, $prefix, $flag);
+        $.native.setNamespace($uri, $prefix, $flag);
     }
     method localNS {
-        LibXML::Namespace.box: $.unbox.localNS;
+        LibXML::Namespace.box: $.native.localNS;
     }
     method getNamespaces is also<namespaces> {
-        $.unbox.getNamespaces.map: { LibXML::Namespace.box($_) }
+        $.native.getNamespaces.map: { LibXML::Namespace.box($_) }
     }
-    method getNamespaceURI(--> Str) is also<namespaceURI> { with $.unbox.ns {.href} else {Str} }
+    method getNamespaceURI(--> Str) is also<namespaceURI> { with $.native.ns {.href} else {Str} }
     method removeChild(LibXML::Node:D $node --> LibXML::Node) {
-        $node.keep: $.unbox.removeChild($node.unbox), :doc(LibXML::Node);
+        $node.keep: $.native.removeChild($node.native), :doc(LibXML::Node);
     }
     method removeAttributeNode(AttrNode $att) {
-        $att.keep: $.unbox.removeAttributeNode($att.unbox), :doc(LibXML::Node);
+        $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
     }
     method removeChildNodes(--> LibXML::Node) {
-        LibXML::Node.box: $.unbox.removeChildNodes, :doc(LibXML::Node);
+        LibXML::Node.box: $.native.removeChildNodes, :doc(LibXML::Node);
     }
     multi method appendTextChild(NameVal:D $_) {
-        $.unbox.appendTextChild(.key, .value);
+        $.native.appendTextChild(.key, .value);
     }
     multi method appendTextChild(QName:D $name, Str $value?) {
-        $.unbox.appendTextChild($name, $value);
+        $.native.appendTextChild($name, $value);
     }
     method addNewChild(Str $uri, QName $name) {
-        LibXML::Node.box: $.unbox.domAddNewChild($uri, $name);
+        LibXML::Node.box: $.native.domAddNewChild($uri, $name);
     }
-    method normalise is also<normalize> { self.unbox.normalize }
+    method normalise is also<normalize> { self.native.normalize }
     method cloneNode(LibXML::Node:D: Bool() $deep = False) {
-        LibXML::Node.box: $.unbox.cloneNode($deep), :doc(LibXML::Node);
+        LibXML::Node.box: $.native.cloneNode($deep), :doc(LibXML::Node);
     }
 
     multi method write(IO::Handle :$io!, Bool :$format = False) {
@@ -415,11 +413,11 @@ class LibXML::Node {
             my $nodes = $selector.findnodes($_)
                 with $xpath;
 
-            $rv := $.unbox.xml6_node_to_str_C14N(
+            $rv := $.native.xml6_node_to_str_C14N(
                 +$comments,
                 +$exclusive,
                 $prefix,
-                do with $nodes { .unbox } else { xmlNodeSet },
+                do with $nodes { .native } else { xmlNodeSet },
             );
 
             die $_ with $.domFailure;
@@ -433,17 +431,17 @@ class LibXML::Node {
         }
         else {
             my $options = output-options(|c);
-            $.unbox.Str(:$options);
+            $.native.Str(:$options);
         }
     }
 
     method Blob(Str :$enc, |c) {
         my $options = output-options(|c);
-        $.unbox.Blob(:$enc, :$options);
+        $.native.Blob(:$enc, :$options);
     }
 
     submethod DESTROY {
-        with $!struct {
+        with $!native {
             if .remove-reference {
                 # this particular node is no longer referenced directly
                 given .root {

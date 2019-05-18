@@ -22,7 +22,7 @@ constant config = LibXML::Config;
 has LibXML::ParserContext $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 
-method unbox is rw handles <compression standalone version encoding URI> { callsame() }
+method native is rw handles <compression standalone version encoding URI> { callsame() }
 method doc { self }
 
 submethod TWEAK(
@@ -30,8 +30,8 @@ submethod TWEAK(
                 xmlEncodingStr :$enc,
                 Str :$URI,
                ) {
-    my xmlDoc:D $struct = self.struct //= do with $!ctx.unbox {
-        .myDoc
+    my xmlDoc:D $struct = self.native //= do with $!ctx {
+        .native.myDoc
     }
     else {
         xmlDoc.new
@@ -40,7 +40,7 @@ submethod TWEAK(
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;
     with $struct.documentElement {
-        $!documentElement .= new: :struct($_), :doc(self);
+        $!documentElement .= new: :native($_), :doc(self);
     }
 }
 
@@ -50,10 +50,10 @@ multi method createElement(QName $name, Str:D :$href!) {
     $.createElementNS($href, $name);
 }
 multi method createElement(QName $name) {
-    LibXML::Element.box: $.unbox.createElement($name);
+    LibXML::Element.box: $.native.createElement($name);
 }
 method createElementNS(Str:D $href, QName:D $name) {
-    LibXML::Element.box: $.unbox.createElementNS($href, $name);
+    LibXML::Element.box: $.native.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -69,8 +69,8 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
-method importNode(LibXML::Node:D $node) { LibXML::Node.box: $.unbox.importNode($node.unbox); }
-method adoptNode(LibXML::Node:D $node)  { LibXML::Node.box: $.unbox.adoptNode($node.unbox); }
+method importNode(LibXML::Node:D $node) { LibXML::Node.box: $.native.importNode($node.native); }
+method adoptNode(LibXML::Node:D $node)  { LibXML::Node.box: $.native.adoptNode($node.native); }
 
 method getDocumentElement { $!documentElement }
 method setDocumentElement(LibXML::Element $_) {
@@ -83,7 +83,7 @@ method documentElement is rw {
         },
         STORE => sub ($, $!documentElement) {
             $!documentElement.doc = self;
-            $.unbox.documentElement = $!documentElement.unbox;
+            $.native.documentElement = $!documentElement.native;
         }
     );
 }
@@ -97,13 +97,13 @@ multi method createAttribute(QName:D $name,
                              Str $value = '',
                              Str:D :$href!,
                             ) {
-    LibXML::Attr.box: $.unbox.createAttributeNS($href, $name, $value);
+    LibXML::Attr.box: $.native.createAttributeNS($href, $name, $value);
 }
 
 multi method createAttribute(QName:D $name,
                              Str $value = '',
                             ) {
-    LibXML::Attr.box: $.unbox.createAttribute($name, $value);
+    LibXML::Attr.box: $.native.createAttribute($name, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
@@ -113,7 +113,7 @@ multi method createAttributeNS(Str $href,
                          QName:D $name,
                          Str $value = '',
                         ) {
-    LibXML::Attr.box: $.unbox.createAttributeNS($href, $name, $value);
+    LibXML::Attr.box: $.native.createAttributeNS($href, $name, $value);
 }
 
 method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str :URI($uri), *%opt) {
@@ -177,15 +177,15 @@ method createDTD(Str $name, Str $external-id, Str $system-id) {
 }
 
 method getInternalSubset {
-    LibXML::Dtd.box: self.unbox.getInternalSubset;
+    LibXML::Dtd.box: self.native.getInternalSubset;
 }
 
 method setInternalSubset(LibXML::Dtd $dtd) {
-    self.unbox.setInternalSubset: $dtd.unbox;
+    self.native.setInternalSubset: $dtd.native;
 }
 
 method removeInternalSubset {
-    LibXML::Dtd.box: self.unbox.removeInternalSubset;
+    LibXML::Dtd.box: self.native.removeInternalSubset;
 }
 
 method internalSubset is rw {
@@ -197,19 +197,19 @@ method internalSubset is rw {
 }
 
 method getExternalSubset {
-    LibXML::Dtd.box: self.unbox.getExternalSubset;
+    LibXML::Dtd.box: self.native.getExternalSubset;
 }
 
 method setExternalSubset(LibXML::Dtd $dtd) {
-    self.unbox.setExternalSubset: $dtd.unbox;
+    self.native.setExternalSubset: $dtd.native;
 }
 
 method removeExternalSubset {
-    LibXML::Dtd.box: self.unbox.removeExternalSubset;
+    LibXML::Dtd.box: self.native.removeExternalSubset;
 }
 
 method getElementById(Str:D $id --> LibXML::Node) {
-    LibXML::Node.box: self.unbox.getElementById($id);
+    LibXML::Node.box: self.native.getElementById($id);
 }
 
 method externalSubset is rw {
@@ -222,8 +222,8 @@ method externalSubset is rw {
 
 method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset --> Bool) {
     my xmlValidCtxt $cvp .= new;
-    my xmlDoc:D $doc = self.unbox;
-    my xmlDtd $dtd = .unbox with $dtd-obj;
+    my xmlDoc:D $doc = self.native;
+    my xmlDtd $dtd = .native with $dtd-obj;
     # todo: set up error handling
     ? $cvp.validate(:$doc, :$dtd);
 }
@@ -236,7 +236,7 @@ our $lock = Lock.new;
 method Str(Bool :$skip-dtd = config.skip-dtd, |c --> Str) {
     my Str $rv;
 
-    with self.unbox -> xmlDoc:D $doc {
+    with self.native -> xmlDoc:D $doc {
 
         my $skipped-dtd = $doc.getInternalSubset
             if $skip-dtd;
@@ -270,7 +270,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
         $enc = 'UTF-8';
     }
 
-    with self.unbox -> xmlDoc:D $doc {
+    with self.native -> xmlDoc:D $doc {
 
         my $skipped-dtd = $doc.getInternalSubset
             if $skip-dtd;

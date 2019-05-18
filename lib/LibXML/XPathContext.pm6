@@ -2,28 +2,27 @@ use v6;
 class LibXML::XPathContext {
 
     use LibXML::Native;
-    use LibXML::Node :iterate, :XPathRange, :unbox, :NameVal;
+    use LibXML::Node :iterate, :XPathRange, :native, :NameVal;
     use LibXML::Document;
     use LibXML::XPathExpression;
     use LibXML::Types :QName;
 
-    has xmlXPathContext $!struct;
-    method unbox { $!struct }
+    has xmlXPathContext $.native;
 
     multi submethod TWEAK(LibXML::Node :node($node-obj)!) {
-        my xmlNode $node = .unbox with $node-obj;
-        $!struct .= new: :$node;
+        my xmlNode $node = .native with $node-obj;
+        $!native .= new: :$node;
     }
     multi submethod TWEAK(LibXML::Document :doc($doc-obj)!) {
-        my xmlDoc $node = .unbox with $doc-obj;
-        $!struct .= new: :$node;
+        my xmlDoc $node = .native with $doc-obj;
+        $!native .= new: :$node;
     }
     submethod DESTROY {
-        .Free with $!struct;
+        .Free with $!native;
     }
 
     multi method findnodes(LibXML::XPathExpression:D $xpath-expr) {
-        my xmlNodeSet:D $node-set := $.unbox.findnodes: unbox($xpath-expr);
+        my xmlNodeSet:D $node-set := $.native.findnodes: native($xpath-expr);
         iterate(XPathRange, $node-set);
     }
     multi method findnodes(Str:D $expr) is default {
@@ -31,7 +30,7 @@ class LibXML::XPathContext {
     }
 
     multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False) {
-        given  $.unbox.find( unbox($xpath-expr), $to-bool) {
+        given  $.native.find( native($xpath-expr), $to-bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_) }
             default { $_ }
         }
@@ -41,7 +40,7 @@ class LibXML::XPathContext {
     }
 
     multi method findvalue(LibXML::XPathExpression:D $xpath-expr) {
-        given $.unbox.find( unbox($xpath-expr), False) {
+        given $.native.find( native($xpath-expr), False) {
             with iterate(XPathRange, $_).pull-one {
                 .string-value;
             }
@@ -59,8 +58,8 @@ class LibXML::XPathContext {
     }
     multi method registerNs(QName:D $prefix!, Str $uri?) {
         my $stat = $uri
-        ?? $.unbox.RegisterNs($prefix, $uri)
-        !! $.unbox.RegisterNs($prefix, Str);
+        ?? $.native.RegisterNs($prefix, $uri)
+        !! $.native.RegisterNs($prefix, Str);
         die "XPathContext: cannot {$uri ?? '' !! 'un'}register namespace"
            if $stat == -1;
         $stat;

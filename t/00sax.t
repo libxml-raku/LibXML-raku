@@ -69,7 +69,7 @@ class SaxHandler is LibXML::SAX::Handler {
 @start-tags = ();
 @end-tags = ();
 %atts-seen = ();
-$sax-handler = SaxHandler.new.unbox;
+$sax-handler = SaxHandler.new.native;
 
 $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -83,7 +83,7 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 use XML::Document;
 use LibXML::SAX::Handler::XML;
 my $handler = LibXML::SAX::Handler::XML.new;
-$sax-handler = $handler.unbox;
+$sax-handler = $handler.native;
 
 $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -105,7 +105,7 @@ class SAXShouter is LibXML::SAX::Handler::SAX2 {
     }
 }
 
-$sax-handler = SAXShouter.new.unbox;
+$sax-handler = SAXShouter.new.native;
 
 $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate

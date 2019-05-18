@@ -4,7 +4,7 @@ class LibXML::ParserContext {
     use LibXML::Enums;
     use LibXML::ErrorHandler;
 
-    has parserCtxt $!struct handles <wellFormed valid>;
+    has parserCtxt $!native handles <wellFormed valid>;
     has uint32 $.flags;
     has Bool $.line-numbers;
     has $.input-callbacks;
@@ -15,15 +15,14 @@ class LibXML::ParserContext {
     method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
     method suppress-errors { ?($!flags +& XML_PARSE_NOERROR) }
 
-    method unbox { with self { $!struct } else { parserCtxt }  }
-    method struct is rw {
+    method native is rw {
         Proxy.new(
-            FETCH => sub ($) { $!struct },
-            STORE => sub ($, parserCtxt $struct) {
-                with $!struct {
+            FETCH => sub ($) { $!native },
+            STORE => sub ($, parserCtxt $native) {
+                with $!native {
                     .Free if .remove-reference;
                 }
-                with $struct {
+                with $native {
                     .add-reference;
 
                     .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
@@ -33,18 +32,18 @@ class LibXML::ParserContext {
                         $ctx.StopParser
                             if $err.level ~~ XML_ERR_FATAL;
                     };
-                    $!struct = $_;
-                    $!struct.sax = .unbox with $!sax-handler;
+                    $!native = $_;
+                    $!native.sax = .native with $!sax-handler;
                 }
             });
         }
 
-    submethod TWEAK(parserCtxt :$struct) {
-        self.struct = $_ with $struct;
+    submethod TWEAK(parserCtxt :$native) {
+        self.native = $_ with $native;
     }
 
     submethod DESTROY {
-        with $!struct {
+        with $!native {
             .Free if .remove-reference;
         }
     }
@@ -52,7 +51,7 @@ class LibXML::ParserContext {
     method try(&action, Bool :$recover is copy) {
 
         my $obj = self;
-        $_ = .new: :struct(parserCtxt.new)
+        $_ = .new: :native(parserCtxt.new)
             without $obj;
 
         $recover //= $obj.recover;
@@ -60,6 +59,7 @@ class LibXML::ParserContext {
         my @contexts = .make-contexts
             with $obj.input-callbacks;
 
+        xmlRegisterDefaultInputCallbacks();
         for @contexts {
             xmlRegisterInputCallbacks(
                 .match, .open, .read, .close

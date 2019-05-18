@@ -2,15 +2,14 @@ use v6;
 class LibXML::XPathExpression {
 
     use LibXML::Native;
-    has xmlXPathCompExpr $!struct;
-    method unbox { $!struct }
+    has xmlXPathCompExpr $.native;
 
     submethod TWEAK(Str:D :$expr!) {
-        $!struct .= new(:$expr);
+        $!native .= new(:$expr);
         die "invalid xpath expression: $expr"
-            without $!struct;
+            without $!native;
     }
     submethod DESTROY {
-        .Free with $!struct;
+        .Free with $!native;
     }
 }

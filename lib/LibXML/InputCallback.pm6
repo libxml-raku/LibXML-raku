@@ -106,6 +106,15 @@ multi method register-callbacks( &match, &open, &read, &close ) is default {
     $.register-callbacks( :&match, :&open, :&read, :&close );
 }
 
+multi method unregister-callbacks( :&match, :&open, :&read, :&close ) is default {
+    @!callbacks .= grep: {
+        (!&match.defined    || &match === .match)
+        && (!&open.defined  || &open  === .open)
+        && (!&read.defined  || &read  === .read)
+        && (!&close.defined || &close === .close)
+    }
+}
+
 method make-contexts {
     @!callbacks.map: -> $cb { Context.new: :$cb }
 }

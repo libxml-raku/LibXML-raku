@@ -5,9 +5,9 @@ unit class LibXML::CDATASection
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlCDataNode:D :struct($)!) { }
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlCDataNode:D :native($)!) { }
 multi submethod TWEAK(:doc($owner), Str :$content!) {
-    my xmlDoc:D $doc = .unbox with $owner;
+    my xmlDoc:D $doc = .native with $owner;
     my xmlCDataNode:D $cdata-struct .= new: :$content, :$doc;
-    self.struct = $cdata-struct;
+    self.native = $cdata-struct;
 }

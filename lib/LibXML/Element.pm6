@@ -13,11 +13,11 @@ use LibXML::Namespace;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
-multi submethod TWEAK(xmlNode:D :struct($)!) { }
+multi submethod TWEAK(xmlNode:D :native($)!) { }
 multi submethod TWEAK(:doc($doc-obj), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
-    my xmlDoc:D $doc = .unbox with $doc-obj;
-    my xmlNs:D $ns = .unbox with $ns-obj;
-    self.struct = xmlNode.new: :$name, :$doc, :$ns;
+    my xmlDoc:D $doc = .native with $doc-obj;
+    my xmlNs:D $ns = .native with $ns-obj;
+    self.native = xmlNode.new: :$name, :$doc, :$ns;
 }
 
 multi method new($name, *%o) {
@@ -45,7 +45,7 @@ sub iterate-ns(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
 }
 
 method namespaces {
-    iterate-ns(LibXML::Namespace, $.unbox.nsDef, :$.doc);
+    iterate-ns(LibXML::Namespace, $.native.nsDef, :$.doc);
 }
 
 method !get-attributes {
@@ -91,14 +91,14 @@ method !get-attributes {
         has AttrMapNode %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
 
         submethod TWEAK() {
-            with $!node.unbox.properties -> domNode $prop is copy {
+            with $!node.native.properties -> domNode $prop is copy {
                 my LibXML::Node $doc = $!node.doc;
                 require LibXML::Attr;
                 while $prop.defined {
                     my $uri;
                     if $prop.type == XML_ATTRIBUTE_NODE {
-                        my xmlAttr $struct := nativecast(xmlAttr, $prop);
-                        my $att := LibXML::Attr.new: :$struct, :$doc;
+                        my xmlAttr $native := nativecast(xmlAttr, $prop);
+                        my $att := LibXML::Attr.new: :$native, :$doc;
                         self!tie-att($att);
                     }
 
@@ -167,12 +167,12 @@ method !get-attributes {
         }
 
         method !tie-att(LibXML::Attr:D $att, Bool :$add = True) {
-            my Str:D $name = $att.unbox.domName;
+            my Str:D $name = $att.native.domName;
             my Str $uri;
             my ($prefix,$local-name) = $name.split(':', 2);
 
             if $local-name {
-                %!ns{$prefix} = $!node.doc.unbox.SearchNs($!node.unbox, $prefix)
+                %!ns{$prefix} = $!node.doc.native.SearchNs($!node.native, $prefix)
                     unless %!ns{$prefix}:exists;
 
                 with %!ns{$prefix} -> $ns {
@@ -204,7 +204,7 @@ method !get-attributes {
 
 method !set-attributes(%atts) {
     # clear out old attributes
-    with $.unbox.properties -> domNode:D $node is copy {
+    with $.native.properties -> domNode:D $node is copy {
         while $node.defined {
             my $next = $node.next;
             $node.Release
@@ -237,7 +237,7 @@ method attributes is rw {
 
 # attributes as an ordered list
 method properties {
-    iterate(LibXML::Attr, $.unbox.properties);
+    iterate(LibXML::Attr, $.native.properties);
 }
 
 method appendWellBalancedChunk(Str:D $string) {

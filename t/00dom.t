@@ -36,15 +36,15 @@ ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';
 ok $root.doc.isSameNode($doc);
-ok $doc.unbox.isSameNode($root.unbox.doc);
+ok $doc.native.isSameNode($root.native.doc);
 
 # attribute basics
 my $elem = $doc.createElement('foo');
 my LibXML::Attr:D $attr = $doc.createAttribute('attr', 'e & f');
 $elem.setAttributeNode($attr);
 is $attr, 'e & f', 'attr.Str';
-is $elem.unbox.properties, ' attr="e &amp; f"', 'elem properties linkage';
-is $attr.unbox.parent.properties, ' attr="e &amp; f"', 'attribute parent linkage';
+is $elem.native.properties, ' attr="e &amp; f"', 'elem properties linkage';
+is $attr.native.parent.properties, ' attr="e &amp; f"', 'attribute parent linkage';
 my $att2 = $elem.getAttributeNode('attr');
 is $att2.Str, 'e & f', 'att2.Str';
 ok $attr.isSameNode($att2);

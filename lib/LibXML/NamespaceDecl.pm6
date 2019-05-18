@@ -5,4 +5,4 @@ unit class LibXML::NamespaceDecl
 
 use LibXML::Native;
 
-submethod TWEAK(LibXML::Node :doc($)!, domNode:D :struct($)!) { }
+submethod TWEAK(LibXML::Node :doc($)!, domNode:D :native($)!) { }

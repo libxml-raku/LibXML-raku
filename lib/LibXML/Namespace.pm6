@@ -2,29 +2,29 @@ unit class LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :NCName;
 use NativeCall;
-has xmlNs $!struct handles <type prefix href Str>;
+has xmlNs $!native handles <type prefix href Str>;
 
-method box(xmlNs:D $struct!) {
-    self.new: :$struct;
+method box(xmlNs:D $native!) {
+    self.new: :$native;
 }
 
-multi submethod TWEAK(xmlNs:D :$!struct!) {
-    $!struct .= Copy;
-    $!struct.add-reference;
+multi submethod TWEAK(xmlNs:D :$!native!) {
+    $!native .= Copy;
+    $!native.add-reference;
 }
 
 multi submethod TWEAK(Str:D :$href!, NCName :$prefix, :node($node-obj)) {
-    my domNode $node = .unbox with $node-obj;
-    $!struct .= new: :$href, :$prefix, :$node;
-    $!struct.add-reference;
+    my domNode $node = .native with $node-obj;
+    $!native .= new: :$href, :$prefix, :$node;
+    $!native.add-reference;
 }
 
-method nodeType     { $!struct.type }
-method localname    { $!struct.prefix }
-method string-value { $!struct.href }
+method nodeType     { $!native.type }
+method localname    { $!native.prefix }
+method string-value { $!native.href }
 
 submethod DESTROY {
-    with $!struct {
+    with $!native {
         .Free if .remove-reference;
     }
 }

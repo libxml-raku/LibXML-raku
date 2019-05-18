@@ -17,7 +17,7 @@ my $parser = LibXML.new();
     my $doc = $parser.parse: :html, :file($html);
     # TEST
     ok($doc, ' TODO : Add test name');
-    isa-ok($doc.unbox, htmlDoc, 'HTML, under the hood');
+    isa-ok($doc.native, htmlDoc, 'HTML, under the hood');
 }
 
 my $io = $html.IO.open(:r);

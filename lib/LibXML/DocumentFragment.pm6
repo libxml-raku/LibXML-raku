@@ -8,11 +8,11 @@ use LibXML::Native;
 use LibXML::Element;
 use NativeCall;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :struct($)!) {}
+multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :native($)!) {}
 multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
-    my xmlDoc:D $doc = .unbox with $doc-obj;
+    my xmlDoc:D $doc = .native with $doc-obj;
     my xmlDocFrag $doc-frag-struct .= new: :$doc;
-    self.struct = $doc-frag-struct;
+    self.native = $doc-frag-struct;
 }
 
 #| don't try to keep document fragment return values. They're unpacked
@@ -27,13 +27,13 @@ multi method parse(
     Bool() :$repair = False) {
     my Pointer[xmlNode] $nodes .= new;
     # may return a linked list of nodes
-    my $stat = (self.unbox.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
+    my $stat = (self.native.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
         $sax, $user-data, 0, $string, $nodes, +$repair
     );
     die "balanced parse failed with status $stat"
         if $stat && !$repair;
 
-    $.unbox.AddChildList($_) with $nodes.deref;
+    $.native.AddChildList($_) with $nodes.deref;
 
     $stat;
 }

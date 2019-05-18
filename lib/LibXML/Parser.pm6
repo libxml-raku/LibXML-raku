@@ -102,7 +102,7 @@ class LibXML::Parser {
 
     method !make-handler(parserCtxt :$ctx, :$html, *%flags) {
         my UInt $flags = self!process-flags(%flags, :$html);
-        LibXML::ParserContext.new: :struct($ctx), :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
+        LibXML::ParserContext.new: :native($ctx), :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
     method !publish(:$URI, LibXML::ParserContext :$handler!, ) {
@@ -116,13 +116,13 @@ class LibXML::Parser {
     proto method processXIncludes(LibXML::Document $_, LibXML::ParserContext :$handler) {*}
 
     multi method processXIncludes(LibXML::Document $_, LibXML::ParserContext:D :$handler! --> UInt) {
-        my xmlDoc $doc = .unbox;
+        my xmlDoc $doc = .native;
         $handler.try: { $doc.XIncludeProcessFlags($!flags); }
     }
     multi method processXIncludes(LibXML::Document $_) is default {
-        my xmlDoc:D $doc = .unbox;
+        my xmlDoc:D $doc = .native;
         my xmlParserCtxt:D $ctx .= new;
-        $ctx.sax = .unbox with $.sax-handler;
+        $ctx.sax = .native with $.sax-handler;
         my LibXML::ParserContext $error-handler = self!make-handler: :$ctx;
         $error-handler.try: { 
             $doc.XIncludeProcessFlags($!flags);
@@ -148,7 +148,7 @@ class LibXML::Parser {
             !! xmlMemoryParserCtxt.new: :$string;
 
             $ctx.input.filename = $_ with $URI;
-            $handler.struct = $ctx;
+            $handler.native = $ctx;
             $ctx.ParseDocument;
         };
         self!publish: :$handler;
@@ -187,7 +187,7 @@ class LibXML::Parser {
                !! xmlFileParserCtxt.new(:$file);
             die "unable to load file: $file"
                 without $ctx;
-            $handler.struct = $ctx;
+            $handler.native = $ctx;
             $ctx.ParseDocument;
         };
 
