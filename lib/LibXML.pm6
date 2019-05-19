@@ -18,7 +18,7 @@ unit class LibXML
     is LibXML::Parser;
 
 method parser-version {
-    Version.new(xmlParserVersion.match(/ (.)? (..)+ $/).list.join: '.');
+    state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
 }
 
 method config handles <skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
