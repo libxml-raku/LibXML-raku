@@ -124,7 +124,7 @@ multi method unregister-callbacks( :&match, :&open, :&read, :&close ) is default
         (!&match.defined || &match !=== .match)
            && (!&open.defined  || &open  !=== .open)
            && (!&read.defined  || &read  !=== .read)
-           && (!&close.defined || &close !=== .close)
+           && (!&clovse.defined || &close !=== .close)
     }
 }
 

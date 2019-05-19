@@ -7,7 +7,7 @@ has @.stack is rw;
 has &.gen-cb;
 
 method _calc_op_callback {
-    sub ($item) { @!stack.push: $item }
+    -> $item { @!stack.push: $item }
 }
 
 method test(@value, $blurb) {

@@ -26,7 +26,7 @@ is-deeply $match, 1, "match callback when found";
 $match = ($context.match)("example/does-not-exist.xml");
 is-deeply $match, 0, "match callback when not found";
 my $ptr := ($context.open)("example/test2.xml");
-isa-ok $ptr, Pointer, 'matcher returns a pointer';
+isa-ok $ptr, Pointer, 'open returns a pointer';
 my ($handle, @guff) = $context.handles.values;
 ok ($handle.defined && !@guff), 'Exactly one open handle';
 isa-ok $handle.fh, IO::Handle, '$handle.fh';

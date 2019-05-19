@@ -115,7 +115,7 @@ class LibXML::Parser {
 
     proto method processXIncludes(LibXML::Document $_, LibXML::ParserContext :$handler) {*}
 
-    multi method processXIncludes(LibXML::Document $_, LibXML::ParserContext:D :$handler! --> UInt) {
+    multi method processXIncludes(LibXML::Document $_, LibXML::ParserContext:D :$handler! --> Int) {
         my xmlDoc $doc = .native;
         $handler.try: { $doc.XIncludeProcessFlags($!flags); }
     }

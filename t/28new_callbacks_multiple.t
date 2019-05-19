@@ -208,15 +208,15 @@ EOF
 
         my $icb    = LibXML::InputCallback.new;
 
-        $icb.register-callbacks(
+$icb.register-callbacks(
             match => $match_file_stacker.cb,
-            open  => $open_file_stacker.cb(),
-            read  => $read_file_counter.cb(),
-            close => $close_file_counter.cb() );
+            open  => $open_file_stacker.cb,
+            read  => $read_file_counter.cb,
+            close => $close_file_counter.cb );
 
         $icb.register-callbacks(
             match => $match_hash_stacker.cb, open => $open_hash_counter.cb,
-            read => $read_hash_counter.cb(), close => $close_hash_counter.cb );
+            read => $read_hash_counter.cb, close => $close_hash_counter.cb );
 
         $icb.register-callbacks( $match_xml_stacker.cb, $open_xml_counter.cb,
                                  $read_xml_stacker.cb, $close_xml_counter.cb );
@@ -296,7 +296,7 @@ EOF
 
         # This is a regression test for:
         # https://rt.cpan.org/Ticket/Display.html?id=51086
-        my $doc2 = $parser.parse: :string($string);
+        my $doc2 = $parser.parse: :$string;
 
         # TEST*$test_counters
         $test_counters.();
@@ -330,9 +330,10 @@ EOF
         my $icb    = LibXML::InputCallback.new();
 
         $icb.register-callbacks( $match_file_stacker.cb, $open_file_stacker.cb(),
-                                    $read_file_counter.cb(), $close_file_counter.cb(), );
+                                    $read_file_counter.cb(), $close_file_counter.cb() );
 
-        $icb.register-callbacks( $match_hash2_stacker.cb, $open_hash_counter.cb,
+        my &hash2-stacker := $match_hash2_stacker.cb;
+        $icb.register-callbacks( &hash2-stacker, $open_hash_counter.cb,
                                     $read_hash_counter.cb(), $close_hash_counter.cb() );
 
 
@@ -378,15 +379,12 @@ EOF
             2, "close_hash() called twice on two xincludes."
         );
 
-}; skip "port remaining tests", 20;
-=begin TODO
-
-        $icb.unregister_callbacks( [ $match_hash2_stacker.cb, \&open_hash,
-                                      $read_hash_counter.cb(), $close_hash_counter.cb] );
+        $icb.unregister-callbacks( match => &hash2-stacker );
         $doc = $parser.parse: :$string;
 
         # TEST
         $read_file_counter.test(4, 'read_file() called 4 times.');
+
 
         # TEST
         $close_file_counter.test(2, 'close_file() called twice.');
@@ -443,34 +441,35 @@ EOF
         # TEST
         ok ($icb, 'LibXML::InputCallback was initialized (No. 2)');
 
-        my $open_xml2 = sub {
-                my $uri = shift;
+        my $open_xml2 = -> $uri {
                 my $parser = LibXML.new;
-                $parser.expand_xinclude(1);
-                $parser.input_callbacks($icb);
+                $parser.expand-xinclude = True;
+                $parser.input-callbacks = $icb;
 
                 my $dom = $parser.parse: :string($string2);
                 # TEST
                 ok ($dom, 'parse: :string() inside open_xml2');
 
-                return $dom;
+                $dom;
         };
 
-        $icb.register_callbacks( [ $match_xml_stacker.cb, $open_xml2,
-                                    $read_xml_stacker.cb, $close_xml_counter.cb ] );
+        $icb.register-callbacks( $match_xml_stacker.cb, $open_xml2,
+                                    $read_xml_stacker.cb, $close_xml_counter.cb );
 
-        $icb.register_callbacks( [ $match_hash2_stacker.cb, $open_hash_counter.cb,
-                                    $read_hash_counter.cb(), $close_hash_counter.cb ] );
+        $icb.register-callbacks( $match_hash2_stacker.cb, $open_hash_counter.cb,
+                                    $read_hash_counter.cb(), $close_hash_counter.cb );
 
         my $parser = LibXML.new();
-        $parser.expand_xinclude(1);
+        $parser.expand-xinclude = True;
 
-        $parser.match_callback( $match_file_stacker.cb );
-        $parser.open_callback( $open_file_stacker.cb() );
-        $parser.read_callback( $read_file_counter.cb() );
-        $parser.close_callback( $close_file_counter.cb() );
+        $parser.input-callbacks = LibXML::InputCallback.new: :callbacks{
+            match => $match_file_stacker.cb,
+            open => $open_file_stacker.cb,
+            read => $read_file_counter.cb,
+            close => $close_file_counter.cb, 
+       };
 
-        $parser.input_callbacks($icb);
+        $parser.input-callbacks.prepend($icb);
 
         my $doc = $parser.parse: :$string;
 
@@ -502,8 +501,8 @@ EOF
         # TEST
         $read_xml_stacker.test(
             [
-                qq{<?xml version="1.0"?>\n<x xmlns:xinclude="http://www.w3.org/2001/XInclude">\n<tmp/><xml>foo..<foo xml:base="/example/test2.xml">bar<xsl/>..</foo>bar</xml>\n</x>\n},
-                '',
+                buf8.new(qq{<x xmlns:xinclude="http://www.w3.org/2001/XInclude">\n<tmp/><xml>foo..<foo xml:base="/example/test2.xml">bar<xsl/>..</foo>bar</xml>\n</x>\n}.encode),
+                buf8.new,
             ],
             'read_xml() No. 2',
         );
@@ -536,5 +535,3 @@ EOF
         is($doc.string-value(), "\ntest\n..\n\nfoo..bar..bar\n\n",
             'string-value()',);
 }
-
-=end TODO

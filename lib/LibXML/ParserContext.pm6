@@ -59,7 +59,6 @@ class LibXML::ParserContext {
         my @contexts = .make-contexts
             with $obj.input-callbacks;
 
-        xmlRegisterDefaultInputCallbacks();
         for @contexts {
             xmlRegisterInputCallbacks(
                 .match, .open, .read, .close
@@ -70,10 +69,8 @@ class LibXML::ParserContext {
 
         my $rv := action();
 
-        if @contexts {
-            xmlCleanupInputCallbacks();
-            xmlRegisterDefaultInputCallbacks();
-        }
+        xmlPopInputCallbacks()
+            for @contexts;
 
         $obj.flush-errors: :$recover;
 
