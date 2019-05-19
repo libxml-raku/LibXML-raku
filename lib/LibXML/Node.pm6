@@ -52,7 +52,7 @@ class LibXML::Node {
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
                 $_, method (LibXML::Node:D $node, LibXML::Node $ref) {
-                    $node.keep: $.native."$_"($node.native, do with $ref {.native} else {domNode});
+                    $node.keep: $.native."$_"($node.native, do with $ref {.native} // domNode);
                 });
         }
     }
@@ -99,7 +99,7 @@ class LibXML::Node {
     }
 
     method getOwnerDocument {
-        with self {
+        do with self {
             with .native.doc -> xmlDoc $struct {
                 $!doc = native-class(XML_DOCUMENT_NODE).box($struct)
                     if ! ($!doc && !$!doc.native.isSameNode($struct));
@@ -108,10 +108,7 @@ class LibXML::Node {
                 $!doc = Nil;
             }
             $!doc;
-        }
-        else {
-            LibXML::Node;
-        }
+        } // LibXML::Node;
     }
 
     method doc is rw is also<ownerDocument> {
@@ -131,7 +128,7 @@ class LibXML::Node {
     }
     method localname     { $.native.name }
     method line-number   { $.native.GetLineNo }
-    method prefix        { with $.native.ns {.prefix} else { Str } }
+    method prefix        { do with $.native.ns {.prefix} // Str }
     method getFirstChild { $.firstChild }
     method getLastChild  { $.lastChild }
 
@@ -200,21 +197,18 @@ class LibXML::Node {
     method box(LibXML::Native::DOM::Node $struct,
                LibXML::Node :$doc = $.doc, # reusable document object
               ) {
-        with $struct {
+        do with $struct {
             my $class := native-class(.type);
             die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                     unless $class ~~ self.WHAT|LibXML::Namespace;
             $class.new: :native(cast-struct($_)), :$doc;
-        }
-        else {
-            self.WHAT
-        }
+        } // self.WHAT; 
     }
 
     method keep(LibXML::Native::DOM::Node $raw,
                 LibXML::Node :$doc = $.doc, # reusable document object
                 --> LibXML::Node) {
-        with $raw {
+        do with $raw {
             if self.defined && native(self).isSameNode($_) {
                 self;
             }
@@ -224,10 +218,7 @@ class LibXML::Node {
                     with self;
                 self.box: $_, :$doc;
             }
-        }
-        else {
-            self.WHAT;
-        }
+        } // self.WHAT;
     }
 
     proto sub iterate(|) is export(:iterate) {*}
@@ -343,7 +334,7 @@ class LibXML::Node {
     method getNamespaces is also<namespaces> {
         $.native.getNamespaces.map: { LibXML::Namespace.box($_) }
     }
-    method getNamespaceURI(--> Str) is also<namespaceURI> { with $.native.ns {.href} else {Str} }
+    method getNamespaceURI(--> Str) is also<namespaceURI> { do with $.native.ns {.href} // Str }
     method removeChild(LibXML::Node:D $node --> LibXML::Node) {
         $node.keep: $.native.removeChild($node.native), :doc(LibXML::Node);
     }

@@ -16,6 +16,7 @@ use LibXML::EntityDecl;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
 use LibXML::ParserContext;
+use Method::Also;
 use NativeCall;
 
 constant config = LibXML::Config;
@@ -208,7 +209,7 @@ method removeExternalSubset {
     LibXML::Dtd.box: self.native.removeExternalSubset;
 }
 
-method getElementById(Str:D $id --> LibXML::Node) {
+method getElementById(Str:D $id --> LibXML::Node) is also< getElementsById> {
     LibXML::Node.box: self.native.getElementById($id);
 }
 

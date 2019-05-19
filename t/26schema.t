@@ -6,7 +6,7 @@ use LibXML::Schema;
 plan 8;
 
 given LibXML.parser-version {
-    when * < v20.51.0 {
+    when * < v2.05.10 {
         skip-rest "Skip No Schema Support compiled for libxml2 $_";
         exit;
     }

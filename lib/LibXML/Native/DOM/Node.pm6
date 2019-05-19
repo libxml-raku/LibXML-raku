@@ -315,21 +315,15 @@ method appendTextChild(QName:D $name, Str $text) {
 }
 
 method lookupNamespacePrefix(Str $uri --> Str) {
-    with self.doc.SearchNsByHref(self, opt($uri)) {
+    do with self.doc.SearchNsByHref(self, opt($uri)) {
         .prefix // '';
-    }
-    else {
-        Str;
-    }
+    } // Str;
 }
 
 method lookupNamespaceURI(NCName $prefix --> Str) {
-    with self.doc.SearchNs(self, opt($prefix)) {
+    do with self.doc.SearchNs(self, opt($prefix)) {
         .href // '';
-    }
-    else {
-        Str;
-    }
+    } // Str;
 }
 
 method addNewChild(Str $uri, QName $name) {

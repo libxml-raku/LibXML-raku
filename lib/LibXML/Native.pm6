@@ -728,6 +728,7 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method SearchNs(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNs') {*}
     method SearchNsByHref(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNsByHref') {*}
     method GetID(Str --> domNode) is native(LIB) is symbol('xmlGetID') {*}
+    method IsID(xmlNode, xmlAttr --> int32) is native(LIB) is symbol('xmlIsID') {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str:D() :$version = '1.0') {
