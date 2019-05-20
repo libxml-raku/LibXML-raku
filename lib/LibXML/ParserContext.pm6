@@ -59,18 +59,24 @@ class LibXML::ParserContext {
         my @contexts = .make-contexts
             with $obj.input-callbacks;
 
-        for @contexts {
-            xmlRegisterInputCallbacks(
-                .match, .open, .read, .close
-            );
+        # just to make sure we've initialised
+        xmlRegisterDefaultInputCallbacks();
+
+        if (@contexts) {
+            for @contexts {
+                die "unable to register input callbacks"
+                if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
+            }
         }
 
         &*chdir(~$*CWD);
 
         my $rv := action();
 
-        xmlPopInputCallbacks()
-            for @contexts;
+        for @contexts {
+            warn "unable to remove input callbacks"
+                if xmlPopInputCallbacks() < 0;
+        }
 
         $obj.flush-errors: :$recover;
 

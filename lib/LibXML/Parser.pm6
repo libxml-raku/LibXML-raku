@@ -100,9 +100,9 @@ class LibXML::Parser {
         $flags;
     }
 
-    method !make-handler(parserCtxt :$ctx, :$html, *%flags) {
+    method !make-handler(parserCtxt :$native, :$html, *%flags) {
         my UInt $flags = self!process-flags(%flags, :$html);
-        LibXML::ParserContext.new: :native($ctx), :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
+        LibXML::ParserContext.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
     method !publish(:$URI, LibXML::ParserContext :$handler!, ) {
@@ -113,20 +113,12 @@ class LibXML::Parser {
         $doc;
     }
 
-    proto method processXIncludes(LibXML::Document $_, LibXML::ParserContext :$handler) {*}
-
-    multi method processXIncludes(LibXML::Document $_, LibXML::ParserContext:D :$handler! --> Int) {
+    method processXIncludes(
+        LibXML::Document $_,
+        LibXML::ParserContext:D :$handler = self!make-handler: :native(xmlParserCtxt.new)
+       --> Int) {
         my xmlDoc $doc = .native;
-        $handler.try: { $doc.XIncludeProcessFlags($!flags); }
-    }
-    multi method processXIncludes(LibXML::Document $_) is default {
-        my xmlDoc:D $doc = .native;
-        my xmlParserCtxt:D $ctx .= new;
-        $ctx.sax = .native with $.sax-handler;
-        my LibXML::ParserContext $error-handler = self!make-handler: :$ctx;
-        $error-handler.try: { 
-            $doc.XIncludeProcessFlags($!flags);
-        }
+        $handler.try: { $doc.XIncludeProcessFlags($!flags) }
     }
 
     method load(|c) { self.new.parse(|c) }
@@ -161,14 +153,13 @@ class LibXML::Parser {
                        *%flags,
                       ) {
 
-        # gives better diagnositics
         my parserCtxt:D $ctx = $html
            ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
            !! xmlMemoryParserCtxt.new(:$buf, :$enc);
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ParserContext $handler = self!make-handler: :$ctx, :$html, |%flags;
+        my LibXML::ParserContext $handler = self!make-handler: :native($ctx), :$html, |%flags;
         $handler.try: { $ctx.ParseDocument };
         self!publish: :$handler;
     }
