@@ -76,10 +76,7 @@ class LibXML::Parser {
     }
 
     method keep-blanks is rw {
-        Proxy.new(FETCH => sub ($) { ! self.no-blanks },
-                  STORE => sub ($, Bool() $kb) {
-                         self.blanks = $kb
-                     })
+        self.blanks;
     }
 
     method !process-flags(%flags, :$html) {
@@ -249,7 +246,7 @@ class LibXML::Parser {
     method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
         use LibXML::DocumentFragment;
         my LibXML::DocumentFragment $frag .= new: :$doc;
-        my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler;
+        my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
         $frag;
     }
 
