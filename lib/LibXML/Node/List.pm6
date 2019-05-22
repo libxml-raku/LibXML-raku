@@ -1,15 +1,20 @@
 class LibXML::Node::List does Iterable does Iterator {
     has Bool $.keep-blanks;
     has $.doc is required;
-    has $.list is required handles <string-value>;
-    has $cur;
+    has $.native is required handles <string-value>;
+    has $!cur;
     has $.type is required;
     has @!array;
     has Bool $!slurped;
-    submethod TWEAK { $!cur = $!list }
-    method Array handles<AT-POS elems List pairs keys values map grep shift pop> {
+    has $!ref; # just to keep the list alive
+    submethod TWEAK {
+        $!ref = $!type.box: $_ with $!native;
+        $!cur = $!native;              
+    }
+
+    method Array handles<AT-POS elems List list pairs keys values map grep shift pop> {
         unless $!slurped++ {
-            $!cur = $!list;
+            $!cur = $!native;
             @!array = self;
         }
         @!array;

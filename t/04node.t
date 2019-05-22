@@ -346,7 +346,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
         ok $node.domCheck, 'domCheck';
-        $node.Str;
         @cn2 = $node.childNodes;
         # TEST
         is(+@cn2, 5, ' TODO : Add test name');

@@ -333,7 +333,7 @@ method addNewChild(Str $uri, QName $name) {
 
 method normalize { self.domNormalize }
 
-sub addr($d) { +nativecast(Pointer, $_) with $d;  }
+sub addr($d) { (+nativecast(Pointer, $_) with $d) // 0  }
 
 method isSameNode(Node $oNode) {
     addr(self) ~~ addr($oNode);
@@ -355,20 +355,21 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
     # consider moving to dom.c (profiling/benchmarking needed)
 
     my Bool $ok = True;
-    return oops(self, $ok, @path, "duplicate node")
+    return (self.type == XML_ENTITY_DECL
+            ?? $ok
+            !! oops(self, $ok, @path, "duplicate node"))
         if %seen{addr(self)}++;
 
     my Node $last;
     my Node $kid = self.children;
     my $is-doc = ? (self.type == XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE);
-    my $is-ent-ref = ?(self.type == XML_ENTITY_REF_NODE);
     my @subpath = @path;
     @subpath.push: 0;
     my %kids-seen;
     while $kid.defined {
         oops($kid, $ok, @subpath, "inconsistant parent link (" ~ self.type ~ ')')
             if addr($kid.parent) !~~ addr(self)
-            && !($is-ent-ref && $kid.type == XML_ENTITY_DECL);
+            && $kid.type != XML_ENTITY_DECL;
         if %kids-seen{addr($kid)}++ {
             oops($kid, $ok, @subpath, "cycle detected in sibling links");
             last;
@@ -390,7 +391,8 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
     }
 
     oops(self, $ok, @path, "wrong last link {self.last.Str} => {$last.Str}")
-        unless addr(self.last) ~~ addr($last);
+        unless addr(self.last) ~~ addr($last)
+        || $last.type == XML_ENTITY_DECL;
 
     $ok
 }

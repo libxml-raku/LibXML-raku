@@ -79,8 +79,6 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
             xmlXPathFreeObject(obj2);
         valuePush(ctxt, ret);
 
-        /* reset the error old error handler before leaving
-         */
         return;
     }
     /*
@@ -91,9 +89,6 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
         ctxt->error = XPATH_INVALID_TYPE;
         if (obj2 != NULL)
             xmlXPathFreeObject(obj2);
-
-        /* reset the error old error handler before leaving
-         */
 
         return;
     }
@@ -139,9 +134,6 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
     xmlXPathFreeObject(obj);
     if (obj2 != NULL)
         xmlXPathFreeObject(obj2);
-
-    /* reset the error old error handler before leaving
-     */
 }
 
 void

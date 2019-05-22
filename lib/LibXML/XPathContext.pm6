@@ -7,7 +7,8 @@ class LibXML::XPathContext {
     use LibXML::XPathExpression;
     use LibXML::Types :QName;
 
-    has xmlXPathContext $.native;
+    has xmlXPathContext $!native;
+    method native { $!native }
 
     multi submethod TWEAK(LibXML::Node :node($node-obj)!) {
         my xmlNode $node = .native with $node-obj;
@@ -29,28 +30,21 @@ class LibXML::XPathContext {
         $.findnodes(LibXML::XPathExpression.new: :$expr);
     }
 
-    multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False) {
+    multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False, Bool :$values) {
         given  $.native.find( native($xpath-expr), $to-bool) {
-            when xmlNodeSet:D { iterate(XPathRange, $_) }
+            when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
             default { $_ }
         }
     }
     multi method find(Str:D $expr, |c) is default {
-        $.find(LibXML::XPathExpression.new(:$expr), |c);
+        $.find(LibXML::XPathExpression.parse($expr), |c);
     }
 
     multi method findvalue(LibXML::XPathExpression:D $xpath-expr) {
-        given $.native.find( native($xpath-expr), False) {
-            with iterate(XPathRange, $_).pull-one {
-                .string-value;
-            }
-            else {
-                Str;
-            }
-        }
+        $.find( $xpath-expr, :values);
     }
     multi method findvalue(Str:D $expr) {
-        $.findvalue(LibXML::XPathExpression.new: :$expr);
+        $.findvalue(LibXML::XPathExpression.parse($expr));
     }
 
     multi method registerNs(QName:D :$prefix!, Str :$uri) {
