@@ -9,7 +9,7 @@ class LibXML::Node::List does Iterable does Iterator {
     has $!ref; # just to keep the list alive
     submethod TWEAK {
         $!ref = $!type.box: $_ with $!native;
-        $!cur = $!native;              
+        $!cur = $!native;
     }
 
     method Array handles<AT-POS elems List list pairs keys values map grep shift pop> {

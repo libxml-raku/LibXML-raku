@@ -74,27 +74,6 @@ class xmlXPathCompExpr is repr(Stub) is export {
         xmlXPathCompile($expr);
     }
 }
-class xmlXPathContext is repr(Stub) is export {
-    sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
-    method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
-    method domXPathFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
-    method domXPathSelectCtxt(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
-    multi method new(domNode :$node!) {
-        domXPathNewCtxt($node);
-    }
-    multi method new(xmlDoc :$doc!) {
-        domXPathNewCtxt($doc);
-    }
-
-    method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelectCtxt($expr); }
-
-    method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
-        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $to-bool);
-        $obj.select;
-    }
-    method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
-
-}
 class xmlRegexp is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
@@ -140,6 +119,34 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
     }
 
     $att does StringSetter[&rw-str]
+}
+
+class xmlXPathContext is repr('CStruct') is export {
+    has xmlDoc $.doc;
+    has domNode $.node is rw-ptr(
+        method xml6_xpath_ctxt_set_node(domNode) is native(BIND-LIB) {*}
+    );
+    # + many other attributes;
+    sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
+    method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
+    method domXPathFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathSelectCtxt(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
+    multi method new(domNode :$node!) {
+        domXPathNewCtxt($node);
+    }
+    multi method new(xmlDoc :$doc!) {
+        domXPathNewCtxt($doc);
+    }
+
+    method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelectCtxt($expr); }
+
+    method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
+        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $to-bool);
+        $obj.select;
+    }
+    method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
+    method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
+
 }
 
 # A node-set element can be either a domNode or xmlNs. Distinguished

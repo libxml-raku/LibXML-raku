@@ -204,6 +204,7 @@ class LibXML::Node {
             $class.new: :native(cast-struct($_)), :$doc;
         } // self.WHAT; 
     }
+    method unbox { $.native }
 
     method keep(LibXML::Native::DOM::Node $rv,
                 LibXML::Node :$doc = $.doc, # reusable document object
@@ -289,7 +290,7 @@ class LibXML::Node {
     }
     my subset XPathDomain where LibXML::XPathExpression|Str|Any:U;
 
-    multi method exists(XPathDomain:D $xpath-expr --> Bool:D) {
+    method exists(XPathDomain:D $xpath-expr --> Bool:D) {
         $.find($xpath-expr, True);
     }
     multi method setAttribute(NameVal:D $_) {

@@ -17,6 +17,7 @@
 #include "domXPath.h"
 #include "xml6.h"
 #include "xml6_node.h"
+#include "xml6_ref.h"
 
 void
 perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
@@ -296,7 +297,8 @@ _domVetXPathObject(xmlXPathObjectPtr self) {
 xmlXPathContextPtr
 domXPathNewCtxt(xmlNodePtr refNode) {
     xmlXPathContextPtr ctxt;
-
+    if (refNode == NULL || refNode->doc == NULL) 
+        fail(refNode, "XPath context node is not associated with a document");
     /* prepare the xpath context */
     ctxt = xmlXPathNewContext( refNode->doc );
     ctxt->node = refNode;
