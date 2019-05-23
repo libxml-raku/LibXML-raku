@@ -33,7 +33,7 @@ xmlXPathObjectPtr
 domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool );
 
 xmlXPathObjectPtr
-domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, int to_bool );
+domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode, int to_bool );
 
 void
 domReferenceNodeSet(xmlNodeSetPtr self);
@@ -42,6 +42,6 @@ void
 domReleaseNodeSet(xmlNodeSetPtr self);
 
 xmlNodeSetPtr
-domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp);
+domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode);
 
 #endif

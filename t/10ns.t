@@ -170,7 +170,6 @@ EOF
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    diag $root.Str(:format)~"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -186,7 +185,6 @@ EOF
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    diag $root.Str(:format)~"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -322,7 +320,6 @@ print "# 8. changing namespace declarations\n";
     ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
     # TEST
     is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    diag $root.Str(:format)~"\n";
     # TEST
     ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
     # TEST
@@ -345,8 +342,6 @@ print "# 8. changing namespace declarations\n";
     # TEST
     is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
 
-
-    diag $root.Str(:format)~"\n";
     # check namespaced attributes
     # TEST
     is-deeply( $root.getAttributeNode('xxx:attr'), LibXML::Attr, ' TODO : Add test name' );

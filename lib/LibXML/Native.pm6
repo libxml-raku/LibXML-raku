@@ -129,8 +129,8 @@ class xmlXPathContext is repr('CStruct') is export {
     # + many other attributes;
     sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
     method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
-    method domXPathFindCtxt(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
-    method domXPathSelectCtxt(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathFindCtxt(xmlXPathCompExpr, domNode, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathSelectCtxt(xmlXPathCompExpr, domNode --> xmlNodeSet) is native(BIND-LIB) {*}
     multi method new(domNode :$node!) {
         domXPathNewCtxt($node);
     }
@@ -138,10 +138,10 @@ class xmlXPathContext is repr('CStruct') is export {
         domXPathNewCtxt($doc);
     }
 
-    method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelectCtxt($expr); }
+    method findnodes(xmlXPathCompExpr:D $expr, domNode $ref-node? --> xmlNodeSet) { self.domXPathSelectCtxt($expr, $ref-node); }
 
     method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
-        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $to-bool);
+        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, domNode, $to-bool);
         $obj.select;
     }
     method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}

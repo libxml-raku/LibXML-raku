@@ -24,16 +24,13 @@ class LibXML::XPathContext {
         .Free with $!native;
     }
 
-    multi method findnodes($expr, LibXML::Node:D $node) {
-        temp $!native.node = .native with $node;
-        $.findnodes($expr);
-    }
-    multi method findnodes(LibXML::XPathExpression:D $xpath-expr) {
-        my xmlNodeSet:D $node-set := $.native.findnodes: native($xpath-expr);
+    multi method findnodes(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node?) {
+        my domNode $node = .native with $ref-node;
+        my xmlNodeSet:D $node-set := $.native.findnodes( native($xpath-expr), $node);
         iterate(XPathRange, $node-set);
     }
-    multi method findnodes(Str:D $expr) is default {
-        $.findnodes(LibXML::XPathExpression.new: :$expr);
+    multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
+        $.findnodes( LibXML::XPathExpression.new(:$expr), $ref-node );
     }
 
     multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False, Bool :$values) {

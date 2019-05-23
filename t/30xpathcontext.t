@@ -93,10 +93,10 @@ ok($xc.exists('xxx:bar', $doc1.getDocumentElement), ' TODO : Add test name');
 
 # test unregisterNs()
 $xc.unregisterNs('xxx');
-dies-ok { $xc.findnodes('/xxx:foo') }, ' TODO : Add test name';
+dies-ok { $xc.findnodes('/xxx:foo') }, 'Find unregistered NS';
 # TEST
 
-ok(!defined($xc.lookupNs('xxx')), ' TODO : Add test name');
+ok(!defined($xc.lookupNs('xxx')), 'Lookup unregistered NS');
 
 dies-ok { $xc.findnodes($compiled) }, ' TODO : Add test name';
 # TEST
@@ -110,10 +110,10 @@ ok($xc.getContextNode.isSameNode($doc1), ' TODO : Add test name');
 $xc.setContextNode($doc1.getDocumentElement);
 # TEST
 
-ok($xc.getContextNode.isSameNode($doc1.getDocumentElement), ' TODO : Add test name');
+ok($xc.getContextNode.isSameNode($doc1.getDocumentElement), 'Context node is document element');
 # TEST
 
-ok($xc.findnodes('.').pop.isSameNode($doc1.getDocumentElement), ' TODO : Add test name');
+ok($xc.findnodes('.').pop.isSameNode($doc1.getDocumentElement), 'First node is document element');
 
 # test xpath context preserves the document
 my $xc2 = LibXML::XPathContext.new(
@@ -122,7 +122,7 @@ my $xc2 = LibXML::XPathContext.new(
 XML
 # TEST
 
-is($xc2.findnodes('*').pop.nodeName, 'foo', ' TODO : Add test name');
+is($xc2.findnodes('*').pop.nodeName, 'foo', 'First node is root node');
 
 # test xpath context preserves context node
 my $doc2 = LibXML.new.parse: :string(q:to<XML>);
@@ -132,7 +132,7 @@ my $xc3 = LibXML::XPathContext.new(node => $doc2.getDocumentElement);
 $xc3.find('/');
 # TEST
 
-is($xc3.getContextNode.Str(), '<foo><bar/></foo>', ' TODO : Add test name');
+is($xc3.getContextNode.Str(), '<foo><bar/></foo>', 'context is root node');
 
 # check starting with empty context
 my $xc4;
@@ -168,14 +168,13 @@ ok($xc4.getContextNode.isSameNode($doc2.getDocumentElement), ' TODO : Add test n
 is($xc4.findnodes('parent::*',$bar).pop.nodeName, 'foo', ' TODO : Add test name');
 # TEST
 
-todo "context node is changing?";
 ok($xc4.getContextNode.isSameNode($doc2.getDocumentElement), ' TODO : Add test name');
 
 # testcase for segfault found by Steve Hay
 # more restrictive than Perl 5
 # - require a node or on construction
 # - node must associated with a document
-# - allow nulling or change of context node, but only with a document
+# - allow change of context node, but only with a document
 my $xc5;
 dies-ok {LibXML::XPathContext.new()};
 $doc = LibXML.new.parse: :string('<foo xmlns="http://www.foo.com" />');
