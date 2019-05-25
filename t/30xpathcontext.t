@@ -136,13 +136,13 @@ is($xc3.getContextNode.Str(), '<foo><bar/></foo>', 'context is root node');
 
 # check starting with empty context
 my $xc4;
-dies-ok { LibXML::XPathContext.new() };
+lives-ok { $xc4 = LibXML::XPathContext.new() };
 # TEST
+ok !defined($xc4.getContextNode);
+dies-ok { $xc4.find('/') };
 my $cn = $doc2.getDocumentElement;
-$xc4 = LibXML::XPathContext.new(doc => $doc2);
 $xc4.setContextNode($cn);
 # TEST
-
 ok($xc4.find('/'), ' TODO : Add test name');
 # TEST
 
@@ -171,24 +171,17 @@ is($xc4.findnodes('parent::*',$bar).pop.nodeName, 'foo', ' TODO : Add test name'
 ok($xc4.getContextNode.isSameNode($doc2.getDocumentElement), ' TODO : Add test name');
 
 # testcase for segfault found by Steve Hay
-# more restrictive than Perl 5
-# - require a node or on construction
-# - node must associated with a document
-# - allow change of context node, but only with a document
-my $xc5;
-dies-ok {LibXML::XPathContext.new()};
-$doc = LibXML.new.parse: :string('<foo xmlns="http://www.foo.com" />');
-$xc5 =  LibXML::XPathContext.new(:$doc);
+
+my $xc5 = LibXML::XPathContext.new();
 $xc5.registerNs('pfx', 'http://www.foo.com');
+$doc = LibXML.new.parse: :string('<foo xmlns="http://www.foo.com" />');
+$xc5.setContextNode($doc);
 $xc5.findnodes('/');
 $xc5.setContextNode(LibXML::Node);
 $xc5.getContextNode();
 $xc5.setContextNode($doc);
 $xc5.findnodes('/');
 # TEST
-
-skip("todo port remaining tests", 39);
-=begin TODO
 
 ok(1, ' TODO : Add test name');
 
@@ -197,27 +190,13 @@ ok(1, ' TODO : Add test name');
 ok($xc4.getContextPosition() == -1, ' TODO : Add test name');
 # TEST
 
-ok($xc4.getContextSize() == -1, ' TODO : Add test name');
-eval { $xc4.setContextPosition(4); };
-# TEST
+dies-ok { $xc4.setContextPosition(4); },' TODO : Add test name';
+dies-ok { $xc4.setContextPosition(-4); }, ' TODO : Add test name';
+dies-ok { $xc4.setContextSize(-4); }, ' TODO : Add test name';
+dies-ok { $xc4.findvalue('position()') }, ' TODO : Add test name';
+dies-ok { $xc4.findvalue('last()') };
 
-ok($@, ' TODO : Add test name');
-eval { $xc4.setContextPosition(-4); };
-# TEST
-
-ok($@, ' TODO : Add test name');
-eval { $xc4.setContextSize(-4); };
-# TEST
-
-ok($@, ' TODO : Add test name');
-eval { $xc4.findvalue('position()') };
-# TEST
-
-ok($@, ' TODO : Add test name');
-eval { $xc4.findvalue('last()') };
-# TEST
-
-ok($@, ' TODO : Add test name');
+is($xc4.getContextSize(), -1, ' TODO : Add test name');
 
 $xc4.setContextSize(0);
 # TEST
@@ -225,41 +204,38 @@ $xc4.setContextSize(0);
 ok($xc4.getContextSize() == 0, ' TODO : Add test name');
 # TEST
 
-ok($xc4.getContextPosition() == 0, ' TODO : Add test name');
+is($xc4.getContextPosition(), 0, ' TODO : Add test name');
 # TEST
 
-ok($xc4.findvalue('position()')==0, ' TODO : Add test name');
+is($xc4.findvalue('position()'), 0, ' TODO : Add test name');
 # TEST
 
-ok($xc4.findvalue('last()')==0, ' TODO : Add test name');
+is($xc4.findvalue('last()'), 0, ' TODO : Add test name');
 
 $xc4.setContextSize(4);
 # TEST
 
-ok($xc4.getContextSize() == 4, ' TODO : Add test name');
+is($xc4.getContextSize(), 4, ' TODO : Add test name');
 # TEST
 
-ok($xc4.getContextPosition() == 1, ' TODO : Add test name');
+is($xc4.getContextPosition(), 1, ' TODO : Add test name');
 # TEST
 
-ok($xc4.findvalue('last()')==4, ' TODO : Add test name');
+is($xc4.findvalue('last()'), 4, ' TODO : Add test name');
 # TEST
 
-ok($xc4.findvalue('position()')==1, ' TODO : Add test name');
-eval { $xc4.setContextPosition(5); };
+is($xc4.findvalue('position()'), 1, ' TODO : Add test name');
+dies-ok { $xc4.setContextPosition(5); }, ' TODO : Add test name';
 # TEST
 
-ok($@, ' TODO : Add test name');
+is($xc4.findvalue('position()'), 1, ' TODO : Add test name');
 # TEST
 
-ok($xc4.findvalue('position()')==1, ' TODO : Add test name');
-# TEST
-
-ok($xc4.getContextSize() == 4, ' TODO : Add test name');
+is($xc4.getContextSize(), 4, ' TODO : Add test name');
 $xc4.setContextPosition(4);
 # TEST
 
-ok($xc4.findvalue('position()')==4, ' TODO : Add test name');
+is($xc4.findvalue('position()'), 4, ' TODO : Add test name');
 # TEST
 
 ok($xc4.findvalue('position()=last()'), ' TODO : Add test name');
@@ -267,18 +243,12 @@ ok($xc4.findvalue('position()=last()'), ' TODO : Add test name');
 $xc4.setContextSize(-1);
 # TEST
 
-ok($xc4.getContextPosition() == -1, ' TODO : Add test name');
+is($xc4.getContextPosition(), -1, ' TODO : Add test name');
 # TEST
 
-ok($xc4.getContextSize() == -1, ' TODO : Add test name');
-eval { $xc4.findvalue('position()') };
-# TEST
-
-ok($@, ' TODO : Add test name');
-eval { $xc4.findvalue('last()') };
-# TEST
-
-ok($@, ' TODO : Add test name');
+is($xc4.getContextSize(), -1, ' TODO : Add test name');
+dies-ok { $xc4.findvalue('position()') }, ' TODO : Add test name';
+dies-ok { $xc4.findvalue('last()') }, ' TODO : Add test name';
 
 {
     my $d = LibXML.new().parse: :string(q~<x:a xmlns:x="http://x.com" xmlns:y="http://x1.com"><x1:a xmlns:x1="http://x1.com"/></x:a>~);
@@ -287,12 +257,15 @@ ok($@, ' TODO : Add test name');
 
         # use the document's declaration
         # TEST
-        ok( $x.findvalue('count(/x:a/y:a)',$d.documentElement)==1, ' TODO : Add test name' );
+        is( $x.findvalue('count(/x:a/y:a)', $d.documentElement), 1, ' TODO : Add test name' );
 
         $x.registerNs('x', 'http://x1.com');
         # x now maps to http://x1.com, so it won't match the top-level element
+}}; skip("todo port remaining tests", 12);
+=begin TODO
+
         # TEST
-        ok( $x.findvalue('count(/x:a)',$d.documentElement)==0, ' TODO : Add test name' );
+        is( $x.findvalue('count(/x:a)', $d.documentElement), 0, ' TODO : Add test name' );
 
         $x.registerNs('x1', 'http://x.com');
         # x1 now maps to http://x.com

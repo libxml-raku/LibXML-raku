@@ -76,6 +76,8 @@ class xmlXPathCompExpr is repr(Stub) is export {
 }
 class xmlRegexp is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
+class xmlXPathAxis is repr(Stub) is export {}
+class xmlXPathType is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 
 sub xmlStrdup(Str --> Pointer) is native(LIB) {*};
@@ -119,34 +121,6 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
     }
 
     $att does StringSetter[&rw-str]
-}
-
-class xmlXPathContext is repr('CStruct') is export {
-    has xmlDoc $.doc;
-    has domNode $.node is rw-ptr(
-        method xml6_xpath_ctxt_set_node(domNode) is native(BIND-LIB) {*}
-    );
-    # + many other attributes;
-    sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
-    method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
-    method domXPathFindCtxt(xmlXPathCompExpr, domNode, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
-    method domXPathSelectCtxt(xmlXPathCompExpr, domNode --> xmlNodeSet) is native(BIND-LIB) {*}
-    multi method new(domNode :$node!) {
-        domXPathNewCtxt($node);
-    }
-    multi method new(xmlDoc :$doc!) {
-        domXPathNewCtxt($doc);
-    }
-
-    method findnodes(xmlXPathCompExpr:D $expr, domNode $ref-node? --> xmlNodeSet) { self.domXPathSelectCtxt($expr, $ref-node); }
-
-    method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
-        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, domNode, $to-bool);
-        $obj.select;
-    }
-    method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
-    method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
-
 }
 
 # A node-set element can be either a domNode or xmlNs. Distinguished
@@ -278,7 +252,7 @@ class xmlBuf is repr('CStruct') is export {
     method new returns xmlBuf:D { Create() }
 }
 
-class xmlNs is repr('CStruct') is export {
+class xmlNs is export is repr('CStruct') {
     has xmlNs    $.next;       # next Ns link for this node
     has int32    $.type;       # global or local (enum xmlNsType)
     has xmlCharP $.href;       # URL for the namespace
@@ -457,6 +431,117 @@ class xmlSAXHandler is repr('CStruct') is export {
 
 }
 
+class xmlError is export {
+    has int32                  $.domain;    # What part of the library raised this error
+    has int32                  $.code;      # The error code, e.g. an xmlParserError
+    has Str                    $.message;   # human-readable informative error message
+    has int32                  $.level;     # how consequent is the error
+    has Str                    $.file;      # the filename
+    has int32                  $.line;      # the line number if available
+    has Str                    $.str1;      # extra string information
+    has Str                    $.str2;      # extra string information
+    has Str                    $.str3;      # extra string information
+    has int32                  $.int1;      # extra number information
+    has int32                  $.int2;      # error column # or 0 if N/A
+    has parserCtxt             $.ctxt;      # the parser context if available
+    has xmlNode                $.node;      # the node in the tree
+}
+
+class xmlXPathContext is repr('CStruct') is export {
+    has xmlDoc $.doc;                            # The current document
+    has domNode $.node;                          # The current node
+    has int32 $.nb_variables_unused;             # unused (hash table)
+    has int32 $.max_variables_unused;            # unused (hash table)
+    has xmlHashTable $.varHash;                  # Hash table of defined variables
+
+    has int32 $.nb_types;                        # number of defined types
+    has int32 $.max_types;                       # max number of types
+    has Pointer[xmlXPathType] $.types;           # Array of defined types
+
+    has int32 $.nb_funcs_unused;                 # unused (hash table)
+    has int32 $.max_funcs_unused;                # unused (hash table)
+    has xmlHashTable $.funcHash;                 # Hash table of defined funcs
+
+    has int32 $.nb_axis;                         # number of defined axis
+    has int32 $.max_axis;                        # max number of axis
+    has xmlXPathAxis $.axis;                     # Array of defined axis
+
+    # the namespace nodes of the context node
+    has Pointer[xmlNs] $.namespaces;             # Array of namespaces
+    has int32 $.nsNr;                            # number of namespace in scope
+    has Pointer $.user;                          # function to free
+
+    # extra variables
+    has int32 $.contextSize is rw;               # the context size
+    has int32 $.proximityPosition is rw;         # the proximity position
+
+    # the set of namespace declarations in scope for the expression
+    has xmlHashTable $.nsHash;                   # The namespaces hash table
+    my constant xmlXPathVariableLookupFunc = Pointer;
+    has xmlXPathVariableLookupFunc $.varLookupFunc;# variable lookup func
+    has Pointer $.varLookupData;                 # variable lookup data
+
+    # Possibility to link in an extra item
+    has Pointer $.extra;                         # needed for XSLT
+
+    # The function name and URI when calling a function
+    has xmlCharP $.function;
+    has xmlCharP $.functionURI;
+
+    # function lookup function and data
+    my constant xmlXPathFuncLookupFunc = Pointer;
+    has xmlXPathFuncLookupFunc $.funcLookupFunc;  # function lookup func
+    has Pointer $.funcLookupData;                 # function lookup data
+
+    # temporary namespace lists kept for walking the namespace axis
+    has Pointer[xmlNs] $.tmpNsList;               # Array of namespaces
+    has int32 $.tmpNsNr;                          # number of namespaces in scope
+
+    # error reporting mechanism
+    has Pointer $.userData;                       # user specific data block
+    my constant xmlStructuredErrorFunc = Pointer;
+    has xmlStructuredErrorFunc $.error;           # the callback in case of errors
+    HAS xmlError $.lastError;                     # the last error
+    has domNode  $.debugNode;                     # the source node XSLT
+
+    # dictionary
+    has xmlDict $.dict;                           # dictionary if any
+
+    has int32 $.flags;                            # flags to control compilation
+
+    # Cache for reusal of XPath objects
+    has Pointer $.cache;
+
+    # Resource limits
+    has ulong $.opLimit;
+    has ulong $.opCount;
+    has int32 $.depth;
+    has int32 $.maxDepth;
+    has int32 $.maxParserDepth;
+
+    sub domXPathNewCtxt(domNode --> xmlXPathContext) is native(BIND-LIB) {*}
+    method Free is symbol('domXPathFreeCtxt') is native(BIND-LIB) {*}
+    method domXPathFindCtxt(xmlXPathCompExpr, domNode, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
+    method domXPathSelectCtxt(xmlXPathCompExpr, domNode --> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathCtxtSetNode(domNode) is native(BIND-LIB) {*}
+    multi method new(xmlDoc:D :$doc!) {
+        domXPathNewCtxt($doc);
+    }
+    multi method new(domNode :$node) is default {
+        domXPathNewCtxt($node);
+    }
+
+    method findnodes(xmlXPathCompExpr:D $expr, domNode $ref-node? --> xmlNodeSet) { self.domXPathSelectCtxt($expr, $ref-node); }
+
+    method find(xmlXPathCompExpr:D $expr, domNode $ref-node?, Bool :$bool) {
+        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $ref-node, $bool);
+        $obj.select;
+    }
+    method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
+    method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
+
+}
+
 class domNode is export does LibXML::Native::DOM::Node {
     has Pointer         $._private;    # application data
     has int32           $.type;        # type number, must be second !
@@ -527,8 +612,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domNormalize(--> int32) is native(BIND-LIB) {*}
 
-    method find(xmlXPathCompExpr:D $expr, Bool $to-bool) {
-        my xmlXPathObject $obj := self.domXPathFind($expr, $to-bool);
+    method find(xmlXPathCompExpr:D $expr, Bool :$bool) {
+        my xmlXPathObject $obj := self.domXPathFind($expr, $bool);
         $obj.select;
     }
 
@@ -888,22 +973,6 @@ class xmlValidCtxt is repr('CStruct') is export {
     }
 }
 
-class xmlError is export {
-    has int32                  $.domain;    # What part of the library raised this error
-    has int32                  $.code;      # The error code, e.g. an xmlParserError
-    has Str                    $.message;   # human-readable informative error message
-    has int32                  $.level;     # how consequent is the error
-    has Str                    $.file;      # the filename
-    has int32                  $.line;      # the line number if available
-    has Str                    $.str1;      # extra string information
-    has Str                    $.str2;      # extra string information
-    has Str                    $.str3;      # extra string information
-    has int32                  $.int1;      # extra number information
-    has int32                  $.int2;      # error column # or 0 if N/A
-    has parserCtxt             $.ctxt;      # the parser context if available
-    has xmlNode                $.node;      # the node in the tree
-}
-
 class parserCtxt is export {
     has xmlSAXHandler          $.sax is rw-ptr(       # The SAX handler
         method xml6_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
@@ -1023,7 +1092,7 @@ class parserCtxt is export {
     has int32                  $.nodeInfoMax;  # Max depth of the parsing stack
     has xmlParserNodeInfo      $.nodeInfoTab;  # array of nodeInfos
 
-    has int32                  $.input_id;     #  we need to label inputs
+    has int32                  $.input_id;     # we need to label inputs
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
     method UseOptions(int32) is native(LIB) is symbol('xmlCtxtUseOptions') returns int32 { * }

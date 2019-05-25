@@ -273,8 +273,8 @@ class LibXML::Node {
     multi method findnodes(Str:D $expr) {
         self.findnodes( LibXML::XPathExpression.new: :$expr);
     }
-    multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False, Bool :$values) {
-        given $!native.find( native($xpath-expr), $to-bool) {
+    multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D :$bool = False, Bool :$values) {
+        given $!native.find( native($xpath-expr), :$bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
             default { $_ }
         }
@@ -291,7 +291,7 @@ class LibXML::Node {
     my subset XPathDomain where LibXML::XPathExpression|Str|Any:U;
 
     method exists(XPathDomain:D $xpath-expr --> Bool:D) {
-        $.find($xpath-expr, True);
+        $.find($xpath-expr, :bool);
     }
     multi method setAttribute(NameVal:D $_) {
         $!native.setAttribute(.key, .value);

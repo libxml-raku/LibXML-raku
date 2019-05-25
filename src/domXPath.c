@@ -294,31 +294,50 @@ _domVetXPathObject(xmlXPathObjectPtr self) {
     return self;
 }
 
-xmlXPathContextPtr
-domXPathNewCtxt(xmlNodePtr refNode) {
-    xmlXPathContextPtr ctxt;
-    if (refNode == NULL || refNode->doc == NULL) 
-        fail(refNode, "XPath context node is not associated with a document");
-    /* prepare the xpath context */
-    ctxt = xmlXPathNewContext( refNode->doc );
-    ctxt->node = refNode;
-    /* get the namespace information */
-    if (refNode->type == XML_DOCUMENT_NODE) {
-        ctxt->namespaces = xmlGetNsList( refNode->doc,
-                                         xmlDocGetRootElement( refNode->doc ) );
-    }
-    else {
-        ctxt->namespaces = xmlGetNsList(refNode->doc, refNode);
-    }
-    ctxt->nsNr = 0;
-    if (ctxt->namespaces != NULL) {
-        while (ctxt->namespaces[ctxt->nsNr] != NULL)
-            ctxt->nsNr++;
+xmlNodePtr
+domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
+    xmlNodePtr oldNode = ctxt->node;
+
+    if (node != oldNode) {
+        ctxt->node = node;
+        ctxt->doc = NULL;
+
+        if (ctxt->namespaces != NULL) {
+            xmlFree( ctxt->namespaces );
+            ctxt->namespaces = NULL;
+        }
+
+        if (node) {
+            ctxt->doc = node->doc;
+            /* get the namespace information */
+            if (node->type == XML_DOCUMENT_NODE) {
+                ctxt->namespaces = xmlGetNsList( node->doc,
+                                                 xmlDocGetRootElement( node->doc ) );
+            }
+            else {
+                ctxt->namespaces = xmlGetNsList(node->doc, node);
+            }
+            ctxt->nsNr = 0;
+            if (ctxt->namespaces != NULL) {
+                while (ctxt->namespaces[ctxt->nsNr] != NULL)
+                    ctxt->nsNr++;
+            }
+        }
     }
 
+    return oldNode;
+}
+
+xmlXPathContextPtr
+domXPathNewCtxt(xmlNodePtr refNode) {
+    xmlXPathContextPtr ctxt = xmlXPathNewContext( NULL );
     xmlXPathRegisterFunc(ctxt,
                          (const xmlChar*) "document",
                          perlDocumentFunction);
+
+    if (refNode) {
+        domXPathCtxtSetNode(ctxt, refNode);
+    }
     return ctxt;
 }
 
@@ -380,9 +399,9 @@ domXPathSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
 xmlXPathObjectPtr
 domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode, int to_bool ) {
     xmlXPathObjectPtr rv = NULL;
-    if ( ctxt != NULL && ctxt->node != NULL && comp != NULL ) {
+    if ( ctxt != NULL && (ctxt->node != NULL || refNode != NULL) && comp != NULL ) {
         xmlNodePtr prev = ctxt->node;
-        if (refNode) ctxt->node = refNode;
+        if (refNode) domXPathCtxtSetNode(ctxt, refNode);
         if (to_bool) {
 #if LIBXML_VERSION >= 20627
             int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
@@ -399,7 +418,7 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
             rv = xmlXPathCompiledEval(comp, ctxt);
         }
 
-        if (prev) ctxt->node = prev;
+        if (prev) domXPathCtxtSetNode(ctxt, prev);
     }
     return _domVetXPathObject(rv);
 }

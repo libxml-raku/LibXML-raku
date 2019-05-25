@@ -23,6 +23,9 @@ domReleaseXPathObject(xmlXPathObjectPtr);
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp );
 
+xmlNodePtr
+domXPathCtxtSetNode(xmlXPathContextPtr, xmlNodePtr);
+
 xmlXPathContextPtr
 domXPathNewCtxt(xmlNodePtr refNode);
 

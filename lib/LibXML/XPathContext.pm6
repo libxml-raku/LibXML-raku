@@ -7,57 +7,49 @@ class LibXML::XPathContext {
     use LibXML::XPathExpression;
     use LibXML::Types :QName;
 
-    has xmlXPathContext $!native;
+    has xmlXPathContext $!native .= new;
+    has LibXML::Node $!context-node;
     method native { $!native }
 
-    multi submethod TWEAK(LibXML::Node :node($node-obj)!) {
-        my xmlNode:D $node = .native given $node-obj;
-        $!native .= new: :$node;
-        die $_ with $node.domFailure;
+    submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc) {
+        self.setContextNode($_) with $node // $doc;
     }
-    multi submethod TWEAK(LibXML::Document :doc($doc-obj)!) {
-        my xmlDoc:D $node = .native given $doc-obj;
-        $!native .= new: :$node;
-        die $_ with $node.domFailure;
-    }
+
     submethod DESTROY {
         .Free with $!native;
     }
 
-    multi method findnodes(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node?) {
+    multi method findnodes(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node = $!context-node) {
         my domNode $node = .native with $ref-node;
         my xmlNodeSet:D $node-set := $.native.findnodes( native($xpath-expr), $node);
         iterate(XPathRange, $node-set);
     }
-    multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
+    multi method findnodes(Str:D $expr, LibXML::Node $ref-node = $!context-node) is default {
         $.findnodes( LibXML::XPathExpression.new(:$expr), $ref-node );
     }
 
-    multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D $to-bool = False, Bool :$values) {
-        given  $.native.find( native($xpath-expr), $to-bool) {
+    multi method find(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node = $!context-node, Bool:D :$bool = False, Bool :$values) {
+        my domNode $node = .native with $ref-node;
+        given  $.native.find( native($xpath-expr), $node, :$bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
             default { $_ }
         }
     }
-    multi method find(Str:D $expr, |c) is default {
-        $.find(LibXML::XPathExpression.parse($expr), |c);
+    multi method find(Str:D $expr, LibXML::Node $ref-node = $!context-node, |c) is default {
+        $.find(LibXML::XPathExpression.parse($expr), $ref-node, |c);
     }
 
-    multi method findvalue(LibXML::XPathExpression:D $xpath-expr) {
-        $.find( $xpath-expr, :values);
+    multi method findvalue(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node = $!context-node, |c) {
+        $.find( $xpath-expr, $ref-node, :values, |c);
     }
-    multi method findvalue(Str:D $expr) {
-        $.findvalue(LibXML::XPathExpression.parse($expr));
+    multi method findvalue(Str:D $expr, LibXML::Node $ref-node = $!context-node, |c) {
+        $.findvalue(LibXML::XPathExpression.parse($expr), $ref-node, |c);
     }
 
     my subset XPathDomain where LibXML::XPathExpression|Str|Any:U;
 
-    multi method exists(XPathDomain:D $xpath-expr, LibXML::Node $node --> Bool:D) {
-        temp $!native.node = .native with $node;
-        $.exists($xpath-expr);
-    }
-    multi method exists(XPathDomain:D $xpath-expr --> Bool:D) {
-        $.find($xpath-expr, True);
+    method exists(XPathDomain:D $xpath-expr, LibXML::Node $node? --> Bool:D) {
+        $.find($xpath-expr, $node, :bool);
     }
 
     multi method registerNs(QName:D :$prefix!, Str :$uri) {
@@ -87,14 +79,20 @@ class LibXML::XPathContext {
     }
 
     method getContextNode {
-        LibXML::Node.box(.node) with $!native;
+        $!context-node;
     }
 
-    method setContextNode(LibXML::Node $_) {
-        my domNode:D $node = do with $_ { .native } // $!native.doc;
-        $!native.node = $node;
-        die $_ with $node.domFailure;
-        $_;
+    #| defining the context node
+    multi method setContextNode(LibXML::Node:D $!context-node) {
+        $!native.domXPathCtxtSetNode($!context-node.native);
+        die $_ with $!context-node.domFailure;
+        $!context-node;
+    }
+
+    #| undefining the context node
+    multi method setContextNode(LibXML::Node $!context-node) is default {
+        $!native.domXPathCtxtSetNode(domNode);
+        $!context-node;
     }
 
     method contextNode is rw {
@@ -102,6 +100,37 @@ class LibXML::XPathContext {
             FETCH => { $.getContextNode },
             STORE => -> $, LibXML::Node $_ {
                 $.setContextNode($_);
+            }
+        );
+    }
+
+    method getContextPosition { $!native.proximityPosition }
+    method setContextPosition(Int:D $pos) {
+        fail "XPathContext: invalid position"
+            unless -1 <= $pos <= $!native.contextSize; 
+        $!native.proximityPosition = $pos;
+    }
+    method contextPosition is rw {
+        Proxy.new(
+            FETCH => { self.getContextPosition },
+            STORE => -> $, Int:D $pos {
+                self.setContextPosition($pos) 
+            }
+        );
+    }
+
+    method getContextSize { $!native.contextSize }
+    method setContextSize(Int:D $size) {
+        fail "XPathContext: invalid size"
+            unless -1 <= $size;
+        $!native.contextSize = $size;
+        $!native.proximityPosition = +($size <=> 0);
+    }
+    method contextSize is rw {
+        Proxy.new(
+            FETCH => { self.getContextSize },
+            STORE => -> $, Int:D $size {
+                self.SetContextSize($size);
             }
         );
     }
