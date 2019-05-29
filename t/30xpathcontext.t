@@ -1,5 +1,5 @@
 use Test;
-plan 82;
+plan 83;
 
 use LibXML;
 use LibXML::XPathContext;
@@ -116,13 +116,12 @@ ok($xc.getContextNode.isSameNode($doc1.getDocumentElement), 'Context node is doc
 ok($xc.findnodes('.').pop.isSameNode($doc1.getDocumentElement), 'First node is document element');
 
 # test xpath context preserves the document
-my $xc2 = LibXML::XPathContext.new(
-	  doc => LibXML.new.parse: :string(q:to<XML>));
+$doc = LibXML.new.parse: :string(q:to<XML>);
 <foo/>
 XML
+my $xc2 = LibXML::XPathContext.new( :$doc );
 # TEST
-
-is($xc2.findnodes('*').pop.nodeName, 'foo', 'First node is root node');
+is($xc2.findnodes('//*').pop.nodeName, 'foo', 'First node is root node');
 
 # test xpath context preserves context node
 my $doc2 = LibXML.new.parse: :string(q:to<XML>);
@@ -261,8 +260,6 @@ dies-ok { $xc4.findvalue('last()') }, ' TODO : Add test name';
 
         $x.registerNs('x', 'http://x1.com');
         # x now maps to http://x1.com, so it won't match the top-level element
-}}; skip("todo port remaining tests", 12);
-=begin TODO
 
         # TEST
         is( $x.findvalue('count(/x:a)', $d.documentElement), 0, ' TODO : Add test name' );
@@ -303,7 +300,7 @@ dies-ok { $xc4.findvalue('last()') }, ' TODO : Add test name';
 SKIP:
 {
     # 37332
-    if (LibXML::LIBXML_VERSION() < 20617) {
+    if LibXML.parser-version < v2.06.17 {
         skip(
             'xpath does not work on nodes without a document in libxml2 < 2.6.17',
             3
@@ -330,5 +327,4 @@ SKIP:
         ok ( @n == 1, ' TODO : Add test name' );
     }
 }
-=end TODO
                                    

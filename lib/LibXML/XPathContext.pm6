@@ -19,30 +19,30 @@ class LibXML::XPathContext {
         .Free with $!native;
     }
 
-    multi method findnodes(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node = $!context-node) {
+    multi method findnodes(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node?) {
         my domNode $node = .native with $ref-node;
         my xmlNodeSet:D $node-set := $.native.findnodes( native($xpath-expr), $node);
         iterate(XPathRange, $node-set);
     }
-    multi method findnodes(Str:D $expr, LibXML::Node $ref-node = $!context-node) is default {
+    multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
         $.findnodes( LibXML::XPathExpression.new(:$expr), $ref-node );
     }
 
-    multi method find(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node = $!context-node, Bool:D :$bool = False, Bool :$values) {
+    multi method find(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$values) {
         my domNode $node = .native with $ref-node;
         given  $.native.find( native($xpath-expr), $node, :$bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
             default { $_ }
         }
     }
-    multi method find(Str:D $expr, LibXML::Node $ref-node = $!context-node, |c) is default {
+    multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPathExpression.parse($expr), $ref-node, |c);
     }
 
-    multi method findvalue(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node = $!context-node, |c) {
+    multi method findvalue(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node?, |c) {
         $.find( $xpath-expr, $ref-node, :values, |c);
     }
-    multi method findvalue(Str:D $expr, LibXML::Node $ref-node = $!context-node, |c) {
+    multi method findvalue(Str:D $expr, LibXML::Node $ref-node?, |c) {
         $.findvalue(LibXML::XPathExpression.parse($expr), $ref-node, |c);
     }
 
@@ -90,7 +90,7 @@ class LibXML::XPathContext {
     }
 
     #| undefining the context node
-    multi method setContextNode(LibXML::Node $!context-node) is default {
+    multi method setContextNode(LibXML::Node:U $!context-node) is default {
         $!native.domXPathCtxtSetNode(domNode);
         $!context-node;
     }

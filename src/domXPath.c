@@ -299,28 +299,25 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
     xmlNodePtr oldNode = ctxt->node;
 
     if (node != oldNode) {
+        xmlDocPtr doc = node ? node->doc : NULL;
         ctxt->node = node;
-        ctxt->doc = NULL;
 
-        if (ctxt->namespaces != NULL) {
-            xmlFree( ctxt->namespaces );
-            ctxt->namespaces = NULL;
-        }
+        if (ctxt->doc != doc) {
+            ctxt->doc = doc;
 
-        if (node) {
-            ctxt->doc = node->doc;
-            /* get the namespace information */
-            if (node->type == XML_DOCUMENT_NODE) {
-                ctxt->namespaces = xmlGetNsList( node->doc,
-                                                 xmlDocGetRootElement( node->doc ) );
-            }
-            else {
-                ctxt->namespaces = xmlGetNsList(node->doc, node);
-            }
-            ctxt->nsNr = 0;
-            if (ctxt->namespaces != NULL) {
-                while (ctxt->namespaces[ctxt->nsNr] != NULL)
-                    ctxt->nsNr++;
+            if (doc) {
+                /* get the namespace information */
+                xmlNsPtr *ns = xmlGetNsList(doc, xmlDocGetRootElement( doc ));
+                if (ns != NULL) {
+                    for (int i = 0; ns[i] != NULL; i++) {
+                        const xmlChar *prefix = ns[i]->prefix;
+
+                        if (xmlXPathNsLookup(ctxt, prefix ) == NULL) {
+                            xmlXPathRegisterNs(ctxt, prefix, ns[i]->href);
+                        }
+                    }
+                    xmlFree(ns);
+                }
             }
         }
     }
@@ -400,7 +397,7 @@ xmlXPathObjectPtr
 domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode, int to_bool ) {
     xmlXPathObjectPtr rv = NULL;
     if ( ctxt != NULL && (ctxt->node != NULL || refNode != NULL) && comp != NULL ) {
-        xmlNodePtr prev = ctxt->node;
+        xmlNodePtr save = ctxt->node;
         if (refNode) domXPathCtxtSetNode(ctxt, refNode);
         if (to_bool) {
 #if LIBXML_VERSION >= 20627
@@ -418,7 +415,7 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
             rv = xmlXPathCompiledEval(comp, ctxt);
         }
 
-        if (prev) domXPathCtxtSetNode(ctxt, prev);
+        domXPathCtxtSetNode(ctxt, save);
     }
     return _domVetXPathObject(rv);
 }
