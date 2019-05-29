@@ -309,7 +309,8 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
                 /* get the namespace information */
                 xmlNsPtr *ns = xmlGetNsList(doc, xmlDocGetRootElement( doc ));
                 if (ns != NULL) {
-                    for (int i = 0; ns[i] != NULL; i++) {
+                    int i;
+                    for (i = 0; ns[i] != NULL; i++) {
                         const xmlChar *prefix = ns[i]->prefix;
 
                         if (xmlXPathNsLookup(ctxt, prefix ) == NULL) {

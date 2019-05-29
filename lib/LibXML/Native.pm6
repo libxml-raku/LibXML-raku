@@ -56,6 +56,10 @@ class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
+class xmlParserContext is repr(Stub) is export {
+    method valuePop(--> xmlXPathObject) is native(LIB) {*}
+    method valuePush(xmlXPathObject --> int32) is native(LIB) {*}
+}
 class xmlParserInputBuffer is repr(Stub) is export {
     sub xmlAllocParserInputBuffer(int32 $enc --> xmlParserInputBuffer) is native(LIB) {*}
     method new(xmlEncodingStr:D :$enc!) {
@@ -162,6 +166,17 @@ class xmlXPathObject is export {
     method Reference is native(BIND-LIB) is symbol('domReferenceXPathObject') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseXPathObject') {*}
     method domXPathSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
+
+    sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewFloat(num64 --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewBoolean(int32 --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewNodeSet(xmlNodeSet --> xmlXPathObject) is native(LIB) {*}
+
+    multi method coerce(Bool $v)        { xmlXPathNewBoolean($v) }
+    multi method coerce(Numeric $v)     { xmlXPathNewFloat($v) }
+    multi method coerce(Str $v)         { xmlXPathNewString($v) }
+    multi method coerce(xmlNodeSet $v)  { xmlXPathNewNodeSet($v) }
+    multi method coerce($_) is default  { fail "unable to coerce to an XPath Object: {.perl}" }
 
     method user-object {
         fail "XPath Object is user defined";
@@ -539,6 +554,9 @@ class xmlXPathContext is repr('CStruct') is export {
     }
     method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
     method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
+
+    method RegisterFunc(xmlCharP $name, &func (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
+    method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
 
 }
 

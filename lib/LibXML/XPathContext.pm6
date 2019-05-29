@@ -134,4 +134,17 @@ class LibXML::XPathContext {
             }
         );
     }
+
+    method registerFunctionNS(QName:D $name, Str $url, &func) {
+        $!native.RegisterFuncNS(
+            $name, $url,
+            -> xmlParserContext $c, Int $n {
+                CATCH { default { warn "error in XPath Function: $_"; return } }
+                my @params;
+                @params.push: $c.valuePop.select for 0 ..^ $n;
+                my @out = &func(|@params).map: {xmlXPathObject.coerce: $_};
+                $c.valuePush($_) for @out;
+            }
+        );
+    }
 }
