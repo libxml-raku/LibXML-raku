@@ -1,5 +1,5 @@
 use Test;
-plan 83;
+plan 84;
 
 use LibXML;
 use LibXML::XPathContext;
@@ -176,7 +176,7 @@ $xc5.registerNs('pfx', 'http://www.foo.com');
 $doc = LibXML.new.parse: :string('<foo xmlns="http://www.foo.com" />');
 $xc5.setContextNode($doc);
 $xc5.findnodes('/');
-$xc5.setContextNode(LibXML::Node);
+dies-ok {$xc5.setContextNode($doc2)}, 'changing document is not supported';
 $xc5.getContextNode();
 $xc5.setContextNode($doc);
 $xc5.findnodes('/');
