@@ -159,8 +159,8 @@ class xmlXPathObject is export {
     has Pointer    $.user2;
     has int32      $.index2;
 
-    sub xmlXPathIsInf(num64 --> int32) is native(LIB) {*}
-    sub xmlXPathIsNaN(num64 --> int32) is native(LIB) {*}
+    sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
+    sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceXPathObject') {*}
@@ -170,13 +170,15 @@ class xmlXPathObject is export {
     sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
     sub xmlXPathNewFloat(num64 --> xmlXPathObject) is native(LIB) {*}
     sub xmlXPathNewBoolean(int32 --> xmlXPathObject) is native(LIB) {*}
-    sub xmlXPathNewNodeSet(xmlNodeSet --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewNodeSet(domNode --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathWrapNodeSet(xmlNodeSet --> xmlXPathObject) is native(LIB) {*}
 
-    multi method coerce(Bool $v)        { xmlXPathNewBoolean($v) }
-    multi method coerce(Numeric $v)     { xmlXPathNewFloat($v) }
-    multi method coerce(Str $v)         { xmlXPathNewString($v) }
-    multi method coerce(xmlNodeSet $v)  { xmlXPathNewNodeSet($v) }
-    multi method coerce($_) is default  { fail "unable to coerce to an XPath Object: {.perl}" }
+    multi method coerce(Bool $v)         { xmlXPathNewBoolean($v) }
+    multi method coerce(Numeric $v)      { xmlXPathNewFloat($v.Num) }
+    multi method coerce(Str $v)          { xmlXPathNewString($v) }
+    multi method coerce(domNode:D $v)    { xmlXPathNewNodeSet($v); }
+    multi method coerce(xmlNodeSet:D $v) { xmlXPathWrapNodeSet($v) }
+    multi method coerce($_) is default   { fail "unable to coerce to an XPath Object: {.perl}" }
 
     method user-object {
         fail "XPath Object is user defined";

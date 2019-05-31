@@ -6,6 +6,7 @@ class LibXML::XPathContext {
     use LibXML::Document;
     use LibXML::XPathExpression;
     use LibXML::Types :QName;
+    use NativeCall;
 
     has xmlXPathContext $!native .= new;
     has LibXML::Node $!context-node;
@@ -30,7 +31,7 @@ class LibXML::XPathContext {
 
     multi method find(LibXML::XPathExpression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$values) {
         my domNode $node = .native with $ref-node;
-        given  $.native.find( native($xpath-expr), $node, :$bool) {
+        given $.native.find( native($xpath-expr), $node, :$bool) {
             when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
             default { $_ }
         }
@@ -135,16 +136,22 @@ class LibXML::XPathContext {
         );
     }
 
+    method registerFunction(QName:D $name, &func) {
+        self.registerFunctionNS($name, Str, &func);
+    }
     method registerFunctionNS(QName:D $name, Str $url, &func) {
         $!native.RegisterFuncNS(
             $name, $url,
             -> xmlParserContext $c, Int $n {
-                CATCH { default { warn "error in XPath Function: $_"; return } }
+                CATCH { default { warn "error in XPath Function: $_"; } }
                 my @params;
-                @params.push: $c.valuePop.select for 0 ..^ $n;
-                my @out = &func(|@params).map: {xmlXPathObject.coerce: $_};
+                @params.unshift: $c.valuePop.select for 0 ..^ $n;
+                my xmlXPathObject:D @out = &func(|@params).map: {xmlXPathObject.coerce: $_};
+                .add-reference for @out;
                 $c.valuePush($_) for @out;
             }
         );
     }
+    method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
+    method unregisterFunctionNS(QName:D $name, Str $url) { $!native.RegisterFuncNS($name, $url, Pointer) }
 }
