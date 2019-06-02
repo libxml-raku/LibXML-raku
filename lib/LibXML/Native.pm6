@@ -142,8 +142,12 @@ class xmlNodeSet is export {
     has int32 $.nodeMax;
     has CArray[xmlNodeSetElemPtr] $.nodeTab;
 
+    method Create(domNode --> xmlNodeSet) is native(BIND-LIB) is symbol('xmlXPathNodeSetCreate') {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
+    method new(domNode :$node) {
+        self.Create($node);
+    }
 }
 
 class xmlXPathObject is export {
@@ -162,10 +166,11 @@ class xmlXPathObject is export {
     sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
     sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
+    method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_is_referenced') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
-    method Reference is native(BIND-LIB) is symbol('domReferenceXPathObject') {*}
-    method Release is native(BIND-LIB) is symbol('domReleaseXPathObject') {*}
+
     method domXPathSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
+    method Free is symbol('xmlXPathFreeObject') is native(LIB) {*}
 
     sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
     sub xmlXPathNewFloat(num64 --> xmlXPathObject) is native(LIB) {*}
@@ -176,24 +181,15 @@ class xmlXPathObject is export {
     multi method coerce(Bool $v)         { xmlXPathNewBoolean($v) }
     multi method coerce(Numeric $v)      { xmlXPathNewFloat($v.Num) }
     multi method coerce(Str $v)          { xmlXPathNewString($v) }
-    multi method coerce(domNode:D $v)    { xmlXPathNewNodeSet($v); }
+    multi method coerce(domNode:D $v)    { xmlXPathNewNodeSet($v) }
     multi method coerce(xmlNodeSet:D $v) { xmlXPathWrapNodeSet($v) }
     multi method coerce($_) is default   { fail "unable to coerce to an XPath Object: {.perl}" }
 
-    method user-object {
-        fail "XPath Object is user defined";
-    }
-
     method select {
         return Nil unless self.defined;
-        $.add-reference;
         self!value;
     }
 
-    submethod DESTROY {
-        self.Release
-            if self.remove-reference;
-    }
     method !value {
         given $!type {
             when XPATH_UNDEFINED { Mu }
@@ -223,10 +219,11 @@ class xmlXPathObject is export {
                 fail "todo: XPath user objects";
             }
             default {
-                fail "unhandled node-set type: $_";
+                fail "unhandled XPath Object type: $_";
             }
         }
     }
+
 }
 
 class xmlParserInput is repr('CStruct') is export {
@@ -551,8 +548,7 @@ class xmlXPathContext is repr('CStruct') is export {
     method findnodes(xmlXPathCompExpr:D $expr, domNode $ref-node? --> xmlNodeSet) { self.domXPathSelectCtxt($expr, $ref-node); }
 
     method find(xmlXPathCompExpr:D $expr, domNode $ref-node?, Bool :$bool) {
-        my xmlXPathObject:D $obj := self.domXPathFindCtxt($expr, $ref-node, $bool);
-        $obj.select;
+        self.domXPathFindCtxt($expr, $ref-node, $bool);
     }
     method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
     method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
@@ -633,8 +629,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domNormalize(--> int32) is native(BIND-LIB) {*}
 
     method find(xmlXPathCompExpr:D $expr, Bool :$bool) {
-        my xmlXPathObject $obj := self.domXPathFind($expr, $bool);
-        $obj.select;
+        self.domXPathFind($expr, $bool);
     }
 
     method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }

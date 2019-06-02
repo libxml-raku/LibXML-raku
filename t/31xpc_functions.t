@@ -2,7 +2,7 @@ use Test;
 plan 32;
 
 use LibXML;
-use LibXML::XPathContext;
+use LibXML::XPath::Context;
 
 my $doc = LibXML.new.parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>
@@ -10,12 +10,12 @@ XML
 # TEST
 ok($doc, ' TODO : Add test name');
 
-my $xc = LibXML::XPathContext.new(:$doc);
+my $xc = LibXML::XPath::Context.new(:$doc);
 $xc.registerNs('foo','urn:foo');
 
 # low level test
 use LibXML::Native;
-$xc.registerFunctionNS('copy','urn:foo', -> $v { $v }  );
+$xc.registerFunctionNS('copy','urn:foo', -> $v, $v2? { $v }  );
 
 # copy string, real, integer, nodelist
 # TEST
@@ -35,6 +35,7 @@ my ($foo)=$xc.findnodes('(//*)[2]');
 ok($xc.findnodes('foo:copy(//*)[2]').pop.isSameNode($foo), ' TODO : Add test name');
 
 # too many arguments
+todo("error handling");
 dies-ok { $xc.findvalue('foo:copy(1,xyz)') }, ' TODO : Add test name';
 
 # without a namespace
@@ -63,7 +64,7 @@ dies-ok { $xc.findvalue('dummy2()') }, ' TODO : Add test name';
 $xc.registerFunction(
     'join',
     -> $sep, *@nodes {
-       join($sep, flat @nodes.map: { .list } );
+        join($sep, flat @nodes.map: { .list.map: { .isa(LibXML::Node) ?? .nodeName !! $_ } } );
     }
     );
 
@@ -71,9 +72,6 @@ $xc.registerFunction(
 
 is($xc.findvalue('join("","a","b","c")'), 'abc', ' TODO : Add test name');
 # TEST
-
-skip("todo port remaining tests", 20);
-=begin TODO
 
 is($xc.findvalue('join("-","a",/foo,//*)'), 'a-foo-foo-bar-bar', ' TODO : Add test name');
 # TEST
@@ -85,8 +83,8 @@ $xc.unregisterFunctionNS('copy','urn:foo');
 dies-ok { $xc.findvalue('foo:copy("bar")') }, ' TODO : Add test name';
 
 # test context reentrance
-$xc.registerFunction('test-lock1', sub { $xc.find('string(//node())'); });
-$xc.registerFunction('test-lock2', sub { $xc.findnodes('//bar'); });
+$xc.registerFunction('test-lock1', -> $a? { $xc.find('string(//node())'); });
+$xc.registerFunction('test-lock2', -> $a? { $xc.findnodes('//bar'); });
 # TEST
 
 is($xc.find('test-lock1()'), $xc.find('string(//node())'), ' TODO : Add test name');
@@ -101,7 +99,7 @@ ok($xc.find('count(test-lock2())=count(//bar)'), ' TODO : Add test name');
 ok($xc.find('count(test-lock2()|//bar)=count(//bar)'), ' TODO : Add test name');
 # TEST
 
-ok($xc.findnodes('test-lock2()[2]').pop().isSameNode($xc.findnodes('//bar[2]')), ' TODO : Add test name');
+ok($xc.findnodes('test-lock2()[2]').pop().isSameNode($xc.findnodes('//bar[2]')[0]), ' TODO : Add test name');
 
 $xc.registerFunction('test-lock3', sub { $xc.findnodes('test-lock2(//bar)') });
 # TEST
@@ -125,10 +123,13 @@ is($xc.findnodes('new-foo()').pop().nodeName, 'foo', ' TODO : Add test name');
 my ($test_node) = $xc.findnodes('new-foo()');
 
 $xc.registerFunction('new-chunk',
-		      sub {
-			LibXML.new.parse_string('<x><y><a/><a/></y><y><a/></y></x>').find('//a')
+		      sub (--> LibXML::Node::Set) {
+			    LibXML.new.parse(:string('<x><y><a/><a/></y><y><a/></y></x>')).find('//a');
 		      });
 # TEST
+
+skip("todo port remaining tests", 8);
+=begin TODO
 
 is($xc.findnodes('new-chunk()').size(), 3, ' TODO : Add test name');
 my ($x)=$xc.findnodes('new-chunk()/parent::*');

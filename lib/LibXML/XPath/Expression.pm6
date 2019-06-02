@@ -1,5 +1,5 @@
 use v6;
-class LibXML::XPathExpression {
+class LibXML::XPath::Expression {
 
     use LibXML::Native;
     has xmlXPathCompExpr $!native;

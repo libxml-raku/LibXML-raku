@@ -7,7 +7,7 @@ class LibXML::Node {
     use LibXML::Config;
     use LibXML::Enums;
     use LibXML::Namespace;
-    use LibXML::XPathExpression;
+    use LibXML::XPath::Expression;
     use LibXML::Types :NCName, :QName;
 
     constant config = LibXML::Config;
@@ -26,6 +26,7 @@ class LibXML::Node {
         setNamespaceDeclURI setNamespaceDeclPrefix
         URI baseURI nodeValue
     >;
+    has Bool $.parked is rw;
 
     BEGIN {
         # wrap methods that return raw nodes
@@ -178,7 +179,7 @@ class LibXML::Node {
     }
 
     proto sub native($) is export(:native) {*}
-    multi sub native(LibXML::XPathExpression:D $_) { .native }
+    multi sub native(LibXML::XPath::Expression:D $_) { .native }
     multi sub native(LibXML::Node:D $_) { .native }
     multi sub native(LibXML::Namespace:D $_) { .native }
     multi sub native($_) is default  { $_ }
@@ -266,29 +267,30 @@ class LibXML::Node {
         iterate(LibXML::Node, $!native.getChildrenByTagNameNS($uri, $name));
     }
     my subset XPathRange is export(:XPathRange) where LibXML::Node|LibXML::Namespace;
-    multi method findnodes(LibXML::XPathExpression:D $xpath-expr) {
+    multi method findnodes(LibXML::XPath::Expression:D $xpath-expr) {
         my xmlNodeSet:D $node-set := $!native.findnodes: native($xpath-expr);
         iterate(XPathRange, $node-set);
     }
     multi method findnodes(Str:D $expr) {
-        self.findnodes( LibXML::XPathExpression.new: :$expr);
+        self.findnodes( LibXML::XPath::Expression.new: :$expr);
     }
-    multi method find(LibXML::XPathExpression:D $xpath-expr, Bool:D :$bool = False, Bool :$values) {
-        given $!native.find( native($xpath-expr), :$bool) {
-            when xmlNodeSet:D { iterate(XPathRange, $_, :$values) }
-            default { $_ }
-        }
+    method !select(xmlXPathObject $native, Bool :$values) {
+        my $object = (require ::('LibXML::XPath::Object')).new: :$native;
+        $object.select: :$values;
+    }
+    multi method find(LibXML::XPath::Expression:D $xpath-expr, Bool:D :$bool = False, Bool :$values) {
+        self!select: $!native.find( native($xpath-expr), :$bool);
     }
     multi method find(Str:D $expr, |c) {
-        self.find( LibXML::XPathExpression.parse($expr), |c);
+        self.find( LibXML::XPath::Expression.parse($expr), |c);
     }
-    multi method findvalue(LibXML::XPathExpression:D $xpath-expr) {
+    multi method findvalue(LibXML::XPath::Expression:D $xpath-expr) {
         $.find( $xpath-expr, :values);
     }
     multi method findvalue(Str:D $expr) {
-        $.findvalue( LibXML::XPathExpression.parse($expr));
+        $.findvalue( LibXML::XPath::Expression.parse($expr));
     }
-    my subset XPathDomain where LibXML::XPathExpression|Str|Any:U;
+    my subset XPathDomain where LibXML::XPath::Expression|Str|Any:U;
 
     method exists(XPathDomain:D $xpath-expr --> Bool:D) {
         $.find($xpath-expr, :bool);
@@ -394,8 +396,8 @@ class LibXML::Node {
                 ## due to how c14n is implemented, the nodeset it receives must
                 ## include child nodes; ie, child nodes aren't assumed to be rendered.
                 ## so we use an xpath expression to find all of the child nodes.
-                state $AllNodes //= LibXML::XPathExpression.new: expr => '(. | .//node() | .//@* | .//namespace::*)';
-                state $NonCommentNodes //= LibXML::XPathExpression.new: expr => '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
+                state $AllNodes //= LibXML::XPath::Expression.new: expr => '(. | .//node() | .//@* | .//namespace::*)';
+                state $NonCommentNodes //= LibXML::XPath::Expression.new: expr => '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
                 $xpath //= $comments ?? $AllNodes !! $NonCommentNodes;
             }
             my $nodes = $selector.findnodes($_)
@@ -429,12 +431,14 @@ class LibXML::Node {
     }
 
     submethod DESTROY {
-        with $!native {
-            if .remove-reference {
-                # this particular node is no longer referenced directly
-                given .root {
-                    # release or keep the tree, in it's entirety
-                    .Free unless .is-referenced;
+        unless $!parked {
+            with $!native {
+                if .remove-reference {
+                    # this particular node is no longer referenced directly
+                    given .root {
+                        # release or keep the tree, in it's entirety
+                        .Free unless .is-referenced;
+                    }
                 }
             }
         }

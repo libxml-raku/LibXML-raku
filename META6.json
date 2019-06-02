@@ -55,8 +55,9 @@
     "LibXML::SAX::Handler::SAX2::Locator" : "lib/LibXML/SAX/Handler/SAX2/Locator.pm6",
     "LibXML::SAX::Handler::XML" : "lib/LibXML/SAX/Handler/XML.pm6",
     "LibXML::Schema" : "lib/LibXML/Schema.pm6",
-    "LibXML::XPathContext" :   "lib/LibXML/XPathContext.pm6",
-    "LibXML::XPathExpression" :   "lib/LibXML/XPathExpression.pm6"
+    "LibXML::XPath::Context" :   "lib/LibXML/XPath/Context.pm6",
+    "LibXML::XPath::Expression" :   "lib/LibXML/XPath/Expression.pm6",
+    "LibXML::XPath::Object" :   "lib/LibXML/XPath/Object.pm6"
   },
   "resources" : [
     "libraries/xml6"

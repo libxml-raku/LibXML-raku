@@ -13,6 +13,7 @@ use LibXML::Text;
 use LibXML::Native;
 use LibXML::Node::Set;
 use LibXML::Node::List;
+use LibXML::XPath::Object;
 
 unit class LibXML
     is LibXML::Parser;

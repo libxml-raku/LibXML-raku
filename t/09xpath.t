@@ -3,7 +3,7 @@ use Test;
 plan 54;
 
 use LibXML;
-use LibXML::XPathExpression;
+use LibXML::XPath::Expression;
 
 my $xmlstring = q:to<EOSTR>;
 <foo>
@@ -33,7 +33,7 @@ EOSTR
         ok( $doc.isSameNode(@nodes[0].ownerDocument),
             'Doc is the same as the owner document.' );
 
-        my $compiled = LibXML::XPathExpression.parse("/foo/bar");
+        my $compiled = LibXML::XPath::Expression.parse("/foo/bar");
         for (1..3) -> $idx {
             @nodes = $doc.findnodes( $compiled );
             # TEST*3
@@ -72,7 +72,7 @@ EOSTR
 
         ok( $doc.isSameNode($result.pull-one.ownerDocument), ' TODO : Add test name' );
 
-        $result = $doc.find( LibXML::XPathExpression.parse("/foo/bar") );
+        $result = $doc.find( LibXML::XPath::Expression.parse("/foo/bar") );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
@@ -101,7 +101,7 @@ EOSTR
         # TEST
         ok( $result.Str ~~ /'test 1'/, ' TODO : Add test name' );
 
-        $result = $doc.find( LibXML::XPathExpression.parse("count(/foo/bar)") );
+        $result = $doc.find( LibXML::XPath::Expression.parse("count(/foo/bar)") );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST
@@ -118,7 +118,7 @@ EOSTR
         # TEST
         is( $result, True, ' TODO : Add test name' );
 
-        $result = $doc.find( LibXML::XPathExpression.parse("contains(/foo/bar[1], 'test 1')") );
+        $result = $doc.find( LibXML::XPath::Expression.parse("contains(/foo/bar[1], 'test 1')") );
         # TEST
         ok( $result, ' TODO : Add test name' );
         # TEST

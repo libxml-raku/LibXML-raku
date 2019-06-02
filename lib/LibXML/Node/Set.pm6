@@ -4,17 +4,21 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     use Method::Also;
 
     has $.range is required;
-    has xmlNodeSet $.native is required;
+    has xmlNodeSet $.native;
     has UInt $!idx = 0;
     has @!array;
     has Bool $!slurped;
     has Bool $.values;
+    has Bool $.parked is rw;
     submethod TWEAK {
-        .Reference with $!native;
+        $!native //= xmlNodeSet.new;
+        .Reference given $!native;
     }
     submethod DESTROY {
-        # xmlNodeSet is managed by us
-        .Release with $!native;
+        unless $!parked {
+            # xmlNodeSet is managed by us
+            .Release with $!native;
+        }
     }
     method elems is also<Numeric> { $!slurped ?? @!array.elems !! $!native.nodeNr }
     method Array handles<List list pairs keys values map grep shift pop push append> {

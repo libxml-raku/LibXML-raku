@@ -14,12 +14,6 @@ domXPathSelectNodeSet(xmlXPathObjectPtr);
 xmlNodeSetPtr
 domXPathSelectStr( xmlNodePtr refNode, xmlChar* xpathstring );
 
-void
-domReferenceXPathObject(xmlXPathObjectPtr);
-
-void
-domReleaseXPathObject(xmlXPathObjectPtr);
-
 xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp );
 

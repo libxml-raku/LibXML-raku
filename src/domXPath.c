@@ -210,25 +210,6 @@ domReleaseNodeSet(xmlNodeSetPtr self) {
     xmlFree(self);
 }
 
-void
-domReferenceXPathObject(xmlXPathObjectPtr self) {
-    if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
-        domReferenceNodeSet(self->nodesetval);
-    }
-}
-
-void
-domReleaseXPathObject(xmlXPathObjectPtr self) {
-    if (self->type == XPATH_NODESET && self->nodesetval != NULL) {
-        domReleaseNodeSet(self->nodesetval);
-        self->nodesetval = NULL;
-    }
-    else if (self->type == XPATH_RANGE) {
-        xml6_warn("todo: cleanup of XPath range objects");
-    }
-    xmlXPathFreeObject(self);
-}
-
 static xmlXPathObjectPtr
 _domXPathFindStr( xmlNodePtr refNode, xmlChar* path) {
     xmlXPathObjectPtr rv = NULL;
@@ -396,9 +377,7 @@ domXPathSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
 
 static xmlNodeSetPtr
 _domSelect(xmlXPathObjectPtr xpath_obj) {
-    xmlNodeSetPtr rv = domXPathSelectNodeSet(xpath_obj);
-    xmlXPathFreeObject(xpath_obj);
-    return rv;
+    return domXPathSelectNodeSet(xpath_obj);
 }
 
 xmlNodeSetPtr
@@ -441,6 +420,7 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
             rv = xmlXPathCompiledEval(comp, ctxt);
         }
 
+//        fprintf(stderr, "%s:%d ctxt=%ld rv=%ld user2=%d\n", __FILE__, __LINE__, (long)ctxt, (long)rv, (long)rv->user2);
         ctxt->node = old_node;
         ctxt->doc = old_doc;
         if (inherited_ns) {

@@ -3,7 +3,7 @@ plan 137;
 
 use LibXML;
 use LibXML::Enums;
-use LibXML::XPathContext;
+use LibXML::XPath::Context;
 
 my $parser = LibXML.new();
 
@@ -383,7 +383,7 @@ print "# 8. changing namespace declarations\n";
     # TEST
     is( $doc.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
 
-    my LibXML::XPathContext $xp .= new: :$doc;
+    my LibXML::XPath::Context $xp .= new: :$doc;
     # TEST
     is( $xp.findnodes('/document/foo').size(), 1, ' TODO : Add test name' );
     # TEST
