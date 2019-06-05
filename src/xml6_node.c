@@ -1,19 +1,24 @@
 #include "xml6.h"
 #include "xml6_node.h"
 #include "xml6_ref.h"
+#include "libxml/xpathInternals.h"
 #include "libxml/xmlsave.h"
 #include "libxml/c14n.h"
+#include <assert.h>
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
+    assert(self != NULL);
     xml6_ref_add( &(self->_private) );
 }
 
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
+    assert(self != NULL);
     return xml6_ref_remove( &(self->_private), "node", (void*) self);
 }
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
     xmlNodePtr node = self;
+    assert(node != NULL);
 
     while (node && node->parent) {
         node = node->parent;
@@ -43,6 +48,7 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
 }
 
 DLLEXPORT xmlNodePtr xml6_node_first_child(xmlNodePtr node, int keep_blanks) {
+    assert(node != NULL);
     node = node->children;
     if (keep_blanks == 0) {
         while (node && xmlIsBlankNode(node)) {
@@ -54,6 +60,7 @@ DLLEXPORT xmlNodePtr xml6_node_first_child(xmlNodePtr node, int keep_blanks) {
 }
 
 DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int keep_blanks) {
+    assert(node != NULL);
     do {
         node = node->next;
     } while (node != NULL && keep_blanks == 0 && xmlIsBlankNode(node));
@@ -62,6 +69,7 @@ DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int keep_blanks) {
 }
 
 DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int keep_blanks) {
+    assert(node != NULL);
     do {
         node = node->prev;
     } while (node != NULL && keep_blanks == 0 && xmlIsBlankNode(node));
@@ -70,28 +78,28 @@ DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int keep_blanks) {
 }
 
 DLLEXPORT void xml6_node_set_doc(xmlNodePtr self, xmlDocPtr doc) {
-    if (self == NULL) xml6_fail("unable to update null node");
+    assert(self != NULL);
     if (self->doc && self->doc != doc) xml6_warn("possible memory leak in setting node->doc");
 
     self->doc = doc;
 }
 
 DLLEXPORT void xml6_node_set_ns(xmlNodePtr self, xmlNsPtr ns) {
-    if (self == NULL) xml6_fail("unable to update null node");
+    assert(self != NULL);
     if (self->ns && self->ns != ns) xml6_warn("possible memory leak in setting node->ns");
 
     self->ns = ns;
 }
 
 DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr self, xmlNsPtr ns) {
-    if (self == NULL) xml6_fail("unable to update null node");
+    assert(self != NULL);
     if (self->nsDef && self->nsDef != ns) xml6_warn("possible memory leak in setting node->nsDef");
 
     self->nsDef = ns;
 }
 
 DLLEXPORT void xml6_node_set_content(xmlNodePtr self, xmlChar* new_content) {
-    if (self == NULL) xml6_fail("unable to update null node");
+    assert(self != NULL);
     if (self->content) xmlFree(self->content);
 
     self->content = xmlStrdup((const xmlChar *) new_content);
@@ -146,6 +154,19 @@ DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int excl
         char msg[80];
         sprintf(msg, "C14N serialization returned error status: %d", stat);
         fail(self, msg);
+    }
+
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr xml6_node_list_to_nodeset(xmlNodePtr self, int keep_blanks) {
+    xmlNodePtr cur = self;
+    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
+    assert(rv != NULL);
+
+    while (cur != NULL) {
+            xmlXPathNodeSetAdd(rv, cur);
+        cur = xml6_node_next(cur, keep_blanks);
     }
 
     return rv;

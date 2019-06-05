@@ -1,9 +1,11 @@
 #include "xml6.h"
 #include "xml6_xpath.h"
 #include "xml6_ref.h"
+#include <assert.h>
 
 DLLEXPORT void
 xml6_xpath_object_add_reference(xmlXPathObjectPtr self) {
+    assert(self != NULL);
     xml6_ref_add( &(self->user2) );
 }
 

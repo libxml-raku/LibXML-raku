@@ -2,12 +2,12 @@ use v6;
 class LibXML::XPath::Context {
 
     use LibXML::Native;
-    use LibXML::Node :iterate, :XPathRange, :NameVal, :native;
+    use LibXML::Node :iterate, :NodeSetElem, :NameVal, :native;
     use LibXML::Document;
     use LibXML::Types :QName;
     use LibXML::Node::Set;
     use LibXML::XPath::Expression;
-    use LibXML::XPath::Object;
+    use LibXML::XPath::Object :XPathRange;
     use NativeCall;
 
     has LibXML::Node $!context-node;
@@ -26,9 +26,8 @@ class LibXML::XPath::Context {
     multi method findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?) {
         my domNode $node = .native with $ref-node;
         my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
-        my $rv := iterate(XPathRange, $node-set);
         .rethrow with @!callback-errors.tail;
-        $rv;
+        iterate(NodeSetElem, $node-set, :!ours);
     }
     multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
         $.findnodes( LibXML::XPath::Expression.new(:$expr), $ref-node );
@@ -144,9 +143,19 @@ class LibXML::XPath::Context {
         );
     }
 
-    multi sub park(LibXML::Node::Set:D $_) { .parked = True; .native }
-    multi sub park(LibXML::Node:D $_) { .parked = True; .native }
-    multi sub park($_) is default { $_ }
+    has %!pool{UInt}; # Keep objects, to avoid premature destruction
+    my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
+    multi method park(NodeObj:D $node --> xmlNodeSet:D) {
+        %!pool{ +nativecast(Pointer, $node.native) } //= $node;
+        # return a copied, or newly created native node-set
+        given $node {
+            when LibXML::Node::List {.native.list-to-nodeset($node.keep-blanks) }
+            when LibXML::Node::Set { .native.copy }
+            when LibXML::Node { xmlNodeSet.new( node => .native );}
+            default { fail "unhandled node type: {.WHAT.perl}" }
+        }
+    }
+    multi method park($_) is default { $_ }
 
     method registerFunction(QName:D $name, &func) {
         self.registerFunctionNS($name, Str, &func);
@@ -159,11 +168,23 @@ class LibXML::XPath::Context {
                 CATCH { default { @!callback-errors.push: $_ } }
                 my @params;
                 @params.unshift: self!select($c.valuePop) for 0 ..^ $n;
-                my @ret = &func(|@params);
+                my $ret = &func(|@params);
                 # create some umanaged XPath Objects
-                my xmlXPathObject:D @out = @ret.map: {xmlXPathObject.coerce: park($_)};
-                $c.valuePush($_) for @out;
+                my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret);
+                $c.valuePush($_) for $out;
             }
+        );
+    }
+
+    method registerVarLookupFunc(&func, :$data) {
+        $!native.RegisterVariableLookup(
+            -> $ctxt, Str $name, Str $url --> xmlXPathObject:D {
+                CATCH { default { @!callback-errors.push: $_ } }
+                my $ret = &func($name, $url);
+                # create some umanaged XPath Objects
+                xmlXPathObject.coerce: $.park($ret);
+            },
+            Pointer,
         );
     }
     method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }

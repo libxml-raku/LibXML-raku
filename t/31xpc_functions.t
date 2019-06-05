@@ -1,5 +1,5 @@
 use Test;
-plan 32;
+plan 31;
 
 use LibXML;
 use LibXML::XPath::Context;
@@ -123,15 +123,13 @@ is($xc.findnodes('new-foo()').pop().nodeName, 'foo', ' TODO : Add test name');
 my ($test_node) = $xc.findnodes('new-foo()');
 
 $xc.registerFunction('new-chunk',
-		      sub (--> LibXML::Node::Set) {
+		      sub {
 			    LibXML.new.parse(:string('<x><y><a/><a/></y><y><a/></y></x>')).find('//a');
 		      });
 # TEST
 
-skip("todo port remaining tests", 8);
-=begin TODO
-
 is($xc.findnodes('new-chunk()').size(), 3, ' TODO : Add test name');
+
 my ($x)=$xc.findnodes('new-chunk()/parent::*');
 # TEST
 
@@ -142,26 +140,24 @@ is($xc.findvalue('name(new-chunk()/parent::*)'), 'y', ' TODO : Add test name');
 
 ok($xc.findvalue('count(new-chunk()/parent::*)=2'), ' TODO : Add test name');
 
-my $largedoc=LibXML.new.parse: :string('<a>'~ ('<b/>' x 3000) ~ '</a>');
-$xc.setContextNode($largedoc);
+my $largedoc=LibXML.new.parse: :string('<a>'~ ('<b/>' x 300) ~ '</a>');
+$xc .= new: :doc($largedoc);
+$xc.setContextNode($largedoc.documentElement);
 $xc.registerFunction('pass1',
-			sub {
-			  [$largedoc.findnodes('(//*)')]
+			sub (*@c) {
+			  $largedoc.findnodes('(//*)')[0].list
 			});
 $xc.registerFunction('pass2', -> $v { $v } );
 
-$xc.registerVarLookupFunc( sub { [$largedoc.findnodes('(//*)')] }, undef);
-$largedoc.toString();
+$xc.registerVarLookupFunc( sub (*@c) { $largedoc.findnodes('(//*)')[0].list });
 
 # TEST
 
-is($xc.find('$a[name()="b"]').size(), 3000, ' TODO : Add test name');
-my @pass1=$xc.findnodes('pass1()');
+is($xc.find('$a[name()="b"]').size(), 300, ' TODO : Add test name');
+my $pass1=$xc.findnodes('pass1()');
 # TEST
 
-is(+@pass1, 3001, ' TODO : Add test name');
+is($pass1.size, 300, ' TODO : Add test name');
 # TEST
 
-is($xc.find('pass2(//*)').size(), 3001, ' TODO : Add test name');
-
-=end TODO
+is($xc.find('pass2(//*)').size(), 301, ' TODO : Add test name');

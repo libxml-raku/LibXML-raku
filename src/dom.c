@@ -506,11 +506,11 @@ domNodeIsReferenced(xmlNodePtr cur) {
         xmlDocPtr doc = (xmlDocPtr) cur;
         if (doc->intSubset != NULL
             && domNodeIsReferenced((xmlNodePtr)doc->intSubset)) {
-                return 1;
+            return 1;
         }
         if (doc->extSubset != NULL
             && domNodeIsReferenced((xmlNodePtr)doc->extSubset)) {
-                return 1;
+            return 1;
         }
     }
 

@@ -2,8 +2,10 @@
 #include "xml6_ns.h"
 #include "xml6_ref.h"
 #include <string.h>
+#include <assert.h>
 
 DLLEXPORT void xml6_ns_add_reference(xmlNsPtr self) {
+    assert(self != NULL);
     xml6_ref_add( &(self->_private) );
 }
 
@@ -15,7 +17,7 @@ DLLEXPORT xmlNsPtr xml6_ns_copy(xmlNsPtr self) {
     xmlNsPtr new = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
 
     if (new == NULL) {
-        xml6_warn("Error building namespace");
+        xml6_fail("Error building namespace");
     }
     else {
         memset(new, 0, sizeof(xmlNs));

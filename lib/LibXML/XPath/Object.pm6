@@ -2,13 +2,16 @@ use v6;
 unit class LibXML::XPath::Object;
 
 use LibXML::Native;
-use LibXML::Node :iterate, :XPathRange;
+use LibXML::Node :iterate, :NodeSetElem;
+use LibXML::Node::Set;
 
 has xmlXPathObject $.native is required;
 
-method select(Bool :$values) {
+my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
+
+method select(Bool :$values --> XPathRange) {
     given $!native.select {
-        when xmlNodeSet { iterate(XPathRange, $_, :$values) }
+        when xmlNodeSet { iterate(NodeSetElem, $_, :$values) }
         default { $_ }
     }
 }

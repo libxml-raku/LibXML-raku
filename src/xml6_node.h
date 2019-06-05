@@ -17,6 +17,7 @@ DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr, xmlNsPtr);
 DLLEXPORT void xml6_node_set_content(xmlNodePtr, xmlChar*);
 DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr, int opts, size_t* len, char* enc);
 DLLEXPORT xmlChar* xml6_node_to_str(xmlNodePtr, int opts);
-DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int exclusive, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist);
+DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr, int comments, int exclusive, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist);
+DLLEXPORT xmlNodeSetPtr xml6_node_list_to_nodeset(xmlNodePtr, int keep_blanks);
 
 #endif /* __XML6_NODE_H */

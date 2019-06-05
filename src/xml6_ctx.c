@@ -1,8 +1,10 @@
 #include "xml6.h"
 #include "xml6_ctx.h"
 #include "xml6_ref.h"
+#include <assert.h>
 
 DLLEXPORT void xml6_ctx_add_reference(xmlParserCtxtPtr self) {
+    assert(self != NULL);
     xml6_ref_add( &(self->_private) );
 }
 
@@ -11,8 +13,7 @@ DLLEXPORT int xml6_ctx_remove_reference(xmlParserCtxtPtr self) {
 }
 
 DLLEXPORT void xml6_ctx_set_sax(xmlParserCtxtPtr self, xmlSAXHandlerPtr sax) {
-    if (self == NULL) xml6_fail("can't assign SAX handler to NULL context");
-
+    assert(self != NULL);
     self->sax = sax;
 }
 

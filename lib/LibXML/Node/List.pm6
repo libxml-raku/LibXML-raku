@@ -1,4 +1,6 @@
 class LibXML::Node::List does Iterable does Iterator {
+    use LibXML::Native;
+
     has Bool $.keep-blanks;
     has $.doc is required;
     has $.native is required handles <string-value>;
@@ -31,5 +33,10 @@ class LibXML::Node::List does Iterable does Iterator {
         else {
             IterationEnd;
         }
+    }
+    method to-node-set {
+        require LibXML::Node::Set;
+        my xmlNodeSet:D $native = $!native.list-to-nodeset($!keep-blanks);
+        LibXML::Node::Set.new: :$native;
     }
 }

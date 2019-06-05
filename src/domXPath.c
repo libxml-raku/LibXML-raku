@@ -420,7 +420,6 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
             rv = xmlXPathCompiledEval(comp, ctxt);
         }
 
-//        fprintf(stderr, "%s:%d ctxt=%ld rv=%ld user2=%d\n", __FILE__, __LINE__, (long)ctxt, (long)rv, (long)rv->user2);
         ctxt->node = old_node;
         ctxt->doc = old_doc;
         if (inherited_ns) {

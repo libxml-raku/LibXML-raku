@@ -12,6 +12,7 @@ class LibXML::Node {
 
     constant config = LibXML::Config;
     my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
+    my subset NodeSetElem is export(:NodeSetElem) where LibXML::Node|LibXML::Namespace;
     enum <SkipBlanks KeepBlanks>;
 
     has LibXML::Node $.doc;
@@ -26,7 +27,6 @@ class LibXML::Node {
         setNamespaceDeclURI setNamespaceDeclPrefix
         URI baseURI nodeValue
     >;
-    has Bool $.parked is rw;
 
     BEGIN {
         # wrap methods that return raw nodes
@@ -226,9 +226,9 @@ class LibXML::Node {
         LibXML::Node::List.new: :type($obj), :$native, :$doc, :$keep-blanks;
     }
 
-    multi sub iterate($range, xmlNodeSet $native, Bool :$values) {
+    multi sub iterate($range, xmlNodeSet $native, |c) {
         # iterate through a set of nodes
-        (require ::('LibXML::Node::Set')).new( :$native, :$range, :$values )
+        (require ::('LibXML::Node::Set')).new( :$native, :$range, |c )
     }
 
     my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
@@ -242,7 +242,7 @@ class LibXML::Node {
         $!doc = LibXML::Node;
         self;
     }
-    method childNodes is also<getChildnodes> {
+    method childNodes is also<getChildnodes list List> {
         iterate(LibXML::Node, $!native.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
@@ -266,10 +266,9 @@ class LibXML::Node {
     method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
         iterate(LibXML::Node, $!native.getChildrenByTagNameNS($uri, $name));
     }
-    my subset XPathRange is export(:XPathRange) where LibXML::Node|LibXML::Namespace;
     multi method findnodes(LibXML::XPath::Expression:D $xpath-expr) {
         my xmlNodeSet:D $node-set := $!native.findnodes: native($xpath-expr);
-        iterate(XPathRange, $node-set);
+        iterate(NodeSetElem, $node-set);
     }
     multi method findnodes(Str:D $expr) {
         self.findnodes( LibXML::XPath::Expression.new: :$expr);
@@ -290,9 +289,9 @@ class LibXML::Node {
     multi method findvalue(Str:D $expr) {
         $.findvalue( LibXML::XPath::Expression.parse($expr));
     }
-    my subset XPathDomain where LibXML::XPath::Expression|Str|Any:U;
+    my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
-    method exists(XPathDomain:D $xpath-expr --> Bool:D) {
+    method exists(XPathExpr:D $xpath-expr --> Bool:D) {
         $.find($xpath-expr, :bool);
     }
     multi method setAttribute(NameVal:D $_) {
@@ -387,7 +386,7 @@ class LibXML::Node {
         $options;
     }
 
-    method !c14n-str(Bool() :$comments, Bool() :$exclusive, XPathDomain :$xpath is copy, :$selector = self, :@prefix --> Str) {
+    method !c14n-str(Bool() :$comments, Bool() :$exclusive, XPathExpr :$xpath is copy, :$selector = self, :@prefix --> Str) {
         my Str $rv;
         my CArray[Str] $prefix .= new: |@prefix, Str;
 
@@ -431,14 +430,12 @@ class LibXML::Node {
     }
 
     submethod DESTROY {
-        unless $!parked {
-            with $!native {
-                if .remove-reference {
-                    # this particular node is no longer referenced directly
-                    given .root {
-                        # release or keep the tree, in it's entirety
-                        .Free unless .is-referenced;
-                    }
+        with $!native {
+            if .remove-reference {
+                # this particular node is no longer referenced directly
+                given .root {
+                    # release or keep the tree, in it's entirety
+                    .Free unless .is-referenced;
                 }
             }
         }

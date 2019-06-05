@@ -142,11 +142,13 @@ class xmlNodeSet is export {
     has int32 $.nodeMax;
     has CArray[xmlNodeSetElemPtr] $.nodeTab;
 
-    method Create(domNode --> xmlNodeSet) is native(BIND-LIB) is symbol('xmlXPathNodeSetCreate') {*}
+    sub xmlXPathNodeSetCreate(domNode --> xmlNodeSet) is export is native(LIB) {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
+    method copy(--> xmlNodeSet) is symbol('xml6_nodeset_copy') is native(BIND-LIB) {*}
+
     method new(domNode :$node) {
-        self.Create($node);
+        xmlXPathNodeSetCreate($node);
     }
 }
 
@@ -175,7 +177,7 @@ class xmlXPathObject is export {
     sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
     sub xmlXPathNewFloat(num64 --> xmlXPathObject) is native(LIB) {*}
     sub xmlXPathNewBoolean(int32 --> xmlXPathObject) is native(LIB) {*}
-    sub xmlXPathNewNodeSet(domNode --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewNodeSet(domNode:D --> xmlXPathObject) is native(LIB) {*}
     sub xmlXPathWrapNodeSet(xmlNodeSet --> xmlXPathObject) is native(LIB) {*}
 
     multi method coerce(Bool $v)         { xmlXPathNewBoolean($v) }
@@ -553,8 +555,9 @@ class xmlXPathContext is repr('CStruct') is export {
     method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
     method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
 
-    method RegisterFunc(xmlCharP $name, &func (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
-    method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
+    method RegisterFunc(xmlCharP $name, &func1 (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
+    method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func2 (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
+    method RegisterVariableLookup( &func3 (xmlXPathContext, Str, Str --> xmlXPathObject), Pointer ) is symbol('xmlXPathRegisterVariableLookup') is native(LIB) {*}
 
 }
 
@@ -617,6 +620,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
     method first-child(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_first_child') {*}
     method next-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_next') {*}
+    method list-to-nodeset(int32 --> xmlNodeSet) is native(BIND-LIB) is symbol('xml6_node_list_to_nodeset') {*}
     method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}

@@ -12,6 +12,8 @@ multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
     self.native = $text-struct;
 }
 
+method data is rw { $.nodeValue }
+
 method Str is rw handles <substr substr-rw> { $.native.content; }
 
 # DOM Boot-leather
