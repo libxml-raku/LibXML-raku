@@ -27,7 +27,7 @@ class LibXML::XPath::Context {
         my domNode $node = .native with $ref-node;
         my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
         .rethrow with @!callback-errors.tail;
-        iterate(NodeSetElem, $node-set, :!ours);
+        iterate(NodeSetElem, $node-set);
     }
     multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
         $.findnodes( LibXML::XPath::Expression.new(:$expr), $ref-node );
@@ -149,13 +149,18 @@ class LibXML::XPath::Context {
         %!pool{ +nativecast(Pointer, $node.native) } //= $node;
         # return a copied, or newly created native node-set
         given $node {
-            when LibXML::Node::List {.native.list-to-nodeset($node.keep-blanks) }
-            when LibXML::Node::Set { .native.copy }
-            when LibXML::Node { xmlNodeSet.new( node => .native );}
+            when LibXML::Node::Set  { .native.copy }
+            when LibXML::Node::List {
+                my domNode:D $node = .native;
+                my $keep-blanks = .keep-blanks;
+                xmlNodeSet.new( :list, :$node, :$keep-blanks);
+            }
+            when LibXML::Node       { xmlNodeSet.new( node => .native );}
             default { fail "unhandled node type: {.WHAT.perl}" }
         }
     }
-    multi method park($_) is default { $_ }
+    # anything else (Bool, Numeric, Str)
+    multi method park(XPathRange $_) is default { $_ }
 
     method registerFunction(QName:D $name, &func) {
         self.registerFunctionNS($name, Str, &func);
@@ -164,7 +169,7 @@ class LibXML::XPath::Context {
     method registerFunctionNS(QName:D $name, Str $url, &func) {
         $!native.RegisterFuncNS(
             $name, $url,
-            -> xmlParserContext $c, Int $n {
+            -> xmlXPathParserContext $c, Int $n {
                 CATCH { default { @!callback-errors.push: $_ } }
                 my @params;
                 @params.unshift: self!select($c.valuePop) for 0 ..^ $n;
@@ -176,7 +181,7 @@ class LibXML::XPath::Context {
         );
     }
 
-    method registerVarLookupFunc(&func, :$data) {
+    method registerVarLookupFunc(&func) {
         $!native.RegisterVariableLookup(
             -> $ctxt, Str $name, Str $url --> xmlXPathObject:D {
                 CATCH { default { @!callback-errors.push: $_ } }
@@ -187,6 +192,27 @@ class LibXML::XPath::Context {
             Pointer,
         );
     }
+    method unregisterVarLookupFunc {
+        $!native.RegisterVariableLookup(Pointer, Pointer);
+    }
+    method getVarLookupFunc {
+
+        with $!native.varLookupFunc {
+            nativecast( :($ctxt, Str $name, Str $url --> xmlXPathObject:D), $_)
+        }
+        else {
+            Mu;
+        }
+    }
+    method varLookupFunc is rw {
+        Proxy.new(
+            FETCH => { $.getVarLookupFunc },
+            STORE => -> $, &func {
+                $.registerVarLookupFunc(&func)
+            }
+        );
+    }
+
     method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
     method unregisterFunctionNS(QName:D $name, Str $url) { $!native.RegisterFuncNS($name, $url, Pointer) }
 }

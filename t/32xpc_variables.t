@@ -54,8 +54,9 @@ my $xc = LibXML::XPath::Context.new(:$doc);
 
 # TEST
 ##ok(!defined($xc.getVarLookupData), ' TODO : Add test name');
-$xc.registerVarLookupFunc(&get_variable, :data(%variables));
+$xc.registerVarLookupFunc(&get_variable);
 # TEST
+skip('varLookupData - do we need this?', 5);
 ##ok(defined($xc.getVarLookupData), ' TODO : Add test name');
 ##my $h1=$xc.getVarLookupData;
 ##my $h2=\%variables;
@@ -105,23 +106,18 @@ ok($xc.findnodes('$f').pop.isSameNode(%variables<f>), ' TODO : Add test name');
 # TEST
 ok($xc.findnodes('$g').pop.isSameNode(%variables<g>), ' TODO : Add test name');
 
-skip("todo:port tests", 9);
-=begin TODO
-
 # unregiser variable lookup
 $xc.unregisterVarLookupFunc();
-eval { $xc.find('$a') };
-# TEST
-ok($@, ' TODO : Add test name');
+dies-ok { $xc.find('$a') }, ' TODO : Add test name';
 # TEST
 ok(!defined($xc.getVarLookupFunc()), ' TODO : Add test name');
 
-my $foo='foo';
-$xc.registerVarLookupFunc(sub {},$foo);
+skip('varLookupData - do we need this?', 2);
+##my $foo='foo';
+##$xc.registerVarLookupFunc(sub {},$foo);
 # TEST
-ok($xc.getVarLookupData eq 'foo', ' TODO : Add test name');
-$foo=undef;
+##ok($xc.getVarLookupData eq 'foo', ' TODO : Add test name');
+##$foo=undef;
 # TEST
-ok($xc.getVarLookupData eq 'foo', ' TODO : Add test name');
+##ok($xc.getVarLookupData eq 'foo', ' TODO : Add test name');
 
-=end TODO

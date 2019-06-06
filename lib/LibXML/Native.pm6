@@ -31,6 +31,8 @@ class xmlNode    is repr('CStruct') is export {...}
 class xmlNodeSet is repr('CStruct') is export {...}
 class xmlAttr    is repr('CStruct') is export {...}
 class xmlDtd     is repr('CStruct') is export {...}
+class xmlXPathParserContext
+                 is repr('CStruct') is export { ...}
 class xmlXPathObject
                  is repr('CStruct') is export {...}
 class parserCtxt is repr('CStruct') is export {...}
@@ -56,10 +58,6 @@ class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
-class xmlParserContext is repr(Stub) is export {
-    method valuePop(--> xmlXPathObject) is native(LIB) {*}
-    method valuePush(xmlXPathObject --> int32) is native(LIB) {*}
-}
 class xmlParserInputBuffer is repr(Stub) is export {
     sub xmlAllocParserInputBuffer(int32 $enc --> xmlParserInputBuffer) is native(LIB) {*}
     method new(xmlEncodingStr:D :$enc!) {
@@ -147,85 +145,12 @@ class xmlNodeSet is export {
     method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
     method copy(--> xmlNodeSet) is symbol('xml6_nodeset_copy') is native(BIND-LIB) {*}
 
-    method new(domNode :$node) {
+    multi method new(domNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {
+        $node.list-to-nodeset(+$keep-blanks);
+    }
+    multi method new(domNode :$node) is default {
         xmlXPathNodeSetCreate($node);
     }
-}
-
-class xmlXPathObject is export {
-    has int32 $.type;
-
-    has xmlNodeSet $.nodeset is rw;
-    has int32      $.bool;
-    has num64      $.float;
-    has xmlCharP   $.string;
-
-    has Pointer    $.user;
-    has int32      $.index;
-    has Pointer    $.user2;
-    has int32      $.index2;
-
-    sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
-    sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
-    method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
-    method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_is_referenced') {*}
-    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
-
-    method domXPathSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
-    method Free is symbol('xmlXPathFreeObject') is native(LIB) {*}
-
-    sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
-    sub xmlXPathNewFloat(num64 --> xmlXPathObject) is native(LIB) {*}
-    sub xmlXPathNewBoolean(int32 --> xmlXPathObject) is native(LIB) {*}
-    sub xmlXPathNewNodeSet(domNode:D --> xmlXPathObject) is native(LIB) {*}
-    sub xmlXPathWrapNodeSet(xmlNodeSet --> xmlXPathObject) is native(LIB) {*}
-
-    multi method coerce(Bool $v)         { xmlXPathNewBoolean($v) }
-    multi method coerce(Numeric $v)      { xmlXPathNewFloat($v.Num) }
-    multi method coerce(Str $v)          { xmlXPathNewString($v) }
-    multi method coerce(domNode:D $v)    { xmlXPathNewNodeSet($v) }
-    multi method coerce(xmlNodeSet:D $v) { xmlXPathWrapNodeSet($v) }
-    multi method coerce($_) is default   { fail "unable to coerce to an XPath Object: {.perl}" }
-
-    method select {
-        return Nil unless self.defined;
-        self!value;
-    }
-
-    method !value {
-        given $!type {
-            when XPATH_UNDEFINED { Mu }
-            when XPATH_NODESET | XPATH_XSLT_TREE {
-                self.domXPathSelectNodeSet;
-            }
-            when XPATH_BOOLEAN { ? $!bool }
-            when XPATH_NUMBER {
-                given xmlXPathIsInf($!float) {
-                    when +1 { Inf }
-                    when -1 { -Inf }
-                    default {
-                        xmlXPathIsNaN($!float)
-                            ?? NaN
-                            !! $!float.Numeric;
-                    }
-                }
-            }
-            when XPATH_STRING { $!string }
-            when XPATH_POINT {
-                fail "todo: XPath point values";
-            }
-            when XPATH_LOCATIONSET {
-                fail "todo: location-set values";
-            }
-            when XPATH_USERS {
-                fail "todo: XPath user objects";
-            }
-            default {
-                fail "unhandled XPath Object type: $_";
-            }
-        }
-    }
-
 }
 
 class xmlParserInput is repr('CStruct') is export {
@@ -463,6 +388,81 @@ class xmlError is export {
     has xmlNode                $.node;      # the node in the tree
 }
 
+class xmlXPathObject is export {
+    has int32 $.type;
+
+    has xmlNodeSet $.nodeset is rw;
+    has int32      $.bool;
+    has num64      $.float;
+    has xmlCharP   $.string;
+
+    has Pointer    $.user;
+    has int32      $.index;
+    has Pointer    $.user2;
+    has int32      $.index2;
+
+    sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
+    sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
+    method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
+    method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_is_referenced') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
+
+    method domXPathSelectNodeSet returns xmlNodeSet is native(BIND-LIB) {*}
+    method Free is symbol('xmlXPathFreeObject') is native(LIB) {*}
+
+    sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewFloat(num64 --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewBoolean(int32 --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathNewNodeSet(domNode:D --> xmlXPathObject) is native(LIB) {*}
+    sub xmlXPathWrapNodeSet(xmlNodeSet --> xmlXPathObject) is native(LIB) {*}
+
+    multi method coerce(Bool $v)         { xmlXPathNewBoolean($v) }
+    multi method coerce(Numeric $v)      { xmlXPathNewFloat($v.Num) }
+    multi method coerce(Str $v)          { xmlXPathNewString($v) }
+    multi method coerce(domNode:D $v)    { xmlXPathNewNodeSet($v) }
+    multi method coerce(xmlNodeSet:D $v) { xmlXPathWrapNodeSet($v) }
+    multi method coerce($_) is default   { fail "unable to coerce to an XPath Object: {.perl}" }
+
+    method select {
+        return Nil unless self.defined;
+        self!value;
+    }
+
+    method !value {
+        given $!type {
+            when XPATH_UNDEFINED { Mu }
+            when XPATH_NODESET | XPATH_XSLT_TREE {
+                self.domXPathSelectNodeSet;
+            }
+            when XPATH_BOOLEAN { ? $!bool }
+            when XPATH_NUMBER {
+                given xmlXPathIsInf($!float) {
+                    when +1 { Inf }
+                    when -1 { -Inf }
+                    default {
+                        xmlXPathIsNaN($!float)
+                            ?? NaN
+                            !! $!float.Numeric;
+                    }
+                }
+            }
+            when XPATH_STRING { $!string }
+            when XPATH_POINT {
+                fail "todo: XPath point values";
+            }
+            when XPATH_LOCATIONSET {
+                fail "todo: location-set values";
+            }
+            when XPATH_USERS {
+                fail "todo: XPath user objects";
+            }
+            default {
+                fail "unhandled XPath Object type: $_";
+            }
+        }
+    }
+}
+
 class xmlXPathContext is repr('CStruct') is export {
     has xmlDoc $.doc;                            # The current document
     has domNode $.node;                          # The current node
@@ -495,6 +495,7 @@ class xmlXPathContext is repr('CStruct') is export {
     has xmlHashTable $.nsHash;                   # The namespaces hash table
     my constant xmlXPathVariableLookupFunc = Pointer;
     has xmlXPathVariableLookupFunc $.varLookupFunc;# variable lookup func
+    # provide our own accessor to get around Rakudo buglets
     has Pointer $.varLookupData;                 # variable lookup data
 
     # Possibility to link in an extra item
@@ -555,10 +556,33 @@ class xmlXPathContext is repr('CStruct') is export {
     method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native(LIB) {*}
     method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native(LIB) {*}
 
-    method RegisterFunc(xmlCharP $name, &func1 (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
-    method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func2 (xmlParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
+    method RegisterFunc(xmlCharP $name, &func1 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
+    method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func2 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
     method RegisterVariableLookup( &func3 (xmlXPathContext, Str, Str --> xmlXPathObject), Pointer ) is symbol('xmlXPathRegisterVariableLookup') is native(LIB) {*}
 
+}
+
+class xmlXPathParserContext is export {
+
+    has xmlCharP $.cur;                      # the current char being parsed
+    has xmlCharP $.base;                     # the full expression
+
+    has int32 $.error;                       # error code
+
+    has xmlXPathContext  $.context;          # the evaluation context
+    has xmlXPathObject   $.value;            # the current value
+    has int32            $.valueNr;          # number of values stacked
+    has int32            $.valueMax;         # max number of values stacked
+    has Pointer[xmlXPathObject] $.valueTab;  # stack of values
+
+    has xmlXPathCompExpr $.comp;             # the precompiled expression
+    has int32 $.xptr;                        # it this an XPointer expression
+    has domNode          $.ancestor;         # used for walking preceding axis
+
+    has int32            $.valueFrame;       # used to limit Pop on the stack
+
+    method valuePop(--> xmlXPathObject) is native(LIB) {*}
+    method valuePush(xmlXPathObject --> int32) is native(LIB) {*}
 }
 
 class domNode is export does LibXML::Native::DOM::Node {
