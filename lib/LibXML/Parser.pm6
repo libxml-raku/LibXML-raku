@@ -254,11 +254,14 @@ class LibXML::Parser {
         xmlLoadCatalog($filename);
     }
 
+    method get-option(Str:D $key) { get-flag($!flags, $key); }
+    method set-option(Str:D $key, Bool() $_) { set-flag($!flags, $key, $_); }
+
     method !flag-accessor(Str:D $key) is rw {
         Proxy.new(
-            FETCH => sub ($) { get-flag($!flags, $key) },
-            STORE => sub ($, Bool() $_) {
-                set-flag($!flags, $key, $_);
+            FETCH => { $.get-option($key) },
+            STORE => -> $, Bool() $_ {
+                $.set-option($key, $_);
             });
     }
 

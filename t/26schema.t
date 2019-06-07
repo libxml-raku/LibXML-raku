@@ -7,7 +7,7 @@ plan 8;
 
 given LibXML.parser-version {
     when * < v2.05.10 {
-        skip-rest "Skip No Schema Support compiled for libxml2 $_";
+        skip-rest "Skip No Schema Support compiled for libxml2 $_ < 2.05.10";
         exit;
     }
 }

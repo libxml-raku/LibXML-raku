@@ -163,7 +163,6 @@ DLLEXPORT xmlNodeSetPtr xml6_node_list_to_nodeset(xmlNodePtr self, int keep_blan
     xmlNodePtr cur = self;
     xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
     assert(rv != NULL);
-
     while (cur != NULL) {
             xmlXPathNodeSetAdd(rv, cur);
         cur = xml6_node_next(cur, keep_blanks);

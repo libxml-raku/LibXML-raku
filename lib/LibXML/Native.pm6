@@ -495,7 +495,6 @@ class xmlXPathContext is repr('CStruct') is export {
     has xmlHashTable $.nsHash;                   # The namespaces hash table
     my constant xmlXPathVariableLookupFunc = Pointer;
     has xmlXPathVariableLookupFunc $.varLookupFunc;# variable lookup func
-    # provide our own accessor to get around Rakudo buglets
     has Pointer $.varLookupData;                 # variable lookup data
 
     # Possibility to link in an extra item

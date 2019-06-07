@@ -15,18 +15,13 @@ DLLEXPORT int xml6_ns_remove_reference(xmlNsPtr self) {
 
 DLLEXPORT xmlNsPtr xml6_ns_copy(xmlNsPtr self) {
     xmlNsPtr new = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
+    assert(new != NULL);
+    memset(new, 0, sizeof(xmlNs));
+    new->type = XML_LOCAL_NAMESPACE;
 
-    if (new == NULL) {
-        xml6_fail("Error building namespace");
-    }
-    else {
-        memset(new, 0, sizeof(xmlNs));
-        new->type = XML_LOCAL_NAMESPACE;
-
-        if (self->href != NULL)
-            new->href = xmlStrdup(self->href);
-        if (self->prefix != NULL)
-            new->prefix = xmlStrdup(self->prefix);
-    }
+    if (self->href != NULL)
+        new->href = xmlStrdup(self->href);
+    if (self->prefix != NULL)
+        new->prefix = xmlStrdup(self->prefix);
     return new;
 }
