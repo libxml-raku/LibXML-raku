@@ -16,79 +16,42 @@ class LibXML::Parser {
     has $.sax-handler is rw;
     has $.input-callbacks is rw = config.input-callbacks;
 
-    constant %FLAGS = %(
-        :recover(XML_PARSE_RECOVER),
-        :expand-entities(XML_PARSE_NOENT),
-        :load-ext-dtd(XML_PARSE_DTDLOAD),
-        :complete-attributes(XML_PARSE_DTDATTR),
-        :validation(XML_PARSE_DTDVALID),
-        :suppress-errors(XML_PARSE_NOERROR),
-        :suppress-warnings(XML_PARSE_NOWARNING),
-        :pedantic-parser(XML_PARSE_PEDANTIC),
-        :no-blanks(XML_PARSE_NOBLANKS),
-        :expand-xinclude(XML_PARSE_XINCLUDE),
-        :xinclude(XML_PARSE_XINCLUDE),
-        :no-network(XML_PARSE_NONET),
-        :clean-namespaces(XML_PARSE_NSCLEAN),
-        :no-cdata(XML_PARSE_NOCDATA),
-        :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
-        :old10(XML_PARSE_OLD10),
-        :no-base-fix(XML_PARSE_NOBASEFIX),
-        :huge(XML_PARSE_HUGE),
-        :oldsax(XML_PARSE_OLDSAX),
-        :no-def-dtd(HTML_PARSE_NODEFDTD),
-    );
+    use LibXML::_Options;
+    also does LibXML::_Options[
+        %(
+            :recover(XML_PARSE_RECOVER),
+            :expand-entities(XML_PARSE_NOENT),
+            :load-ext-dtd(XML_PARSE_DTDLOAD),
+            :complete-attributes(XML_PARSE_DTDATTR),
+            :validation(XML_PARSE_DTDVALID),
+            :suppress-errors(XML_PARSE_NOERROR),
+            :suppress-warnings(XML_PARSE_NOWARNING),
+            :pedantic-parser(XML_PARSE_PEDANTIC),
+            :no-blanks(XML_PARSE_NOBLANKS),
+            :expand-xinclude(XML_PARSE_XINCLUDE),
+            :xinclude(XML_PARSE_XINCLUDE),
+            :no-network(XML_PARSE_NONET),
+            :clean-namespaces(XML_PARSE_NSCLEAN),
+            :no-cdata(XML_PARSE_NOCDATA),
+            :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
+            :old10(XML_PARSE_OLD10),
+            :no-base-fix(XML_PARSE_NOBASEFIX),
+            :huge(XML_PARSE_HUGE),
+            :oldsax(XML_PARSE_OLDSAX),
+            :no-def-dtd(HTML_PARSE_NODEFDTD),
+        )];
 
-    sub get-flag(UInt $flags, Str:D $k) {
-        with %FLAGS{'no-' ~ $k} {
-               ! ($flags +& $_)
-        }
-        else {
-            with %FLAGS{$k} {
-                ? ($flags +& $_)
-            }
-            else {
-                fail "unknown parser flag: $_";
-            }
-        }
-    }
+    method get-option(Str:D $key) { $.get-flag($!flags, $key); }
+    method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
 
-    sub set-flag(UInt $flags is rw, Str:D $k, Bool() $v) {
-        with %FLAGS{'no-' ~ $k} {
-            set-flag($flags, 'no-' ~ $k, ! $v);
-        }
-        else {
-            with %FLAGS{$k} {
-                if $v {
-                    $flags += $_
-                        unless $flags +& $_;
-                }
-                else {
-                    $flags -= $_
-                        if $flags +& $_;
-                }
-            }
-            else {
-                fail "unknown parser flag: $k";
-            }
-        }
-        $v;
-    }
-
-    method keep-blanks is rw {
-        self.blanks;
-    }
-
-    method !process-flags(%flags, :$html) {
+    method options(:$html, *%opts) {
         my UInt $flags = $!flags;
-        set-flag($flags, 'load-ext-dtd', False)
+        $.set-flag($flags, 'load-ext-dtd', False)
             if $html;
-        for %flags.pairs.sort {
-            set-flag($flags, .key, .value.so);
-        }
+        $.set-flags($flags, %opts);
 
         unless $html || $flags +& XML_PARSE_DTDLOAD {
-            
+
             for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
                 $flags -= $_ if $flags +& $_
             }
@@ -97,8 +60,12 @@ class LibXML::Parser {
         $flags;
     }
 
-    method !make-handler(parserCtxt :$native, :$html, *%flags) {
-        my UInt $flags = self!process-flags(%flags, :$html);
+    method keep-blanks is rw {
+        self.blanks;
+    }
+
+    method !make-handler(parserCtxt :$native, *%flags) {
+        my UInt $flags = self.options(|%flags);
         LibXML::ParserContext.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
@@ -193,7 +160,7 @@ class LibXML::Parser {
         # read initial block to determine encoding
         my Str $path = $io.path.path;
         my Blob $chunk = $io.read($chunk-size);
-        my UInt $flags = self!process-flags(%flags, :$html);
+        my UInt $flags = self.options(|%flags, :$html);
         my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$flags, :$!line-numbers, :$.sax-handler, :$enc;
 
         my Bool $more = ?$chunk;
@@ -254,32 +221,15 @@ class LibXML::Parser {
         xmlLoadCatalog($filename);
     }
 
-    method get-option(Str:D $key) { get-flag($!flags, $key); }
-    method set-option(Str:D $key, Bool() $_) { set-flag($!flags, $key, $_); }
-
-    method !flag-accessor(Str:D $key) is rw {
-        Proxy.new(
-            FETCH => { $.get-option($key) },
-            STORE => -> $, Bool() $_ {
-                $.set-option($key, $_);
-            });
-    }
-
-    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), *%flags) {
+    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), *%opts) {
         self.load-catalog($_) with $catalog;
-        for %flags.pairs.sort {
-            set-flag($!flags, .key, .value);
-        }
+        self.set-flags($!flags, %opts);
     }
 
     method FALLBACK($key, |c) is rw {
-        # set up flag accessors;
-        with %FLAGS{$key} // %FLAGS{'no-' ~ $key} {
-            self!flag-accessor($key);
-        }
-        else {
-            die X::Method::NotFound.new( :method($key), :typename(self.^name) )
-        }
+        $.is-option($key)
+            ?? $.option($key)
+            !! X::Method::NotFound.new( :method($key), :typename(self.^name) );
     }
 
 }

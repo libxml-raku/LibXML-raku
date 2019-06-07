@@ -101,3 +101,10 @@ enum xmlSaveOption is export (
    XML_SAVE_AS_HTML => 64,
    XML_SAVE_NO_WS => 128,
 );
+
+enum xmlParserProperties is export (
+    XML_PARSER_LOADDTD => 1,
+    XML_PARSER_DEFAULTATTRS => 2,
+    XML_PARSER_VALIDATE => 3,
+    XML_PARSER_SUBST_ENTITIES => 4
+);

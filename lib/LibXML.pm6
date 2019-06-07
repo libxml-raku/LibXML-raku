@@ -22,6 +22,11 @@ method parser-version {
     state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
 }
 
+method have-reader {
+    require LibXML::Reader;
+    LibXML::Reader.have-reader
+}
+
 method config handles <skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
     LibXML::Config;
 }
