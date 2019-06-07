@@ -144,9 +144,10 @@ class xmlNodeSet is export {
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
     method copy(--> xmlNodeSet) is symbol('xml6_nodeset_copy') is native(BIND-LIB) {*}
+    sub xml6_nodeset_from_nodelist(domNode, int32 --> xmlNodeSet) is native(BIND-LIB) {*}
 
     multi method new(domNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {
-        $node.list-to-nodeset(+$keep-blanks);
+        xml6_nodeset_from_nodelist($node, +$keep-blanks);
     }
     multi method new(domNode :$node) is default {
         xmlXPathNodeSetCreate($node);
@@ -643,7 +644,6 @@ class domNode is export does LibXML::Native::DOM::Node {
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
     method first-child(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_first_child') {*}
     method next-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_next') {*}
-    method list-to-nodeset(int32 --> xmlNodeSet) is native(BIND-LIB) is symbol('xml6_node_list_to_nodeset') {*}
     method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}

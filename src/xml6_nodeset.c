@@ -1,4 +1,5 @@
 #include "xml6.h"
+#include "xml6_node.h"
 #include "xml6_nodeset.h"
 #include <assert.h>
 #include <string.h>
@@ -18,13 +19,27 @@ static xmlNsPtr dup_ns(xmlNsPtr ns) {
     return dup;
 }
 
-xmlNodeSetPtr resize_nodeset(xmlNodeSetPtr rv, int nodeNr) {
-    xmlNodePtr *temp = (xmlNodePtr *) xmlRealloc(
-        rv->nodeTab,
-        nodeNr * sizeof(xmlNodePtr));
+static xmlNodeSetPtr resize_nodeset(xmlNodeSetPtr rv, int nodeMax) {
+    xmlNodePtr *temp;
+    int size;
+
+    if (nodeMax < 10)
+        nodeMax = 10;
+
+    size = nodeMax * sizeof(xmlNodePtr);
+
+    if (rv->nodeTab != NULL) {
+        temp = (xmlNodePtr *) xmlRealloc(rv->nodeTab, size);
+    }
+    else {
+        temp = (xmlNodePtr *) xmlMalloc(size);
+    }
+
     assert(temp != NULL);
-    rv->nodeMax = nodeNr;
+
+    rv->nodeMax = nodeMax;
     rv->nodeTab = temp;
+
     return rv;
 }
 
@@ -48,6 +63,23 @@ DLLEXPORT xmlNodeSetPtr xml6_nodeset_copy(xmlNodeSetPtr self) {
             rv->nodeTab[i] = elem;
             rv->nodeNr++;
         }
+    }
+
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr xml6_nodeset_from_nodelist(xmlNodePtr elem, int keep_blanks) {
+    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
+    int i = 0;
+    assert(rv != NULL);
+    while (elem != NULL) {
+        if (i >= rv->nodeMax) {
+            resize_nodeset(rv, rv->nodeMax * 2);
+        }
+
+        rv->nodeTab[i++] = elem;
+        rv->nodeNr++;
+        elem = xml6_node_next(elem, keep_blanks);
     }
 
     return rv;

@@ -143,10 +143,17 @@ class LibXML::XPath::Context {
         );
     }
 
-    has %!pool{UInt}; # Keep objects, to avoid premature destruction
+    has %!pool{UInt}; # Keep objects alive, while they are on the stack
     my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
-    multi method park(NodeObj:D $node --> xmlNodeSet:D) {
-        %!pool{ +nativecast(Pointer, $node.native) } //= $node;
+    multi method park(NodeObj:D $node, :$scope --> xmlNodeSet:D) {
+        my $c-addr = 0; # global (e.g. variables)
+        with $scope {
+            $c-addr = +nativecast(Pointer, $_);
+            # context stack is clear. We can also clear the associated pool
+            %!pool{$c-addr} = %()
+                if .valueNr == 0;
+        }
+        %!pool{$c-addr}{ +nativecast(Pointer, $node.native) } //= $node;
         # return a copied, or newly created native node-set
         given $node {
             when LibXML::Node::Set  { .native.copy }
@@ -169,14 +176,14 @@ class LibXML::XPath::Context {
     method registerFunctionNS(QName:D $name, Str $url, &func) {
         $!native.RegisterFuncNS(
             $name, $url,
-            -> xmlXPathParserContext $c, Int $n {
+            -> xmlXPathParserContext $ctxt, Int $n {
                 CATCH { default { @!callback-errors.push: $_ } }
                 my @params;
-                @params.unshift: self!select($c.valuePop) for 0 ..^ $n;
+                @params.unshift: self!select($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params);
                 # create some umanaged XPath Objects
-                my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret);
-                $c.valuePush($_) for $out;
+                my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :scope($ctxt));
+                $ctxt.valuePush($_) for $out;
             }
         );
     }
