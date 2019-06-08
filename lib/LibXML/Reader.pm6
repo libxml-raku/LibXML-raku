@@ -6,7 +6,7 @@ use NativeCall;
 use LibXML::Enums;
 use LibXML::Native;
 use LibXML::Native::TextReader;
-has xmlTextReader $!native;
+has xmlTextReader $!native handles<attributeCount baseURI byteConsumed columnNumber depth encoding getAttribute getAttributeNo getAttributeNs hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid lineNumber localName lookupNamespace movetoAttribute movetoAttributeNo movetoAttributeNs moveToElement moveToFirstAttribute moveToNextAttribute name namespaceURI prefix readAttributeValue value xmlLang xmlVersion>;
 use LibXML::_Options;
 has  UInt $.flags is rw;
 
@@ -44,7 +44,6 @@ method get-option(Str:D $key) { $.get-flag($!flags, $key); }
 method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
 
 method read {$!native.Read}
-method byteConsumed {$!native.ByteConsumed}
 
 method FALLBACK($key, |c) is rw {
     $.is-option($key)

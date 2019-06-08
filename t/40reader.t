@@ -17,16 +17,14 @@ my $file = "test/textReader/countries.xml";
   isa-ok($reader, "LibXML::Reader");
   is($reader.read, 1, "read");
   is($reader.byteConsumed, 488, "byteConsumed");
-}; skip "todo port tests", 96;
-=begin TODO
   is($reader.attributeCount, 0, "attributeCount");
   is($reader.baseURI, $file, "baseURI");
   is($reader.encoding, 'UTF-8', "encoding");
   is($reader.localName, 'countries', "localName");
   is($reader.name, 'countries', "name");
-  is($reader.prefix, undef, "prefix");
-  is($reader.value, undef, "value");
-  is($reader.xmlLang, undef, "xmlLang");
+  is($reader.prefix, Str, "prefix");
+  is($reader.value, Str, "value");
+  is($reader.xmlLang, Str, "xmlLang");
   is($reader.xmlVersion, '1.0', "xmlVersion");
   $reader.read;
   $reader.read;
@@ -35,7 +33,7 @@ my $file = "test/textReader/countries.xml";
   is($reader.depth, "1", "depth");
   is($reader.getAttribute("acronym"), "AL", "getAttribute");
   is($reader.getAttributeNo(0), "AL", "getAttributeNo");
-  is($reader.getAttributeNs("acronym", undef), "AL", "getAttributeNs");
+  is($reader.getAttributeNs("acronym", Str), "AL", "getAttributeNs");
   is($reader.lineNumber, "20", "lineNumber");
   is($reader.columnNumber, "1", "columnNumber");
   ok($reader.hasAttributes, "hasAttributes");
@@ -45,11 +43,14 @@ my $file = "test/textReader/countries.xml";
   ok(! $reader.isNamespaceDecl, "isNamespaceDecl");
   ok(! $reader.isValid, "isValid");
   is($reader.localName, "country", "localName");
-  is($reader.lookupNamespace(undef), undef, "lookupNamespace");
+  is($reader.lookupNamespace(Str), Str, "lookupNamespace");
 
   ok($reader.moveToAttribute("acronym"), "moveToAttribute");
   ok($reader.moveToAttributeNo(0), "moveToAttributeNo");
-  ok($reader.moveToAttributeNs("acronym", undef), "moveToAttributeNs");
+  ok($reader.moveToAttributeNs("acronym", Str), "moveToAttributeNs");
+
+}; skip "todo port tests", 69;
+=begin TODO
 
   ok($reader.moveToElement, "moveToElement");
   ok($reader.moveToFirstAttribute, "moveToFirstAttribute");
@@ -58,7 +59,7 @@ my $file = "test/textReader/countries.xml";
 
   $reader.moveToElement;
   is($reader.name, "country", "name");
-  is($reader.namespaceURI, undef, "namespaceURI");
+  is($reader.namespaceURI, Str, "namespaceURI");
 
   ok($reader.nextSibling, "nextSibling");
   is($reader.nodeType, XML_READER_TYPE_SIGNIFICANT_WHITESPACE, "nodeType");

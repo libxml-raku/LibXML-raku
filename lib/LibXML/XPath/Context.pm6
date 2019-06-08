@@ -146,9 +146,10 @@ class LibXML::XPath::Context {
     has %!pool{UInt}; # Keep objects alive, while they are on the stack
     my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
     multi method park(NodeObj:D $node, :$scope --> xmlNodeSet:D) {
-        my $c-addr = 0; # global (e.g. variables)
+        my UInt $c-addr = 0;
         with $scope {
-            $c-addr = +nativecast(Pointer, $_);
+            # scope to a particular parser/eval context
+            $c-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
             # context stack is clear. We can also clear the associated pool
             %!pool{$c-addr} = %()
                 if .valueNr == 0;
@@ -181,7 +182,6 @@ class LibXML::XPath::Context {
                 my @params;
                 @params.unshift: self!select($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params);
-                # create some umanaged XPath Objects
                 my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :scope($ctxt));
                 $ctxt.valuePush($_) for $out;
             }
@@ -190,10 +190,9 @@ class LibXML::XPath::Context {
 
     method registerVarLookupFunc(&func) {
         $!native.RegisterVariableLookup(
-            -> $ctxt, Str $name, Str $url --> xmlXPathObject:D {
+            -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
                 CATCH { default { @!callback-errors.push: $_ } }
                 my $ret = &func($name, $url);
-                # create some umanaged XPath Objects
                 xmlXPathObject.coerce: $.park($ret);
             },
             Pointer,
