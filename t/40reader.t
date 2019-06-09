@@ -16,7 +16,7 @@ my $file = "test/textReader/countries.xml";
 {
   my $reader = LibXML::Reader.new(location => $file, expand-entities => 1);
   isa-ok($reader, "LibXML::Reader");
-  is($reader.read, 1, "read");
+  is($reader.read, True, "read");
   is($reader.byteConsumed, 488, "byteConsumed");
   is($reader.attributeCount, 0, "attributeCount");
   is($reader.baseURI, $file, "baseURI");
@@ -46,16 +46,11 @@ my $file = "test/textReader/countries.xml";
   is($reader.localName, "country", "localName");
   is($reader.lookupNamespace(Str), Str, "lookupNamespace");
 
-  warn $reader.localName;
   ok($reader.moveToAttribute("acronym"), "moveToAttribute");
-  warn $reader.localName;
   ok($reader.moveToAttributeNo(0), "moveToAttributeNo");
-  warn $reader.localName;
   ok($reader.moveToAttributeNs("acronym", Str), "moveToAttributeNs");
-  warn $reader.localName;
 
   ok($reader.moveToElement, "moveToElement");
-  warn $reader.localName;
 
   ok($reader.moveToFirstAttribute, "moveToFirstAttribute");
   ok($reader.moveToNextAttribute, "moveToNextAttribute");

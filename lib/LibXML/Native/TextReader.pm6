@@ -2,6 +2,7 @@ unit module LibXML::Native::TextReader;
 
 use NativeCall;
 use LibXML::Native;
+use LibXML::Types :QName;
 
 constant Stub = LibXML::Native::Stub;
 constant LIB  = LibXML::Native::LIB;
@@ -22,9 +23,9 @@ class xmlTextReader is repr('CPointer') is export {
     method close(--> int32) is native(LIB) is symbol('xmlTextReaderClose') {*}
     method columnNumber(--> int32) is native(LIB) is symbol('xmlTextReaderGetParserColumnNumber') {*}
     method depth(--> int32) is native(LIB) is symbol('xmlTextReaderDepth') {*}
-    method getAttribute(Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttribute') {*}
+    method getAttribute(QName --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttribute') {*}
     method getAttributeNo(int32 --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNo') {*}
-    method getAttributeNs(Str, Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNs') {*}
+    method getAttributeNs(QName, Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNs') {*}
     method encoding(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstEncoding') {*}
     method getParserProp(int32 --> int32) is native(LIB) is symbol('xmlTextReaderGetParserProp') {*}
     method hasAttributes(--> int32) is native(LIB) is symbol('xmlTextReaderHasAttributes') {*}
@@ -35,10 +36,10 @@ class xmlTextReader is repr('CPointer') is export {
     method isValid(--> int32) is native(LIB) is symbol('xmlTextReaderIsValid') {*}
     method lineNumber(--> int32) is native(LIB) is symbol('xmlTextReaderGetParserLineNumber') {*}
     method localName(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstLocalName') {*}
-    method lookupNamespace(Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderLookupNamespace') {*}
-    method moveToAttribute(Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttribute') {*}
+    method lookupNamespace(QName --> xmlCharP) is native(LIB) is symbol('xmlTextReaderLookupNamespace') {*}
+    method moveToAttribute(QName --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttribute') {*}
     method moveToAttributeNo(int32 --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNo') {*}
-    method moveToAttributeNs(Str, Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNs') {*}
+    method moveToAttributeNs(QName, Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNs') {*}
     method moveToElement(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToElement') {*}
     method moveToFirstAttribute(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToFirstAttribute') {*}
     method moveToNextAttribute(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToNextAttribute') {*}
