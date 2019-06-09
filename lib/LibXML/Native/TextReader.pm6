@@ -16,17 +16,17 @@ class xmlTextReader is repr('CPointer') is export {
 
     sub xmlNewTextReaderFilename(Str --> xmlTextReader) is native(LIB) {*}
 
-    method Read(--> int32) is native(LIB) is symbol('xmlTextReaderRead') {*}
-
     method attributeCount(--> int32) is native(LIB) is symbol('xmlTextReaderAttributeCount') {*}
     method baseURI(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstBaseUri') {*}
     method byteConsumed(--> ulong) is native(LIB) is symbol('xmlTextReaderByteConsumed') {*}
+    method close(--> int32) is native(LIB) is symbol('xmlTextReaderClose') {*}
     method columnNumber(--> int32) is native(LIB) is symbol('xmlTextReaderGetParserColumnNumber') {*}
     method depth(--> int32) is native(LIB) is symbol('xmlTextReaderDepth') {*}
     method getAttribute(Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttribute') {*}
     method getAttributeNo(int32 --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNo') {*}
     method getAttributeNs(Str, Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNs') {*}
     method encoding(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstEncoding') {*}
+    method getParserProp(int32 --> int32) is native(LIB) is symbol('xmlTextReaderGetParserProp') {*}
     method hasAttributes(--> int32) is native(LIB) is symbol('xmlTextReaderHasAttributes') {*}
     method hasValue(--> int32) is native(LIB) is symbol('xmlTextReaderHasValue') {*}
     method isDefault(--> int32) is native(LIB) is symbol('xmlTextReaderIsDefault') {*}
@@ -36,16 +36,23 @@ class xmlTextReader is repr('CPointer') is export {
     method lineNumber(--> int32) is native(LIB) is symbol('xmlTextReaderGetParserLineNumber') {*}
     method localName(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstLocalName') {*}
     method lookupNamespace(Str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderLookupNamespace') {*}
-    method movetoAttribute(Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttribute') {*}
-    method movetoAttributeNo(int32 --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNo') {*}
-    method movetoAttributeNs(Str, Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNs') {*}
+    method moveToAttribute(Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttribute') {*}
+    method moveToAttributeNo(int32 --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNo') {*}
+    method moveToAttributeNs(Str, Str --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNs') {*}
     method moveToElement(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToElement') {*}
     method moveToFirstAttribute(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToFirstAttribute') {*}
     method moveToNextAttribute(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToNextAttribute') {*}
     method name(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstName') {*}
     method namespaceURI(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstNamespaceUri') {*}
+    method nextSibling(--> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling') {*}
+    method nodeType(--> int32) is native(LIB) is symbol('xmlTextReaderNodeType') {*}
     method prefix(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstPrefix') {*}
+    method read(--> int32) is native(LIB) is symbol('xmlTextReaderRead') {*}
     method readAttributeValue(--> int32) is native(LIB) is symbol('xmlTextReaderReadAttributeValue') {*}
+    method readInnerXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadInnerXml') {*}
+    method readOuterXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadOuterXml') {*}
+    method readState(--> int32) is native(LIB) is symbol('xmlTextReaderReadState') {*}
+    method standalone(--> int32) is native(LIB) is symbol('xmlTextReaderStandalone') {*}
     method value(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstValue') {*}
     method xmlLang(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstXmlLang') {*}
     method xmlVersion(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstXmlVersion') {*}

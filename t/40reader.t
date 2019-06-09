@@ -3,6 +3,7 @@ plan 100;
 
 use LibXML;
 use LibXML::Reader;
+use LibXML::Enums;
 
 unless LibXML.have-reader {
     skip-rest "LibXML Reader not supported in this libxml2 build";
@@ -45,14 +46,17 @@ my $file = "test/textReader/countries.xml";
   is($reader.localName, "country", "localName");
   is($reader.lookupNamespace(Str), Str, "lookupNamespace");
 
+  warn $reader.localName;
   ok($reader.moveToAttribute("acronym"), "moveToAttribute");
+  warn $reader.localName;
   ok($reader.moveToAttributeNo(0), "moveToAttributeNo");
+  warn $reader.localName;
   ok($reader.moveToAttributeNs("acronym", Str), "moveToAttributeNs");
-
-}; skip "todo port tests", 69;
-=begin TODO
+  warn $reader.localName;
 
   ok($reader.moveToElement, "moveToElement");
+  warn $reader.localName;
+
   ok($reader.moveToFirstAttribute, "moveToFirstAttribute");
   ok($reader.moveToNextAttribute, "moveToNextAttribute");
   ok($reader.readAttributeValue, "attributeValue");
@@ -62,22 +66,25 @@ my $file = "test/textReader/countries.xml";
   is($reader.namespaceURI, Str, "namespaceURI");
 
   ok($reader.nextSibling, "nextSibling");
-  is($reader.nodeType, XML_READER_TYPE_SIGNIFICANT_WHITESPACE, "nodeType");
-  is($reader.prefix, undef, "prefix");
+
+  is($reader.nodeType, +XML_READER_TYPE_SIGNIFICANT_WHITESPACE, "nodeType");
+  is-deeply($reader.prefix, Str, "prefix");
 
   is($reader.readInnerXml, "", "readInnerXml");
   is($reader.readOuterXml, "\n", "readOuterXml");
   ok($reader.readState, "readState");
 
-  is($reader.getParserProp('expand_entities'), 1, "getParserProp");
+  is($reader.getParserProp('expand-entities'), 1, "getParserProp");
 
   ok($reader.standalone, "standalone");
   is($reader.value, "\n", "value");
-  is($reader.xmlLang, undef, "xmlLang");
-
+  is-deeply($reader.xmlLang, Str, "xmlLang");
 
   ok($reader.close, "close");
 }
+
+skip "todo port tests", 52;
+=begin TODO
 
 
 # FD interface

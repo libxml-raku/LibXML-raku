@@ -229,7 +229,7 @@ class LibXML::Parser {
     method FALLBACK($key, |c) is rw {
         $.is-option($key)
             ?? $.option($key)
-            !! X::Method::NotFound.new( :method($key), :typename(self.^name) );
+            !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
     }
 
 }
