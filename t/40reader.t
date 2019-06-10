@@ -78,24 +78,24 @@ my $file = "test/textReader/countries.xml";
   ok($reader.close, "close");
 }
 
-skip "todo port tests", 52;
+# FD interface
+my IO::Handle:D $io = $file.IO.open: :r;
+my UInt:D $fd = $io.native-descriptor;
+for :$fd, :$io -> Pair:D $how {
+    my $reader = LibXML::Reader.new(|$how, URI => $file);
+    isa-ok($reader, "LibXML::Reader");
+    $reader.read;
+    $reader.read;
+    is($reader.name, "countries","name in fd");
+    $reader.read;
+    $reader.read;
+    $reader.read;
+    close $io;
+}
+
+skip "todo port tests", 48;
 =begin TODO
 
-
-# FD interface
-for my $how (qw(FD IO)) {
-#  my $fd;
-  open my $fd, '<', $file or die "cannot open $file: $!\n";
-  my $reader = LibXML::Reader.new($how => $fd, URI => $file);
-  isa_ok($reader, "LibXML::Reader");
-  $reader.read;
-  $reader.read;
-  is($reader.name, "countries","name in fd");
-  $reader.read;
-  $reader.read;
-  $reader.read;
-  close $fd;
-}
 
 # scalar interface
 {
@@ -107,7 +107,7 @@ for my $how (qw(FD IO)) {
   }
   close $fd;
   my $reader = LibXML::Reader.new(string => $doc, URI => $file);
-  isa_ok($reader, "LibXML::Reader");
+  isa-ok($reader, "LibXML::Reader");
   $reader.read;
   $reader.read;
   is($reader.name, "countries","name in string");
@@ -117,7 +117,7 @@ for my $how (qw(FD IO)) {
 {
   my $DOM = LibXML.new.parse_file($file);
   my $reader = LibXML::Reader.new(DOM => $DOM);
-  isa_ok($reader, "LibXML::Reader");
+  isa-ok($reader, "LibXML::Reader");
   $reader.read;
   $reader.read;
   is($reader.name, "countries","name in string");
@@ -145,7 +145,7 @@ EOF
     $reader.preservePattern('//PP');
     $reader.preservePattern('//x:ZZ',{ x => "foo"});
 
-    isa_ok($reader, "LibXML::Reader");
+    isa-ok($reader, "LibXML::Reader");
     $reader.nextElement;
     is($reader.name, "root","root node");
     $reader.nextElement;

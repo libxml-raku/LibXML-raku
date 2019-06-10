@@ -42,11 +42,20 @@ class LibXML::Reader {
 
     multi submethod BUILD( xmlTextReader:D :$!native! ) {
     }
-    multi submethod BUILD(Str:D :$url!) {
-        $!native .= new: :$url;
+    multi submethod BUILD(Str:D :$URI!, |c) {
+        $!native .= new: :$URI, |c;
     }
-    multi submethod BUILD(Str:D :location($url)!) {
-        self.BUILD: :$url;
+    multi submethod BUILD(Str:D :location($URI)!, |c) {
+        self.BUILD: :$URI, |c;
+    }
+    multi submethod BUILD(UInt:D :$fd!, :$URI!, |c) {
+        $!native .= new: :$fd;
+    }
+    multi submethod BUILD(IO::Handle:D :$io!, :$URI = $io.path.path, Bool :$seek = True, |c) {
+        $io.seek( 0, SeekFromBeginning )
+            if $seek;
+        my UInt:D $fd = $io.file-descriptor;
+        self.BUILD( :$fd, :$URI );
     }
 
     multi method getParserProp(Str:D $opt) {
@@ -57,9 +66,9 @@ class LibXML::Reader {
         $!native.getParserProp: $opt;
     }
 
-    method moveToAttributeNs(QName:D $name, Str $uri) {
-        $uri
-        ?? self!try-bool('moveToAttributeNs', $name, $uri)
+    method moveToAttributeNs(QName:D $name, Str $URI) {
+        $URI
+        ?? self!try-bool('moveToAttributeNs', $name, $URI)
         !! self!try-bool('moveToAttribute', $name );
     }
 
@@ -70,7 +79,7 @@ class LibXML::Reader {
         $rv == 0;
     }
 
-    submethod TWEAK(*%opts) {
+    submethod TWEAK(:location($), *%opts) {
         self.set-flags($!flags, %opts);
         $!native.setup(:$!flags )
     }
