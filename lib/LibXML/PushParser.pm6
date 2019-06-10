@@ -43,7 +43,8 @@ class LibXML::PushParser {
         }
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
-        my $rv := LibXML::Document.new( :$!ctx, :$URI);
+        my xmlDoc $native = $!ctx.native.myDoc;
+        my $rv := LibXML::Document.new( :$native, :$!ctx, :$URI);
         $!ctx = Nil;
         $rv;
     }

@@ -69,8 +69,8 @@ class LibXML::Parser {
         LibXML::ParserContext.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
-    method !publish(:$URI, LibXML::ParserContext :$handler!, ) {
-        my LibXML::Document:D $doc .= new: :ctx($handler);
+    method !publish(:$URI, LibXML::ParserContext :$handler!, xmlDoc :$native = $handler.native.myDoc) {
+        my LibXML::Document:D $doc .= new: :ctx($handler), :$native;
         $doc.baseURI = $_ with $URI;
         self.processXIncludes($doc, :$handler)
             if $.expand-xinclude;
@@ -149,30 +149,33 @@ class LibXML::Parser {
         self!publish: :$URI, :$handler;
     }
 
-    multi method parse(IO::Handle :$io!,
+    multi method parse(Int :$fd!,
                        Str :$URI = $!baseURI,
                        Bool() :$html = $!html,
-                       UInt :$chunk-size = 4096,
                        xmlEncodingStr :$enc,
                        *%flags,
                       ) {
 
-        # read initial block to determine encoding
-        my Str $path = $io.path.path;
-        my Blob $chunk = $io.read($chunk-size);
+        my LibXML::ParserContext $handler = self!make-handler: :$html, |%flags;
         my UInt $flags = self.options(|%flags, :$html);
-        my LibXML::PushParser $push-parser .= new: :$chunk, :$html, :$path, :$flags, :$!line-numbers, :$.sax-handler, :$enc;
+        my xmlDoc $native;
 
-        my Bool $more = ?$chunk;
+        $handler.try: {
+            my parserCtxt $ctx = $html
+               ?? htmlParserCtxt.new
+               !! xmlParserCtxt.new;
+            $handler.native = $ctx;
+            $native = $ctx.ReadFd($fd, $URI, $enc, $flags);
+        };
 
-        while $more && !$push-parser.err {
-            $chunk = $io.read($chunk-size);
-            $more = ?$chunk;
-            $push-parser.push($chunk)
-                if $more;
-        }
+        self!publish: :$handler, :$native;
+    }
 
-        $push-parser.finish-push: :$URI;
+    multi method parse(IO::Handle :$io!,
+                       Str :$URI = $io.path.path,
+                       |c) {
+        my UInt:D $fd = $io.native-descriptor;
+        self.parse( :$fd, :$URI, |c);
     }
 
     multi method parse(IO() :io($path)!, |c) {

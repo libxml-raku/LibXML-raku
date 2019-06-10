@@ -232,14 +232,13 @@ throws-like( { $parser.parse(:file($badfile1))},
 # 1.3 PARSE A HANDLE
 
 my $io = $goodfile.IO;
-my $chunk-size = 256; # reduce to process multiple chunks
 isa-ok($io, IO::Path);
-my $doc = $parser.parse: :$io, :$chunk-size;
+my $doc = $parser.parse: :$io;
 isa-ok($doc, 'LibXML::Document');
 
 $io .= open(:r, :bin);
 isa-ok($io, IO::Handle);
-$doc = $parser.parse: :$io, :$chunk-size;
+$doc = $parser.parse: :$io;
 isa-ok($doc, 'LibXML::Document');
 
 $io = $badfile1.IO;

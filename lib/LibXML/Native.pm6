@@ -1189,7 +1189,6 @@ class parserCtxt is export {
 class _htmlParserCtxt is parserCtxt is repr('CStruct') {
     method myDoc { nativecast(htmlDoc, callsame) }
     method UseOptions(int32) is native(LIB) is symbol('htmlCtxtUseOptions') returns int32 { * }
-    method ReadFd(int32 $fd, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFd') returns htmlDoc {*};
 }
 
 #| a vanilla XML parser context - can be used to read files or strings
@@ -1199,7 +1198,7 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
     method new { xmlNewParserCtxt() }
     method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
     method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
-    method ReadFd(int32 $fd, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFd') returns xmlDoc {*};
+    method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFd') returns xmlDoc {*};
 
 };
 
@@ -1226,6 +1225,7 @@ class htmlParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
     method new { htmlNewParserCtxt() }
     method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadDoc') returns htmlDoc {*};
     method ReadFile(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFile') returns htmlDoc {*};
+    method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('htmlCtxtReadFd') returns htmlDoc {*};
 };
 
 # HTML file parser context

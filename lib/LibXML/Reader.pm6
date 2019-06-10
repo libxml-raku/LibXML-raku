@@ -51,10 +51,8 @@ class LibXML::Reader {
     multi submethod BUILD(UInt:D :$fd!, :$URI!, |c) {
         $!native .= new: :$fd;
     }
-    multi submethod BUILD(IO::Handle:D :$io!, :$URI = $io.path.path, Bool :$seek = True, |c) {
-        $io.seek( 0, SeekFromBeginning )
-            if $seek;
-        my UInt:D $fd = $io.file-descriptor;
+    multi submethod BUILD(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
+        my UInt:D $fd = $io.native-descriptor;
         self.BUILD( :$fd, :$URI );
     }
 
