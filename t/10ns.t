@@ -406,7 +406,7 @@ print "# 9. namespace reconciliation\n";
 {
     my $doc = LibXML.createDocument( 'http://default', 'root' );
     my $root = $doc.documentElement;
-    $root.setNamespace( 'http://children', 'child', 0 );
+    $root.addNamespace( 'http://children', 'child');
 
     $root.appendChild( my $n = $doc.createElementNS( 'http://default', 'branch' ));
     # appending an element in the same namespace will

@@ -224,7 +224,7 @@ class LibXML::Parser {
         xmlLoadCatalog($filename);
     }
 
-    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), *%opts) {
+    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), :input-callbacks($), *%opts) {
         self.load-catalog($_) with $catalog;
         self.set-flags($!flags, %opts);
     }

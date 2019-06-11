@@ -1719,7 +1719,7 @@ domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value
 }
 
 DLLEXPORT int
-domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
+domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int primary) {
     xmlNsPtr ns = NULL;
     int rv = 0;
 
@@ -1732,7 +1732,7 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
              ( ns->href && xmlStrlen( ns->href ) != 0 ) ) {
             /* won't take it */
             rv = 0;
-        } else if ( flag ) {
+        } else if ( primary ) {
             /* no namespace */
             xmlSetNs(node, NULL);
             rv = 1;
@@ -1740,7 +1740,7 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
             rv = 0;
         }
     }
-    else if ( flag && (ns = xmlSearchNs(node->doc, node, nsPrefix)) ) {
+    else if ( primary && (ns = xmlSearchNs(node->doc, node, nsPrefix)) ) {
         /* user just wants to set the namespace for the node */
         /* try to reuse an existing declaration for the prefix */
         if ( xmlStrEqual( ns->href, nsURI ) ) {
@@ -1759,7 +1759,7 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int flag) {
     else
         rv = 0;
 
-    if ( ns && flag ) {
+    if ( ns && primary ) {
         xmlSetNs(node, ns);
     }
 

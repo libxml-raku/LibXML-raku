@@ -119,7 +119,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
         my $e = $doc2.createElement("foo");
         $doc2.setDocumentElement( $e );
 
-        my $dtd2 = $doc.internalSubset.cloneNode(1);
+        my $dtd2 = $doc.internalSubset.cloneNode(:deep);
         # TEST
         ok($dtd2, ' TODO : Add test name');
 

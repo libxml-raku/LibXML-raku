@@ -140,32 +140,35 @@ EOF
     $reader.nextElement;
     is($reader.name, "root","root node");
     $reader.nextElement;
+    is($reader.name, "AA","nextElement");
 
-} }; skip "todo port tests", 40;
-=begin TODO
-
-    $node1 = $reader.copyCurrentNode(1);
+    $node1 = $reader.copyCurrentNode(:deep);
     is($node1.nodeName, "AA","deep copy node");
+
     $reader.next;
     ok($reader.nextElement("DD"),"next named element");
     is($reader.name, "DD","name");
     is($reader.readOuterXml, "<DD/>","readOuterXml");
     ok($reader.read,"read");
     is($reader.name, "BB","name");
-    $node2 = $reader.copyCurrentNode(0);
+    $node2 = $reader.copyCurrentNode();
     is($node2.nodeName, "BB","shallow copy node");
     $reader.nextElement;
     is($reader.name, "CC","nextElement");
     $reader.nextSibling;
-    is( $reader.nodeType(), XML_READER_TYPE_TEXT, "text node" );
+    is( $reader.nodeType(), +XML_READER_TYPE_TEXT, "text node" );
     is( $reader.value,"foo", "text content" );
     $reader.skipSiblings;
-    is( $reader.nodeType(), XML_READER_TYPE_END_ELEMENT, "end element type" );
+    is( $reader.nodeType(), +XML_READER_TYPE_END_ELEMENT, "end element type" );
     $reader.nextElement;
     is($reader.name, "EE","name");
     ok($reader.nextSiblingElement("ZZ","foo"),"namespace");
     is($reader.namespaceURI, "foo","namespaceURI");
     $reader.nextElement;
+
+} }; skip "todo port tests", 25;
+=begin TODO
+
     $node3= $reader.preserveNode;
     is( $reader.readOuterXml(), $node3.toString(),"outer xml");
     ok($node3,"preserve node");

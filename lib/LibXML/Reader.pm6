@@ -24,7 +24,7 @@ class LibXML::Reader {
     }
 
     INIT {
-        for <hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute nextElement nextSibling read> {
+        for <hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute next nextSibling read skipSiblings> {
             $?CLASS.^add_method( $_, method (|c) { self!try-bool($_, |c) });
         }
 
@@ -32,6 +32,19 @@ class LibXML::Reader {
 
     has UInt $.flags is rw;
     has LibXML::Document $.document;
+    method document {
+        with $!document {
+            $_;
+        }
+        else {
+            with $!native.currentDoc -> $struct {
+                $!document .= new: :$struct;
+            }
+            else {
+                LibXML::Document;
+            }
+        }
+    }
 
     use LibXML::_Options;
     also does LibXML::_Options[
@@ -88,9 +101,25 @@ class LibXML::Reader {
         !! self!try-bool('moveToAttribute', $name );
     }
 
+    method nextElement(QName $name?, Str $URI?) {
+        self!try-bool('nextElement', $name, $URI);
+    }
+
+    method nextSiblingElement(QName $name?, Str $URI?) {
+        self!try-bool('nextSiblingElement', $name, $URI);
+    }
+
     method preservePattern(Str:D $pattern, *%ns) {
         my CArray[Str] $ns .= new: |(%ns.kv), Str;
         $!native.preservePattern($pattern, $ns);
+    }
+
+    method copyCurrentNode(Bool :$deep) {
+        my domNode $node = $deep
+            ?? $!native.currentNodeTree
+            !! $!native.currentNode;
+        $node .= copy: :$deep;
+        LibXML::Node.box($node, :doc($.document));
     }
 
     method close(--> Bool) {

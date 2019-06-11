@@ -137,7 +137,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             $cnode.appendChild( $c1node );
             is( $cnode, '<foo xmlns:x="http://ns" aaa="AAA" x:bbb="BBB"><bar/></foo>', ' TODO : Add test name' );
 
-            my $xnode = $cnode.cloneNode(0);
+            my $xnode = $cnode.cloneNode();
             # TEST
             is( $xnode, '<foo xmlns:x="http://ns" aaa="AAA" x:bbb="BBB"/>', ' TODO : Add test name' );
             # TEST
@@ -150,7 +150,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
 	    is( $xnode.getAttributeNS('http://ns','bbb'),'BBB', ' TODO : Add test name' );
 
-            $xnode = $cnode.cloneNode(1);
+            $xnode = $cnode.cloneNode(:deep);
             # TEST
             ok( $xnode, ' TODO : Add test name' );
             # TEST
@@ -175,7 +175,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             # clone namespaced elements
             my $nsnode = $doc.createElementNS( "fooNS", "foo:bar" );
 
-            my $cnsnode = $nsnode.cloneNode(0);
+            my $cnsnode = $nsnode.cloneNode();
             # TEST
             is( $cnsnode.nodeName, "foo:bar", ' TODO : Add test name' );
             # TEST
@@ -184,7 +184,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             is( $cnsnode.namespaceURI(), 'fooNS', ' TODO : Add test name' );
 
             # clone namespaced elements (recursive)
-            my $c2nsnode = $nsnode.cloneNode(1);
+            my $c2nsnode = $nsnode.cloneNode(:deep);
             # TEST
             is( $c2nsnode.Str, $nsnode.Str, ' TODO : Add test name' );
         }
@@ -543,7 +543,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok( ! $rnode2.isSameNode( $rnode1 ), ' TODO : Add test name' ) ;
     $doc2.setDocumentElement( $rnode2 );
-    my $node = $rnode2.cloneNode(0);
+    my $node = $rnode2.cloneNode();
     # TEST
     ok( $node, ' TODO : Add test name' );
     my $cndoc = $node.ownerDocument;

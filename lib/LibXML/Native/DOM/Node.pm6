@@ -196,8 +196,8 @@ method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
     }
 }
 
-method setNamespace(Str $uri, NCName $prefix, Bool:D $flag) {
-    self.domSetNamespace($uri, $prefix, +$flag);
+method setNamespace(Str $uri, NCName $prefix, Bool :$primary) {
+    self.domSetNamespace($uri, $prefix, $primary);
 }
 
 method removeChild(Node:D $child) {

@@ -36,7 +36,7 @@ my $parser = LibXML.new();
     my $doc = $parser.parse: :$string;
     # TEST
     ok($doc.defined, 'string parse sanity');
-    my $dclone = $doc.cloneNode(1);
+    my $dclone = $doc.cloneNode(:deep);
     # TEST
     ok( ! $dclone.isSameNode($doc), '.isSameNode() on cloned node' );
     # TEST
@@ -44,7 +44,7 @@ my $parser = LibXML.new();
     # TEST
     ok( $doc.Str() eq $dclone.Str(), ' TODO : Add test name' );
 
-    my $clone = $doc.cloneNode(); # shallow
+    my $clone = $doc.cloneNode(:!deep); # shallow
     # TEST
     ok( ! $clone.isSameNode($doc), ' TODO : Add test name' );
     # TEST

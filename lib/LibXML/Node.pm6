@@ -323,8 +323,11 @@ class LibXML::Node {
     method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
         native-class(XML_ATTRIBUTE_NODE).box: $!native.getAttributeNodeNS($uri, $att-name);
     }
-    method setNamespace(Str $uri, NCName $prefix?, Bool:D() $flag = True) {
-        $!native.setNamespace($uri, $prefix, $flag);
+    method addNamespace(Str $uri, NCName $prefix?) {
+        $.setNamespace($uri, $prefix, :!primary);
+    }
+    method setNamespace(Str $uri, NCName $prefix?, Bool :$primary = True) {
+        $!native.setNamespace($uri, $prefix, :$primary);
     }
     method localNS {
         LibXML::Namespace.box: $!native.localNS;
@@ -352,7 +355,7 @@ class LibXML::Node {
         LibXML::Node.box: $!native.domAddNewChild($uri, $name);
     }
     method normalise is also<normalize> { self.native.normalize }
-    method cloneNode(LibXML::Node:D: Bool() $deep = False) {
+    method cloneNode(LibXML::Node:D: Bool() :$deep = False) {
         LibXML::Node.box: $!native.cloneNode($deep), :doc(LibXML::Node);
     }
 

@@ -24,6 +24,9 @@ class xmlTextReader is repr('CPointer') is export {
     method byteConsumed(--> ulong) is native(LIB) is symbol('xmlTextReaderByteConsumed') {*}
     method close(--> int32) is native(LIB) is symbol('xmlTextReaderClose') {*}
     method columnNumber(--> int32) is native(LIB) is symbol('xmlTextReaderGetParserColumnNumber') {*}
+    method currentDoc(--> xmlDoc) is native(LIB) is symbol('xmlTextReaderCurrentDoc') {*}
+    method currentNode(--> domNode) is native(LIB) is symbol('xmlTextReaderCurrentNode') {*}
+    method currentNodeTree(--> domNode) is native(LIB) is symbol('xmlTextReaderExpand') {*}
     method depth(--> int32) is native(LIB) is symbol('xmlTextReaderDepth') {*}
     method getAttribute(QName --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttribute') {*}
     method getAttributeNo(int32 --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNo') {*}
@@ -47,8 +50,10 @@ class xmlTextReader is repr('CPointer') is export {
     method moveToNextAttribute(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToNextAttribute') {*}
     method name(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstName') {*}
     method namespaceURI(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstNamespaceUri') {*}
-    method nextElement(--> int32) is native(BIND-LIB) is symbol('xml6_reader_next_element') {*}
+    method next(--> int32) is native(BIND-LIB) is symbol('xmlTextReaderNext') {*}
+    method nextElement(Str, Str --> int32) is native(BIND-LIB) is symbol('xml6_reader_next_element') {*}
     method nextSibling(--> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling') {*}
+    method nextSiblingElement(Str, Str --> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling_element') {*}
     method nodeType(--> int32) is native(LIB) is symbol('xmlTextReaderNodeType') {*}
     method prefix(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstPrefix') {*}
     method preservePattern(xmlCharP, CArray[Str] --> int32) is native(LIB) is symbol('xmlTextReaderPreservePattern') {*}
@@ -57,6 +62,7 @@ class xmlTextReader is repr('CPointer') is export {
     method readInnerXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadInnerXml') {*}
     method readOuterXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadOuterXml') {*}
     method readState(--> int32) is native(LIB) is symbol('xmlTextReaderReadState') {*}
+    method skipSiblings(--> int32) is native(BIND-LIB) is symbol('xml6_reader_skip_siblings') {*}
     method standalone(--> int32) is native(LIB) is symbol('xmlTextReaderStandalone') {*}
     method value(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstValue') {*}
     method xmlLang(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstXmlLang') {*}
