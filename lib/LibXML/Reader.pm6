@@ -12,6 +12,7 @@ class LibXML::Reader {
     use LibXML::Native;
     use LibXML::Native::TextReader;
     use LibXML::Types :QName;
+    use LibXML::Document;
 
     has xmlTextReader $!native handles<attributeCount baseURI byteConsumed columnNumber depth encoding getAttribute getAttributeNo getAttributeNs lineNumber localName lookupNamespace name namespaceURI nodeType prefix readAttributeValue readInnerXml readOuterXml value readState standalone xmlLang xmlVersion>;
 
@@ -23,13 +24,14 @@ class LibXML::Reader {
     }
 
     INIT {
-        for <hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute nextSibling read> {
+        for <hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute nextElement nextSibling read> {
             $?CLASS.^add_method( $_, method (|c) { self!try-bool($_, |c) });
         }
 
     }
 
-    has  UInt $.flags is rw;
+    has UInt $.flags is rw;
+    has LibXML::Document $.document;
 
     use LibXML::_Options;
     also does LibXML::_Options[
@@ -48,12 +50,28 @@ class LibXML::Reader {
     multi submethod BUILD(Str:D :location($URI)!, |c) {
         self.BUILD: :$URI, |c;
     }
-    multi submethod BUILD(UInt:D :$fd!, :$URI!, |c) {
-        $!native .= new: :$fd;
+    multi submethod BUILD(UInt:D :$fd!, |c) {
+        $!native .= new: :$fd, |c;
+    }
+    multi submethod BUILD(Str:D :$string!, Str :$URI, xmlEncodingStr :$enc, |c) {
+        $!native .= new: :$string, :$enc, :$URI;
+    }
+    multi submethod BUILD(LibXML::Document:D :DOM($!document)!) {
+        $!native .= new: :doc($!document.native);
     }
     multi submethod BUILD(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
         my UInt:D $fd = $io.native-descriptor;
-        self.BUILD( :$fd, :$URI );
+        self.BUILD( :$fd, :$URI, |c );
+    }
+
+    multi submethod TWEAK(:DOM($)!) {}
+    multi submethod TWEAK(:location($), :URI($), :fd($), :string($), :io($), *%opts) is default {
+        self.set-flags($!flags, %opts);
+        $!native.setup(:$!flags )
+    }
+
+    submethod DESTROY {
+        .Free with $!native;
     }
 
     multi method getParserProp(Str:D $opt) {
@@ -70,20 +88,16 @@ class LibXML::Reader {
         !! self!try-bool('moveToAttribute', $name );
     }
 
+    method preservePattern(Str:D $pattern, *%ns) {
+        my CArray[Str] $ns .= new: |(%ns.kv), Str;
+        $!native.preservePattern($pattern, $ns);
+    }
+
     method close(--> Bool) {
         my $rv :=  $!native.close;
         fail X::LibXML::Reader::OpFail: :op<close>
           if $rv < 0;
         $rv == 0;
-    }
-
-    submethod TWEAK(:location($), *%opts) {
-        self.set-flags($!flags, %opts);
-        $!native.setup(:$!flags )
-    }
-
-    submethod DESTROY {
-        .Free with $!native;
     }
 
     method have-reader {

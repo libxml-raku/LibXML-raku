@@ -1,0 +1,20 @@
+<?xml encoding="UTF-8"?>
+
+<!ELEMENT countries (country)+>
+
+<!ELEMENT country (emission,emitter,receptor?)>
+<!ATTLIST country
+  acronym NMTOKEN #REQUIRED
+  report NMTOKEN #REQUIRED>
+
+<!ELEMENT emission EMPTY>
+<!ATTLIST emission
+  acronym NMTOKEN #REQUIRED>
+
+<!ELEMENT emitter EMPTY>
+<!ATTLIST emitter
+  acronym NMTOKEN #REQUIRED>
+
+<!ELEMENT receptor EMPTY>
+<!ATTLIST receptor
+  acronym NMTOKEN #REQUIRED>

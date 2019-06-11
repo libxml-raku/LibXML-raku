@@ -13,9 +13,9 @@ sub xml6_gbl_have_libxml_reader(--> int32) is native(BIND-LIB) is export {*}
 
 class xmlTextReader is repr('CPointer') is export {
 
-    sub xmlNewTextReader(Blob, Str --> xmlTextReader) is native(LIB) {*}
-
+    sub xmlNewTextReader(xmlParserInputBuffer, Str $uri --> xmlTextReader) is native(LIB) {*}
     sub xmlNewTextReaderFilename(Str --> xmlTextReader) is native(LIB) {*}
+    sub xmlReaderWalker(xmlDoc --> xmlTextReader) is native(LIB) {*}
 
     sub xmlReaderForFd(int32, Str, Str, int32 -->  xmlTextReader) is native(LIB) {*}
 
@@ -47,9 +47,11 @@ class xmlTextReader is repr('CPointer') is export {
     method moveToNextAttribute(--> int32) is native(LIB) is symbol('xmlTextReaderMoveToNextAttribute') {*}
     method name(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstName') {*}
     method namespaceURI(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstNamespaceUri') {*}
+    method nextElement(--> int32) is native(BIND-LIB) is symbol('xml6_reader_next_element') {*}
     method nextSibling(--> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling') {*}
     method nodeType(--> int32) is native(LIB) is symbol('xmlTextReaderNodeType') {*}
     method prefix(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstPrefix') {*}
+    method preservePattern(xmlCharP, CArray[Str] --> int32) is native(LIB) is symbol('xmlTextReaderPreservePattern') {*}
     method read(--> int32) is native(LIB) is symbol('xmlTextReaderRead') {*}
     method readAttributeValue(--> int32) is native(LIB) is symbol('xmlTextReaderReadAttributeValue') {*}
     method readInnerXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadInnerXml') {*}
@@ -66,16 +68,20 @@ class xmlTextReader is repr('CPointer') is export {
         $.Setup($buf, $URI, $enc, $flags);
     }
 
-    multi method new(Blob:D :$buf!, Str :$URI) {
-        xmlNewTextReader($buf, $URI);
-    }
     multi method new(Str:D :$URI!) {
         xmlNewTextReaderFilename($URI);
+    }
+    multi method new(Str:D :$string!, xmlEncodingStr :$enc, Str :$URI) {
+        my xmlParserInputBuffer:D $input .= new: :$string, :$enc;
+        xmlNewTextReader($input, $URI);
     }
     multi method new(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, UInt :$flags = 0) {
         xmlReaderForFd( $fd, $URI, $enc, $flags);
     }
+    multi method new(xmlDoc:D :$doc!) {
+        xmlReaderWalker( $doc);
+    }
 
-    multi method new(|) is default { fail }
+    multi method new(|c) is default { fail c.perl }
 }
 

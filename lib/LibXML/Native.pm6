@@ -60,9 +60,12 @@ class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
 class xmlParserInputBuffer is repr(Stub) is export {
     sub xmlAllocParserInputBuffer(int32 $enc --> xmlParserInputBuffer) is native(LIB) {*}
-    method new(xmlEncodingStr:D :$enc!) {
+    method new(xmlEncodingStr :$enc, xmlCharP :$string) {
         my Int $encoding = xmlParseCharEncoding($enc);
-        xmlAllocParserInputBuffer($encoding);
+        given xmlAllocParserInputBuffer($encoding) {
+            .PushStr($string) if $string;
+            $_;
+        }
     }
     method PushStr(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push_str') {*}
 }

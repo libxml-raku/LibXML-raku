@@ -4,6 +4,7 @@ plan 100;
 use LibXML;
 use LibXML::Reader;
 use LibXML::Enums;
+use LibXML::Document;
 
 unless LibXML.have-reader {
     skip-rest "LibXML Reader not supported in this libxml2 build";
@@ -93,30 +94,20 @@ for :$fd, :$io -> Pair:D $how {
     close $io;
 }
 
-skip "todo port tests", 48;
-=begin TODO
-
-
-# scalar interface
+# string interface
 {
-  open my $fd, '<', $file or die "cannot open $file: $!\n";
-  my $doc;
-  {
-    local $/;
-    $doc = <$fd>;
-  }
-  close $fd;
-  my $reader = LibXML::Reader.new(string => $doc, URI => $file);
-  isa-ok($reader, "LibXML::Reader");
-  $reader.read;
-  $reader.read;
-  is($reader.name, "countries","name in string");
+    my Str $doc = $file.IO.slurp;
+    my $reader = LibXML::Reader.new(string => $doc, URI => $file);
+    isa-ok($reader, "LibXML::Reader");
+    $reader.read;
+    $reader.read;
+    is($reader.name, "countries","name in string");
 }
 
 # DOM
 {
-  my $DOM = LibXML.new.parse_file($file);
-  my $reader = LibXML::Reader.new(DOM => $DOM);
+  my LibXML::Document:D $DOM = LibXML.new.parse: :file($file);
+  my $reader = LibXML::Reader.new(:$DOM);
   isa-ok($reader, "LibXML::Reader");
   $reader.read;
   $reader.read;
@@ -128,7 +119,7 @@ skip "todo port tests", 48;
 # Expand
 {
   my ($node1,$node2, $node3);
-  my $xml = <<'EOF';
+  my $xml = q:to<EOF>;
 <root>
   <AA foo="FOO"> text1 <inner/> </AA>
   <DD/><BB bar="BAR">text2<CC> xx </CC>foo<FF/> </BB>x
@@ -143,12 +134,16 @@ EOF
   {
     my $reader = LibXML::Reader.new(string => $xml);
     $reader.preservePattern('//PP');
-    $reader.preservePattern('//x:ZZ',{ x => "foo"});
+    $reader.preservePattern('//x:ZZ', :x<foo>);
 
     isa-ok($reader, "LibXML::Reader");
     $reader.nextElement;
     is($reader.name, "root","root node");
     $reader.nextElement;
+
+} }; skip "todo port tests", 40;
+=begin TODO
+
     $node1 = $reader.copyCurrentNode(1);
     is($node1.nodeName, "AA","deep copy node");
     $reader.next;
