@@ -9,41 +9,51 @@ class LibXML::Reader {
 
     use NativeCall;
     use LibXML::Enums;
+    use LibXML::ErrorHandler;
     use LibXML::Native;
     use LibXML::Native::TextReader;
     use LibXML::Types :QName;
     use LibXML::Document;
 
-    has xmlTextReader $!native handles<attributeCount baseURI byteConsumed columnNumber depth encoding getAttribute getAttributeNo getAttributeNs lineNumber localName lookupNamespace name namespaceURI nodeType prefix readAttributeValue readInnerXml readOuterXml value readState standalone xmlLang xmlVersion>;
+    has xmlTextReader $.native handles<
+        attributeCount baseURI byteConsumed columnNumber depth
+        encoding getAttribute getAttributeNo getAttributeNs
+        lineNumber localName lookupNamespace name namespaceURI
+        nodeType prefix readAttributeValue readInnerXml readOuterXml
+        value readState standalone xmlLang xmlVersion
+    >;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+
+    method !try(Str:D $op, |c) {
+        my $rv := $!native."$op"(|c);
+        self.flush-errors;
+        $rv;
+    }
 
     method !try-bool(Str:D $op, |c) {
-        my $rv := $!native."$op"(|c);
+        my $rv := self!try($op, |c);
         fail X::LibXML::Reader::OpFail.new(:$op)
             if $rv < 0;
         $rv > 0;
     }
 
     INIT {
-        for <hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute next nextSibling read skipSiblings> {
+        for <
+            finish hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid
+            moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute next
+            nextSibling read skipSiblings
+         > {
             $?CLASS.^add_method( $_, method (|c) { self!try-bool($_, |c) });
         }
 
     }
 
     has UInt $.flags is rw;
-    has LibXML::Document $.document;
+    has LibXML::Document $!document;
     method document {
-        with $!document {
-            $_;
-        }
-        else {
-            with $!native.currentDoc -> $struct {
-                $!document .= new: :$struct;
-            }
-            else {
-                LibXML::Document;
-            }
-        }
+        $!document //= LibXML::Document.new: :native($_)
+            with $!native.currentDoc;
+        $!document;
     }
 
     use LibXML::_Options;
@@ -57,6 +67,9 @@ class LibXML::Reader {
 
     multi submethod BUILD( xmlTextReader:D :$!native! ) {
     }
+    multi submethod BUILD(Str:D :$string!, Str :$URI, xmlEncodingStr :$enc, |c) {
+        $!native .= new: :$string, :$enc, :$URI;
+    }
     multi submethod BUILD(Str:D :$URI!, |c) {
         $!native .= new: :$URI, |c;
     }
@@ -66,11 +79,9 @@ class LibXML::Reader {
     multi submethod BUILD(UInt:D :$fd!, |c) {
         $!native .= new: :$fd, |c;
     }
-    multi submethod BUILD(Str:D :$string!, Str :$URI, xmlEncodingStr :$enc, |c) {
-        $!native .= new: :$string, :$enc, :$URI;
-    }
     multi submethod BUILD(LibXML::Document:D :DOM($!document)!) {
-        $!native .= new: :doc($!document.native);
+        my xmlDoc:D $doc = $!document.native;
+        $!native .= new: :$doc;
     }
     multi submethod BUILD(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
         my UInt:D $fd = $io.native-descriptor;
@@ -80,11 +91,24 @@ class LibXML::Reader {
     multi submethod TWEAK(:DOM($)!) {}
     multi submethod TWEAK(:location($), :URI($), :fd($), :string($), :io($), *%opts) is default {
         self.set-flags($!flags, %opts);
-        $!native.setup(:$!flags )
+        with $!native {
+            .setup(:$!flags );
+            .setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
+                self.structured-error($err);
+            }
+        }
     }
 
     submethod DESTROY {
         .Free with $!native;
+    }
+
+    method copyCurrentNode(Bool :$deep) {
+        my domNode $node = self!try(
+            $deep ?? 'currentNodeTree' !! 'currentNode'
+        );
+        $node .= copy: :$deep;
+        LibXML::Node.box($node);
     }
 
     multi method getParserProp(Str:D $opt) {
@@ -110,23 +134,19 @@ class LibXML::Reader {
     }
 
     method preservePattern(Str:D $pattern, *%ns) {
-        my CArray[Str] $ns .= new: |(%ns.kv), Str;
-        $!native.preservePattern($pattern, $ns);
+        $.document; # realise containing document
+        my CArray[Str] $ns .= new: |(%ns.kv.sort), Str;
+        self!try('preservePattern', $pattern, $ns);
     }
 
-    method copyCurrentNode(Bool :$deep) {
-        my domNode $node = $deep
-            ?? $!native.currentNodeTree
-            !! $!native.currentNode;
-        $node .= copy: :$deep;
-        LibXML::Node.box($node, :doc($.document));
+    method preserveNode(Bool :$deep) {
+        $.document; # realise containing document
+        my domNode $node = self!try('preserveNode');
+        LibXML::Node.box($node);
     }
 
     method close(--> Bool) {
-        my $rv :=  $!native.close;
-        fail X::LibXML::Reader::OpFail: :op<close>
-          if $rv < 0;
-        $rv == 0;
+        ! self!try-bool('close');
     }
 
     method have-reader {

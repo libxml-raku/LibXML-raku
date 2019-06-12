@@ -4,6 +4,7 @@ unit class LibXML::RelaxNG;
 
 use NativeCall;
 use LibXML::Document;
+use LibXML::ErrorHandler;
 use LibXML::Native;
 use LibXML::Native::RelaxNG;
 use LibXML::ParserContext;
@@ -11,7 +12,6 @@ has xmlRelaxNG $.native;
 
 my class ParserContext {
     has xmlRelaxNGParserCtxt $!native;
-    has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
     multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {
@@ -55,7 +55,6 @@ my class ParserContext {
 
 my class ValidContext {
     has xmlRelaxNGValidCtxt $!native;
-    has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
     multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!native! ) { }

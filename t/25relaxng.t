@@ -4,7 +4,7 @@ use Test;
 use LibXML;
 use LibXML::RelaxNG;
 
-plan 13;
+plan 14;
 
 given LibXML.parser-version {
     when * < v2.05.10 {
@@ -64,8 +64,7 @@ print "# 4 validate a document\n";
     my $rngschema = LibXML::RelaxNG.new( location => $file );
 
     my $valid = 0;
-    ##lives-ok {
- $valid = $rngschema.validate( $doc ); ##}, 'validate valid document';
+    lives-ok { $valid = $rngschema.validate( $doc ); }, 'validate valid document';
     # TEST
     is( $valid, 0, ' TODO : Add test name' );
 

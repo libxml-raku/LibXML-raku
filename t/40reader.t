@@ -166,28 +166,27 @@ EOF
     is($reader.namespaceURI, "foo","namespaceURI");
     $reader.nextElement;
 
-} }; skip "todo port tests", 25;
-=begin TODO
-
-    $node3= $reader.preserveNode;
-    is( $reader.readOuterXml(), $node3.toString(),"outer xml");
+    $node3 = $reader.preserveNode;
+    is( $reader.readOuterXml(), $node3.Str, "outer xml");
     ok($node3,"preserve node");
+
     $reader.finish;
     my $doc = $reader.document;
     ok($doc, "document");
     ok($doc.documentElement, "doc root element");
-    is($doc.documentElement.toString,q(<root><EE baz="BAZ"><PP>preserved</PP></EE><x:ZZ xmlns:x="foo"/><QQ/></root>),
+    is($doc.documentElement.Str, q{<root><EE baz="BAZ"><PP>preserved</PP></EE><x:ZZ xmlns:x="foo"/><QQ/></root>},
        "preserved content");
   }
+
   ok($node1.hasChildNodes,"copy w/  child nodes");
-  ok($node1.toString(),q(<AA foo="FOO"> text1 <inner/> </AA>));
-  ok(!defined $node2.firstChild, "copy w/o child nodes");
-  ok($node2.toString(),q(<BB bar="BAR"/>));
-  ok($node3.toString(),q(<QQ/>));
+  is($node1.Str(),q{<AA foo="FOO"> text1 <inner/> </AA>});
+  ok(!defined($node2.firstChild), "copy w/o child nodes");
+  is($node2.Str(),q{<BB bar="BAR"/>});
+  is($node3.Str(),q{<QQ/>});
 }
 
 {
-  my $bad_xml = <<'EOF';
+  my $bad_xml = q:to<EOF>;
 <root>
   <foo/>
   <x>
@@ -198,17 +197,16 @@ EOF
   </x>
 </root>
 EOF
-  my $reader = LibXML::Reader.new(
+
+}; skip "todo port tests", 15;
+=begin TODO
+
+my $reader = LibXML::Reader.new(
     string => $bad_xml,
     URI => "mystring.xml"
    );
-  eval { $reader.finish };
-  my $Err = $@;
-  use Data::Dumper;
-  # print Dumper($Err);
-  # print $Err;
-  ok((defined($Err) and $Err =~ /in mystring.xml at line 3:|mystring.xml:5:/),
-      'caught the error');
+throws-like { $reader.finish; }, ::LibXML::Parser, :message(/'in mystring.xml'.* 'at line 3:' .* 'mystring.xml:5:'/),
+      'caught the error';
 }
 
 {

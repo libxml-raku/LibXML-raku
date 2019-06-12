@@ -5,6 +5,7 @@ unit class LibXML::Schema;
 use NativeCall;
 use LibXML::Document;
 use LibXML::Element;
+use LibXML::ErrorHandler;
 use LibXML::Native;
 use LibXML::Native::Schema;
 use LibXML::ParserContext;
@@ -12,7 +13,6 @@ has xmlSchema $.native;
 
 my class ParserContext {
     has xmlSchemaParserCtxt $!native;
-    has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
@@ -56,7 +56,6 @@ my class ParserContext {
 
 my class ValidContext {
     has xmlSchemaValidCtxt $!native;
-    has Pair @!msgs;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
     multi submethod BUILD( xmlSchemaValidCtxt:D :$!native! ) { }

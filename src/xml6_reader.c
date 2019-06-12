@@ -77,3 +77,14 @@ xml6_reader_skip_siblings(xmlTextReaderPtr self) {
     return rv;
 }
 
+DLLEXPORT int
+xml6_reader_finish(xmlTextReaderPtr self) {
+    int rv;
+
+    for (rv = 1; rv == 1; rv = xmlTextReaderNext(self))
+        ;
+
+    rv++; /* we want 0 - fail, 1- success */
+    return rv;
+}
+

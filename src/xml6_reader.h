@@ -16,4 +16,7 @@ xml6_reader_next_sibling_element(xmlTextReaderPtr self, char *name, char *URI);
 DLLEXPORT int
 xml6_reader_skip_siblings(xmlTextReaderPtr self);
 
+DLLEXPORT int
+xml6_reader_finish(xmlTextReaderPtr self);
+
 #endif /* __XML6_READER_H */
