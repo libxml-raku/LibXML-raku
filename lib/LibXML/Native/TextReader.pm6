@@ -15,9 +15,10 @@ class xmlTextReader is repr('CPointer') is export {
 
     sub xmlNewTextReader(xmlParserInputBuffer, Str $uri --> xmlTextReader) is native(LIB) {*}
     sub xmlNewTextReaderFilename(Str --> xmlTextReader) is native(LIB) {*}
+    sub xmlReaderForMemory(Blob, int32, Str, Str, int32 --> xmlTextReader) is native(LIB) {*}
     sub xmlReaderWalker(xmlDoc --> xmlTextReader) is native(LIB) {*}
 
-    sub xmlReaderForFd(int32, Str, Str, int32 -->  xmlTextReader) is native(LIB) {*}
+    sub xmlReaderForFd(int32, Str, Str, int32 --> xmlTextReader) is native(LIB) {*}
 
     method attributeCount(--> int32) is native(LIB) is symbol('xmlTextReaderAttributeCount') {*}
     method baseURI(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstBaseUri') {*}
@@ -73,16 +74,8 @@ class xmlTextReader is repr('CPointer') is export {
     method Setup(xmlParserInputBuffer, Str $uri, Str $enc, int32 $opts --> int32) is symbol('xmlTextReaderSetup') is native(LIB) {*}
     method Free is symbol('xmlFreeTextReader') is native(LIB) {*}
 
-    method setup(xmlParserInputBuffer :$buf, Str :$URI, xmlEncodingStr :$enc, UInt :$flags = 0) {
-        $.Setup($buf, $URI, $enc, $flags);
-    }
-
-    multi method new(Str:D :$URI!) {
-        xmlNewTextReaderFilename($URI);
-    }
-    multi method new(Str:D :$string!, xmlEncodingStr :$enc, Str :$URI) {
-        my xmlParserInputBuffer:D $input .= new: :$string, :$enc;
-        xmlNewTextReader($input, $URI);
+    multi method new(Blob :$buf!, UInt :$len = $buf.bytes, xmlEncodingStr :$enc, Str :$URI, UInt :$flags = 0) {
+        xmlReaderForMemory($buf, $len, $URI, $enc, $flags);
     }
     multi method new(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, UInt :$flags = 0) {
         xmlReaderForFd( $fd, $URI, $enc, $flags);

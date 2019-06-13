@@ -198,16 +198,16 @@ EOF
 </root>
 EOF
 
-}; skip "todo port tests", 15;
-=begin TODO
-
 my $reader = LibXML::Reader.new(
     string => $bad_xml,
     URI => "mystring.xml"
    );
-throws-like { $reader.finish; }, ::LibXML::Parser, :message(/'in mystring.xml'.* 'at line 3:' .* 'mystring.xml:5:'/),
+throws-like { $reader.finish; }, X::LibXML::Parser, :message(/'mystring.xml:5:'/),
       'caught the error';
 }
+
+skip "todo port tests", 14;
+=begin TODO
 
 {
   my $rng = "test/relaxng/demo.rng";

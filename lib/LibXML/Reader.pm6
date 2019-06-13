@@ -23,6 +23,7 @@ class LibXML::Reader {
         value readState standalone xmlLang xmlVersion
     >;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    has Blob $!buf;
 
     method !try(Str:D $op, |c) {
         my $rv := $!native."$op"(|c);
@@ -39,7 +40,7 @@ class LibXML::Reader {
 
     INIT {
         for <
-            finish hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid
+            hasAttributes hasValue isDefault isEmptyElement isNamespaceDecl isValid
             moveToAttribute moveToAttributeNo moveToElement moveToFirstAttribute moveToNextAttribute next
             nextSibling read skipSiblings
          > {
@@ -65,34 +66,42 @@ class LibXML::Reader {
             :expand-entities(XML_PARSER_SUBST_ENTITIES),
         )];
 
-    multi submethod BUILD( xmlTextReader:D :$!native! ) {
+    multi submethod TWEAK( xmlTextReader:D :$!native! ) {
     }
-    multi submethod BUILD(Str:D :$string!, Str :$URI, xmlEncodingStr :$enc, |c) {
-        $!native .= new: :$string, :$enc, :$URI;
-    }
-    multi submethod BUILD(Str:D :$URI!, |c) {
-        $!native .= new: :$URI, |c;
-    }
-    multi submethod BUILD(Str:D :location($URI)!, |c) {
-        self.BUILD: :$URI, |c;
-    }
-    multi submethod BUILD(UInt:D :$fd!, |c) {
-        $!native .= new: :$fd, |c;
-    }
-    multi submethod BUILD(LibXML::Document:D :DOM($!document)!) {
+    multi submethod TWEAK(LibXML::Document:D :DOM($!document)!) {
         my xmlDoc:D $doc = $!document.native;
         $!native .= new: :$doc;
     }
-    multi submethod BUILD(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
+    multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes, Str :$URI, xmlEncodingStr :$enc, :$!flags = 0, *%opts) {
+        self.set-flags($!flags, %opts);
+        $!native .= new: :$!buf, :$len, :$enc, :$URI, :$!flags;
+        self!handle-errors;
+    }
+    multi submethod TWEAK(Str:D :$string!, xmlEncodingStr :$enc = 'UTF-8', |c) {
+        my $buf = $string.encode($enc);
+        self.TWEAK( :$buf, :$enc, |c);
+    }
+    multi submethod TWEAK(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, :$!flags = 0, *%opts) {
+        self.set-flags($!flags, %opts);
+        $!native .= new: :$fd, :$enc, :$URI, :$!flags;
+        self!handle-errors;
+    }
+    multi submethod TWEAK(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
+        $io.open(:r) unless $io.opened;
         my UInt:D $fd = $io.native-descriptor;
-        self.BUILD( :$fd, :$URI, |c );
+        self.TWEAK( :$fd, :$URI, |c );
+    }
+    multi submethod TWEAK(Str:D :$URI!, |c) {
+        my IO::Handle:D $io = $URI.IO.open(:r);
+        my UInt:D $fd = $io.native-descriptor;
+        self.TWEAK: :$fd, :$URI, |c;
+    }
+    multi submethod TWEAK(Str:D :location($URI)!, |c) {
+        self.TWEAK: :$URI, |c;
     }
 
-    multi submethod TWEAK(:DOM($)!) {}
-    multi submethod TWEAK(:location($), :URI($), :fd($), :string($), :io($), *%opts) is default {
-        self.set-flags($!flags, %opts);
+    method !handle-errors {
         with $!native {
-            .setup(:$!flags );
             .setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
                 self.structured-error($err);
             }
@@ -146,7 +155,15 @@ class LibXML::Reader {
     }
 
     method close(--> Bool) {
-        ! self!try-bool('close');
+        my $rv := ! self!try-bool('close');
+        $!buf = Nil;
+        $rv;
+    }
+
+    method finish(--> Bool) {
+        my $rv := self!try-bool('finish');
+        $!buf = Nil;
+        $rv;
     }
 
     method have-reader {
