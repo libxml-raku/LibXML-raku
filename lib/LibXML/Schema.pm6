@@ -2,7 +2,6 @@ use v6;
 
 unit class LibXML::Schema;
 
-use NativeCall;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::ErrorHandler;

@@ -2,7 +2,6 @@ use v6;
 
 unit class LibXML::RelaxNG;
 
-use NativeCall;
 use LibXML::Document;
 use LibXML::ErrorHandler;
 use LibXML::Native;

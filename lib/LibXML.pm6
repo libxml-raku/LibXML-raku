@@ -27,6 +27,12 @@ method have-reader {
     LibXML::Reader.have-reader
 }
 
+method have-schemas {
+    given $.parser-version {
+        $_ >= v2.05.10 && $_ !=  v2.09.04
+    }
+}
+
 method config handles <skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
     LibXML::Config;
 }

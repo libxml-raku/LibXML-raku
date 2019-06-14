@@ -5,6 +5,8 @@ use LibXML;
 use LibXML::Reader;
 use LibXML::Enums;
 use LibXML::Document;
+use LibXML::RelaxNG;
+use LibXML::Schema;
 
 unless LibXML.have-reader {
     skip-rest "LibXML Reader not supported in this libxml2 build";
@@ -206,58 +208,52 @@ throws-like { $reader.finish; }, X::LibXML::Parser, :message(/'mystring.xml:5:'/
       'caught the error';
 }
 
-skip "todo port tests", 14;
-=begin TODO
-
 {
   my $rng = "test/relaxng/demo.rng";
-  for my $RNG ($rng, LibXML::RelaxNG.new(location => $rng)) {
+  for $rng, LibXML::RelaxNG.new(location => $rng) -> $RNG {
     {
       my $reader = LibXML::Reader.new(
 	location => "test/relaxng/demo.xml",
 	RelaxNG => $RNG,
        );
-      ok($reader.finish, "validate using ".(ref($RNG) ? 'LibXML::RelaxNG' : 'RelaxNG file'));
+      ok($reader.finish, "validate using "~($RNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
     }
     {
       my $reader = LibXML::Reader.new(
 	location => "test/relaxng/invaliddemo.xml",
 	RelaxNG => $RNG,
        );
-      eval { $reader.finish };
-      print $@;
-      ok($@, "catch validation error for a ".(ref($RNG) ? 'LibXML::RelaxNG' : 'RelaxNG file'));
+      throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Relax-NG validity error'/);
     }
 
   }
 }
 
-SKIP: {
-  if ((!LibXML::HAVE_SCHEMAS)
-          or (LibXML::LIBXML_DOTTED_VERSION eq '2.9.4')
-  )
-  {
+if !LibXML.have-schemas {
     skip "https://github.com/shlomif/libxml2-2.9.4-reader-schema-regression", 4;
-  }
-  my $xsd = "test/schema/schema.xsd";
-  for my $XSD ($xsd, LibXML::Schema.new(location => $xsd)) {
-    {
-      my $reader = LibXML::Reader.new(
-	location => "test/schema/demo.xml",
-	Schema => $XSD,
-       );
-      ok($reader.finish, "validate using ".(ref($XSD) ? 'LibXML::Schema' : 'Schema file'));
-    }
-    {
-      my $reader = LibXML::Reader.new(
-	location => "test/schema/invaliddemo.xml",
-	Schema => $XSD,
-       );
-      eval { $reader.finish };
-      ok($@, "catch validation error for ".(ref($XSD) ? 'LibXML::Schema' : 'Schema file'));
-    }
-  }
 }
+else {
+    my $xsd = "test/schema/schema.xsd";
+    for $xsd, LibXML::Schema.new(location => $xsd) -> $XSD {
+        {
+            my $reader = LibXML::Reader.new(
+	        location => "test/schema/demo.xml",
+	        Schema => $XSD,
+            );
+            ok($reader.finish, "validate using "~($XSD.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
+        }
+        {
+            my $reader = LibXML::Reader.new(
+	        location => "test/schema/invaliddemo.xml",
+	        Schema => $XSD,
+            );
+            throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Schemas validity error'/);
+        }
+    }
+}
+
+skip "todo port tests", 6;
+=begin TODO
 
 # Patterns
 {

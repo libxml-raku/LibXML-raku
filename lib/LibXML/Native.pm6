@@ -11,7 +11,7 @@ use LibXML::Native::DOM::Node;
 
 constant LIB = 'xml2';
 constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
-constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
+my constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 
 
 # type defs

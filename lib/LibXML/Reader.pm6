@@ -14,6 +14,8 @@ class LibXML::Reader {
     use LibXML::Native::TextReader;
     use LibXML::Types :QName;
     use LibXML::Document;
+    use LibXML::RelaxNG;
+    use LibXML::Schema;
 
     has xmlTextReader $.native handles<
         attributeCount baseURI byteConsumed columnNumber depth
@@ -24,6 +26,10 @@ class LibXML::Reader {
     >;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
     has Blob $!buf;
+    my subset RelaxNG where {!.defined || $_ ~~ LibXML::RelaxNG|Str};
+    my subset Schema  where {!.defined || $_ ~~ LibXML::Schema|Str};
+    has RelaxNG $!RelaxNG;
+    has Schema  $!Schema;
 
     method !try(Str:D $op, |c) {
         my $rv := $!native."$op"(|c);
@@ -68,23 +74,32 @@ class LibXML::Reader {
 
     multi submethod TWEAK( xmlTextReader:D :$!native! ) {
     }
-    multi submethod TWEAK(LibXML::Document:D :DOM($!document)!) {
+    multi submethod TWEAK(LibXML::Document:D :DOM($!document)!,
+                          RelaxNG :$!RelaxNG, Schema :$!Schema,
+                         ) {
         my xmlDoc:D $doc = $!document.native;
         $!native .= new: :$doc;
+        self!setup: :!errors;
     }
-    multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes, Str :$URI, xmlEncodingStr :$enc, :$!flags = 0, *%opts) {
+    multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes,
+                          Str :$URI, xmlEncodingStr :$enc, :$!flags = 0,
+                          RelaxNG :$!RelaxNG, Schema :$!Schema,
+                          *%opts) {
         self.set-flags($!flags, %opts);
         $!native .= new: :$!buf, :$len, :$enc, :$URI, :$!flags;
-        self!handle-errors;
+        self!setup;
     }
     multi submethod TWEAK(Str:D :$string!, xmlEncodingStr :$enc = 'UTF-8', |c) {
         my $buf = $string.encode($enc);
         self.TWEAK( :$buf, :$enc, |c);
     }
-    multi submethod TWEAK(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, :$!flags = 0, *%opts) {
+    multi submethod TWEAK(UInt:D :$fd!, Str :$URI,
+                          xmlEncodingStr :$enc, :$!flags = 0,
+                          RelaxNG :$!RelaxNG, Schema :$!Schema,
+                          *%opts) {
         self.set-flags($!flags, %opts);
         $!native .= new: :$fd, :$enc, :$URI, :$!flags;
-        self!handle-errors;
+        self!setup;
     }
     multi submethod TWEAK(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
         $io.open(:r) unless $io.opened;
@@ -100,12 +115,22 @@ class LibXML::Reader {
         self.TWEAK: :$URI, |c;
     }
 
-    method !handle-errors {
-        with $!native {
-            .setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
+    method !setup(Bool :$errors = True) {
+        my Pair $call;
+        if $errors {
+            $!native.setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
                 self.structured-error($err);
             }
         }
+        with $!RelaxNG {
+            when Str { $call := :setRelaxNGFile($_); }
+            default  { $call := :setRelaxNGSchema(.native) }
+        }
+        with $!Schema {
+            when Str { $call := :setXsdFile($_); }
+            default  { $call := :setXsdSchema(.native) }
+        }
+        self!try-bool(.key, .value) with $call;
     }
 
     submethod DESTROY {

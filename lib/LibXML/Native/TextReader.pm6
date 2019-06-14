@@ -2,6 +2,8 @@ unit module LibXML::Native::TextReader;
 
 use NativeCall;
 use LibXML::Native;
+use LibXML::Native::RelaxNG;
+use LibXML::Native::Schema;
 use LibXML::Types :QName;
 
 constant Stub = LibXML::Native::Stub;
@@ -65,6 +67,10 @@ class xmlTextReader is repr('CPointer') is export {
     method readInnerXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadInnerXml') {*}
     method readOuterXml(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadOuterXml') {*}
     method readState(--> int32) is native(LIB) is symbol('xmlTextReaderReadState') {*}
+    method setRelaxNGSchema(xmlRelaxNG --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGSetSchema') {*}
+    method setRelaxNGFile(Str --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGValidate') {*}
+    method setXsdSchema(xmlSchema --> int32) is native(LIB) is symbol('xmlTextReaderSetSchema') {*}
+    method setXsdFile(Str --> int32) is native(LIB) is symbol('xmlTextReaderSchemaValidate') {*}
     method setStructuredErrorFunc( &error-func (Pointer $, xmlError $)) is native(LIB) is symbol('xmlTextReaderSetStructuredErrorHandler') {*};
     method skipSiblings(--> int32) is native(BIND-LIB) is symbol('xml6_reader_skip_siblings') {*}
     method standalone(--> int32) is native(LIB) is symbol('xmlTextReaderStandalone') {*}
