@@ -1,4 +1,5 @@
 #include "xml6_reader.h"
+#include <assert.h>
 
 DLLEXPORT int
 xml6_reader_next_sibling(xmlTextReaderPtr self) {
@@ -88,3 +89,20 @@ xml6_reader_finish(xmlTextReaderPtr self) {
     return rv;
 }
 
+DLLEXPORT int
+xml6_reader_next_pattern_match(xmlTextReaderPtr self, xmlPatternPtr compiled) {
+    xmlNodePtr node = NULL;
+    int rv;
+
+    assert(compiled != NULL);
+
+    do {
+        rv = xmlTextReaderRead(self);
+        node = xmlTextReaderCurrentNode(self);
+        if (node == NULL || xmlPatternMatch(compiled, node)) {
+	    break;
+        }
+    } while (rv == 1);
+
+    return rv;
+}

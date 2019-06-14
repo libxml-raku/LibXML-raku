@@ -129,3 +129,10 @@ enum xmlReaderTypes is export (
     XML_READER_TYPE_END_ENTITY => 16,
     XML_READER_TYPE_XML_DECLARATION => 17,
 );
+
+enum xmlPatternFlags is export (
+    XML_PATTERN_DEFAULT   => 0,         # simple pattern match
+    XML_PATTERN_XPATH     => 1+<0,      # standard XPath pattern
+    XML_PATTERN_XSSEL     => 1+<1,      # XPath subset for schema selector
+    XML_PATTERN_XSFIELD   => 1+<2       # XPath subset for schema field
+);

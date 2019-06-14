@@ -79,6 +79,14 @@ class xmlXPathCompExpr is repr(Stub) is export {
         xmlXPathCompile($expr);
     }
 }
+class xmlPattern is repr(Stub) is export {
+    method Match(domNode --> int32) is native(LIB) is symbol('xmlPatternMatch') {*}
+    sub xmlPatterncompile(xmlCharP, xmlDict, int32, CArray[xmlCharP] --> xmlPattern) is native(LIB) {*}
+    method Free is native(LIB) is symbol('xmlFreePattern') {*}
+    method new(Str:D :$pattern!, xmlDict :$dict, UInt :$flags, CArray[xmlCharP] :$ns) {
+        xmlPatterncompile($pattern, $dict, $flags, $ns);
+    }
+}
 class xmlRegexp is repr(Stub) is export {}
 class xmlXIncludeCtxt is repr(Stub) is export {}
 class xmlXPathAxis is repr(Stub) is export {}
@@ -608,6 +616,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method SetListDoc(xmlDoc) is native(LIB) is symbol('xmlSetListDoc') {*}
     method GetLineNo returns long is native(LIB) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native(LIB) is symbol('xmlIsBlankNode') {*}
+    method GetNodePath(--> xmlCharP) is native(LIB) is symbol('xmlGetNodePath') {*}
     method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}

@@ -12,6 +12,7 @@ method last { ... }
 method find { ... }
 method findnodes { ... }
 method copy { ... }
+method GetNodePath { ... }
 
 method domAppendChild  { ... }
 method domAppendTextChild  { ... }
@@ -144,9 +145,9 @@ method getAttributeNS(Str $uri, QName:D $att-name --> Str) {
     self.domGetAttributeNS($uri, $att-name);
 }
 
-method localNS {
-    self.ns;
-}
+method localNS { self.ns }
+
+method nodePath { self.GetNodePath }
 
 method getAttribute(QName:D $name) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {

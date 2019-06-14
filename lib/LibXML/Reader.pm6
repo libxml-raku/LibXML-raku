@@ -14,6 +14,7 @@ class LibXML::Reader {
     use LibXML::Native::TextReader;
     use LibXML::Types :QName;
     use LibXML::Document;
+    use LibXML::Pattern;
     use LibXML::RelaxNG;
     use LibXML::Schema;
 
@@ -163,14 +164,26 @@ class LibXML::Reader {
         self!try-bool('nextElement', $name, $URI);
     }
 
+    method nextPatternMatch(LibXML::Pattern:D $pattern) {
+        self!try-bool('nextPatternMatch', $pattern.native);
+    }
+
     method nextSiblingElement(QName $name?, Str $URI?) {
         self!try-bool('nextSiblingElement', $name, $URI);
     }
 
-    method preservePattern(Str:D $pattern, *%ns) {
+    method preservePattern(Str:D $pattern, :%ns) {
         $.document; # realise containing document
         my CArray[Str] $ns .= new: |(%ns.kv.sort), Str;
         self!try('preservePattern', $pattern, $ns);
+    }
+
+    method matchesPattern(LibXML::Pattern:D $pattern) {
+        $pattern.matchesNode($_) with $!native.currentNode;
+    }
+
+    method nodePath {
+        .GetNodePath with $!native.currentNode;
     }
 
     method preserveNode(Bool :$deep) {

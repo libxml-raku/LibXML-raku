@@ -38,6 +38,7 @@ method set-flag(UInt $flags is rw, Str:D $k, Bool() $v) {
 }
 
 method set-flags($flags is rw, %opts) {
+    $flags //= 0;
     for %opts.pairs.sort {
         self.set-flag($flags, .key, .value);
     }

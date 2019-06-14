@@ -56,6 +56,7 @@ class xmlTextReader is repr('CPointer') is export {
     method namespaceURI(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstNamespaceUri') {*}
     method next(--> int32) is native(BIND-LIB) is symbol('xmlTextReaderNext') {*}
     method nextElement(Str, Str --> int32) is native(BIND-LIB) is symbol('xml6_reader_next_element') {*}
+    method nextPatternMatch(xmlPattern --> int32) is native(BIND-LIB) is symbol('xml6_reader_next_pattern_match') {*}
     method nextSibling(--> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling') {*}
     method nextSiblingElement(Str, Str --> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling_element') {*}
     method nodeType(--> int32) is native(LIB) is symbol('xmlTextReaderNodeType') {*}

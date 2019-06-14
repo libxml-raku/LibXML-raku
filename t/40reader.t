@@ -1,5 +1,5 @@
 use Test;
-plan 100;
+plan 101;
 
 use LibXML;
 use LibXML::Reader;
@@ -136,7 +136,7 @@ EOF
   {
     my $reader = LibXML::Reader.new(string => $xml);
     $reader.preservePattern('//PP');
-    $reader.preservePattern('//x:ZZ', :x<foo>);
+    $reader.preservePattern('//x:ZZ', :ns{ :x<foo> });
 
     isa-ok($reader, "LibXML::Reader");
     $reader.nextElement;
@@ -212,18 +212,18 @@ throws-like { $reader.finish; }, X::LibXML::Parser, :message(/'mystring.xml:5:'/
   my $rng = "test/relaxng/demo.rng";
   for $rng, LibXML::RelaxNG.new(location => $rng) -> $RNG {
     {
-      my $reader = LibXML::Reader.new(
-	location => "test/relaxng/demo.xml",
-	RelaxNG => $RNG,
-       );
-      ok($reader.finish, "validate using "~($RNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
+        my $reader = LibXML::Reader.new(
+	    location => "test/relaxng/demo.xml",
+	    RelaxNG => $RNG,
+        );
+        ok($reader.finish, "validate using "~($RNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
     }
     {
-      my $reader = LibXML::Reader.new(
-	location => "test/relaxng/invaliddemo.xml",
-	RelaxNG => $RNG,
-       );
-      throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Relax-NG validity error'/);
+        my $reader = LibXML::Reader.new(
+	    location => "test/relaxng/invaliddemo.xml",
+	    RelaxNG => $RNG,
+        );
+        throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Relax-NG validity error'/);
     }
 
   }
@@ -252,13 +252,10 @@ else {
     }
 }
 
-skip "todo port tests", 6;
-=begin TODO
-
 # Patterns
 {
   my ($node1,$node2, $node3);
-  my $xml = <<'EOF';
+  my $xml = q:to<EOF>;
 <root>
   <AA foo="FOO"> text1 <inner/> </AA>
   <DD/><BB bar="BAR">text2<CC> xx </CC>foo<FF/> </BB>x
@@ -270,39 +267,39 @@ skip "todo port tests", 6;
   <YY/>
 </root>
 EOF
-  my $pattern = LibXML::Pattern.new('//inner|CC|/root/y:ZZ',{y=>'foo'});
+  my $pattern = LibXML::Pattern.compile('//inner|CC|/root/y:ZZ', :ns{y=>'foo'});
   ok($pattern);
   {
     my $reader = LibXML::Reader.new(string => $xml);
     ok($reader);
     my $matches='';
     while ($reader.read) {
-      if ($reader.matchesPattern($pattern)) {
-	$matches.=$reader.nodePath.',';
-      }
+        if ($reader.matchesPattern($pattern)) {
+	    $matches ~= $reader.nodePath ~ ',';
+        }
     }
-    ok($matches,'/root/AA/inner,/root/BB/CC,/root/*,');
+    is($matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,');
   }
+
   {
     my $reader = LibXML::Reader.new(string => $xml);
     ok($reader);
     my $matches='';
     while ($reader.nextPatternMatch($pattern)) {
-      $matches.=$reader.nodePath.',';
+        $matches ~= $reader.nodePath ~ ',';
     }
-    ok($matches,'/root/AA/inner,/root/BB/CC,/root/*,');
+    is($matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,');
   }
   {
-    my $dom = LibXML.new.parse_string($xml);
+    my $dom = LibXML.new.parse: :string($xml);
     ok($dom);
     my $matches='';
     for $dom.findnodes('//node()|@*') -> $node {
-      if ($pattern.matchesNode($node)) {
-	$matches ~ =$node.nodePath ~',';
-      }
+        if ($pattern.matchesNode($node)) {
+	  $matches ~= $node.nodePath ~ ',';
+        }
     }
-    ok($matches,'/root/AA/inner,/root/BB/CC,/root/*,');
+    is($matches,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,');
   }
 }
-
-=end TODO
+ 

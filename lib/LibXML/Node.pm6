@@ -23,6 +23,7 @@ class LibXML::Node {
         getAttribute getAttributeNS getNamespaceDeclURI
         hasChildNodes hasAttributes hasAttribute hasAttributeNS
         lookupNamespacePrefix lookupNamespaceURI
+        nodePath
         removeAttribute removeAttributeNS
         setNamespaceDeclURI setNamespaceDeclPrefix
         URI baseURI nodeValue

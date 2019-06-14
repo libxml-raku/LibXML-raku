@@ -44,6 +44,7 @@
     "LibXML::Node::List" : "lib/LibXML/Node/List.pm6",
     "LibXML::Node::Set" : "lib/LibXML/Node/Set.pm6",
     "LibXML::Parser" : "lib/LibXML/Parser.pm6",
+    "LibXML::Pattern" : "lib/LibXML/Pattern.pm6",
     "LibXML::PI" : "lib/LibXML/PI.pm6",
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
     "LibXML::Reader" : "lib/LibXML/Reader.pm6",
