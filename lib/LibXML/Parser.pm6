@@ -6,6 +6,7 @@ class LibXML::Parser {
     use LibXML::Document;
     use LibXML::PushParser;
     use LibXML::ParserContext;
+    use Method::Also;
 
     constant config = LibXML::Config;
 
@@ -79,10 +80,11 @@ class LibXML::Parser {
 
     method processXIncludes(
         LibXML::Document $_,
-        LibXML::ParserContext:D :$handler = self!make-handler: :native(xmlParserCtxt.new)
-       --> Int) {
+        LibXML::ParserContext:D :$handler = self!make-handler(:native(xmlParserCtxt.new)),
+        *%opts --> Int) is also<process-xinclude> {
         my xmlDoc $doc = .native;
-        $handler.try: { $doc.XIncludeProcessFlags($!flags) }
+        my $flags = self.options(|%opts);
+        $handler.try: { $doc.XIncludeProcessFlags($flags) }
     }
 
     method load(|c) { self.new.parse(|c) }

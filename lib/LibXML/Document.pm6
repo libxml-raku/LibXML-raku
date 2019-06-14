@@ -227,6 +227,11 @@ method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset --> Bool) {
 method validate(|c) { LibXML::ParserContext.try: {self!validate(|c)} }
 method is-valid(|c) { self!validate(|c) }
 
+method processXIncludes(|c) is also<process-xinclude> {
+    require LibXML::Parser;
+    LibXML::Parser.new.processXIncludes(self, |c);
+}
+
 our $lock = Lock.new;
 
 method Str(Bool :$skip-dtd = config.skip-dtd, |c --> Str) {
