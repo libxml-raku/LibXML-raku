@@ -57,3 +57,9 @@ multi method matchesNode(domNode $node) {
 
 method get-option(Str:D $key) { $.get-flag($!flags, $key); }
 method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
+
+method FALLBACK($key, |c) is rw {
+    $.option-exists($key)
+        ?? $.option($key, |c)
+        !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
+}

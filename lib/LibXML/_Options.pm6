@@ -1,6 +1,7 @@
 unit role LibXML::_Options[%FLAGS];
 
-method get-flag(UInt $flags, Str:D $k) {
+method get-flag(UInt $flags, Str:D $k is copy) {
+    $k .= subst("_", "-", :g);
     with %FLAGS{'no-' ~ $k} {
            ! ($flags +& $_)
     }
@@ -9,12 +10,13 @@ method get-flag(UInt $flags, Str:D $k) {
             ? ($flags +& $_)
         }
         else {
-            fail "unknown parser flag: $_";
+            fail "unknown parser flag: $k";
         }
     }
 }
 
-method set-flag(UInt $flags is rw, Str:D $k, Bool() $v) {
+method set-flag(UInt $flags is rw, Str:D $k is copy, Bool() $v) {
+    $k .= subst("_", "-", :g);
     $flags //= 0;
     with %FLAGS{'no-' ~ $k} {
         $.set-flag($flags, 'no-' ~ $k, ! $v);
@@ -44,18 +46,22 @@ method set-flags($flags is rw, %opts) {
     }
 }
 
-method is-option(Str:D $key) {
-    (%FLAGS{$key} // %FLAGS{'no-' ~ $key}).defined;
+method option-exists(Str:D $k is copy) {
+    $k .= subst("_", "-", :g);
+    (%FLAGS{$k} // %FLAGS{'no-' ~ $k}).defined;
 }
 
 method get-option($) {...}
 method set-option($,$) {...}
 
-method option(Str:D $key) is rw {
+multi method option(Str:D $key) is rw {
     Proxy.new(
         FETCH => { $.get-option($key) },
-        STORE => -> $, Bool() $_ {
-            $.set-option($key, $_);
+        STORE => -> $, Bool() $val {
+            $.set-option($key, $val);
         });
 }
 
+multi method option(Str:D $key, Bool() $val) {
+    $.set-option($key, $val);
+}

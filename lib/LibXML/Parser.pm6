@@ -43,7 +43,11 @@ class LibXML::Parser {
         )];
 
     method get-option(Str:D $key) { $.get-flag($!flags, $key); }
-    method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
+    multi method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
+    multi method set-option(*%opt) {
+        my $rv := $.set-option(.key, .value) for %opt.sort;
+        $rv;
+    }
 
     method options(:$html, *%opts) {
         my UInt $flags = $!flags;
@@ -61,9 +65,7 @@ class LibXML::Parser {
         $flags;
     }
 
-    method keep-blanks is rw {
-        self.blanks;
-    }
+    method keep-blanks(|c) is rw { $.blanks(|c) }
 
     method !make-handler(parserCtxt :$native, *%flags) {
         my UInt $flags = self.options(|%flags);
@@ -232,8 +234,8 @@ class LibXML::Parser {
     }
 
     method FALLBACK($key, |c) is rw {
-        $.is-option($key)
-            ?? $.option($key)
+        $.option-exists($key)
+            ?? $.option($key, |c)
             !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
     }
 

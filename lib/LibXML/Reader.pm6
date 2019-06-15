@@ -212,8 +212,8 @@ class LibXML::Reader {
     method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
 
     method FALLBACK($key, |c) is rw {
-        $.is-option($key)
-        ?? $.option($key)
+        $.option-exists($key)
+        ?? $.option($key, |c)
         !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
     }
 }
