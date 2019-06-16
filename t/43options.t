@@ -1,5 +1,5 @@
 use Test;
-plan 290;
+plan 239;
 
 use LibXML;
 
@@ -24,17 +24,12 @@ my @all = qw<
   no_base_fix
   huge
   oldsax
-  line_numbers
-  URI
-  base_uri
-  gdome
 >;
 
 # TEST:$old=8
 my %old = map { $_=> True }, qw<
 recover
 pedantic_parser
-line_numbers
 load_ext_dtd
 complete_attributes
 expand_xinclude
@@ -64,13 +59,9 @@ no_network
   # TEST
   ok( ! $p.get-option('no_blanks'), ' TODO : Add test name' );
 
-}; skip "todo - port remaining tests", 261;
-=begin TODO
-  
-  # TEST
   ok( ! $p.recover_silently(), ' TODO : Add test name' );
   $p.set-option(recover => 1);
-
+  warn $p.suppress-errors;
   # TEST
   is-deeply( $p.recover_silently(), False, ' TODO : Add test name' );
   $p.set-option(recover => 2);
@@ -83,10 +74,10 @@ no_network
   # TEST
   is-deeply( $p.recover_silently(1), True, ' TODO : Add test name' );
   # TEST
-  ok( $p.get-option('recover') == 2, ' TODO : Add test name' );
+  is( $p.get-option('recover'), 2, ' TODO : Add test name' );
 
   # TEST
-  is-deeply( $p.expand_entities(), True, ' TODO : Add test name' );
+  is-deeply( $p.expand_entities(), False, ' TODO : Add test name' );
   # TEST
   is-deeply( $p.load_ext_dtd(), True, ' TODO : Add test name' );
   $p.load_ext_dtd(0);
@@ -130,7 +121,7 @@ chomp($sys_line);
         no_network      => 1,
         expand_xinclude => 0,
     );
-    my $XML_DOC = $parser.load_xml( string => $XML, );
+    my $XML_DOC = $parser.load: string => $XML;
 
     # TEST
     ok($XML_DOC.Str().contains($sys_line),
@@ -139,14 +130,15 @@ chomp($sys_line);
 }
 
 {
-  my $p = LibXML.new(map { $_=> True }, @all);
+  my %opts = (map { $_ => True }, @all);
+  my $p = LibXML.new: |%opts;
   for @all -> $opt {
     # TEST*$all
-    is-deeply($p.get-option($opt), True, ' TODO : Add test name');
+    is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
     # TEST*$old
     if (%old{$opt})
     {
-        is-deeply($p.$opt(), True, ' TODO : Add test name')
+        is-deeply(?$p."$opt"(), True, ' TODO : Add test name')
     }
   }
 
@@ -160,45 +152,46 @@ chomp($sys_line);
     # TEST*$all
     is-deeply($p.set-option($opt,1), True, ' TODO : Add test name');
     # TEST*$all
-    is-deeply($p.get-option($opt), True, ' TODO : Add test name');
+    is-deeply(? $p.get-option($opt), True, ' TODO : Add test name');
     if (%old{$opt}) {
       # TEST*$old
-      is-deeply($p.$opt(), True, ' TODO : Add test name');
+      is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
       # TEST*$old
-      is-deeply($p.$opt(0), False, ' TODO : Add test name');
+      is-deeply($p."$opt"(0), False, ' TODO : Add test name');
       # TEST*$old
-      is-deeply($p.$opt(), False, ' TODO : Add test name');
+      is-deeply($p."$opt"(), False, ' TODO : Add test name');
       # TEST*$old
-      is-deeply($p.$opt(1), True, ' TODO : Add test name');
+      is-deeply($p."$opt"(1), True, ' TODO : Add test name');
     }
 
   }
 }
 
 {
-  my $p = LibXML.new(map { $_=> False }, @all);
+  my %opts = (map { $_ => False }, @all);
+  my $p = LibXML.new: |%opts;
   for @all -> $opt {
     # TEST*$all
     is-deeply($p.get-option($opt), False, ' TODO : Add test name');
     # TEST*$old
     if (%old{$opt})
     {
-        is-deeply($p.$opt(), False, ' TODO : Add test name');
+        is-deeply($p."$opt"(), False, ' TODO : Add test name');
     }
   }
 }
 
 {
-    my $p = LibXML.new({map { $_=> True }, @all});
-    for my @all -> $opt {
+     my %opts = (map { $_ => True }, @all);
+    my $p = LibXML.new: |%opts;
+    for @all -> $opt {
         # TEST*$all
-        is-deeply($p.get-option($opt), True, ' TODO : Add test name');
+        is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
         # TEST*$old
         if (%old{$opt})
         {
-            is-deeply($p.$opt(), True, ' TODO : Add test name');
+            is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
         }
     }
 }
 
-=end TODO

@@ -7,7 +7,7 @@ method get-flag(UInt $flags, Str:D $k is copy) {
     }
     else {
         with %FLAGS{$k} {
-            ? ($flags +& $_)
+            ($flags +& $_) == $_
         }
         else {
             fail "unknown parser flag: $k";
@@ -24,11 +24,10 @@ method set-flag(UInt $flags is rw, Str:D $k is copy, Bool() $v) {
     else {
         with %FLAGS{$k} {
             if $v {
-                $flags += $_
-                    unless $flags +& $_;
+                $flags +|= $_;
             }
             else {
-                $flags -= $_
+                $flags = $flags +& (0xffffffff +^ $_)
                     if $flags +& $_;
             }
         }

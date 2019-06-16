@@ -20,30 +20,40 @@ class LibXML::Parser {
     use LibXML::_Options;
     also does LibXML::_Options[
         %(
-            :recover(XML_PARSE_RECOVER),
-            :expand-entities(XML_PARSE_NOENT),
-            :load-ext-dtd(XML_PARSE_DTDLOAD),
-            :complete-attributes(XML_PARSE_DTDATTR),
-            :validation(XML_PARSE_DTDVALID),
-            :suppress-errors(XML_PARSE_NOERROR),
-            :suppress-warnings(XML_PARSE_NOWARNING),
-            :pedantic-parser(XML_PARSE_PEDANTIC),
-            :no-blanks(XML_PARSE_NOBLANKS),
-            :expand-xinclude(XML_PARSE_XINCLUDE),
-            :xinclude(XML_PARSE_XINCLUDE),
-            :no-network(XML_PARSE_NONET),
             :clean-namespaces(XML_PARSE_NSCLEAN),
+            :complete-attributes(XML_PARSE_DTDATTR),
+            :expand-entities(XML_PARSE_NOENT),
+            :expand-xinclude(XML_PARSE_XINCLUDE),
+            :huge(XML_PARSE_HUGE),
+            :load-ext-dtd(XML_PARSE_DTDLOAD),
+            :no-base-fix(XML_PARSE_NOBASEFIX),
+            :no-blanks(XML_PARSE_NOBLANKS),
             :no-cdata(XML_PARSE_NOCDATA),
+            :no-def-dtd(HTML_PARSE_NODEFDTD),
+            :no-network(XML_PARSE_NONET),
             :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
             :old10(XML_PARSE_OLD10),
-            :no-base-fix(XML_PARSE_NOBASEFIX),
-            :huge(XML_PARSE_HUGE),
             :oldsax(XML_PARSE_OLDSAX),
-            :no-def-dtd(HTML_PARSE_NODEFDTD),
+            :pedantic-parser(XML_PARSE_PEDANTIC),
+            :recover(XML_PARSE_RECOVER),
+            :recover-silently(XML_PARSE_RECOVER + XML_PARSE_NOERROR),
+            :suppress-errors(XML_PARSE_NOERROR),
+            :suppress-warnings(XML_PARSE_NOWARNING),
+            :validation(XML_PARSE_DTDVALID),
+            :xinclude(XML_PARSE_XINCLUDE),
         )];
 
-    method get-option(Str:D $key) { $.get-flag($!flags, $key); }
-    multi method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
+    # Perl 5 compat
+    multi method set-option('recover', 2) {
+        $.set-option('recover-silently', True);
+    }
+    multi method get-option('recover') {
+        my $recover = $.get-flag($!flags, 'recover');
+        $recover && $.get-option('suppress-errors') ?? 2 !! $recover;
+    }
+
+    multi method get-option(Str:D $key) is default { $.get-flag($!flags, $key); }
+    multi method set-option(Str:D $key, $_) is default { $.set-flag($!flags, $key, $_); }
     multi method set-option(*%opt) {
         my $rv := $.set-option(.key, .value) for %opt.sort;
         $rv;
