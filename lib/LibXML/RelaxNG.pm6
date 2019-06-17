@@ -6,10 +6,10 @@ use LibXML::Document;
 use LibXML::ErrorHandler;
 use LibXML::Native;
 use LibXML::Native::RelaxNG;
-use LibXML::ParserContext;
+use LibXML::Parser::Context;
 has xmlRelaxNG $.native;
 
-my class ParserContext {
+my class Parser::Context {
     has xmlRelaxNGParserCtxt $!native;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
@@ -83,7 +83,7 @@ my class ValidContext {
 }
 
 submethod TWEAK(|c) {
-    my ParserContext:D $parser-ctx .= new: |c;
+    my Parser::Context:D $parser-ctx .= new: |c;
     $!native = $parser-ctx.parse;
 }
 

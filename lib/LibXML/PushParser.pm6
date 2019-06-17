@@ -1,11 +1,11 @@
 class LibXML::PushParser {
     use LibXML::Native;
-    use LibXML::ParserContext;
+    use LibXML::Parser::Context;
     use LibXML::Document;
 
     has Bool $.html;
     has @!errors;
-    has LibXML::ParserContext $!ctx;
+    has LibXML::Parser::Context $!ctx;
     has Int $.err = 0;
 
     multi submethod TWEAK(Str :chunk($str), |c) {

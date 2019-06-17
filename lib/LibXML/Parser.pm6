@@ -5,7 +5,7 @@ class LibXML::Parser {
     use LibXML::Enums;
     use LibXML::Document;
     use LibXML::PushParser;
-    use LibXML::ParserContext;
+    use LibXML::Parser::Context;
     use Method::Also;
 
     constant config = LibXML::Config;
@@ -54,7 +54,7 @@ class LibXML::Parser {
 
     multi method get-option(Str:D $key) is default { $.get-flag($!flags, $key); }
     multi method set-option(Str:D $key, $_) is default { $.set-flag($!flags, $key, $_); }
-    multi method set-option(*%opt) {
+    multi method set-option(*%opt) is also<set-options> {
         my $rv := $.set-option(.key, .value) for %opt.sort;
         $rv;
     }
@@ -79,10 +79,10 @@ class LibXML::Parser {
 
     method !make-handler(parserCtxt :$native, *%flags) {
         my UInt $flags = self.options(|%flags);
-        LibXML::ParserContext.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
+        LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
-    method !publish(:$URI, LibXML::ParserContext :$handler!, xmlDoc :$native = $handler.native.myDoc) {
+    method !publish(:$URI, LibXML::Parser::Context :$handler!, xmlDoc :$native = $handler.native.myDoc) {
         my LibXML::Document:D $doc .= new: :ctx($handler), :$native;
         $doc.baseURI = $_ with $URI;
         self.processXIncludes($doc, :$handler)
@@ -92,7 +92,7 @@ class LibXML::Parser {
 
     method processXIncludes(
         LibXML::Document $_,
-        LibXML::ParserContext:D :$handler = self!make-handler(:native(xmlParserCtxt.new)),
+        LibXML::Parser::Context:D :$handler = self!make-handler(:native(xmlParserCtxt.new)),
         *%opts --> Int) is also<process-xinclude> {
         my xmlDoc $doc = .native;
         my $flags = self.options(|%opts);
@@ -110,7 +110,7 @@ class LibXML::Parser {
 
         # gives better diagnositics
 
-        my LibXML::ParserContext $handler = self!make-handler: :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%flags;
 
         $handler.try: {
             my parserCtxt:D $ctx = $html
@@ -137,7 +137,7 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::ParserContext $handler = self!make-handler: :native($ctx), :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :native($ctx), :$html, |%flags;
         $handler.try: { $ctx.ParseDocument };
         self!publish: :$handler;
     }
@@ -148,7 +148,7 @@ class LibXML::Parser {
                        Str :$URI = $!baseURI,
                        *%flags,
                       ) {
-        my LibXML::ParserContext $handler = self!make-handler: :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%flags;
 
         $handler.try: {
             my parserCtxt $ctx = $html
@@ -170,7 +170,7 @@ class LibXML::Parser {
                        *%flags,
                       ) {
 
-        my LibXML::ParserContext $handler = self!make-handler: :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%flags;
         my UInt $flags = self.options(|%flags, :$html);
         my xmlDoc $native;
 

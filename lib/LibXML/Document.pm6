@@ -15,12 +15,12 @@ use LibXML::Dtd;
 use LibXML::EntityDecl;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
-use LibXML::ParserContext;
+use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
 
 constant config = LibXML::Config;
-has LibXML::ParserContext $.ctx handles <wellFormed valid>;
+has LibXML::Parser::Context $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 
 method native is rw handles <compression standalone version encoding URI> { callsame() }
@@ -224,12 +224,11 @@ method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset --> Bool) {
     ? $cvp.validate(:$doc, :$dtd);
 }
 
-method validate(|c) { LibXML::ParserContext.try: {self!validate(|c)} }
+method validate(|c) { LibXML::Parser::Context.try: {self!validate(|c)} }
 method is-valid(|c) { self!validate(|c) }
 
 method processXIncludes(|c) is also<process-xinclude> {
-    require LibXML::Parser;
-    LibXML::Parser.new.processXIncludes(self, |c);
+    (require ::('LibXML::Parser')).new.processXIncludes(self, |c);
 }
 
 our $lock = Lock.new;

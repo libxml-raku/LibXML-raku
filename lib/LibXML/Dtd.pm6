@@ -4,7 +4,7 @@ unit class LibXML::Dtd
     is LibXML::Node;
 
 use LibXML::Native;
-use LibXML::ParserContext;
+use LibXML::Parser::Context;
 
 method native handles <publicId systemId> {
     nextsame;
@@ -28,11 +28,11 @@ multi method new($external-id, $system-id) {
 multi method new(|c) is default { nextsame }
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $native = LibXML::ParserContext.try: {xmlDtd.parse: :$string, :$enc};
+    my xmlDtd:D $native = LibXML::Parser::Context.try: {xmlDtd.parse: :$string, :$enc};
     self.new: :$native;
 }
 multi method parse(Str:D :$external-id, Str:D :$system-id) {
-    my xmlDtd:D $native = LibXML::ParserContext.try: {xmlDtd.parse: :$external-id, :$system-id;};
+    my xmlDtd:D $native = LibXML::Parser::Context.try: {xmlDtd.parse: :$external-id, :$system-id;};
     self.new: :$native;
 }
 multi method parse(Str $external-id, Str $system-id) is default {

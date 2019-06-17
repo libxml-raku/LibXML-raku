@@ -1,4 +1,4 @@
-class LibXML::ParserContext {
+class LibXML::Parser::Context {
     use NativeCall;
     use LibXML::Native;
     use LibXML::Enums;

@@ -63,7 +63,11 @@ class xmlParserInputBuffer is repr(Stub) is export {
     method new(xmlEncodingStr :$enc, xmlCharP :$string) {
         my Int $encoding = xmlParseCharEncoding($enc);
         given xmlAllocParserInputBuffer($encoding) {
-            .PushStr($string) if $string;
+             if $string {
+                 my $n := .PushStr($string);
+                 die "push to input buffer failed"
+                     if $n < 0;
+             }
             $_;
         }
     }
@@ -93,8 +97,8 @@ class xmlXPathAxis is repr(Stub) is export {}
 class xmlXPathType is repr(Stub) is export {}
 class xmlValidState is repr(Stub) is export {}
 
-sub xmlStrdup(Str --> Pointer) is native(LIB) {*};
-sub xmlStrndup(Blob, int32 --> Pointer) is native(LIB) {*};
+sub xmlStrdup(Str --> Pointer) is native(LIB) is export {*};
+sub xmlStrndup(Blob, int32 --> Pointer) is native(LIB) is export {*};
 
 multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
 
@@ -183,6 +187,9 @@ class xmlParserInput is repr('CStruct') is export {
     has xmlCharP                  $.version;     # the version string for entity
     has int32                     $.standalone;  # Was that entity marked standalone
     has int32                     $.id;          # int id
+
+    sub xmlNewIOInputStream(parserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
+    sub xmlNewInputFromFile(parserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
 }
 
 class xmlBuf is repr('CStruct') is export {
@@ -935,10 +942,7 @@ class xmlDtd is domNode is export {
     }
     multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlEncodingStr:D :$enc!) {
         my Int $encoding = xmlParseCharEncoding($enc);
-        my xmlParserInputBuffer $buffer .= new: :$enc;
-        my $n := $buffer.PushStr($string);
-        die "push to input buffer failed"
-            if $n < 0;
+        my xmlParserInputBuffer:D $buffer .= new: :$enc, :$string;
         xmlIOParseDTD($sax-handler, $buffer, $encoding);
     }
     multi method parse(Str :$external-id, Str :$system-id, xmlSAXHandler :$sax-handler) is default {
@@ -1211,7 +1215,7 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
     method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
     method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
     method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFd') returns xmlDoc {*};
-
+    method FatalErr(int32 $err, Str $msg) is native(LIB) {*}
 };
 
 # XML file parser context
@@ -1331,10 +1335,10 @@ method TagExpansion is rw {
 }
 
 method ExternalEntityLoader is rw {
-    sub xmlSetExternalEntityLoader( &loader (xmlCharP, xmlCharP --> xmlParserInput) ) is native(LIB) {*}
-    sub xmlGetExternalEntityLoader( --> Pointer ) is native(LIB) {*}
+    sub xmlSetExternalEntityLoader( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native(LIB) is export {*}
+    sub xmlGetExternalEntityLoader( --> Pointer ) is native(LIB) is export {*}
     Proxy.new(
-        FETCH => { nativecast( :(xmlCharP, xmlCharP --> xmlParserInput), xmlGetExternalEntityLoader()) },
+        FETCH => { nativecast( :(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput), xmlGetExternalEntityLoader()) },
         STORE => sub ($, &loader) {
              xmlSetExternalEntityLoader(&loader)
         }
