@@ -47,6 +47,7 @@
     "LibXML::PI" : "lib/LibXML/PI.pm6",
     "LibXML::PushParser" : "lib/LibXML/PushParser.pm6",
     "LibXML::Reader" : "lib/LibXML/Reader.pm6",
+    "LibXML::RegExp" : "lib/LibXML/RegExp.pm6",
     "LibXML::RelaxNG" : "lib/LibXML/RelaxNG.pm6",
     "LibXML::Text" : "lib/LibXML/Text.pm6",
     "LibXML::Types" : "lib/LibXML/Types.pm6",

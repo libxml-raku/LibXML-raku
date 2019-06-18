@@ -91,7 +91,15 @@ class xmlPattern is repr(Stub) is export {
         xmlPatterncompile($pattern, $dict, $flags, $ns);
     }
 }
-class xmlRegexp is repr(Stub) is export {}
+class xmlRegexp is repr(Stub) is export {
+    sub xmlRegexpCompile(xmlCharP --> xmlRegexp) is native(LIB) {*}
+    method Match(xmlCharP --> int32) is symbol('xmlRegexpExec') is native(LIB) {*}
+    method IsDeterministic(--> int32) is symbol('xmlRegexpIsDeterminist') is native(LIB) {*}
+    method Free is native(LIB) is symbol('xmlFreeRegexp') {*}
+    method new(Str:D :$regexp) {
+        xmlRegexpCompile($regexp);
+    }
+}
 class xmlXIncludeCtxt is repr(Stub) is export {}
 class xmlXPathAxis is repr(Stub) is export {}
 class xmlXPathType is repr(Stub) is export {}
