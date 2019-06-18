@@ -1,6 +1,6 @@
 # a base class that provides a full set of SAX2 callbacks
-# commonly used as a base class
 use LibXML::SAX::Handler;
+
 class LibXML::SAX::Handler::SAX2
     is LibXML::SAX::Handler {
     use LibXML::Native;

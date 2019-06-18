@@ -37,10 +37,8 @@ method external-entity-loader is rw {
                 sub (Str $url, Str $id,  xmlParserCtxt $ctxt --> xmlParserInput) {
                     CATCH {
                         default {
-                            with $ctxt {
-                                .FatalErr(XML_ERR_ENTITY_PROCESSING,
-                                          xmlStrdup(.message)
-                                         );
+                            if $ctxt.defined {
+                                $ctxt.ParserError(.message);
                             }
                             else {
                                 warn $_;

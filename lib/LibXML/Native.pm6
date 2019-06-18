@@ -1157,6 +1157,7 @@ class parserCtxt is export {
     method SetGenericErrorFunc( &error-func (parserCtxt $, Str $fmt, Pointer $arg)) is symbol('xmlSetGenericErrorFunc') is native(LIB) {*};
     method SetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) is symbol('xmlSetStructuredErrorFunc') {*};
     method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
+    method ParserError(Str $msg) is native(LIB) is symbol('xmlParserError') {*}
     method StopParser is native(LIB) is symbol('xmlStopParser') { * }
     method add-reference is native(BIND-LIB) is symbol('xml6_ctx_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ctx_remove_reference') {*}
@@ -1215,7 +1216,6 @@ class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
     method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadDoc') returns xmlDoc {*};
     method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFile') returns xmlDoc {*};
     method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags) is native(LIB) is symbol('xmlCtxtReadFd') returns xmlDoc {*};
-    method FatalErr(int32 $err, Str $msg) is native(LIB) {*}
 };
 
 # XML file parser context
