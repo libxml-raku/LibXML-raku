@@ -65,7 +65,7 @@ class LibXML::Parser::Context {
         if (@contexts) {
             for @contexts {
                 die "unable to register input callbacks"
-                if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
+                   if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
             }
         }
 

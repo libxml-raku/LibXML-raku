@@ -16,12 +16,16 @@ class LibXML::Parser {
     has Str $.baseURI is rw;
     has $.sax-handler is rw;
     has $.input-callbacks is rw = config.input-callbacks;
+    multi method input-callbacks is rw { $!input-callbacks }
+    multi method input-callbacks($!input-callbacks) {}
 
     use LibXML::_Options;
     also does LibXML::_Options[
         %(
             :clean-namespaces(XML_PARSE_NSCLEAN),
             :complete-attributes(XML_PARSE_DTDATTR),
+            :dtd(XML_PARSE_DTDLOAD +| XML_PARSE_DTDVALID
+                 +| XML_PARSE_DTDATTR +| XML_PARSE_NOENT),
             :expand-entities(XML_PARSE_NOENT),
             :expand-xinclude(XML_PARSE_XINCLUDE),
             :huge(XML_PARSE_HUGE),
@@ -36,7 +40,7 @@ class LibXML::Parser {
             :oldsax(XML_PARSE_OLDSAX),
             :pedantic-parser(XML_PARSE_PEDANTIC),
             :recover(XML_PARSE_RECOVER),
-            :recover-silently(XML_PARSE_RECOVER + XML_PARSE_NOERROR),
+            :recover-silently(XML_PARSE_RECOVER +| XML_PARSE_NOERROR),
             :suppress-errors(XML_PARSE_NOERROR),
             :suppress-warnings(XML_PARSE_NOWARNING),
             :validation(XML_PARSE_DTDVALID),
@@ -65,12 +69,8 @@ class LibXML::Parser {
             if $html;
         $.set-flags($flags, %opts);
 
-        unless $html || $flags +& XML_PARSE_DTDLOAD {
-
-            for (XML_PARSE_DTDVALID, XML_PARSE_DTDATTR, XML_PARSE_NOENT ) {
-                $flags -= $_ if $flags +& $_
-            }
-        }
+        $.set-flag($flags, 'dtd', False)
+            unless $html || $flags +& XML_PARSE_DTDLOAD;
 
         $flags;
     }
@@ -99,7 +99,10 @@ class LibXML::Parser {
         $handler.try: { $doc.XIncludeProcessFlags($flags) }
     }
 
-    method load(|c) { self.new.parse(|c) }
+    method load(|c) {
+        my $obj = do with self { .clone } else { .new };
+        $obj.parse(|c);
+    }
 
     multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
@@ -195,6 +198,10 @@ class LibXML::Parser {
     multi method parse(IO() :io($path)!, |c) {
         my IO::Handle $io = $path.open(:bin, :r);
         $.parse(:$io, |c);
+    }
+
+    multi method parse(Str() :location($file)!, |c) {
+        $.parse(:$file, |c);
     }
 
     has LibXML::PushParser $!push-parser;
