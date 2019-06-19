@@ -7,10 +7,12 @@ class X::LibXML::Parser is Exception {
 
     has Str $.text;
     has Str $.file;
+    has UInt $.line;
+    has UInt $.column;
+    has UInt $.level;
     
     method message {
-        my $msg = "Error while parsing {$!file // 'XML document'}";
-        $msg ~= ":\n" ~ $_ with $!text;
+        my $msg = ($!file, $!line, ' ' ~ $!text).join: ':';
         chomp $msg;
     }
 }
@@ -56,11 +58,10 @@ class LibXML::ErrorHandler {
         $msg = (@text.join(' '), ' : ', $msg).join
             if @text;
         
-        my $file = .file // '';
-        if .line && !$file.ends-with('/') {
-            $msg = ($file, .line, ' ' ~ $msg).join: ':';
-        }
-        @!errors.push: %( :$level, :$msg);
+        my $file = .file;
+        my UInt:D $line = .line;
+        my UInt:D $column = .column;
+        @!errors.push: %( :$level, :$msg, :$file, :$line, :$column );
 
     }
 
@@ -68,10 +69,10 @@ class LibXML::ErrorHandler {
         if @!errors {
             my @errs = @!errors;
             @!errors = ();
-            if $.suppress-errors {
+            if $!suppress-errors {
                 @errs .= grep({ .<level> > XML_ERR_ERROR })
             }
-            elsif $.suppress-warnings {
+            elsif $!suppress-warnings {
                 @errs .= grep({ .<level> >= XML_ERR_ERROR })
             }
 
@@ -79,7 +80,11 @@ class LibXML::ErrorHandler {
                 my Str $text = @errs.map(*<msg>).join;
                 my $fatal = @errs.first: { .<level> >= XML_ERR_ERROR };
 
-                my X::LibXML::Parser $err .= new: :$text;
+                my UInt:D $line   = @errs[0]<line>;
+                my UInt:D $column = @errs[0]<column>;
+                my UInt:D $level  = @errs[0]<level>;
+                my Str $file = @errs[0]<file> // '';
+                my X::LibXML::Parser $err .= new: :$text, :$file, :$line, :$column, :$level;
                 if !$fatal || $recover {
                     warn $err; 
                 }

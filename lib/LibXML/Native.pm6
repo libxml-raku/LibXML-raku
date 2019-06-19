@@ -410,7 +410,7 @@ class xmlError is export {
     has Str                    $.str2;      # extra string information
     has Str                    $.str3;      # extra string information
     has int32                  $.int1;      # extra number information
-    has int32                  $.int2;      # error column # or 0 if N/A
+    has int32                  $.column;    # error column # or 0 if N/A
     has parserCtxt             $.ctxt;      # the parser context if available
     has xmlNode                $.node;      # the node in the tree
 }
