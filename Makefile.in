@@ -61,5 +61,7 @@ clean :
 realclean : clean
 	@rm -f Makefile
 
-doc :
-	echo doc stub
+doc : lib/LibXML/RegExp.md
+
+lib/LibXML/RegExp.md : lib/LibXML/RegExp.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/RegExp.pm6 > lib/LibXML/RegExp.md
