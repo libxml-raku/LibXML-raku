@@ -61,7 +61,10 @@ clean :
 realclean : clean
 	@rm -f Makefile
 
-doc : lib/LibXML/PI.md lib/LibXML/RegExp.md
+doc : lib/LibXML/Attr.md lib/LibXML/PI.md lib/LibXML/RegExp.md
+
+lib/LibXML/Attr.md : lib/LibXML/Attr.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Attr.pm6 > lib/LibXML/Attr.md
 
 lib/LibXML/PI.md : lib/LibXML/PI.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/PI.pm6 > lib/LibXML/PI.md

@@ -4,8 +4,10 @@ use LibXML::Types :NCName;
 use NativeCall;
 has xmlNs $!native handles <type prefix href Str>;
 
-method box(xmlNs:D $native!) {
-    self.new: :$native;
+method box(xmlNs $ns!) {
+    do with $ns {
+        self.new: :native($_);
+    } // self.WHAT;
 }
 
 multi submethod TWEAK(xmlNs:D :$!native!) {

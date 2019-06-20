@@ -59,7 +59,7 @@ class LibXML::Node {
         }
     }
 
-    method ownerElement is also<parent parentNode> {
+    method ownerElement is also<getOwnerElement parent parentNode> {
         LibXML::Node.box: $!native.parent;
     }
     method last is also<lastChild> {
