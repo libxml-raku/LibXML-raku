@@ -34,8 +34,8 @@ method documentElement is rw {
         });
 }
 
-method createElementNS(Str $href, QName:D $name is copy) {
-    return self.createElement($name) without $href;
+method createElementNS(Str $URI, QName:D $name is copy) {
+    return self.createElement($name) without $URI;
     my Str $prefix;
     given $name.split(':', 2) {
         when 2 {
@@ -43,7 +43,7 @@ method createElementNS(Str $href, QName:D $name is copy) {
             $name   = .[1];
         }
     }
-    my $ns = self.oldNs.new: :$href, :$prefix;
+    my $ns = self.oldNs.new: :$URI, :$prefix;
     self.new-node: :$name, :$ns;
 }
 
@@ -67,9 +67,9 @@ multi method adoptNode(Node:D $node) is default {
     self.domImportNode($node, Move, 1);
 }
 
-method createAttributeNS(Str $href, Str:D $name, Str:D $value = '') {
-    if $href {
-        self.domCreateAttributeNS($href, $name, $value);
+method createAttributeNS(Str $URI, Str:D $name, Str:D $value = '') {
+    if $URI {
+        self.domCreateAttributeNS($URI, $name, $value);
     }
     else {
         self.domCreateAttribute($name, $value);

@@ -34,7 +34,7 @@ LibXML::Attr - LibXML Attribute Class
 
 
 
-  use LibXML;
+  use LibXML::Attr;
   # Only methods specific to Attribute nodes are listed here,
   # see the LibXML::Node manpage for other methods
 

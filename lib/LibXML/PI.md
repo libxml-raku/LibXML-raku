@@ -6,12 +6,16 @@ XML::LibXML::PI - XML::LibXML Processing Instructions
 SYNOPSIS
 ========
 
-    use LibXML;
+    use LibXML::Document;
+    use LibXML::PI;
     # Only methods specific to Processing Instruction nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
-    $pinode.setData( $data_string );
-    $pinode.setData( name=>string_value [...] );
+    my LibXML::Document $dom .= new;
+    my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
+
+    $pi.setData( $data_string );
+    $pi.setData( name=>string_value [...] );
 
 DESCRIPTION
 ===========

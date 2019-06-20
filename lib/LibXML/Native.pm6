@@ -95,7 +95,7 @@ class xmlRegexp is repr(Stub) is export {
     sub xmlRegexpCompile(xmlCharP --> xmlRegexp) is native(LIB) {*}
     method Match(xmlCharP --> int32) is symbol('xmlRegexpExec') is native(LIB) {*}
     method IsDeterministic(--> int32) is symbol('xmlRegexpIsDeterminist') is native(LIB) {*}
-    method Free is native(LIB) is symbol('xmlFreeRegexp') {*}
+    method Free is native(LIB) is symbol('xmlRegFreeRegexp') {*}
     method new(Str:D :$regexp) {
         xmlRegexpCompile($regexp);
     }
@@ -230,9 +230,9 @@ class xmlNs is export is repr('CStruct') {
 
     method add-reference is native(BIND-LIB) is symbol('xml6_ns_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ns_remove_reference') {*}
-    sub xmlNewNs(xmlNode, Str $href, Str $prefix) returns xmlNs is native(LIB) {*}
-    method new(Str:D :$href!, Str :$prefix, domNode :$node) {
-        xmlNewNs($node, $href, $prefix);
+    sub xmlNewNs(xmlNode, Str $uri, Str $prefix) returns xmlNs is native(LIB) {*}
+    method new(Str:D :$URI!, Str :$prefix, domNode :$node) {
+        xmlNewNs($node, $URI, $prefix);
     }
     method Free is native(LIB) is symbol('xmlFreeNs') {*}
     method Copy(--> xmlNs) is native(BIND-LIB) is symbol('xml6_ns_copy') {*}
