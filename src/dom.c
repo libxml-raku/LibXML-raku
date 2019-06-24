@@ -812,7 +812,7 @@ domInsertBefore( xmlNodePtr self,
 
     if ( refChild != NULL ) {
         if ( refChild->parent != self
-             || (  newChild->type     == XML_DOCUMENT_FRAG_NODE
+             || (  newChild->type == XML_DOCUMENT_FRAG_NODE
                    && newChild->children == NULL ) ) {
             /* NOT_FOUND_ERR */
             xmlGenericError(xmlGenericErrorContext,"NOT_FOUND_ERR\n");
@@ -911,19 +911,25 @@ DLLEXPORT xmlNodePtr
 domRemoveChildNodes( xmlNodePtr self) {
     xmlNodePtr frag = xmlNewDocFragment( self->doc );
     xmlNodePtr cur = self->children;
-    // transfer kids
-    frag->children = self->children;
-    frag->last = self->last;
-    self->children = self->last = NULL;
-
     while ( cur ) {
+	// remove dtd and attributes without transferring
         xmlNodePtr next = cur->next;
         if (cur->type == XML_ATTRIBUTE_NODE
             || cur->type == XML_DTD_NODE) {
             domReleaseNode( cur );
         }
+	cur = next;
+    }
+    // transfer other kids
+    frag->children = self->children;
+    frag->last = self->last;
+    self->children = self->last = NULL;
+    cur = frag->children;
+
+    // reparent
+    while ( cur ) {
         cur->parent = frag;
-        cur = next;
+        cur = cur->next;
     }
     return frag;
 }

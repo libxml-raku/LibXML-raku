@@ -224,9 +224,7 @@ EOF
 
 # Remove DTD nodes
 
-sub test_remove_dtd {
-    my ($test_name, &remove_sub) = @_;
-
+sub test_remove_dtd($test_name, &remove_sub) {
     my $parser = LibXML.new;
     my $doc    = $parser.parse: :file('example/dtd.xml');
     my $dtd    = $doc.internalSubset;
@@ -237,23 +235,19 @@ sub test_remove_dtd {
     ok( !$doc.internalSubset, "remove DTD via $test_name" );
 }
 
-test_remove_dtd( "unbindNode", sub {
-    my ($doc, $dtd) = @_;
+test_remove_dtd( "unbindNode", sub ($doc, $dtd) {
     $dtd.unbindNode;
 } );
-test_remove_dtd( "removeChild", sub {
-    my ($doc, $dtd) = @_;
+test_remove_dtd( "removeChild", sub ($doc, $dtd) {
     $doc.removeChild($dtd);
 } );
-test_remove_dtd( "removeChildNodes", sub {
-    my ($doc, $dtd) = @_;
+test_remove_dtd( "removeChildNodes", sub ($doc, $dtd) {
     $doc.removeChildNodes;
 } );
 
 # Insert DTD nodes
 
-sub test_insert_dtd {
-    my ($test_name, &insert_sub) = @_;
+sub test_insert_dtd ($test_name, &insert_sub) {
 
     my $parser  = LibXML.new;
     my $src_doc = $parser.parse: :file('example/dtd.xml');
@@ -266,48 +260,37 @@ sub test_insert_dtd {
     ok( $doc.internalSubset.isSameNode($dtd), "insert DTD via $test_name" );
 }
 
-test_insert_dtd( "insertBefore internalSubset", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "insertBefore internalSubset", sub ($doc, $dtd) {
     $doc.insertBefore($dtd, $doc.internalSubset);
 } );
-test_insert_dtd( "insertBefore documentElement", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "insertBefore documentElement", sub ($doc, $dtd) {
     $doc.insertBefore($dtd, $doc.documentElement);
 } );
-test_insert_dtd( "insertAfter internalSubset", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "insertAfter internalSubset", sub ($doc, $dtd) {
     $doc.insertAfter($dtd, $doc.internalSubset);
 } );
-test_insert_dtd( "insertAfter documentElement", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "insertAfter documentElement", sub ($doc, $dtd) {
     $doc.insertAfter($dtd, $doc.documentElement);
 } );
-test_insert_dtd( "replaceChild internalSubset", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "replaceChild internalSubset", sub ($doc, $dtd) {
     $doc.replaceChild($dtd, $doc.internalSubset);
 } );
-test_insert_dtd( "replaceChild documentElement", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "replaceChild documentElement", sub ($doc, $dtd) {
     $doc.replaceChild($dtd, $doc.documentElement);
 } );
-test_insert_dtd( "replaceNode internalSubset", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "replaceNode internalSubset", sub ($doc, $dtd) {
     $doc.internalSubset.replaceNode($dtd);
 } );
-test_insert_dtd( "replaceNode documentElement", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "replaceNode documentElement", sub ($doc, $dtd) {
     $doc.documentElement.replaceNode($dtd);
 } );
-test_insert_dtd( "appendChild", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "appendChild", sub ($doc, $dtd) {
     $doc.appendChild($dtd);
 } );
-test_insert_dtd( "addSibling internalSubset", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "addSibling internalSubset", sub ($doc, $dtd) {
     $doc.internalSubset.addSibling($dtd);
 } );
-test_insert_dtd( "addSibling documentElement", sub {
-    my ($doc, $dtd) = @_;
+test_insert_dtd( "addSibling documentElement", sub ($doc, $dtd) {
     $doc.documentElement.addSibling($dtd);
 } );
 
