@@ -17,8 +17,8 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
     self.native = $doc-frag-struct;
 }
 
-#| don't try to keep document fragment return values. They're unpacked
-#! and discarded by the DOM
+#| The native DOM returns the document fragment content as
+#| a nodelist; rather than the fragment itself
 method keep(|c) { LibXML::Node.box(|c) }
 my constant config = LibXML::Config;
 
@@ -50,3 +50,56 @@ method Str(|c) is also<serialize serialise> {
     $.childNodes.map(*.Str(|c)).join;
 }
 
+=begin pod
+=head1 NAME
+
+LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
+
+=head1 SYNOPSIS
+
+
+  use LibXML::Document;
+  use LibXML::DocumentFragment;
+  my LibXML::Document $dom .= new;
+  my LibXML::DocumentFragment $frag = $dom.createDocumentFragment;
+  $frag.appendChild: $dom.createElement('foo');
+  $frag.appendChild: $dom.createElement('bar');
+  say $frag.Str # '<foo/><bar/>'
+
+=head1 DESCRIPTION
+
+This class is a helper class as described in the DOM Level 2 Specification. It
+is implemented as a node without name. All adding, inserting or replacing
+functions are aware of document fragments.
+
+As well I<<<<<< all >>>>>> unbound nodes (all nodes that do not belong to any document sub-tree) are
+implicit members of document fragments.
+
+=head1 AUTHORS
+
+Matt Sergeant,
+Christian Glahn,
+Petr Pajas
+
+
+=head1 VERSION
+
+2.0132
+
+=head1 COPYRIGHT
+
+2001-2007, AxKit.com Ltd.
+
+2002-2006, Christian Glahn.
+
+2006-2009, Petr Pajas.
+
+=cut
+
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+=end pod

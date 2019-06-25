@@ -21,6 +21,8 @@ method domGetInternalSubset { ... }
 method domGetExternalSubset { ... }
 method domSetInternalSubset { ... }
 method domSetExternalSubset { ... }
+method GetCompressMode { ... }
+method SetCompressMode { ... }
 
 method documentElement is rw {
     Proxy.new(
@@ -111,4 +113,13 @@ method getElementById(Str:D $id --> Node) {
             if .type == XML_ATTRIBUTE_NODE
     }
     $elem;
+}
+
+method setCompression(UInt $_) { self.SetCompressMode($_) }
+
+method compression is rw {
+    Proxy.new(
+        FETCH => { self.GetCompressMode },
+        STORE => -> $, UInt $_ { self.SetCompressMode($_) }
+    );
 }

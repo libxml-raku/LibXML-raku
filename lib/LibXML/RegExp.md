@@ -7,9 +7,9 @@ SYNOPSIS
 ========
 
     use LibXML::RegExp;
-    my $compiled_re = LibXML::RegExp.new(rexexp => '[0-9]{5}(-[0-9]{4})?');
-    if $compiled_re.isDeterministic() { ... }
-    if $compiled_re.matches($string) { ... }
+    my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
+    if $compiled-re.isDeterministic() { ... }
+    if $compiled-re.matches($string) { ... }
 
     my LibXML::RegExp $compiled-re .= new( :$regexp );
     my Bool $matched = $compiled-re.matches($string);

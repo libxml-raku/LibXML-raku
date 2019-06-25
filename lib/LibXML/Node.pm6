@@ -418,7 +418,7 @@ class LibXML::Node {
         $rv;
     }
 
-    method Str(:$C14N, |c) is default {
+    method Str(:$C14N, |c) is also<serialize> is default {
         if $C14N {
             self!c14n-str(|c);
         }

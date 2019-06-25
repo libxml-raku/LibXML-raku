@@ -866,6 +866,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method NewNode(xmlNs, xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is symbol('xmlNewDocNode') {*}
     method NewDtd(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlNewDtd') {*}
     method CreateIntSubset(Str, Str, Str --> xmlDtd) is native(LIB) is symbol('xmlCreateIntSubset') {*}
+    method GetCompressMode(--> int32) is native(LIB) is symbol('xmlGetDocCompressMode') {*}
+    method SetCompressMode(int32) is native(LIB) is symbol('xmlSetDocCompressMode') {*}
 
     method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlNode:D) {
         given self.NewNode($ns, $name, $content) -> xmlNode:D $node {
@@ -890,13 +892,11 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     method SearchNsByHref(xmlNode, Str --> xmlNs) is native(LIB) is symbol('xmlSearchNsByHref') {*}
     method GetID(Str --> domNode) is native(LIB) is symbol('xmlGetID') {*}
     method IsID(xmlNode, xmlAttr --> int32) is native(LIB) is symbol('xmlIsID') {*}
+    method IndexElements(--> long) is symbol('xmlXPathOrderDocElems') is native(LIB) {*}
 
     sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*}
     method new(Str:D() :$version = '1.0') {
-        state $dict //= xmlDict.new;
-        my xmlDoc:D $doc = xmlNewDoc($version);
-        $doc.dict = $dict;
-        $doc;
+        xmlNewDoc($version);
     }
 
     method domCreateAttribute(Str, Str --> xmlAttr) is native(BIND-LIB) {*}
@@ -910,9 +910,25 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
 }
 
 class htmlDoc is xmlDoc is repr('CStruct') is export {
-    method htmlDocDumpMemoryFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is native(LIB) {*}
-    method DumpFormatMemoryEnc(Pointer[uint8] $buf is rw, Int $size is rw, Str $enc, $format ) {
-        $.htmlDocDumpMemoryFormat($buf, $size, $format);
+    method DumpFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native(LIB) {*}
+    sub memcpy(Blob, Pointer, size_t) is native {*}
+    sub free(Pointer) is native {*}
+
+    method dump(Bool:D :$format = True) {
+        my Pointer[uint8] $out .= new;
+        my int32 $len;
+
+        self.DumpFormat($out, $len, +$format);
+
+        if +$out && $len {
+            my buf8 $buf .= allocate($len);
+            memcpy($buf, $out, $len);
+            free($out);
+            $buf.decode; # encoding?
+        }
+        else {
+            Str;
+        }
     }
 }
 
@@ -948,6 +964,7 @@ class xmlDtd is domNode is export {
     multi method new(:type($)! where 'external', xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.NewDtd( $name, $external-id, $system-id);
     }
+    multi method new(|c) is default { fail c.perl }
     multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlEncodingStr:D :$enc!) {
         my Int $encoding = xmlParseCharEncoding($enc);
         my xmlParserInputBuffer:D $buffer .= new: :$enc, :$string;
