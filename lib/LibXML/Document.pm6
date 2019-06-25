@@ -46,7 +46,13 @@ submethod TWEAK(
     }
 }
 
-method version { Version.new($.native.version) }
+method version is rw {
+    Proxy.new(
+        FETCH => { Version.new($.native.version) },
+        STORE => -> $, Str() $_ {
+            $.native.version = Version.new($_).Str;
+    });
+}
 
 # DOM Methods
 
