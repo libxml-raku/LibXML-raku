@@ -45,3 +45,120 @@ method cloneNode(LibXML::Dtd:D: $?) {
     my xmlDtd:D $native = self.native.copy;
     self.clone: :$native;
 }
+
+=begin pod
+=head1 NAME
+
+LibXML::Dtd - LibXML DTD Handling
+
+=head1 SYNOPSIS
+
+
+
+  use LibXML;
+
+  $dtd = LibXML::Dtd.new($public-id, $system-id);
+  $dtd = LibXML::Dtd.parse_string($dtd-str);
+  $publicId = $dtd.getName();
+  $publicId = $dtd.publicId();
+  $systemId = $dtd.systemId();
+
+=head1 DESCRIPTION
+
+This class holds a DTD. You may parse a DTD from either a string, or from an
+external SYSTEM identifier.
+
+No support is available as yet for parsing from a filehandle.
+
+LibXML::Dtd is a sub-class of L<<<<<< LibXML::Node >>>>>>, so all the methods available to nodes (particularly Str()) are available
+to Dtd objects.
+
+
+=head1 METHODS
+
+
+=begin item
+new
+
+  my LibXML::Dtd $dtd  .= new: :$public-id, :$system-id;
+  my LibXML::Dtd $dtd2 .= new($public-id, $system-id);
+
+Parse a DTD from the system identifier, and return a DTD object that you can
+pass to $doc.is-valid() or $doc.validate().
+
+
+  my $dtd = LibXML::Dtd.new(
+                        "SOME // Public / ID / 1.0",
+                        "test.dtd"
+                                  );
+   my $doc = LibXML.new.parse_file("test.xml");
+   $doc.validate($dtd);
+=end item
+
+
+=begin item
+parse
+
+  $dtd = LibXML::Dtd.parse: :string($dtd-str);
+
+The same as new() above, except you can parse a DTD from a string. Note that
+parsing from string may fail if the DTD contains external parametric-entity
+references with relative URLs.
+=end item
+
+
+=begin item
+getName
+
+  $publicId = $dtd.getName();
+
+Returns the name of DTD; i.e., the name immediately following the DOCTYPE
+keyword.
+=end item
+
+
+=begin item
+publicId
+
+  $publicId = $dtd.publicId();
+
+Returns the public identifier of the external subset.
+=end item
+
+
+=begin item
+systemId
+
+  $systemId = $dtd.systemId();
+
+Returns the system identifier of the external subset.
+=end item
+
+
+
+=head1 AUTHORS
+
+Matt Sergeant,
+Christian Glahn,
+Petr Pajas
+
+
+=head1 VERSION
+
+2.0132
+
+=head1 COPYRIGHT
+
+2001-2007, AxKit.com Ltd.
+
+2002-2006, Christian Glahn.
+
+2006-2009, Petr Pajas.
+
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
+=end pod

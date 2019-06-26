@@ -2,7 +2,30 @@
 
 use Test;
 
-plan 8;
+plan 9;
+
+subtest 'LibXML::Attr' => {
+    plan 5;
+    use LibXML::Attr;
+    my $name = "test";
+    my $value = "Value";
+      my LibXML::Attr $attr .= new(:$name, :$value);
+      my Str:D $string = $attr.getValue();
+      is $string, $value, '.getValue';
+      $string = $attr.value;
+      is $string, $value, '.getValue';
+      $attr.setValue( '' );
+      is $attr.value, '', '.setValue';
+      $attr.value = $string;
+      is $attr.value, $string, '.value';
+      my LibXML::Node $node = $attr.getOwnerElement();
+      my $nsUri = 'http://test.org';
+      my $prefix = 'test';
+      $attr.setNamespace($nsUri, $prefix);
+      my Bool $is-id = $attr.isId;
+      $string = $attr.serializeContent;
+      is $string, $value;
+};
 
 subtest 'LibXML::Comment' => {
     plan 1;
@@ -22,7 +45,7 @@ subtest 'LibXML::Document' => {
     plan 7;
     use LibXML;
     my $version = '1.0';
-    my $encoding = 'UTF-8';
+    my $enc = 'UTF-8';
     my $numvalue = 1;
     my $ziplevel = 5;
     my Bool $format = True;
@@ -40,15 +63,16 @@ subtest 'LibXML::Document' => {
     my $name = 'att_name';
     my $tagname = 'doc';
 
-    my LibXML::Document $dom .= new;
-    my  LibXML::Document $dom .= createDocument( $version, $encoding );
+    my LibXML::Document $dom  .= new: :$version, :$enc;
+    my LibXML::Document $dom2 .= createDocument( $version, $enc );
 
     my $strURI = $doc.URI();
     is $strURI, "example/dtd.xml";
     $doc.setURI($strURI);
     my $strEncoding = $doc.encoding();
     $strEncoding = $doc.actualEncoding();
-    $doc.setEncoding($encoding);
+    $doc.setEncoding($enc);
+    $doc.encoding = $enc;
     my Version $v = $doc.version();
     is $v, v1.0;
     $doc.standalone;
@@ -122,28 +146,27 @@ subtest 'LibXML::DocumentFragment' => {
     is $frag.Str, '<foo/><bar/>';
 }
 
-subtest 'LibXML::Attr' => {
-    plan 5;
-    use LibXML::Attr;
-    my $name = "test";
-    my $value = "Value";
-      my LibXML::Attr $attr .= new(:$name, :$value);
-      my Str:D $string = $attr.getValue();
-      is $string, $value, '.getValue';
-      $string = $attr.value;
-      is $string, $value, '.getValue';
-      $attr.setValue( '' );
-      is $attr.value, '', '.setValue';
-      $attr.value = $string;
-      is $attr.value, $string, '.value';
-      my LibXML::Node $node = $attr.getOwnerElement();
-      my $nsUri = 'http://test.org';
-      my $prefix = 'test';
-      $attr.setNamespace($nsUri, $prefix);
-      my Bool $is-id = $attr.isId;
-      $string = $attr.serializeContent;
-      is $string, $value;
-};
+subtest 'LibXML::Dtd' => {
+    plan 2;
+    use LibXML::Dtd;
+    lives-ok {
+        my $dtd = LibXML::Dtd.parse: :string(q:to<EOF>);
+        <!ELEMENT test (#PCDATA)>
+        EOF
+       $dtd.getName();
+    }, 'parse :string';
+
+    lives-ok {
+        my $dtd = LibXML::Dtd.new(
+            "SOME // Public / ID / 1.0",
+            "example/test.dtd"
+           );
+        $dtd.getName();
+        $dtd.publicId();
+        $dtd.systemId();
+    }, 'new public';
+
+}
 
 subtest 'LibXML::PI' => {
     plan 2;
@@ -176,7 +199,6 @@ subtest 'LibXML::Namespace' => {
     is $ns.value, $URI, 'value';
     is $ns.getNamespaceURI, 'http://www.w3.org/2000/xmlns/';
     is $ns.getPrefix, 'xmlns';
-todo "implement unique-key?";
     ok $ns.unique-key, 'unique_key sanity';
     my LibXML::Namespace $ns-again .= new(:$URI, :$prefix);
     my LibXML::Namespace $ns-different .= new(URI => $URI~'X', :$prefix);

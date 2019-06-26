@@ -10,8 +10,8 @@ SYNOPSIS
     # Only methods specific to Document nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
-    my LibXML::Document $dom .= new;
-    my LibXML::Document $dom .= createDocument($version, $encoding);
+    my LibXML::Document $dom  .= new: :$version, :$enc;
+    my LibXML::Document $dom2 .= createDocument($version, $enc);
     $strURI = $doc.URI();
     $doc.setURI($strURI);
     my Str $enc = $doc.encoding();
@@ -79,11 +79,11 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $dom = LibXML::Document.createDocument( $version, $encoding );
 
-    DOM-style constructor for the document class. As Parameter it takes the version string and (optionally) the encoding string. Simply calling *createDocument *() will create the document:
+    DOM-style constructor for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument *() will create the document:
 
         <?xml version="your version" encoding="your encoding"?>
 
-    Both parameter are optional. The default value for *$version * is `1.0 `, of course. If the *$encoding * parameter is not set, the encoding will be left unset, which means UTF-8 is implied.
+    Both parameters are optional. The default value for *$version * is `1.0 `, of course. If the *$encoding * parameter is not set, the encoding will be left unset, which means UTF-8 is implied.
 
     The call of *createDocument *() without any parameter will result the following code:
 
@@ -102,14 +102,14 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my Str $URI = $doc.URI();
         $doc.URI = $URI;
 
-    Gets or Sets the URI (or filename) of the original document. For documents obtained by parsing a string of a FH without using the URI parsing argument of the corresponding `parse_* ` function, the result is a generated string unknown-XYZ where XYZ is some number; for documents created with the constructor `new `, the URI is undefined.
+    Gets or sets the URI (or filename) of the original document. For documents obtained by parsing a string of a FH without using the URI parsing argument of the corresponding `parse_* ` function, the result is a generated string unknown-XYZ where XYZ is some number; for documents created with the constructor `new `, the URI is undefined.
 
   * encoding
 
         my Str $enc = $doc.encoding();
         $doc.encoding = $new-encoding;
 
-    returns or sets the encoding of the document.
+    Gets or sets the encoding of the document.
 
       * * The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
 
@@ -124,7 +124,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
       $strEncoding = $doc.actualEncoding();
 
-    returns the encoding in which the XML will be returned by $doc.toString(). This is usually the original encoding of the document as declared in the XML declaration and returned by $doc.encoding. If the original encoding is not known (e.g. if created in memory or parsed from a XML without a declared encoding), 'UTF-8' is returned.
+    returns the encoding in which the XML will be output by $doc.Blob() or $doc.write. This is usually the original encoding of the document as declared in the XML declaration and returned by $doc.encoding. If the original encoding is not known (e.g. if created in memory or parsed from a XML without a declared encoding), 'UTF-8' is returned.
 
         my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
         print $doc.encoding; # prints ISO-8859-15
@@ -135,7 +135,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     returns the version of the document
 
-    *getVersion() * is an alternative form of this function.
+    *getVersion() * is an alternative getter function.
 
   * standalone
 
@@ -191,7 +191,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * serialize
 
-        $str = $doc.serialize($format);
+        $str = $doc.serialize(:$format);
 
     An alias for toString(). This function was name added to be more consistent with libxml2.
 
@@ -310,7 +310,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     *NOTE: * A text content containing something that looks like an entity reference, will not be expanded to a real entity reference unless it is a predefined entity
 
-        my $string = "&foo;";
+        my $string = '&foo;';
          $some_element.appendText( $string );
          print $some_element.textContent; # prints "&amp;foo;"
 

@@ -28,7 +28,7 @@ method URI is also<declaredURI getData getValue value>
 method localname is also<declaredPrefix getLocalName>
                     { $!native.prefix }
 method string-value { $!native.href }
-method unique-key   { +nativecast(Pointer, $_) with $!native }
+method unique-key   { join('|', $!native.prefix//'', $!native.href//''); }
 method nodeName is also<name> {
     $_ ?? 'xmlns:' ~ $_ !! 'xmlns' given $.localname;
 }

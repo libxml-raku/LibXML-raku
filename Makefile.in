@@ -61,7 +61,7 @@ clean :
 realclean : clean
 	@rm -f Makefile lib/LibXML/*.md
 
-doc : lib/LibXML/Attr.md lib/LibXML/CDATASection.md lib/LibXML/Comment.md lib/LibXML/Document.md lib/LibXML/DocumentFragment.md lib/LibXML/Namespace.md lib/LibXML/PI.md lib/LibXML/RegExp.md
+doc : lib/LibXML/Attr.md lib/LibXML/CDATASection.md lib/LibXML/Comment.md lib/LibXML/Document.md lib/LibXML/DocumentFragment.md lib/LibXML/Dtd.md lib/LibXML/Namespace.md lib/LibXML/PI.md lib/LibXML/RegExp.md
 
 lib/LibXML/Attr.md : lib/LibXML/Attr.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Attr.pm6 > lib/LibXML/Attr.md
@@ -77,6 +77,9 @@ lib/LibXML/Document.md : lib/LibXML/Document.pm6
 
 lib/LibXML/DocumentFragment.md : lib/LibXML/DocumentFragment.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/DocumentFragment.pm6 > lib/LibXML/DocumentFragment.md
+
+lib/LibXML/Dtd.md : lib/LibXML/Dtd.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Dtd.pm6 > lib/LibXML/Dtd.md
 
 lib/LibXML/Namespace.md : lib/LibXML/Namespace.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Namespace.pm6 > lib/LibXML/Namespace.md

@@ -126,7 +126,7 @@ multi method createAttributeNS(Str $href,
     LibXML::Attr.box: $.native.createAttributeNS($href, $name, $value);
 }
 
-multi method createDocument(Str() $version, xmlEncodingStr:D $enc) {
+multi method createDocument(Str() $version, xmlEncodingStr $enc) {
     self.new: :$version, :$enc;
 }
 multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str :URI($uri), *%opt) {
@@ -343,8 +343,8 @@ XML::LibXML::Document - XML::LibXML DOM Document Class
   # Only methods specific to Document nodes are listed here,
   # see the LibXML::Node manpage for other methods
 
-  my LibXML::Document $dom .= new;
-  my LibXML::Document $dom .= createDocument($version, $encoding);
+  my LibXML::Document $dom  .= new: :$version, :$enc;
+  my LibXML::Document $dom2 .= createDocument($version, $enc);
   $strURI = $doc.URI();
   $doc.setURI($strURI);
   my Str $enc = $doc.encoding();
@@ -417,14 +417,14 @@ createDocument
 
   $dom = LibXML::Document.createDocument( $version, $encoding );
 
-DOM-style constructor for the document class. As Parameter it takes the version
+DOM-style constructor for the document class. As parameters it takes the version
 string and (optionally) the encoding string. Simply calling I<<<<<< createDocument >>>>>>() will create the document:
 
 
 
   <?xml version="your version" encoding="your encoding"?>
 
-Both parameter are optional. The default value for I<<<<<< $version >>>>>> is C<<<<<< 1.0 >>>>>>, of course. If the I<<<<<< $encoding >>>>>> parameter is not set, the encoding will be left unset, which means UTF-8 is
+Both parameters are optional. The default value for I<<<<<< $version >>>>>> is C<<<<<< 1.0 >>>>>>, of course. If the I<<<<<< $encoding >>>>>> parameter is not set, the encoding will be left unset, which means UTF-8 is
 implied.
 
 The call of I<<<<<< createDocument >>>>>>() without any parameter will result the following code:
@@ -455,7 +455,7 @@ URI
   my Str $URI = $doc.URI();
   $doc.URI = $URI;
 
-Gets or Sets the URI (or filename) of the original document. For documents obtained
+Gets or sets the URI (or filename) of the original document. For documents obtained
 by parsing a string of a FH without using the URI parsing argument of the
 corresponding C<<<<<< parse_* >>>>>> function, the result is a generated string unknown-XYZ where XYZ is some
 number; for documents created with the constructor C<<<<<< new >>>>>>, the URI is undefined.
@@ -468,7 +468,7 @@ encoding
     my Str $enc = $doc.encoding();
     $doc.encoding = $new-encoding;
 
-returns or sets the encoding of the document.
+Gets or sets the encoding of the document.
 
 =item * The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
 =item 8 The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
@@ -487,7 +487,7 @@ returns or sets the encoding of the document.
 
   $strEncoding = $doc.actualEncoding();
 
-returns the encoding in which the XML will be returned by $doc.toString().
+returns the encoding in which the XML will be output by $doc.Blob() or $doc.write.
 This is usually the original encoding of the document as declared in the XML
 declaration and returned by $doc.encoding. If the original encoding is not
 known (e.g. if created in memory or parsed from a XML without a declared
@@ -507,7 +507,7 @@ version
 
 returns the version of the document
 
-I<<<<<< getVersion() >>>>>> is an alternative form of this function.
+I<<<<<< getVersion() >>>>>> is an alternative getter function.
 
 =end item
 
@@ -595,7 +595,7 @@ C14N Normalisation. See the documentation in L<<<<<< LibXML::Node >>>>>>.
 =begin item
 serialize
 
-  $str = $doc.serialize($format);
+  $str = $doc.serialize(:$format);
 
 An alias for toString(). This function was name added to be more consistent
 with libxml2.
@@ -780,7 +780,7 @@ not be expanded to a real entity reference unless it is a predefined entity
 
 
 
-  my $string = "&foo;";
+  my $string = '&foo;';
    $some_element.appendText( $string );
    print $some_element.textContent; # prints "&amp;foo;"
 =end item
