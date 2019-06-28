@@ -8,6 +8,7 @@ class ChapterHandler {...}
 
 # ------------------------------------------------------------------------- #
 # (c) 2003 christian p. glahn
+# ported from Perl 5 to Perl 6 david warring (2019).
 # ------------------------------------------------------------------------- #
 
 # ------------------------------------------------------------------------- #
@@ -20,13 +21,13 @@ class ChapterHandler {...}
 # The code works for the LibXML documentation, but may not work
 # for any other docbook file.
 #
-# If you are interested what the results are, check the README and the POD
-# files shipped with LibXML.
+# This file was ported from the Perl 5 module and used to mine docs/libxml.dbc
+# from the Perl 5 repop to generate Perl 6 POD.
 # ------------------------------------------------------------------------- #
 
 # ------------------------------------------------------------------------- #
 # SYNOPSIS:
-# xmllibxmldocs.pl $dokbook_file $targetdir
+# xmllibxmldocs.pl $docbook_file $targetdir
 #
 sub MAIN(Str $srcfile, Str $targetdir) {
 
@@ -44,7 +45,9 @@ sub MAIN(Str $srcfile, Str $targetdir) {
     #
     # ------------------------------------------------------------------------- #
     # load the document into memory.
-    my LibXML::Document $doc = $parser.parse: :file( $srcfile );
+    my $string = $srcfile.IO.slurp;
+    $string .= subst(/'XML'['::'|'-']'LibXML'/, 'LibXML', :g);
+    my LibXML::Document $doc = $parser.parse: :$string;
     # ------------------------------------------------------------------------- #
     #
     # ------------------------------------------------------------------------- #
@@ -56,7 +59,7 @@ sub MAIN(Str $srcfile, Str $targetdir) {
     # ------------------------------------------------------------------------- #
     # init the common parts in all pods
     my ( $bookinfo ) = $doc.findnodes( "//bookinfo" );
-    $ch.set_general_info( $bookinfo );
+    $ch.set-general-info( $bookinfo );
     # ------------------------------------------------------------------------- #
 
     # ------------------------------------------------------------------------- #
@@ -79,14 +82,15 @@ class ChapterHandler {
     has IO::Path $.directory is required;
     has IO::Handle $!OFILE; # current output file
     has Str $!infoblock;
+    has UInt $!level = 0;
     # ------------------------------------------------------------------------- #
 
     # ------------------------------------------------------------------------- #
-    # set_general_info
+    # set-general-info
     # ------------------------------------------------------------------------- #
     # processes the bookinfo tag of LibXML to extract common information such
     # as version or copyright information
-    method set_general_info(LibXML::Node $infonode) {
+    method set-general-info(LibXML::Node $infonode) {
         return unless defined $infonode;
 
         my $infostr = "=head1 AUTHORS\n\n";
@@ -127,9 +131,7 @@ class ChapterHandler {
           }
           $infostr ~= ".\n\n";
         }
-        $infostr ~= "=cut\n";
-
-        $infostr ~= "\n\n" ~ q:to<EOF>;
+        $infostr ~= q:to<EOF>;
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
@@ -154,10 +156,9 @@ EOF
             my $filename = $abbr.string-value();
             $filename .= trim();
             my $dir = $!directory;
-warn $filename;
 
-            $filename ~~ s:g/'LibXML'//;
-            $filename ~~ s:g/^['-'|'::']//;   # remove the first colon or minus.
+            $filename .= subst('LibXML', '', :g);
+            $filename .= subst(/^['-'|'::']/, '');   # remove the first colon or minus.
             $filename .= subst('::', '/', :g);     # transform remaining colons to paths.
             # the previous statement should work for existing modules. This could be
             # dangerous for nested modules, which do not exist at the time of writing
@@ -175,39 +176,42 @@ warn $filename;
                 $dir = "";
             }
 
-            warn [:$dir, :$filename].perl;
             $!OFILE = ($dir ~ $filename).IO.open(:w);
 
-            if ( $abbr.string-value() eq "README"
-                 or $abbr.string-value() eq "LICENSE" ) {
+            if $abbr.string-value() eq "README"
+            or $abbr.string-value() eq "LICENSE" {
 
                 # Text only chapters in the documentation
-                $.dump_text( $chapter );
+                $.dump-text( $chapter );
             }
             else {
                 # print header
                 # print synopsis
                 # process the information itself
                 # dump the info block
-                $.dump_pod( $chapter );
+
+                $!OFILE.say: "=begin pod";
+                $.dump-pod( $chapter );
                 $!OFILE.print( $!infoblock );
+                $!OFILE.say: "=end pod";
             }
             # close the file
             $!OFILE.close();
 
             # Strip trailing space.
-            my $text = ($dir~$filename).IO.slurp;
+            my $path = ($dir ~ $filename).IO;
+            my $text = $path.slurp;
             $text ~~ s:g/[' '|\t]+$//;
 
-            ($dir~$filename).IO.spurt: $text;
+            $path.spurt: $text;
         }
     }
 
     # ------------------------------------------------------------------------- #
-    # dump_text
+    # dump-text
     # ------------------------------------------------------------------------- #
     # convert the chapter into a textfile, such as README.
-    method dump_text(LibXML::Node:D $chap) {
+    method dump-text(LibXML::Node:D $chap) {
 
         if $chap.nodeName() eq "chapter" {
             my ( $title ) = $chap.getChildrenByTagName( "title" );
@@ -226,7 +230,7 @@ warn $filename;
                     my $string = $node.string-value();
                     my $os = "";
                     for $string.words -> $word {
-                    if ( (chars( $os ) + chars( $word ) + 1) < 80 ) {
+                    if (chars( $os ) + chars( $word ) + 1) < 80 {
                         if ( chars $os ) { $os ~= " "; }
                         $os ~= $word;
                     }
@@ -247,7 +251,7 @@ warn $filename;
                     $!OFILE.print( "\n" ~ uc($str) ~ "\n" );
                     $!OFILE.print( "=" x $len );
                     $!OFILE.print( "\n\n" );
-                    $.dump_text( $node );
+                    $.dump-text( $node );
                 }
 
                 when "sect2" {
@@ -258,7 +262,7 @@ warn $filename;
                     $!OFILE.print( "\n" ~ $str ~ "\n" );
                     $!OFILE.print( "=" x $len );
                     $!OFILE.print( "\n\n" );
-                    $.dump_text( $node );
+                    $.dump-text( $node );
                 }
 
                 when "itemizedlist" {
@@ -299,11 +303,11 @@ warn $filename;
         }
 
         # ------------------------------------------------------------------------- #
-        # dump_pod
+        # dump-pod
         # ------------------------------------------------------------------------- #
         # This method is used to create the real POD files for LibXML. It is not
         # too sophisticated, but it already does quite a good job.
-        method dump_pod(LibXML::Node:D $chap) {
+        method dump-pod(LibXML::Node:D $chap) {
 
             if $chap.nodeName() eq "chapter" {
                 my ( $title ) = $chap.getChildrenByTagName( "title" );
@@ -317,11 +321,11 @@ warn $filename;
                     $!OFILE.print( "\n=head1 SYNOPSIS\n\n" )
                 }
                 if $synopsis {
-                    $.dump_pod( $synopsis );
+                    $.dump-pod( $synopsis );
                 }
                 if +@funcs  {
                     for @funcs -> $s {
-                        $.dump_pod( $s );
+                        $.dump-pod( $s );
                     }
                     # $self.{OFILE}.print( "\n\n=head1 DESCRIPTION\n\n" );
                 }
@@ -358,17 +362,16 @@ warn $filename;
                 else {
                     given $node.nodeName {
                         when "para" {
-                            $.dump_pod( $node );
+                            $.dump-pod( $node );
                             $!OFILE.print( "\n\n" );
                         }
                         when "sect1" {
                             my ( $title ) = $node.getChildrenByTagName( "title" );
                             my $str = $title.string-value();
                             unless $chap.nodeName eq "chapter" and $str eq 'Synopsis' {
-                                warn :$str.perl;
                                 $!OFILE.print( "\n=head1 " ~ uc($str) );
                                 $!OFILE.print( "\n\n" );
-                                $.dump_pod( $node );
+                                $.dump-pod( $node );
                             }
                         }
                         when "sect2" {
@@ -378,7 +381,7 @@ warn $filename;
                             
                             $!OFILE.print( "\n=head2 " ~ $str ~ "\n\n" );
                             
-                            $.dump_pod( $node );
+                            $.dump-pod( $node );
                         }
                         when "sect3" {
                             my ( $title ) = $node.getChildrenByTagName( "title" );
@@ -387,49 +390,48 @@ warn $filename;
 
                             $!OFILE.print( "\n=head3 " ~ $str ~ "\n\n" );
 
-                            $.dump_pod( $node );
+                            $.dump-pod( $node );
                         }
                         when "itemizedlist" {
                             my @items = $node.findnodes( "listitem" );
-                            $!OFILE.print( "\n=over 4\n\n" );
+                            $!level++;
                             for @items -> $item {
-                                $!OFILE.print( "=item *\n\n" );
-                                $.dump_pod( $item );
-                                $!OFILE.print( "\n\n" );
+                                $!OFILE.print( "=item{$!level} * " );
+                                $.dump-pod( $item );
                             }
-                            $!OFILE.print( "=back\n\n" );
+                            $!level--;
                         }
                         when "orderedlist" {
                             my @items = $node.findnodes( "listitem" );
                             my $i = 0;
                             $!OFILE.print( "\n=over 4\n\n" );
-
+                            $!level++;
                             for @items -> $item {
                                 $i++;
-                                $!OFILE.print( "=item $i.\n\n" );
-                                $.dump_pod($item);
+                                $!OFILE.print( "=item{$!level} $i.\n\n" );
+                                $.dump-pod($item);
                                 $!OFILE.print( "\n\n" );
                             }
-                            $!OFILE.print( "=back\n\n" );
+                            $!level--;
                         }
                         when "variablelist" {
-                            $!OFILE.print( "=over 4\n\n" );
+                            $!level++;
                             my @nodes = $node.findnodes( "varlistentry" );
-                            $.dump_pod( $node );
-                            $!OFILE.print( "\n=back\n\n" );
+                            $.dump-pod( $node );
+                            $!level--;
                         }
                         when "varlistentry" {
                             my ( $term ) = $node.findnodes( "term" );
-                            $!OFILE.print( "=item " );
+                            $!OFILE.print( "=begin item{$!level}\n" );
                             if ( defined $term ) {
-                                $.dump_pod( $term );
+                                $.dump-pod( $term );
                             }
                             $!OFILE.print( "\n\n" );
                             my @nodes =$node.findnodes( "listitem" );
                             for @nodes -> $it {
-                                $.dump_pod( $it );
+                                $.dump-pod( $it );
                             }
-                            $!OFILE.print( "\n" );
+                            $!OFILE.print( "=end item{$!level}\n\n" );
                         }
                         when "programlisting" {
                             my $str = $node.string-value();
@@ -441,8 +443,8 @@ warn $filename;
                             $!OFILE.print( "\n\n" );
                         }
                         when "funcsynopsis" {
-                            if (($node.getAttribute('role')||'') ne 'synopsis') {
-                                $.dump_pod($node);
+                            if ($node.getAttribute('role')//'') ne 'synopsis' {
+                                $.dump-pod($node);
                                 $!OFILE.print( "\n" );
                             }
                         }
@@ -470,7 +472,7 @@ warn $filename;
                             my $str = $node.string-value() ;
                             my $url = $node.getAttribute('url');
                             $str ~~ s:g/\n/ /;
-                            if ($str eq $url) {
+                            if $str eq $url {
                                 $!OFILE.print( "L<<<<<< $url >>>>>>" );
                             } else {
                                 $!OFILE.print( "$str (L<<<<<< $url >>>>>>)" );
@@ -480,7 +482,7 @@ warn $filename;
                             my $linkend = $node.getAttribute('linkend');
                             my ($target) = $node.findnodes(qq{//*[\@id="$linkend"]/titleabbrev});
                             ($target) = $node.findnodes(qq{//*[\@id="$linkend"]/title}) unless $target;
-                            if ($target) {
+                            if $target {
                                 my $str = $target.string-value();
                                 $str ~~ s:g/\n/ /;
                                 $str = pod_escape($str);
@@ -493,7 +495,7 @@ warn $filename;
                         when "olink" {
                             my $str = pod_escape($node.string-value());
                             my $url = $node.getAttribute('targetdoc');
-                            if (!defined $url) {
+                            without $url {
                                 warn $node.Str(:format),"\n";
                             }
                             $str ~~ s:g/\n/ /;
@@ -505,12 +507,13 @@ warn $filename;
                         }
                         default {
                             $*ERR.print: "Ignoring $_\n";
-                            $.dump_pod($node);
+                            $.dump-pod($node);
                         }
                     }
                 }
             }
         }
+
     }
     sub pod_escape($str) {
         $str.subst('>', '&gt;', :g).subst('<', '&lt;', :g);
