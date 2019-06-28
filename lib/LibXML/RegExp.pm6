@@ -77,7 +77,7 @@ The constructor takes a string containing a regular expression and returns an ob
 =begin item
 matches($string)
 
-  my Bool $matched = $compiled_re.matches($string);
+  my Bool $matched = $compiled-re.matches($string);
 
 Given a string value, returns True if the value is matched by the
 compiled regular expression.
@@ -86,7 +86,7 @@ compiled regular expression.
 =begin item
 isDeterministic()
 
-  my Bool $det = $compiled_re.isDeterministic();
+  my Bool $det = $compiled-re.isDeterministic();
 
 Returns True if the regular expression is deterministic; returns False
 otherwise. (See the definition of determinism in the XML spec (L<<<<<< http://www.w3.org/TR/REC-xml/#determinism >>>>>>))

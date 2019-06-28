@@ -113,7 +113,12 @@ method hasAttributeNS(Str $uri, Str $att-name --> Bool) {
 }
 
 method removeAttribute(Str:D $attr-name) {
-    .Release with self.getAttributeNode($attr-name);
+    with self.getAttributeNode($attr-name) {
+        .Release; True;
+    }
+    else {
+        False;
+    }
 }
 
 method removeAttributeNode(AttrNode:D $attr --> Node) {
@@ -128,7 +133,12 @@ method removeAttributeNode(AttrNode:D $attr --> Node) {
 }
 
 method removeAttributeNS(Str $uri, Str $attr-name) {
-    .Release with self.getAttributeNodeNS($uri, $attr-name);
+    with self.getAttributeNodeNS($uri, $attr-name) {
+        .Release; True;
+    }
+    else {
+        False;
+    }
 }
 
 method getAttributeNodeNS(Str $uri, QName:D $att-name --> AttrNode) {
@@ -197,8 +207,8 @@ method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
     }
 }
 
-method setNamespace(Str $uri, NCName $prefix, Bool :$primary) {
-    self.domSetNamespace($uri, $prefix, $primary);
+method setNamespace(Str $uri, NCName $prefix, Bool :$activate) {
+    self.domSetNamespace($uri, $prefix, $activate);
 }
 
 method removeChild(Node:D $child) {

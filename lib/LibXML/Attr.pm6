@@ -63,7 +63,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 =begin item
 new
 
-  $attr = LibXML::Attr.new($name [,$value]);
+  my LibXML::Attr $attr .= new($name [,$value]);
 
 Class constructor. If you need to work with ISO encoded strings, you should I<<<<<< always >>>>>> use the C<<<<<< createAttribute >>>>>> of L<<<<<< LibXML::Document >>>>>>.
 =end item
@@ -71,7 +71,7 @@ Class constructor. If you need to work with ISO encoded strings, you should I<<<
 =begin item
 getValue
 
-  $string = $attr.getValue();
+  my Str $val = $attr.getValue();
 
 Returns the value stored for the attribute. If undef is returned, the attribute
 has no value, which is different of being C<<<<<< not specified >>>>>>.
@@ -80,7 +80,7 @@ has no value, which is different of being C<<<<<< not specified >>>>>>.
 =begin item
 value
 
-  $string = $attr.value;
+  my Str $val = $attr.value;
 
 Alias for I<<<<<< getValue() >>>>>>
 =end item
@@ -98,7 +98,7 @@ might be done incorrectly.
 =begin item
 getOwnerElement
 
-  $node = $attr.getOwnerElement();
+  my LibXML::Node $owner = $attr.getOwnerElement();
 
 returns the node the attribute belongs to. If the attribute is not bound to a
 node, undef will be returned. Overwriting the underlying implementation, the I<<<<<< parentNode >>>>>> function will return undef, instead of the owner element.
@@ -123,7 +123,7 @@ This function returns 1 on success, 0 otherwise.
 =begin item
 isId
 
-  $bool = $attr.isId;
+  my Bool $yup = $attr.isId;
 
 Determine whether an attribute is of type ID. For documents with a DTD, this
 information is only available if DTD loading/validation has been requested. For
@@ -134,7 +134,7 @@ In XML documents, all "xml:id" attributes are considered to be of type ID.
 =begin item
 serializeContent
 
-  $string = $attr.serializeContent;
+  my Str $content = $attr.serializeContent;
 
 This function is not part of DOM API. It returns attribute content in the form
 in which it serializes into XML, that is with all meta-characters properly

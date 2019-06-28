@@ -28,13 +28,13 @@ This is a perl interface to libxml2's implementation of regular expressions, whi
 
   * matches($string)
 
-        my Bool $matched = $compiled_re.matches($string);
+        my Bool $matched = $compiled-re.matches($string);
 
     Given a string value, returns True if the value is matched by the compiled regular expression.
 
   * isDeterministic()
 
-        my Bool $det = $compiled_re.isDeterministic();
+        my Bool $det = $compiled-re.isDeterministic();
 
     Returns True if the regular expression is deterministic; returns False otherwise. (See the definition of determinism in the XML spec ([http://www.w3.org/TR/REC-xml/#determinism ](http://www.w3.org/TR/REC-xml/#determinism )))
 

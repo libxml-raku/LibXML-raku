@@ -165,16 +165,27 @@ method createEntityReference(Str $name) {
     LibXML::EntityRef.new: :doc(self), :$name;
 }
 
-method createProcessingInstruction(|c) {
-    $.createPI(|c);
-}
-
+proto method createPI(|) is also<createProcessingInstruction> {*}
 multi method createPI(NameVal $_!, |c) {
     $.createPI(.key, .value, |c);
 }
 multi method createPI(NCName $name, Str $content?) {
     need LibXML::PI;
     LibXML::PI.new: :doc(self), :$name, :$content;
+}
+
+method insertProcessingInstruction(|c) {
+    my LibXML::PI:D $pi = $.createPI(|c);
+    with $.documentElement -> $root {
+        # this is actually not correct, but i guess it's what the user
+        # intends
+        $.insertBefore( $pi, $root );
+    }
+    else {
+        # if no documentElement was found we just append the PI
+        $.appendChild( $pi );
+    }
+
 }
 
 method createExternalSubset(Str $name, Str $external-id, Str $system-id) {

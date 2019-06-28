@@ -12,7 +12,7 @@ class X::LibXML::Parser is Exception {
     has UInt $.level;
     
     method message {
-        my $msg = ($!file, $!line, ' ' ~ $!text).join: ':';
+        my $msg = join(':', $!file, $!line, ' ' ~ $!text);
         chomp $msg;
     }
 }
@@ -55,7 +55,7 @@ class LibXML::ErrorHandler {
         elsif $level == XML_ERR_WARNING {
             @text.push: 'warning';
         }
-        $msg = (@text.join(' '), ' : ', $msg).join
+        $msg = join(' : ', @text.join(' '), $msg)
             if @text;
         
         my $file = .file;

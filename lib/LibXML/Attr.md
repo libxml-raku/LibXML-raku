@@ -34,19 +34,19 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * new
 
-        $attr = LibXML::Attr.new($name [,$value]);
+        my LibXML::Attr $attr .= new($name [,$value]);
 
     Class constructor. If you need to work with ISO encoded strings, you should *always * use the `createAttribute ` of [LibXML::Document ](LibXML::Document ).
 
   * getValue
 
-        $string = $attr.getValue();
+        my Str $val = $attr.getValue();
 
     Returns the value stored for the attribute. If undef is returned, the attribute has no value, which is different of being `not specified `.
 
   * value
 
-        $string = $attr.value;
+        my Str $val = $attr.value;
 
     Alias for *getValue() *
 
@@ -58,7 +58,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * getOwnerElement
 
-        $node = $attr.getOwnerElement();
+        my LibXML::Node $owner = $attr.getOwnerElement();
 
     returns the node the attribute belongs to. If the attribute is not bound to a node, undef will be returned. Overwriting the underlying implementation, the *parentNode * function will return undef, instead of the owner element.
 
@@ -70,13 +70,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * isId
 
-        $bool = $attr.isId;
+        my Bool $yup = $attr.isId;
 
     Determine whether an attribute is of type ID. For documents with a DTD, this information is only available if DTD loading/validation has been requested. For HTML documents parsed with the HTML parser ID detection is done automatically. In XML documents, all "xml:id" attributes are considered to be of type ID.
 
   * serializeContent
 
-        $string = $attr.serializeContent;
+        my Str $content = $attr.serializeContent;
 
     This function is not part of DOM API. It returns attribute content in the form in which it serializes into XML, that is with all meta-characters properly quoted and with raw entity references (except for entities expanded during parse time).
 

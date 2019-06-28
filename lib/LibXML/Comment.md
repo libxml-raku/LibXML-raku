@@ -6,7 +6,7 @@ LibXML::Comment - LibXML Comment Class
 SYNOPSIS
 ========
 
-    use LibXML;
+    use LibXML::Comment;
     # Only methods specific to Comment nodes are listed here,
     # see the LibXML::Node manpage for other methods
 

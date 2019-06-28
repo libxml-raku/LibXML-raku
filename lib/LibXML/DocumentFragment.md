@@ -19,10 +19,11 @@ SYNOPSIS
     use LibXML::Document;
     use LibXML::DocumentFragment;
     my LibXML::Document $dom .= new;
-    my LibXML::DocumentFragment $frag = $dom.createDocumentFragment;
-    $frag.appendChild: $dom.createElement('foo');
-    $frag.appendChild: $dom.createElement('bar');
-    say $frag.Str # '<foo/><bar/>'
+    my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
+    my LibXML::DocumentFragment $frag2 = $dom.createDocumentFragment;
+    $frag2.appendChild: $dom.createElement('foo');
+    $frag2.appendChild: $dom.createElement('bar');
+    say $frag2.Str # '<foo/><bar/>'
 
 DESCRIPTION
 ===========

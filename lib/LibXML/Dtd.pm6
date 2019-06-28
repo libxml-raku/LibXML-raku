@@ -91,7 +91,7 @@ pass to $doc.is-valid() or $doc.validate().
                         "SOME // Public / ID / 1.0",
                         "test.dtd"
                                   );
-   my $doc = LibXML.new.parse_file("test.xml");
+   my $doc = LibXML.new.parse: :file("test.xml");
    $doc.validate($dtd);
 =end item
 
@@ -110,7 +110,7 @@ references with relative URLs.
 =begin item
 getName
 
-  $publicId = $dtd.getName();
+  my Str $publicId = $dtd.getName();
 
 Returns the name of DTD; i.e., the name immediately following the DOCTYPE
 keyword.
@@ -120,7 +120,7 @@ keyword.
 =begin item
 publicId
 
-  $publicId = $dtd.publicId();
+  my Str $publicId = $dtd.publicId();
 
 Returns the public identifier of the external subset.
 =end item
@@ -129,7 +129,7 @@ Returns the public identifier of the external subset.
 =begin item
 systemId
 
-  $systemId = $dtd.systemId();
+  my Str $systemId = $dtd.systemId();
 
 Returns the system identifier of the external subset.
 =end item

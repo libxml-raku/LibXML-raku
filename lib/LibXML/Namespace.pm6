@@ -81,7 +81,7 @@ an attribute.
 =begin item
 new
 
-  my LibXML::Namespace $ns .= new($nsURI);
+  my LibXML::Namespace $ns .= new: :$URI, :$prefix;
 
 Creates a new Namespace node. Note that this is not a 'node' as an attribute or
 an element node. Therefore you can't do call all L<<<<<< LibXML::Node >>>>>> Functions. All functions available for this node are listed below.
@@ -126,7 +126,7 @@ Alias for nodeName()
 =begin item
 getLocalName
 
-  $localname = $ns.getLocalName();
+  my Str $localname = $ns.getLocalName();
 
 Returns the local name of this node as if it were an attribute, that is, the
 prefix associated with the namespace.
@@ -164,7 +164,7 @@ Alias for getData()
 =begin item
 getNamespaceURI
 
-  $known_uri = $ns.getNamespaceURI();
+  my Str $known-uri = $ns.getNamespaceURI();
 
 Returns the string "http://www.w3.org/2000/xmlns/"
 =end item
@@ -173,7 +173,7 @@ Returns the string "http://www.w3.org/2000/xmlns/"
 =begin item
 getPrefix
 
-  $known_prefix = $ns.getPrefix();
+  my Str $known-prefix = $ns.getPrefix();
 
 Returns the string "xmlns"
 =end item
@@ -182,7 +182,7 @@ Returns the string "xmlns"
 =begin item
 unique-key
 
-  $key = $ns.unique-key();
+  my Str $key = $ns.unique-key();
 
 This method returns a key guaranteed to be unique for this namespace, and to
 always be the same value for this namespace. Two namespace objects return the

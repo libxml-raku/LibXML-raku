@@ -33,7 +33,7 @@ METHODS
 
   * new
 
-        my LibXML::Namespace $ns .= new($nsURI);
+        my LibXML::Namespace $ns .= new: :$URI, :$prefix;
 
     Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node ](LibXML::Node ) Functions. All functions available for this node are listed below.
 
@@ -61,7 +61,7 @@ METHODS
 
   * getLocalName
 
-        $localname = $ns.getLocalName();
+        my Str $localname = $ns.getLocalName();
 
     Returns the local name of this node as if it were an attribute, that is, the prefix associated with the namespace.
 
@@ -85,19 +85,19 @@ METHODS
 
   * getNamespaceURI
 
-        $known_uri = $ns.getNamespaceURI();
+        my Str $known-uri = $ns.getNamespaceURI();
 
     Returns the string "http://www.w3.org/2000/xmlns/"
 
   * getPrefix
 
-        $known_prefix = $ns.getPrefix();
+        my Str $known-prefix = $ns.getPrefix();
 
     Returns the string "xmlns"
 
   * unique-key
 
-        $key = $ns.unique-key();
+        my Str $key = $ns.unique-key();
 
     This method returns a key guaranteed to be unique for this namespace, and to always be the same value for this namespace. Two namespace objects return the same key if and only if they have the same prefix and the same URI. The returned key value is useful as a key in hashes.
 

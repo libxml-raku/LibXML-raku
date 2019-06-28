@@ -37,7 +37,7 @@ METHODS
                               "SOME // Public / ID / 1.0",
                               "test.dtd"
                                         );
-         my $doc = LibXML.new.parse_file("test.xml");
+         my $doc = LibXML.new.parse: :file("test.xml");
          $doc.validate($dtd);
 
   * parse
@@ -48,19 +48,19 @@ METHODS
 
   * getName
 
-        $publicId = $dtd.getName();
+        my Str $publicId = $dtd.getName();
 
     Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
 
   * publicId
 
-        $publicId = $dtd.publicId();
+        my Str $publicId = $dtd.publicId();
 
     Returns the public identifier of the external subset.
 
   * systemId
 
-        $systemId = $dtd.systemId();
+        my Str $systemId = $dtd.systemId();
 
     Returns the system identifier of the external subset.
 

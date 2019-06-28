@@ -2,7 +2,7 @@ use v6;
 class LibXML::XPath::Context {
 
     use LibXML::Native;
-    use LibXML::Node :iterate, :NodeSetElem, :NameVal, :native;
+    use LibXML::Node :iterate-set, :NodeSetElem, :NameVal, :native;
     use LibXML::Document;
     use LibXML::Types :QName;
     use LibXML::Node::Set;
@@ -27,7 +27,7 @@ class LibXML::XPath::Context {
         my domNode $node = .native with $ref-node;
         my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
         .rethrow with @!callback-errors.tail;
-        iterate(NodeSetElem, $node-set);
+        iterate-set(NodeSetElem, $node-set);
     }
     multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
         $.findnodes( LibXML::XPath::Expression.new(:$expr), $ref-node );

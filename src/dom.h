@@ -278,7 +278,7 @@ DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr, xmlChar* URI, xmlChar* name, xmlChar* value );
 
 DLLEXPORT int
-domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int primary);
+domSetNamespace(xmlNodePtr, xmlChar* nsURI, xmlChar* nsPrefix, int activate);
 
 DLLEXPORT xmlNodePtr
 domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );

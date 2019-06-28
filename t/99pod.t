@@ -2,7 +2,7 @@
 
 use Test;
 
-plan 9;
+plan 10;
 
 subtest 'LibXML::Attr' => {
     plan 5;
@@ -181,7 +181,59 @@ subtest 'LibXML::PI' => {
 
     $pi.setData(foo=>'bar', foobar=>'foobar');
     like $dom.Str, /'<?abc foo="bar" foobar="foobar"?>'/, 'setData (hash)';
+    $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
 };
+
+subtest 'XML::LibXML::Element' => {
+    plan 1;
+    use LibXML::Attr;
+    use LibXML::Element;
+    use LibXML::Node;
+    use LibXML::Document;
+    my $name = 'test-elem';
+    my $aname = 'ns:att';
+    my $avalue = 'my-val';
+    my $localname = 'fred';
+    my $nsURI = 'http://test.org';
+    my $newURI = 'http://test2.org';
+    my $tagname = 'elem';
+    my LibXML::Node @nodes;
+    my LibXML::Document $dom .= new;
+    my $chunk = '<a>XXX</a><b/>';
+    my $PCDATA = 'PC Data';
+    my $nsPrefix = 'foo';
+    my $newPrefix = 'bar';
+    my $childname = 'kid';
+    my LibXML::Element $node;
+    my $attrnode;
+    my Bool $boolean;
+    my $activate = True;
+    $node .= new( $name );
+    $node.setAttribute( $aname, $avalue );
+    $node.setAttributeNS( $nsURI, $aname, $avalue );
+    $avalue = $node.getAttribute( $aname );
+    $avalue = $node.getAttributeNS( $nsURI, $aname );
+    $attrnode = $node.getAttributeNode( $aname );
+    $attrnode = $node.getAttributeNodeNS( $nsURI, $aname );
+    $node.removeAttribute( $aname );
+    $node.removeAttributeNS( $nsURI, $aname );
+    $boolean = $node.hasAttribute( $aname );
+    $boolean = $node.hasAttributeNS( $nsURI, $aname );
+    @nodes = $node.getChildrenByTagName($tagname);
+    @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
+    @nodes = $node.getChildrenByLocalName($localname);
+    @nodes = $node.getElementsByTagName($tagname);
+    @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
+    @nodes = $node.getElementsByLocalName($localname);
+    $node.appendWellBalancedChunk( $chunk );
+    $node.appendText( $PCDATA );
+    $node.appendTextNode( $PCDATA );
+    $node.appendTextChild( $childname , $PCDATA );
+    $node.setNamespace( $nsURI , $nsPrefix, :$activate );
+    $node.setNamespaceDeclURI( $nsPrefix, $newURI );
+    $node.setNamespaceDeclPrefix( $nsPrefix, $newPrefix );
+    ok(1);
+}
 
 subtest 'LibXML::Namespace' => {
     plan 13;
