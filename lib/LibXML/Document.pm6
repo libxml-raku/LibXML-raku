@@ -86,7 +86,7 @@ method getDocumentElement { $!documentElement }
 method setDocumentElement(LibXML::Element $_) {
     $.documentElement = $_;
 }
-method documentElement is rw {
+method documentElement is rw is also<root> {
     Proxy.new(
         FETCH => sub ($) {
             $!documentElement;

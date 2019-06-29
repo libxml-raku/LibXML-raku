@@ -59,36 +59,43 @@ clean :
 	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%
 
 realclean : clean
-	@rm -f Makefile lib/LibXML/*.md
+	@rm -f Makefile doc/*.md doc/*/*.md
 
-doc : lib/LibXML/Attr.md lib/LibXML/CDATASection.md lib/LibXML/Comment.md lib/LibXML/Document.md lib/LibXML/DocumentFragment.md lib/LibXML/Dtd.md lib/LibXML/Element.md lib/LibXML/Namespace.md lib/LibXML/PI.md lib/LibXML/RegExp.md
+doc : README.md doc/Attr.md doc/CDATASection.md doc/Comment.md doc/Document.md doc/DocumentFragment.md doc/Dtd.md doc/Element.md doc/Namespace.md doc/PI.md doc/RegExp.md
 
-lib/LibXML/Attr.md : lib/LibXML/Attr.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Attr.pm6 > lib/LibXML/Attr.md
+README.md : lib/LibXML.pm6
+	(\
+	    echo '[![Build Status](https://travis-ci.org/p6-pdf/Font-FreeType-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/Font-FreeType-p6)'; \
+            echo '';\
+            perl6 -I . --doc=Markdown lib/LibXML.pm6\
+        ) > README.md
 
-lib/LibXML/Comment.md : lib/LibXML/Comment.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Comment.pm6 > lib/LibXML/Comment.md
+doc/Attr.md : lib/LibXML/Attr.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Attr.pm6 > doc/Attr.md
 
-lib/LibXML/CDATASection.md : lib/LibXML/CDATASection.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/CDATASection.pm6 > lib/LibXML/CDATASection.md
+doc/Comment.md : lib/LibXML/Comment.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Comment.pm6 > doc/Comment.md
 
-lib/LibXML/Document.md : lib/LibXML/Document.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Document.pm6 > lib/LibXML/Document.md
+doc/CDATASection.md : lib/LibXML/CDATASection.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/CDATASection.pm6 > doc/CDATASection.md
 
-lib/LibXML/DocumentFragment.md : lib/LibXML/DocumentFragment.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/DocumentFragment.pm6 > lib/LibXML/DocumentFragment.md
+doc/Document.md : lib/LibXML/Document.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Document.pm6 > doc/Document.md
 
-lib/LibXML/Dtd.md : lib/LibXML/Dtd.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Dtd.pm6 > lib/LibXML/Dtd.md
+doc/DocumentFragment.md : lib/LibXML/DocumentFragment.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/DocumentFragment.pm6 > doc/DocumentFragment.md
 
-lib/LibXML/Element.md : lib/LibXML/Element.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Element.pm6 > lib/LibXML/Element.md
+doc/Dtd.md : lib/LibXML/Dtd.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Dtd.pm6 > doc/Dtd.md
 
-lib/LibXML/Namespace.md : lib/LibXML/Namespace.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Namespace.pm6 > lib/LibXML/Namespace.md
+doc/Element.md : lib/LibXML/Element.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Element.pm6 > doc/Element.md
 
-lib/LibXML/PI.md : lib/LibXML/PI.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/PI.pm6 > lib/LibXML/PI.md
+doc/Namespace.md : lib/LibXML/Namespace.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Namespace.pm6 > doc/Namespace.md
 
-lib/LibXML/RegExp.md : lib/LibXML/RegExp.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/RegExp.pm6 > lib/LibXML/RegExp.md
+doc/PI.md : lib/LibXML/PI.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/PI.pm6 > doc/PI.md
+
+doc/RegExp.md : lib/LibXML/RegExp.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/RegExp.pm6 > doc/RegExp.md
