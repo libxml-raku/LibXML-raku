@@ -68,24 +68,24 @@ which provides functions for parsing and manipulating XML files.
 
 Draft documents (So far)
 
-=item [LibXML::Attr](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
+=item [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
 
-=item [LibXML::CDATASection](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Attr.md) - LibXML class for DOM CDATA sections
+=item [LibXML::CDATASection](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML class for DOM CDATA sections
 
-=item [LibXML::Comment](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
+=item [LibXML::Comment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
 
-=item [LibXML::Document](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Document.md) - LibXML's DOM L2 Document Fragment implementation
+=item [LibXML::Document](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Document.md) - LibXML's DOM L2 Document Fragment implementation
 
-=item [LibXML::DocumentFragment](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML DOM attribute class
+=item [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML DOM attribute class
 
-=item [LibXML::Dtd](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
+=item [LibXML::Dtd](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
 
-=item [LibXML::Element](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
+=item [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
 
-=item [LibXML::Namespace](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespace nodes
+=item [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespace nodes
 
-=item [LibXML::PI](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/PI.md) - LibXML DOM processing instruction nodes
+=item [LibXML::PI](https://github.com/p6-xml/LibXML-p6/blob/master/doc/PI.md) - LibXML DOM processing instruction nodes
 
-=item [LibXML::RegExp](https://github.com/p6-pdf/LibXML-p6/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
+=item [LibXML::RegExp](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
 
 =end pod
