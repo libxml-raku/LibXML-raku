@@ -1,12 +1,15 @@
 use LibXML::Node;
+use LibXML::_DOMNode;
 
 unit class LibXML::DocumentFragment
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_DOMNode;
 
-use LibXML::Document;
-use LibXML::Native;
-use LibXML::Element;
 use LibXML::Config;
+use LibXML::Document;
+use LibXML::Element;
+use LibXML::Native;
+use LibXML::Node;
 use NativeCall;
 use Method::Also;
 

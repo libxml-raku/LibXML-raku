@@ -217,7 +217,7 @@ EOF
     my $dtd = $doc.internalSubset;
 
     # TEST
-    ok( !$dtd.hasAttributes, 'hasAttributes' );
+    dies-ok { $dtd.hasAttributes }, 'hasAttributes N/A to DTD nodes';
     # TEST
     dies-ok { $dtd.attributes }, 'attributes N/A to DTD nodes';
 }

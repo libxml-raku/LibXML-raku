@@ -1,7 +1,9 @@
 use LibXML::Node;
+use LibXML::_TextNode;
 
 unit class LibXML::CDATASection
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_TextNode;
 
 use LibXML::Native;
 
@@ -11,6 +13,8 @@ multi submethod TWEAK(:doc($owner), Str :$content!) {
     my xmlCDataNode:D $cdata-struct .= new: :$content, :$doc;
     self.native = $cdata-struct;
 }
+
+method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod
 =head1 NAME

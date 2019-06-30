@@ -1,9 +1,12 @@
 use LibXML::Node;
+use LibXML::_TextNode;
 
 unit class LibXML::Text
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_TextNode;
 
 use LibXML::Native;
+use Method::Also;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :native($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
@@ -12,32 +15,5 @@ multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
     self.native = $text-struct;
 }
 
-method data is rw { $.nodeValue }
-
-method Str is rw handles <substr substr-rw> { $.native.content; }
-
-# DOM Boot-leather
-method substringData(UInt:D $off, UInt:D $len) { $.substr($off, $len) }
-method appendData(Str:D $val) { $.content ~= $val }
-method insertData(UInt:D $pos, Str:D $val) { $.content.substr-rw($pos, 0) = $val; }
-method setData(Str:D $val) { $.content = $val; }
-method getData { $.content; }
-multi method replaceData(UInt:D $off, UInt:D $length, Str:D $val) {
-    my $len = $.content.chars;
-    if $len > $off {
-        $.substr-rw($off, $length) = $val;
-    }
-}
-
-my subset StrOrRegex where Str|Regex;
-my subset StrOrCode where Str|Code;
-multi method replaceData(StrOrRegex:D $old, StrOrCode:D $new, |c) {
-    $.content = $.content.subst($old, $new, |c);
-}
-multi method deleteData(UInt:D $off, UInt:D $length) {
-    $.replaceData($off, $length, '');
-}
-multi method deleteData(StrOrRegex $old, |c) {
-    $.replaceData($old, '', |c);
-}
+method content is rw handles<substr substr-rw> { $.native.content };
 

@@ -1,7 +1,9 @@
 use LibXML::Node;
+use LibXML::_TextNode;
 
 unit class LibXML::Comment
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_TextNode;
 
 use LibXML::Native;
 
@@ -11,6 +13,8 @@ multi submethod TWEAK(LibXML::Node :doc($owner), Str :$content!) {
     my xmlCommentNode $comment-struct .= new: :$content, :$doc;
     self.native = $comment-struct;
 }
+
+method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod
 =head1 NAME

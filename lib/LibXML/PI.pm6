@@ -12,6 +12,8 @@ multi submethod TWEAK(:doc($owner)!, Str :$name!, Str :$content!) {
     self.native = $pi-struct;
 }
 
+method content is rw handles<substr substr-rw> { $.native.content };
+
 multi method setData(*%atts) {
     $.setData( %atts.sort.map({.key ~ '="' ~ .value ~ '"'}).join(' ') );
 }

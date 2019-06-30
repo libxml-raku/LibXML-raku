@@ -1,15 +1,17 @@
-use LibXML::Node :iterate-list;
+use LibXML::Node :iterate-list, :iterate-set, :native-class;
+use LibXML::_DOMNode;
 
 unit class LibXML::Element
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_DOMNode;
 
 use NativeCall;
 
+use LibXML::Attr;
 use LibXML::Enums;
+use LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :QName, :NCName;
-use LibXML::Attr;
-use LibXML::Namespace;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
@@ -20,7 +22,14 @@ multi submethod TWEAK(:doc($doc-obj), QName :$name!, LibXML::Namespace :ns($ns-o
     self.native = xmlNode.new: :$name, :$doc, :$ns;
 }
 
-multi method new($name, *%o) {
+method native is rw handles<
+        content
+        getAttribute getAttributeNS getNamespaceDeclURI
+        hasAttributes hasAttribute hasAttributeNS
+        removeAttribute removeAttributeNS
+        > { callsame; }
+
+multi method new(QName:D $name, *%o) {
     self.new(:$name, |%o);
 }
 
@@ -245,6 +254,42 @@ method appendWellBalancedChunk(Str:D $string) {
     my $frag = LibXML::DocumentFragment.new;
     $frag.parse: :balanced, :$string;
     self.appendChild( $frag );
+}
+
+my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
+multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
+multi method addChild(LibXML::Node $c) is default { callsame }
+multi method setAttribute(NameVal:D $_) {
+    $.native.setAttribute(.key, .value);
+}
+multi method setAttribute(QName $name, Str:D $value) {
+    $.native.setAttribute($name, $value);
+}
+multi method setAttribute(*%atts) {
+    for %atts.pairs.sort -> NameVal $_ {
+        $.setAttribute(.key, .value);
+    }
+}
+method setAttributeNode(AttrNode:D $att) {
+    $att.keep: $.native.setAttributeNode($att.native);
+}
+method setAttributeNodeNS(AttrNode:D $att) {
+    $att.keep: $.native.setAttributeNodeNS($att.native);
+}
+multi method setAttributeNS(Str $uri, NameVal:D $_) {
+    $.native.setAttributeNS($uri, .key, .value);
+}
+multi method setAttributeNS(Str $uri, QName $name, Str $value) {
+    native-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
+}
+method getAttributeNode(Str $att-name --> LibXML::Node) {
+    native-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
+}
+method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
+    native-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNodeNS($uri, $att-name);
+}
+method removeAttributeNode(AttrNode $att) {
+    $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
 }
 
 =begin pod

@@ -1,8 +1,10 @@
 use v6;
 use LibXML::Node :output-options;
+use LibXML::_DOMNode;
 
 unit class LibXML::Document
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_DOMNode;
 
 use LibXML::Native;
 use LibXML::Enums;
