@@ -306,7 +306,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $result = $node.find( $xpath );
 
-    *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [LibXML::Number ](LibXML::Number ) object being returned. Other expressions might return an [LibXML::Boolean ](LibXML::Boolean ) object, or an [LibXML::Literal ](LibXML::Literal ) object (a string). Each of those objects uses Perl's overload feature to "do the right thing" in different contexts.
+    *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [LibXML::Number ](LibXML::Number ) object being returned. Other expressions might return an [Bool ](Bool ) object, Numeric, or a [Str ](Str ) object. Each of those objects uses Perl's overload feature to "do the right thing" in different contexts.
 
     The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
 

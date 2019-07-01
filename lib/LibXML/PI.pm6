@@ -25,7 +25,7 @@ multi method setData(Str:D $string) {
 
 =head1 NAME
 
-XML::LibXML::PI - XML::LibXML Processing Instructions
+LibXML::PI - LibXML Processing Instructions
 
 =head1 SYNOPSIS
 

@@ -1,7 +1,7 @@
 NAME
 ====
 
-XML::LibXML::PI - XML::LibXML Processing Instructions
+LibXML::PI - LibXML Processing Instructions
 
 SYNOPSIS
 ========

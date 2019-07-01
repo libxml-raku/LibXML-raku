@@ -78,7 +78,7 @@ method setAttribute(QName:D $name, Str:D $value) {
             ## We set the namespace here.
             ## This is helpful, as in:
             ##
-            ## |  $e = XML::LibXML::Element.new: :name<foo:bar>;
+            ## |  $e = LibXML::Element.new: :name<foo:bar>;
             ## |  $e.setAttribute('xmlns:foo','http://yoyodine')
             ##
         }

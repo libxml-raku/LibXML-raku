@@ -888,7 +888,7 @@ find
 
 I<<<<<< find >>>>>> evaluates the XPath 1.0 expression using the current node as the context of the
 expression, and returns the result depending on what type of result the XPath
-expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< LibXML::Number >>>>>> object being returned. Other expressions might return an L<<<<<< LibXML::Boolean >>>>>> object, or an L<<<<<< LibXML::Literal >>>>>> object (a string). Each of those objects uses Perl's overload feature to "do
+expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< LibXML::Number >>>>>> object being returned. Other expressions might return an L<<<<<< Bool >>>>>> object, Numeric, or a L<<<<<< Str >>>>>> object. Each of those objects uses Perl's overload feature to "do
 the right thing" in different contexts.
 
 The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 

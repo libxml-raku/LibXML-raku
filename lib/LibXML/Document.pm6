@@ -346,7 +346,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
 =begin pod
 =head1 NAME
 
-XML::LibXML::Document - XML::LibXML DOM Document Class
+LibXML::Document - LibXML DOM Document Class
 
 =head1 SYNOPSIS
 

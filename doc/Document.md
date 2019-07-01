@@ -1,7 +1,7 @@
 NAME
 ====
 
-XML::LibXML::Document - XML::LibXML DOM Document Class
+LibXML::Document - LibXML DOM Document Class
 
 SYNOPSIS
 ========
