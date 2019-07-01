@@ -1,13 +1,3 @@
-### method keep
-
-```perl6
-method keep(
-    |c is raw
-) returns Mu
-```
-
-The native DOM returns the document fragment content as a nodelist; rather than the fragment itself
-
 NAME
 ====
 

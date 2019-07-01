@@ -321,7 +321,7 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.removeAttributeNS( $nsURI, $aname );
   $boolean = $node.hasAttribute( $aname );
   $boolean = $node.hasAttributeNS( $nsURI, $aname );
-  @nodes = $node.getChildrenByTagName($tagname);
+  my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
   @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
   @nodes = $node.getChildrenByLocalName($localname);
   @nodes = $node.getElementsByTagName($tagname);
@@ -476,19 +476,36 @@ returns True if the current node has any attributes set, otherwise False is retu
 =begin item1
 attributes
 
-  @attributelist = $node.attributes();
+  use LibXML::Element :AttrMap;
+  my AttrMap $atts = $node.attributes();
+
 
 This function returns all attributes and namespace declarations assigned to the
 given node.
 
-Because LibXML does not implement namespace declarations and attributes the
-same way, it is required to test what kind of node is handled while accessing
-the functions result.
+Unlike Perl 5, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
-If this function is called in array context the attribute nodes are returned as
-an array. In scalar context, the function will return a L<<<<<< LibXML::NamedNodeMap >>>>>> object.
+ See also:
+ =item the C<properties> method, which returns a list of L<LibXML::Attr> attributes.
+ =item the C<namespaces> method, which returns a list of L<LibXML::Namespace> namespaces.
 
 =end item1
+
+=begin item
+properties
+
+  my LibXML::Attr @props = $node.properties;
+
+returns a list of Attributes for the node.
+=end item
+
+=begin item
+namespaces
+
+  my LibXML::Namespace @ns = $node.namespaces;
+
+returns a list of Namespace declarations for the node.
+=end item
 
 =begin item1
 getChildrenByTagName

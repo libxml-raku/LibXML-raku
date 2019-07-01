@@ -65,7 +65,8 @@ new
 
   my LibXML::Attr $attr .= new($name [,$value]);
 
-Class constructor. If you need to work with ISO encoded strings, you should I<<<<<< always >>>>>> use the C<<<<<< createAttribute >>>>>> of L<<<<<< LibXML::Document >>>>>>.
+Class constructor.
+
 =end item
 
 =begin item
@@ -89,10 +90,10 @@ Alias for I<<<<<< getValue() >>>>>>
 setValue
 
   $attr.setValue( $string );
+  $attr.value = $string;
 
-This is needed to set a new attribute value. If ISO encoded strings are passed
-as parameter, the node has to be bound to a document, otherwise the encoding
-might be done incorrectly.
+This is needed to set a new attribute value.
+
 =end item
 
 =begin item

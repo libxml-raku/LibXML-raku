@@ -20,8 +20,8 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
     self.native = $doc-frag-struct;
 }
 
-#| The native DOM returns the document fragment content as
-#| a nodelist; rather than the fragment itself
+# The native DOM returns the document fragment content as
+# a nodelist; rather than the fragment itself
 method keep(|c) { LibXML::Node.box(|c) }
 my constant config = LibXML::Config;
 

@@ -36,7 +36,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         my LibXML::Attr $attr .= new($name [,$value]);
 
-    Class constructor. If you need to work with ISO encoded strings, you should *always * use the `createAttribute ` of [LibXML::Document ](LibXML::Document ).
+    Class constructor.
 
   * getValue
 
@@ -53,8 +53,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
   * setValue
 
         $attr.setValue( $string );
+        $attr.value = $string;
 
-    This is needed to set a new attribute value. If ISO encoded strings are passed as parameter, the node has to be bound to a document, otherwise the encoding might be done incorrectly.
+    This is needed to set a new attribute value.
 
   * getOwnerElement
 

@@ -30,7 +30,7 @@ Draft documents (So far)
 
   * [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
 
-  * [LibXML::CDATASection](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML class for DOM CDATA sections
+  * [LibXML::CDATASection](https://github.com/p6-xml/LibXML-p6/blob/master/doc/CDATASection.md) - LibXML class for DOM CDATA sections
 
   * [LibXML::Comment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
 

@@ -22,7 +22,7 @@ SYNOPSIS
     if $doc.standalone == XmlStandaloneYes {...}
     $doc.standalone = XmlStandaloneNo;
     my Int $ziplevel = $doc.compression; # zip-level or -1
-    $doc.setCompression($ziplevel);
+    $doc.compression = $ziplevel;
     my Str $html-tidy = $dom.Str(:$format, :$HTML);
     my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
     my Str $xml-tidy = $doc.serialize(:$format);
@@ -113,9 +113,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     Gets or sets the encoding of the document.
 
-      * * The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
+      * The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
 
-      * 8 The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
+      * The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
 
         my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
         print $doc.encoding; # prints ISO-8859-15
@@ -124,7 +124,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   *     actualEncoding
 
-      $strEncoding = $doc.actualEncoding();
+      my Str $enc = $doc.actualEncoding();
 
     returns the encoding in which the XML will be output by $doc.Blob() or $doc.write. This is usually the original encoding of the document as declared in the XML declaration and returned by $doc.encoding. If the original encoding is not known (e.g. if created in memory or parsed from a XML without a declared encoding), 'UTF-8' is returned.
 

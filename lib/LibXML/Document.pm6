@@ -368,7 +368,7 @@ LibXML::Document - LibXML DOM Document Class
   if $doc.standalone == XmlStandaloneYes {...}
   $doc.standalone = XmlStandaloneNo;
   my Int $ziplevel = $doc.compression; # zip-level or -1
-  $doc.setCompression($ziplevel);
+  $doc.compression = $ziplevel;
   my Str $html-tidy = $dom.Str(:$format, :$HTML);
   my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
   my Str $xml-tidy = $doc.serialize(:$format);
@@ -485,22 +485,21 @@ encoding
 
 Gets or sets the encoding of the document.
 
-=item * The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
-=item 8 The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
-
-
+=item The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
+=item The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
+  =begin code
   my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
   print $doc.encoding; # prints ISO-8859-15
   my $xml-with-entities = $doc.Str;
   'encoded.xml'.IO.spurt( $doc.Blob, :bin);
-
+  =end code
 =end item
 
 
 =begin item
   actualEncoding
 
-  $strEncoding = $doc.actualEncoding();
+  my Str $enc = $doc.actualEncoding();
 
 returns the encoding in which the XML will be output by $doc.Blob() or $doc.write.
 This is usually the original encoding of the document as declared in the XML

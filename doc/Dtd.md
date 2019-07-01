@@ -9,10 +9,10 @@ SYNOPSIS
     use LibXML;
 
     $dtd = LibXML::Dtd.new($public-id, $system-id);
-    $dtd = LibXML::Dtd.parse_string($dtd-str);
-    $publicId = $dtd.getName();
-    $publicId = $dtd.publicId();
-    $systemId = $dtd.systemId();
+    $dtd = LibXML::Dtd.parse: :string($dtd-str);
+    my Str $dtdName = $dtd.getName();
+    my Str $publicId = $dtd.publicId();
+    my Str $systemId = $dtd.systemId();
 
 DESCRIPTION
 ===========
@@ -48,7 +48,7 @@ METHODS
 
   * getName
 
-        my Str $publicId = $dtd.getName();
+        my Str $name = $dtd.getName();
 
     Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
 

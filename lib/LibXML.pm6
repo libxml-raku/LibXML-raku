@@ -70,7 +70,7 @@ Draft documents (So far)
 
 =item [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
 
-=item [LibXML::CDATASection](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML class for DOM CDATA sections
+=item [LibXML::CDATASection](https://github.com/p6-xml/LibXML-p6/blob/master/doc/CDATASection.md) - LibXML class for DOM CDATA sections
 
 =item [LibXML::Comment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
 
