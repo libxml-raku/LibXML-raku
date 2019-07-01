@@ -845,7 +845,6 @@ domInsertBefore( xmlNodePtr self,
         if ( refChild->parent != self
              || (  newChild->type == XML_DOCUMENT_FRAG_NODE
                    && newChild->children == NULL ) ) {
-            /* NOT_FOUND_ERR */
             xmlGenericError(xmlGenericErrorContext,"NOT_FOUND_ERR\n");
             return NULL;
         }
@@ -898,7 +897,6 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
 
     if ( self == NULL
          || newNode == NULL ) {
-        /* NOT_FOUND_ERROR */
         return NULL;
     }
 

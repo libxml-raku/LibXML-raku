@@ -188,7 +188,7 @@ subtest 'LibXML::PI' => {
 subtest 'XML::LibXML::Element' => {
     plan 1;
     use LibXML::Attr;
-    use LibXML::Element;
+    use LibXML::Element :AttrMap;
     use LibXML::Node;
     use LibXML::Document;
     my $name = 'test-elem';
@@ -216,6 +216,8 @@ subtest 'XML::LibXML::Element' => {
     $avalue = $node.getAttributeNS( $nsURI, $aname );
     $attrnode = $node.getAttributeNode( $aname );
     $attrnode = $node.getAttributeNodeNS( $nsURI, $aname );
+    my AttrMap $attrs = $node.attributes();
+    my LibXML::Attr @props = $node.properties();
     $node.removeAttribute( $aname );
     $node.removeAttributeNS( $nsURI, $aname );
     $boolean = $node.hasAttribute( $aname );
@@ -239,6 +241,7 @@ subtest 'XML::LibXML::Element' => {
 subtest 'LibXML::Namespace' => {
     plan 13;
     use LibXML::Namespace;
+    use LibXML::Attr;
     my $URI = 'http://test.org';
     my $prefix = 'tst';
     my LibXML::Namespace $ns .= new: :$URI, :$prefix;
@@ -262,7 +265,7 @@ subtest 'LibXML::Namespace' => {
 };
 
 subtest 'LibXML::Node' => {
-    plan 2;
+    plan 1;
     use LibXML::Node;
     use LibXML::Element;
     use LibXML::Namespace;
@@ -271,9 +274,9 @@ subtest 'LibXML::Node' => {
     my LibXML::Element $node       .= new: :name<Alice>;
     my LibXML::Element $other-node .= new: :name<Xxxx>;
     my LibXML::Element $childNode  .= new: :name<Bambi>;
-    my LibXML::Element $newNode    .= new: :name<New>;
+    my LibXML::Element $newNode    .= new: :name<NewNode>;
     my LibXML::Element $oldNode     = $childNode;
-    my LibXML::Element $refNode     = $childNode;
+    my LibXML::Element $refNode    .= new: :name<RefNode>;
     my LibXML::Element $parent     .= new: :name<Parent>;
     $node.addChild($childNode);
     my Str $nsURI = 'http://ns.org';
@@ -301,26 +304,31 @@ subtest 'LibXML::Node' => {
     $node.addSibling($newNode);
     $newNode = $node.cloneNode( :deep );
     $parent = $node.parentNode;
-    my LibXML::Element $next = $node.nextSibling();
+    my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
-    my LibXML::Element $prev = $node.previousSibling();
+    my LibXML::Node $prev = $node.previousSibling();
     $prev = $node.previousNonBlankSibling();
     my Bool $is-parent = $node.hasChildNodes();
     $child = $node.firstChild;
     $child = $node.lastChild;
     my LibXML::Document $doc = $node.ownerDocument;
-    $node = $node.getOwner;
+    $doc = $node.getOwner;
+    $doc .= new;
     $node.setOwnerDocument( $doc );
+    $node.ownerDocument = $doc;
+    ok $node.ownerDocument.isSameNode($doc);
+    $doc.documentElement = $node;
+    $node.appendChild($refNode);
     $node.insertBefore( $newNode, $refNode );
     $node.insertAfter( $newNode, $refNode );
-    my LibXML::Element @kids = $node.findnodes( $xpath-expression );
+    my LibXML::Node @kids = $node.findnodes( $xpath-expression );
     my LibXML::Node::Set $result = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );
     @kids = $node.childNodes();
     @kids = $node.nonBlankChildNodes();
-    my Str $xml = $node.Str(:format, :$enc);
-    my Str $xml-c14n = $node.Str: :C14N;
+    my Str $xml = $node.Str(:format);
+    my Str $xml-c14n = $doc.Str: :C14N;
     $xml-c14n = $node.Str: :C14N, :comments, :xpath($xpath-expression);
     $xml-c14n = $node.Str: :C14N, :xpath($xpath-expression), :exclusive;
     $xml-c14n = $node.Str: :C14N, :v(v1.1);
@@ -329,7 +337,6 @@ subtest 'LibXML::Node' => {
     my Str $prefix = $node.prefix;
     my Str $uri = $node.namespaceURI();
     my Bool $has-atts = $node.hasAttributes();
-    my LibXML::Attr @attrs = $node.attributes();
     $uri = $node.lookupNamespaceURI( $prefix );
     $prefix = $node.lookupNamespacePrefix( $uri );
     $node.normalize;

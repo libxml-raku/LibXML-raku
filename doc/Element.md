@@ -6,7 +6,7 @@ LibXML::Element - LibXML Class for Element Nodes
 SYNOPSIS
 ========
 
-    use LibXML;
+    use LibXML::Element :AttrMap;
     # Only methods specific to Element nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
@@ -17,6 +17,9 @@ SYNOPSIS
     $avalue = $node.getAttributeNS( $nsURI, $aname );
     $attrnode = $node.getAttributeNode( $aname );
     $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
+    my Bool $has-atts = $node.hasAttributes();
+    my AttrMap $attrs = $node.attributes();
+    my LibXML::Attr @props = $node.properties();
     $node.removeAttribute( $aname );
     $node.removeAttributeNS( $nsURI, $aname );
     $boolean = $node.hasAttribute( $aname );
@@ -104,15 +107,31 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * hasAttribute
 
-        my Bool $yup = $node.hasAttribute( $aname );
+        my Bool $has-this-att = $node.hasAttribute( $aname );
 
     This function tests if the named attribute is set for the node. If the attribute is specified, True will be returned, otherwise the return value is False.
 
   * hasAttributeNS
 
-        my Bool $yup = $node.hasAttributeNS( $nsURI, $aname );
+        my Bool $has-this-att = $node.hasAttributeNS( $nsURI, $aname );
 
     namespace version of `hasAttribute `
+
+  * hasAttributes
+
+        my Bool $has-any-atts = $node.hasAttributes();
+
+    returns True if the current node has any attributes set, otherwise False is returned.
+
+  * attributes
+
+        @attributelist = $node.attributes();
+
+    This function returns all attributes and namespace declarations assigned to the given node.
+
+    Because LibXML does not implement namespace declarations and attributes the same way, it is required to test what kind of node is handled while accessing the functions result.
+
+    If this function is called in array context the attribute nodes are returned as an array. In scalar context, the function will return a [LibXML::NamedNodeMap ](LibXML::NamedNodeMap ) object.
 
   * getChildrenByTagName
 

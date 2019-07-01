@@ -59,12 +59,12 @@ method namespaces {
 
 method !get-attributes {
 
-    class AttrMap {...}
+    class AttrMap is export(:AttrMap) {...}
     class AttrMapNs does Associative {
         trusts AttrMap;
         has LibXML::Node $.node;
         has Str:D $.uri is required;
-        has LibXML::Attr:D %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
+        has LibXML::Attr:D %!store handles <EXISTS-KEY Numeric keys pairs kv elems list List>;
 
         method !unlink(Str:D $key) {
             $!node.removeChild($_)
@@ -80,7 +80,7 @@ method !get-attributes {
         }
 
         multi method ASSIGN-KEY(Str() $name, Str() $val) {
-            self!store($name,  $!node.setAttributeNS($!uri, $name, $val));
+            self!store($name, $!node.setAttributeNS($!uri, $name, $val));
         }
 
         method BIND-KEY(Str() $name, Str() $val) {
@@ -178,14 +178,16 @@ method !get-attributes {
         method !tie-att(LibXML::Attr:D $att, Bool :$add = True) {
             my Str:D $name = $att.native.getNodeName;
             my Str $uri;
-            my ($prefix,$local-name) = $name.split(':', 2);
+            my ($prefix, $local-name) = $name.split(':', 2);
 
             if $local-name {
-                %!ns{$prefix} = $!node.doc.native.SearchNs($!node.native, $prefix)
-                    unless %!ns{$prefix}:exists;
+                with $!node.doc {
+                    %!ns{$prefix} = .native.SearchNs($!node.native, $prefix)
+                        unless %!ns{$prefix}:exists;
 
-                with %!ns{$prefix} -> $ns {
-                    $uri = $ns.href;
+                    with %!ns{$prefix} -> $ns {
+                        $uri = $ns.href;
+                    }
                 }
             }
 
@@ -301,7 +303,7 @@ LibXML::Element - LibXML Class for Element Nodes
 
 
 
-  use LibXML;
+  use LibXML::Element :AttrMap;
   # Only methods specific to Element nodes are listed here,
   # see the LibXML::Node manpage for other methods
 
@@ -312,6 +314,9 @@ LibXML::Element - LibXML Class for Element Nodes
   $avalue = $node.getAttributeNS( $nsURI, $aname );
   $attrnode = $node.getAttributeNode( $aname );
   $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
+  my Bool $has-atts = $node.hasAttributes();
+  my AttrMap $attrs = $node.attributes();
+  my LibXML::Attr @props = $node.properties();
   $node.removeAttribute( $aname );
   $node.removeAttributeNS( $nsURI, $aname );
   $boolean = $node.hasAttribute( $aname );
@@ -442,7 +447,7 @@ Namespace version of C<<<<<< removeAttribute >>>>>>
 =begin item1
 hasAttribute
 
-  my Bool $yup = $node.hasAttribute( $aname );
+  my Bool $has-this-att = $node.hasAttribute( $aname );
 
 This function tests if the named attribute is set for the node. If the
 attribute is specified, True will be returned, otherwise the return value
@@ -453,9 +458,35 @@ is False.
 =begin item1
 hasAttributeNS
 
-  my Bool $yup = $node.hasAttributeNS( $nsURI, $aname );
+  my Bool $has-this-att = $node.hasAttributeNS( $nsURI, $aname );
 
 namespace version of C<<<<<< hasAttribute >>>>>>
+
+=end item1
+
+=begin item1
+hasAttributes
+
+  my Bool $has-any-atts = $node.hasAttributes();
+
+returns True if the current node has any attributes set, otherwise False is returned.
+
+=end item1
+
+=begin item1
+attributes
+
+  @attributelist = $node.attributes();
+
+This function returns all attributes and namespace declarations assigned to the
+given node.
+
+Because LibXML does not implement namespace declarations and attributes the
+same way, it is required to test what kind of node is handled while accessing
+the functions result.
+
+If this function is called in array context the attribute nodes are returned as
+an array. In scalar context, the function will return a L<<<<<< LibXML::NamedNodeMap >>>>>> object.
 
 =end item1
 

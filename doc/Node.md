@@ -11,7 +11,6 @@ SYNOPSIS
     my Str $name = $node.nodeName;
     $node.nodeName = $newName;
     my Bool $same = $node.isSameNode( $other_node );
-    $same = $node.isEqual( $other_node );
     my Str $key = $node.unique-key;
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
@@ -26,23 +25,23 @@ SYNOPSIS
     $node.addSibling($newNode);
     $newnode = $node.cloneNode( :deep );
     $parent = $node.parentNode;
-    my LibXML::Element $next = $node.nextSibling();
+    my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
-    my LibXML::Element $prev = $node.previousSibling();
+    my LibXML::Node $prev = $node.previousSibling();
     $prev = $node.previousNonBlankSibling();
     my Bool $is-parent = $node.hasChildNodes();
     $child = $node.firstChild;
     $child = $node.lastChild;
     my LibXML::Document $doc = $node.ownerDocument;
-    $node = $node.getOwner;
-    $node.setOwnerDocument( $doc );
+    $doc = $node.getOwner;
+    $node.ownerDocument = $doc;
     $node.insertBefore( $newNode, $refNode );
     $node.insertAfter( $newNode, $refNode );
     @nodes = $node.findnodes( $xpath-expression );
     my LibXML::Node::Set $result = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );
-    my LibXML::Element @kids = $node.childNodes();
+    my LibXML::Node @kids = $node.childNodes();
     @kids = $node.nonBlankChildNodes();
     my Str $xml = $node.Str(:format, :$enc);
     my Str $xml-c14 = $node.Str: :C14N;
@@ -53,15 +52,13 @@ SYNOPSIS
     my Str $localname = $node.localname;
     my Str $prefix = $node.prefix;
     my Str $uri = $node.namespaceURI();
-    my Bool $has-atts = $node.hasAttributes();
-    my LibXML::Attr @attrs = $node.attributes();
     $uri = $node.lookupNamespaceURI( $prefix );
     $prefix = $node.lookupNamespacePrefix( $URI );
     $node.normalize;
     my LibXML::Namespace @ns = $node.getNamespaces;
     $node.removeChildNodes();
     $uri = $node.baseURI();
-    $node.setBaseURI($uri);
+    $node.baseURI = $uri;
     $node.nodePath();
     my UInt $lineno = $node.line-number();
 
@@ -77,7 +74,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * nodeName
 
-        $name = $node.nodeName;
+        my Str $name = $node.nodeName;
 
     Returns the node's name. This function is aware of namespaces and returns the full name of the current node (`prefix:localname `). 
 
@@ -86,26 +83,19 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
   * setNodeName
 
         $node.setNodeName( $newName );
+        $node.nodeName = $newName;
 
     In very limited situations, it is useful to change a nodes name. In the DOM specification this should throw an error. This Function is aware of namespaces.
 
   * isSameNode
 
-        $bool = $node.isSameNode( $other_node );
+        my Bool $is-same = $node.isSameNode( $other_node );
 
-    returns TRUE (1) if the given nodes refer to the same node structure, otherwise FALSE (0) is returned.
+    returns True if the given nodes refer to the same node structure, otherwise False is returned.
 
-  * isEqual
+  * unique-key
 
-        $bool = $node.isEqual( $other_node );
-
-    deprecated version of isSameNode().
-
-    *NOTE * isEqual will change behaviour to follow the DOM specification
-
-  * unique_key
-
-        $num = $node.unique_key;
+        my Str $key = $node.unique-key;
 
     This function is not specified for any DOM level. It returns a key guaranteed to be unique for this node, and to always be the same value for this node. In other words, two node objects return the same key if and only if isSameNode indicates that they are the same node.
 
@@ -113,7 +103,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * nodeValue
 
-        $content = $node.nodeValue;
+        my Str $content = $node.nodeValue;
 
     If the node has any content (such as stored in a `text node `) it can get requested through this function.
 
@@ -121,13 +111,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * textContent
 
-        $content = $node.textContent;
+        my Str $content = $node.textContent;
 
     this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
 
   * nodeType
 
-        $type = $node.nodeType;
+        my UInt $type = $node.nodeType;
 
     Return a numeric value representing the node type of this node. The module LibXML by default exports constants for the node types (see the EXPORT section in the [LibXML ](LibXML ) manual page).
 
@@ -139,7 +129,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * removeChild
 
-        $childnode = $node.removeChild( $childnode );
+        my LibXML::Node $child = $node.removeChild( $node );
 
     This will unbind the Child Node from its parent `$node `. The function returns the unbound node. If `oldNode ` is not a child of the given Node the function will fail.
 
@@ -165,20 +155,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $childnode = $node.addChild( $childnode );
 
-    As an alternative to appendChild() one can use the addChild() function. This function is a bit faster, because it avoids all DOM conformity checks. Therefore this function is quite useful if one builds XML documents in memory where the order and ownership (`ownerDocument `) is assured.
-
-    addChild() uses libxml2's own xmlAddChild() function. Thus it has to be used with extra care: If a text node is added to a node and the node itself or its last childnode is as well a text node, the node to add will be merged with the one already available. The current node will be removed from memory after this action. Because perl is not aware of this action, the perl instance is still available. LibXML will catch the loss of a node and refuse to run any function called on that node.
-
-        my $t1 = $doc.createTextNode( "foo" );
-         my $t2 = $doc.createTextNode( "bar" );
-         $t1.addChild( $t2 );       # is OK
-         my $val = $t2.nodeValue(); # will fail, script dies
-
-    Also addChild() will not check if the added node belongs to the same document as the node it will be added to. This could lead to inconsistent documents and in more worse cases even to memory violations, if one does not keep track of this issue.
-
-    Although this sounds like a lot of trouble, addChild() is useful if a document is built from a stream, such as happens sometimes in SAX handlers or filters.
-
-    If you are not sure about the source of your nodes, you better stay with appendChild(), because this function is more user friendly in the sense of being more error tolerant.
+    This is alias for appendChild (unlike Perl 5 which binds this to xmlAddChild()).
 
   * addNewChild
 
@@ -200,7 +177,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * cloneNode
 
-        $newnode =$node.cloneNode( $deep );
+        $newnode = $node.cloneNode( $deep );
 
     *cloneNode * creates a copy of `$node `. When $deep is set to 1 (true) the function will copy all child nodes as well. If $deep is 0 only the current node will be copied. Note that in case of element, attributes are copied even if $deep is 0. 
 
@@ -208,67 +185,68 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * parentNode
 
-        $parentnode = $node.parentNode;
+        my LibXML::Node $parent = $node.parentNode;
 
     Returns simply the Parent Node of the current node.
 
   * nextSibling
 
-        $nextnode = $node.nextSibling();
+        my LibXML::Node $next = $node.nextSibling();
 
     Returns the next sibling if any .
 
   * nextNonBlankSibling
 
-        $nextnode = $node.nextNonBlankSibling();
+        my LibXML::Node $next = $node.nextNonBlankSibling();
 
     Returns the next non-blank sibling if any (a node is blank if it is a Text or CDATA node consisting of whitespace only). This method is not defined by DOM.
 
   * previousSibling
 
-        $prevnode = $node.previousSibling();
+        my LibXML::Node $prev = $node.previousSibling();
 
     Analogous to *getNextSibling * the function returns the previous sibling if any.
 
   * previousNonBlankSibling
 
-        $prevnode = $node.previousNonBlankSibling();
+        my LibXML::Node $prev = $node.previousNonBlankSibling();
 
     Returns the previous non-blank sibling if any (a node is blank if it is a Text or CDATA node consisting of whitespace only). This method is not defined by DOM.
 
   * hasChildNodes
 
-        $boolean = $node.hasChildNodes();
+        my Bool $has-kids = $node.hasChildNodes();
 
-    If the current node has child nodes this function returns TRUE (1), otherwise it returns FALSE (0, not undef).
+    If the current node has child nodes this function returns True, otherwise it returns False.
 
   * firstChild
 
-        $childnode = $node.firstChild;
+        my LibXML::Node $child = $node.firstChild;
 
     If a node has child nodes this function will return the first node in the child list.
 
   * lastChild
 
-        $childnode = $node.lastChild;
+        my LibXML::Node $child = $node.lastChild;
 
     If the `$node ` has child nodes this function returns the last child node.
 
   * ownerDocument
 
-        $documentnode = $node.ownerDocument;
+        my LibXML::Document $doc = $node.ownerDocument;
 
     Through this function it is always possible to access the document the current node is bound to.
 
   * getOwner
 
-        $node = $node.getOwner;
+        my LibXML::Node $owner = $node.getOwner;
 
     This function returns the node the current node is associated with. In most cases this will be a document node or a document fragment node.
 
   * setOwnerDocument
 
         $node.setOwnerDocument( $doc );
+        $node.ownerDocument = doc;
 
     This function binds a node to another DOM. This method unbinds the node first, if it is already bound to another document.
 
@@ -297,7 +275,8 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * findnodes
 
-        @nodes = $node.findnodes( $xpath_expression );
+        my LibXML::Node @nodes = $node.findnodes( $xpath-expression );
+        my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression );
 
     *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In scalar context, returns an [LibXML::NodeList ](LibXML::NodeList ) object.
 
@@ -315,7 +294,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         my $xpc = LibXML::XPathContext.new;
         $xpc.registerNs('x', 'http://www.w3.org/1999/xhtml');
-        $xpc.find('/x:html',$node);
+        $xpc.find('/x:html', $node);
 
         * * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML ` allows you to use the prefix in the XPath expression, e.g.: 
 
@@ -339,7 +318,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     *findvalue * is exactly equivalent to:
 
-        $node.find( $xpath ).to_literal;
+        $node.find( $xpath ).to-literal;
 
     That is, it returns the literal value of the results. This enables you to ensure that you get a string back from your search, allowing certain shortcuts. This could be used as the equivalent of XSLT's <xsl:value-of select="some_xpath"/>.
 
@@ -349,7 +328,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * exists
 
-        $bool = $node.exists( $xpath_expression );
+        my Bool $found = $node.exists( $xpath_expression );
 
     This method behaves like *findnodes *, except that it only returns a boolean value (1 if the expression matches a node, 0 otherwise) and may be faster than *findnodes *, because the XPath evaluation may stop early on the first match (this is true for libxml2 >= 2.6.27). 
 
@@ -357,34 +336,36 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * childNodes
 
-        @childnodes = $node.childNodes();
+        my LibXML::Node @kids = $node.childNodes();
+        my LibXML::Node::List $kids = $node.childNodes();
 
     *childNodes * implements a more intuitive interface to the childnodes of the current node. It enables you to pass all children directly to a `map ` or `grep `. If this function is called in scalar context, a [LibXML::NodeList ](LibXML::NodeList ) object will be returned.
 
   * nonBlankChildNodes
 
-        @childnodes = $node.nonBlankChildNodes();
+        my LibXML::Node @kids = $node.nonBlankChildNodes();
+        my LibXML::Node::List $kids = $node.nonBlankChildNodes();
 
     This is like *childNodes *, but returns only non-blank nodes (where a node is blank if it is a Text or CDATA node consisting of whitespace only). This method is not defined by DOM.
 
-  * toString
+  * Str
 
-        $xmlstring = $node.toString($format,$docencoding);
+        my Str $xml = $node.String(:format);
 
-    This method is similar to the method `toString ` of a [LibXML::Document ](LibXML::Document ) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants. Unlike `LibXML::Document::toString `, in this case the resulting string is by default a character string (UTF-8 encoded with UTF8 flag on). An optional flag $format controls indentation, as in `LibXML::Document::toString `. If the second optional $docencoding flag is true, the result will be a byte string in the document encoding (see `LibXML::Document::actualEncoding `).
+    This method is similar to the method `Str ` of a [LibXML::Document ](LibXML::Document ) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants. Unlike `LibXML::Document::Str `.
 
-  * toStringC14N
+  * Str: :C14N
 
-        $c14nstring = $node.toStringC14N();
-        $c14nstring = $node.toStringC14N($with_comments, $xpath_expression , $xpath_context);
+        my Str $xml-c14 = $node.Str: :C14N;
+        $c14nstring = $node.String, :C14N, :comments, :xpath($xpath-expression);
 
-    The function is similar to toString(). Instead of simply serializing the document tree, it transforms it as it is specified in the XML-C14N Specification (see [http://www.w3.org/TR/xml-c14n ](http://www.w3.org/TR/xml-c14n )). Such transformation is known as canonization.
+    The function is similar to Str(). Instead of simply serializing the document tree, it transforms it as it is specified in the XML-C14N Specification (see [http://www.w3.org/TR/xml-c14n ](http://www.w3.org/TR/xml-c14n )). Such transformation is known as canonization.
 
-    If $with_comments is 0 or not defined, the result-document will not contain any comments that exist in the original document. To include comments into the canonized document, $with_comments has to be set to 1.
+    If :$comments is False or not specified, the result-document will not contain any comments that exist in the original document. To include comments into the canonized document, :$comments has to be set to True.
 
-    The parameter $xpath_expression defines the nodeset of nodes that should be visible in the resulting document. This can be used to filter out some nodes. One has to note, that only the nodes that are part of the nodeset, will be included into the result-document. Their child-nodes will not exist in the resulting document, unless they are part of the nodeset defined by the xpath expression. 
+    The parameter :$xpath defines the nodeset of nodes that should be visible in the resulting document. This can be used to filter out some nodes. One has to note, that only the nodes that are part of the nodeset, will be included into the result-document. Their child-nodes will not exist in the resulting document, unless they are part of the nodeset defined by the xpath expression. 
 
-    If $xpath_expression is omitted or empty, toStringC14N() will include all nodes in the given sub-tree, using the following XPath expressions: with comments 
+    If :$xpath is omitted or empty, Str: :C14N will include all nodes in the given sub-tree, using the following XPath expressions: with comments 
 
         (. | .//node() | .//@* | .//namespace::*)
 
@@ -392,72 +373,55 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         (. | .//node() | .//@* | .//namespace::*)[not(self::comment())]
 
-    An optional parameter $xpath_context can be used to pass an [LibXML::XPathContext ](LibXML::XPathContext ) object defining the context for evaluation of $xpath_expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of $xpath_context! 
+    An optional parameter :$selector can be used to pass an [LibXML::XPathContext ](LibXML::XPathContext ) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector. 
 
-  * toStringC14N_v1_1
+  * Str: :C14N, :v(v1.1)
 
-        $c14nstring = $node.toStringC14N_v1_1();
-        $c14nstring = $node.toStringC14N_v1_1($with_comments, $xpath_expression , $xpath_context);
+        $c14nstring = $node.Str: :C14N, :v(v1.1);
+        $c14nstring = $node.String: :C14N, :v(v1.1), :comments, :xpath($expression) , :selector($context);
 
-    This function behaves like toStringC14N() except that it uses the "XML_C14N_1_1" constant for canonicalising using the "C14N 1.1 spec". 
+    This function behaves like Str: :C14N except that it uses the "XML_C14N_1_1" constant for canonicalising using the "C14N 1.1 spec". 
 
-  * toStringEC14N
+  * Str: :C14N, :exclusive
 
-        $ec14nstring = $node.toStringEC14N();
-        $ec14nstring = $node.toStringEC14N($with_comments, $xpath_expression, $inclusive_prefix_list);
-        $ec14nstring = $node.toStringEC14N($with_comments, $xpath_expression, $xpath_context, $inclusive_prefix_list);
+        $ec14nstring = $node.Str: :C14N, :exclusive;
+        $ec14nstring = $node.Str: :C14N, :exclusive, :$comments, :xpath($expression), :prefix(@inclusive-list);
 
-    The function is similar to toStringC14N() but follows the XML-EXC-C14N Specification (see [http://www.w3.org/TR/xml-exc-c14n ](http://www.w3.org/TR/xml-exc-c14n )) for exclusive canonization of XML.
+    The function is similar to Str: :C14N but follows the XML-EXC-C14N Specification (see [http://www.w3.org/TR/xml-exc-c14n ](http://www.w3.org/TR/xml-exc-c14n )) for exclusive canonization of XML.
 
-    The arguments $with_comments, $xpath_expression, $xpath_context are as in toStringC14N(). An ARRAY reference can be passed as the last argument $inclusive_prefix_list, listing namespace prefixes that are to be handled in the manner described by the Canonical XML Recommendation (i.e. preserved in the output even if the namespace is not used). C.f. the spec for details. 
+    The arguments :comments, :$xpath, :$selector are as in Str: :C14N. :@prefix is a list of namespace prefixes that are to be handled in the manner described by the Canonical XML Recommendation (i.e. preserved in the output even if the namespace is not used). C.f. the spec for details. 
 
   * serialize
 
-        $str = $doc.serialize($format);
+        my Str $xml = $doc.serialize($format);
 
-    An alias for toString(). This function was name added to be more consistent with libxml2.
+    An alias for Str. This function was name added to be more consistent with libxml2.
 
-  * serialize_c14n
+  * serialize-c14n
 
-    An alias for toStringC14N().
+    An alias for Str: :C14N.
 
-  * serialize_exc_c14n
+  * serialize-exc-c14n
 
-    An alias for toStringEC14N().
+    An alias for Str: :C14N, :exclusive
 
   * localname
 
-        $localname = $node.localname;
+        my Str $localname = $node.localname;
 
     Returns the local name of a tag. This is the part behind the colon.
 
   * prefix
 
-        $nameprefix = $node.prefix;
+        my Str $prefix = $node.prefix;
 
     Returns the prefix of a tag. This is the part before the colon.
 
   * namespaceURI
 
-        $uri = $node.namespaceURI();
+        my Str $uri = $node.namespaceURI();
 
     returns the URI of the current namespace.
-
-  * hasAttributes
-
-        $boolean = $node.hasAttributes();
-
-    returns 1 (TRUE) if the current node has any attributes set, otherwise 0 (FALSE) is returned.
-
-  * attributes
-
-        @attributelist = $node.attributes();
-
-    This function returns all attributes and namespace declarations assigned to the given node.
-
-    Because LibXML does not implement namespace declarations and attributes the same way, it is required to test what kind of node is handled while accessing the functions result.
-
-    If this function is called in array context the attribute nodes are returned as an array. In scalar context, the function will return a [LibXML::NamedNodeMap ](LibXML::NamedNodeMap ) object.
 
   * lookupNamespaceURI
 
@@ -481,7 +445,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * getNamespaces
 
-        @nslist = $node.getNamespaces;
+        my LibXML::Namespace @ns = $node.getNamespaces;
 
     If a node has any namespaces defined, this function will return these namespaces. Note, that this will not return all namespaces that are in scope, but only the ones declared explicitly for that node.
 
@@ -495,13 +459,14 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * baseURI ()
 
-        $strURI = $node.baseURI();
+        my Str $URI = $node.baseURI();
 
     Searches for the base URL of the node. The method should work on both XML and HTML documents even if base mechanisms for these are completely different. It returns the base as defined in RFC 2396 sections "5.1.1. Base URI within Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However it does not return the document base (5.1.3), use method `URI ` of `LibXML::Document ` for this. 
 
-  * setBaseURI ($strURI)
+  * setBaseURI ($URI)
 
-        $node.setBaseURI($strURI);
+        $node.setBaseURI($URI);
+        $node.baseURI = $URI;
 
     This method only does something useful for an element node in an XML document. It sets the xml:base attribute on the node to $strURI, which effectively sets the base URI of the node to the same value. 
 
@@ -509,21 +474,21 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * nodePath
 
-        $node.nodePath();
+        my Str $path = $node.nodePath();
 
     This function is not specified for any DOM level: It returns a canonical structure based XPath for a given node.
 
   * line_number
 
-        $lineno = $node.line_number();
+        my Uint $lineno = $node.line-number();
 
     This function returns the line number where the tag was found during parsing. If a node is added to the document the line number is 0. Problems may occur, if a node from one document is passed to another one.
 
     IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533 ](http://bugzilla.gnome.org/show_bug.cgi?id=325533 ) for more details. 
 
-    Note: line_number() is special to LibXML and not part of the DOM specification.
+    Note: linenumber() is special to LibXML and not part of the DOM specification.
 
-    If the line_numbers flag of the parser was not activated before parsing, line_number() will always return 0.
+    If the line-numbers flag of the parser was not activated before parsing, line-number() will always return 0.
 
 AUTHORS
 =======

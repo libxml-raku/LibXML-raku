@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 177;
+plan 175;
 
 use LibXML;
 use LibXML::Enums;
@@ -342,10 +342,8 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         ok(@cn2[*-2].isSameNode($node1), ' TODO : Add test name');
 
-        ok $node.domCheck, 'domCheck';
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
-        ok $node.domCheck, 'domCheck';
         @cn2 = $node.childNodes;
         # TEST
         is(+@cn2, 5, ' TODO : Add test name');

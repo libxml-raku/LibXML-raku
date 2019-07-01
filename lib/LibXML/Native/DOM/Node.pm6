@@ -218,17 +218,17 @@ method removeChild(Node:D $child) {
 
 method replaceChild(Node $child, Node $old) {
     self.domReplaceChild($child, $old)
-        // self.dom-error;
+        // self.dom-error // Node;
 }
 
 method addSibling(Node $new) {
     self.domAddSibling($new)
-        // self.dom-error;
+        // self.dom-error // Node;
 }
 
 method replaceNode(Node $new) {
     self.domReplaceNode($new)
-        // self.dom-error;
+        // self.dom-error // Node;
 }
 
 method !descendants(Str:D $expr = '') {
@@ -276,12 +276,12 @@ method getChildrenByTagNameNS(Str $URI, Str $name) {
 
 method insertBefore(Node:D $nNode, Node $oNode) {
     self.domInsertBefore($nNode, $oNode)
-        // self.dom-error;
+        // self.dom-error // Node;
 }
 
 method insertAfter(Node:D $nNode, Node $oNode) {
     self.domInsertAfter($nNode, $oNode)
-        // self.dom-error;
+        // self.dom-error // Node;
 }
 
 method cloneNode(Bool:D $deep) {
@@ -342,10 +342,10 @@ method addNewChild(Str $uri, QName $name) {
 
 method normalize { self.domNormalize }
 
-sub addr($d) { (+nativecast(Pointer, $_) with $d) // 0  }
+method unique-key { ((+nativecast(Pointer, $_) with self) // 0).fmt: "%x"  }
 
 method isSameNode(Node $oNode) {
-    addr(self) ~~ addr($oNode);
+    self.unique-key eq $oNode.unique-key;
 }
 
 sub oops($node, Bool $ok is rw, @path, Str:D $msg) {
@@ -367,7 +367,7 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
     return (self.type == XML_ENTITY_DECL
             ?? $ok
             !! oops(self, $ok, @path, "duplicate node"))
-        if %seen{addr(self)}++;
+        if %seen{self.unique-key}++;
 
     my Node $last;
     my Node $kid = self.children;
@@ -377,9 +377,9 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
     my %kids-seen;
     while $kid.defined {
         oops($kid, $ok, @subpath, "inconsistant parent link (" ~ self.type ~ ')')
-            if addr($kid.parent) !~~ addr(self)
+            if $kid.parent.unique-key ne self.unique-key
             && $kid.type != XML_ENTITY_DECL;
-        if %kids-seen{addr($kid)}++ {
+        if %kids-seen{$kid.unique-key}++ {
             oops($kid, $ok, @subpath, "cycle detected in sibling links");
             last;
         }
@@ -393,23 +393,16 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
         @subpath.tail++;
         with $next {
             oops($_, $ok, @subpath, "inconsistant prev link")
-                unless addr(.prev) == addr($kid);
+                unless .prev.uninque.key eq $kid.unique-key;
         }
         $last = $kid;
         $kid = $next;
     }
 
     oops(self, $ok, @path, "wrong last link {self.last.Str} => {$last.Str}")
-        unless addr(self.last) ~~ addr($last)
+        unless self.last.unique-key eq $last.unique-key
         || $last.type == XML_ENTITY_DECL;
 
     $ok
-}
-
-method baseURI is rw {
-    Proxy.new(
-        FETCH => sub ($) { self.GetBase },
-        STORE => sub ($, Str() $uri) { self.SetBase($uri) }
-    );
 }
 
