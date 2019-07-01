@@ -135,7 +135,7 @@ DLLEXPORT xmlChar* xml6_node_to_str(xmlNodePtr self, int options) {
 }
 
 
-DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int exclusive, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist) {
+DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments,  xmlC14NMode mode, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist) {
     xmlChar *rv = NULL;
     int stat;
 
@@ -145,7 +145,7 @@ DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments, int excl
 
     stat = xmlC14NDocDumpMemory( self->doc,
                                  nodelist,
-                                 exclusive,
+                                 mode,
                                  inc_prefix_list,
                                  comments,
                                  &rv );

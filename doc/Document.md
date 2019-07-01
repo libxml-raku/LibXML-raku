@@ -10,54 +10,56 @@ SYNOPSIS
     # Only methods specific to Document nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
-    my LibXML::Document $dom  .= new: :$version, :$enc;
-    my LibXML::Document $dom2 .= createDocument($version, $enc);
-    $strURI = $doc.URI();
-    $doc.setURI($strURI);
+    my LibXML::Document $doc  .= new: :$version, :$enc;
+    my LibXML::Document $doc2 .= createDocument($version, $enc);
+    my Str $URI = $doc.URI();
+    $doc.setURI($URI);
     my Str $enc = $doc.encoding();
     $enc = $doc.actualEncoding();
     $doc.encoding = $new-encoding;
-    my Version $v = $doc.version();
-    $doc.standalone;
-    $doc.standalone = $numvalue;
-    my $compression = $doc.compression;
+    my Version $doc-version = $doc.version();
+    use LibXML::Document :XmlStandalone;
+    if $doc.standalone == XmlStandaloneYes {...}
+    $doc.standalone = XmlStandaloneNo;
+    my Int $ziplevel = $doc.compression; # zip-level or -1
     $doc.setCompression($ziplevel);
-    $docstring = $dom.Str(:$format, :$HTML);
-    $c14nstr = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
-    $str = $doc.serialize(:$format);
-    $state = $doc.write: :io($filename), :$format;
+    my Str $html-tidy = $dom.Str(:$format, :$HTML);
+    my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
+    my Str $xml-tidy = $doc.serialize(:$format);
+    my Int $state = $doc.write: :io($filename), :$format;
     $state = $doc.write: :io($fh), :$format;
-    $str = $document.Str(:HTML);
-    $str = $document.serialize-html();
-    $bool = $dom.is_valid();
-    $dom.validate();
-    $root = $dom.documentElement();
+    my Str $html = $doc.Str(:HTML);
+    $html = $doc.serialize-html();
+    my Bool $looks-ok = $dom.is-valid();
+    try { $dom.validate(); }
+
+    my LibXML::Element $root = $dom.documentElement();
     $dom.documentElement = $root;
-    $element = $dom.createElement( $nodename );
+    my LibXML::Element $element = $dom.createElement( $nodename );
     $element = $dom.createElementNS( $namespaceURI, $nodename );
-    $text = $dom.createTextNode( $content_text );
-    $comment = $dom.createComment( $comment_text );
-    $attrnode = $doc.createAttribute($name [,$value]);
-    $attrnode = $doc.createAttributeNS( namespaceURI, $name [,$value] );
-    $fragment = $doc.createDocumentFragment();
-    $cdata = $dom.createCDATASection( $cdata_content );
-    my $pi = $doc.createProcessingInstruction( $target, $data );
-    my $entref = $doc.createEntityReference($refname);
-    $dtd = $document.createInternalSubset( $rootnode, $public, $system);
-    $dtd = $document.createExternalSubset( $rootnode_name, $publicId, $systemId);
-    $document.importNode( $node );
-    $document.adoptNode( $node );
-    my $dtd = $doc.externalSubset;
-    my $dtd = $doc.internalSubset;
+    my LibXML::Text $text = $dom.createTextNode( $content_text );
+    my LibXML::Comment $comment = $dom.createComment( $comment_text );
+    my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
+    $attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
+    my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
+    my LibXML::CDATASection $cdata = $dom.createCDATASection( $cdata_content );
+    my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
+    my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
+    my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
+    $dtd = $doc.createExternalSubset( $rootnode_name, $publicId, $systemId);
+    $doc.importNode( $node );
+    $doc.adoptNode( $node );
+    $dtd = $doc.externalSubset;
+    $dtd = $doc.internalSubset;
     $doc.externalSubset = $dtd;
     $doc.internalSubset = $dtd;
-    my $dtd = $doc.removeExternalSubset();
-    my $dtd = $doc.removeInternalSubset();
-    my @nodelist = $doc.getElementsByTagName($tagname);
-    my @nodelist = $doc.getElementsByTagNameNS($nsURI,$tagname);
-    my @nodelist = $doc.getElementsByLocalName($localname);
-    my $node = $doc.getElementById($id);
-    $dom.indexElements();
+    $dtd = $doc.removeExternalSubset();
+    $dtd = $doc.removeInternalSubset();
+    my LibXML::Element @found = $doc.getElementsByTagName($tagname);
+    @found = $doc.getElementsByTagNameNS($nsURI,$tagname);
+    @found = $doc.getElementsByLocalName($localname);
+    my LibXML::Element $node = $doc.getElementById($id);
+    $doc.indexElements();
 
 DESCRIPTION
 ===========
@@ -73,7 +75,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * new
 
-        $dom = LibXML::Document.new;
+        my LibXML::Document $dom .= new;
 
   * createDocument
 
@@ -147,13 +149,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
   * setStandalone
 
         use LibXML::Document :XmlStandalone;
-        $doc.setStandalone($numvalue);
+        $doc.setStandalone(XmlStandaloneYes);
 
     Through this method it is possible to alter the value of a documents standalone attribute. Set it to *1 (XmlStandaloneYes) * to set standalone="yes", to *0 (XmlStandaloneNo) * to set standalone="no" or set it to *-1 (XmlStandaloneMu) * to remove the standalone attribute from the XML declaration.
 
   * compression
 
-        my $compression = $doc.compression;
+        my Int $compression = $doc.compression;
         $doc.compression = $ziplevel;
 
     libxml2 allows reading of documents directly from gzipped files. In this case the compression variable is set to the compression level of that file (0-8). If LibXML parsed a different source or the file wasn't compressed, the returned value will be *-1 *.
@@ -164,7 +166,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * Str
 
-        $docstring = $dom.Str(:$format);
+        my Str $xml = $dom.Str(:$format);
 
     *Str * is a serializing function, so the DOM Tree is serialized into an XML string, ready for output.
 
@@ -184,20 +186,20 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * Str: :C14N
 
-        $c14nstr = $doc.Str: :C14N, :$comment, :$xpath;
-        $ec14nstr = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
+        my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
+        my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 
     C14N Normalisation. See the documentation in [LibXML::Node ](LibXML::Node ).
 
   * serialize
 
-        $str = $doc.serialize(:$format);
+        my Str $xml-formatted = $doc.serialize(:$format);
 
     An alias for toString(). This function was name added to be more consistent with libxml2.
 
   * write
 
-        $state = $doc.write: :io($filename), :$format;
+        my Int $state = $doc.write: :io($filename), :$format;
 
     This function is similar to Str(), but it writes the document directly into a filesystem. This function is very useful, if one needs to store large documents.
 
@@ -205,19 +207,19 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * Str: :HTML
 
-        $str = $document.Str: :HTML;
+        my Str $html = $document.Str: :HTML;
 
     *.Str: :HTML * serializes the tree to a byte string in the document encoding as HTML. With this method indenting is automatic and managed by libxml2 internally.
 
   * serialize-html
 
-        $str = $document.serialize-html();
+        my Str $html = $document.serialize-html();
 
     An alias for Str: :HTML.
 
   * is-valid
 
-        $bool = $dom.is-valid();
+        my Bool $valid = $dom.is-valid();
 
     Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
@@ -237,7 +239,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * documentElement
 
-        $root = $dom.documentElement();
+        my LibXML::Element $root = $dom.documentElement();
         $dom.documentElement = $root;
 
     Returns the root element of the Document. A document can have just one root element to contain the documents data.
@@ -246,55 +248,55 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * createElement
 
-        $element = $dom.createElement( $nodename );
+        my LibXML::Element $element = $dom.createElement( $nodename );
 
     This function creates a new Element Node bound to the DOM with the name `$nodename `.
 
   * createElementNS
 
-        $element = $dom.createElementNS( $namespaceURI, $nodename );
+        my LibXML::Element $element = $dom.createElementNS( $namespaceURI, $nodename );
 
     This function creates a new Element Node bound to the DOM with the name `$nodename ` and placed in the given namespace.
 
   * createTextNode
 
-        $text = $dom.createTextNode( $content_text );
+        my LibXML::Text $text = $dom.createTextNode( $content_text );
 
     As an equivalent of *createElement *, but it creates a *Text Node * bound to the DOM.
 
   * createComment
 
-        $comment = $dom.createComment( $comment_text );
+        my LibXML::Comment $comment = $dom.createComment( $comment_text );
 
     As an equivalent of *createElement *, but it creates a *Comment Node * bound to the DOM.
 
   * createAttribute
 
-        $attrnode = $doc.createAttribute($name [,$value]);
+        my LibXML::Attr $attrnode = $doc.createAttribute($name [,$value]);
 
     Creates a new Attribute node.
 
   * createAttributeNS
 
-        $attrnode = $doc.createAttributeNS( namespaceURI, $name [,$value] );
+        my LibXML::Attr $attrnode = $doc.createAttributeNS( namespaceURI, $name [,$value] );
 
     Creates an Attribute bound to a namespace.
 
   * createDocumentFragment
 
-        $fragment = $doc.createDocumentFragment();
+        my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
 
     This function creates a DocumentFragment.
 
   * createCDATASection
 
-        $cdata = $dom.createCDATASection( $cdata_content );
+        my LibXML::CDATASection $cdata = $dom.createCDATASection( $cdata_content );
 
     Similar to createTextNode and createComment, this function creates a CDataSection bound to the current DOM.
 
   * createProcessingInstruction
 
-        my $pi = $doc.createProcessingInstruction( $target, $data );
+        my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
 
     create a processing instruction node.
 
@@ -302,7 +304,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * createEntityReference
 
-        my $entref = $doc.createEntityReference($refname);
+        my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
 
     If a document has a DTD specified, one can create entity references by using this function. If one wants to add a entity reference to the document, this reference has to be created by this function.
 
@@ -310,18 +312,19 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     *NOTE: * A text content containing something that looks like an entity reference, will not be expanded to a real entity reference unless it is a predefined entity
 
-        my $string = '&foo;';
-         $some_element.appendText( $string );
-         print $some_element.textContent; # prints "&amp;foo;"
+        my Str $text = '&foo;';
+        $some_element.appendText( $text );
+        print $some_element.textContent; # prints "&amp;foo;"
 
   * createInternalSubset
 
-        $dtd = $document.createInternalSubset( $rootnode, $public, $system);
+        my LibXML::Dtd
+        $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
 
     This function creates and adds an internal subset to the given document. Because the function automatically adds the DTD to the document there is no need to add the created node explicitly to the document.
 
-        my $document = LibXML::Document.new();
-         my $dtd      = $document.createInternalSubset( "foo", undef, "foo.dtd" );
+        my LibXML::Document $doc = LibXML::Document.new();
+        my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", undef, "foo.dtd" );
 
     will result in the following XML document:
 
@@ -330,8 +333,8 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     By setting the public parameter it is possible to set PUBLIC DTDs to a given document. So
 
-        my $document = LibXML::Document.new();
-        my $dtd      = $document.createInternalSubset( "foo", "-//FOO//DTD FOO 0.1//EN", undef );
+        my LibXML::Document $doc = LibXML::Document.new();
+        my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", "-//FOO//DTD FOO 0.1//EN", undef );
 
     will cause the following declaration to be created on the document:
 
@@ -340,7 +343,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * createExternalSubset
 
-        $dtd = $document.createExternalSubset( $rootnode_name, $publicId, $systemId);
+        $dtd = $doc.createExternalSubset( $rootnode_name, $publicId, $systemId);
 
     This function is similar to `createInternalSubset() ` but this DTD is considered to be external and is therefore not added to the document itself. Nevertheless it can be used for validation purposes.
 
@@ -364,7 +367,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * externalSubset
 
-        my $dtd = $doc.externalSubset;
+        my LibXML::Dtd $dtd = $doc.externalSubset;
 
     If a document has an external subset defined it will be returned by this function.
 
@@ -372,7 +375,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * internalSubset
 
-        my $dtd = $doc.internalSubset;
+        my LibXML::Dtd $dtd = $doc.internalSubset;
 
     If a document has an internal subset defined it will be returned by this function.
 
@@ -412,27 +415,24 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * getElementsByTagName
 
-        my @nodelist = $doc.getElementsByTagName($tagname);
+        my LibXML::Element @nodes = $doc.getElementsByTagName($tagname);
+        my LibXML::Node::Set $nodes = $doc.getElementsByTagName($tagname);
 
     Implements the DOM Level 2 function
-
-    In SCALAR context this function returns an [LibXML::NodeList ](LibXML::NodeList ) object.
 
   * getElementsByTagNameNS
 
-        my @nodelist = $doc.getElementsByTagNameNS($nsURI,$tagname);
+        my LibXML::Element @nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
+        my LibXML::Node::Set $nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
 
     Implements the DOM Level 2 function
 
-    In SCALAR context this function returns an [LibXML::NodeList ](LibXML::NodeList ) object.
-
   * getElementsByLocalName
 
-        my @nodelist = $doc.getElementsByLocalName($localname);
+        my LibXML::Element @nodes = $doc.getElementsByLocalName($localname);
+        my LibXML::Node::Set $nodes = $doc.getElementsByLocalName($localname);
 
     This allows the fetching of all nodes from a given document with the given Localname.
-
-    In SCALAR context this function returns an [LibXML::NodeList ](LibXML::NodeList ) object.
 
   * getElementById
 

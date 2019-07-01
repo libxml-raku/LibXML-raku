@@ -130,10 +130,10 @@ domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 /* A.1 DOM specified section */
 
 DLLEXPORT xmlChar*
-domName( xmlNodePtr node );
+domGetNodeName( xmlNodePtr node );
 
 DLLEXPORT void
-domSetName( xmlNodePtr node, xmlChar* name );
+domSetNodeName(xmlNodePtr self , xmlChar *string);
 
 DLLEXPORT xmlNodePtr
 domAppendChild( xmlNodePtr self,

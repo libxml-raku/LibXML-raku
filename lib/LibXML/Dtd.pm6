@@ -99,7 +99,7 @@ pass to $doc.is-valid() or $doc.validate().
 =begin item
 parse
 
-  $dtd = LibXML::Dtd.parse: :string($dtd-str);
+  my LibXML::Dtd $dtd .= parse: :string($dtd-str);
 
 The same as new() above, except you can parse a DTD from a string. Note that
 parsing from string may fail if the DTD contains external parametric-entity

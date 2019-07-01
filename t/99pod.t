@@ -2,7 +2,7 @@
 
 use Test;
 
-plan 10;
+plan 11;
 
 subtest 'LibXML::Attr' => {
     plan 5;
@@ -66,9 +66,10 @@ subtest 'LibXML::Document' => {
     my LibXML::Document $dom  .= new: :$version, :$enc;
     my LibXML::Document $dom2 .= createDocument( $version, $enc );
 
-    my $strURI = $doc.URI();
-    is $strURI, "example/dtd.xml";
-    $doc.setURI($strURI);
+    my Str $URI = $doc.URI();
+    is $URI, "example/dtd.xml";
+    $doc.setURI($URI);
+    $doc.URI = $URI;
     my $strEncoding = $doc.encoding();
     $strEncoding = $doc.actualEncoding();
     $doc.setEncoding($enc);
@@ -125,7 +126,7 @@ subtest 'LibXML::Document' => {
     $dtd = $doc.removeExternalSubset();
     $dtd = $doc.removeInternalSubset();
     my @nodelist = $doc.getElementsByTagName($tagname);
-    @nodelist = $doc.getElementsByTagNameNS($strURI,$tagname);
+    @nodelist = $doc.getElementsByTagNameNS($URI,$tagname);
     @nodelist = $doc.getElementsByLocalName('localname');
     $node = $doc.getElementById('x');
     $doc.indexElements();
@@ -259,6 +260,86 @@ subtest 'LibXML::Namespace' => {
     isnt $ns.unique-key, $ns-different.unique-key, 'Unique key non-match';
 
 };
+
+subtest 'LibXML::Node' => {
+    plan 2;
+    use LibXML::Node;
+    use LibXML::Element;
+    use LibXML::Namespace;
+
+    #++ setup
+    my LibXML::Element $node       .= new: :name<Alice>;
+    my LibXML::Element $other-node .= new: :name<Xxxx>;
+    my LibXML::Element $childNode  .= new: :name<Bambi>;
+    my LibXML::Element $newNode    .= new: :name<New>;
+    my LibXML::Element $oldNode     = $childNode;
+    my LibXML::Element $refNode     = $childNode;
+    my LibXML::Element $parent     .= new: :name<Parent>;
+    $node.addChild($childNode);
+    my Str $nsURI = 'http://ns.org';
+    my Str $xpath-expression = '*';
+    my Str $enc = 'UTF-8';
+    #-- setup
+
+    my Str $newName = 'Bob';
+    my Str $name = $node.nodeName;
+    $node.setNodeName( $newName );
+    $node.nodeName = $newName;
+    my Bool $same = $node.isSameNode( $other-node );
+    $same = $node.isEqual( $other-node );
+    my Str $key = $node.unique-key;
+    my Str $content = $node.nodeValue;
+    $content = $node.textContent;
+    my UInt $type = $node.nodeType;
+    $node.unbindNode();
+    my LibXML::Node $child = $node.removeChild( $childNode );
+    $oldNode = $node.replaceChild( $newNode, $oldNode );
+    $node.replaceNode($newNode);
+    $childNode = $node.appendChild( $childNode );
+    $childNode = $node.addChild( $childNode );
+    $node = $parent.addNewChild( $nsURI, $name );
+    $node.addSibling($newNode);
+    $newNode = $node.cloneNode( :deep );
+    $parent = $node.parentNode;
+    my LibXML::Element $next = $node.nextSibling();
+    $next = $node.nextNonBlankSibling();
+    my LibXML::Element $prev = $node.previousSibling();
+    $prev = $node.previousNonBlankSibling();
+    my Bool $is-parent = $node.hasChildNodes();
+    $child = $node.firstChild;
+    $child = $node.lastChild;
+    my LibXML::Document $doc = $node.ownerDocument;
+    $node = $node.getOwner;
+    $node.setOwnerDocument( $doc );
+    $node.insertBefore( $newNode, $refNode );
+    $node.insertAfter( $newNode, $refNode );
+    my LibXML::Element @kids = $node.findnodes( $xpath-expression );
+    my LibXML::Node::Set $result = $node.find( $xpath-expression );
+    print $node.findvalue( $xpath-expression );
+    my Bool $found = $node.exists( $xpath-expression );
+    @kids = $node.childNodes();
+    @kids = $node.nonBlankChildNodes();
+    my Str $xml = $node.Str(:format, :$enc);
+    my Str $xml-c14n = $node.Str: :C14N;
+    $xml-c14n = $node.Str: :C14N, :comments, :xpath($xpath-expression);
+    $xml-c14n = $node.Str: :C14N, :xpath($xpath-expression), :exclusive;
+    $xml-c14n = $node.Str: :C14N, :v(v1.1);
+    $xml = $doc.serialize(:format);
+    my Str $localname = $node.localname;
+    my Str $prefix = $node.prefix;
+    my Str $uri = $node.namespaceURI();
+    my Bool $has-atts = $node.hasAttributes();
+    my LibXML::Attr @attrs = $node.attributes();
+    $uri = $node.lookupNamespaceURI( $prefix );
+    $prefix = $node.lookupNamespacePrefix( $uri );
+    $node.normalize;
+    my LibXML::Namespace @ns = $node.getNamespaces;
+    $node.removeChildNodes();
+    $uri = $node.baseURI();
+    $node.setBaseURI($uri);
+    $node.nodePath();
+    my UInt $line-no = $node.line-number();
+}
 
 subtest 'LibXML::RegExp' => {
     plan 2;

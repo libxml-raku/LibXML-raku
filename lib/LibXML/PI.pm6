@@ -18,7 +18,7 @@ multi method setData(*%atts) {
     $.setData( %atts.sort.map({.key ~ '="' ~ .value ~ '"'}).join(' ') );
 }
 multi method setData(Str:D $string) {
-    $.native.nodeValue = $string;
+    $.native.setNodeValue($string);
 }
 
 =begin pod

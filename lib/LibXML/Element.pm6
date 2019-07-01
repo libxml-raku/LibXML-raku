@@ -176,7 +176,7 @@ method !get-attributes {
         }
 
         method !tie-att(LibXML::Attr:D $att, Bool :$add = True) {
-            my Str:D $name = $att.native.domName;
+            my Str:D $name = $att.native.getNodeName;
             my Str $uri;
             my ($prefix,$local-name) = $name.split(':', 2);
 
@@ -476,7 +476,7 @@ can be used to match any name.
 =begin item1
 getChildrenByTagNameNS
 
-  my LibXML::Node @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
+  my LibXML::Element @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
   my LibXML::Node::Set $nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
 
 Namespace version of C<<<<<< getChildrenByTagName >>>>>>. A special nsURI '*' matches any namespace URI, in which case the function
@@ -487,7 +487,7 @@ behaves just like C<<<<<< getChildrenByLocalName >>>>>>.
 =begin item1
 getChildrenByLocalName
 
-  my LibXML::Node @nodes = $node.getChildrenByLocalName($localname);
+  my LibXML::Element @nodes = $node.getChildrenByLocalName($localname);
   my LibXML::Node::Set $nodes = $node.getChildrenByLocalName($localname);
 
 The function gives direct access to all child elements of the current node with
@@ -500,7 +500,7 @@ data sets. A special C<<<<<< localname >>>>>> '*' can be used to match any local
 =begin item1
 getElementsByTagName
 
-  my LibXML::Node @nodes = $node.getElementsByTagName($tagname);
+  my LibXML::Element @nodes = $node.getElementsByTagName($tagname);
   my LibXML::Node::Set $nodes = $node.getElementsByTagName($tagname);
 
 This function is part of the spec. It fetches all descendants of a node with a
@@ -512,7 +512,7 @@ prefix and local name. A special C<<<<<< tagname >>>>>> '*' can be used to match
 =begin item1
 getElementsByTagNameNS
 
-  my LibXML::Node @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
+  my LibXML::Element @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
   my LibXML::Node::Set $nodes = $node.getElementsByTagNameNS($nsURI,$localname);
 
 Namespace version of C<<<<<< getElementsByTagName >>>>>> as found in the DOM spec. A special C<<<<<< localname >>>>>> '*' can be used to match any local name and C<<<<<< nsURI >>>>>> '*' can be used to match any namespace URI.
@@ -523,7 +523,7 @@ Namespace version of C<<<<<< getElementsByTagName >>>>>> as found in the DOM spe
 =begin item1
 getElementsByLocalName
 
-  my LibXML::Node @nodes = $node.getElementsByLocalName($localname);
+  my LibXML::Element @nodes = $node.getElementsByLocalName($localname);
   my LibXML::Node::Set $nodes = $node.getElementsByLocalName($localname);
 
 This function is not found in the DOM specification. It is a mix of

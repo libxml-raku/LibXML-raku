@@ -136,3 +136,9 @@ enum xmlPatternFlags is export (
     XML_PATTERN_XSSEL     => 1+<1,      # XPath subset for schema selector
     XML_PATTERN_XSFIELD   => 1+<2       # XPath subset for schema field
 );
+
+enum xmlC14NMode is export (
+    XML_C14N_1_0            => 0,    # Origianal C14N 1.0 spec */
+    XML_C14N_EXCLUSIVE_1_0  => 1,    # Exclusive C14N 1.0 spec */
+    XML_C14N_1_1            => 2     # C14N 1.1 spec */
+);

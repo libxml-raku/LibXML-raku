@@ -21,7 +21,8 @@ method domAddSibling  { ... }
 method domReplaceChild  { ... }
 method domInsertBefore { ... }
 method domInsertAfter  { ... }
-method domName { ... }
+method domGetNodeName { ... }
+method domSetNodeName { ... }
 method domGetNodeValue { ... }
 method domSetNodeValue { ... }
 method domRemoveChild  { ... }
@@ -67,7 +68,7 @@ method setAttribute(QName:D $name, Str:D $value) {
         # probably declare an attribute which looks like XML namespace declaration
         # but isn't)
         my NCName $prefix = ($0 // '').Str;
-        my QName $nn = self.nodeName;
+        my QName $nn = self.getNodeName;
 
         if $nn.starts-with($prefix ~ ':') {
 	    # the element has the same prefix
@@ -287,14 +288,11 @@ method cloneNode(Bool:D $deep) {
     self.copy(:$deep);
 }
 
-method nodeName { self.domName; }
+method getNodeName { self.domGetNodeName }
+method setNodeName(QName $_) { self.domSetNodeName($_) }
 
-method nodeValue is rw {
-    Proxy.new(
-        FETCH => sub ($) { self.domGetNodeValue },
-        STORE => sub ($, Str() $_) { self.domSetNodeValue($_) },
-    );
-}
+method getNodeValue { self.domGetNodeValue }
+method setNodeValue(Str $_) { self.domSetNodeValue($_) }
 
 method hasAttributes returns Bool {
     ? (self.type != XML_ATTRIBUTE_NODE

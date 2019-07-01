@@ -123,35 +123,35 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * getChildrenByTagNameNS
 
-        my LibXML::Node @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
+        my LibXML::Element @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
         my LibXML::Node::Set $nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
 
     Namespace version of `getChildrenByTagName `. A special nsURI '*' matches any namespace URI, in which case the function behaves just like `getChildrenByLocalName `.
 
   * getChildrenByLocalName
 
-        my LibXML::Node @nodes = $node.getChildrenByLocalName($localname);
+        my LibXML::Element @nodes = $node.getChildrenByLocalName($localname);
         my LibXML::Node::Set $nodes = $node.getChildrenByLocalName($localname);
 
     The function gives direct access to all child elements of the current node with a given local name. It makes things a lot easier if one needs to handle big data sets. A special `localname ` '*' can be used to match any local name.
 
   * getElementsByTagName
 
-        my LibXML::Node @nodes = $node.getElementsByTagName($tagname);
+        my LibXML::Element @nodes = $node.getElementsByTagName($tagname);
         my LibXML::Node::Set $nodes = $node.getElementsByTagName($tagname);
 
     This function is part of the spec. It fetches all descendants of a node with a given tagname, where `tagname ` is a qualified name, that is, in case of namespace usage it may consist of a prefix and local name. A special `tagname ` '*' can be used to match any tag name. 
 
   * getElementsByTagNameNS
 
-        my LibXML::Node @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
+        my LibXML::Element @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
         my LibXML::Node::Set $nodes = $node.getElementsByTagNameNS($nsURI,$localname);
 
     Namespace version of `getElementsByTagName ` as found in the DOM spec. A special `localname ` '*' can be used to match any local name and `nsURI ` '*' can be used to match any namespace URI.
 
   * getElementsByLocalName
 
-        my LibXML::Node @nodes = $node.getElementsByLocalName($localname);
+        my LibXML::Element @nodes = $node.getElementsByLocalName($localname);
         my LibXML::Node::Set $nodes = $node.getElementsByLocalName($localname);
 
     This function is not found in the DOM specification. It is a mix of getElementsByTagName and getElementsByTagNameNS. It will fetch all tags matching the given local-name. This allows one to select tags with the same local name across namespace borders.

@@ -645,7 +645,8 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domReplaceChild(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertBefore(domNode, domNode) returns domNode is native(BIND-LIB) {*}
     method domInsertAfter(domNode, domNode) returns domNode is native(BIND-LIB) {*}
-    method domName returns Str is native(BIND-LIB) {*}
+    method domGetNodeName returns Str is native(BIND-LIB) {*}
+    method domSetNodeName(Str) is native(BIND-LIB) {*}
     method domGetNodeValue returns Str is native(BIND-LIB) {*}
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
     method domRemoveChild(domNode --> domNode) is native(BIND-LIB) {*}
@@ -689,7 +690,7 @@ class domNode is export does LibXML::Native::DOM::Node {
     method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
     method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
-    method xml6_node_to_str_C14N(int32 $comments, int32 $exclusive, CArray[Str] $inc-prefix is rw, xmlNodeSet --> Str) is native(BIND-LIB) {*}
+    method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> Str) is native(BIND-LIB) {*}
 
     method Str(UInt :$options = 0 --> Str) is default {
         with self {

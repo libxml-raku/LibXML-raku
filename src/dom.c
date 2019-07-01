@@ -10,6 +10,7 @@
 #include "dom.h"
 #include "xml6.h"
 #include "xml6_ref.h"
+#include <assert.h>
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
 
@@ -227,8 +228,8 @@ _domExtractFrag(xmlNodePtr frag) {
     xmlNodePtr fraglist = frag->children;
     xmlNodePtr cur = fraglist;
 
-    frag->children = frag->last = NULL;
     // detach fragment list
+    frag->children = frag->last = NULL;
     while ( cur ){
         cur->parent = NULL;
         cur = cur->next;
@@ -252,7 +253,7 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     xmlDtdPtr ext_dtd = NULL;
     xmlDtdPtr int_dtd = NULL;
 
-    if (self == NULL) xml6_fail("unable to update null document");
+    assert(self != NULL);
 
     int_dtd = domGetInternalSubset(self);
     ext_dtd = domGetExternalSubset(self);
@@ -286,7 +287,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     xmlDtdPtr ext_dtd = NULL;
     xmlDtdPtr int_dtd = NULL;
 
-    if (self == NULL) xml6_fail("unable to update null document");
+    assert(self != NULL);
 
     int_dtd = domGetInternalSubset(self);
     ext_dtd = domGetExternalSubset(self);
@@ -501,8 +502,12 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
 
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr cur) {
+    if (cur == NULL) {
+        xml6_warn("unexpected null node");
+        return 0;
+    }
 
-    if (cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE) {
+    if (cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE|| cur->type == XML_DOCB_DOCUMENT_NODE) {
         xmlDocPtr doc = (xmlDocPtr) cur;
         if (doc->intSubset != NULL
             && domNodeIsReferenced((xmlNodePtr)doc->intSubset)) {
@@ -542,7 +547,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
         imported_node = node;
         xmlUnlinkNode( node );
     }
-    else {
+    else if (node != NULL) {
         if ( node->type == XML_DTD_NODE ) {
             imported_node = (xmlNodePtr) xmlCopyDtd((xmlDtdPtr) node);
         }
@@ -574,7 +579,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
  * the local name. otherwise only the local name is returned.
  **/
 DLLEXPORT xmlChar*
-domName(xmlNodePtr node) {
+domGetNodeName(xmlNodePtr node) {
     const xmlChar* prefix = NULL;
     const xmlChar* name   = NULL;
     xmlChar* rv           = NULL;
@@ -591,7 +596,6 @@ domName(xmlNodePtr node) {
     case XML_DTD_NODE :
     case XML_ENTITY_DECL :
     case XML_DOCUMENT_TYPE_NODE :
-    case XML_PI_NODE :
     case XML_NOTATION_NODE :
     case XML_NAMESPACE_DECL :
         name = node->name;
@@ -622,6 +626,7 @@ domName(xmlNodePtr node) {
 
     case XML_ELEMENT_NODE :
     case XML_ATTRIBUTE_NODE :
+    case XML_PI_NODE :
         if ( node->ns != NULL ) {
             prefix = node->ns->prefix;
         }
@@ -651,6 +656,31 @@ domName(xmlNodePtr node) {
     return rv;
 }
 
+DLLEXPORT void
+domSetNodeName(xmlNodePtr self , xmlChar *string) {
+    xmlChar* localname;
+    xmlChar* prefix;
+
+    if (self == NULL || string == NULL || *string == 0)
+        return;
+
+    if( ( self->type == XML_ELEMENT_NODE
+          || self->type == XML_ATTRIBUTE_NODE
+          || self->type == XML_PI_NODE)
+        && self->ns ){
+        localname = xmlSplitQName2(string, &prefix);
+        if ( localname == NULL ) {
+            localname = xmlStrdup( string );
+        }
+        xmlNodeSetName(self, localname );
+        xmlFree(localname);
+        xmlFree(prefix);
+    }
+    else {
+        xmlNodeSetName(self, string );
+    }
+}
+
 /**
  * Name: domAppendChild
  * Synopsis: xmlNodePtr domAppendChild( xmlNodePtr par, xmlNodePtr newCld );
@@ -670,7 +700,8 @@ domAppendChild( xmlNodePtr self,
                 xmlNodePtr newChild ){
     xmlNodePtr head = newChild;
     xmlNodePtr tail = newChild;
-    if ( self == NULL ) {
+
+    if ( self == NULL) {
         return newChild;
     }
 
@@ -939,7 +970,11 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
 
     xmlNodePtr rv = NULL;
 
-    if ( nNode->type == XML_DOCUMENT_FRAG_NODE ) {
+    if (self == NULL) {
+        return nNode;
+    }
+
+    if ( nNode && nNode->type == XML_DOCUMENT_FRAG_NODE ) {
         fail(self, "Adding document fragments with addSibling not yet supported!");
     }
 
@@ -1072,7 +1107,7 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
 
 static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
     int rv;
-    xmlChar* name = domName(self);
+    xmlChar* name = domGetNodeName(self);
     rv = xmlStrcmp( name, pname );
     xmlFree(name);
     return rv;
@@ -1490,6 +1525,8 @@ domAttrSerializeContent(xmlAttrPtr attr) {
     xmlNodePtr children;
     xmlChar* rv = NULL;
 
+    if (attr == NULL) return(NULL);
+
     children = attr->children;
     while (children != NULL) {
         switch (children->type) {
@@ -1778,6 +1815,7 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
     xmlNodePtr prev = NULL;
     xmlNsPtr ns = NULL;
 
+    if (self == NULL) return(NULL);
     if (nsURI && !*nsURI) nsURI = NULL;
     if (name && !*name) name = NULL;
   

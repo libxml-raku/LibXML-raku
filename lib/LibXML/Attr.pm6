@@ -39,14 +39,14 @@ LibXML::Attr - LibXML Attribute Class
   # see the LibXML::Node manpage for other methods
 
   my LibXML::Attr $attr .= new(:$name, :$value);
-  my Str:D $string = $attr.getValue();
-  $string = $attr.value;
+  my Str $value = $attr.getValue();
+  $value = $attr.value;
   $attr.setValue( $string );
   $att.value = $string;
   my LibXML::Node $node = $attr.getOwnerElement();
   $attr.setNamespace($nsURI, $prefix);
   my Bool $is-id = $attr.isId;
-  $string = $attr.serializeContent;
+  my Str $content = $attr.serializeContent;
 
 =head1 DESCRIPTION
 
