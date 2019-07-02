@@ -5,6 +5,7 @@ class LibXML::XPath::Context {
     use LibXML::Node :iterate-set, :NodeSetElem, :NameVal, :native;
     use LibXML::Document;
     use LibXML::Types :QName;
+    use LibXML::Node::List;
     use LibXML::Node::Set;
     use LibXML::XPath::Expression;
     use LibXML::XPath::Object :XPathRange;

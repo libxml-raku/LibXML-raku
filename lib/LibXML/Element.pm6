@@ -495,6 +495,7 @@ Unlike Perl 5, this method retrieves only LibXML::Attr nodes (not LibXML::Namesp
 properties
 
   my LibXML::Attr @props = $node.properties;
+  my LibXML::Node::List $props = $node.properties;
 
 returns a list of Attributes for the node.
 =end item
@@ -503,6 +504,7 @@ returns a list of Attributes for the node.
 namespaces
 
   my LibXML::Namespace @ns = $node.namespaces;
+  my LibXML::Node::List $ns = $node.namespaces;
 
 returns a list of Namespace declarations for the node.
 =end item

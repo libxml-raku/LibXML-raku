@@ -233,15 +233,14 @@ class LibXML::Node {
         } // self.WHAT;
     }
 
-    sub iterate-list($obj, domNode $native, :$doc = $obj.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
+    sub iterate-list($of, domNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.
-        use LibXML::Node::List;
-        LibXML::Node::List.new: :type($obj), :$native, :$doc, :$keep-blanks;
+        (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks;
     }
 
-    sub iterate-set($range, xmlNodeSet $native, |c) is export(:iterate-set) {
+    sub iterate-set($of, xmlNodeSet $native, |c) is export(:iterate-set) {
         # iterate through a set of nodes
-        (require ::('LibXML::Node::Set')).new( :$native, :$range, |c )
+        (require ::('LibXML::Node::Set')).new( :$native, :$of, |c )
     }
 
     method string-value is also<textContent to-literal> {

@@ -3,7 +3,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     use LibXML::Node :native-class, :cast-elem, :NodeSetElem;
     use Method::Also;
 
-    has $.range = NodeSetElem;
+    has $.of = NodeSetElem;
     has xmlNodeSet $.native;
     has UInt $!idx = 0;
     has @!array;
@@ -15,7 +15,6 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         .Reference given $!native;
     }
     submethod DESTROY {
-        use NativeCall;
         .Release with $!native;
     }
     method elems is also<Numeric> { $!slurped ?? @!array.elems !! $!native.nodeNr }
@@ -28,14 +27,14 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         @!array;
     }
     multi method AT-POS(UInt:D $pos where $!slurped) { @!array[$pos] }
-    multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!range }
+    multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!of }
     multi method AT-POS(UInt:D $pos) is default {
-        my $rv := $!values ?? Str !! $!range;
+        my $rv := $!values ?? Str !! $!of;
 
         with $!native.nodeTab[$pos].deref {
             my $class = native-class(.type);
             die "unexpected node of type {$class.perl} in node-set"
-            unless $class ~~ $!range;
+               unless $class ~~ $!of;
 
             with $class.box: cast-elem($_) {
                 $rv := $!values ?? .string-value !! $_;

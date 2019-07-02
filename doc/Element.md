@@ -141,12 +141,14 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
   * properties
 
         my LibXML::Attr @props = $node.properties;
+        my LibXML::Node::List $props = $node.properties;
 
     returns a list of Attributes for the node.
 
   * namespaces
 
         my LibXML::Namespace @ns = $node.namespaces;
+        my LibXML::Node::List $ns = $node.namespaces;
 
     returns a list of Namespace declarations for the node.
 

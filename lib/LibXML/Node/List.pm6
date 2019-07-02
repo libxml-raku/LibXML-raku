@@ -1,16 +1,17 @@
 class LibXML::Node::List does Iterable does Iterator {
     use LibXML::Native;
+    use LibXML::Node;
 
     has Bool $.keep-blanks;
     has $.doc is required;
     has $.native is required handles <string-value>;
     has $!cur;
-    has $.type is required;
+    has $.of is required;
     has @!array;
     has Bool $!slurped;
-    has $!ref; # just to keep the list alive
+    has LibXML::Node $!ref; # just to keep the list alive
     submethod TWEAK {
-        $!ref = $!type.box: $_ with $!native;
+        $!ref = $!of.box: $_ with $!native;
         $!cur = $!native;
     }
 
@@ -28,7 +29,7 @@ class LibXML::Node::List does Iterable does Iterator {
     method pull-one {
         with $!cur -> $this {
             $!cur = $this.next-node($!keep-blanks);
-            $!type.box: $this, :$!doc
+            $!of.box: $this, :$!doc
         }
         else {
             IterationEnd;
