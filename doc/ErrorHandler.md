@@ -41,6 +41,18 @@ The X:LibXML::Parser exception class is a tiny frontend to *libxml2 *'s structur
 
     The raw message text. This may include a trailing new line.
 
+  * prev
+
+        my X::LibXML::Parser$previous-error = $!.prev();
+
+    This field can possibly hold a reference to another X::LibXML::Parser object representing an error which occurred just before this error.
+
+  * messages
+
+        say $!.messages();
+
+    A concatenation of the current $!.msg with any linked $!.prev errors. This is used as the base text by the $!.message method.
+
   * code
 
         my UInt $error-code = $!.code();

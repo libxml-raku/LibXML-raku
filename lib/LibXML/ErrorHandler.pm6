@@ -161,6 +161,27 @@ The raw message text. This may include a trailing new line.
 =end item1
 
 =begin item1
+prev
+
+  my X::LibXML::Parser$previous-error = $!.prev();
+
+This field can possibly hold a reference to another X::LibXML::Parser object
+representing an error which occurred just before this error.
+
+=end item1
+
+=begin item1
+messages
+
+  say $!.messages();
+
+A concatenation of the current $!.msg with any linked $!.prev errors. This
+is used as the base text by the $!.message method.
+
+=end item1
+
+
+=begin item1
 code
 
   my UInt $error-code = $!.code();
