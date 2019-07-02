@@ -265,6 +265,8 @@ method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset // self.getExte
     ? $cvp.validate(:$doc, :$dtd);
 }
 
+method parse(|c --> LibXML::Document) { (require ::('LibXML')).load(|c); }
+
 method validate(|c) { LibXML::Parser::Context.try: {self!validate(|c)} }
 method is-valid(|c) { self!validate(|c) }
 
@@ -357,7 +359,9 @@ LibXML::Document - LibXML DOM Document Class
   # see the LibXML::Node manpage for other methods
 
   my LibXML::Document $doc  .= new: :$version, :$enc;
-  my LibXML::Document $doc2 .= createDocument($version, $enc);
+  $doc .= createDocument($version, $enc);
+  $doc .= parse($string);
+
   my Str $URI = $doc.URI();
   $doc.setURI($URI);
   my Str $enc = $doc.encoding();
@@ -463,6 +467,14 @@ is therefore a shortcut for
   my $document = LibXML::Document.createDocument( "1.0", "UTF-8" );
 =end item
 
+=begin item
+parse
+
+   my LibXML::Document $doc .= parse($string, |%opts);
+
+   Calling C<LibXML::Document.parse(|c)> is equivalent to calling C<LibXML.parse(|c)>; See the parse method in L<LibXML>.
+
+=end item
 
 =begin item
 URI

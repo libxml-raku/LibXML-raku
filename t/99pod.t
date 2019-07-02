@@ -42,14 +42,14 @@ subtest 'LibXML::CDATASection' => {
 }
 
 subtest 'LibXML::Document' => {
-    plan 7;
+    plan 8;
     use LibXML;
     my $version = '1.0';
     my $enc = 'UTF-8';
     my $numvalue = 1;
     my $ziplevel = 5;
     my Bool $format = True;
-    my $doc = LibXML.load: :location("example/dtd.xml"), :dtd;
+    my LibXML::Document $doc .= parse("example/dtd.xml", :dtd);
     my $rootnode = $doc.documentElement;
     my Bool $comments = True;
     my $nodename = 'test';
@@ -134,6 +134,8 @@ subtest 'LibXML::Document' => {
     $doc = LibXML.createDocument;
     $doc = LibXML.createDocument( '1.0', "ISO-8859-15" );
     is $doc.encoding, 'ISO-8859-15';
+    $doc .= parse(' <x>zzz</x>');
+    is $doc.root.Str, '<x>zzz</x>';
 };
 
 subtest 'LibXML::DocumentFragment' => {
@@ -168,22 +170,6 @@ subtest 'LibXML::Dtd' => {
     }, 'new public';
 
 }
-
-subtest 'LibXML::PI' => {
-    plan 2;
-    use LibXML::Document;
-    use LibXML::PI;
-    my LibXML::Document $dom .= new;
-    my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
-
-    $pi.setData('zzz');
-    $dom.appendChild( $pi );
-    like $dom.Str, /'<?abc zzz?>'/, 'setData (hash)';
-
-    $pi.setData(foo=>'bar', foobar=>'foobar');
-    like $dom.Str, /'<?abc foo="bar" foobar="foobar"?>'/, 'setData (hash)';
-    $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
-};
 
 subtest 'XML::LibXML::Element' => {
     plan 1;
@@ -289,7 +275,6 @@ subtest 'LibXML::Node' => {
     $node.setNodeName( $newName );
     $node.nodeName = $newName;
     my Bool $same = $node.isSameNode( $other-node );
-    $same = $node.isEqual( $other-node );
     my Str $key = $node.unique-key;
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
@@ -347,6 +332,22 @@ subtest 'LibXML::Node' => {
     $node.nodePath();
     my UInt $line-no = $node.line-number();
 }
+
+subtest 'LibXML::PI' => {
+    plan 2;
+    use LibXML::Document;
+    use LibXML::PI;
+    my LibXML::Document $dom .= new;
+    my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
+
+    $pi.setData('zzz');
+    $dom.appendChild( $pi );
+    like $dom.Str, /'<?abc zzz?>'/, 'setData (hash)';
+
+    $pi.setData(foo=>'bar', foobar=>'foobar');
+    like $dom.Str, /'<?abc foo="bar" foobar="foobar"?>'/, 'setData (hash)';
+    $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
+};
 
 subtest 'LibXML::RegExp' => {
     plan 2;

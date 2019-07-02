@@ -1,5 +1,5 @@
 use Test;
-plan 29;
+plan 30;
 
 # bootstrapping tests for the DOM
 
@@ -17,8 +17,11 @@ my LibXML $parser .= new;
 $parser.keep-blanks = False;
 $parser.config.skip-xml-declaration = True;
 my LibXML::Document $doc = $parser.parse: :$string;
-is $doc.Str,  $tstr;
+is $doc.Str, $tstr;
 is-deeply $doc.doc, $doc, 'doc self-root';
+
+$doc .= parse: :$string, :!keep-blanks;
+is $doc.Str,  $tstr;
 
 my LibXML::DocumentFragment $frag = $parser.parse-balanced: :string( $sDoc);
 my LibXML::DocumentFragment $chk = $parser.parse-balanced: :string( $sChunk);

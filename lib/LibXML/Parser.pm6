@@ -32,6 +32,7 @@ class LibXML::Parser {
             :load-ext-dtd(XML_PARSE_DTDLOAD),
             :no-base-fix(XML_PARSE_NOBASEFIX),
             :no-blanks(XML_PARSE_NOBLANKS),
+            :no-keep-blanks(XML_PARSE_NOBLANKS),
             :no-cdata(XML_PARSE_NOCDATA),
             :no-def-dtd(HTML_PARSE_NODEFDTD),
             :no-network(XML_PARSE_NONET),
@@ -75,8 +76,6 @@ class LibXML::Parser {
         $flags;
     }
 
-    method keep-blanks(|c) is rw { $.blanks(|c) }
-
     method !make-handler(parserCtxt :$native, *%flags) {
         my UInt $flags = self.options(|%flags);
         LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
@@ -108,7 +107,7 @@ class LibXML::Parser {
                        Bool() :$html = $!html,
                        Str() :$URI = $!baseURI,
                        xmlEncodingStr :$enc = 'UTF-8',
-                       *%flags,
+                       *%flags 
                       ) {
 
         # gives better diagnositics
@@ -166,7 +165,7 @@ class LibXML::Parser {
         self!publish: :$URI, :$handler;
     }
 
-    multi method parse(Int :$fd!,
+    multi method parse(UInt :$fd!,
                        Str :$URI = $!baseURI,
                        Bool() :$html = $!html,
                        xmlEncodingStr :$enc,
@@ -202,6 +201,19 @@ class LibXML::Parser {
 
     multi method parse(Str() :location($file)!, |c) {
         $.parse(:$file, |c);
+    }
+
+    # parse from a Miscellaneous source
+    multi method parse(Any:D $src, |c) is default {
+        my Pair $in = do with $src {
+            when UInt       { :fd($_) }
+            when IO::Handle
+            |    IO::Path   { :io($_) }
+            when Blob       { :buf($_) }
+            when Str  { m:i:s/^ '<'/ ?? :string($_) !! :file($_) }
+            default { fail "Unrecognised parser input: {.perl}"; }
+        }
+        $.parse( |$in, |c );
     }
 
     has LibXML::PushParser $!push-parser;

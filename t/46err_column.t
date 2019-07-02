@@ -4,8 +4,9 @@
 
 use Test;
 use LibXML;
+use LibXML::Enums;
 
-plan 5;
+plan 11;
 
 try {
     LibXML.new.parse: :string(
@@ -21,4 +22,10 @@ ok $err.defined, 'got error';
 isa-ok $err, 'X::LibXML::Parser', 'error type';
 is $err.file, 'test.xml', 'File is OK.';
 is $err.line, 1, 'Line is OK';
+is $err.level, +XML_ERR_FATAL, 'level is OK';
+is $err.code, +XML_ERR_SPACE_REQUIRED, 'code is OK';
 is $err.column(), 204, "Column is OK.";
+is $err.domain, +XML_FROM_PARSER;
+is $err.domain-name, 'parser';
+is $err.msg.chomp, 'attributes construct error';
+is $err.message, 'test.xml:1: parser error : attributes construct error';

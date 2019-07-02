@@ -11,7 +11,9 @@ SYNOPSIS
     # see the LibXML::Node manpage for other methods
 
     my LibXML::Document $doc  .= new: :$version, :$enc;
-    my LibXML::Document $doc2 .= createDocument($version, $enc);
+    $doc .= createDocument($version, $enc);
+    $doc .= parse($string);
+
     my Str $URI = $doc.URI();
     $doc.setURI($URI);
     my Str $enc = $doc.encoding();
@@ -98,6 +100,12 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     is therefore a shortcut for
 
         my $document = LibXML::Document.createDocument( "1.0", "UTF-8" );
+
+  * parse
+
+        my LibXML::Document $doc .= parse($string, |%opts);
+
+        Calling C<LibXML::Document.parse(|c)> is equivalent to calling C<LibXML.parse(|c)>; See the parse method in L<LibXML>.
 
   * URI
 

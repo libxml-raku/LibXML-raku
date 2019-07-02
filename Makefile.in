@@ -62,7 +62,7 @@ realclean : clean
 	@rm -f Makefile doc/*.md doc/*/*.md
 
 doc : README.md doc/Attr.md doc/CDATASection.md doc/Comment.md doc/Document.md doc/DocumentFragment.md\
-      doc/Dtd.md doc/Element.md doc/Namespace.md doc/Node.md doc/PI.md doc/RegExp.md
+      doc/Dtd.md doc/Element.md doc/ErrorHandler.md doc/Namespace.md doc/Node.md doc/PI.md doc/RegExp.md
 
 README.md : lib/LibXML.pm6
 	(\
@@ -91,6 +91,9 @@ doc/Dtd.md : lib/LibXML/Dtd.pm6
 
 doc/Element.md : lib/LibXML/Element.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Element.pm6 > doc/Element.md
+
+doc/ErrorHandler.md : lib/LibXML/ErrorHandler.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/ErrorHandler.pm6 > doc/ErrorHandler.md
 
 doc/Namespace.md : lib/LibXML/Namespace.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Namespace.pm6 > doc/Namespace.md
