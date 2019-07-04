@@ -517,10 +517,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is(%att<http://kungfoo><kung>, $newAttr.nodeValue, ' TODO : Add test name');
 
     $attributes.removeNamedItemNS( "http://kungfoo", "kung");
+    %att := $root.attributes;
     # TEST
     is( +%att, 1, ' TODO : Add test name');
     # TEST
-    is($attributes.elems, 2, ' TODO : Add test name');
+    is($attributes.elems, 1, ' TODO : Add test name');
 }
 
 # 7. importing and adopting

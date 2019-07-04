@@ -53,6 +53,9 @@ $(SRC)/xml6_xpath%O% : $(SRC)/xml6_xpath.c $(SRC)/xml6_xpath.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_xpath%O% $(SRC)/xml6_xpath.c %LIB-CFLAGS% $(DBG)
 
 test : all
+	@prove -e"perl6 -I ." t
+
+loudtest : all
 	@prove -e"perl6 -I ." -v t
 
 clean :

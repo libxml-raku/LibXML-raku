@@ -1588,7 +1588,6 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
 
     if ( all_ns ) {
         int i = 0;
-        int matched;
         xmlNsPtr ns = all_ns[i];
         while ( ns ) {
             if (_domPrefixMatch(ns->prefix, base)) {
@@ -1606,12 +1605,12 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
 
     {
         int seq;
-        int found = 1;
+        int spare = 0;
         rv = xmlMalloc(strlen(base) + 6);
         // iterate until we generate an unused suffix
-        for (seq = 0; found; seq++) {
+        for (seq = 0; !spare; seq++) {
             sprintf(rv, "%s%d", base, seq);
-            found = xmlHashLookup(hash, (xmlChar*)rv) != NULL;
+            spare = xmlHashLookup(hash, (xmlChar*)rv) == NULL;
         }
 
         xmlHashFree(hash, _domNullDeallocator);
