@@ -6,7 +6,8 @@ LibXML::Element - LibXML Class for Element Nodes
 SYNOPSIS
 ========
 
-    use LibXML::Element :AttrMap;
+    use LibXML::Element;
+    use LibXML::Attr::Map;
     # Only methods specific to Element nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
@@ -18,7 +19,7 @@ SYNOPSIS
     $attrnode = $node.getAttributeNode( $aname );
     $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
     my Bool $has-atts = $node.hasAttributes();
-    my AttrMap $attrs = $node.attributes();
+    my LibXML::Attr::Map $attrs = $node.attributes();
     my LibXML::Attr @props = $node.properties();
     $node.removeAttribute( $aname );
     $node.removeAttributeNS( $nsURI, $aname );
@@ -125,8 +126,8 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * attributes
 
-        use LibXML::Element :AttrMap;
-        my AttrMap $atts = $node.attributes();
+        use LibXML::Attr::Map;
+        my LibXML::Attr::Map $atts = $node.attributes();
 
     This function returns all attributes and namespace declarations assigned to the given node.
 
@@ -256,6 +257,15 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     By using :!activate it is possible to create multiple namespace declarations on a single element.
 
     The function fails if it is required to create a declaration associating the prefix with the namespace URI but the element already carries a declaration with the same prefix but different namespace URI. 
+
+  * requireNamespace
+
+        my $prefix = $node.requireNamespace(<http://myns.org>, :prefix<xx>)
+          || $node.requireNamespace(<http://myns.org>)
+
+    Creates a namespace definition for the URI, if and only if there is not already a namespace in the node's scope for the URI. If a prefix is given the namespace must also have the given prefix.
+
+    If no prefix is given, a prefix is returned for any existing namespace matching the URL. If not found, a new namespace is created for the URI with an anonimised prefix (_ns0, _ns1, ...).
 
   * setNamespaceDeclURI
 

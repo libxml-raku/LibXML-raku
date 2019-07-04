@@ -61,7 +61,7 @@ clean :
 realclean : clean
 	@rm -f Makefile doc/*.md doc/*/*.md
 
-doc : README.md doc/Attr.md doc/CDATASection.md doc/Comment.md doc/Document.md doc/DocumentFragment.md\
+doc : README.md doc/Attr.md doc/Attr/Map.md doc/CDATASection.md doc/Comment.md doc/Document.md doc/DocumentFragment.md\
       doc/Dtd.md doc/Element.md doc/ErrorHandler.md  doc/InputCallback.md doc/Namespace.md doc/Node.md doc/PI.md doc/RegExp.md
 
 README.md : lib/LibXML.pm6
@@ -73,6 +73,9 @@ README.md : lib/LibXML.pm6
 
 doc/Attr.md : lib/LibXML/Attr.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Attr.pm6 > doc/Attr.md
+
+doc/Attr/Map.md : lib/LibXML/Attr/Map.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Attr/Map.pm6 > doc/Attr/Map.md
 
 doc/Comment.md : lib/LibXML/Comment.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Comment.pm6 > doc/Comment.md

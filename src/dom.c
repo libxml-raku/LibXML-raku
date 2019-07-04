@@ -10,6 +10,7 @@
 #include "dom.h"
 #include "xml6.h"
 #include "xml6_ref.h"
+#include <string.h>
 #include <assert.h>
 
 #define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
@@ -1549,6 +1550,75 @@ domAttrSerializeContent(xmlAttrPtr attr) {
     return rv;
 }
 
+// check if prefix is of the form: base<nnn>
+static int _domPrefixMatch(const xmlChar *prefix, xmlChar *base) {
+    int len = strlen(base);
+    int matched = 0;
+    if (prefix && strncmp(prefix, base, len) == 0) {
+        while (prefix[len]) {
+            char d = prefix[len];
+            if (d >= '0' && d <= '9' && matched <= 5) {
+                matched++;
+            }
+            else {
+                // encountered non-digit, or too large; abort match
+                matched = 0;
+                break;
+            }
+            len++;
+        }
+    }
+    return matched;
+}
+
+static void
+_domNullDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
+    // nothing to do
+}
+
+
+DLLEXPORT xmlChar*
+domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
+    xmlChar *rv;
+    xmlNsPtr *all_ns = xmlGetNsList(self->doc, self);
+    xmlHashTablePtr hash = xmlHashCreate(10);
+    char entry[1];
+
+    if (base == NULL || *base == 0) base = "_ns";
+
+    if ( all_ns ) {
+        int i = 0;
+        int matched;
+        xmlNsPtr ns = all_ns[i];
+        while ( ns ) {
+            if (_domPrefixMatch(ns->prefix, base)) {
+                // found an entry of the form base<n>
+                const xmlChar *key = ns->prefix;
+                if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
+                    xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), entry);
+
+                }
+            }
+            ns = all_ns[i++];
+        }
+        xmlFree(all_ns);
+    }
+
+    {
+        int seq;
+        int found = 1;
+        rv = xmlMalloc(strlen(base) + 6);
+        // iterate until we generate an unused suffix
+        for (seq = 0; found; seq++) {
+            sprintf(rv, "%s%d", base, seq);
+            found = xmlHashLookup(hash, (xmlChar*)rv) != NULL;
+        }
+
+        xmlHashFree(hash, _domNullDeallocator);
+    }
+
+    return rv;
+}
 
 DLLEXPORT int
 domNormalize( xmlNodePtr node );
@@ -1721,10 +1791,10 @@ static xmlNsPtr _domNsSearch(xmlNodePtr self, xmlChar* nsURI) {
 
 DLLEXPORT xmlAttrPtr
 domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value ) {
-    xmlNsPtr   ns          = NULL;
+    xmlNsPtr   ns        = NULL;
     xmlChar*   localname = NULL;
     xmlChar*   prefix    = NULL;
-    xmlAttrPtr newAttr     = NULL;
+    xmlAttrPtr newAttr   = NULL;
 
     if (self && name && value) {
 
@@ -1735,11 +1805,17 @@ domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value
 
         if (nsURI && *nsURI) {
             ns = _domNsSearch(self, nsURI);
-            if ( ns == NULL && prefix != NULL && *prefix != 0 ) {
-                /* NS does not already exist; create it */
+            if ( ns == NULL ) {
                 ns = xmlNewNs(self, nsURI , prefix );
-                if (ns == NULL) {
-                    fail(self, "bad namespace");
+
+                if (prefix != NULL && *prefix != 0 ) {
+                    /* NS does not already exist, but we have a prefix; create a local NS on the node */
+                    if (ns == NULL) {
+                        fail(self, "bad namespace");
+                    }
+                }
+                else {
+                    fail(self, "unable to generate namespace without a prefix");
                 }
             }
         }
@@ -1797,8 +1873,9 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int activate
     else if ( (ns = xmlNewNs( node, nsURI, nsPrefix )) ) {
         rv = 1;
     }
-    else
+    else {
         rv = 0;
+    }
 
     if ( ns && activate ) {
         xmlSetNs(node, ns);

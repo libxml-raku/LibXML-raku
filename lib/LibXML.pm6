@@ -4,6 +4,7 @@ use LibXML::Config;
 
 # Preload stuff to avoid some Rakudo buglets
 use LibXML::Attr;
+use LibXML::Attr::Map;
 use LibXML::CDATASection;
 use LibXML::Comment;
 use LibXML::Document;

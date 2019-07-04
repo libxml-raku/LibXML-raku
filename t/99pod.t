@@ -174,7 +174,7 @@ subtest 'LibXML::Dtd' => {
 subtest 'XML::LibXML::Element' => {
     plan 1;
     use LibXML::Attr;
-    use LibXML::Element :AttrMap;
+    use LibXML::Attr::Map;
     use LibXML::Node;
     use LibXML::Document;
     my $name = 'test-elem';
@@ -202,7 +202,7 @@ subtest 'XML::LibXML::Element' => {
     $avalue = $node.getAttributeNS( $nsURI, $aname );
     $attrnode = $node.getAttributeNode( $aname );
     $attrnode = $node.getAttributeNodeNS( $nsURI, $aname );
-    my AttrMap $attrs = $node.attributes();
+    my LibXML::Attr::Map $attrs = $node.attributes();
     my LibXML::Attr @props = $node.properties();
     $node.removeAttribute( $aname );
     $node.removeAttributeNS( $nsURI, $aname );

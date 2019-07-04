@@ -15,6 +15,7 @@
   "provides" : {
     "LibXML" : "lib/LibXML.pm6",
     "LibXML::Attr" : "lib/LibXML/Attr.pm6",
+    "LibXML::Attr::Map" : "lib/LibXML/Attr/Map.pm6",
     "LibXML::AttrDecl" : "lib/LibXML/AttrDecl.pm6",
     "LibXML::CDATASection" : "lib/LibXML/CDATASection.pm6",
     "LibXML::Dtd" : "lib/LibXML/Dtd.pm6",

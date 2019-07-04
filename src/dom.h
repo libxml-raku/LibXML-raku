@@ -253,6 +253,9 @@ domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
 DLLEXPORT xmlAttrPtr
 domSetAttributeNodeNS( xmlNodePtr node , xmlAttrPtr attr );
 
+DLLEXPORT xmlChar*
+domGenNsPrefix(xmlNodePtr self, xmlChar* base);
+
 DLLEXPORT int
 domNormalize( xmlNodePtr node );
 

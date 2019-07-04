@@ -12,6 +12,7 @@ use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :QName, :NCName;
+use Method::Also;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
@@ -35,7 +36,7 @@ multi method new(QName:D $name, *%o) {
 
 multi method new(|c) is default { nextsame }
 
-sub iterate-ns(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
+sub iterate-ns(LibXML::Namespace $of, $start, :$doc = $of.doc) {
     # follow a chain of .next links.
     my class NodeList does Iterable does Iterator {
         has $.cur;
@@ -44,7 +45,7 @@ sub iterate-ns(LibXML::Namespace $obj, $start, :$doc = $obj.doc) {
             my $this = $!cur;
             $_ = .next with $!cur;
             with $this -> $node {
-                $obj.box: $node, :$doc
+                $of.box: $node, :$doc
             }
             else {
                 IterationEnd;
@@ -58,159 +59,8 @@ method namespaces {
 }
 
 method !get-attributes {
-
-    class AttrMap is export(:AttrMap) {...}
-    class AttrMapNs does Associative {
-        trusts AttrMap;
-        has LibXML::Node $.node;
-        has Str:D $.uri is required;
-        has LibXML::Attr:D %!store handles <EXISTS-KEY Numeric keys pairs kv elems list List>;
-
-        method !unlink(Str:D $key) {
-            $!node.removeChild($_)
-                with %!store{$key}:delete;
-        }
-        method !store(Str:D $name, LibXML::Attr:D $att) {
-            self!unlink($name);
-            %!store{$name} = $att;
-        }
-
-        method AT-KEY($key) is rw {
-            %!store{$key};
-        }
-
-        multi method ASSIGN-KEY(Str() $name, Str() $val) {
-            self!store($name, $!node.setAttributeNS($!uri, $name, $val));
-        }
-
-        method BIND-KEY(Str() $name, Str() $val) {
-            self!unlink($name);
-            %!store{$name} := $!node.setAttributeNS($!uri, $name, $val);
-        }
-
-        method DELETE-KEY(Str() $name) {
-            self!unlink($name);
-        }
-    }
-
-    class AttrMap does Associative {
-        has LibXML::Node $.node;
-        has xmlNs %!ns;
-        my subset AttrMapNode where LibXML::Attr:D|AttrMapNs:D;
-        has AttrMapNode %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
-
-        submethod TWEAK() {
-            with $!node.native.properties -> domNode $prop is copy {
-                my LibXML::Node $doc = $!node.doc;
-                require LibXML::Attr;
-                while $prop.defined {
-                    my $uri;
-                    if $prop.type == XML_ATTRIBUTE_NODE {
-                        my xmlAttr $native := nativecast(xmlAttr, $prop);
-                        my $att := LibXML::Attr.new: :$native, :$doc;
-                        self!tie-att($att);
-                    }
-
-                    $prop = $prop.next;
-                }
-            }
-        }
-
-        method !unlink(Str:D $key) {
-            with %!store{$key}:delete {
-                 when AttrMapNs {
-                     for .keys -> $key {
-                         .DELETE-KEY($key);
-                     }
-                 }
-                 when LibXML::Node {
-                     $!node.removeAttribute($key)
-                 }
-            }
-        }
-        method !store(Str:D $name, AttrMapNode:D $att) {
-            self!unlink($name);
-            %!store{$name} = $att;
-        }
-
-        method AT-KEY($key) is rw {
-            Proxy.new(
-                FETCH => sub ($) {
-                    %!store{$key};
-                },
-                STORE => sub ($, Hash $ns) {
-                    # for autovivication
-                    self.ASSIGN-KEY($key, $ns);
-                },
-            );
-        }
-
-        # merge in new attributes;
-        multi method ASSIGN-KEY(Str() $uri, AttrMapNs $ns-atts) {
-            self!store($ns-atts.uri, $ns-atts);
-        }
-
-        multi method ASSIGN-KEY(Str() $uri, Hash $atts) {
-            # plain hash; need to coerce
-            my AttrMapNs $ns-map .= new: :$!node, :$uri;
-            for $atts.pairs {
-                $ns-map{.key} = .value;
-            }
-            # redispatch
-            self.ASSIGN-KEY($uri, $ns-map);
-        }
-
-        multi method ASSIGN-KEY(Str() $name, Str:D $val) is default {
-            $!node.setAttribute($name, $val);
-            self!store($name, $!node.getAttributeNode($name));
-        }
-
-        method DELETE-KEY(Str() $key) {
-            self!unlink($key);
-        }
-
-        # DOM Support
-        method setNamedItem($att) {
-            $!node.addChild($att);
-            self!tie-att($att);
-        }
-
-        method !tie-att(LibXML::Attr:D $att, Bool :$add = True) {
-            my Str:D $name = $att.native.getNodeName;
-            my Str $uri;
-            my ($prefix, $local-name) = $name.split(':', 2);
-
-            if $local-name {
-                with $!node.doc {
-                    %!ns{$prefix} = .native.SearchNs($!node.native, $prefix)
-                        unless %!ns{$prefix}:exists;
-
-                    with %!ns{$prefix} -> $ns {
-                        $uri = $ns.href;
-                    }
-                }
-            }
-
-            with $uri {
-                self{$_} = %()
-                    unless self{$_} ~~ AttrMapNs;
-
-                $_!AttrMapNs::store($local-name, $att)
-                    given %!store{$_};
-            }
-            else {
-                self!store($name, $att);
-            }
-
-        }
-
-        method removeNamedItem(Str:D $name) {
-            self{$name}:delete;
-        }
-    }
-
-    my AttrMap $atts .= new: :node(self);
-    $atts;
+    require LibXML::Attr::Map;
+    LibXML::Attr::Map.new: :node(self);
 }
 
 method !set-attributes(%atts) {
@@ -258,6 +108,20 @@ method appendWellBalancedChunk(Str:D $string) {
     self.appendChild( $frag );
 }
 
+multi method requireNamespace(Str:D $uri where .so, NCName:D :$prefix! --> NCName) {
+    $.lookupNamespacePrefix($uri)
+    // ($.setNamespace($uri, $prefix, :!activate) && $prefix)
+}
+
+multi method requireNamespace(Str:D $uri where .so --> NCName) {
+    $.lookupNamespacePrefix($uri)
+    // do {
+        my NCName:D $prefix = self.native.genNsPrefix;
+        $.setNamespace($uri, $prefix, :!activate)
+            && $prefix
+    }
+}
+
 my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
 multi method addChild(AttrNode:D $a) { $.setAttributeNode($a) };
 multi method addChild(LibXML::Node $c) is default { callsame }
@@ -303,7 +167,8 @@ LibXML::Element - LibXML Class for Element Nodes
 
 
 
-  use LibXML::Element :AttrMap;
+  use LibXML::Element;
+  use LibXML::Attr::Map;
   # Only methods specific to Element nodes are listed here,
   # see the LibXML::Node manpage for other methods
 
@@ -315,7 +180,7 @@ LibXML::Element - LibXML Class for Element Nodes
   $attrnode = $node.getAttributeNode( $aname );
   $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
   my Bool $has-atts = $node.hasAttributes();
-  my AttrMap $attrs = $node.attributes();
+  my LibXML::Attr::Map $attrs = $node.attributes();
   my LibXML::Attr @props = $node.properties();
   $node.removeAttribute( $aname );
   $node.removeAttributeNS( $nsURI, $aname );
@@ -476,8 +341,8 @@ returns True if the current node has any attributes set, otherwise False is retu
 =begin item1
 attributes
 
-  use LibXML::Element :AttrMap;
-  my AttrMap $atts = $node.attributes();
+  use LibXML::Attr::Map;
+  my LibXML::Attr::Map $atts = $node.attributes();
 
 
 This function returns all attributes and namespace declarations assigned to the
@@ -685,6 +550,22 @@ declarations on a single element.
 The function fails if it is required to create a declaration associating the
 prefix with the namespace URI but the element already carries a declaration
 with the same prefix but different namespace URI. 
+
+=end item1
+
+=begin item1
+requireNamespace
+
+   my $prefix = $node.requireNamespace(<http://myns.org>, :prefix<xx>)
+     || $node.requireNamespace(<http://myns.org>)
+  
+Creates a namespace definition for the URI, if and only if there is not
+already a namespace in the node's scope for the URI. If a prefix is given
+the namespace must also have the given prefix.
+
+If no prefix is given, a prefix is returned for any existing namespace
+matching the URL. If not found, a new namespace is created for the URI
+with an anonimised prefix (_ns0, _ns1, ...).
 
 =end item1
 

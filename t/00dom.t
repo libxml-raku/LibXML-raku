@@ -1,5 +1,5 @@
 use Test;
-plan 30;
+plan 34;
 
 # bootstrapping tests for the DOM
 
@@ -43,7 +43,7 @@ ok $doc.native.isSameNode($root.native.doc);
 
 # attribute basics
 my $elem = $doc.createElement('foo');
-my LibXML::Attr:D $attr = $doc.createAttribute('attr', 'e & f');
+my LibXML::Attr $attr = $doc.createAttribute('attr', 'e & f');
 $elem.setAttributeNode($attr);
 is $attr, 'e & f', 'attr.Str';
 is $elem.native.properties, ' attr="e &amp; f"', 'elem properties linkage';
@@ -81,9 +81,19 @@ is-deeply %atts<http://ns>.keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
 is %atts<foo>, 'bar', 'Non NS elem';
 is %atts<http://ns><aaa>, 'AAA', 'NS elem';
 
+my $prefix = $elem.native.genNsPrefix;
+is $prefix, '_ns0', 'first generated NS prefix';
+$elem.requireNamespace('http://ns2');
+$prefix = $elem.native.genNsPrefix;
+is $prefix, '_ns1', 'second generated NS prefix';
+
 lives-ok {$attr = $elem.getAttributeNodeNS('http://ns', 'aaa');};
+lives-ok {%atts.setNamedItemNS('http://ns', $attr);};
+dies-ok {%atts.setNamedItemNS('http://ns2', $attr);}, 'changing attribute NS; not currently supported';
 
 lives-ok {$attr = %atts<http://ns><aaa>:delete};
 
-is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:bbb="BBB" x:ccc="CCCC"/>', 'NS Elem after NS proxy deletion');
+is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCCC"/>', 'NS Elem after NS proxy deletion');
+
+
 

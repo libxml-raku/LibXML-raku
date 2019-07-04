@@ -104,7 +104,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             ok( $attributes, 'got attributes' );
             # TEST
 
-            isa-ok( $attributes, "Element::AttrMap", ' TODO : Add test name' );
+            isa-ok( $attributes, "LibXML::Attr::Map", ' TODO : Add test name' );
             # TEST
             is( +$attributes, 1, ' TODO : Add test name' );
             my $attr = $attributes<foo>;
@@ -516,10 +516,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     is(%att<http://kungfoo><kung>, $newAttr.nodeValue, ' TODO : Add test name');
 
-    $attributes.removeNamedItem("x:kung");
-    %att := $root.attributes;
+    $attributes.removeNamedItemNS( "http://kungfoo", "kung");
     # TEST
-    is( +%att, 2, ' TODO : Add test name');
+    is( +%att, 1, ' TODO : Add test name');
     # TEST
     is($attributes.elems, 2, ' TODO : Add test name');
 }

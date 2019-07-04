@@ -43,6 +43,7 @@ method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
 method domAddNewChild { ... }
 method domNormalize { ... }
+method domGenNsPrefix { ... }
 
 my constant XML_XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 my constant XML_XML_NS   = 'http://www.w3.org/XML/1998/namespace';
@@ -204,12 +205,16 @@ method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
             fail("NAMESPACE ERROR: 'xml' prefix is reserved for the namespace "~XML_XML_NS);
         }
 
-        self.domSetAttributeNS($uri, $name, $value);
+        self.domSetAttributeNS($uri, $name, $value) // self.dom-error // Node;
     }
 }
 
 method setNamespace(Str $uri, NCName $prefix, Bool :$activate) {
     self.domSetNamespace($uri, $prefix, $activate);
+}
+
+method genNsPrefix(NCName $base-prefix?) {
+    self.domGenNsPrefix($base-prefix);
 }
 
 method removeChild(Node:D $child) {

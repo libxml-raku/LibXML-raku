@@ -41,6 +41,7 @@ class LibXML::Parser {
             :oldsax(XML_PARSE_OLDSAX),
             :pedantic-parser(XML_PARSE_PEDANTIC),
             :recover(XML_PARSE_RECOVER),
+            :recover-quietly(XML_PARSE_RECOVER +| XML_PARSE_NOWARNING),
             :recover-silently(XML_PARSE_RECOVER +| XML_PARSE_NOERROR),
             :suppress-errors(XML_PARSE_NOERROR),
             :suppress-warnings(XML_PARSE_NOWARNING),
