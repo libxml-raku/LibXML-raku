@@ -158,12 +158,16 @@ class LibXML::Attr::Map does Associative {
             unless (!$uri && !$cur-uri) || $cur-uri ~~ $uri;
         $.setNamedItem($att);
     }
+    method getNamedItemNS(Str $uri, LibXML::Attr:D $att) {
+        .<att> with self{$uri};
+    }
+
 
     method removeNamedItem(Str:D $name) {
         self{$name}:delete;
     }
     method removeNamedItemNS(Str $uri, Str:D $name) {
-        $uri ?? (self{$uri}{$name}:delete) !! (self{$name}:delete);
+        $uri ?? (.{$name}:delete with self{$uri}) !! (self{$name}:delete);
     }
 }
 
@@ -177,24 +181,16 @@ LibXML::Attr::Map - LibXML Class for Mapped Attributes
   use LibXML::Attr::Map;
   use LibXML::Document;
   use LibXML::Element;
-  my LibXML::Document $doc .= parse(q:to<EOF>);
-  <foo
-    att1="AAA" att2="BBB"
-    xmlns:x="http://myns.org" x:att3="CCC" x:att4="DDD"
-  />
-  EOF
+  my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB">');
+  my LibXML::Element $node = $doc.root;
+  my LibXML::Attr::Map $atts = $node.attributes;
 
-  my LibXML::Element $root = $doc.root;
-  my LibXML::Attr::Map $atts = $root.attributes;
-
-  say $atts.keys.sort;  # att1 att2 http://myns.org
+  say $atts.keys.sort;  # att1 att2
+  say $atts<att1>.Str ; # AAA
   say $atts<att1>.gist; # att1="AAA"
-
-  say $atts<http://myns.org>.keys.sort; # att3 att4
-  my $att3 = $atts<http://myns.org><att3>;
-
-  # create an attribute in a new namespace.
-  $atts{'http://ns2.org'}<atts1> = "EEE";
+  $atts<att2>:delete;
+  $atts<att3> = "CCC";
+  say $node.Str; # <foo att1="AAA" att3="CCC">
 
 
 =head1 DESCRIPTION
@@ -204,14 +200,98 @@ of an element's attributes.
 
 It presents a tied hash-like mapping of attributes to attribute names.
 
+=head2 Updating Attributes
+
+Attributes can be created, updated or deleted associatively:
+
+  my LibXML::Attr::Map $atts = $node.attributes;
+
+  $atts<style> = 'fontweight: bold';
+  my LibXML::Attr $style = $atts<style>;
+  $atts<style>:delete; # remove the style
+
+There are also some DOM (NamedNodeMap) compatible methods:
+
+   $atts.setNamedItem('style', 'fontweight: bold');
+   my LibXML::Attr $style = $attr.getNamedItem('style');
+   $atts.removeNamedItem('style');
+
+=head2 Namespaces
+
 Attributes with namespaces are stored in a nested, map under the namespace's URL.
+
+  <foo
+    att1="AAA" att2="BBB"
+    xmlns:x="http://myns.org" x:att3="CCC"
+  />
+  EOF
+
+  my LibXML::Element $node = $doc.root;
+  my LibXML::Attr::Map $atts = $node.attributes;
+
+  say $atts.keys.sort;  # att1 att2 http://myns.org
+  say $atts<http://myns.org>.keys; # att3
+  my LibXML::Attr $att3 = $atts<http://myns.org><att3>;
+  # assign to a new namespace
+  my $foo-bar = $attrs<http://www.foo.com/><bar> = 'baz';
+
+The C<:!ns> option filters out any attributes with qaulified namedspaces:
+  
+  my LibXML::Attr::Map $atts = $node.attributes: :!ns;
+  say $atts.keys.sort;  # att1 att2
+
 
 =head1 METHODS
 
-=item1
+=begin item1
 keys, pairs, kv, elems, values, list
 
 Similar to the equivalent L<Hash|https://docs.perl6.org/type/Hash> methods.
+
+=end item1
+
+=begin item1
+setNamedItem
+
+  $map.setNamedItem($new_node)
+
+Sets the node with the same name as C<<<<<< $new_node >>>>>> to C<<<<<< $new_node >>>>>>.
+
+=end item1
+
+=begin item1
+removeNamedItem
+
+  $map.removeNamedItem($name)
+
+Remove the item with the name C<<<<<< $name >>>>>>.
+
+=end item1
+
+=begin item1
+getNamedItemNS
+
+   my LibXML::Attr $att = $map.getNamedItemNS($uri, $name);
+
+C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
+
+=end item1
+
+=begin item1
+setNamedItemNS
+
+I<<<<<< Not implemented yet. >>>>>>. 
+
+=end item1
+
+=begin item1
+removeNamedItemNS
+
+  $map.removeNamedItemNS($uri, $name);
+
+C<$map.removedNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>.
+
+=end item1
 
 =end pod
 

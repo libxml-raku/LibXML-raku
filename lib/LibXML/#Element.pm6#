@@ -340,14 +340,14 @@ attributes
   my LibXML::Attr::Map $atts = $node.attributes();
 
 
-This function returns an updatable map of attributes declarations assigned to the
-given node. See L<LibXML::Attr::Map> for more details.
+This function returns all attributes and namespace declarations assigned to the
+given node.
 
-Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
+Unlike Perl 5, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
  See also:
- =item2 the C<properties> method, which returns a list of L<LibXML::Attr> attributes.
- =item2 the C<namespaces> method, which returns a list of L<LibXML::Namespace> namespaces.
+ =item the C<properties> method, which returns a list of L<LibXML::Attr> attributes.
+ =item the C<namespaces> method, which returns a list of L<LibXML::Namespace> namespaces.
 
 =end item1
 
@@ -555,7 +555,7 @@ requireNamespace
    my NCName:D $prefix = $node.requireNamespace(<http://myns.org>)
 
 Return the prefix for any any existing namespace in the node's scope that
-matches the URL. If not found, a new namespace is created for the URI
+matches the URI. If not found, a new namespace is created for the URI
 on the node with an anonimised prefix (_ns0, _ns1, ...).
 
 =end item1
