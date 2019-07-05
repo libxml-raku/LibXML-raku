@@ -406,7 +406,7 @@ EOF
             # TEST*$xml
             is($attr.serializeContent, '&quot;bar&ent;&quot;', ' TODO : Add test name');
             # TEST*$xml
-            is($attr.gist, ' foo="&quot;bar&ent;&quot;"', ' TODO : Add test name');
+            is($attr.gist, 'foo="&quot;bar&ent;&quot;"', ' TODO : Add test name');
         }
         {
             my $attr = $root.getAttributeNodeNS(Str,'foo');
@@ -498,7 +498,7 @@ EOF
                 '&quot;barENT&quot;',
                 "serializeContent - $n");
             # TEST*$xml
-            is($attr.gist, ' foo="&quot;barENT&quot;"',
+            is($attr.gist, 'foo="&quot;barENT&quot;"',
                 "toString - $n");
         }
         # fixed values are defined
@@ -517,7 +517,7 @@ EOF
             # TEST*$xml
             is($attr.value,'foo', ' TODO : Add test name');
             # TEST*$xml
-            is($attr.gist, ' fixed="foo"', ' TODO : Add test name');
+            is($attr.gist, 'fixed="foo"', ' TODO : Add test name');
         }
         {
             my $attr = $root.getAttributeNode('a:ns_fixed');
@@ -533,7 +533,7 @@ EOF
             # TEST*$xml
             is($attr.value,'ns_foo', ' TODO : Add test name');
             # TEST*$xml
-            is($attr.gist, ' a:ns_fixed="ns_foo"', ' TODO : Add test name');
+            is($attr.gist, 'a:ns_fixed="ns_foo"', ' TODO : Add test name');
         }
 
         # TEST*$xml

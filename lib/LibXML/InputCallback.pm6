@@ -56,27 +56,33 @@ my class Context {
     }
 
     method read {
-        -> Pointer $addr, CArray $out-arr, UInt $bytes --> Int {
+        -> Pointer $addr, CArray $out-arr, UInt $bytes --> UInt {
             CATCH { default { warn $_; return Pointer; } }
+
             my Handle $handle = %!handles{+$addr}
                 // die "read on unknown handle";
-            with $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf {
-                my $n-read := $io-buf.bytes;
-                if $n-read > $bytes {
-                    # read-buffer exceeds output buffer size;
-                    # buffer the excess
-                    $handle.buf = $io-buf.subbuf($bytes);
-                    $io-buf .= subbuf(0, $bytes);
-                    $n-read = $bytes;
+
+            given $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf {
+                my UInt:D $n-read := do with $io-buf {.bytes} else {0};
+                if $n-read {
+                    if $n-read > $bytes {
+                        # read-buffer exceeds output buffer size;
+                        # buffer the excess
+                        $handle.buf = $io-buf.subbuf($bytes);
+                        $io-buf .= subbuf(0, $bytes);
+                        $n-read = $bytes;
+                    }
+                    else {
+                        $handle.buf = Nil;
+                    }
+
+                    note "$_\[{+$addr}\]: read $bytes --> $n-read" with $!cb.trace;
+                    my CArray[uint8] $io-arr := nativecast(CArray[uint8], $io-buf);
+                    memcpy($out-arr, $io-arr, $n-read)
                 }
                 else {
-                    $handle.buf = Nil;
+                    note "$_\[{+$addr}\]: read $bytes --> EOF" with $!cb.trace;
                 }
-
-                note "$_\[{+$addr}\]: read $bytes --> $n-read" with $!cb.trace;
-                my CArray[uint8] $io-arr := nativecast(CArray[uint8], $io-buf);
-                memcpy($out-arr, $io-arr, $n-read)
-                    if $n-read;
 
                 $n-read;
             }
@@ -184,8 +190,7 @@ The libxml2 library offers a callback implementation as global functions only.
 To work-around the troubles resulting in having only global callbacks - for
 example, if the same global callback stack is manipulated by different
 applications running together in a single Apache Web-server environment -,
-LibXML::InputCallback comes with a object-oriented and a function-oriented
-part.
+LibXML::InputCallback comes with a object-oriented interface.
 
 Using the function-oriented part the global callback stack of libxml2 can be
 manipulated. Those functions can be used as interface to the callbacks on the
@@ -214,7 +219,7 @@ registered ones.
 
 While parsing the data stream, the libxml2 parser checks if a registered
 callback group will handle a URI - if they will not, the URI will be
-interpreted as I<<<<<< file://URI >>>>>>. To handle a URI, the I<<<<<< match >>>>>> callback will have to return '1'. If that happens, the handling of the URI will
+interpreted as I<<<<<< file://URI >>>>>>. To handle a URI, the I<<<<<< match >>>>>> callback will have to return True. If that happens, the handling of the URI will
 be passed to that callback group. Next, the URI will be passed to the I<<<<<< open >>>>>> callback, which should return a I<<<<<< reference >>>>>> to the data stream if it successfully opened the file, '0' otherwise. If
 opening the stream was successful, the I<<<<<< read >>>>>> callback will be called repeatedly until it returns an empty string. After the
 read callback, the I<<<<<< close >>>>>> callback will be called to close the stream.
@@ -245,10 +250,10 @@ my  LibXML::InputCallback.$input-callbacks . = new(
   $input-callbacks.register-callbacks(&match-cb3, &open-cb3,
                                       &read-cb3, &close-cb3);
   
-  $parser.input-callbacks =  $input-callbacks;
+  $parser.input-callbacks = $input-callbacks;
   $parser.parse: :file( $some-xml-file );
 
-Note that this Perl 6 port does not support the old Perl 5 Global Callback mechanism.
+Note that this Perl 6 port does not currently support the old Perl 5 Global Callback mechanism.
 
 =head1 INTERFACE DESCRIPTION
 
@@ -285,31 +290,44 @@ from the stack.
 =head1 EXAMPLE CALLBACKS
 
 The following example is a purely fictitious example that uses a
-MyScheme::Handler object that responds to methods similar to an IO::Handle.
+minimal MyScheme::Handler stub object.
 
+  use LibXML::Parser;
+  use LibXML::InputCallBack;
 
+  my class MyScheme {
+        subset URI of Str where .starts-with('myscheme:');
+        our class Handler {
+            has URI:D $.uri is required;
+            has Bool $!first = True;
 
+            method read($len) {
+                ($!first-- ?? '<helloworld/>' !! '').encode;
+            }
+            method close {$!first = True}
+        }
+  }
   # Define the four callback functions
   sub match-uri(Str $uri) {
-      return $uri ~~ /^myscheme:/; # trigger our callback group at a 'myscheme' URIs
+      $uri ~~ MyScheme::URI:D; # trigger our callback group at a 'myscheme' URIs
   }
   
-  sub open-uri(Str $uri) {
+  sub open-uri(MyScheme::URI:D $uri) {
       MyScheme::Handler.new(:$uri);
   }
   
   # The returned $buffer will be parsed by the libxml2 parser
-  sub read-uri(MyScheme::Handler $handler, UInt $n --> Blob) {
-      $handler.read($length);
+  sub read-uri(MyScheme::Handler:D $handler, UInt $n --> Blob) {
+      $handler.read($n);
   }
   
   # Close the handle associated with the resource.
-  sub close-uri(MyScheme::Handler $handler) {
-      my $handler.close;
+  sub close-uri(MyScheme::Handler:D $handler) {
+      $handler.close;
   }
   
   # Register them with a instance of LibXML::InputCallback
-  my $input-callbacks = LibXML::InputCallback.new();
+  my LibXML::InputCallback $input-callbacks .= new;
   $input-callbacks.register-callbacks(&match-uri, &open-uri,
                                       &read-uri, &close-uri );
   
@@ -317,7 +335,8 @@ MyScheme::Handler object that responds to methods similar to an IO::Handle.
   $parser.input-callbacks = $input-callbacks;
   
   # $some-xml-file will be parsed using our callbacks
-  $parser.parse: :file( $some-xml-file );
+  my LibXML $parser .= new;
+  $parser.parse: :file('myscheme:stub.xml')
 
 =head1 AUTHORS
 

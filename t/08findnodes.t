@@ -45,7 +45,7 @@ if ( defined $dom ) {
     # TEST
 
     if @list {
-        is(@list[0].gist, ' name="Camel"', 'Attribute selection' )
+        is(@list[0].gist, 'name="Camel"', 'Attribute selection' )
     }
     else {
         flunk('Attribute selection');

@@ -22,7 +22,7 @@ method value is rw { $.nodeValue }
 
 method Str is also<getValue> { $.nodeValue}
 method setValue(Str $_) { $.nodeValue = $_ }
-method gist(|c) { $.native.Str(|c) }
+method gist(|c) { $.native.Str(|c).trim }
 
 =begin pod
 

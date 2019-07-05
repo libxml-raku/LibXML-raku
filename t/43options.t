@@ -61,7 +61,6 @@ no_network
 
   ok( ! $p.recover_silently(), ' TODO : Add test name' );
   $p.set-option(recover => 1);
-  warn $p.suppress-errors;
   # TEST
   is-deeply( $p.recover_silently(), False, ' TODO : Add test name' );
   $p.set-option(recover => 2);

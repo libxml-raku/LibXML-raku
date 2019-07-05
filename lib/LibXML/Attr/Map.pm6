@@ -151,6 +151,13 @@ class LibXML::Attr::Map does Associative {
         $!node.addChild($att);
         self!tie-att($att);
     }
+    method getNamedItem(Str:D $name) {
+        self{$name};
+    }
+    method removeNamedItem(Str:D $name) {
+        self{$name}:delete;
+    }
+
     method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
         my $cur-uri = $att.getNamespaceURI;
         # todo: allow namespace update on attributes?
@@ -158,14 +165,10 @@ class LibXML::Attr::Map does Associative {
             unless (!$uri && !$cur-uri) || $cur-uri ~~ $uri;
         $.setNamedItem($att);
     }
-    method getNamedItemNS(Str $uri, LibXML::Attr:D $att) {
-        .<att> with self{$uri};
+    method getNamedItemNS(Str $uri, LibXML::Attr:D $name) {
+        $uri ?? (.{$name} with self{$uri}) !! (self{$name});
     }
 
-
-    method removeNamedItem(Str:D $name) {
-        self{$name}:delete;
-    }
     method removeNamedItemNS(Str $uri, Str:D $name) {
         $uri ?? (.{$name}:delete with self{$uri}) !! (self{$name}:delete);
     }
@@ -181,22 +184,26 @@ LibXML::Attr::Map - LibXML Class for Mapped Attributes
   use LibXML::Attr::Map;
   use LibXML::Document;
   use LibXML::Element;
-  my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB">');
+  my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
   my LibXML::Element $node = $doc.root;
   my LibXML::Attr::Map $atts = $node.attributes;
 
+  # -- Associative Interface --
   say $atts.keys.sort;  # att1 att2
   say $atts<att1>.Str ; # AAA
   say $atts<att1>.gist; # att1="AAA"
   $atts<att2>:delete;
   $atts<att3> = "CCC";
-  say $node.Str; # <foo att1="AAA" att3="CCC">
+  say $node.Str; # <foo att1="AAA" att3="CCC"/>
 
+  # -- DOM Interface --
+  $atts.setNamedItem('style', 'fontweight: bold');
+  my LibXML::Attr $style = $atts.getNamedItem('style');
+  $atts.removeNamedItem('style');
 
 =head1 DESCRIPTION
 
-This class is roughly equivalent to the W3C DOM NamedNodeMap and (Perl 5's XML::LibXML::NamedNodeMap). This implementation currently limits their use to manipulation
-of an element's attributes.
+This class is roughly equivalent to the W3C DOM NamedNodeMap and (Perl 5's XML::LibXML::NamedNodeMap). This implementation currently limits their use to manipulation of an element's attributes.
 
 It presents a tied hash-like mapping of attributes to attribute names.
 
@@ -212,9 +219,10 @@ Attributes can be created, updated or deleted associatively:
 
 There are also some DOM (NamedNodeMap) compatible methods:
 
-   $atts.setNamedItem('style', 'fontweight: bold');
-   my LibXML::Attr $style = $attr.getNamedItem('style');
-   $atts.removeNamedItem('style');
+  my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
+  $atts.setNamedItem($style);
+  $style = $atts.getNamedItem('style');
+  $atts.removeNamedItem('style');
 
 =head2 Namespaces
 
@@ -234,11 +242,6 @@ Attributes with namespaces are stored in a nested, map under the namespace's URL
   my LibXML::Attr $att3 = $atts<http://myns.org><att3>;
   # assign to a new namespace
   my $foo-bar = $attrs<http://www.foo.com/><bar> = 'baz';
-
-The C<:!ns> option filters out any attributes with qaulified namedspaces:
-  
-  my LibXML::Attr::Map $atts = $node.attributes: :!ns;
-  say $atts.keys.sort;  # att1 att2
 
 
 =head1 METHODS

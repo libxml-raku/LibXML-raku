@@ -9,16 +9,22 @@ SYNOPSIS
     use LibXML::Attr::Map;
     use LibXML::Document;
     use LibXML::Element;
-    my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB">');
+    my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
     my LibXML::Element $node = $doc.root;
     my LibXML::Attr::Map $atts = $node.attributes;
 
+    # -- Associative Interface --
     say $atts.keys.sort;  # att1 att2
     say $atts<att1>.Str ; # AAA
     say $atts<att1>.gist; # att1="AAA"
     $atts<att2>:delete;
     $atts<att3> = "CCC";
-    say $node.Str; # <foo att1="AAA" att3="CCC">
+    say $node.Str; # <foo att1="AAA" att3="CCC"/>
+
+    # -- DOM Interface --
+    $atts.setNamedItem('style', 'fontweight: bold');
+    my LibXML::Attr $style = $atts.getNamedItem('style');
+    $atts.removeNamedItem('style');
 
 DESCRIPTION
 ===========
@@ -40,8 +46,9 @@ Attributes can be created, updated or deleted associatively:
 
 There are also some DOM (NamedNodeMap) compatible methods:
 
-    $atts.setNamedItem('style', 'fontweight: bold');
-    my LibXML::Attr $style = $attr.getNamedItem('style');
+    my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
+    $atts.setNamedItem($style);
+    $style = $atts.getNamedItem('style');
     $atts.removeNamedItem('style');
 
 Namespaces
@@ -63,11 +70,6 @@ Attributes with namespaces are stored in a nested, map under the namespace's URL
     my LibXML::Attr $att3 = $atts<http://myns.org><att3>;
     # assign to a new namespace
     my $foo-bar = $attrs<http://www.foo.com/><bar> = 'baz';
-
-The `:!ns` option filters out any attributes with qaulified namedspaces:
-
-    my LibXML::Attr::Map $atts = $node.attributes: :!ns;
-    say $atts.keys.sort;  # att1 att2
 
 METHODS
 =======

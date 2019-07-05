@@ -27,7 +27,7 @@ The LibXML::InputCallback class transparently registers the input callbacks for 
 How does LibXML::InputCallback work?
 ------------------------------------
 
-The libxml2 library offers a callback implementation as global functions only. To work-around the troubles resulting in having only global callbacks - for example, if the same global callback stack is manipulated by different applications running together in a single Apache Web-server environment -, LibXML::InputCallback comes with a object-oriented and a function-oriented part.
+The libxml2 library offers a callback implementation as global functions only. To work-around the troubles resulting in having only global callbacks - for example, if the same global callback stack is manipulated by different applications running together in a single Apache Web-server environment -, LibXML::InputCallback comes with a object-oriented interface.
 
 Using the function-oriented part the global callback stack of libxml2 can be manipulated. Those functions can be used as interface to the callbacks on the C- and XS Layer. At the object-oriented part, operations for working with the "pseudo-localized" callback stack are implemented. Currently, you can register and de-register callbacks on the Perl layer and initialize them on a per parser basis.
 
@@ -41,7 +41,7 @@ The parser process works on an XML data stream, along which, links to other reso
 
 Callback groups in the callback stack are processed from top to bottom, meaning that callback groups registered later will be processed before the earlier registered ones.
 
-While parsing the data stream, the libxml2 parser checks if a registered callback group will handle a URI - if they will not, the URI will be interpreted as *file://URI *. To handle a URI, the *match * callback will have to return '1'. If that happens, the handling of the URI will be passed to that callback group. Next, the URI will be passed to the *open * callback, which should return a *reference * to the data stream if it successfully opened the file, '0' otherwise. If opening the stream was successful, the *read * callback will be called repeatedly until it returns an empty string. After the read callback, the *close * callback will be called to close the stream.
+While parsing the data stream, the libxml2 parser checks if a registered callback group will handle a URI - if they will not, the URI will be interpreted as *file://URI *. To handle a URI, the *match * callback will have to return True. If that happens, the handling of the URI will be passed to that callback group. Next, the URI will be passed to the *open * callback, which should return a *reference * to the data stream if it successfully opened the file, '0' otherwise. If opening the stream was successful, the *read * callback will be called repeatedly until it returns an empty string. After the read callback, the *close * callback will be called to close the stream.
 
 ### Organisation of callback groups in LibXML::InputCallback
 
@@ -54,10 +54,10 @@ After object instantiation using the parameter-less constructor, you can registe
 
 my LibXML::InputCallback.$input-callbacks . = new( :&match, :&open, :&read, :&close); # setup second callback group (named arguments) $input-callbacks.register-callbacks(match => &match-cb2, open => &open-cb2, read => &read-cb2, close => &close-cb2); # setup third callback group (positional arguments) $input-callbacks.register-callbacks(&match-cb3, &open-cb3, &read-cb3, &close-cb3);
 
-    $parser.input-callbacks =  $input-callbacks;
+    $parser.input-callbacks = $input-callbacks;
     $parser.parse: :file( $some-xml-file );
 
-Note that this Perl 6 port does not support the old Perl 5 Global Callback mechanism.
+Note that this Perl 6 port does not currently support the old Perl 5 Global Callback mechanism.
 
 INTERFACE DESCRIPTION
 =====================
@@ -80,29 +80,44 @@ Class methods
 EXAMPLE CALLBACKS
 =================
 
-The following example is a purely fictitious example that uses a MyScheme::Handler object that responds to methods similar to an IO::Handle.
+The following example is a purely fictitious example that uses a minimal MyScheme::Handler stub object.
 
+    use LibXML::Parser;
+    use LibXML::InputCallBack;
+
+    my class MyScheme {
+          subset URI of Str where .starts-with('myscheme:');
+          our class Handler {
+              has URI:D $.uri is required;
+              has Bool $!first = True;
+
+              method read($len) {
+                  ($!first-- ?? '<helloworld/>' !! '').encode;
+              }
+              method close {$!first = True}
+          }
+    }
     # Define the four callback functions
     sub match-uri(Str $uri) {
-        return $uri ~~ /^myscheme:/; # trigger our callback group at a 'myscheme' URIs
+        $uri ~~ MyScheme::URI:D; # trigger our callback group at a 'myscheme' URIs
     }
 
-    sub open-uri(Str $uri) {
+    sub open-uri(MyScheme::URI:D $uri) {
         MyScheme::Handler.new(:$uri);
     }
 
     # The returned $buffer will be parsed by the libxml2 parser
-    sub read-uri(MyScheme::Handler $handler, UInt $n --> Blob) {
-        $handler.read($length);
+    sub read-uri(MyScheme::Handler:D $handler, UInt $n --> Blob) {
+        $handler.read($n);
     }
 
     # Close the handle associated with the resource.
-    sub close-uri(MyScheme::Handler $handler) {
-        my $handler.close;
+    sub close-uri(MyScheme::Handler:D $handler) {
+        $handler.close;
     }
 
     # Register them with a instance of LibXML::InputCallback
-    my $input-callbacks = LibXML::InputCallback.new();
+    my LibXML::InputCallback $input-callbacks .= new;
     $input-callbacks.register-callbacks(&match-uri, &open-uri,
                                         &read-uri, &close-uri );
 
@@ -110,7 +125,8 @@ The following example is a purely fictitious example that uses a MyScheme::Handl
     $parser.input-callbacks = $input-callbacks;
 
     # $some-xml-file will be parsed using our callbacks
-    $parser.parse: :file( $some-xml-file );
+    my LibXML $parser .= new;
+    $parser.parse: :file('myscheme:stub.xml')
 
 AUTHORS
 =======

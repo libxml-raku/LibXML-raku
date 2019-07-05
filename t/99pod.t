@@ -1,31 +1,55 @@
-# test code sample in POD Documentation
+# test synopsis and code samples in POD Documentation
 
 use Test;
 
-plan 11;
+plan 15;
 
 subtest 'LibXML::Attr' => {
     plan 5;
     use LibXML::Attr;
     my $name = "test";
     my $value = "Value";
-      my LibXML::Attr $attr .= new(:$name, :$value);
-      my Str:D $string = $attr.getValue();
-      is $string, $value, '.getValue';
-      $string = $attr.value;
-      is $string, $value, '.getValue';
-      $attr.setValue( '' );
-      is $attr.value, '', '.setValue';
-      $attr.value = $string;
-      is $attr.value, $string, '.value';
-      my LibXML::Node $node = $attr.getOwnerElement();
-      my $nsUri = 'http://test.org';
-      my $prefix = 'test';
-      $attr.setNamespace($nsUri, $prefix);
-      my Bool $is-id = $attr.isId;
-      $string = $attr.serializeContent;
-      is $string, $value;
+    my LibXML::Attr $attr .= new(:$name, :$value);
+    my Str:D $string = $attr.getValue();
+    is $string, $value, '.getValue';
+    $string = $attr.value;
+    is $string, $value, '.getValue';
+    $attr.setValue( '' );
+    is $attr.value, '', '.setValue';
+    $attr.value = $string;
+    is $attr.value, $string, '.value';
+    my LibXML::Node $node = $attr.getOwnerElement();
+    my $nsUri = 'http://test.org';
+    my $prefix = 'test';
+    $attr.setNamespace($nsUri, $prefix);
+    my Bool $is-id = $attr.isId;
+    $string = $attr.serializeContent;
+    is $string, $value;
 };
+
+subtest 'LibXML::Attr::Map' => {
+    plan 6;
+    use LibXML::Attr::Map;
+    use LibXML::Document;
+    use LibXML::Element;
+    my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
+    my LibXML::Element $node = $doc.root;
+    my LibXML::Attr::Map $atts = $node.attributes;
+
+    is-deeply ($atts.keys.sort), ('att1', 'att2');
+    is $atts<att1>.Str, 'AAA';
+    is $atts<att1>.gist, 'att1="AAA"';
+    $atts<att2>:delete;
+    $atts<att3> = "CCC";
+    is $node.Str, '<foo att1="AAA" att3="CCC"/>';
+
+    my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
+    $atts.setNamedItem($style);
+    $style = $atts.getNamedItem('style');
+    like $node.Str, rx:s/ 'style="fontweight: bold"' /;
+    $atts.removeNamedItem('style');
+    unlike $node.Str, rx:s/ 'style="fontweight: bold"' /;
+}
 
 subtest 'LibXML::Comment' => {
     plan 1;
@@ -224,6 +248,55 @@ subtest 'XML::LibXML::Element' => {
     ok(1);
 }
 
+subtest 'XML::LibXML::InputCallback' => {
+    plan 1;
+    my class MyScheme{
+        subset URI of Str where .starts-with('myscheme:');
+        our class Handler {
+            has URI:D $.uri is required;
+            has Bool $!first = True;
+
+            method read($len) {
+                ($!first-- ?? '<helloworld/>' !! '').encode;
+            }
+            method close {$!first = True}
+        }
+    }
+    use LibXML::Document;
+    use LibXML::Parser;
+    use LibXML::InputCallback;
+    # Define the four callback functions
+    sub match-uri(Str $uri) {
+        $uri ~~ MyScheme::URI:D; # trigger our callback group at a 'myscheme' URIs
+    }
+
+    sub open-uri(MyScheme::URI:D $uri) {
+        MyScheme::Handler.new(:$uri);
+    }
+
+    # The returned $buffer will be parsed by the libxml2 parser
+    sub read-uri(MyScheme::Handler:D $handler, UInt $n --> Blob) {
+        $handler.read($n);
+    }
+
+    # Close the handle associated with the resource.
+    sub close-uri(MyScheme::Handler:D $handler) {
+        $handler.close;
+    }
+
+    # Register them with a instance of LibXML::InputCallback
+    my LibXML::InputCallback $input-callbacks .= new: :trace;
+    $input-callbacks.register-callbacks(&match-uri, &open-uri,
+                                        &read-uri, &close-uri );
+
+    my LibXML::Parser $parser .= new;
+    # Register the callback group at a parser instance
+    $parser.input-callbacks = $input-callbacks;
+
+    my LibXML::Document:D $doc = $parser.parse: :file('myscheme:muahahaha.xml');
+    is $doc.root.Str, '<helloworld/>';
+}
+
 subtest 'LibXML::Namespace' => {
     plan 13;
     use LibXML::Namespace;
@@ -356,6 +429,66 @@ subtest 'LibXML::RegExp' => {
     my LibXML::RegExp $compiled-re .= new( :$regexp );
     ok $compiled-re.matches('12345'), 'matches';
     ok $compiled-re.isDeterministic, 'isDeterministic';
+};
+
+subtest 'LibXML::XPath::Expression' => {
+    plan 1;
+    use LibXML::XPath::Expression;
+    my LibXML::XPath::Expression:D $compiled-xpath .= parse('//foo[@bar="baz"][position()<4]');
+    pass;
+};
+
+subtest 'LibXML::XPath::Context' => {
+    plan 1;
+    use LibXML::XPath::Context;
+    use LibXML::Node;
+
+    #++ setup
+    use LibXML::Element;
+    my LibXML::Element $node .= new: :name<Test>;
+    my LibXML::Element $ref-node .= new: :name<Test2>;
+    my Str $prefix = 'foo';
+    my Str $namespace-uri = 'http://ns.org';
+    my $xpath = '//foo[@bar="baz"][position()<4]';
+    my %variables = (
+            'a' => 2,
+            'b' => "b",
+            );
+
+    sub get-variable($name, $uri ) {
+        %variables{$name};
+    }
+    sub callback(|c) {}
+    my Str $name = 'bar';
+    #-- setup
+
+    my LibXML::XPath::Context $xpc .= new();
+    $xpc .= new(:$node);
+    $xpc.registerNs($prefix, $namespace-uri);
+    $xpc.unregisterNs($prefix);
+    my Str $uri = $xpc.lookupNs($prefix);
+    $xpc.registerVarLookupFunc(&get-variable);
+    my &func = $xpc.getVarLookupFunc();
+    $xpc.unregisterVarLookupFunc;
+    $xpc.registerFunctionNS($name, $uri, &callback);
+    $xpc.unregisterFunctionNS($name, $uri);
+    $xpc.registerFunction($name, &callback);
+    $xpc.unregisterFunction($name);
+    my @nodes = $xpc.findnodes($xpath);
+    @nodes = $xpc.findnodes($xpath, $ref-node );
+    my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
+    my $object = $xpc.find($xpath );
+    $object = $xpc.find($xpath, $ref-node );
+    my $value = $xpc.findvalue($xpath );
+    $value = $xpc.findvalue($xpath, $ref-node );
+    my Bool $found = $xpc.exists( $xpath, $ref-node );
+    $xpc.setContextNode($node);
+    $node = $xpc.getContextNode;
+    my Int $position = $xpc.getContextPosition;
+    $xpc.setContextPosition($position);
+    my Int $size = $xpc.getContextSize;
+    $xpc.setContextSize($size);
+    pass;
 };
 
 done-testing
