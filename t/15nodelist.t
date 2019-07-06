@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 30;
+plan 28;
 
 use LibXML;
 
@@ -39,23 +39,6 @@ is($nodelist.to-literal(:delimiter<,>), "OK,,,,NOT OK", 'TODO : Add test name');
 
 # TEST
 is-deeply([$nodelist.to-literal(:list)], ['OK', '', '', '', 'NOT OK'], 'TODO : Add test name');
-
-{
-    my $other_nodelist = $dom.findnodes('//BBB');
-    while ($other_nodelist.to-literal() !~~ m/^^'NOT OK'/)
-    {
-        $other_nodelist.shift();
-    }
-
-    # This is a test for:
-    # https://rt.cpan.org/Ticket/Display.html?id=57737
-
-    # TEST
-    ok (($other_nodelist lt $nodelist), "Comparison is OK.");
-
-    # TEST
-    ok (($nodelist gt $other_nodelist), "Comparison is OK.");
-}
 
 # TEST
 is($dom.findvalue("//BBB"), "OKNOT OK", ' TODO : Add test name');

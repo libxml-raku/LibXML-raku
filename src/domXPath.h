@@ -35,6 +35,12 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
 void
 domReferenceNodeSet(xmlNodeSetPtr self);
 
+DLLEXPORT void domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem);
+
+DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self);
+
+DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr);
+
 void
 domReleaseNodeSet(xmlNodeSetPtr self);
 

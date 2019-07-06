@@ -1550,7 +1550,7 @@ domAttrSerializeContent(xmlAttrPtr attr) {
     return rv;
 }
 
-// check if prefix is of the form: base<nnn>
+// check if prefix is of the form: base<digit+>
 static int _domPrefixMatch(const xmlChar *prefix, xmlChar *base) {
     int len = strlen(base);
     int matched = 0;

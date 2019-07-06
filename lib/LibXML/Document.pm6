@@ -38,8 +38,9 @@ submethod TWEAK(
                 Str :$version,
                 xmlEncodingStr :$enc,
                 Str :$URI,
+                Bool :$html
                ) {
-    my xmlDoc:D $struct = self.native //= xmlDoc.new;
+    my xmlDoc:D $struct = self.native //= ($html ?? htmlDoc !! xmlDoc).new;
     $struct.version = $_ with $version;
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;

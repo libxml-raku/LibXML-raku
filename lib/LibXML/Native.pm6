@@ -166,7 +166,9 @@ class xmlNodeSet is export {
     sub xmlXPathNodeSetCreate(domNode --> xmlNodeSet) is export is native(LIB) {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
-    method copy(--> xmlNodeSet) is symbol('xml6_nodeset_copy') is native(BIND-LIB) {*}
+    method copy(--> xmlNodeSet) is symbol('domCopyNodeSet') is native(BIND-LIB) {*}
+    method push(domNode) is symbol('domPushNodeSet') is native(BIND-LIB) {*}
+    method pop(--> xmlNodeSetElem) is symbol('domPopNodeSet') is native(BIND-LIB) {*}
     sub xml6_nodeset_from_nodelist(domNode, int32 --> xmlNodeSet) is native(BIND-LIB) {*}
 
     multi method new(domNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {

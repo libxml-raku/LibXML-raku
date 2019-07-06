@@ -146,30 +146,38 @@ class LibXML::XPath::Context {
 
     has %!pool{UInt}; # Keep objects alive, while they are on the stack
     my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
-    multi method park(NodeObj:D $node, :$scope --> xmlNodeSet:D) {
-        my UInt $c-addr = 0;
+    method !keep(xmlNodeSet:D $native, :$scope --> xmlNodeSet:D) {
+        my UInt $scope-addr = 0;
         with $scope {
             # scope to a particular parser/eval context
-            $c-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
+            $scope-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
             # context stack is clear. We can also clear the associated pool
-            %!pool{$c-addr} = %()
+            %!pool{$scope-addr} = %()
                 if .valueNr == 0;
         }
-        %!pool{$c-addr}{ +nativecast(Pointer, $node.native) } //= $node;
+        %!pool{$scope-addr}{ +nativecast(Pointer, $native) } //= LibXML::Node::Set.new: :$native;
+        $native;
+    }
+    multi method park(NodeObj:D $node, :$scope --> xmlNodeSet:D) {
         # return a copied, or newly created native node-set
-        given $node {
+        self!keep: do given $node {
             when LibXML::Node::Set  { .native.copy }
-            when LibXML::Node::List {
-                my domNode:D $node = .native;
-                my $keep-blanks = .keep-blanks;
-                xmlNodeSet.new( :list, :$node, :$keep-blanks);
-            }
-            when LibXML::Node       { xmlNodeSet.new( node => .native );}
+            when LibXML::Node::List { xmlNodeSet.new: node => .native, :list;}
+            when LibXML::Node       { xmlNodeSet.new: node => .native;}
             default { fail "unhandled node type: {.WHAT.perl}" }
-        }
+        }, :$scope
+    }
+    multi method park(XPathRange:D $_) { $_ }
+    subset Listy where List|Seq|Slip;
+    multi method park(Listy:D $_, :$scope --> xmlNodeSet) {
+        # create a node-set for a list of nodes
+        my LibXML::Node:D @nodes = .List;
+        my xmlNodeSet $set .= new;
+        $set.push(.native) for @nodes;
+        self!keep: $set, :$scope;
     }
     # anything else (Bool, Numeric, Str)
-    multi method park(XPathRange $_) is default { $_ }
+    multi method park($_) is default { fail "unexpected return value: {.perl}"; }
 
     method registerFunction(QName:D $name, &func) {
         self.registerFunctionNS($name, Str, &func);
@@ -248,8 +256,8 @@ LibXML::XPathContext - XPath Evaluation
   my @nodes = $xpc.findnodes($xpath);
   @nodes = $xpc.findnodes($xpath, $ref-node );
   my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
-  my $object = $xpc.find($xpath );
-  $object = $xpc.find($xpath, $ref-node );
+  my $nodes = $xpc.find($xpath );
+  $nodes = $xpc.find($xpath, $ref-node );
   my $value = $xpc.findvalue($xpath );
   $value = $xpc.findvalue($xpath, $ref-node );
   my Bool $found = $xpc.exists( $xpath, $ref-node );
@@ -279,9 +287,9 @@ This example demonstrates C<<<<<< registerNs() >>>>>> method. It finds all parag
 
 
 
-  my $xc = LibXML::XPath::Context.new($xhtml-doc);
+  my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
   $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
-  my @nodes = $xc.findnodes('//xhtml:p');
+  my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
 
 =head2 Custom XPath functions
@@ -289,21 +297,16 @@ This example demonstrates C<<<<<< registerNs() >>>>>> method. It finds all parag
 This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a function filtering nodes based on a Perl regular
 expression:
 
+    sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
+        my @nodes = $nodes.list;
+        @nodes.grep: {.textContent ~~ / <$regex> /}
+    };
 
-
-  sub grep-nodes {
-    my ($nodelist,$regexp) =  @_;
-    my $result = LibXML::NodeList.new;
-    for my $node ($nodelist.get-nodelist()) {
-      $result.push($node) if $node.textContent =~ $regexp;
-    }
-    return $result;
-  };
-  
-  my $xc = LibXML::XPath::Context.new($node);
-  $xc.registerFunction('grep-nodes', \&grep-nodes);
-  my @nodes = $xc.findnodes('//section[grep-nodes(para,"\bsearch(ing|es)?\b")]');
-
+    my LibXML::Document $doc .= parse: "example/article.xml";
+    $node = $doc.root;
+    my $xc = LibXML::XPath::Context.new(:$node);
+    $xc.registerFunction('grep-nodes', &grep-nodes);
+    @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
 
 =head2 Variables
 

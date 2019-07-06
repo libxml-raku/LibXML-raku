@@ -43,8 +43,8 @@ SYNOPSIS
     my @nodes = $xpc.findnodes($xpath);
     @nodes = $xpc.findnodes($xpath, $ref-node );
     my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
-    my $object = $xpc.find($xpath );
-    $object = $xpc.find($xpath, $ref-node );
+    my $nodes = $xpc.find($xpath );
+    $nodes = $xpc.find($xpath, $ref-node );
     my $value = $xpc.findvalue($xpath );
     $value = $xpc.findvalue($xpath, $ref-node );
     my Bool $found = $xpc.exists( $xpath, $ref-node );
@@ -70,27 +70,25 @@ Namespaces
 
 This example demonstrates `registerNs() ` method. It finds all paragraph nodes in an XHTML document.
 
-    my $xc = LibXML::XPath::Context.new($xhtml-doc);
+    my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
     $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
-    my @nodes = $xc.findnodes('//xhtml:p');
+    my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
 Custom XPath functions
 ----------------------
 
 This example demonstrates `registerFunction() ` method by defining a function filtering nodes based on a Perl regular expression:
 
-    sub grep-nodes {
-      my ($nodelist,$regexp) =  @_;
-      my $result = LibXML::NodeList.new;
-      for my $node ($nodelist.get-nodelist()) {
-        $result.push($node) if $node.textContent =~ $regexp;
-      }
-      return $result;
+    sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
+        my @nodes = $nodes.list;
+        @nodes.grep: {.textContent ~~ / <$regex> /}
     };
 
-    my $xc = LibXML::XPath::Context.new($node);
-    $xc.registerFunction('grep-nodes', \&grep-nodes);
-    my @nodes = $xc.findnodes('//section[grep-nodes(para,"\bsearch(ing|es)?\b")]');
+    my LibXML::Document $doc .= parse: "example/article.xml";
+    $node = $doc.root;
+    my $xc = LibXML::XPath::Context.new(:$node);
+    $xc.registerFunction('grep-nodes', &grep-nodes);
+    @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
 
 Variables
 ---------

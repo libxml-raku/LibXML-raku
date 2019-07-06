@@ -12,11 +12,14 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 #include <libxml/uri.h>
+#include <string.h>
+#include <assert.h>
 
 #include "dom.h"
 #include "domXPath.h"
 #include "xml6.h"
 #include "xml6_node.h"
+#include "xml6_nodeset.h"
 #include "xml6_ref.h"
 
 void
@@ -150,6 +153,77 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
             }
         }
     }
+}
+
+static xmlNsPtr _domDupNs(xmlNsPtr ns) {
+    xmlNsPtr dup = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
+    assert(dup != NULL);
+    memset(dup, 0, sizeof(xmlNs));
+    dup->type = XML_NAMESPACE_DECL;
+    if (ns->href != NULL)
+        dup->href = xmlStrdup(ns->href);
+    if (ns->prefix != NULL)
+        dup->prefix = xmlStrdup(ns->prefix);
+    dup->next = ns->next;
+    return dup;
+}
+
+
+DLLEXPORT void
+domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem) {
+    int i = 0;
+    assert(self != NULL);
+    assert(elem != NULL);
+
+    if (self->nodeNr >= self->nodeMax) {
+        xml6_nodeset_resize(self, self->nodeMax * 2);
+    }
+
+    if (elem->type == XML_NAMESPACE_DECL) {
+        elem = (xmlNodePtr) _domDupNs( (xmlNsPtr) elem );
+    }
+    else {
+        xml6_node_add_reference(elem);
+    }
+
+    self->nodeTab[self->nodeNr++] = elem;
+}
+
+DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self) {
+    xmlNodePtr rv = NULL;
+    assert(self != NULL);
+    if (self->nodeNr > 0) {
+        rv = self->nodeTab[--self->nodeNr];
+        if (rv->type != XML_NAMESPACE_DECL) {
+            xml6_node_remove_reference(rv);
+        }
+    }
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
+    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
+    int i;
+
+    assert(rv != NULL);
+
+    if (self != NULL) {
+
+        if (self->nodeNr > rv->nodeMax) {
+            xml6_nodeset_resize(rv, self->nodeNr);
+        }
+
+        for (i = 0; i < self->nodeNr; i++) {
+            xmlNodePtr elem = self->nodeTab[i];
+            if (elem->type == XML_NAMESPACE_DECL) {
+                elem = (xmlNodePtr) _domDupNs( (xmlNsPtr) elem );
+            }
+            rv->nodeTab[i] = elem;
+            rv->nodeNr++;
+        }
+    }
+
+    return rv;
 }
 
 static void

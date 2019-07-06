@@ -439,7 +439,7 @@ subtest 'LibXML::XPath::Expression' => {
 };
 
 subtest 'LibXML::XPath::Context' => {
-    plan 1;
+    plan 3;
     use LibXML::XPath::Context;
     use LibXML::Node;
 
@@ -477,8 +477,8 @@ subtest 'LibXML::XPath::Context' => {
     my @nodes = $xpc.findnodes($xpath);
     @nodes = $xpc.findnodes($xpath, $ref-node );
     my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
-    my $object = $xpc.find($xpath );
-    $object = $xpc.find($xpath, $ref-node );
+    $nodes = $xpc.find($xpath );
+    $nodes = $xpc.find($xpath, $ref-node );
     my $value = $xpc.findvalue($xpath );
     $value = $xpc.findvalue($xpath, $ref-node );
     my Bool $found = $xpc.exists( $xpath, $ref-node );
@@ -488,7 +488,20 @@ subtest 'LibXML::XPath::Context' => {
     $xpc.setContextPosition($position);
     my Int $size = $xpc.getContextSize;
     $xpc.setContextSize($size);
-    pass;
+
+    sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
+        my @nodes = $nodes.list;
+        @nodes.grep: {.textContent ~~ / <$regex> /}
+    };
+
+    my LibXML::Document $doc .= parse: "example/article.xml";
+    $node = $doc.root;
+    my $xc = LibXML::XPath::Context.new(:$node);
+    $xc.registerFunction('grep-nodes', &grep-nodes);
+    @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
+    is +@nodes, 2;
+    like @nodes[0].textContent, /^Bar/;
+    like @nodes[1].textContent, /^Bar/;
 };
 
 done-testing

@@ -6,8 +6,8 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     has $.of = NodeSetElem;
     has xmlNodeSet $.native;
     has UInt $!idx = 0;
-    has @!array;
-    has Bool $!slurped;
+    has @!store;
+    has Bool $!lazy = True;
     has Bool $.values;
 
     submethod TWEAK {
@@ -17,21 +17,10 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     submethod DESTROY {
         .Release with $!native;
     }
-    method elems is also<Numeric> { $!slurped ?? @!array.elems !! $!native.nodeNr }
-    method Array handles<List list pairs keys values map grep shift pop push append> {
-        unless $!slurped {
-            $!idx = 0;
-            @!array = self;
-            $!slurped = True;
-        }
-        @!array;
-    }
-    multi method AT-POS(UInt:D $pos where $!slurped) { @!array[$pos] }
-    multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!of }
-    multi method AT-POS(UInt:D $pos) is default {
+    method !box(xmlNodeSetElem $elem) {
         my $rv := $!values ?? Str !! $!of;
 
-        with $!native.nodeTab[$pos].deref {
+        with $elem {
             my $class = native-class(.type);
             die "unexpected node of type {$class.perl} in node-set"
                unless $class ~~ $!of;
@@ -43,7 +32,29 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
 
         $rv;
     }
-
+    method elems is also<Numeric> { $!native.nodeNr }
+    method Array handles<List list pairs keys values map grep> {
+        if $!lazy {
+            $!idx = 0;
+            @!store = self;
+            $!lazy = False;
+        }
+        @!store;
+    }
+    multi method AT-POS(UInt:D $pos where !$!lazy) { @!store[$pos] }
+    multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!of }
+    multi method AT-POS(UInt:D $pos) is default {
+        self!box: $!native.nodeTab[$pos].deref;
+    }
+    method push(LibXML::Node:D $elem) {
+        @!store.push: $_ unless $!lazy;
+        $!native.push: $elem.native;
+        $elem;
+    }
+    method pop {
+        my $node := $!native.pop;
+        $!lazy ?? self!box($node) !! @!store.pop;
+    }
     method string-value { with self.AT-POS(0) { $!values ?? $_ !! .string-value }}
     multi method to-literal( :list($)! where .so ) { self.map({$!values ?? $_ !! .string-value}) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
