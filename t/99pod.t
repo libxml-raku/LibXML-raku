@@ -439,7 +439,7 @@ subtest 'LibXML::XPath::Expression' => {
 };
 
 subtest 'LibXML::XPath::Context' => {
-    plan 3;
+    plan 6;
     use LibXML::XPath::Context;
     use LibXML::Node;
 
@@ -477,17 +477,23 @@ subtest 'LibXML::XPath::Context' => {
     my @nodes = $xpc.findnodes($xpath);
     @nodes = $xpc.findnodes($xpath, $ref-node );
     my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
-    $nodes = $xpc.find($xpath );
-    $nodes = $xpc.find($xpath, $ref-node );
-    my $value = $xpc.findvalue($xpath );
+    my Any $object = $xpc.find($xpath );
+    $object = $xpc.find($xpath, $ref-node );
+    my Str $value = $xpc.findvalue($xpath );
     $value = $xpc.findvalue($xpath, $ref-node );
     my Bool $found = $xpc.exists( $xpath, $ref-node );
+
     $xpc.setContextNode($node);
     $node = $xpc.getContextNode;
+    $xpc.contextNode = $node;
+
     my Int $position = $xpc.getContextPosition;
     $xpc.setContextPosition($position);
+    $xpc.contextPosition = $position;
+
     my Int $size = $xpc.getContextSize;
     $xpc.setContextSize($size);
+    $xpc.contextSize = $size;
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
         my @nodes = $nodes.list;
@@ -502,6 +508,31 @@ subtest 'LibXML::XPath::Context' => {
     is +@nodes, 2;
     like @nodes[0].textContent, /^Bar/;
     like @nodes[1].textContent, /^Bar/;
+
+    {
+        use LibXML;
+        sub var-lookup(Str $name, Str $uri, Hash $data, :$opt) {
+            is $name, 'A', 'var lookup name';
+            is $opt, 42, 'var option argument';
+            isa-ok $data{$name}, 'LibXML::Node::Set', 'var lookup data';
+            return $data{$name};
+        }
+
+        my $areas = LibXML.new.parse: :file('example/article.xml');
+        my $empl = LibXML.new.parse: :file('example/test.xml');
+  
+        my $xc = LibXML::XPath::Context.new(node => $empl);
+  
+        my %variables = (
+            A => $xc.find('/employees/employee[@salary>10000]'),
+            B => $areas.find('example/article.xml'),
+        );
+  
+        # get names of employees from $A working in an area listed in $B
+        $xc.registerVarLookupFunc(&var-lookup, %variables, :opt(42));
+        my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
+    }
+
 };
 
 done-testing

@@ -238,9 +238,9 @@ class LibXML::Node {
         (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks;
     }
 
-    sub iterate-set($of, xmlNodeSet $native, |c) is export(:iterate-set) {
+    sub iterate-set($of, xmlNodeSet $native) is export(:iterate-set) {
         # iterate through a set of nodes
-        (require ::('LibXML::Node::Set')).new( :$native, :$of, |c )
+        (require ::('LibXML::Node::Set')).new( :$native, :$of )
     }
 
     method string-value is also<textContent to-literal> {

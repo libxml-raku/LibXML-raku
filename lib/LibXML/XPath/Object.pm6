@@ -9,9 +9,13 @@ has xmlXPathObject $.native is required;
 
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
 
-method select(Bool :$values --> XPathRange) {
+method select(Bool :$literal --> XPathRange) {
     given $!native.select {
-        when xmlNodeSet { iterate-set(NodeSetElem, $_, :$values) }
+        when xmlNodeSet {
+            given iterate-set(NodeSetElem, $_) {
+                $literal ?? .to-literal !! $_;
+            }
+        }
         default { $_ }
     }
 }

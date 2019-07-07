@@ -34,22 +34,22 @@ class LibXML::XPath::Context {
         $.findnodes( LibXML::XPath::Expression.new(:$expr), $ref-node );
     }
 
-    method !select(xmlXPathObject $native, Bool :$values) {
+    method !select(xmlXPathObject $native, Bool :$literal) {
         .rethrow with @!callback-errors.tail;
         my LibXML::XPath::Object $object .= new: :$native;
-        $object.select: :$values;
+        $object.select: :$literal;
     }
 
-    multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$values) {
+    multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my domNode $node = .native with $ref-node;
-        self!select: $!native.find( native($xpath-expr), $node, :$bool), :$values;
+        self!select: $!native.find( native($xpath-expr), $node, :$bool), :$literal;
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
     }
 
     multi method findvalue(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, |c) {
-        $.find( $xpath-expr, $ref-node, :values, |c);
+        $.find( $xpath-expr, $ref-node, :literal, |c);
     }
     multi method findvalue(Str:D $expr, LibXML::Node $ref-node?, |c) {
         $.findvalue(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
@@ -139,7 +139,7 @@ class LibXML::XPath::Context {
         Proxy.new(
             FETCH => { self.getContextSize },
             STORE => -> $, Int:D $size {
-                self.SetContextSize($size);
+                self.setContextSize($size);
             }
         );
     }
@@ -179,29 +179,29 @@ class LibXML::XPath::Context {
     # anything else (Bool, Numeric, Str)
     multi method park($_) is default { fail "unexpected return value: {.perl}"; }
 
-    method registerFunction(QName:D $name, &func) {
-        self.registerFunctionNS($name, Str, &func);
+    method registerFunction(QName:D $name, &func, |c) {
+        self.registerFunctionNS($name, Str, &func, |c);
     }
 
-    method registerFunctionNS(QName:D $name, Str $url, &func) {
+    method registerFunctionNS(QName:D $name, Str $url, &func, |c) {
         $!native.RegisterFuncNS(
             $name, $url,
             -> xmlXPathParserContext $ctxt, Int $n {
                 CATCH { default { @!callback-errors.push: $_ } }
                 my @params;
                 @params.unshift: self!select($ctxt.valuePop) for 0 ..^ $n;
-                my $ret = &func(|@params);
+                my $ret = &func(|@params, |c);
                 my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :scope($ctxt));
                 $ctxt.valuePush($_) for $out;
             }
         );
     }
 
-    method registerVarLookupFunc(&func) {
+    method registerVarLookupFunc(&func, |c) {
         $!native.RegisterVariableLookup(
             -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
                 CATCH { default { @!callback-errors.push: $_ } }
-                my $ret = &func($name, $url);
+                my $ret = &func($name, $url, |c);
                 xmlXPathObject.coerce: $.park($ret);
             },
             Pointer,
@@ -256,17 +256,17 @@ LibXML::XPathContext - XPath Evaluation
   my @nodes = $xpc.findnodes($xpath);
   @nodes = $xpc.findnodes($xpath, $ref-node );
   my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
-  my $nodes = $xpc.find($xpath );
-  $nodes = $xpc.find($xpath, $ref-node );
+  my Any $object = $xpc.find($xpath );
+  $object = $xpc.find($xpath, $ref-node );
   my $value = $xpc.findvalue($xpath );
   $value = $xpc.findvalue($xpath, $ref-node );
   my Bool $found = $xpc.exists( $xpath, $ref-node );
-  $xpc.setContextNode($node);
-  $node = $xpc.getContextNode;
-  my Int $position = $xpc.getContextPosition;
-  $xpc.setContextPosition($position);
-  my Int $size = $xpc.getContextSize;
-  $xpc.setContextSize($size);
+  $xpc.contextNode = $node;
+  $node = $xpc.contextNode;
+  my Int $position = $xpc.contextPosition;
+  $xpc.contextPosition = $position;
+  my Int $size = $xpc.contextSize;
+  $xpc.contextSize = $size;
 
 =head1 DESCRIPTION
 
@@ -275,8 +275,6 @@ libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to
 evaluate XPath expressions in the context of arbitrary node, context size, and
 context position, with a user-defined namespace-prefix mapping, custom XPath
 functions written in Perl, and even a custom XPath variable resolver. 
-
-*** TOD: Port this POD to Perl 6 ***
 
 =head1 EXAMPLES
 
@@ -299,7 +297,7 @@ expression:
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
         my @nodes = $nodes.list;
-        @nodes.grep: {.textContent ~~ / <$regex> /}
+        @nodes.grep: {.textContent ~~ / <$regex> /};
     };
 
     my LibXML::Document $doc .= parse: "example/article.xml";
@@ -314,15 +312,14 @@ This example demonstrates C<<<<<< registerVarLookup() >>>>>> method. We use XPat
 
 
 
-  sub var-lookup {
-    my ($varname,$ns,$data)=@_;
-    return $data.{$varname};
+  sub var-lookup(Str $name, Str $uri, Hash $data) {
+    return $data{$name};
   }
   
   my $areas = LibXML.new.parse: :file('areas.xml');
   my $empl = LibXML.new.parse: :file('employees.xml');
   
-  my $xc = LibXML::XPath::Context.new($empl);
+  my $xc = LibXML::XPath::Context.new(node => $empl);
   
   my %variables = (
     A => $xc.find('/employees/employee[@salary>10000]'),
@@ -330,7 +327,7 @@ This example demonstrates C<<<<<< registerVarLookup() >>>>>> method. We use XPat
   );
   
   # get names of employees from $A working in an area listed in $B
-  $xc.registerVarLookupFunc(\&var-lookup, \%variables);
+  $xc.registerVarLookupFunc(&var-lookup, %variables);
   my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
 
 
@@ -352,7 +349,7 @@ Creates a new LibXML::XPath::Context object with the context node set to C<<<<<<
 =begin item1
 registerNs
 
-  $xpc.registerNs($prefix, $namespace-uri)
+  $xpc.registerNs($prefix, $namespace-uri);
 
 Registers namespace C<<<<<< $prefix >>>>>> to C<<<<<< $namespace-uri >>>>>>.
 
@@ -361,7 +358,7 @@ Registers namespace C<<<<<< $prefix >>>>>> to C<<<<<< $namespace-uri >>>>>>.
 =begin item1
 unregisterNs
 
-  $xpc.unregisterNs($prefix)
+  $xpc.unregisterNs($prefix);
 
 Unregisters namespace C<<<<<< $prefix >>>>>>.
 
@@ -370,7 +367,7 @@ Unregisters namespace C<<<<<< $prefix >>>>>>.
 =begin item1
 lookupNs
 
-  $uri = $xpc.lookupNs($prefix)
+  $uri = $xpc.lookupNs($prefix);
 
 Returns namespace URI registered with C<<<<<< $prefix >>>>>>. If C<<<<<< $prefix >>>>>> is not registered to any namespace URI returns C<<<<<< undef >>>>>>.
 
@@ -379,63 +376,46 @@ Returns namespace URI registered with C<<<<<< $prefix >>>>>>. If C<<<<<< $prefix
 =begin item1
 registerVarLookupFunc
 
-  $xpc.registerVarLookupFunc($callback, $data)
+  $xpc.registerVarLookupFunc(&callback, |args);
 
 Registers variable lookup function C<<<<<< $prefix >>>>>>. The registered function is executed by the XPath engine each time an XPath
-variable is evaluated. It takes three arguments: C<<<<<< $data >>>>>>, variable name, and variable ns-URI and must return one value: a number or
-string or any C<<<<<< LibXML:: >>>>>> object that can be a result of findnodes: Boolean, Literal, Number, Node (e.g.
-Document, Element, etc.), or NodeList. For convenience, simple (non-blessed)
+variable is evaluated. The callback function has two required arguments: C<<<<<< $data >>>>>>, variable name, and variable ns-URI.
+
+The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
+Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned
 array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::NodeList >>>>>>.
 
-=end item1
+Any additional arguments are curried and passed to the callback function. For example:
 
-=begin item1
-getVarLookupData
+  $xpc.registerVarLookupFunc(&my-callback, 'Xxx', :%vars);
 
-  $data = $xpc.getVarLookupData();
+matches the signature:
 
-Returns the data that have been associated with a variable lookup function
-during a previous call to C<<<<<< registerVarLookupFunc >>>>>>.
-
-=end item1
-
-=begin item1
-getVarLookupFunc
-
-  $callback = $xpc.getVarLookupFunc();
-
-Returns the variable lookup function previously registered with C<<<<<< registerVarLookupFunc >>>>>>.
+sub my-callback(Str $name, Str $uri, 'Xxxx', :%vars!) {
+    ...
+}
 
 =end item1
 
-=begin item1
-unregisterVarLookupFunc
-
-  $xpc.unregisterVarLookupFunc($name);
-
-Unregisters variable lookup function and the associated lookup data.
-
-=end item1
 
 =begin item1
 registerFunctionNS
 
-  $xpc.registerFunctionNS($name, $uri, $callback)
+  $xpc.registerFunctionNS($name, $uri, &callback, |args);
 
-Registers an extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> namespace. C<<<<<< $callback >>>>>> must be a CODE reference. The arguments of the callback function are either
-simple scalars or C<<<<<< LibXML::* >>>>>> objects depending on the XPath argument types. The function is responsible for
-checking the argument number and types. Result of the callback code must be a
-single value of the following types: a simple scalar (number, string) or an
-arbitrary C<<<<<< LibXML::* >>>>>> object that can be a result of findnodes: Boolean, Literal, Number, Node (e.g.
-Document, Element, etc.), or NodeList. For convenience, simple (non-blessed)
-array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of a L<<<<<< LibXML::NodeList >>>>>>.
+Registers an extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> namespace. The arguments of the callback function are either
+simple scalars or C<<<<<< LibXML::* >>>>>> objects depending on the XPath argument types.
+
+The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
+Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned
+array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::NodeList >>>>>>.
 
 =end item1
 
 =begin item1
 unregisterFunctionNS
 
-  $xpc.unregisterFunctionNS($name, $uri)
+  $xpc.unregisterFunctionNS($name, $uri);
 
 Unregisters extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> namespace. Has the same effect as passing C<<<<<< undef >>>>>> as C<<<<<< $callback >>>>>> to registerFunctionNS.
 
@@ -444,7 +424,7 @@ Unregisters extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> names
 =begin item1
 registerFunction
 
-  $xpc.registerFunction($name, $callback)
+  $xpc.registerFunction($name, &callback, |args);
 
 Same as C<<<<<< registerFunctionNS >>>>>> but without a namespace.
 
@@ -453,7 +433,7 @@ Same as C<<<<<< registerFunctionNS >>>>>> but without a namespace.
 =begin item1
 unregisterFunction
 
-  $xpc.unregisterFunction($name)
+  $xpc.unregisterFunction($name);
 
 Same as C<<<<<< unregisterFunctionNS >>>>>> but without a namespace.
 
@@ -462,11 +442,11 @@ Same as C<<<<<< unregisterFunctionNS >>>>>> but without a namespace.
 =begin item1
 findnodes
 
-  @nodes = $xpc.findnodes($xpath)
+  my LibXML::Node @nodes = $xpc.findnodes($xpath);
 
-  @nodes = $xpc.findnodes($xpath, $context-node )
+  @nodes = $xpc.findnodes($xpath, $context-node );
 
-  $nodelist = $xpc.findnodes($xpath, $context-node )
+  my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $context-node );
 
 Performs the xpath statement on the current node and returns the result as an
 array. In scalar context, returns an L<<<<<< LibXML::NodeList >>>>>> object. Optionally, a node may be passed as a second argument to set the
@@ -479,14 +459,13 @@ The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::X
 =begin item1
 find
 
-  $object = $xpc.find($xpath )
+  my Any $object = $xpc.find($xpath );
 
-  $object = $xpc.find($xpath, $context-node )
+  $object = $xpc.find($xpath, $context-node );
 
 Performs the xpath expression using the current node as the context of the
 expression, and returns the result depending on what type of result the XPath
-expression had. For example, the XPath C<<<<<< 1 * 3 + 	      52 >>>>>> results in an L<<<<<< LibXML::Number >>>>>> object being returned. Other expressions might return a L<<<<<< LibXML::Boolean >>>>>> object, or a L<<<<<< LibXML::Literal >>>>>> object (a string). Each of those objects uses Perl's overload feature to ``do
-the right thing'' in different contexts. Optionally, a node may be passed as a
+expression had. For example, the XPath C<<<<<< 1 * 3 + 	      52 >>>>>> results in a Numeric object being returned. Other expressions might return a Bool object, or a L<<<<<< LibXML::Literal >>>>>> object (a string). Optionally, a node may be passed as a
 second argument to set the context node for the query.
 
 The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 
@@ -496,9 +475,9 @@ The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::X
 =begin item1
 findvalue
 
-  $value = $xpc.findvalue($xpath )
+  my Str $value = $xpc.findvalue($xpath );
 
-  $value = $xpc.findvalue($xpath, $context-node )
+  my Str $value = $xpc.findvalue($xpath, $context-node );
 
 Is exactly equivalent to:
 
@@ -519,41 +498,34 @@ The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::X
 =begin item1
 exists
 
-  $bool = $xpc.exists( $xpath-expression, $context-node );
+  my Bool $found = $xpc.exists( $xpath-expression, $context-node );
 
-This method behaves like I<<<<<< findnodes >>>>>>, except that it only returns a boolean value (1 if the expression matches a
-node, 0 otherwise) and may be faster than I<<<<<< findnodes >>>>>>, because the XPath evaluation may stop early on the first match (this is true
+This method behaves like I<<<<<< findnodes >>>>>>, except that it only returns a Bool value (True if the expression matches a
+node, False otherwise) and may be faster than I<<<<<< findnodes >>>>>>, because the XPath evaluation may stop early on the first match (this is true
 for libxml2 >= 2.6.27). 
 
-For XPath expressions that do not return node-set, the method returns true if
+For XPath expressions that do not return node-set, the method returns True if
 the returned value is a non-zero number or a non-empty string.
 
 =end item1
 
 =begin item1
-setContextNode
+contextNode
 
-  $xpc.setContextNode($node)
+  $xpc.contextNode = $node;
+  $node = $xpc.contextNode
 
-Set the current context node.
-
-=end item1
-
-=begin item1
-getContextNode
-
-  my $node = $xpc.getContextNode;
-
-Get the current context node.
+Set or get the current context node.
 
 =end item1
 
 =begin item1
-setContextPosition
+contextPosition
 
-  $xpc.setContextPosition($position)
+  $xpc.contextPosition = $position;
+  $position = $xpc.contextPosition;
 
-Set the current context position. By default, this value is -1 (and evaluating
+Set or get the current context position. By default, this value is -1 (and evaluating
 XPath function C<<<<<< position() >>>>>> in the initial context raises an XPath error), but can be set to any value up
 to context size. This usually only serves to cheat the XPath engine to return
 given position when C<<<<<< position() >>>>>> XPath function is called. Setting this value to -1 restores the default
@@ -562,20 +534,11 @@ behavior.
 =end item1
 
 =begin item1
-getContextPosition
+contextSize
 
-  my $position = $xpc.getContextPosition;
+  $xpc.setContextSize = $size;
 
-Get the current context position.
-
-=end item1
-
-=begin item1
-setContextSize
-
-  $xpc.setContextSize($size)
-
-Set the current context size. By default, this value is -1 (and evaluating
+Set or get the current context size. By default, this value is -1 (and evaluating
 XPath function C<<<<<< last() >>>>>> in the initial context raises an XPath error), but can be set to any
 non-negative value. This usually only serves to cheat the XPath engine to
 return the given value when C<<<<<< last() >>>>>> XPath function is called. If context size is set to 0, position is
@@ -585,45 +548,11 @@ behavior.
 
 =end item1
 
-=begin item1
-getContextSize
-
-  my $size = $xpc.getContextSize;
-
-Get the current context size.
-
-=end item1
-
-=begin item1
-setContextNode
-
-  $xpc.setContextNode($node)
-
-Set the current context node.
-
-=end item1
-
-
-=head1 BUGS AND CAVEATS
-
-LibXML::XPath::Context objects I<<<<<< are >>>>>> reentrant, meaning that you can call methods of an LibXML::XPath::Context even
-from XPath extension functions registered with the same object or from a
-variable lookup function. On the other hand, you should rather avoid
-registering new extension functions, namespaces and a variable lookup function
-from within extension functions and a variable lookup function, unless you want
-to experience untested behavior. 
-
-
 =head1 AUTHORS
 
 Ilya Martynov and Petr Pajas, based on LibXML and XML::LibXSLT code by Matt
 Sergeant and Christian Glahn.
 
-
-=head1 HISTORICAL REMARK
-
-Prior to LibXML 1.61 this module was distributed separately for maintenance
-reasons. 
 
 =head1 AUTHORS
 

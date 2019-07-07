@@ -7,20 +7,31 @@ class LibXML::Node::List does Iterable does Iterator {
     has $.native is required handles <string-value>;
     has $!cur;
     has $.of is required;
-    has @!array;
-    has Bool $!slurped;
-    has LibXML::Node $!ref; # just to keep the list alive
+    has LibXML::Node @!store;
+    has Bool $!lazy = True;
+    has LibXML::Node $!parent; # just to keep the list alive
     submethod TWEAK {
-        $!ref = $!of.box: $_ with $!native;
+        $!parent = $!of.box: $_ with $!native;
         $!cur = $!native;
     }
 
-    method Array handles<AT-POS elems List list pairs keys values map grep shift pop> {
-        unless $!slurped++ {
+    method Array handles<AT-POS elems List list pairs keys values map grep> {
+        if $!lazy-- {
             $!cur = $!native;
-            @!array = self;
+            @!store = self;
         }
-        @!array;
+        @!store;
+    }
+    method push(LibXML::Node:D $node) {
+        $!parent.appendChild($node);
+        @!store.push($node) unless $!lazy;
+        $node;
+    } 
+    method pop {
+        do with self.Array.tail -> LibXML::Node $node {
+            @!store.pop;
+            $node.unbindNode;
+        } // LibXML::Node;
     }
     multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
