@@ -36,7 +36,10 @@ class LibXML::Node::List does Iterable does Iterator {
     multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
     method Str  { $.to-literal }
-    method iterator { self }
+    method iterator {
+        $!cur = $!native;
+        self;
+    }
     method pull-one {
         with $!cur -> $this {
             $!cur = $this.next-node($!keep-blanks);

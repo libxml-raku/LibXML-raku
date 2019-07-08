@@ -13,7 +13,7 @@ XML
 my $xpath = '/*';
 # TEST:$exp=2;
 for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
-    my @nodes = LibXML::XPath::Context.new(:$doc).findnodes($exp).list;
+    my @nodes = LibXML::XPath::Context.new(:$doc).findnodes($exp);
   # TEST*$exp
   ok(@nodes == 1, ' TODO : Add test name');
   # TEST*$exp

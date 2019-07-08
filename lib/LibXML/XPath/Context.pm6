@@ -24,14 +24,18 @@ class LibXML::XPath::Context {
         .Free with $!native;
     }
 
-    multi method findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?) {
-        my domNode $node = .native with $ref-node;
+    method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
+        my domNode $node = .native with $ref;
         my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
         .rethrow with @!callback-errors.tail;
-        iterate-set(NodeSetElem, $node-set);
+        $node-set;
     }
-    multi method findnodes(Str:D $expr, LibXML::Node $ref-node?) is default {
-        $.findnodes( LibXML::XPath::Expression.new(:$expr), $ref-node );
+    multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
+        iterate-set(NodeSetElem, self!find($expr, $ref));
+    }
+    multi method findnodes(Str:D $_, LibXML::Node $ref?) is default {
+        my $expr = LibXML::XPath::Expression.new: :expr($_);
+        iterate-set(NodeSetElem, self!find($expr, $ref));
     }
 
     method !select(xmlXPathObject $native, Bool :$literal) {
@@ -296,8 +300,7 @@ This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a
 expression:
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
-        my @nodes = $nodes.list;
-        @nodes.grep: {.textContent ~~ / <$regex> /};
+        $nodes.grep: {.textContent ~~ / <$regex> /};
     };
 
     my LibXML::Document $doc .= parse: "example/article.xml";

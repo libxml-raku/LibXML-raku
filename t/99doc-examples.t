@@ -477,7 +477,7 @@ subtest 'LibXML::Text' => {
     # DOM Interface
     $text.setData( $text-content );
     is $text.data, 'Some text!';
-    my $substr = $text.substringData($offset, $length);
+    $substr = $text.substringData($offset, $length);
     is $substr, 'me t';
     $text.appendData( $somedata );
     is $text.data, 'Some text!XXX';
@@ -555,8 +555,7 @@ subtest 'LibXML::XPath::Context' => {
     $xpc.contextSize = $size;
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
-        my @nodes = $nodes.list;
-        @nodes.grep: {.textContent ~~ / <$regex> /}
+        $nodes.grep: {.textContent ~~ / <$regex> /}
     };
 
     my LibXML::Document $doc .= parse: "example/article.xml";

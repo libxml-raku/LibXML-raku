@@ -53,7 +53,10 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
     method Str  { $.to-literal }
     method size { $!native.nodeNr }
-    method iterator { self }
+    method iterator {
+        $!idx = 0;
+        self;
+    }
     method pull-one {
         if $!native.defined && $!idx < $!native.nodeNr {
             self.AT-POS($!idx++);

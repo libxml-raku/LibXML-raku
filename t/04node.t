@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 175;
+plan 177;
 
 use LibXML;
 use LibXML::Enums;
@@ -226,6 +226,12 @@ my $doc    = $parser.parse: :string( $xmlstring );
         ok( $xn.isSameNode($inode), ' TODO : Add test name' );
 
         $node.insertBefore( $jnode, LibXML::Node );
+        my $children := $node.childNodes();
+        my $n = 0; $n++ for $children;
+        is $n, 7, 'iterator';
+        $n = 0; $n++ for $children;
+        is $n, 7, 'iterator';
+
         my @ta  = $node.childNodes();
         $xn = pop @ta;
         # TEST
