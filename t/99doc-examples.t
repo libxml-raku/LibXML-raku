@@ -2,7 +2,7 @@
 
 use Test;
 
-plan 15;
+plan 16;
 
 subtest 'LibXML::Attr' => {
     plan 5;
@@ -437,6 +437,65 @@ subtest 'LibXML::XPath::Expression' => {
     my LibXML::XPath::Expression:D $compiled-xpath .= parse('//foo[@bar="baz"][position()<4]');
     pass;
 };
+
+subtest 'LibXML::Text' => {
+    plan 20;
+    use LibXML::Text;
+
+    #++ setup
+    my LibXML::Text $text .= new: :content<xx>;
+    my Str $text-content = 'Some text!';
+    my UInt $offset = 2;
+    my UInt $length = 4;
+    my Str $string = '****';
+    my Str $somedata = 'XXX';
+    my Str $remstring = 'X';
+    #-- setup
+
+    # Stringy Interface
+    $text.data = $text-content;
+    is $text.data, 'Some text!';
+    my $substr    = $text.substr($offset, $length);
+    is $substr, 'me t';
+    $text.data   ~= $somedata ;
+    is $text.data, 'Some text!XXX';
+    $text.data.substr-rw($offset, 0) = $string;
+    is $text.data, 'So****me text!XXX';
+    $text.data.substr-rw($offset, $length) = '';
+    is $text.data, 'Some text!XXX';
+    $text.data   ~~ s/$remstring//;
+    is $text.data, 'Some text!XX';
+    $text.data   ~~ s:g/$remstring//;
+    is $text.data, 'Some text!';
+    $text.data.substr-rw($offset, $length) = $string;
+    is $text.data, 'So****ext!';
+    $text.data ~~ s/<[a..z]>/-/;
+    is $text.data, 'S-****ext!';
+    $text.data ~~ s:g/<[a..z]>/-/;
+    is $text.data, 'S-****---!';
+    
+    # DOM Interface
+    $text.setData( $text-content );
+    is $text.data, 'Some text!';
+    my $substr = $text.substringData($offset, $length);
+    is $substr, 'me t';
+    $text.appendData( $somedata );
+    is $text.data, 'Some text!XXX';
+    $text.insertData($offset, $string);
+    is $text.data, 'So****me text!XXX';
+    $text.deleteData($offset, $length);
+    is $text.data, 'Some text!XXX';
+    $text.deleteDataString($remstring);
+    is $text.data, 'Some text!XX';
+    $text.deleteDataString($remstring, :g);
+    is $text.data, 'Some text!';
+    $text.replaceData($offset, $length, $string);
+    is $text.data, 'So****ext!';
+    $text.replaceDataString(rx/<[a..z]>/, '-');
+    is $text.data, 'S-****ext!';
+    $text.replaceDataString(rx/<[a..z]>/, '-', :g);
+    is $text.data, 'S-****---!';
+}
 
 subtest 'LibXML::XPath::Context' => {
     plan 6;

@@ -20,8 +20,14 @@ multi method replaceData(UInt:D $off, UInt:D $length, Str:D $val) {
 
 my subset StrOrRegex where Str|Regex;
 my subset StrOrCode where Str|Code;
-multi method replaceData(StrOrRegex:D $old, StrOrCode:D $new, |c) {
+method replaceDataString(StrOrRegex:D $old, StrOrCode:D $new, |c) {
     $.content = $.content.subst($old, $new, |c);
+}
+method deleteDataString(StrOrRegex:D $old, |c) {
+    $.replaceDataString($old, '', |c);
+}
+multi method replaceData(StrOrRegex:D $old, StrOrCode:D $new, |c) {
+    $.replaceDataString($old, $new, |c);
 }
 multi method deleteData(UInt:D $off, UInt:D $length) {
     $.replaceData($off, $length, '');
