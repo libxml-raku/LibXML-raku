@@ -324,7 +324,7 @@ subtest 'LibXML::Namespace' => {
 };
 
 subtest 'LibXML::Node' => {
-    plan 1;
+    plan 5;
     use LibXML::Node;
     use LibXML::Element;
     use LibXML::Namespace;
@@ -404,6 +404,16 @@ subtest 'LibXML::Node' => {
     $node.setBaseURI($uri);
     $node.nodePath();
     my UInt $line-no = $node.line-number();
+
+    # Positional Interface to child nodes
+    $node .= new: :name<Test>;
+    $node.push: LibXML::Element.new: :name<A>;
+    $node.push: LibXML::Element.new: :name<B>;
+    is $node.Str, '<Test><A/><B/></Test>';
+    is $node[1].Str, '<B/>';
+    is $node.values.map(*.Str).join(':'), '<A/>:<B/>';
+    $node.pop;
+    is $node.Str, '<Test><A/></Test>';
 }
 
 subtest 'LibXML::PI' => {

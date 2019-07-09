@@ -4,14 +4,15 @@ class LibXML::Node::List does Iterable does Iterator {
 
     has Bool $.keep-blanks;
     has $.doc is required;
-    has $.native is required handles <string-value>;
+    has domNode $.native is required handles <string-value>;
+    has LibXML::Node $.parent;
     has $!cur;
     has $.of is required;
     has LibXML::Node @!store;
     has Bool $!lazy = True;
-    has LibXML::Node $!parent; # just to keep the list alive
+    has LibXML::Node $!first; # just to keep the list alive
     submethod TWEAK {
-        $!parent = $!of.box: $_ with $!native;
+        $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
     }
 
@@ -23,7 +24,12 @@ class LibXML::Node::List does Iterable does Iterator {
         @!store;
     }
     method push(LibXML::Node:D $node) {
-        $!parent.appendChild($node);
+        with $!parent // $!first.parent {
+            .appendChild($node);
+        }
+        else {
+            fail "no parent to push to";
+        }
         @!store.push($node) unless $!lazy;
         $node;
     } 

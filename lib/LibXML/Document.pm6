@@ -271,7 +271,7 @@ method parse(|c --> LibXML::Document) { (require ::('LibXML')).load(|c); }
 method validate(|c) { LibXML::Parser::Context.try: {self!validate(|c)} }
 method is-valid(|c) { self!validate(|c) }
 
-method processXIncludes(|c) is also<process-xinclude> {
+method processXIncludes(|c) is also<process-xincludes> {
     (require ::('LibXML::Parser')).new.processXIncludes(self, |c);
 }
 

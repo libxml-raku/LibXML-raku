@@ -28,14 +28,14 @@ my $file = 'test/xinclude/test.xml';
   $parser.expand-xinclude = False;
   my $doc = $parser.parse: :$file;
   # TEST
-  ok( $doc.process-xinclude(:!expand-entities), ' TODO : Add test name' );
+  ok( $doc.process-xincludes(:!expand-entities), ' TODO : Add test name' );
   # TEST
   unlike($doc.Str, /'IT WORKS'/, ' TODO : Add test name' );
 }
 {
   my $doc = $parser.parse :$file;
   # TEST
-  ok( $doc.process-xinclude(:expand-entities), ' TODO : Add test name' );
+  ok( $doc.process-xincludes(:expand-entities), ' TODO : Add test name' );
   # TEST
   like($doc.Str, /'IT WORKS'/, ' TODO : Add test name' );
 }

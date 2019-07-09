@@ -63,7 +63,7 @@ method !get-attributes {
     LibXML::Attr::Map.new: :node(self);
 }
 
-method !set-attributes(%atts) {
+method !set-attributes(@atts) {
     # clear out old attributes
     with $.native.properties -> domNode:D $node is copy {
         while $node.defined {
@@ -74,7 +74,7 @@ method !set-attributes(%atts) {
         }
     }
     # set new attributes
-    for %atts.pairs.sort -> $att, {
+    for @atts -> $att, {
         if $att.value ~~ NameVal|Hash {
             my $uri = $att.key;
             self.setAttributeNS($uri, $_)
@@ -87,18 +87,18 @@ method !set-attributes(%atts) {
 }
 
 # hashy attribute containers
-method attributes is rw {
+method attributes is rw is also<attr> {
     Proxy.new(
-        FETCH => sub ($) { self!get-attributes },
+        FETCH => { self!get-attributes },
         STORE => sub ($, %atts) {
-            self!set-attributes(%atts);
+            self!set-attributes: %atts.pairs.sort;
         }
     );
 }
 
 # attributes as an ordered list
 method properties {
-    iterate-list(LibXML::Attr, $.native.properties);
+    iterate-list(self, LibXML::Attr, $.native.properties);
 }
 
 method appendWellBalancedChunk(Str:D $string) {

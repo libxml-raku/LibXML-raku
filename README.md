@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/p6-pdf/Font-FreeType-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/Font-FreeType-p6)
+[![Build Status](https://travis-ci.org/p6-pdf/LibXML-p6.svg?branch=master)](https://travis-ci.org/p6-pdf/LibXML-p6)
 
 NAME
 ====
@@ -57,6 +57,10 @@ DOM Objects
 
 Other
 -----
+
+  * [LibXML::Schema](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Schema.md) - LibXML schema validation class
+
+  * [LibXML::RelaxNG](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RelaxNG.md) - LibXML RelaxNG validation class
 
   * [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
 

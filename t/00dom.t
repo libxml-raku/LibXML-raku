@@ -70,10 +70,10 @@ is($elem.Str, '<foo x:bbb="zzz"/>', 'QName Elem set via attributes proxy');
 $elem.attributes = %(
     'http://ns' => %('x:aaa' => 'AAA',
                      'x:bbb' => 'BBB',
-                     'y:ccc' => 'CCCC'),
+                     'y:ccc' => 'CCC'),
     :foo<bar>,
    );
-is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc="CCCC"/>', 'NS Elem set via attributes proxy');
+is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem set via attributes proxy');
 
 %atts := $elem.attributes;
 is-deeply %atts.keys.sort, ('foo', 'http://ns'), 'NS entries';
@@ -93,7 +93,7 @@ dies-ok {%atts.setNamedItemNS('http://ns2', $attr);}, 'changing attribute NS; no
 
 lives-ok {$attr = %atts<http://ns><aaa>:delete};
 
-is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCCC"/>', 'NS Elem after NS proxy deletion');
+is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem after NS proxy deletion');
 
 
 

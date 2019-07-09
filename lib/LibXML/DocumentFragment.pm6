@@ -32,6 +32,7 @@ multi method parse(
     Pointer :$user-data,
     Bool() :$repair = False,
     Bool() :$keep-blanks = config.keep-blanks-default ) {
+
     my Pointer[xmlNode] $nodes .= new;
     my $stat;
     # may return a linked list of nodes

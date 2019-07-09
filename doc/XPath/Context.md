@@ -78,8 +78,7 @@ Custom XPath functions
 This example demonstrates `registerFunction() ` method by defining a function filtering nodes based on a Perl regular expression:
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
-        my @nodes = $nodes.list;
-        @nodes.grep: {.textContent ~~ / <$regex> /};
+        $nodes.grep: {.textContent ~~ / <$regex> /};
     };
 
     my LibXML::Document $doc .= parse: "example/article.xml";

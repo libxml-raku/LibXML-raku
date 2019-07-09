@@ -233,9 +233,9 @@ class LibXML::Node {
         } // self.WHAT;
     }
 
-    sub iterate-list($of, domNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
+    sub iterate-list($parent, $of, domNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.
-        (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks;
+        (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks, :$parent;
     }
 
     sub iterate-set($of, xmlNodeSet $native) is export(:iterate-set) {
@@ -251,11 +251,11 @@ class LibXML::Node {
         $!doc = LibXML::Node;
         self;
     }
-    method childNodes is also<getChildnodes list List> {
-        iterate-list(LibXML::Node, $!native.first-child(KeepBlanks));
+    method childNodes is also<getChildnodes> handles <AT-POS elems List list pairs keys values map grep push pop> {
+        iterate-list(self, LibXML::Node, $!native.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
-        iterate-list(LibXML::Node, $!native.first-child(SkipBlanks), :!keep-blanks);
+        iterate-list(self, LibXML::Node, $!native.first-child(SkipBlanks), :!keep-blanks);
     }
     multi method findnodes(LibXML::XPath::Expression:D $xpath-expr) {
         my xmlNodeSet:D $node-set := $!native.findnodes: native($xpath-expr);
@@ -484,6 +484,14 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $node.baseURI = $uri;
   $node.nodePath();
   my UInt $lineno = $node.line-number();
+
+  # Positional interface (on child nodes)
+  $node.push: LibXML::Element.new: :name<A>;
+  $node.push: LibXML::Element.new: :name<B>;
+  say $node[1].Str; # <B/>
+  say $node.values.map(*.Str).join(':');  # <A/>:<B/>
+  $node.pop;
+
 
 =head1 DESCRIPTION
 

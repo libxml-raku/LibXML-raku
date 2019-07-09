@@ -62,6 +62,13 @@ SYNOPSIS
     $node.nodePath();
     my UInt $lineno = $node.line-number();
 
+    # Positional interface (on child nodes)
+    $node.push: LibXML::Element.new: :name<A>;
+    $node.push: LibXML::Element.new: :name<B>;
+    say $node[1].Str; # <B/>
+    say $node.values.map(*.Str).join(':');  # <A/>:<B/>
+    $node.pop;
+
 DESCRIPTION
 ===========
 
