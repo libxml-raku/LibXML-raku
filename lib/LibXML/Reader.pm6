@@ -61,7 +61,6 @@ class LibXML::Reader {
     method document {
         $!document //= LibXML::Document.new: :native($_)
             with $!native.currentDoc;
-        $!document;
     }
 
     use LibXML::_Options;
@@ -86,7 +85,7 @@ class LibXML::Reader {
                           Str :$URI, xmlEncodingStr :$enc, :$!flags = 0,
                           RelaxNG :$!RelaxNG, Schema :$!Schema,
                           *%opts) {
-        self.set-flags($!flags, %opts);
+        self.set-flags($!flags, |%opts);
         $!native .= new: :$!buf, :$len, :$enc, :$URI, :$!flags;
         self!setup;
     }
@@ -98,7 +97,7 @@ class LibXML::Reader {
                           xmlEncodingStr :$enc, :$!flags = 0,
                           RelaxNG :$!RelaxNG, Schema :$!Schema,
                           *%opts) {
-        self.set-flags($!flags, %opts);
+        self.set-flags($!flags, |%opts);
         $!native .= new: :$fd, :$enc, :$URI, :$!flags;
         self!setup;
     }
@@ -207,9 +206,6 @@ class LibXML::Reader {
     method have-reader {
         ? xml6_gbl_have_libxml_reader();
     }
-
-    method get-option(Str:D $key) { $.get-flag($!flags, $key); }
-    method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
 
     method FALLBACK($key, |c) is rw {
         $.option-exists($key)

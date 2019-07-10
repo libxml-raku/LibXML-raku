@@ -13,7 +13,7 @@ class LibXML::Parser {
     has Bool $.html;
     has Bool $.line-numbers is rw = False;
     has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
-    has Str $.baseURI is rw;
+    has Str $.URI is rw;
     has $.sax-handler is rw;
     has $.input-callbacks is rw = config.input-callbacks;
     multi method input-callbacks is rw { $!input-callbacks }
@@ -22,6 +22,7 @@ class LibXML::Parser {
     use LibXML::_Options;
     also does LibXML::_Options[
         %(
+            :URI, :html, :line-numbers, :sax-handler, :input-callbacks,
             :clean-namespaces(XML_PARSE_NSCLEAN),
             :complete-attributes(XML_PARSE_DTDATTR),
             :dtd(XML_PARSE_DTDLOAD +| XML_PARSE_DTDVALID
@@ -50,26 +51,25 @@ class LibXML::Parser {
         )];
 
     # Perl 5 compat
-    multi method set-option('recover', 2) {
-        $.set-option('recover-silently', True);
+    multi method recover is rw {
+        Proxy.new(
+            FETCH => { 
+                my $recover = $.get-flag($!flags, 'recover');
+                $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
+            },
+            STORE => -> $, UInt() $v {
+                $.set-flag($!flags, 'recover', $v >= 1);
+                $.set-flag($!flags, 'suppress-errors', $v >= 2);
+            }
+        );
     }
-    multi method get-option('recover') {
-        my $recover = $.get-flag($!flags, 'recover');
-        $recover && $.get-option('suppress-errors') ?? 2 !! $recover;
-    }
+    multi method recover($v) { $.recover = $v }
 
-    multi method get-option(Str:D $key) is default { $.get-flag($!flags, $key); }
-    multi method set-option(Str:D $key, $_) is default { $.set-flag($!flags, $key, $_); }
-    multi method set-option(*%opt) is also<set-options> {
-        my $rv := $.set-option(.key, .value) for %opt.sort;
-        $rv;
-    }
-
-    method options(:$html, *%opts) {
-        my UInt $flags = $!flags;
+    method get-flags(:$html, *%opts) {
+        my UInt $flags = $!flags;\
         $.set-flag($flags, 'load-ext-dtd', False)
             if $html;
-        $.set-flags($flags, %opts);
+        $.set-flags($flags, |%opts);
 
         $.set-flag($flags, 'dtd', False)
             unless $html || $flags +& XML_PARSE_DTDLOAD;
@@ -77,14 +77,14 @@ class LibXML::Parser {
         $flags;
     }
 
-    method !make-handler(parserCtxt :$native, *%flags) {
-        my UInt $flags = self.options(|%flags);
+    method !make-handler(parserCtxt :$native, *%opts) {
+        my UInt $flags = self.get-flags(|%opts);
         LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
     method !publish(:$URI, LibXML::Parser::Context :$handler!, xmlDoc :$native = $handler.native.myDoc) {
         my LibXML::Document:D $doc .= new: :ctx($handler), :$native;
-        $doc.baseURI = $_ with $URI;
+        $doc.URI = $_ with $URI;
         self.processXIncludes($doc, :$handler)
             if $.expand-xinclude;
         $doc;
@@ -96,7 +96,7 @@ class LibXML::Parser {
         *%opts --> Int)
     is also<process-xincludes> {
         my xmlDoc $doc = .native;
-        my $flags = self.options(|%opts);
+        my $flags = self.get-flags(|%opts);
         $handler.try: { $doc.XIncludeProcessFlags($flags) }
     }
 
@@ -107,14 +107,14 @@ class LibXML::Parser {
 
     multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
-                       Str() :$URI = $!baseURI,
+                       Str() :$URI = $!URI,
                        xmlEncodingStr :$enc = 'UTF-8',
-                       *%flags 
+                       *%opts 
                       ) {
 
         # gives better diagnositics
 
-        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
 
         $handler.try: {
             my parserCtxt:D $ctx = $html
@@ -130,9 +130,9 @@ class LibXML::Parser {
 
     multi method parse(Blob:D :$buf!,
                        Bool() :$html = $!html,
-                       Str() :$URI = $!baseURI,
+                       Str() :$URI = $!URI,
                        xmlEncodingStr :$enc = 'UTF-8',
-                       *%flags,
+                       *%opts,
                       ) {
 
         my parserCtxt:D $ctx = $html
@@ -141,7 +141,7 @@ class LibXML::Parser {
 
         $ctx.input.filename = $_ with $URI;
 
-        my LibXML::Parser::Context $handler = self!make-handler: :native($ctx), :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :native($ctx), :$html, |%opts;
         $handler.try: { $ctx.ParseDocument };
         self!publish: :$handler;
     }
@@ -149,10 +149,10 @@ class LibXML::Parser {
     multi method parse(IO() :$file!,
                        Bool() :$html = $!html,
                        xmlEncodingStr :$enc,
-                       Str :$URI = $!baseURI,
-                       *%flags,
+                       Str :$URI = $!URI,
+                       *%opts,
                       ) {
-        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%flags;
+        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
 
         $handler.try: {
             my parserCtxt $ctx = $html
@@ -168,14 +168,14 @@ class LibXML::Parser {
     }
 
     multi method parse(UInt :$fd!,
-                       Str :$URI = $!baseURI,
+                       Str :$URI = $!URI,
                        Bool() :$html = $!html,
                        xmlEncodingStr :$enc,
-                       *%flags,
+                       *%opts,
                       ) {
 
-        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%flags;
-        my UInt $flags = self.options(|%flags, :$html);
+        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
+        my UInt $flags = self.get-flags(|%opts, :$html);
         my xmlDoc $native;
 
         $handler.try: {
@@ -235,7 +235,7 @@ class LibXML::Parser {
             if $terminate;
     }
     method finish-push (
-        Str :$URI = $!baseURI,
+        Str :$URI = $!URI,
         Bool :$recover = $.recover,
     )
     {
@@ -260,9 +260,9 @@ class LibXML::Parser {
         xmlLoadCatalog($filename);
     }
 
-    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($), :URI($), :sax-handler($), :build-sax-handler($), :input-callbacks($), *%opts) {
+    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($) = 0, :URI($), :sax-handler($), :build-sax-handler($), :input-callbacks($), *%opts) {
         self.load-catalog($_) with $catalog;
-        self.set-flags($!flags, %opts);
+        $!flags = self.get-flags(|%opts);
     }
 
     method FALLBACK($key, |c) is rw {
@@ -450,7 +450,7 @@ load: :html
   $dom = $parser.load: :html, ...;
   			  
 
-The :HTML option provides an interface to the HTML parser.
+The :html option provides an interface to the HTML parser.
 
 =end item1
 

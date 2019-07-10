@@ -324,7 +324,7 @@ subtest 'LibXML::Namespace' => {
 };
 
 subtest 'LibXML::Node' => {
-    plan 5;
+    plan 7;
     use LibXML::Node;
     use LibXML::Element;
     use LibXML::Namespace;
@@ -412,6 +412,11 @@ subtest 'LibXML::Node' => {
     is $node.Str, '<Test><A/><B/></Test>';
     is $node[1].Str, '<B/>';
     is $node.values.map(*.Str).join(':'), '<A/>:<B/>';
+    $node[1] = LibXML::Element.new: :name<C>;
+    $node[2] = LibXML::Element.new: :name<D>;
+    dies-ok { $node[42] = LibXML::Element.new: :name<Z>; }
+    is $node.Str, '<Test><A/><C/><D/></Test>';
+    $node.pop;
     $node.pop;
     is $node.Str, '<Test><A/></Test>';
 }

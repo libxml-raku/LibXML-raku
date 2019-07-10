@@ -286,7 +286,7 @@ my $badXInclude = q{
 
 
 {
-    $parser.baseURI = "example/";
+    $parser.URI = "example/";
     $parser.keep-blanks = False;
     my $doc = $parser.parse: :string( $goodXInclude );
     isa-ok($doc, 'LibXML::Document');

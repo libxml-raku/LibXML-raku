@@ -74,7 +74,7 @@ class LibXML::Node {
 
     method native is rw {
         Proxy.new(
-            FETCH => { $!native },
+            FETCH => { with self {$!native} else {domNode} },
             STORE => -> $, domNode:D $new-struct {
                 given native-class($new-struct.type) -> $class {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
@@ -251,7 +251,7 @@ class LibXML::Node {
         $!doc = LibXML::Node;
         self;
     }
-    method childNodes is also<getChildnodes> handles <AT-POS elems List list pairs keys values map grep push pop> {
+    method childNodes is also<getChildnodes> handles <AT-POS ASSIGN-POS elems List list pairs keys values map grep push pop> {
         iterate-list(self, LibXML::Node, $!native.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
@@ -489,7 +489,8 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $node.push: LibXML::Element.new: :name<A>;
   $node.push: LibXML::Element.new: :name<B>;
   say $node[1].Str; # <B/>
-  say $node.values.map(*.Str).join(':');  # <A/>:<B/>
+  $node[1] = LibXML::Element.new: :name<C>;
+  say $node.values.map(*.Str).join(':');  # <A/>:<C/>
   $node.pop;
 
 

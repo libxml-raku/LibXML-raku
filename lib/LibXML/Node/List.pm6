@@ -5,12 +5,13 @@ class LibXML::Node::List does Iterable does Iterator {
     has Bool $.keep-blanks;
     has $.doc is required;
     has domNode $.native is required handles <string-value>;
-    has LibXML::Node $.parent;
     has $!cur;
     has $.of is required;
     has LibXML::Node @!store;
     has Bool $!lazy = True;
     has LibXML::Node $!first; # just to keep the list alive
+    has LibXML::Node $.parent;
+    method parent { $!parent // $!first.parent // fail "parent not found"; }
     submethod TWEAK {
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
@@ -24,12 +25,7 @@ class LibXML::Node::List does Iterable does Iterator {
         @!store;
     }
     method push(LibXML::Node:D $node) {
-        with $!parent // $!first.parent {
-            .appendChild($node);
-        }
-        else {
-            fail "no parent to push to";
-        }
+        $.parent.appendChild($node);
         @!store.push($node) unless $!lazy;
         $node;
     } 
@@ -38,6 +34,18 @@ class LibXML::Node::List does Iterable does Iterator {
             @!store.pop;
             $node.unbindNode;
         } // LibXML::Node;
+    }
+    method ASSIGN-POS(UInt() $pos, LibXML::Node $node) {
+        if $pos < $.elems {
+            $.parent.replaceChild($node, $.Array[$pos]);
+        }
+        elsif $pos == $.elems {
+            # allow vivification of tail element
+            $.parent.appendChild($node);
+        }
+        else {
+            fail "array index out of bounds";
+        }
     }
     multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }

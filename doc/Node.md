@@ -66,7 +66,8 @@ SYNOPSIS
     $node.push: LibXML::Element.new: :name<A>;
     $node.push: LibXML::Element.new: :name<B>;
     say $node[1].Str; # <B/>
-    say $node.values.map(*.Str).join(':');  # <A/>:<B/>
+    $node[1] = LibXML::Element.new: :name<C>;
+    say $node.values.map(*.Str).join(':');  # <A/>:<C/>
     $node.pop;
 
 DESCRIPTION

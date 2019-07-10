@@ -68,7 +68,7 @@ print "# 4 validate a document\n";
     # TEST
     is( $valid, 0, ' TODO : Add test name' );
 
-    $doc       = $xmlparser.new: :file( $invalidfile );
+    $doc       = $xmlparser.parse: :file( $invalidfile );
     $valid     = 0;
     dies-ok { $valid = $rngschema.validate( $doc ); }, 'validate invalid document';
 }

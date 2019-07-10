@@ -27,7 +27,7 @@ plan 3;
 
     my $TEST_FILENAME = 'example/dromeds.xml';
 
-    $xml_parser.load: :xml, location => $TEST_FILENAME;
+    $xml_parser.load: location => $TEST_FILENAME;
 
     # TEST
     ok($got_open, 'load_xml() encountered the open InputCallback');

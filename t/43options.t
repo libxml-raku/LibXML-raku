@@ -1,5 +1,5 @@
 use Test;
-plan 239;
+plan 242;
 
 use LibXML;
 
@@ -58,6 +58,11 @@ no_network
   is-deeply( $p.keep-blanks(1), True, 'Set keep-blanks to True' );
   # TEST
   ok( ! $p.get-option('no_blanks'), ' TODO : Add test name' );
+
+  my $uri = 'http://foo/bar';
+  is( $p.set-option(URI => $uri), $uri, 'Set URI');
+  is( $p.get-option('URI'), $uri, 'Get URI');
+  is( $p.URI, $uri, 'Get URI');
 
   ok( ! $p.recover_silently(), ' TODO : Add test name' );
   $p.set-option(recover => 1);

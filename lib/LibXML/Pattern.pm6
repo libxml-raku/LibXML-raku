@@ -27,7 +27,7 @@ method native { $!native }
 has UInt $.flags;
 
 submethod TWEAK(Str:D :$pattern!, :%ns, *%opts) {
-    self.set-flags($!flags, %opts);
+    self.set-flags($!flags, |%opts);
     my CArray[Str] $ns .= new: |(%ns.kv.sort), Str;
     $!native .= new: :$pattern, :$!flags, :$ns;
 }
@@ -54,9 +54,6 @@ multi method matchesNode(LibXML::Node $node) {
 multi method matchesNode(domNode $node) {
     self!try-bool('Match', $node);
 }
-
-method get-option(Str:D $key) { $.get-flag($!flags, $key); }
-method set-option(Str:D $key, Bool() $_) { $.set-flag($!flags, $key, $_); }
 
 method FALLBACK($key, |c) is rw {
     $.option-exists($key)

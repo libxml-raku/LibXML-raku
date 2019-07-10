@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 55;
+plan 54;
 
 use LibXML;
 use LibXML::SAX;
@@ -127,10 +127,8 @@ my $parser;
     # TEST
     $SAXTester_end_document_counter.test(1, 'end_document called once.');
 
-    my $builder = LibXML::SAX::Builder.new();
     # TEST
-    ok($builder, ' TODO : Add test name');
-    my $gen2 = LibXML::SAX.new(sax-builder => $builder);
+    my $gen2 = LibXML::SAX.new;
     my $dom2 = $gen2.reparse($doc);
     # TEST
     ok($dom2, ' TODO : Add test name');
