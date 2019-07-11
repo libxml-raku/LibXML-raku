@@ -51,7 +51,7 @@ class LibXML::ErrorHandler {
         my $msg = $fmt eq '%s' ?? nativecast(Str, $arg) !! $fmt;
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
     }
-    has Bool $.recover;
+    has Bool $.recover is rw;
     has Bool $.suppress-warnings;
     has Bool $.suppress-errors;
 

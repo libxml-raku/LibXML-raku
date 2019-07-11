@@ -2,7 +2,7 @@
 
 use Test;
 
-plan 16;
+plan 17;
 
 subtest 'LibXML::Attr' => {
     plan 5;
@@ -419,6 +419,47 @@ subtest 'LibXML::Node' => {
     $node.pop;
     $node.pop;
     is $node.Str, '<Test><A/></Test>';
+}
+
+sub test-option($obj, Str $option, *@values, :$default) {
+    my $what = $obj.WHAT.gist;
+    my $orig := $obj."$option"();
+    is-deeply($orig, $_, "$what $option default value")
+        with $default;
+    for @values {
+        $obj.set-option($option, $_);
+        is $obj.get-option($option), $_, "$what set/get of $option option";
+    }
+    $obj."$option"() = $orig;
+    is $obj.get-option($option), $orig, "$what restore of $option option";
+
+}
+
+subtest 'LibXML::Parser' => {
+    plan 22;
+    use LibXML;
+    use LibXML::Reader;
+    my LibXML $parser .= new;
+    my $file = "test/textReader/countries.xml";
+    my LibXML::Reader $reader .= new(location => $file);
+
+    test-option($_, 'html', True, :default(False))
+        for $parser;
+
+    test-option($_, 'line-numbers', True, :default(False))
+        for $parser;
+    skip "does the reader really handle line-numbers option?";
+
+    test-option($_, 'enc', 'UTF-16')
+        for $parser;
+    lives-ok { $reader.enc }, "reader 'enc' option (read-only)";
+
+    test-option($_, 'recover', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'expand-entities', False, :default(True))
+        for $parser, $reader;
+
 }
 
 subtest 'LibXML::PI' => {

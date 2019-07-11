@@ -17,7 +17,7 @@ pass "loaded LibXML::Reader";
 
 my $file = "test/textReader/countries.xml";
 {
-  my $reader = LibXML::Reader.new(location => $file, expand-entities => 1);
+  my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
   isa-ok($reader, "LibXML::Reader");
   is($reader.read, True, "read");
   is($reader.byteConsumed, 488, "byteConsumed");

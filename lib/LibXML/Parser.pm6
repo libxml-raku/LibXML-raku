@@ -10,11 +10,12 @@ class LibXML::Parser {
 
     constant config = LibXML::Config;
 
-    has Bool $.html;
+    has Bool $.html is rw = False;
     has Bool $.line-numbers is rw = False;
-    has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD;
+    has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD +| XML_PARSE_NOENT;
     has Str $.URI is rw;
     has $.sax-handler is rw;
+    has xmlEncodingStr $.enc is rw;
     has $.input-callbacks is rw = config.input-callbacks;
     multi method input-callbacks is rw { $!input-callbacks }
     multi method input-callbacks($!input-callbacks) {}
@@ -22,7 +23,8 @@ class LibXML::Parser {
     use LibXML::_Options;
     also does LibXML::_Options[
         %(
-            :URI, :html, :line-numbers, :sax-handler, :input-callbacks,
+            :URI, :html, :line-numbers, :sax-handler,
+            :input-callbacks, :enc,
             :clean-namespaces(XML_PARSE_NSCLEAN),
             :complete-attributes(XML_PARSE_DTDATTR),
             :dtd(XML_PARSE_DTDLOAD +| XML_PARSE_DTDVALID
@@ -66,7 +68,7 @@ class LibXML::Parser {
     multi method recover($v) { $.recover = $v }
 
     method get-flags(:$html, *%opts) {
-        my UInt $flags = $!flags;\
+        my UInt $flags = $!flags;
         $.set-flag($flags, 'load-ext-dtd', False)
             if $html;
         $.set-flags($flags, |%opts);
@@ -108,7 +110,7 @@ class LibXML::Parser {
     multi method parse(Str:D() :$string!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!URI,
-                       xmlEncodingStr :$enc = 'UTF-8',
+                       xmlEncodingStr :$enc = $!enc,
                        *%opts 
                       ) {
 
@@ -118,7 +120,7 @@ class LibXML::Parser {
 
         $handler.try: {
             my parserCtxt:D $ctx = $html
-            ?? htmlMemoryParserCtxt.new: :$string, :$enc
+            ?? htmlMemoryParserCtxt.new: :$string
             !! xmlMemoryParserCtxt.new: :$string;
 
             $ctx.input.filename = $_ with $URI;
@@ -131,13 +133,13 @@ class LibXML::Parser {
     multi method parse(Blob:D :$buf!,
                        Bool() :$html = $!html,
                        Str() :$URI = $!URI,
-                       xmlEncodingStr :$enc = 'UTF-8',
+                       xmlEncodingStr :$enc = $!enc,
                        *%opts,
                       ) {
 
         my parserCtxt:D $ctx = $html
            ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
-           !! xmlMemoryParserCtxt.new(:$buf, :$enc);
+           !! xmlMemoryParserCtxt.new(:$buf);
 
         $ctx.input.filename = $_ with $URI;
 
@@ -148,7 +150,7 @@ class LibXML::Parser {
 
     multi method parse(IO() :$file!,
                        Bool() :$html = $!html,
-                       xmlEncodingStr :$enc,
+                       xmlEncodingStr :$enc = $!enc,
                        Str :$URI = $!URI,
                        *%opts,
                       ) {
@@ -170,7 +172,7 @@ class LibXML::Parser {
     multi method parse(UInt :$fd!,
                        Str :$URI = $!URI,
                        Bool() :$html = $!html,
-                       xmlEncodingStr :$enc,
+                       xmlEncodingStr :$enc = $!enc,
                        *%opts,
                       ) {
 
@@ -702,9 +704,9 @@ parser look at the L<<<<<< LibXML::SAX >>>>>> man page
 LibXML provides some functions to serialize nodes and documents. The
 serialization functions are described on the L<<<<<< LibXML::Node >>>>>> manpage or the L<<<<<< LibXML::Document >>>>>> manpage. LibXML checks three global flags that alter the serialization process:
 
-=item1 * skip-XML-Declaration
+=item1 * skip-xml-declaration
 
-=item1 * skip-DTD
+=item1 * skip-dtd
 
 =item1 * tag-expansion
 
@@ -792,7 +794,7 @@ if it can be used with a C<<<<<< LibXML >>>>>> parser object (i.e. passed to C<<
 =begin item1
 /html/
 
-if it can be used passed to the C<<<<<< parse-html-* >>>>>> methods
+if it is applicable to HTML parsing
 
 =end item1
 
@@ -803,8 +805,7 @@ if it can be used with the C<<<<<< LibXML::Reader >>>>>>.
 
 =end item1
 
-Unless specified otherwise, the default for boolean valued options is 0
-(false). 
+Unless specified otherwise, the default for boolean valued options is False. 
 
 The available options are:
 
@@ -822,7 +823,7 @@ has to set a base URI, that is then used for the parsed document.
 =begin item1
 line-numbers
 
-/parser, html, reader/
+/parser/
 
 If this option is activated, libxml2 will store the line number of each element
 node in the parsed document. The line number can be obtained using the C<<<<<< line-number() >>>>>> method of the C<<<<<< LibXML::Node >>>>>> class (for non-element nodes this may report the line number of the containing
@@ -836,11 +837,14 @@ please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for m
 =end item1
 
 =begin item1
-encoding
+enc
 
-/html/
+/parser(*), html, reader(*)/
 
-character encoding of the input
+character encoding of the input.
+
+(*) This is applicable to all HTML parsing modes and XML parsing from files, or file descriptors.
+(*) C<:enc> is a read-only Reader option.
 
 =end item1
 
@@ -851,7 +855,7 @@ recover
 
 recover from errors; possible values are 0, 1, and 2
 
-A true value turns on recovery mode which allows one to parse broken XML or
+A True value turns on recovery mode which allows one to parse broken XML or
 HTML data. The recovery mode allows the parser to return the successfully
 parsed portion of the input document. This is useful for almost well-formed
 documents, where for example a closing tag is missing somewhere. Still, LibXML
@@ -868,7 +872,7 @@ expand-entities
 
 /parser, reader/
 
-substitute entities; possible values are 0 and 1; default is 1
+substitute entities; default is True
 
 Note that although this flag disables entity substitution, it does not prevent
 the parser from loading external entities; when substitution of an external
