@@ -150,35 +150,36 @@ class LibXML::XPath::Context {
 
     has %!pool{UInt}; # Keep objects alive, while they are on the stack
     my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
-    method !keep(xmlNodeSet:D $native, :$scope --> xmlNodeSet:D) {
-        my UInt $scope-addr = 0;
-        with $scope {
+    method !keep(xmlNodeSet:D $native, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
+        my UInt $ctxt-addr = 0;
+        with $ctxt {
             # scope to a particular parser/eval context
-            $scope-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
+            $ctxt-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
             # context stack is clear. We can also clear the associated pool
-            %!pool{$scope-addr} = %()
-                if .valueNr == 0;
+            ## todo: causing 31xpc-functions.t to flap
+            ## %!pool{$ctxt-addr} = []
+            ##     if .valueNr == 0  && !.value.defined;
         }
-        %!pool{$scope-addr}{ +nativecast(Pointer, $native) } //= LibXML::Node::Set.new: :$native;
+        %!pool{$ctxt-addr}.push: LibXML::Node::Set.new: :$native;
         $native;
     }
-    multi method park(NodeObj:D $node, :$scope --> xmlNodeSet:D) {
+    multi method park(NodeObj:D $node, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
         # return a copied, or newly created native node-set
         self!keep: do given $node {
             when LibXML::Node::Set  { .native.copy }
             when LibXML::Node::List { xmlNodeSet.new: node => .native, :list;}
             when LibXML::Node       { xmlNodeSet.new: node => .native;}
             default { fail "unhandled node type: {.WHAT.perl}" }
-        }, :$scope
+        }, :$ctxt
     }
     multi method park(XPathRange:D $_) { $_ }
     subset Listy where List|Seq|Slip;
-    multi method park(Listy:D $_, :$scope --> xmlNodeSet) {
+    multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
         # create a node-set for a list of nodes
         my LibXML::Node:D @nodes = .List;
         my xmlNodeSet $set .= new;
         $set.push(.native) for @nodes;
-        self!keep: $set, :$scope;
+        self!keep: $set, :$ctxt;
     }
     # anything else (Bool, Numeric, Str)
     multi method park($_) is default { fail "unexpected return value: {.perl}"; }
@@ -195,7 +196,7 @@ class LibXML::XPath::Context {
                 my @params;
                 @params.unshift: self!select($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c);
-                my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :scope($ctxt));
+                my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :$ctxt);
                 $ctxt.valuePush($_) for $out;
             }
         );
