@@ -1,30 +1,27 @@
-use strict;
-use warnings;
+use Test;
+use LibXML;
+use LibXML::Config;
+constant config =  LibXML::Config;
 
-use Test::More;
-use XML::LibXML;
+plan 1;
 
-if (XML::LibXML::LIBXML_VERSION() < 20627) {
-    plan skip_all => "skipping for libxml2 < 2.6.27";
-}
-else
-{
-    plan tests => 1;
+if LibXML.parser-version < v2.06.27 {
+    skip-rest("skipping for libxml2 < 2.6.27");
+    exit;
 }
 
-sub handler {
-  return "ENTITY:" . join(",",@_);
+sub handler(*@p) {
+    warn;
+  "ENTITY:" ~ @p.map({$_//''}).join: ',';
 }
 
 # global entity loader
-XML::LibXML::externalEntityLoader(\&handler);
+config.external-entity-loader = &handler;
 
-my $parser = XML::LibXML->new({
-  expand_entities => 1,
-});
+my $parser = LibXML.new(expand_entities => 1);
 
-my $xml = <<'EOF';
-<?xml version="1.0"?>
+my $xml = q:to<EOF>;
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE foo [
 <!ENTITY a PUBLIC "//foo/bar/b" "file:/dev/null">
 <!ENTITY b SYSTEM "file:///dev/null">
@@ -34,11 +31,12 @@ my $xml = <<'EOF';
   <b>&b;</b>
 </root>
 EOF
-my $xml_out = $xml;
-$xml_out =~ s{&a;}{ENTITY:file:/dev/null,//foo/bar/b};
-$xml_out =~ s{&b;}{ENTITY:file:///dev/null,};
 
-my $doc = $parser->parse_string($xml);
+my $xml_out = $xml;
+$xml_out ~~ s|'&a;'|ENTITY:file:/dev/null,//foo/bar/b|;
+$xml_out ~~ s|'&b;'|ENTITY:file:///dev/null,|;
+
+my $doc = $parser.parse: :string($xml);
 
 # TEST
-is( $doc->toString(), $xml_out );
+is( $doc.Str, $xml_out );

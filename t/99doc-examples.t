@@ -423,7 +423,7 @@ subtest 'LibXML::Node' => {
 
 sub test-option($obj, Str $option, *@values, :$default) {
     my $what = $obj.WHAT.gist;
-    my $orig := $obj."$option"();
+    my $orig = $obj."$option"();
     is-deeply($orig, $_, "$what $option default value")
         with $default;
     for @values {
@@ -436,7 +436,7 @@ sub test-option($obj, Str $option, *@values, :$default) {
 }
 
 subtest 'LibXML::Parser' => {
-    plan 22;
+    plan 103;
     use LibXML;
     use LibXML::Reader;
     my LibXML $parser .= new;
@@ -444,6 +444,9 @@ subtest 'LibXML::Parser' => {
     my LibXML::Reader $reader .= new(location => $file);
 
     test-option($_, 'html', True, :default(False))
+        for $parser;
+
+    test-option($_, 'no-html', False, :default(True))
         for $parser;
 
     test-option($_, 'line-numbers', True, :default(False))
@@ -458,6 +461,45 @@ subtest 'LibXML::Parser' => {
         for $parser, $reader;
 
     test-option($_, 'expand-entities', False, :default(True))
+        for $parser, $reader;
+
+    test-option($_, 'complete-attributes', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'validation', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'suppress-errors', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'suppress-warnings', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'pedantic-parser', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'no-blanks', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'blanks', False, :default(True))
+        for $parser, $reader;
+
+    test-option($_, 'expand-xinclude', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'xinclude-nodes', False, :default(True))
+        for $parser, $reader;
+
+    test-option($_, 'clean-namespaces', True, :default(False))
+        for $parser, $reader;
+
+    test-option($_, 'cdata', False, :default(True))
+        for $parser, $reader;
+
+    test-option($_, 'base-fix', False, :default(True))
+        for $parser, $reader;
+
+    test-option($_, 'huge', True, :default(False))
         for $parser, $reader;
 
 }

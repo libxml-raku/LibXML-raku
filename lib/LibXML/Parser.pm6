@@ -378,7 +378,7 @@ new
 Create a new XML and HTML parser instance. Each parser instance holds default
 values for various parser options. Optionally, one can pass a hash reference or
 a list of option => value pairs to set a different default set of options.
-Unless specified otherwise, the options C<<<<<< load-ext-dtd >>>>>>, and C<<<<<< expand-entities >>>>>> are set to 1. See L<<<<<< Parser Options >>>>>> for a list of libxml2 parser's options. 
+Unless specified otherwise, the options C<<<<<< load-ext-dtd >>>>>>, and C<<<<<< expand-entities >>>>>> are set to True. See L<<<<<< Parser Options >>>>>> for a list of libxml2 parser's options. 
 
 =end item1
 
@@ -501,7 +501,7 @@ Remember: A Document with processed XIncludes differs from the original
 document after serialization, because the original XInclude tags will not get
 restored!
 
-If the parser flag "expand-xincludes" is set to True, you need not to post process
+If the parser flag "expand-xinclude" is set to True, you need not to post process
 the parsed document.
 
 =end item1
@@ -881,43 +881,7 @@ XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing
 the external resource; Although this nesting is visible from the DOM it is
 transparent to XPath data model, so it is possible to match nodes in an
 unexpanded entity by the same XPath expression as if the entity were expanded.
-See also ext-ent-handler. 
-
-=end item1
-
-=begin item1
-ext-ent-handler
-
-/parser/
-
-Provide a custom external entity handler to be used when expand-entities is set
-to 1. Possible value is a subroutine reference. 
-
-This feature does not work properly in libxml2 < 2.6.27!
-
-The subroutine provided is called whenever the parser needs to retrieve the
-content of an external entity. It is called with two arguments: the system ID
-(URI) and the public ID. The value returned by the subroutine is parsed as the
-content of the entity. 
-
-This method can be used to completely disable entity loading, e.g. to prevent
-exploits of the type described at  (L<<<<<< http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html >>>>>>), where a service is tricked to expose its private data by letting it parse a
-remote file (RSS feed) that contains an entity reference to a local file (e.g. C<<<<<< /etc/fstab >>>>>>). 
-
-A more granular solution to this problem, however, is provided by custom URL
-resolvers, as in 
-
-  my $c = LibXML::InputCallback.new();
-  sub match {   # accept file:/ URIs except for XML catalogs in /etc/xml/
-    my ($uri) = @_;
-    return ($uri=~m{^file:/}
-            and $uri !~ m{^file:///etc/xml/})
-           ? 1 : 0;
-  }
-  $c.register-callbacks([ \&match, sub{}, sub{}, sub{} ]);
-  $parser.input-callbacks($c);
-
-
+See also L<LibXML::Config>.external-entity-loader. 
 
 =end item1
 
@@ -926,8 +890,8 @@ load-ext-dtd
 
 /parser, reader/
 
-load the external DTD subset while parsing; possible values are 0 and 1. Unless
-specified, LibXML sets this option to 1.
+load the external DTD subset while parsing. Unless
+specified, LibXML sets this option to True.
 
 This flag is also required for DTD Validation, to provide complete attribute,
 and to expand entities, regardless if the document has an internal subset. Thus
@@ -941,7 +905,7 @@ complete-attributes
 
 /parser, reader/
 
-create default DTD attributes; possible values are 0 and 1
+create default DTD attributes; type Bool
 
 =end item1
 
@@ -950,7 +914,7 @@ validation
 
 /parser, reader/
 
-validate with the DTD; possible values are 0 and 1
+validate with the DTD; type Bool
 
 =end item1
 
@@ -959,7 +923,7 @@ suppress-errors
 
 /parser, html, reader/
 
-suppress error reports; possible values are 0 and 1
+suppress error reports; type Bool
 
 =end item1
 
@@ -968,7 +932,7 @@ suppress-warnings
 
 /parser, html, reader/
 
-suppress warning reports; possible values are 0 and 1
+suppress warning reports; type Bool
 
 =end item1
 
@@ -977,36 +941,34 @@ pedantic-parser
 
 /parser, html, reader/
 
-pedantic error reporting; possible values are 0 and 1
+pedantic error reporting; type Bool
 
 =end item1
 
 =begin item1
-no-blanks
+blanks
 
 /parser, html, reader/
 
-remove blank nodes; possible values are 0 and 1
+keep blank nodes; default true
 
 =end item1
 
 =begin item1
-no-defdtd
+defdtd
 
 /html/
 
-do not add a default DOCTYPE; possible values are 0 and 1
-
-the default is (0) to add a DTD when the input html lacks one
+add a default DOCTYPE  DTD when the input html lacks one; default is True
 
 =end item1
 
 =begin item1
-expand-xinclude or xinclude
+expand-xinclude
 
 /parser, reader/
 
-Implement XInclude substitution; possible values are 0 and 1
+Implement XInclude substitution; type Bool
 
 Expands XInclude tags immediately while parsing the document. Note that the
 parser will use the URI resolvers installed via C<<<<<< LibXML::InputCallback >>>>>> to parse the included document (if any).
@@ -1014,22 +976,22 @@ parser will use the URI resolvers installed via C<<<<<< LibXML::InputCallback >>
 =end item1
 
 =begin item1
-no-xinclude-nodes
+xinclude-nodes
 
 /parser, reader/
 
-do not generate XINCLUDE START/END nodes; possible values are 0 and 1
+do not generate XINCLUDE START/END nodes; default True
 
 =end item1
 
 =begin item1
-no-network
+network
 
 /parser, html, reader/
 
-Forbid network access; possible values are 0 and 1
+Enable network access; default True
 
-If set to true, all attempts to fetch non-local resources (such as DTD or
+If set to False, all attempts to fetch non-local resources (such as DTD or
 external entities) will fail (unless custom callbacks are defined).
 
 It may be necessary to use the flag C<<<<<< recover >>>>>> for processing documents requiring such resources while networking is off. 
@@ -1041,26 +1003,25 @@ clean-namespaces
 
 /parser, reader/
 
-remove redundant namespaces declarations during parsing; possible values are 0
-and 1. 
+remove redundant namespaces declarations during parsing; type Bool
 
 =end item1
 
 =begin item1
-no-cdata
+cdata
 
 /parser, html, reader/
 
-merge CDATA as text nodes; possible values are 0 and 1
+merge CDATA as text nodes; default True
 
 =end item1
 
 =begin item1
-no-basefix
+base-fix
 
 /parser, reader/
 
-not fixup XINCLUDE xml#base URIS; possible values are 0 and 1
+fixup XINCLUDE xml#base URIS; default True
 
 =end item1
 
@@ -1069,8 +1030,8 @@ huge
 
 /parser, html, reader/
 
-relax any hardcoded limit from the parser; possible values are 0 and 1. Unless
-specified, LibXML sets this option to 0.
+relax any hardcoded limit from the parser; type Bool. Unless
+specified, LibXML sets this option to False.
 
 Note: the default value for this option was changed to protect against denial
 of service through entity expansion attacks. Before enabling the option ensure
@@ -1079,44 +1040,6 @@ type of attack.
 
 =end item1
 
-=begin item1
-gdome
-
-/parser/
-
-THIS OPTION IS EXPERIMENTAL!
-
-Although quite powerful, LibXML's DOM implementation is incomplete with respect
-to the DOM level 2 or level 3 specifications. XML::GDOME is based on libxml2 as
-well, and provides a rather complete DOM implementation by wrapping libgdome.
-This flag allows you to make use of LibXML's full parser options and
-XML::GDOME's DOM implementation at the same time.
-
-To make use of this function, one has to install libgdome and configure LibXML
-to use this library. For this you need to rebuild LibXML!
-
-Note: this feature was not seriously tested in recent LibXML releases.
-
-=end item1
-
-For compatibility with LibXML versions prior to 1.70, the following methods are
-also supported for querying and setting the corresponding parser options (if
-called without arguments, the methods return the current value of the
-corresponding parser options; with an argument sets the option to a given
-value): 
-
-
-
-  $parser.validation();
-  $parser.recover();
-  $parser.pedantic-parser();
-  $parser.line-numbers();
-  $parser.load-ext-dtd();
-  $parser.complete-attributes();
-  $parser.expand-xinclude();
-  $parser.gdome-dom();
-  $parser.clean-namespaces();
-  $parser.no-network();
 
 The following obsolete methods trigger parser options in some special way:
 
@@ -1130,40 +1053,6 @@ recover-silently
 If called without an argument, returns true if the current value of the C<<<<<< recover >>>>>> parser option is 2 and returns false otherwise. With a true argument sets the C<<<<<< recover >>>>>> parser option to 2; with a false argument sets the C<<<<<< recover >>>>>> parser option to 0. 
 
 =end item1
-
-=begin item1
-expand-entities
-
-
-
-  $parser.expand-entities(0);
-
-Get/set the C<<<<<< expand-entities >>>>>> option. If called with a true argument, also turns the C<<<<<< load-ext-dtd >>>>>> option to 1. 
-
-=end item1
-
-=begin item1
-keep-blanks
-
-
-
-  $parser.keep-blanks(0);
-
-This is actually the opposite of the C<<<<<< no-blanks >>>>>> parser option. If used without an argument retrieves negated value of C<<<<<< no-blanks >>>>>>. If used with an argument sets C<<<<<< no-blanks >>>>>> to the opposite value. 
-
-=end item1
-
-=begin item1
-base-uri
-
-
-
-  $parser.base-uri( $your-base-uri );
-
-Get/set the C<<<<<< URI >>>>>> option.
-
-=end item1
-
 
 =head1 XML CATALOGS
 

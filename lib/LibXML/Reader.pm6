@@ -38,13 +38,23 @@ class LibXML::Reader {
     # Perl 5 compat
     also does LibXML::_Options[
         %(
+            :clean-namespaces(XML_PARSE_NSCLEAN),
             :complete-attributes(XML_PARSER_DEFAULTATTRS),
             :expand-entities(XML_PARSER_SUBST_ENTITIES),
+            :expand-xinclude(XML_PARSE_XINCLUDE),
+            :huge(XML_PARSE_HUGE),
             :load-ext-dtd(XML_PARSER_LOADDTD),
+            :no-base-fix(XML_PARSE_NOBASEFIX),
+            :no-blanks(XML_PARSE_NOBLANKS),
+            :no-cdata(XML_PARSE_NOCDATA),
+            :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
+            :pedantic-parser(XML_PARSE_PEDANTIC),
             :recover(XML_PARSE_RECOVER),
             :suppress-errors(XML_PARSE_NOERROR),
+            :suppress-warnings(XML_PARSE_NOWARNING),
             :validation(XML_PARSER_VALIDATE),
         )];
+
     multi method recover is rw {
         Proxy.new(
             FETCH => { 
@@ -232,4 +242,5 @@ class LibXML::Reader {
         ?? $.option($key, |c)
         !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
     }
+
 }

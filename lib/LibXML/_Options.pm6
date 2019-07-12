@@ -1,14 +1,16 @@
 unit role LibXML::_Options[%OPTS];
 
+sub neg($k) { $k.starts-with('no-') ?? $k.substr(3) !! 'no-' ~ $k; }
+
 method get-flag(UInt $flags, Str:D $k is copy) {
     $k .= subst("_", "-", :g);
     with %OPTS{$k} {
         ($flags +& $_) == $_
     }
     else {
-        with %OPTS{'no-' ~ $k} {
+        with %OPTS{neg($k)} {
             # mask - negated
-            ! ($flags +& $_);
+            ! (($flags +& $_) == $_);
         }
         else {
             fail "unknown parser flag: $k";
@@ -30,9 +32,10 @@ method set-flag(UInt $flags is rw, Str:D $k is copy, Bool() $v) {
         }
     }
     else {
-        with %OPTS{'no-' ~ $k} {
+        my $k1 = neg($k);
+        with %OPTS{$k1} {
             # mask - negated
-            $.set-flag($flags, 'no-' ~ $k, ! $v);
+            $.set-flag($flags, $k1, ! $v);
         }
         else {
             fail "unknown parser flag: $k";
@@ -51,7 +54,7 @@ method set-flags($flags is rw, *%opts) {
 
 method option-exists(Str:D $k is copy) {
     $k .= subst("_", "-", :g);
-    (%OPTS{$k} // %OPTS{'no-' ~ $k}).defined;
+    (%OPTS{$k} // %OPTS{neg($k)}).defined;
 }
 
 method get-option(Str:D $k) is default {
