@@ -66,7 +66,7 @@ realclean : clean
 
 doc : README.md doc/Attr.md doc/Attr/Map.md doc/CDATASection.md doc/Comment.md doc/Document.md doc/DocumentFragment.md\
       doc/Dtd.md doc/Element.md doc/ErrorHandler.md  doc/InputCallback.md doc/Namespace.md doc/Node.md doc/PI.md doc/RelaxNG.md doc/Text.md\
-      doc/RegExp.md doc/Schema.md doc/XPath/Context.md doc/XPath/Expression.md
+      doc/Parser.md doc/RegExp.md doc/Schema.md doc/XPath/Context.md doc/XPath/Expression.md
 
 README.md : lib/LibXML.pm6
 	(\
@@ -113,6 +113,9 @@ doc/Node.md : lib/LibXML/Node.pm6
 
 doc/PI.md : lib/LibXML/PI.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/PI.pm6 > doc/PI.md
+
+doc/Parser.md : lib/LibXML/Parser.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Parser.pm6 > doc/Parser.md
 
 doc/RegExp.md : lib/LibXML/RegExp.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/RegExp.pm6 > doc/RegExp.md

@@ -293,27 +293,33 @@ LibXML::Parser - Parsing XML Data with LibXML
   # Parsing XML
   
   $dom = LibXML.load(
-      location => $file-or-url
+      location => $file-or-url,
       # parser options ...
     );
   $dom = LibXML.load(
-      string => $xml-string
+      file => $file-or-url,
       # parser options ...
     );
-  $dom = LibXML.load-xml({
-      io => $perl-file-handle
+  $dom = LibXML.load(
+      string => $xml-string,
       # parser options ...
     );
-  $dom = $parser.load-xml(...);
+  $dom = LibXML.load(
+      io => $perl-file-handle,
+      # parser options ...
+    );
+  # dispatch to above depending on type
+  $dom = $parser.load($src ...);
   			  
   # Parsing HTML
   
-  $dom = LibXML.load-html(...);
-  $dom = $parser.load-html(...);
+  $dom = LibXML.load(..., :html);
+  $dom = $parser.load(..., :html);
+  $parser.html = True; $parser.load(...);
   			  
   # Parsing well-balanced XML chunks
   			       
-  $fragment = $parser.parse-balanced-chunk( $wbxmlstring, $encoding );
+  my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml);
   
   # Processing XInclude
   
@@ -322,26 +328,26 @@ LibXML::Parser - Parsing XML Data with LibXML
   
   # Old-style parser interfaces
   			       
-  $doc = $parser.parse-file( $xmlfilename );
-  $doc = $parser.parse-fh( $io-fh );
-  $doc = $parser.parse-string( $xmlstring);
-  $doc = $parser.parse-html-file( $htmlfile, \%opts );
-  $doc = $parser.parse-html-fh( $io-fh, \%opts );
-  $doc = $parser.parse-html-string( $htmlstring, \%opts );
+  $doc = $parser.parse: :file( $xmlfilename );
+  $doc = $parser.parse: :io( $io-fh );
+  $doc = $parser.parse: :string( $xml);
+  $doc = $parser.parse: :file( $htmlfile), :html, |%opts;
+  $doc = $parser.parse: :io($fh), |%opts;
+  $doc = $parser.parse: :html, :string($htmlstring), |%opts;
   
   # Push parser
   			    
-  $parser.parse-chunk($string, $terminate);
+  $parser.parse-chunk($string, :$terminate);
   $parser.init-push();
-  $parser.push(@data);
-  $doc = $parser.finish-push( $recover );
+  $parser.push(@strings);
+  $doc = $parser.finish-push( :$recover );
   
   # Set/query parser options
                       
   $parser.option-exists($name);
   $parser.get-option($name);
   $parser.set-option($name,$value);
-  $parser.set-options({$name=>$value,...});
+  $parser.set-options(name => $value, ...);
   
   # XML catalogs
                       
@@ -371,9 +377,8 @@ to create a parser instance before you can parse any XML data.
 new
 
   
-  $parser = LibXML.new();
-  $parser = LibXML.new(option=>value, ...);
-  $parser = LibXML.new({option=>value, ...});
+  my LibXML $parser .= new();
+  my LibXML $parser .= new(option=>value, ...);
 
 Create a new XML and HTML parser instance. Each parser instance holds default
 values for various parser options. Optionally, one can pass a hash reference or
@@ -400,7 +405,7 @@ try {} block
 =begin item1
 load
 
-  my LibXML::Document $dom;
+  my LibXML::Document::HTML $dom;
 
   $dom = LibXML.load(
       location => $file-or-url,
@@ -433,7 +438,7 @@ load
   $dom = $parser.load(...);
   			  
 
-This function provides an easy to use interface
+This function provides an interface
 to the XML parser that parses given file (or URL), string, or input stream to a
 DOM tree. The arguments can be passed in a HASH reference or as name => value
 pairs. The function can be called as a class method or an object method. In
@@ -447,9 +452,10 @@ new parser. See the constructor C<<<<<< new >>>>>> and L<<<<<< Parser Options >>
 =begin item1
 load: :html
 
-  
-  $dom = LibXML.load: :html, ...;
-  $dom = $parser.load: :html, ...;
+
+  use LibXML::Document :HTML;  
+  my HTML $dom = LibXML.load: :html, ...;
+  my HTML $dom = $parser.load: :html, ...;
   			  
 
 The :html option provides an interface to the HTML parser.
@@ -472,7 +478,7 @@ balanced XML fragments.
 =begin item1
 parse-balanced
 
-  $fragment = $parser.parse-balanced( string => $wbxmlstring );
+  my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
 
 This function parses a well balanced XML string into a L<<<<<< LibXML::DocumentFragment >>>>>>. The string argument contains the input XML string.
 
@@ -551,6 +557,8 @@ available as a single string in memory. You can pass an optional base URI string
 =begin item1
 parse: :html
 
+  use LibXML::Document :HTML;
+  my HTML $doc;
   $doc = $parser.parse: :html, :file( $htmlfile) , |%opts;
   $doc = $parser.parse: :html, :io($io-fh), |%opts;
   $doc = $parser.parse: :html: :string($htmlstring), |%opts;
@@ -595,7 +603,7 @@ will be returned as the following example describes:
   for "<", "foo", ' bar="hello world"', "/>" -> $string {
        $parser.parse-chunk( $string );
   }
-  my $doc = $parser.parse-chunk(:$terminate); # terminate the parsing
+  my LibXML::Document $doc = $parser.parse-chunk(:$terminate); # terminate the parsing
 
 =end item1
 
@@ -1048,7 +1056,7 @@ recover-silently
 
 
 
-  $parser.recover-silently(1);
+  $parser.recover-silently = True;
 
 If called without an argument, returns true if the current value of the C<<<<<< recover >>>>>> parser option is 2 and returns false otherwise. With a true argument sets the C<<<<<< recover >>>>>> parser option to 2; with a false argument sets the C<<<<<< recover >>>>>> parser option to 0. 
 

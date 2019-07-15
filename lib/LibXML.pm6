@@ -30,7 +30,7 @@ method have-reader {
 
 method have-schemas {
     given $.parser-version {
-        $_ >= v2.05.10 && $_ !=  v2.09.04
+        $_ >= v2.05.10 && $_ != v2.09.04
     }
 }
 
@@ -104,6 +104,8 @@ Draft documents (So far)
 =item [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
 
 =item [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
+
+=item [LibXML::Parser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Regular Expression bindings
 
 =item [LibXML::RegExp](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
 

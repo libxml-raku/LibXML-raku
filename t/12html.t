@@ -2,10 +2,11 @@ use v6;
 use Test;
 use LibXML;
 
-plan 42;
+plan 44;
 
 use LibXML;
 use LibXML::Native;
+use LibXML::Document;
 
 # TEST
 ok(1, ' TODO : Add test name');
@@ -14,10 +15,12 @@ my $html = "example/test.html";
 
 my $parser = LibXML.new();
 {
-    my $doc = $parser.parse: :html, :file($html);
+    my LibXML::Document::HTML $doc = $parser.parse: :html, :file($html);
     # TEST
     ok($doc, ' TODO : Add test name');
     isa-ok($doc.native, htmlDoc, 'HTML, under the hood');
+    cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
+    cmp-ok $doc, '!~~', LibXML::Document::XML, "isn't XML";
 }
 
 my $io = $html.IO.open(:r);

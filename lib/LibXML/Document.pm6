@@ -21,6 +21,10 @@ use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
 
+subset XML  is export(:XML)  where .native.type == XML_DOCUMENT_NODE;
+subset HTML is export(:HTML) where .native.type == XML_HTML_DOCUMENT_NODE;
+subset DOCB is export(:DOCB) where .native.type == XML_DOCB_DOCUMENT_NODE;
+
 enum XmlStandalone is export(:XmlStandalone) (
     XmlStandaloneYes => 1,
     XmlStandaloneNo => 0,

@@ -95,13 +95,13 @@ method setExternalSubset(DtdNode $dtd) {
 }
 
 method removeInternalSubset {
-    my $rv := self.getInternalSubset;
+    my $rv = self.getInternalSubset;
     .Unlink with $rv;
     $rv;
 }
 
 method removeExternalSubset {
-    my $rv := self.getExternalSubset;
+    my $rv = self.getExternalSubset;
     .Unlink with $rv;
     $rv;
 }
