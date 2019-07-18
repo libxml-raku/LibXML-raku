@@ -73,11 +73,17 @@ my class ValidContext {
         .Free with $!native;
     }
 
-    method validate(LibXML::Document:D $_) {
+    method validate(LibXML::Document:D $_, Bool() :$check) {
         my xmlDoc:D $doc = .native;
         my $rv := $!native.Validate($doc);
+	$rv := $!errors.is-valid
+            if $check;
         self.flush-errors;
         $rv;
+    }
+
+    method is-valid(LibXML::Document:D $_) {
+        self.validate($_, :check);
     }
 
 }
@@ -88,10 +94,12 @@ submethod TWEAK(|c) {
 }
 
 has ValidContext $!valid-ctx;
+method !valid-ctx {  $!valid-ctx //=  ValidContext.new: :schema(self) }
 method validate(LibXML::Document:D $doc) {
-    $_ .= new: :schema(self)
-        without $!valid-ctx;
-    $!valid-ctx.validate($doc);
+    self!valid-ctx.validate($doc);
+}
+method is-valid(LibXML::Document:D $doc) {
+    self!valid-ctx.is-valid($doc);
 }
 
 =begin pod
@@ -110,7 +118,8 @@ LibXML::RelaxNG - RelaxNG Schema Validation
   my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
   my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
   my LibXML::RelaxNG $rngschema .= new( :$doc );
-  eval { $rngschema->validate( $doc ); };
+  try { $rngschema.validate( $doc ); };
+  if  $rngschema.is-valid( $doc ) {...}
 
 =head1 DESCRIPTION
 
@@ -155,6 +164,15 @@ RelaxNG schema. The argument of this function should be an LibXML::Document
 object. If this function succeeds, it will return 0, otherwise it will die()
 and report the errors found. Because of this validate() should be always
 evaluated.
+
+=end item1
+
+=begin item1
+is-valid
+
+  my Bool $valid = $rngschema.is-valid($doc);
+
+Returns either True or False depending on whether the passed Document is valid or not.
 
 =end item1
 

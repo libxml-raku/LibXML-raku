@@ -9,7 +9,7 @@ class LibXML::Parser::Context {
     has Bool $.line-numbers;
     has $.input-callbacks;
     has $.sax-handler;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors is-valid> .= new;
 
     method recover { ?($!flags +& XML_PARSE_RECOVER) }
     method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
@@ -48,7 +48,7 @@ class LibXML::Parser::Context {
         }
     }
 
-    method try(&action, Bool :$recover is copy) {
+    method try(&action, Bool :$recover is copy, Bool :$check-valid) {
 
         my $obj = self;
         $_ = .new: :native(parserCtxt.new)
@@ -76,6 +76,7 @@ class LibXML::Parser::Context {
                 if xmlPopInputCallbacks() < 0;
         }
 
+	$rv := $obj.is-valid if $check-valid;
         $obj.flush-errors: :$recover;
 
         $rv;

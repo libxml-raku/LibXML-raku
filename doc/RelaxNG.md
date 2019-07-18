@@ -14,7 +14,8 @@ SYNOPSIS
     my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
     my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
     my LibXML::RelaxNG $rngschema .= new( :$doc );
-    eval { $rngschema->validate( $doc ); };
+    try { $rngschema.validate( $doc ); };
+    if  $rngschema.is-valid( $doc ) {...}
 
 DESCRIPTION
 ===========
@@ -45,6 +46,12 @@ METHODS
         try { $rngschema->validate( $doc ); };
 
     This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+
+  * is-valid
+
+        my Bool $valid = $rngschema.is-valid($doc);
+
+    Returns either True or False depending on whether the passed Document is valid or not.
 
 AUTHORS
 =======

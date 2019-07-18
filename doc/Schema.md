@@ -38,9 +38,15 @@ METHODS
 
   * validate
 
-        try { $xmlschema->validate( $doc ); };
+        try { $xmlschema.validate( $doc ); };
 
     This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](LibXML::Document ) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+
+  * is-valid
+
+        my Bool $valid = $xmlschema.is-valid($doc);
+
+    Returns either True or False depending on whether the passed Document is valid or not.
 
 AUTHORS
 =======

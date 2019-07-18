@@ -73,6 +73,23 @@ class LibXML::ErrorHandler {
 
     }
 
+    method is-valid(|c) {
+        my Bool $valid = True;
+        if @!errors {
+            my X::LibXML::Parser @errs;
+            for @!errors {
+                if .domain ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV {
+		    $valid = False;
+		}
+                else {
+                    @errs.push: $_;
+		}
+	    }
+            @!errors = @errs;
+	}
+	$valid;
+    }
+
     method flush-errors(:$recover = $.recover) {
         if @!errors {
             my X::LibXML::Parser @errs = @!errors;

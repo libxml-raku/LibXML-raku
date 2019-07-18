@@ -74,20 +74,23 @@ my class ValidContext {
         .Free with $!native;
     }
 
-    multi method validate(LibXML::Document:D $_) {
+    multi method validate(LibXML::Document:D $_, Bool() :$check) {
         my xmlDoc:D $doc = .native;
         my $rv := $!native.ValidateDoc($doc);
+	$rv := $!errors.is-valid
+            if $check;
         self.flush-errors;
         $rv;
     }
 
-    multi method validate(LibXML::Element:D $_) is default {
+    multi method validate(LibXML::Element:D $_, Bool() :$check) is default {
         my xmlNode:D $node = .native;
         my $rv := $!native.ValidateElement($node);
+	$rv := $!errors.is-valid
+            if $check;
         self.flush-errors;
         $rv;
     }
-
 }
 
 submethod TWEAK(|c) {
@@ -96,10 +99,12 @@ submethod TWEAK(|c) {
 }
 
 has ValidContext $!valid-ctx;
+method !valid-ctx {  $!valid-ctx //= ValidContext.new: :schema(self) }
 method validate(LibXML::Node:D $node) {
-    $_ .= new: :schema(self)
-        without $!valid-ctx;
-    $!valid-ctx.validate($node);
+    self!valid-ctx.validate($node);
+}
+method is-valid(LibXML::Node:D $node) {
+    self!valid-ctx.validate($node, :check);
 }
 
 =begin pod
@@ -154,12 +159,21 @@ constraints of the XML Schema specification.
 =begin item1
 validate
 
-  try { $xmlschema->validate( $doc ); };
+  try { $xmlschema.validate( $doc ); };
 
 This function allows one to validate a (parsed) document against the given XML
 Schema. The argument of this function should be a L<<<<<< LibXML::Document >>>>>> object. If this function succeeds, it will return 0, otherwise it will die()
 and report the errors found. Because of this validate() should be always
 evaluated.
+
+=end item1
+
+=begin item1
+is-valid
+
+  my Bool $valid = $xmlschema.is-valid($doc);
+
+Returns either True or False depending on whether the passed Document is valid or not.
 
 =end item1
 
