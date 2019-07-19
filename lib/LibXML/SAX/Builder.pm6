@@ -13,9 +13,8 @@ class LibXML::SAX::Builder {
         with $atts {
             my int $i = 0;
             loop {
-                my $key = .[$i++] // last;
-                my $val = .[$i++] // last;
-                %atts{$key} = $val;
+                my $key := .[$i++] // last;
+                %atts{$key} = .[$i++] // last;
             }
         }
         %atts
@@ -23,13 +22,15 @@ class LibXML::SAX::Builder {
 
     my %SAXLocatorDispatch = %(
         'getPublicId'|'getSystemId' =>
-            sub ($obj, &callb) {
+            -> $obj, &callb {
+                CATCH { default { warn $_; } }
                 sub (--> Str) {
                     callb($obj);
                 }
             },
         'getLineNumber'|'getColumnNumber' =>
-            sub ($obj, &callb) {
+            -> $obj, &callb {
+                CATCH { default { warn $_; } }
                 sub (--> UInt) {
                     callb($obj);
                 }
@@ -211,3 +212,51 @@ class LibXML::SAX::Builder {
         self!build($obj, $locator, %SAXLocatorDispatch);
     }
 }
+
+=begin pod
+
+=head1 NAME
+
+LibXML::SAX::Builder - Building DOM trees from SAX events.
+
+=head1 SYNOPSIS
+
+
+
+  use XML::SAX::Builder;
+  my $builder = LibXML::SAX::Builder->new();
+  
+  my $gen = XML::Generator::DBI->new(Handler => $builder, dbh => $dbh);
+  $gen->execute("SELECT * FROM Users");
+  
+  my $doc = $builder->result();
+
+
+=head1 DESCRIPTION
+
+This is a SAX handler that generates a DOM tree from SAX events. Usage is as
+above. Input is accepted from any SAX1 or SAX2 event generator.
+
+=head1 EXAMPLE
+
+The following example builds a modified DOM tree with all tags
+and attributes converted to uppercase.
+
+    use LibXML::SAX::Builder;
+    use LibXML::SAX::Handler::SAX2;
+
+    class SAXShouter is LibXML::SAX::Handler::SAX2 {
+        use LibXML::SAX::Builder :sax-cb;
+        method startElement($name, |c) is sax-cb {
+            nextwith($name.uc, |c);
+        }
+        method endElement($name, |c) is sax-cb {
+            nextwith($name.uc, |c);
+        }
+        method characters($chars, |c) is sax-cb {
+            nextwith($chars.uc, |c);
+        }
+    }
+
+
+=end pod

@@ -57,7 +57,7 @@ class LibXML::Node {
     }
     method isEqual(|c) is DEPRECATED<isSameNode> { $.isSameNode(|c) }
     method ownerElement is also<getOwnerElement parent parentNode> {
-        LibXML::Node.box: $!native.parent;
+        box-class(XML_ELEMENT_NODE).box: $!native.parent;
     }
     method last is also<lastChild> {
         LibXML::Node.box: self.native.last;
@@ -76,7 +76,7 @@ class LibXML::Node {
         Proxy.new(
             FETCH => { with self {$!native} else {domNode} },
             STORE => -> $, domNode:D $new-struct {
-                given native-class($new-struct.type) -> $class {
+                given box-class($new-struct.type) -> $class {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                         unless $class ~~ self.WHAT|LibXML::Namespace;
                 }
@@ -103,7 +103,7 @@ class LibXML::Node {
     method getOwnerDocument {
         do with self {
             with .native.doc -> xmlDoc $struct {
-                $!doc = native-class(XML_DOCUMENT_NODE).box($struct)
+                $!doc = box-class(XML_DOCUMENT_NODE).box($struct)
                     if ! ($!doc && !$!doc.native.isSameNode($struct));
             }
             else {
@@ -147,7 +147,7 @@ class LibXML::Node {
     method getFirstChild { $.firstChild }
     method getLastChild  { $.lastChild }
 
-    sub native-class(UInt $_) is export(:native-class) {
+    sub box-class(UInt $_) is export(:box-class) {
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
         when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
         when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
@@ -170,28 +170,6 @@ class LibXML::Node {
         }
     }
 
-    sub struct-class(UInt $_) {
-        when XML_ATTRIBUTE_NODE     { xmlAttr }
-        when XML_ATTRIBUTE_DECL     { xmlAttrDecl }
-        when XML_CDATA_SECTION_NODE { xmlCDataNode }
-        when XML_COMMENT_NODE       { xmlCommentNode }
-        when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
-        when XML_DTD_NODE           { xmlDtd }
-        when XML_DOCUMENT_NODE      { xmlDoc }
-        when XML_HTML_DOCUMENT_NODE { htmlDoc }
-        when XML_ELEMENT_NODE       { xmlNode }
-        when XML_ELEMENT_DECL       { xmlElementDecl }
-        when XML_ENTITY_DECL        { xmlEntityDecl }
-        when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
-        when XML_NAMESPACE_DECL     { xmlNs }
-        when XML_PI_NODE            { xmlPINode }
-        when XML_TEXT_NODE          { xmlTextNode }
-        default {
-            warn "node content-type not yet handled: $_";
-            domNode;
-        }
-    }
-
     proto sub native($) is export(:native) {*}
     multi sub native(LibXML::XPath::Expression:D $_) { .native }
     multi sub native(LibXML::Node:D $_) { .native }
@@ -199,7 +177,28 @@ class LibXML::Node {
     multi sub native($_) is default  { $_ }
 
     our sub cast-struct(domNode:D $struct is raw) {
-        my $delegate := struct-class($struct.type);
+        my $delegate := do given $struct.type {
+            when XML_ATTRIBUTE_NODE     { xmlAttr }
+            when XML_ATTRIBUTE_DECL     { xmlAttrDecl }
+            when XML_CDATA_SECTION_NODE { xmlCDataNode }
+            when XML_COMMENT_NODE       { xmlCommentNode }
+            when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
+            when XML_DTD_NODE           { xmlDtd }
+            when XML_DOCUMENT_NODE      { xmlDoc }
+            when XML_HTML_DOCUMENT_NODE { htmlDoc }
+            when XML_ELEMENT_NODE       { xmlNode }
+            when XML_ELEMENT_DECL       { xmlElementDecl }
+            when XML_ENTITY_DECL        { xmlEntityDecl }
+            when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
+            when XML_NAMESPACE_DECL     { xmlNs }
+            when XML_PI_NODE            { xmlPINode }
+            when XML_TEXT_NODE          { xmlTextNode }
+            default {
+                warn "node content-type not yet handled: $_";
+                domNode;
+            }
+        }
+
         nativecast( $delegate, $struct);
     }
 
@@ -213,7 +212,7 @@ class LibXML::Node {
                LibXML::Node :$doc = $.doc, # reusable document object
               ) {
         do with $struct {
-            my $class := native-class(.type);
+            my $class := box-class(.type);
             die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                     unless $class ~~ self.WHAT|LibXML::Namespace;
             $class.new: :native(cast-struct($_)), :$doc;

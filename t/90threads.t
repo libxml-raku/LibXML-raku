@@ -1,9 +1,11 @@
 use v6;
 use Test;
 use LibXML;
+use LibXML::Attr;
 use LibXML::Document;
+use LibXML::Element;
 use LibXML::RelaxNG;
-constant MAX_THREADS = 10;
+constant MAX_THREADS = 24;
 constant MAX_LOOP = 50;
 # use constant PLAN => 24;
 
@@ -13,6 +15,10 @@ ok(1, 'Loaded');
 my LibXML $p .= new();
 # TEST
 ok($p.defined, 'Parser initted.');
+
+sub blat(&r, :$n = MAX_THREADS) {
+    (0 ..^ $n).race(:batch(1)).map(&r);
+}
 
 subtest 'relaxng' => {
   plan 3;
@@ -24,165 +30,120 @@ subtest 'relaxng' => {
 </grammar>
 EOF
   my LibXML::Document $good .= parse: :string('<foo/>');
-  my LibXML::Document $bad .= parse: :string('<bad/>');
-  my LibXML::RelaxNG @schemas = (0 ..^ MAX_THREADS).race.map: {
-        LibXML::RelaxNG.new(string=>$grammar);
+  my LibXML::Document $bad .= parse: :string('<bar/>');
+  my LibXML::RelaxNG @schemas = blat {
+        LibXML::RelaxNG.new(string => $grammar);
     }
-  my @good = (0 ..^ MAX_THREADS).race.map: {
-      @schemas[$_].is-valid($good);
-    }
-  my @bad = (0 ..^ MAX_THREADS).race.map: {
-      @schemas[$_].is-valid($bad);
-    }
+  my Bool @good = blat { @schemas[$_].is-valid($good); }
+  my Bool @bad = blat { @schemas[$_].is-valid($bad); }
 
-  is +@schemas, 10, 'relaxng schemas';
-  is-deeply (+@good, [@good.unique]), (10, [True]), 'relax-ng valid';
-  is-deeply (+@bad, [@bad.unique]), (10, [False]), 'relax-ng invalid';
-}
-
-skip "port remaining tests";
-done-testing();
-=begin TODO
-
-{
-    eval { LibXML.new.parse_string('foo') };
-    for(1..40) {
-        threads.new(sub { eval { LibXML.new.parse_string('foo') } for(1..1000);  1; });
-    }
-    $_.join for(threads.list);
-    # TEST
-    ok(1, "XML error\n");
+  is +@schemas, MAX_THREADS, 'relaxng schemas';
+  is-deeply (+@good, [@good.unique]), (MAX_THREADS, [True]), 'relax-ng valid';
+  is-deeply (+@bad, [@bad.unique]), (MAX_THREADS, [False]), 'relax-ng invalid';
 }
 
 
 {
-  my $doc=LibXML::Document.new;
-  $doc.setDocumentElement($doc.createElement('root'));
-  $doc.getDocumentElement.setAttribute('foo','bar');
-#   threads.new(sub {
-# 		 for (1..100000) {
-# 		   # a dictionary of $doc
-# 		   my $el =$doc.createElement('foo'.$_);
-# 		   $el.setAttribute('foo','bar');
-# 		 }
-# 		 return;
-# 	       });
-  for my $t_no (1..40) {
-    threads.new(sub {
-                   for (1..1000) {
-                     $doc.getDocumentElement;
-                   }
-                   return;
-                 });
-  }
-  $_.join for(threads.list);
+    my X::LibXML::Parser:D @err = blat { try { LibXML.new.parse: :string('foo'); } for 1..100; $! };
+    is @err.elems, MAX_THREADS, 'parse errors';
+    ok(1, "XML error");
 }
-# TEST
-ok(1, "accessing document elements without lock");
+
 {
-  my @docs=map {
     my $doc = LibXML::Document.new;
     $doc.setDocumentElement($doc.createElement('root'));
     $doc.getDocumentElement.setAttribute('foo','bar');
-    $doc } 1..40;
-  for my $t_no (1..40) {
-    threads.new(sub {
-		   my $doc=$docs[$t_no-1];
-		   for (1..10000) {
-		     # a dictionary of $doc
-		     my $el =$doc.createElement('foo'.$_);
-		     $el.setAttribute('foo','bar');
-                     $doc.getDocumentElement.getAttribute('foo');
-		     $el.getAttribute('foo');
-		   }
-		   return;
-		 });
-  }
-  $_.join for(threads.list);
+
+    my LibXML::Element:D @roots = blat {
+        my LibXML::Element:D @r = blat {
+            $doc.getDocumentElement;
+        }
+        @r.pick;
+    };
+    is +@roots, MAX_THREADS, 'document roots';
+    is @roots.unique.elems, 1, 'document root reduction';
+}
+
+# TEST
+{
+    my LibXML::Document:D @docs = blat {
+        my $doc = LibXML::Document.new;
+        $doc.setDocumentElement($doc.createElement('root'));
+        $doc.getDocumentElement.setAttribute('foo','bar');
+        $doc
+    }
+    is @docs.elems, MAX_THREADS, 'document roots';
+    is @docs.unique.elems, MAX_THREADS, "unique documents don't reduce";
+
+    my Str:D @values = blat {
+        my LibXML::Document:D $doc = @docs[$_];
+        my  Str:D @values = await (0 ..^ 20).map: { start {
+	    # a dictionary of $doc
+	    my LibXML::Element:D $el = $doc.createElement('foo' ~ $_);
+	    $el.setAttribute('foo','bar');
+            $doc.getDocumentElement.getAttribute('foo');
+	    $el.getAttribute('foo');
+        } }
+        @values.pick;
+    };
+    is +@values, MAX_THREADS, 'att values';
+    is @values.unique.elems, 1, 'att values reduction';
 }
 # TEST
-ok(1, "operating on different documents without lock\n");
+ok(1, "operating on different documents without lock");
 
 # operating on the same document with a lock
 {
-  my $lock : shared;
-  my $doc=LibXML::Document.new;
-  for my $t_no (1..40) {
-    threads.new(sub {
-                   for (1..10000) {
-		     lock $lock; # must lock since libxml2 uses
-		                 # a dictionary of $doc
-                     my $el =$doc.createElement('foo');
-                     $el.setAttribute('foo','bar');
-		     $el.getAttribute('foo');
-                   }
-                   return;
-                 });
+  my LibXML::Document $doc .= new;
+  my LibXML::Document:D @docs = blat {
+      for (1..24) {
+          $doc.protect: {
+              my $el = $doc.createElement('foo');
+              $el.setAttribute('foo','bar');
+	      $el.getAttribute('foo');
+          }
+      }
+      $doc;
   }
-  $_.join for(threads.list);
+  is @docs.elems, MAX_THREADS, 'document roots';
+  is @docs.unique.elems, 1, 'documents reduction';
 }
 
-
-my $xml = <<EOF;
+my $xml = q:to<EOF>;
 <?xml version="1.0" encoding="utf-8"?>
 <root><node><leaf/></node></root>
 EOF
 
 {
-my $doc = $p.parse_string( $xml );
-for(1..MAX_THREADS)
-{
-	threads.new(sub {});
-}
-$_.join for(threads.list);
-}
-# TEST
-ok(1, "Spawn threads with a document in scope");
-
-
-{
-my $waitfor : shared;
-{
-lock $waitfor;
-my $doc = $p.parse_string($xml);
-for(1..MAX_THREADS)
-{
-	threads.new(sub { lock $waitfor; $doc.toString; });
-}
-}
-$_.join for(threads.list);
-# TEST
-ok(1, "Spawn threads that use document that has gone out of scope from where it was created");
+    my LibXML::Element @nodes;
+    {
+        my $doc = $p.parse: :string($xml);
+        @nodes = blat { $doc.documentElement[0][0] }
+    }
+    is @nodes.elems, MAX_THREADS, 'document leaf nodes';
+    is @nodes.map(*.unique-key).unique.elems, 1, 'document leaf nodes reduction';
+    is @nodes.pick.Str, '<leaf/>', 'sampled node';
 }
 
 {
-for(1..MAX_THREADS)
-{
-	threads.new(sub { $p.parse_string($xml) for 1..MAX_LOOP; 1; });
-}
-$_.join for(threads.list);
-# TEST
-ok(1, "Parse a correct XML document");
+    my LibXML::Document @docs = blat { $p.parse: :string($xml) };
+    is @docs.elems, MAX_THREADS, 'document leaf nodes';
+    is @docs.map(*.unique-key).unique.elems, MAX_THREADS, 'document leaf nodes reduced by unique keys';
+    is @docs.map(*.Str).unique.elems, 1, 'document leaf nodes reduced by content';
 }
 
-my $xml_bad = <<EOF;
+my $xml_bad = q:to<EOF>;
 <?xml version="1.0" encoding="utf-8"?>
 <root><node><leaf/></root>
 EOF
 
 
 {
-for(1..MAX_THREADS)
-{
-	threads.new(sub { eval { my $x = $p.parse_string($xml_bad)} for(1..MAX_LOOP); 1; });
-}
-$_.join for(threads.list);
-# TEST
-ok(1, "Parse a bad XML document\n");
+    my X::LibXML::Parser:D @err = blat { try { my $x = $p.parse: :string($xml_bad)} for 1..100; $!; }
+    is @err.elems, MAX_THREADS, 'parse errors';
 }
 
-
-my $xml_invalid = <<EOF;
+my $xml_invalid = q:to<EOF>;
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE root [
 <!ELEMENT root EMPTY>
@@ -191,24 +152,17 @@ my $xml_invalid = <<EOF;
 EOF
 
 {
-for(1..MAX_THREADS)
-{
-  threads.new(sub {
-		 for (1..MAX_LOOP) {
-		   my $x = $p.parse_string($xml_invalid);
-		   die if $x.is_valid;
-		   eval { $x.validate };
-		   die unless $@;
-		 }
-               1;
-	       });
-}
-$_.join for(threads.list);
-# TEST
-ok(1, "Parse an invalid XML document");
+  my LibXML::Document:D @docs = blat {
+      my $x = $p.parse: :string($xml_invalid);
+      die if $x.is-valid;
+      try { $x.validate };
+      die unless $!;
+      $x;
+  }
+  is @docs.elems, MAX_THREADS, 'well-formed, but invalid documents';
 }
 
-my $rngschema = <<EOF;
+my $rngschema = q:to<EOF>;
 <?xml version="1.0"?>
 <r:grammar xmlns:r="http://relaxng.org/ns/structure/1.0">
   <r:start>
@@ -220,23 +174,18 @@ my $rngschema = <<EOF;
 EOF
 
 {
-for(1..MAX_THREADS)
-{
-  threads.new(
-    sub {
-      for (1..MAX_LOOP) {
-	my $x = $p.parse_string($xml);
-	eval { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
-	die unless $@;
-      }; 1;
-    });
-}
-$_.join for(threads.list);
-# TEST
-ok(1, "test RNG validation errors are thread safe");
+    blat {
+        for (1..MAX_LOOP) {
+	    my $x = $p.parse: :string($xml);
+	    try { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
+	    die "no error" without $!;
+        }
+    }
+    # TEST
+    ok(1, "test RNG validation errors thread safe sanity");
 }
 
-my $xsdschema = <<EOF;
+my $xsdschema = q:to<EOF>;
 <?xml version="1.0"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:element name="root">
@@ -246,21 +195,20 @@ my $xsdschema = <<EOF;
 EOF
 
 {
-for(1..MAX_THREADS)
-{
-  threads.new(
-    sub {
-      for (1..MAX_LOOP) {
- 	my $x = $p.parse_string($xml);
- 	eval { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
- 	die unless $@;
-      }; 1;
-    });
+    blat {
+        for (1..MAX_LOOP) {
+	    my $x = $p.parse: :string($xml);
+	    try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
+	    die "no error" without $!;
+        }
+    }
+    # TEST
+    ok(1, "test Schema validation errors thread safe sanity");
 }
-$_.join for(threads.list);
-# TEST
-ok(1, "test Schema validation errors are thread safe");
-}
+
+skip "port remaining tests";
+done-testing();
+=begin TODO
 
 my $bigfile = "docs/libxml.dbk";
 $xml = utf8_slurp($bigfile);

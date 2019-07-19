@@ -279,7 +279,7 @@ method processXIncludes(|c) is also<process-xincludes> {
     (require ::('LibXML::Parser')).new.processXIncludes(self, |c);
 }
 
-our $lock = Lock.new;
+has Lock $!lock handles<lock unlock protect> .= new;
 
 method serialize-html(Bool :$format = True) {
     my buf8 $buf;
@@ -299,7 +299,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc
             if $skip-dtd;
 
         with $skipped-dtd {
-            $lock.lock;
+            $.lock.lock;
             .Unlink;
         }
 
@@ -309,7 +309,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc
 
         with $skipped-dtd {
             $doc.setInternalSubset($_);
-            $lock.unlock;
+            $.lock.unlock;
         }
     }
 
@@ -335,7 +335,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
             if $skip-dtd;
 
         with $skipped-dtd {
-            $lock.lock;
+            $.lock.lock;
             .Unlink;
         }
 
@@ -343,7 +343,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
 
         with $skipped-dtd {
             $doc.setInternalSubset($_);
-            $lock.unlock;
+            $.lock.unlock;
         }
     }
 

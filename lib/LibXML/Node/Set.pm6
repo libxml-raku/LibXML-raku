@@ -1,6 +1,6 @@
 class LibXML::Node::Set does Iterable does Iterator does Positional {
     use LibXML::Native;
-    use LibXML::Node :native-class, :cast-elem, :NodeSetElem;
+    use LibXML::Node :box-class, :cast-elem, :NodeSetElem;
     use Method::Also;
 
     has $.of = NodeSetElem;
@@ -18,7 +18,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     }
     method !box(xmlNodeSetElem $elem) {
         do with $elem {
-            my $class = native-class(.type);
+            my $class = box-class(.type);
             die "unexpected node of type {$class.perl} in node-set"
                unless $class ~~ $!of;
 

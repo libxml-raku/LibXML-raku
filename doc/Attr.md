@@ -7,15 +7,14 @@ SYNOPSIS
 ========
 
     use LibXML::Attr;
+    use LibXML::Element;
     # Only methods specific to Attribute nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
     my LibXML::Attr $attr .= new(:$name, :$value);
-    my Str $value = $attr.getValue();
-    $value = $attr.value;
-    $attr.setValue( $string );
-    $att.value = $string;
-    my LibXML::Node $node = $attr.getOwnerElement();
+    my Str $value = $attr.value;
+    $att.value = $value;
+    my LibXML::Element $node = $attr.getOwnerElement();
     $attr.setNamespace($nsURI, $prefix);
     my Bool $is-id = $attr.isId;
     my Str $content = $attr.serializeContent;
@@ -34,34 +33,22 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * new
 
-        my LibXML::Attr $attr .= new($name [,$value]);
+        my LibXML::Attr $attr .= new(:$name :$value);
 
     Class constructor.
 
-  * getValue
-
-        my Str $val = $attr.getValue();
-
-    Returns the value stored for the attribute. If undef is returned, the attribute has no value, which is different of being `not specified `.
-
   * value
 
-        my Str $val = $attr.value;
+        my Str $val = $attr.value();
+        $attr.value = $value;
 
-    Alias for *getValue() *
-
-  * setValue
-
-        $attr.setValue( $string );
-        $attr.value = $string;
-
-    This is needed to set a new attribute value.
+    Gets or sets the value stored for the attribute. If Str:U is returned, the attribute has no value, which is different to being `not specified `.
 
   * getOwnerElement
 
-        my LibXML::Node $owner = $attr.getOwnerElement();
+        my LibXML::Element $owner = $attr.getOwnerElement();
 
-    returns the node the attribute belongs to. If the attribute is not bound to a node, undef will be returned. Overwriting the underlying implementation, the *parentNode * function will return undef, instead of the owner element.
+    returns the node the attribute belongs to. If the attribute is not bound to a node, LibXML::Element:U will be returned.
 
   * setNamespace
 

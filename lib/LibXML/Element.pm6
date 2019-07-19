@@ -1,4 +1,4 @@
-use LibXML::Node :iterate-list, :iterate-set, :native-class;
+use LibXML::Node :iterate-list, :iterate-set, :box-class;
 use LibXML::_DOMNode;
 
 unit class LibXML::Element
@@ -141,13 +141,13 @@ multi method setAttributeNS(Str $uri, NameVal:D $_) {
     $.native.setAttributeNS($uri, .key, .value);
 }
 multi method setAttributeNS(Str $uri, QName $name, Str $value) {
-    native-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
+    box-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
 }
 method getAttributeNode(Str $att-name --> LibXML::Node) {
-    native-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
+    box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
-    native-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNodeNS($uri, $att-name);
+    box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNodeNS($uri, $att-name);
 }
 method removeAttributeNode(AttrNode $att) {
     $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);

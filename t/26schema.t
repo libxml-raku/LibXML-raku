@@ -3,7 +3,7 @@ use Test;
 use LibXML;
 use LibXML::Schema;
 
-plan 8;
+plan 10;
 
 given LibXML.parser-version {
     when * < v2.05.10 {
@@ -24,37 +24,39 @@ my $invalidfile  = "test/schema/invaliddemo.xml";
 
 # 1 parse schema from a file
 {
-    my $rngschema = LibXML::Schema.new( location => $file );
+    my $schema = LibXML::Schema.new( location => $file );
     # TEST
-    ok ( $rngschema.defined, 'Good LibXML::Schema was initialised' );
+    ok ( $schema.defined, 'Good LibXML::Schema was initialised' );
 
-    dies-ok { $rngschema = LibXML::Schema.new( location => $badfile ); },  'Bad LibXML::Schema throws an exception.';
+    dies-ok { $schema = LibXML::Schema.new( location => $badfile ); },  'Bad LibXML::Schema throws an exception.';
 }
 
 # 2 parse schema from a string
 {
     my $string = slurp($file);
 
-    my $rngschema = LibXML::Schema.new( string => $string );
+    my $schema = LibXML::Schema.new( string => $string );
     # TEST
-    ok ( $rngschema, 'RNG Schema initialized from string.' );
+    ok ( $schema, 'Schema initialized from string.' );
 
     $string = slurp($badfile);
-    dies-ok { $rngschema = LibXML::Schema.new( string => $string ); }, 'Bad string schema throws an exception.';
+    dies-ok { $schema = LibXML::Schema.new( string => $string ); }, 'Bad string schema throws an exception.';
 }
 
 # 3 validate a document
 {
     my $doc       = $xmlparser.parse: :file( $validfile );
-    my $rngschema = LibXML::Schema.new( location => $file );
+    my $schema = LibXML::Schema.new( location => $file );
 
-    my $valid = $rngschema.validate( $doc );
+    is-deeply $schema.is-valid( $doc ), True, 'is-valid on valid doc';
+    my $valid = $schema.validate( $doc );
     # TEST
     is( $valid, 0, 'validate() returns 0 to indicate validity of valid file.' );
 
     $doc       = $xmlparser.parse: :file( $invalidfile );
     $valid     = 0;
-    dies-ok { $valid = $rngschema.validate( $doc ); }, 'Invalid file throws an excpetion.';
+    is-deeply $schema.is-valid( $doc ), False, 'is-valid on invalid doc';
+    dies-ok { $valid = $schema.validate( $doc ); }, 'Invalid file throws an excpetion.';
 }
 
 # 4 validate a node
