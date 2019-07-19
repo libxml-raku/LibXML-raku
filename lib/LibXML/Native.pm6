@@ -1337,6 +1337,12 @@ sub xmlCleanupInputCallbacks is native(LIB) is export {*}
 
 sub xmlLoadCatalog(Str --> int32) is native(LIB) is export {*}
 
+## xmlInitParser() should be called once at start-up
+sub xmlInitParser is native(LIB) is export {*}
+INIT {
+    xmlInitParser();
+}
+
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {
