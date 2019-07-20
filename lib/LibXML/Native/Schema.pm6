@@ -7,6 +7,7 @@ constant Stub = LibXML::Native::Stub;
 constant LIB  = LibXML::Native::LIB;
 
 class xmlSchema is repr(Stub) is export {
+   method Free is symbol('xmlSchemaFree') is native(LIB) {*}
 }
 
 class xmlSchemaParserCtxt is repr(Stub) is export {

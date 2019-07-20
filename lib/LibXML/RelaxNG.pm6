@@ -93,8 +93,11 @@ submethod TWEAK(|c) {
     $!native = $parser-ctx.parse;
 }
 
-has ValidContext $!valid-ctx;
-method !valid-ctx {  $!valid-ctx //=  ValidContext.new: :schema(self) }
+submethod DESTROY {
+    .Free with $!native;
+}
+
+method !valid-ctx { ValidContext.new: :schema(self) }
 method validate(LibXML::Document:D $doc) {
     self!valid-ctx.validate($doc);
 }

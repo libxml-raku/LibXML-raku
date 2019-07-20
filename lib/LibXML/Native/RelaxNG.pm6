@@ -7,6 +7,7 @@ constant Stub = LibXML::Native::Stub;
 constant LIB  = LibXML::Native::LIB;
 
 class xmlRelaxNG is repr(Stub) is export {
+    method Free is symbol('xmlRelaxNGFree') is native(LIB) {*}
 }
 
 class xmlRelaxNGParserCtxt is repr(Stub) is export {
