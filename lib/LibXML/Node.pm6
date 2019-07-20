@@ -57,7 +57,7 @@ class LibXML::Node {
     }
     method isEqual(|c) is DEPRECATED<isSameNode> { $.isSameNode(|c) }
     method ownerElement is also<getOwnerElement parent parentNode> {
-        box-class(XML_ELEMENT_NODE).box: $!native.parent;
+        LibXML::Node.box: $!native.parent;
     }
     method last is also<lastChild> {
         LibXML::Node.box: self.native.last;
@@ -362,7 +362,7 @@ class LibXML::Node {
         my CArray[Str] $prefix .= new: |@prefix, Str;
 
         if self.defined {
-            if $.nodeType != XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE {
+            if $.nodeType !~~ XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE {
                 ## due to how c14n is implemented, the nodeset it receives must
                 ## include child nodes; ie, child nodes aren't assumed to be rendered.
                 ## so we use an xpath expression to find all of the child nodes.

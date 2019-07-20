@@ -33,7 +33,6 @@ class sax_null {...}
 use LibXML;
 {
 
-#        require Devel::Peek;
         my $peek = 0;
 
         # TEST
