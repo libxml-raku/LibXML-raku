@@ -37,7 +37,7 @@ METHODS
                               "SOME // Public / ID / 1.0",
                               "test.dtd"
                                         );
-         my $doc = LibXML.new.parse: :file("test.xml");
+         my $doc = LibXML.load: :file("test.xml");
          $doc.validate($dtd);
 
   * parse
@@ -63,6 +63,18 @@ METHODS
         my Str $systemId = $dtd.systemId();
 
     Returns the system identifier of the external subset.
+
+  * validate
+
+        try { $dtd.validate( $doc ); };
+
+    This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](LibXML::Document ) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+
+  * is-valid
+
+        my Bool $valid = $dtd.is-valid($doc);
+
+    Returns either True or False depending on whether the passed Document is valid or not.
 
 AUTHORS
 =======

@@ -47,21 +47,24 @@ class X::LibXML::Parser is Exception {
 
 class LibXML::ErrorHandler {
     has X::LibXML::Parser @!errors;
-    method generic-error(Str $fmt, Pointer $arg) {
-        my $msg = $fmt eq '%s' ?? nativecast(Str, $arg) !! $fmt;
-        @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
-    }
     has Bool $.recover is rw;
     has Bool $.suppress-warnings;
     has Bool $.suppress-errors;
 
+    method generic-error(Str $fmt, Pointer $arg) {
+        CATCH { default { warn "error handling failure: $_" } }
+        my $msg = $fmt eq '%s' ?? nativecast(Str, $arg) !! $fmt;
+        @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
+    }
+
     method generic-warning(Str $fmt, Pointer $arg) {
+        CATCH { default { warn "error handling failure: $_" } }
         my $msg = $fmt eq '%s' ?? nativecast(Str, $arg) !! $fmt;
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_WARNING), :$msg );
     }
 
     method structured-error(xmlError $_) {
-
+        CATCH { default { warn "error handling failure: $_" } }
         my Int $level = .level;
         my Str $msg = .message;
         my Str $file = .file;
@@ -69,8 +72,8 @@ class LibXML::ErrorHandler {
         my UInt:D $column = .column;
         my UInt:D $code = .code;
         my UInt:D $domain = .domain;
-        @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain );
 
+        @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain );
     }
 
     method is-valid(|c) {

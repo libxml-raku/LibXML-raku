@@ -32,8 +32,8 @@ SYNOPSIS
     $state = $doc.write: :io($fh), :$format;
     my Str $html = $doc.Str(:HTML);
     $html = $doc.serialize-html();
-    my Bool $looks-ok = $dom.is-valid();
     try { $dom.validate(); }
+    if $dom.is-valid() { ... }
 
     my LibXML::Element $root = $dom.documentElement();
     $dom.documentElement = $root;

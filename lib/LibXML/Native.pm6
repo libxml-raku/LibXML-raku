@@ -1026,7 +1026,7 @@ class xmlParserNodeInfoSeq is repr('CStruct') is export {
 class xmlValidCtxt is repr('CStruct') is export {
     has Pointer                $.userData;  # user specific data block
     has Pointer                $.error;     # the callback in case of errors
-    has Pointer                $.warning;   # the callback in case of warning
+    has Pointer                $.warning;   # the callback in case of warnings
 
     # Node analysis stack used when validating within entities
     has xmlNode                $.node;      # Current parsed Node
@@ -1050,6 +1050,10 @@ class xmlValidCtxt is repr('CStruct') is export {
 
     method ValidateDtd(xmlDoc, xmlDtd --> int32) is native(LIB) is symbol('xmlValidateDtd') {*}
     method ValidateDocument(xmlDoc --> int32) is native(LIB) is symbol('xmlValidateDocument') {*}
+    method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native(LIB) is symbol('xmlSetStructuredErrorFunc') {*};
+    method Free is symbol('xmlFreeValidCtxt') is native(LIB) {*}
+    sub xmlNewValidCtxt(--> xmlValidCtxt) is native(LIB) {*}
+    method new { xmlNewValidCtxt() }
     method validate(xmlDoc:D :$doc!, xmlDtd :$dtd) {
         with $dtd {
             self.ValidateDtd($doc, $_);
@@ -1062,7 +1066,7 @@ class xmlValidCtxt is repr('CStruct') is export {
 
 class parserCtxt is export {
     has xmlSAXHandler          $.sax is rw-ptr(       # The SAX handler
-        method xml6_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
+        method xml6_parser_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
     );
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
     has xmlDoc                 $.myDoc;        # the document being built
@@ -1188,8 +1192,8 @@ class parserCtxt is export {
     method GetLastError is native(LIB) is symbol('xmlCtxtGetLastError') returns xmlError is native('xml2') {*}
     method ParserError(Str $msg) is native(LIB) is symbol('xmlParserError') {*}
     method StopParser is native(LIB) is symbol('xmlStopParser') { * }
-    method add-reference is native(BIND-LIB) is symbol('xml6_ctx_add_reference') {*}
-    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ctx_remove_reference') {*}
+    method add-reference is native(BIND-LIB) is symbol('xml6_parser_ctx_add_reference') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_parser_ctx_remove_reference') {*}
     method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
 
     # SAX2 Handler callbacks
@@ -1305,8 +1309,8 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
 }
 
 class htmlMemoryParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
-    sub CreateStr(xmlCharP:D, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_str') {*}
-    sub CreateBuf(Blob:D, int32, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_ctx_html_create_buf') {*}
+    sub CreateStr(xmlCharP:D, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_parser_ctx_html_create_str') {*}
+    sub CreateBuf(Blob:D, int32, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_parser_ctx_html_create_buf') {*}
     method ParseDocument is native(LIB) is symbol('htmlParseDocument') returns int32 {*}
     multi method new( Blob() :$buf!, xmlEncodingStr :$enc = 'UTF-8') {
         CreateBuf($buf, $buf.bytes, $enc);

@@ -262,18 +262,13 @@ method externalSubset is rw {
              );
 }
 
-method !validate(LibXML::Dtd:D $dtd-obj = self.getInternalSubset // self.getExternalSubset // fail "no dtd found" --> Bool) {
-    my xmlValidCtxt $cvp .= new;
-    my xmlDoc:D $doc = self.native;
-    my xmlDtd $dtd = .native with $dtd-obj;
-    # todo: set up error handling
-    ? $cvp.validate(:$doc, :$dtd);
+method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) {
+    my LibXML::Dtd::ValidContext $valid-ctx .= new;
+    $valid-ctx.validate(:doc(self), :$dtd, :$check);
 }
+method is-valid(|c) { $.validate(:check, |c); }
 
 method parse(|c --> LibXML::Document) { (require ::('LibXML')).load(|c); }
-
-method validate(|c) { LibXML::Parser::Context.try: {self!validate(|c)} }
-method is-valid(|c) {  LibXML::Parser::Context.try({self!validate(|c)}, :check-valid); }
 
 method processXIncludes(|c) is also<process-xincludes> {
     (require ::('LibXML::Parser')).new.processXIncludes(self, |c);
@@ -385,8 +380,8 @@ LibXML::Document - LibXML DOM Document Class
   $state = $doc.write: :io($fh), :$format;
   my Str $html = $doc.Str(:HTML);
   $html = $doc.serialize-html();
-  my Bool $looks-ok = $dom.is-valid();
   try { $dom.validate(); }
+  if $dom.is-valid() { ... }
 
   my LibXML::Element $root = $dom.documentElement();
   $dom.documentElement = $root;

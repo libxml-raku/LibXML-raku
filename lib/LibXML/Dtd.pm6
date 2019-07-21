@@ -5,6 +5,47 @@ unit class LibXML::Dtd
 
 use LibXML::Native;
 use LibXML::Parser::Context;
+use NativeCall;
+my subset DocNode of LibXML::Node where {!.defined || .native ~~ xmlDoc};
+
+class ValidContext {
+    has xmlValidCtxt $!native;
+    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors> .= new;
+
+    multi submethod BUILD( xmlValidCtxt:D :$!native! ) { }
+    multi submethod BUILD {
+        $!native .= new;
+    }
+
+    submethod TWEAK {
+        $!native.SetStructuredErrorFunc: -> $, xmlError $err {
+            self.structured-error($err);
+        };
+    }
+
+    submethod DESTROY {
+        .Free with $!native;
+    }
+
+    method validate(DocNode:D :doc($doc-obj)!, LibXML::Dtd :dtd($dtd-obj), Bool() :$check) {
+        my xmlDoc:D $doc = .native with $doc-obj;
+        my xmlDtd   $dtd = .native with $dtd-obj;
+
+        my $rv := $!native.validate(:$doc, :$dtd);
+
+	$rv := $!errors.is-valid
+            if $check;
+        self.flush-errors;
+
+        ? $rv;
+    }
+
+    method is-valid(|c) {
+        warn;
+        self.validate(:check, |c);
+    }
+
+}
 
 method native handles <publicId systemId> {
     nextsame;
@@ -45,6 +86,15 @@ method cloneNode(LibXML::Dtd:D: $?) {
     my xmlDtd:D $native = self.native.copy;
     self.clone: :$native;
 }
+
+method !valid-ctx { ValidContext.new: :schema(self) }
+method validate(LibXML::Node:D $node) {
+    self!valid-ctx.validate($node);
+}
+method is-valid(LibXML::Node:D $node) {
+    self!valid-ctx.validate($node, :check);
+}
+
 
 =begin pod
 =head1 NAME
@@ -91,7 +141,7 @@ pass to $doc.is-valid() or $doc.validate().
                         "SOME // Public / ID / 1.0",
                         "test.dtd"
                                   );
-   my $doc = LibXML.new.parse: :file("test.xml");
+   my $doc = LibXML.load: :file("test.xml");
    $doc.validate($dtd);
 =end item
 
@@ -133,6 +183,27 @@ systemId
 
 Returns the system identifier of the external subset.
 =end item
+
+=begin item1
+validate
+
+  try { $dtd.validate( $doc ); };
+
+This function allows one to validate a (parsed) document against the given XML
+Schema. The argument of this function should be a L<<<<<< LibXML::Document >>>>>> object. If this function succeeds, it will return 0, otherwise it will die()
+and report the errors found. Because of this validate() should be always
+evaluated.
+
+=end item1
+
+=begin item1
+is-valid
+
+  my Bool $valid = $dtd.is-valid($doc);
+
+Returns either True or False depending on whether the passed Document is valid or not.
+
+=end item1
 
 
 
