@@ -24,6 +24,8 @@ is $err.file, 'test.xml', 'File is OK.';
 is $err.line, 1, 'Line is OK';
 is $err.level, +XML_ERR_FATAL, 'level is OK';
 is $err.code, +XML_ERR_SPACE_REQUIRED, 'code is OK';
+todo "column() fixed somewhere between v2.09.01 < libxml2.version <= v2.09.09"
+    if LibXML.parser-version < v2.09.09;
 is $err.column(), 204, "Column is OK.";
 is $err.domain, +XML_FROM_PARSER;
 is $err.domain-name, 'parser';
