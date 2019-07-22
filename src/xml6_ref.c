@@ -23,15 +23,36 @@ _ref_new(void) {
     return ref;
 }
 
+static xmlMutexPtr _mutex = NULL;
+DLLEXPORT void
+xml6_ref_init(void) {
+    if (_mutex == NULL) {
+        _mutex = xmlNewMutex();
+    }
+}
+
 DLLEXPORT void
 xml6_ref_add(void** self_ptr) {
     xml6RefPtr self;
+    int init = 0;
 
     if ( *self_ptr == NULL ) {
-        self = _ref_new();
-        *self_ptr = (void*) self;
+
+        if (_mutex == NULL) {
+            xml6_warn("xml6_ref_init() wasn't called");
+            xml6_ref_init();
+        }
+
+        xmlMutexLock(_mutex);
+        if ( *self_ptr == NULL ) {
+            self = _ref_new();
+            *self_ptr = (void*) self;
+            init = 1;
+        }
+        xmlMutexUnlock(_mutex);
     }
-    else {
+
+    if (!init) {
         self = (xml6RefPtr) *self_ptr;
 
         if (self->magic != XML6_REF_MAGIC) {

@@ -6,6 +6,7 @@
 
 #define XML6_REF_MAGIC 2020437046 // 'xml6', little endian
 
+DLLEXPORT void xml6_ref_init(void);
 DLLEXPORT void xml6_ref_add(void**);
 DLLEXPORT int xml6_ref_remove(void**, const char*, void*);
 DLLEXPORT void xml6_ref_set_fail(void*, xmlChar*);
