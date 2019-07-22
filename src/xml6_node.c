@@ -16,6 +16,16 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
     return xml6_ref_remove( &(self->_private), "node", (void*) self);
 }
 
+DLLEXPORT int xml6_node_lock(xmlNodePtr self) {
+    assert(self != NULL);
+    return xml6_ref_lock( &(self->_private));
+}
+
+DLLEXPORT int xml6_node_unlock(xmlNodePtr self) {
+    assert(self != NULL);
+    return xml6_ref_unlock( &(self->_private));
+}
+
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
     xmlNodePtr node = self;
     assert(node != NULL);

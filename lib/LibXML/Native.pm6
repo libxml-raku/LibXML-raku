@@ -668,11 +668,13 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
     method domAddNewChild(Str $uri, Str $name --> domNode) is native(BIND-LIB) {*}
     method domSetNamespace(Str $URI, Str $prefix, int32 $flag) is native(BIND-LIB) returns int32 {*}
-   method domGenNsPrefix(Str $base-prefix --> Str) is native(BIND-LIB) {*}
+    method domGenNsPrefix(Str $base-prefix --> Str) is native(BIND-LIB) {*}
     method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
     method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
     method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
+    method lock(--> int32) is native(BIND-LIB) is symbol('xml6_node_lock') {*}
+    method unlock(--> int32) is native(BIND-LIB) is symbol('xml6_node_unlock') {*}
     method first-child(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_first_child') {*}
     method next-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_next') {*}
     method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}

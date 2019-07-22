@@ -10,6 +10,8 @@ DLLEXPORT void xml6_ref_add(void**);
 DLLEXPORT int xml6_ref_remove(void**, const char*, void*);
 DLLEXPORT void xml6_ref_set_fail(void*, xmlChar*);
 DLLEXPORT xmlChar* xml6_ref_get_fail(void*);
+DLLEXPORT int xml6_ref_lock(void*);
+DLLEXPORT int xml6_ref_unlock(void*);
 
 #define fail(self, msg) { self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return NULL;}
 #define fail_i(self, msg) {self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return -1;}

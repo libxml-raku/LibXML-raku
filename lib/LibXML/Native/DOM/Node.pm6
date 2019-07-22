@@ -13,6 +13,8 @@ method find { ... }
 method findnodes { ... }
 method copy { ... }
 method GetNodePath { ... }
+method lock { ... }
+method unlock { ... }
 
 method domAppendChild  { ... }
 method domAppendTextChild  { ... }

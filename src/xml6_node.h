@@ -7,6 +7,8 @@
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr);
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr);
+DLLEXPORT int xml6_node_lock(xmlNodePtr);
+DLLEXPORT int xml6_node_unlock(xmlNodePtr);
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr);
 DLLEXPORT xmlNodePtr xml6_node_first_child(xmlNodePtr, int blank);

@@ -24,7 +24,7 @@ class LibXML::Node {
         lookupNamespacePrefix lookupNamespaceURI
         nodePath
         setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
-        unique-key
+        unique-key lock unlock
     >;
 
     BEGIN {
@@ -51,7 +51,13 @@ class LibXML::Node {
         }
     }
 
-
+    method protect(&action) {
+        self.lock // die "couldn't get lock";
+        my $rv = try { &action(); }
+        self.unlock;
+        die $_ with $!;
+        $rv;
+    }
     method isSameNode(LibXML::Node:D $other) {
         $!native.isSameNode($other.native);
     }

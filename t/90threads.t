@@ -32,8 +32,8 @@ EOF
   my LibXML::Document $good .= parse: :string('<foo/>');
   my LibXML::Document $bad .= parse: :string('<bar/>');
   my LibXML::RelaxNG @schemas = blat {
-        LibXML::RelaxNG.new(string => $grammar);
-    }
+      LibXML::RelaxNG.new(string => $grammar);
+  }
   my Bool @good = blat { @schemas[$_].is-valid($good); }
   my Bool @bad = blat { @schemas[$_].is-valid($bad); }
 
@@ -94,19 +94,19 @@ ok(1, "operating on different documents without lock");
 
 # operating on the same document with a lock
 {
-  my LibXML::Document $doc .= new;
-  my LibXML::Document:D @docs = blat {
-      for (1..24) {
-          $doc.protect: {
-              my $el = $doc.createElement('foo');
-              $el.setAttribute('foo','bar');
-	      $el.getAttribute('foo');
-          }
-      }
-      $doc;
-  }
-  is @docs.elems, MAX_THREADS, 'document roots';
-  is @docs.unique.elems, 1, 'documents reduction';
+    my LibXML::Document $doc .= new;
+    my LibXML::Document:D @docs = blat {
+        for (1..24) {
+            $doc.protect: {
+                my $el = $doc.createElement('foo');
+                $el.setAttribute('foo','bar');
+	        $el.getAttribute('foo');
+            }
+        }
+        $doc;
+    }
+    is @docs.elems, MAX_THREADS, 'document roots';
+    is @docs.unique.elems, 1, 'documents reduction';
 }
 
 my $xml = q:to<EOF>;

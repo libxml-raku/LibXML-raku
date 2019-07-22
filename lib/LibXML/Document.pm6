@@ -44,7 +44,12 @@ submethod TWEAK(
                 Str :$URI,
                 Bool :$html
                ) {
-    my xmlDoc:D $struct = self.native //= ($html ?? htmlDoc !! xmlDoc).new;
+    my xmlDoc:D $struct = self.native //= do {
+        given ($html ?? htmlDoc !! xmlDoc).new {
+            .add-reference;
+            $_;
+        }
+    }
     $struct.version = $_ with $version;
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;
@@ -274,8 +279,6 @@ method processXIncludes(|c) is also<process-xincludes> {
     (require ::('LibXML::Parser')).new.processXIncludes(self, |c);
 }
 
-has Lock $!lock handles<lock unlock protect> .= new;
-
 method serialize-html(Bool :$format = True) {
     my buf8 $buf;
 
@@ -294,7 +297,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc
             if $skip-dtd;
 
         with $skipped-dtd {
-            $.lock.lock;
+            $doc.lock;
             .Unlink;
         }
 
@@ -304,7 +307,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc
 
         with $skipped-dtd {
             $doc.setInternalSubset($_);
-            $.lock.unlock;
+            $doc.unlock;
         }
     }
 
@@ -330,7 +333,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
             if $skip-dtd;
 
         with $skipped-dtd {
-            $.lock.lock;
+            $doc.lock;
             .Unlink;
         }
 
@@ -338,7 +341,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
 
         with $skipped-dtd {
             $doc.setInternalSubset($_);
-            $.lock.unlock;
+            $doc.unlock;
         }
     }
 
