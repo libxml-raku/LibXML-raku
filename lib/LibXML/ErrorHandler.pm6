@@ -21,8 +21,8 @@ class X::LibXML::Parser is Exception {
     has UInt $.column;
     has UInt $.level;
     has UInt $.code;
-    has UInt $.domain;
-    method domain-name { @ErrorDomains[$!domain] }
+    has UInt $.domain-num;
+    method domain returns Str { @ErrorDomains[$!domain-num] }
     has Str $.msg;
     has X::LibXML::Parser $.prev is rw;
 
@@ -32,7 +32,7 @@ class X::LibXML::Parser is Exception {
 
     method message {
         my @meta;
-        @meta.push: $_ with $.domain-name;
+        @meta.push: $_ with $.domain;
         if $!level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
             @meta.push: 'error';
         }
@@ -71,9 +71,9 @@ class LibXML::ErrorHandler {
         my UInt:D $line = .line;
         my UInt:D $column = .column;
         my UInt:D $code = .code;
-        my UInt:D $domain = .domain;
+        my UInt:D $domain-num = .domain;
 
-        @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain );
+        @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num );
     }
 
     method is-valid(|c) {
@@ -81,7 +81,7 @@ class LibXML::ErrorHandler {
         if @!errors {
             my X::LibXML::Parser @errs;
             for @!errors {
-                if .domain ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV {
+                if .domain-num ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV {
 		    $valid = False;
 		}
                 else {

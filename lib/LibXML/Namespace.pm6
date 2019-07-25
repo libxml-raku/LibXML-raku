@@ -11,6 +11,13 @@ method box(xmlNs $ns!) {
     } // self.WHAT;
 }
 
+# Perl 5 compat
+multi method new(Str:D $URI, NCName $prefix?, *%o) {
+    self.new(:$URI, :$prefix, |%o);
+}
+
+multi method new(|c) is default { nextsame }
+
 multi submethod TWEAK(xmlNs:D :$!native!) {
     $!native .= Copy;
     $!native.add-reference;
