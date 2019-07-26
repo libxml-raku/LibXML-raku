@@ -19,22 +19,7 @@ use LibXML::XPath::Object;
 unit class LibXML
     is LibXML::Parser;
 
-method parser-version {
-    state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
-}
-
-method have-reader {
-    require LibXML::Reader;
-    LibXML::Reader.have-reader
-}
-
-method have-schemas {
-    given $.parser-version {
-        $_ >= v2.05.10 && $_ != v2.09.04
-    }
-}
-
-method config handles <skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
+method config handles <version have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
     LibXML::Config;
 }
 
@@ -58,18 +43,29 @@ LibXML - Perl 6 bindings to the libxml2 native library
   # <?xml version="1.0" encoding="UTF-8"?>
   # <Hello>World!</Hello>
 
+  my Version $library-version = LibXML.version;
+  my Version $module-version = LibXML.^ver;
+
 =head1 DESCRIPTION
 
-** Under Construction **
+This module is an interface to libxml2, providing XML and HTML parsers with
+DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and
+a XML::XPath-like interface to XPath API of libxml2. The module is split into
+several packages which are not described in this section; unless stated
+otherwise, you only need to C<<<<<< use XML::LibXML; >>>>>> in your programs.
 
-This module implements Perl 6 bindings to the Gnome libxml2 library
-which provides functions for parsing and manipulating XML files.
-
-=head1 SEE ALSO
-
-Draft documents (So far)
+For further information, please check the following documentation:
 
 =head2 DOM Objects
+
+The nodes in the Document Object Model (DOM) are represented by the following
+classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
+
+=item [LibXML::Document](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Document.md) - LibXML DOM attribute class
+
+=item [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML's DOM L2 Document Fragment implementation
+
+=item [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
 
 =item [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
 
@@ -79,13 +75,7 @@ Draft documents (So far)
 
 =item [LibXML::Comment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
 
-=item [LibXML::Document](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Document.md) - LibXML's DOM L2 Document Fragment implementation
-
-=item [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML DOM attribute class
-
 =item [LibXML::Dtd](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
-
-=item [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
 
 =item [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespace nodes
 

@@ -302,7 +302,7 @@ dies-ok { $xc4.findvalue('last()') }, ' TODO : Add test name';
 SKIP:
 {
     # 37332
-    if LibXML.parser-version < v2.06.17 {
+    if LibXML.version < v2.06.17 {
         skip(
             'xpath does not work on nodes without a document in libxml2 < 2.6.17',
             3

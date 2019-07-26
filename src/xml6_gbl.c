@@ -14,3 +14,11 @@ DLLEXPORT int xml6_gbl_have_libxml_reader(void) {
 #endif
 }
 
+DLLEXPORT int xml6_gbl_have_threads(void) {
+#ifdef LIBXML_THREAD_ENABLED
+    return 1;
+#else
+    return 0;
+#endif
+}
+

@@ -16,20 +16,26 @@ SYNOPSIS
     # <?xml version="1.0" encoding="UTF-8"?>
     # <Hello>World!</Hello>
 
+    my Version $library-version = LibXML.version;
+    my Version $module-version = LibXML.^ver;
+
 DESCRIPTION
 ===========
 
-** Under Construction **
+This module is an interface to libxml2, providing XML and HTML parsers with DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and a XML::XPath-like interface to XPath API of libxml2. The module is split into several packages which are not described in this section; unless stated otherwise, you only need to `use XML::LibXML; ` in your programs.
 
-This module implements Perl 6 bindings to the Gnome libxml2 library which provides functions for parsing and manipulating XML files.
-
-SEE ALSO
-========
-
-Draft documents (So far)
+For further information, please check the following documentation:
 
 DOM Objects
 -----------
+
+The nodes in the Document Object Model (DOM) are represented by the following classes (most of which "inherit" from [LibXML::Node ](LibXML::Node )):
+
+  * [LibXML::Document](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Document.md) - LibXML DOM attribute class
+
+  * [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML's DOM L2 Document Fragment implementation
+
+  * [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
 
   * [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
 
@@ -39,13 +45,7 @@ DOM Objects
 
   * [LibXML::Comment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
 
-  * [LibXML::Document](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Document.md) - LibXML's DOM L2 Document Fragment implementation
-
-  * [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML DOM attribute class
-
   * [LibXML::Dtd](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
-
-  * [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
 
   * [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespace nodes
 

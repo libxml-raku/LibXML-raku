@@ -7,7 +7,7 @@ constant config =  LibXML::Config;
 
 plan 7;
 
-if LibXML.parser-version < v2.06.27 {
+if LibXML.version < v2.06.27 {
     skip-rest "skipping for libxml2 < 2.6.27";
     exit;
 }

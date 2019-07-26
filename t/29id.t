@@ -3,7 +3,7 @@ use LibXML;
 
 plan 42;
 
-given LibXML.parser-version {
+given LibXML.version {
     when * < v2.06.23 {
         skip-rest "Skipping ID tests on libxml2 <= 2.6.23";
         exit;

@@ -11,9 +11,9 @@ my LibXML $p .= new();
 
 ok $p, 'Can initialize a new LibXML instance';
 
-my $version = $p.parser-version;
+my $version = $p.version;
 
-ok $version, 'LibXML.parser-version is trueish';
+ok $version, 'LibXML.version is trueish';
 
 diag "Running libxml2 version: " ~ $version;
 

@@ -189,7 +189,7 @@ skip "iso-8859-2 nyi", 2;
     {
         my $num_tests = 2;
 
-        if v2.06.27 > LibXML.parser-version {
+        if v2.06.27 > LibXML.version {
             skip("skipping for libxml2 < 2.6.27", $num_tests);
         }
         # translate to UTF8 on perl-side
@@ -263,7 +263,7 @@ EOF
     # 70878
     # HTML_PARSE_NODEFDTD
 
-    when LibXML.parser-version < v2.07.08 {
+    when LibXML.version < v2.07.08 {
         skip("LibXML version is below 2.07.08", 2);
     }
         

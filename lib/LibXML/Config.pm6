@@ -3,6 +3,25 @@ unit class LibXML::Config;
 use LibXML::Native;
 use LibXML::InputCallback;
 
+method version {
+    state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
+}
+
+method have-threads {
+    ? xml6_gbl_have_threads();
+}
+
+method have-reader {
+    require LibXML::Reader;
+    LibXML::Reader.have-reader
+}
+
+method have-schemas {
+    given $.version {
+        $_ >= v2.05.10 && $_ != v2.09.04
+    }
+}
+
 our $skipXMLDeclaration;
 our $skipDTD;
 our $inputCallbacks;
@@ -75,6 +94,24 @@ LibXML::Config - LibXML Global configuration
   use LibXML::Config;
 
 =head1 METHODS
+
+=begin item1
+version
+
+Returns the version of the `libxml2` library.
+=end item1
+
+=begin item1
+have-reader
+
+Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
+=end item1
+
+=begin item1
+have-schemas
+
+Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
+=end item1
 
 =begin item1
 external-entity-loader

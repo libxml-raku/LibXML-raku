@@ -242,7 +242,7 @@ sub _utf16_content_test
 
     SKIP:
     {
-        if LibXML.parser-version < v2.07.00
+        if LibXML.version < v2.07.00
         {
             skip "UTF-16 and HTML broken in libxml2 < 2.7", 1;
         }

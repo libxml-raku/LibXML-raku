@@ -425,7 +425,7 @@ EOF
 
         SKIP:
         {
-            if (LibXML.parser-version < v2.06.27)
+            if (LibXML.version < v2.06.27)
             {
                 skip('skipping for libxml2 < 2.6.27', 1);
             }
