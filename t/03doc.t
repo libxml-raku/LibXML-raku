@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 170;
+plan 171;
 
 use LibXML;
 use LibXML::Enums;
@@ -461,7 +461,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     {
         my IO::Handle $io = 'example/testrun.xml'.IO.open(:w);
 
-        $doc.write: :$io;
+        $doc.save: :$io;
         $io.close;
         # TEST
         ok(1, ' TODO : Add test name');
@@ -480,7 +480,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     # -> to named file
     {
-        $doc.write: :file( "example/testrun.xml" );
+        $doc.save: :file( "example/testrun.xml" );
         # TEST
         ok(1, ' TODO : Add test name');
         # now parse the file to check, if succeeded
@@ -692,4 +692,25 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         # TEST:$c++;
     }
     # TEST*$num_encs*$c
+}
+
+subtest 'compress' => {
+    plan 5;
+    use File::Temp;
+    my LibXML::Document:D $doc = LibXML.load: :file( "example/test.xml" );
+    is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';
+    if LibXML.have-compression {
+        lives-ok { $doc = LibXML.load: :file<test/compression/test.xml.gz> }, 'load compressed document';
+        is-deeply $doc.input-compressed, True, 'document input-compression';
+        $doc.compression = 5;
+        is $doc.compression, 5, 'set document compression';
+        my (Str:D $file) = tempfile();
+        $file = '/tmp/out.gz';
+        my $n = $doc.write: :$file;
+        $doc = LibXML.load: :$file;
+        is-deeply $doc.input-compressed , True, 'compression of written document';
+    }
+    else {
+        skip "LibXML compression is not available for compression tests", 4;
+    }
 }

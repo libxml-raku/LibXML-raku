@@ -22,3 +22,11 @@ DLLEXPORT int xml6_gbl_have_threads(void) {
 #endif
 }
 
+DLLEXPORT int xml6_gbl_have_compression(void) {
+#ifdef LIBXML_ZLIB_ENABLED
+    return 1;
+#else
+    return 0;
+#endif
+}
+

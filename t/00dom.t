@@ -1,3 +1,4 @@
+use v6;
 use Test;
 plan 34;
 
@@ -23,12 +24,12 @@ is-deeply $doc.doc, $doc, 'doc self-root';
 $doc .= parse: :$string, :!keep-blanks;
 is $doc.Str,  $tstr;
 
-my LibXML::DocumentFragment $frag = $parser.parse-balanced: :string( $sDoc);
-my LibXML::DocumentFragment $chk = $parser.parse-balanced: :string( $sChunk);
+my LibXML::DocumentFragment:D $frag = $parser.parse-balanced: :string($sDoc);
+my LibXML::DocumentFragment:D $chk = $parser.parse-balanced: :string($sChunk);
 
 lives-ok {$frag.appendChild( $chk )}, 'appendChild lives';
 
-is( $frag.Str, '<C/><D/><A/><B/>', 'No segfault parsing string "<C/><D/><A/><B/>"');
+is( $frag.Str, '<C/><D/><A/><B/>', 'Parse/serialize fragment "<C/><D/><A/><B/>"');
 
 # create a document from scratch
 $doc .= new;

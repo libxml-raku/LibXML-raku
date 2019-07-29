@@ -148,7 +148,7 @@ class LibXML::Parser {
         self!publish: :$handler;
     }
 
-    multi method parse(IO() :$file!,
+    multi method parse(Str() :$file!,
                        Bool() :$html = $!html,
                        xmlEncodingStr :$enc = $!enc,
                        Str :$URI = $!URI,

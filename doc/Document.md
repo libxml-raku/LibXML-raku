@@ -23,13 +23,14 @@ SYNOPSIS
     use LibXML::Document :XmlStandalone;
     if $doc.standalone == XmlStandaloneYes {...}
     $doc.standalone = XmlStandaloneNo;
-    my Int $ziplevel = $doc.compression; # zip-level or -1
-    $doc.compression = $ziplevel;
+    my Bool $is-compressed = $doc.input-compressed;
+    my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
+    $doc.compression = $zip-level;
     my Str $html-tidy = $dom.Str(:$format, :$HTML);
     my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
     my Str $xml-tidy = $doc.serialize(:$format);
-    my Int $state = $doc.write: :io($filename), :$format;
-    $state = $doc.write: :io($fh), :$format;
+    my Int $state = $doc.write: :$file, :$format;
+    $state = $doc.save: :io($fh), :$format;
     my Str $html = $doc.Str(:HTML);
     $html = $doc.serialize-html();
     try { $dom.validate(); }
@@ -163,14 +164,21 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * compression
 
-        my Int $compression = $doc.compression;
-        $doc.compression = $ziplevel;
+        my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
+        my Bool $compressed = $doc.input-compressed;
+        if LibXML.compression-available {
+            $doc.compression = $zip-level;
+            $doc.write: :file<test.xml.gz>;
+        }
+        else {
+            $doc.write: :file<test.xml>;
+        }
 
-    libxml2 allows reading of documents directly from gzipped files. In this case the compression variable is set to the compression level of that file (0-8). If LibXML parsed a different source or the file wasn't compressed, the returned value will be *-1 *.
+    libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the inpout file was compressed.
 
     If one intends to write the document directly to a file, it is possible to set the compression level for a given document. This level can be in the range from 0 to 8. If LibXML should not try to compress use *-1 * (default).
 
-    Note that this feature will *only * work if libxml2 is compiled with zlib support and `.write` is used for output.
+    Note that this feature will *only * work if libxml2 is compiled with zlib support and `.parse: :file(..._)` is used for input and `.write` is used for output.
 
   * Str
 

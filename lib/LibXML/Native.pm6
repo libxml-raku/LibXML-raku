@@ -13,13 +13,15 @@ constant LIB = 'xml2';
 constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
 my constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 sub xml6_gbl_have_threads(-->int32) is native(BIND-LIB) is export {*}
+sub xml6_gbl_have_compression(-->int32) is native(BIND-LIB) is export {*}
 
 # type defs
 constant xmlCharP = Str;
+constant xmlCharEncodingHandler = Pointer; # stub
 
 # subsets
 sub xmlParseCharEncoding(Str --> int32) is export is native(LIB) {*}
-sub xmlFindCharEncodingHandler(Str --> Pointer) is export is native(LIB) {*}
+sub xmlFindCharEncodingHandler(Str --> xmlCharEncodingHandler) is export is native(LIB) {*}
 my subset xmlEncodingStr of Str is export where {!.defined || xmlFindCharEncodingHandler($_).defined}
 
 # forward declarations
@@ -58,21 +60,6 @@ class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
 class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
-class xmlParserInputBuffer is repr(Stub) is export {
-    sub xmlAllocParserInputBuffer(int32 $enc --> xmlParserInputBuffer) is native(LIB) {*}
-    method new(xmlEncodingStr :$enc, xmlCharP :$string) {
-        my Int $encoding = xmlParseCharEncoding($enc);
-        given xmlAllocParserInputBuffer($encoding) {
-             if $string {
-                 my $n := .PushStr($string);
-                 die "push to input buffer failed"
-                     if $n < 0;
-             }
-            $_;
-        }
-    }
-    method PushStr(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push_str') {*}
-}
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}
 
@@ -179,6 +166,54 @@ class xmlNodeSet is export {
     }
 }
 
+class xmlBuf is repr('CStruct') is export {
+    has xmlCharP  $.content;     # The buffer content UTF8
+    has uint32    $.compat_use;  # for binary compatibility
+    has uint32    $.compat_size; # for binary compatibility
+    has int32     $.alloc is rw; # The realloc method
+    has xmlCharP  $.contentIO;   # in IO mode we may have a different base
+    has size_t    $.use;         # The buffer size used
+    has size_t    $.size;        # The buffer size
+    has xmlBufOld $.buffer;      # wrapper for an old buffer
+    has int32     $.error;       # an error code if a failure occurred
+
+    sub Create(--> xmlBuf) is native(LIB) is symbol('xmlBufCreate') {*}
+    method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufCat') {*}
+    method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufWriteQuotedString') {*}
+    method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is export { * }
+    method Content(--> Str) is symbol('xmlBufContent') is native(LIB) is export { * }
+    method Free is symbol('xmlBufFree') is native(LIB) is export { * }
+    method new(--> xmlBuf:D) { Create() }
+}
+
+class xmlParserInputBuffer is repr('CStruct') is export {
+    my constant xmlInputReadCallback = Pointer;
+    my constant xmlInputWriteCallback = Pointer;
+    has Pointer $.context;
+    has xmlInputReadCallback $.read-callback;
+    has xmlInputWriteCallback $.write-callback;
+    has xmlCharEncodingHandler $.encoder;
+    has xmlBuf $.buffer;
+    has xmlBuf $.raw;
+    has int32  $.compressed;
+    has int32  $.error;
+    has ulong  $.raw-consumed;
+
+    sub xmlAllocParserInputBuffer(int32 $enc --> xmlParserInputBuffer) is native(LIB) {*}
+    method new(xmlEncodingStr :$enc, xmlCharP :$string) {
+        my Int $encoding = xmlParseCharEncoding($enc);
+        given xmlAllocParserInputBuffer($encoding) {
+             if $string {
+                 my $n := .PushStr($string);
+                 die "push to input buffer failed"
+                     if $n < 0;
+             }
+            $_;
+        }
+    }
+    method PushStr(xmlCharP:D --> int32) is native(BIND-LIB) is symbol('xml6_input_buffer_push_str') {*}
+}
+
 class xmlParserInput is repr('CStruct') is export {
     has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
     has Str                       $.filename is rw-str(
@@ -200,26 +235,6 @@ class xmlParserInput is repr('CStruct') is export {
 
     sub xmlNewIOInputStream(parserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
     sub xmlNewInputFromFile(parserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
-}
-
-class xmlBuf is repr('CStruct') is export {
-    has xmlCharP  $.content;     # The buffer content UTF8
-    has uint32    $.compat_use;  # for binary compatibility
-    has uint32    $.compat_size; # for binary compatibility
-    has int32     $.alloc is rw; # The realloc method
-    has xmlCharP  $.contentIO;   # in IO mode we may have a different base
-    has size_t    $.use;         # The buffer size used
-    has size_t    $.size;        # The buffer size
-    has xmlBufOld $.buffer;      # wrapper for an old buffer
-    has int32     $.error;       # an error code if a failure occurred
-
-    sub Create(--> xmlBuf) is native(LIB) is symbol('xmlBufCreate') {*}
-    method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufCat') {*}
-    method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufWriteQuotedString') {*}
-    method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is export { * }
-    method Content(--> Str) is symbol('xmlBufContent') is native(LIB) is export { * }
-    method Free is symbol('xmlBufFree') is native(LIB) is export { * }
-    method new(--> xmlBuf:D) { Create() }
 }
 
 class xmlNs is export is repr('CStruct') {
@@ -861,7 +876,12 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     has int32           $.properties;  # set of xmlDocProperties for this document
                                        # set at the end of parsing
 
-    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
+    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) is export {*}
+    sub xmlSaveFormatFile(Str $filename, xmlDoc $doc, int32 $format --> int32) is native(LIB) is export {*}
+    # this method can save documents with compression
+    method write(Str:D $filename, Int() :$format = 0) {
+         xmlSaveFormatFile($filename, self, $format);
+    }
     method GetRootElement(--> xmlNode) is symbol('xmlDocGetRootElement') is native(LIB) is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
     method xmlCopyDoc(int32 $deep --> xmlDoc) is native(LIB) {*}

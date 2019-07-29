@@ -8,9 +8,10 @@ SYNOPSIS
 
     use LibXML::Node;
 
+    my LibXML::Node $node;
     my Str $name = $node.nodeName;
     $node.nodeName = $newName;
-    my Bool $same = $node.isSameNode( $other_node );
+    my Bool $same = $node.isSame( $other-node );
     my Str $key = $node.unique-key;
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
@@ -37,7 +38,7 @@ SYNOPSIS
     $node.ownerDocument = $doc;
     $node.insertBefore( $newNode, $refNode );
     $node.insertAfter( $newNode, $refNode );
-    @nodes = $node.findnodes( $xpath-expression );
+    my LibXML::Node @found = $node.findnodes( $xpath-expression );
     my LibXML::Node::Set $result = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );

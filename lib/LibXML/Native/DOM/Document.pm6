@@ -115,11 +115,6 @@ method getElementById(Str:D $id --> Node) {
     $elem;
 }
 
-method setCompression(UInt $_) { self.SetCompressMode($_) }
+method setCompression(Int:D $_) { self.SetCompressMode($_) }
+method getCompression(--> Int:D) { self.GetCompressMode }
 
-method compression is rw {
-    Proxy.new(
-        FETCH => { self.GetCompressMode },
-        STORE => -> $, UInt $_ { self.SetCompressMode($_) }
-    );
-}

@@ -58,7 +58,7 @@ class LibXML::Node {
         die $_ with $!;
         $rv;
     }
-    method isSameNode(LibXML::Node:D $other) {
+    method isSame(LibXML::Node:D $other) is also<isSameNode> {
         $!native.isSameNode($other.native);
     }
     method isEqual(|c) is DEPRECATED<isSameNode> { $.isSameNode(|c) }
@@ -251,7 +251,7 @@ class LibXML::Node {
     method string-value is also<textContent to-literal> {
         $!native.string-value;
     }
-    method unbindNode is also<unlinkNode> {
+    method unlink is also<unlinkNode unbindNode> {
         $!native.Unlink;
         $!doc = LibXML::Node;
         self;
@@ -319,22 +319,22 @@ class LibXML::Node {
         LibXML::Node.box: $!native.domAddNewChild($uri, $name);
     }
     method normalise is also<normalize> { self.native.normalize }
-    method cloneNode(LibXML::Node:D: Bool() :$deep = False) {
+    method clone(LibXML::Node:D: Bool() :$deep = False) is also<cloneNode> {
         LibXML::Node.box: $!native.cloneNode($deep), :doc(LibXML::Node);
     }
 
-    multi method write(IO::Handle :$io!, Bool :$format = False) {
+    multi method save(IO::Handle :$io!, Bool :$format = False) {
         $io.write: self.Blob(:$format);
     }
 
-    multi method write(IO() :io($path)!, |c) {
+    multi method save(IO() :io($path)!, |c) {
         my IO::Handle $io = $path.open(:bin, :w);
-        $.write(:$io, |c);
+        $.save(:$io, |c);
         $io;
     }
 
-    multi method write(IO() :file($io)!, |c) {
-        $.write(:$io, |c).close;
+    multi method save(IO() :file($io)!, |c) {
+        $.save(:$io, |c).close;
     }
 
     sub output-options(UInt :$options is copy = 0,
@@ -436,9 +436,10 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
 
   use LibXML::Node;
 
+  my LibXML::Node $node;
   my Str $name = $node.nodeName;
   $node.nodeName = $newName;
-  my Bool $same = $node.isSameNode( $other_node );
+  my Bool $same = $node.isSame( $other-node );
   my Str $key = $node.unique-key;
   my Str $content = $node.nodeValue;
   $content = $node.textContent;
@@ -465,7 +466,7 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $node.ownerDocument = $doc;
   $node.insertBefore( $newNode, $refNode );
   $node.insertAfter( $newNode, $refNode );
-  @nodes = $node.findnodes( $xpath-expression );
+  my LibXML::Node @found = $node.findnodes( $xpath-expression );
   my LibXML::Node::Set $result = $node.find( $xpath-expression );
   print $node.findvalue( $xpath-expression );
   my Bool $found = $node.exists( $xpath-expression );
