@@ -48,6 +48,10 @@ class xmlBufOld is repr(Stub) is export {}
 class xmlDict is repr(Stub) is export {
     sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
     method Free is native(LIB) is symbol('xmlDictFree') {*};
+    method Exists(Str, int32 --> Str) is native(LIB) is symbol('xmlDictExists') {*};
+    method Lookup(Str, int32 --> Str) is native(LIB) is symbol('xmlDictLookup') {*};
+    method Owns(Str --> int32) is native(LIB) is symbol('xmlDictOwns') {*};
+    method Size(--> int32) is native(LIB) is symbol('xmlDictSize') {*};
     method new(--> xmlDict:D) { Create() }
 }
 class xmlEntity is repr(Stub) is export {

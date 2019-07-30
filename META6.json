@@ -18,6 +18,7 @@
     "LibXML::Attr::Map" : "lib/LibXML/Attr/Map.pm6",
     "LibXML::AttrDecl" : "lib/LibXML/AttrDecl.pm6",
     "LibXML::CDATASection" : "lib/LibXML/CDATASection.pm6",
+    "LibXML::Dict" : "lib/LibXML/Dict.pm6",
     "LibXML::Dtd" : "lib/LibXML/Dtd.pm6",
     "LibXML::Document" : "lib/LibXML/Document.pm6",
     "LibXML::DocumentFragment" : "lib/LibXML/DocumentFragment.pm6",
