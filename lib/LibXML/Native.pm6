@@ -4,19 +4,20 @@ unit class LibXML::Native;
 
 use NativeCall;
 use LibXML::Enums;
+use LibXML::Native::Dict;
+use LibXML::Native::HashTable;
 use LibXML::Native::DOM::Attr;
 use LibXML::Native::DOM::Document;
 use LibXML::Native::DOM::Element;
 use LibXML::Native::DOM::Node;
 
-constant LIB = 'xml2';
-constant BIND-LIB =  %?RESOURCES<libraries/xml6>;
+use LibXML::Native::Defs :LIB, :BIND-LIB, :Stub, :xmlCharP;
+
 my constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
 sub xml6_gbl_have_threads(-->int32) is native(BIND-LIB) is export {*}
 sub xml6_gbl_have_compression(-->int32) is native(BIND-LIB) is export {*}
 
 # type defs
-constant xmlCharP = Str;
 constant xmlCharEncodingHandler = Pointer; # stub
 
 # subsets
@@ -40,20 +41,10 @@ class xmlXPathObject
 class parserCtxt is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
-constant Stub = 'CPointer';
 class xmlAutomata is repr(Stub) is export {}
 class xmlAutomataState is repr(Stub) is export {}
 # old buffer limited to 2Gb. replaced by xmlBuf
 class xmlBufOld is repr(Stub) is export {}
-class xmlDict is repr(Stub) is export {
-    sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
-    method Free is native(LIB) is symbol('xmlDictFree') {*};
-    method Exists(Str, int32 --> Str) is native(LIB) is symbol('xmlDictExists') {*};
-    method Lookup(Str, int32 --> Str) is native(LIB) is symbol('xmlDictLookup') {*};
-    method Owns(Str --> int32) is native(LIB) is symbol('xmlDictOwns') {*};
-    method Size(--> int32) is native(LIB) is symbol('xmlDictSize') {*};
-    method new(--> xmlDict:D) { Create() }
-}
 class xmlEntity is repr(Stub) is export {
     sub xmlGetPredefinedEntity(xmlCharP $name --> xmlEntity) is native(LIB)is export { * }
     method new(Str :$name!) {
@@ -62,7 +53,6 @@ class xmlEntity is repr(Stub) is export {
 }
 class xmlEnumeration is repr(Stub) is export {}
 class xmlElementContent is repr(Stub) is export {}
-class xmlHashTable is repr(Stub) is export {}
 class xmlLocationSet is repr(Stub) is export {}
 class xmlParserInputDeallocate is repr(Stub) is export {}
 class xmlParserNodeInfo is repr(Stub) is export {}

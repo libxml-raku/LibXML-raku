@@ -2,9 +2,7 @@ unit module LibXML::Native::RelaxNG;
 
 use NativeCall;
 use LibXML::Native;
-
-constant Stub = LibXML::Native::Stub;
-constant LIB  = LibXML::Native::LIB;
+use LibXML::Native::Defs :LIB, :Stub;
 
 class xmlRelaxNG is repr(Stub) is export {
     method Free is symbol('xmlRelaxNGFree') is native(LIB) {*}

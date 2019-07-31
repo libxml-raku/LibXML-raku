@@ -1,13 +1,19 @@
 use v6;
 unit class LibXML::Dict does Associative;
 
-use LibXML::Native;
+use LibXML::Native::Dict;
 has xmlDict $!native;
-use Method::Also;
 
-submethod TWEAK { $!native .= new; }
+multi submethod TWEAK(xmlDict:D :$!native!) { $!native.Reference }
+multi submethod TWEAK is default { $!native .= new; }
 
-method of is also<key-of> { Str }
+submethod DESTROY {
+    # only actually frees the dict when reference count is zero
+    .Free with $!native;
+}
+
+method of { Str }
+method key-of { Str }
 
 method elems { $!native.Size }
 
@@ -15,4 +21,3 @@ method AT-KEY(Str() $key) { $!native.Exists($key, -1); }
 method EXISTS-KEY(Str() $key) { ? $!native.Exists($key, -1); }
 method ASSIGN-KEY(Str() $key, Str() $ where $key) is rw { $!native.Lookup($key, -1); $key }
 
-submethod DESTROY { .Free with $!native }
