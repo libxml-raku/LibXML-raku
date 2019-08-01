@@ -1,7 +1,7 @@
 use v6;
 unit class LibXML::Hash does Associative;
 
-use LibXML::Native::Defs :LIB;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 use NativeCall;
 use LibXML::Native::HashTable;
 has xmlHashTable $!native;
@@ -11,7 +11,7 @@ role Assoc[LibXML::Attr] {
     method of {LibXML::Attr}
     method freeze(|) {...}
     method thaw(|) {...}
-    method deallocate(|c) {...}
+    method deallocator(|c) {...}
 }
 
 use LibXML::XPath::Object;
@@ -19,20 +19,31 @@ role Assoc[LibXML::XPath::Object] {
     method of {LibXML::XPath::Object}
     method freeze(|) {...}
     method thaw(|) {...}
-    method deallocate(|c) {...}
+    method deallocator(|c) {...}
 }
 
-role Assoc[Str] {
-    method of {Str}
-    method freeze(|) {...}
-    method thaw(|) {...}
-    method deallocate(|c) {...}
+role Assoc[UInt] {
+    method of {UInt}
+    method deallocator { -> | {} }
+    method freeze(UInt()  $v) { Pointer.new($v); }
+    method thaw(Pointer $p) { +$p }
 }
 
+role Assoc [Str] {
+    method of { Str }
+    sub toPointer(Str --> Pointer) is native(LIB) is symbol('xmlStrdup') {*}
+    sub toStr(Pointer --> Str) is native(LIB) is symbol('xmlStrdup') {*}
+
+    method freeze(Str() $v) { toPointer($v) }
+    method thaw(Pointer $p) { toStr($p) }
+
+}
+
+method deallocator { -> Pointer $p, xmlCharP $k { xmlHashDefaultDeallocator($p, $k) } }
 submethod TWEAK is default { $!native .= new; }
-submethod DESTROY { .Free with $!native; }
+submethod DESTROY { .Free(self.deallocator) with $!native; }
 
-subset OfType where LibXML::Attr|LibXML::XPath::Object|Str;
+subset OfType where Str|UInt;
 
 method ^parameterize(Mu:U \p, OfType:U \t) {
     my $w := p.^mixin: Assoc[t];
@@ -40,11 +51,8 @@ method ^parameterize(Mu:U \p, OfType:U \t) {
     $w;
 }
 
-method of { Str }
+method of { Pointer }
 method key-of { Str }
-
-sub toPointer(Str --> Pointer) is native(LIB) is symbol('xmlStrdup') {*}
-sub toStr(Pointer --> Str) is native(LIB) is symbol('xmlStrdup') {*}
 
 my class Scoped {
     class Freed is repr('CPointer') {
@@ -59,18 +67,25 @@ my class Scoped {
     }
 }
 
-method freeze(Str $v) { toPointer($v) }
-method thaw(Pointer $p) { toStr($p) }
-
+method freeze(Pointer() $p) { $p }
+method thaw(Pointer $p) { $p }
 method elems { $!native.Size }
 method keys  {
-    my $keys := $!native.keys;
+    my CArray[Str] $keys := $!native.keys;
     my $t = Scoped.new: :native($keys);
     $keys[0 ..^ $.elems];
+}
+method values {
+    my $values := nativecast(CArray[$.of], $!native.values);
+    my $t = Scoped.new: :native($values);
+    $values[0 ..^ $.elems];
+}
+method pairs {
+    $.keys.list Z=> $.values.list;
 }
 
 method AT-KEY(Str() $key) { self.thaw: $!native.Lookup($key); }
 method EXISTS-KEY(Str() $key) { ? $!native.Lookup($key); }
-method ASSIGN-KEY(Str() $key, Str() $val) is rw { $!native.Update($key, $.freeze($val), Pointer); $val }
-method DELETE-KEY(Str() $key) { $!native.Remove($key, Pointer) }
+method ASSIGN-KEY(Str() $key, $val) is rw { $!native.Update($key, $.freeze($val), $.deallocator); $val }
+method DELETE-KEY(Str() $key) { $!native.Remove($key, $.deallocator) }
 
