@@ -1,7 +1,7 @@
 unit module LibXML::Native::HashTable;
 
 use NativeCall;
-use LibXML::Native::Defs :LIB, :Stub;
+use LibXML::Native::Defs :LIB, :BIND-LIB, :Stub;
 
 class xmlHashTable is repr(Stub) is export {
     sub xmlHashCreate(int32 --> xmlHashTable) is native(LIB) {*}
@@ -12,5 +12,5 @@ class xmlHashTable is repr(Stub) is export {
     method Remove(Str, Pointer --> int32)  is symbol('xmlHashRemoveEntry') is native(LIB) {*}
     method Size(--> int32) is symbol('xmlHashSize') is native(LIB) {*}
     method Free is symbol('xmlHashFree') is native(LIB) {*}
-    
+    method keys(--> CArray[Str]) is native(BIND-LIB) is symbol('xml6_hash_keys') {*}
 }

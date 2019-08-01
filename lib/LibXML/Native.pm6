@@ -1336,7 +1336,7 @@ class htmlMemoryParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
     }
 }
 
-sub xmlFree(Pointer) is native(LIB) { * }
+sub xmlFree(Pointer) is native(LIB) is export { * }
 
 sub xmlGetLastError(--> xmlError) is export is native(LIB) { * }
 

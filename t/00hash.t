@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML::Hash;
 
-plan 11;
+plan 12;
 
 my LibXML::Hash $h .= new;
 
@@ -19,5 +19,8 @@ is $h<Xx>, Str;
 is $h.elems, 0;
 $h<Xx> = 42;
 is-deeply $h<Xx>, '42';
+$h<yy> = "xx";
+
+is-deeply $h.keys.sort, ("Xx", "yy");
 
 done-testing;
