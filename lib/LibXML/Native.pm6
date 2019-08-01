@@ -743,6 +743,17 @@ class domNode is export does LibXML::Native::DOM::Node {
     }
 
     method string-value(--> xmlCharP) is native(LIB) is symbol('xmlXPathCastNodeToString') {*}
+    method release {
+        with self {
+            if .remove-reference {
+                # this particular node is no longer referenced directly
+                given .root {
+                    # release or keep the tree, in it's entirety
+                    .Free unless .is-referenced;
+                }
+            }
+        }
+    }
 }
 
 class xmlNode is domNode does LibXML::Native::DOM::Element {

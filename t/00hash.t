@@ -1,8 +1,9 @@
 use v6;
 use Test;
 use LibXML::Hash;
+use LibXML::Element;
 
-plan 17;
+plan 19;
 
 my LibXML::Hash[Str] $h .= new;
 is-deeply $h.of, Str;
@@ -29,5 +30,11 @@ my LibXML::Hash[UInt] $h2 .= new;
 is-deeply $h2.of, UInt;
 $h2<Xx> = 42;
 is-deeply $h2<Xx>, 42;
+
+my LibXML::Hash[LibXML::Element] $h3 .= new;
+my LibXML::Element $node .= new('test');
+
+lives-ok {$h3<elem> = $node};
+ok $node.isSame($h3<elem>);
 
 done-testing;

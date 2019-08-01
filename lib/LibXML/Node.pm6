@@ -208,11 +208,13 @@ class LibXML::Node {
         nativecast( $delegate, $struct);
     }
 
-    sub cast-elem(xmlNodeSetElem:D $elem is raw) is export(:cast-elem) {
+    proto sub cast-elem($ is raw) is export(:cast-elem) {*}
+    multi sub cast-elem(xmlNodeSetElem:D $elem is raw) {
         $elem.type == XML_NAMESPACE_DECL
             ?? nativecast(xmlNs, $elem)
             !! cast-struct( nativecast(domNode, $elem) );
     }
+    multi sub cast-elem(Pointer $p is raw) is default { cast-elem(nativecast(xmlNodeSetElem, $p)) }
 
     method box(LibXML::Native::DOM::Node $struct,
                LibXML::Node :$doc = $.doc, # reusable document object
@@ -413,15 +415,7 @@ class LibXML::Node {
     }
 
     submethod DESTROY {
-        with $!native {
-            if .remove-reference {
-                # this particular node is no longer referenced directly
-                given .root {
-                    # release or keep the tree, in it's entirety
-                    .Free unless .is-referenced;
-                }
-            }
-        }
+        .release with $!native;
     }
 }
 
