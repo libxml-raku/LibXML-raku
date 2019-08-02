@@ -14,6 +14,8 @@ class xmlHashTable is repr(Stub) is export {
     sub xmlHashDefaultDeallocator(Pointer, xmlCharP) is native(LIB) is export {*};
     sub xml6_hash_null_deallocator(Pointer, xmlCharP) is native(LIB) is export {*};
     method Free( &deallocator ( Pointer, xmlCharP ) ) is symbol('xmlHashFree') is native(LIB) {*}
-    method keys(--> CArray[Str]) is native(BIND-LIB) is symbol('xml6_hash_keys') {*}
-    method values(--> CArray[Pointer]) is native(BIND-LIB) is symbol('xml6_hash_values') {*}
+    method keys(CArray[Str]) is native(BIND-LIB) is symbol('xml6_hash_keys') {*}
+    method values(CArray[Pointer]) is native(BIND-LIB) is symbol('xml6_hash_values') {*}
+    method key-values(CArray[Pointer]) is native(BIND-LIB) is symbol('xml6_hash_key_values') {*}
+    method add-pairs(CArray, &deallocator ( Pointer, xmlCharP ) ) is native(BIND-LIB) is symbol('xml6_hash_add_pairs') {*}
 }
