@@ -45,7 +45,7 @@ SYNOPSIS
     my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
     $attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
     my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
-    my LibXML::CDATASection $cdata = $dom.createCDATASection( $cdata_content );
+    my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
     my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
     my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
     my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
@@ -306,7 +306,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * createCDATASection
 
-        my LibXML::CDATASection $cdata = $dom.createCDATASection( $cdata_content );
+        my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
 
     Similar to createTextNode and createComment, this function creates a CDataSection bound to the current DOM.
 

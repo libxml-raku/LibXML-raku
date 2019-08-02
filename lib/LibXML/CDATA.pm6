@@ -1,7 +1,7 @@
 use LibXML::Node;
 use LibXML::_TextNode;
 
-unit class LibXML::CDATASection
+unit class LibXML::CDATA
     is LibXML::Node
     does LibXML::_TextNode;
 
@@ -19,17 +19,17 @@ method content is rw handles<substr substr-rw> { $.native.content };
 =begin pod
 =head1 NAME
 
-LibXML::CDATASection - LibXML Class for CDATA Sections
+LibXML::CDATA - LibXML Class for CDATA Sections
 
 =head1 SYNOPSIS
 
 
 
-  use LibXML::CDATASection;
+  use LibXML::CDATA;
   # Only methods specific to CDATA nodes are listed here,
   # see the LibXML::Node manpage for other methods
 
-  my LibXML::CDATASection $node .= new( :$content );
+  my LibXML::CDATA $node .= new( :$content );
 
 =head1 DESCRIPTION
 
@@ -45,7 +45,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 =begin item
 new
 
-  my LibXML::CDATASection $node .= new( :$content );
+  my LibXML::CDATA $node .= new( :$content );
 
 The constructor is the only provided function for this package. It is required,
 because I<<<<<< libxml2 >>>>>> treats the different text node types slightly differently.

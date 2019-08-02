@@ -1,5 +1,5 @@
 use v6;
-unit class LibXML::Hash does Associative;
+unit class LibXML::HashMap does Associative;
 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 use NativeCall;
@@ -94,7 +94,7 @@ method pairs is also<list List> {
         $kbuf[$_] => $.thaw($vbuf[$_]);
     }
 }
- method kv {
+method kv {
      my $len := 2 * $.elems;
      my $kv := self!CArray(:$len);
      $!native.key-values($kv);
@@ -103,7 +103,7 @@ method pairs is also<list List> {
          $i++ %% 2 ?? nativecast(Str, $_) !! $.thaw($_);
      }
 }
-
+method Hash { %( self.pairs ) }
 method AT-KEY(Str() $key) { self.thaw: $!native.Lookup($key); }
 method EXISTS-KEY(Str() $key) { ? $!native.Lookup($key); }
 method ASSIGN-KEY(Str() $key, $val) is rw {

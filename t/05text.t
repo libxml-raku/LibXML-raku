@@ -274,7 +274,7 @@ my $doc = LibXML::Document.new();
 {
     # CDATA node name test
 
-    my $node = LibXML::CDATASection.new: :content<test>;
+    my $node = LibXML::CDATA.new: :content<test>;
 
     # TEST
     is( $node.string-value(), "test", ' TODO : Add test name' );

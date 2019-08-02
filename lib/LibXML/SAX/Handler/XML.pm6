@@ -23,8 +23,8 @@ class LibXML::SAX::Handler::XML
 
     method startElement($name, CArray :$atts) is sax-cb {
         callsame;
-        my %attribs := atts2Hash($atts);
-        my XML::Element $elem .= new: :$name, :%attribs;
+        my $attribs = atts2Hash($atts);
+        my XML::Element $elem .= new: :$name, :$attribs;
         # append and step down
         with $!doc {
             $!node.append: $elem;

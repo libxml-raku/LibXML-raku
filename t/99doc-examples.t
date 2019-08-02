@@ -58,10 +58,10 @@ subtest 'LibXML::Comment' => {
     is $node.content, "This is a comment";
 }
 
-subtest 'LibXML::CDATASection' => {
+subtest 'LibXML::CDATA' => {
     plan 1;
-    use LibXML::CDATASection;
-    my LibXML::CDATASection $node .= new: :content("This is cdata");
+    use LibXML::CDATA;
+    my LibXML::CDATA $node .= new: :content("This is cdata");
     is $node.content, "This is cdata";
 }
 

@@ -156,7 +156,7 @@ class LibXML::Node {
     sub box-class(UInt $_) is export(:box-class) {
         when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
         when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
-        when XML_CDATA_SECTION_NODE { require LibXML::CDATASection }
+        when XML_CDATA_SECTION_NODE { require LibXML::CDATA }
         when XML_COMMENT_NODE       { require LibXML::Comment }
         when XML_DTD_NODE           { require LibXML::Dtd }
         when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }

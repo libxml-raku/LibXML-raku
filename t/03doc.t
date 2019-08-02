@@ -229,8 +229,8 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     }
 
     {
-        need LibXML::CDATASection;
-        my LibXML::CDATASection:D $node = $doc.createCDATASection( "foo" );
+        need LibXML::CDATA;
+        my LibXML::CDATA:D $node = $doc.createCDATASection( "foo" );
         # TEST
         ok($node, '$doc.createCDATASection');
         # TEST

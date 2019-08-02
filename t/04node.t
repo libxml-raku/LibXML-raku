@@ -683,7 +683,7 @@ EOF
         $p = $f;
         $f=$f.nextNonBlankSibling;
         # TEST*$count
-        ok($f.isa('LibXML::CDATASection'), ' TODO : Add test name');
+        ok($f.isa('LibXML::CDATA'), ' TODO : Add test name');
         # TEST*$count
         is($f.nextSibling.nodeName, '#text', ' TODO : Add test name');
         # TEST*$count
