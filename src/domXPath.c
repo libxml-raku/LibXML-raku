@@ -437,7 +437,7 @@ domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
 
 
 xmlNodeSetPtr
-domXPathSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
+domXPathGetNodeSet(xmlXPathObjectPtr xpath_obj, int select) {
     xmlNodeSetPtr rv = NULL;
     if (xpath_obj != NULL) {
         /* here we have to transfer the result from the internal
@@ -446,14 +446,16 @@ domXPathSelectNodeSet(xmlXPathObjectPtr xpath_obj) {
         /* we have to unbind the nodelist, so free object can
            not kill it */
         rv = xpath_obj->nodesetval;
-        xpath_obj->nodesetval = NULL;
+        if (select) {
+            xpath_obj->nodesetval = NULL;
+        }
     }
     return _domVetNodeSet(rv);
 }
 
 static xmlNodeSetPtr
 _domSelect(xmlXPathObjectPtr xpath_obj) {
-    return domXPathSelectNodeSet(xpath_obj);
+    return domXPathGetNodeSet(xpath_obj, 1);
 }
 
 xmlNodeSetPtr

@@ -6,6 +6,7 @@ use LibXML::Node::Set;
 use LibXML::XPath::Object :XPathDomain;
 use LibXML::Native::Defs :LIB, :xmlCharP;
 use LibXML::Native::HashTable;
+use LibXML::Enums;
 use NativeCall;
 use Method::Also;
 
@@ -60,25 +61,18 @@ role Assoc[LibXML::Node::Set] {
 role Assoc[XPathDomain] {
     method of {XPathDomain}
 
-    method freeze(XPathDomain $content is copy) {
-        if $content ~~ LibXML::Node|LibXML::Node::Set {
-            $content .= native;
-            # node-sets can't be multiply referenced
-            $content .= copy if $content ~~ LibXML::Node::Set;
-            $content.Reference;
-        }
-
-        do with LibXML::XPath::Object.native.coerce($content) {
+    method freeze(XPathDomain $content) {
+        given LibXML::XPath::Object.coerce($content).native {
             .Reference;
             nativecast(Pointer, $_);
-        } // Pointer;
+        }
     }
 
     method thaw(Pointer $p) {
         do with $p {
             my $native = nativecast(LibXML::XPath::Object.native, $p);
             given LibXML::XPath::Object.new: :$native {
-                .select;
+                .value;
             }
         }
         else {
@@ -88,7 +82,11 @@ role Assoc[XPathDomain] {
 
     method deallocator() {
         -> Pointer $p, Str $k {
-            nativecast(LibXML::XPath::Object.native, $_).Unreference with $p;
+            do with $p {
+                given nativecast(LibXML::XPath::Object.native, $p) -> $obj {
+                    .Unreference with $obj;
+                }
+            }
         }
     }
 }

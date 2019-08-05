@@ -441,16 +441,29 @@ class xmlXPathObject is export {
 
     sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
     sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
-    method Reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
-    method Unreference {
-        with self {
-            .Free if .remove-reference;
-        }
-    }
+    method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_is_referenced') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
+    method Reference {
+        with self {
+            .add-reference;
+            with .value {
+                when xmlNodeSet { .Reference }
+            }
+        }
+    }
+    method Unreference {
+        with self {
+            if .remove-reference {
+                with .select {
+                    when xmlNodeSet { .Unreference }
+                }
+                .Free;
+            }
+        }
+    }
 
-    method domXPathSelectNodeSet(--> xmlNodeSet) is native(BIND-LIB) {*}
+    method domXPathGetNodeSet(int32 $select --> xmlNodeSet) is native(BIND-LIB) {*}
     method Free is symbol('xmlXPathFreeObject') is native(LIB) {*}
 
     sub xmlXPathNewString(xmlCharP --> xmlXPathObject) is native(LIB) {*}
@@ -464,19 +477,18 @@ class xmlXPathObject is export {
     multi method coerce(Str $v)            { xmlXPathNewString($v) }
     multi method coerce(domNode $v)        { xmlXPathNewNodeSet($v) }
     multi method coerce(xmlNodeSet $v)     { xmlXPathWrapNodeSet($v) }
-    multi method coerce(xmlXPathObject $v) { $v }
     multi method coerce($_) is default     { fail "unable to coerce to an XPath Object: {.perl}" }
 
     method select {
-        return Nil unless self.defined;
-        self!value;
+        self.value: :select;
     }
 
-    method !value {
+    method value(Bool :$select = False) {
+        return Nil unless self.defined;
         given $!type {
             when XPATH_UNDEFINED { Mu }
             when XPATH_NODESET | XPATH_XSLT_TREE {
-                self.domXPathSelectNodeSet;
+                self.domXPathGetNodeSet(+$select); 
             }
             when XPATH_BOOLEAN { ? $!bool }
             when XPATH_NUMBER {

@@ -5,7 +5,7 @@ use LibXML::Element;
 use LibXML::XPath::Object :XPathDomain;
 use NativeCall;
 
-plan 18;
+plan 20;
 
 my LibXML::HashMap[XPathDomain] $h .= new;
 is-deeply $h.of, XPathDomain;
@@ -22,6 +22,7 @@ is $h<Xx>, Any;
 is $h.elems, 0;
 $h<Xx> = 42;
 is-deeply $h<Xx>, 42e0;
+is-deeply $h<Xx>, 42e0;
 $h<yy> = "xx";
 
 is-deeply $h.keys.sort, ("Xx", "yy");
@@ -33,5 +34,7 @@ my LibXML::Element $node .= new('test');
 lives-ok {$h<elems> = $node;};
 is-deeply $h.keys.sort, ("Xx", "elems", "yy");
 ok $node.isSame($h<elems>[0]);
+todo 'refetch of node';
+lives-ok { $h<elems>[0]; };
 
 done-testing;
