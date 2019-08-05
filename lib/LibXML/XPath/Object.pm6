@@ -6,8 +6,10 @@ use LibXML::Node :iterate-set, :NodeSetElem;
 use LibXML::Node::Set;
 
 has xmlXPathObject $.native is required;
+method native { with self { $!native } else { xmlXPathObject } }
 
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
+my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Node;
 
 method select(Bool :$literal --> XPathRange) {
     given $!native.select {
@@ -23,8 +25,5 @@ method select(Bool :$literal --> XPathRange) {
 submethod TWEAK { $!native.Reference }
 
 submethod DESTROY {
-    with $!native {
-        .Free
-            if .remove-reference;
-    }
+    .Unreference with $!native;
 }

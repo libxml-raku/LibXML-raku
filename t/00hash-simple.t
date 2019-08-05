@@ -2,6 +2,7 @@ use v6;
 use Test;
 use LibXML::HashMap;
 use LibXML::Element;
+use LibXML::Document;
 use NativeCall;
 
 plan 23;
