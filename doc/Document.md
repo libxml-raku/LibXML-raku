@@ -164,9 +164,11 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * compression
 
+        # input
         my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
         my Bool $compressed = $doc.input-compressed;
-        if LibXML.compression-available {
+        # output
+        if LibXML.have-compression {
             $doc.compression = $zip-level;
             $doc.write: :file<test.xml.gz>;
         }
@@ -178,7 +180,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     If one intends to write the document directly to a file, it is possible to set the compression level for a given document. This level can be in the range from 0 to 8. If LibXML should not try to compress use *-1 * (default).
 
-    Note that this feature will *only * work if libxml2 is compiled with zlib support and `.parse: :file(..._)` is used for input and `.write` is used for output.
+    Note that this feature will *only * work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
 
   * Str
 

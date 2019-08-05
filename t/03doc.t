@@ -705,7 +705,6 @@ subtest 'compress' => {
         $doc.compression = 5;
         is $doc.compression, 5, 'set document compression';
         my (Str:D $file) = tempfile();
-        $file = '/tmp/out.gz';
         my $n = $doc.write: :$file;
         $doc = LibXML.load: :$file;
         is-deeply $doc.input-compressed , True, 'compression of written document';
