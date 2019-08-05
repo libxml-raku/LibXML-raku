@@ -53,7 +53,7 @@ submethod TWEAK(
                ) {
     my xmlDoc:D $struct = self.native //= do {
         given ($html ?? htmlDoc !! xmlDoc).new {
-            .add-reference;
+            .Reference;
             $_;
         }
     }

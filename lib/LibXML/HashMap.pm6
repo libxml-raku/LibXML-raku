@@ -1,11 +1,12 @@
 use v6;
 unit class LibXML::HashMap does Associative;
 
-use LibXML::Native::Defs :LIB, :xmlCharP;
-use NativeCall;
-use LibXML::Native::HashTable;
-use Method::Also;
 use LibXML::Node :cast-elem;
+use LibXML::Node::Set;
+use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::HashTable;
+use NativeCall;
+use Method::Also;
 
 has xmlHashTable $!native;
 method native { $!native }
@@ -19,11 +20,11 @@ role Assoc[LibXML::Node] {
         LibXML::Node.box: cast-elem($p);
     }
     method allocator(LibXML::Node $n, Str $k) {
-        .native.add-reference with $n;
+        .native.Reference with $n;
     }
     method deallocator() {
         -> Pointer $p, Str $k {
-            cast-elem($p).release with $p;
+            cast-elem($_).Unreference with $p;
         }
     }
 }
@@ -108,8 +109,8 @@ method AT-KEY(Str() $key) { self.thaw: $!native.Lookup($key); }
 method EXISTS-KEY(Str() $key) { ? $!native.Lookup($key); }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     $.allocator($val, $key);
-    my $v := $.freeze($val);
-    $!native.Update($key, $v, $.deallocator); $val;
+    my Pointer $ptr := $.freeze($val);
+    $!native.Update($key, $ptr, $.deallocator); $val;
 }
 method DELETE-KEY(Str() $key) { $!native.Remove($key, $.deallocator) }
 

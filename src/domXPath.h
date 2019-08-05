@@ -42,7 +42,7 @@ DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self);
 DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr);
 
 void
-domReleaseNodeSet(xmlNodeSetPtr self);
+domUnreferenceNodeSet(xmlNodeSetPtr self);
 
 xmlNodeSetPtr
 domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode);

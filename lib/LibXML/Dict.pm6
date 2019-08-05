@@ -8,8 +8,7 @@ multi submethod TWEAK(xmlDict:D :$!native!) { $!native.Reference }
 multi submethod TWEAK is default { $!native .= new; }
 
 submethod DESTROY {
-    # only actually frees the dict when reference count is zero
-    .Free with $!native;
+    .Unreference with $!native;
 }
 
 method of { Str }

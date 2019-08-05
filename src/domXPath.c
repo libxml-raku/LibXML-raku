@@ -140,6 +140,8 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
         xmlXPathFreeObject(obj2);
 }
 
+// Node Sets don't support reference counting. They should
+// only be referenced once.
 void
 domReferenceNodeSet(xmlNodeSetPtr self) {
     int i;
@@ -248,7 +250,7 @@ _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
 }
 
 void
-domReleaseNodeSet(xmlNodeSetPtr self) {
+domUnreferenceNodeSet(xmlNodeSetPtr self) {
     int i;
     xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
     xmlNodePtr last_twig = NULL;

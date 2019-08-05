@@ -87,14 +87,14 @@ class LibXML::Node {
                         unless $class ~~ self.WHAT|LibXML::Namespace;
                 }
                 .remove-reference with $!native;
-                .add-reference with $new-struct;
+                .Reference with $new-struct;
                 $!native = cast-struct($new-struct);
             },
         );
     }
 
     submethod TWEAK {
-        .add-reference with $!native;
+        .Reference with $!native;
     }
 
     method setOwnerDocument( LibXML::Node $doc) {
@@ -415,7 +415,7 @@ class LibXML::Node {
     }
 
     submethod DESTROY {
-        .release with $!native;
+        .Unreference with $!native;
     }
 }
 

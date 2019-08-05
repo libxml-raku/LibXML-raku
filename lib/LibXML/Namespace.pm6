@@ -20,13 +20,13 @@ multi method new(|c) is default { nextsame }
 
 multi submethod TWEAK(xmlNs:D :$!native!) {
     $!native .= Copy;
-    $!native.add-reference;
+    $!native.Reference;
 }
 
 multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
     my domNode $node = .native with $node-obj;
     $!native .= new: :$URI, :$prefix, :$node;
-    $!native.add-reference;
+    $!native.Reference;
 }
 
 method nodeType     { $!native.type }

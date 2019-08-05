@@ -146,7 +146,7 @@ class xmlNodeSet is export {
 
     sub xmlXPathNodeSetCreate(domNode --> xmlNodeSet) is export is native(LIB) {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
-    method Release is native(BIND-LIB) is symbol('domReleaseNodeSet') {*}
+    method Unreference is native(BIND-LIB) is symbol('domUnreferenceNodeSet') {*}
     method copy(--> xmlNodeSet) is symbol('domCopyNodeSet') is native(BIND-LIB) {*}
     method push(domNode) is symbol('domPushNodeSet') is native(BIND-LIB) {*}
     method pop(--> xmlNodeSetElem) is symbol('domPopNodeSet') is native(BIND-LIB) {*}
@@ -239,7 +239,7 @@ class xmlNs is export is repr('CStruct') {
     has Pointer  $._private;   # application data
     has xmlDoc   $.context;    # normally an xmlDoc
 
-    method add-reference is native(BIND-LIB) is symbol('xml6_ns_add_reference') {*}
+    method Reference is native(BIND-LIB) is symbol('xml6_ns_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ns_remove_reference') {*}
     sub xmlNewNs(xmlNode, Str $uri, Str $prefix --> xmlNs) is native(LIB) {*}
     method new(Str:D :$URI!, Str :$prefix, domNode :$node) {
@@ -441,7 +441,7 @@ class xmlXPathObject is export {
 
     sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
     sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
-    method add-reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
+    method Reference is native(BIND-LIB) is symbol('xml6_xpath_object_add_reference') {*}
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_is_referenced') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_xpath_object_remove_reference') {*}
 
@@ -678,12 +678,6 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domAddNewChild(Str $uri, Str $name --> domNode) is native(BIND-LIB) {*}
     method domSetNamespace(Str $URI, Str $prefix, int32 $flag --> int32) is native(BIND-LIB) {*}
     method domGenNsPrefix(Str $base-prefix --> Str) is native(BIND-LIB) {*}
-    method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
-    method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
-    method add-reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
-    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
-    method lock(--> int32) is native(BIND-LIB) is symbol('xml6_node_lock') {*}
-    method unlock(--> int32) is native(BIND-LIB) is symbol('xml6_node_unlock') {*}
     method first-child(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_first_child') {*}
     method next-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_next') {*}
     method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}
@@ -743,7 +737,13 @@ class domNode is export does LibXML::Native::DOM::Node {
     }
 
     method string-value(--> xmlCharP) is native(LIB) is symbol('xmlXPathCastNodeToString') {*}
-    method release {
+    method Unlink is native(LIB) is symbol('xmlUnlinkNode') {*}
+    method Release is native(BIND-LIB) is symbol('domReleaseNode') {*}
+    method Reference is native(BIND-LIB) is symbol('xml6_node_add_reference') {*}
+    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_node_remove_reference') {*}
+    method lock(--> int32) is native(BIND-LIB) is symbol('xml6_node_lock') {*}
+    method unlock(--> int32) is native(BIND-LIB) is symbol('xml6_node_unlock') {*}
+    method Unreference{
         with self {
             if .remove-reference {
                 # this particular node is no longer referenced directly
@@ -1219,7 +1219,7 @@ class parserCtxt is export {
     method GetLastError(--> xmlError) is native(LIB) is symbol('xmlCtxtGetLastError') is native('xml2') {*}
     method ParserError(Str $msg) is native(LIB) is symbol('xmlParserError') {*}
     method StopParser is native(LIB) is symbol('xmlStopParser') { * }
-    method add-reference is native(BIND-LIB) is symbol('xml6_parser_ctx_add_reference') {*}
+    method Reference is native(BIND-LIB) is symbol('xml6_parser_ctx_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_parser_ctx_remove_reference') {*}
     method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
 

@@ -14,7 +14,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         .Reference given $!native;
     }
     submethod DESTROY {
-        .Release with $!native;
+        .Unreference with $!native;
     }
     method !box(xmlNodeSetElem $elem) {
         do with $elem {

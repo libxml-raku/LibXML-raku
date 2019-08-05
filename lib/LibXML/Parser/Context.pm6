@@ -23,7 +23,7 @@ class LibXML::Parser::Context {
                     .Free if .remove-reference;
                 }
                 with $native {
-                    .add-reference;
+                    .Reference;
 
                     .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
                     .linenumbers = +?$!line-numbers;

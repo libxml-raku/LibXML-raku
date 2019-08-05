@@ -20,7 +20,7 @@ method select(Bool :$literal --> XPathRange) {
     }
 }
 
-submethod TWEAK { $!native.add-reference }
+submethod TWEAK { $!native.Reference }
 
 submethod DESTROY {
     with $!native {
