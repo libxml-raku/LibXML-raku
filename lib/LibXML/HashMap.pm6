@@ -70,7 +70,7 @@ role Assoc[XPathDomain] {
 
     method thaw(Pointer $p) {
         do with $p {
-            my $native = nativecast(LibXML::XPath::Object.native, $p);
+            my $native = nativecast(LibXML::XPath::Object.native, $_);
             given LibXML::XPath::Object.new: :$native {
                 .value;
             }

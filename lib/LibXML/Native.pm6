@@ -454,12 +454,12 @@ class xmlXPathObject is export {
     }
     method Unreference {
         with self {
+            my $v := .value;
             if .remove-reference {
-                with .select {
-                    when xmlNodeSet { .Unreference }
-                }
+                .select; # detach value
                 .Free;
             }
+            $v.Unreference if $v ~~ xmlNodeSet:D;
         }
     }
 

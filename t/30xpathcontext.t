@@ -137,10 +137,10 @@ is($xc3.getContextNode.Str(), '<foo><bar/></foo>', 'context is root node');
 
 # check starting with empty context
 my $xc4;
-lives-ok { $xc4 = LibXML::XPath::Context.new() };
+lives-ok { $xc4 = LibXML::XPath::Context.new() }, 'new empty context';
 # TEST
-ok !defined($xc4.getContextNode);
-dies-ok { $xc4.find('/') };
+ok !defined($xc4.getContextNode), 'getContextNode when empty';
+dies-ok { $xc4.find('/') }, 'find of empty dies';
 my $cn = $doc2.getDocumentElement;
 $xc4.setContextNode($cn);
 # TEST
