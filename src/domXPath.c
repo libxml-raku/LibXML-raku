@@ -22,8 +22,8 @@
 #include "xml6_nodeset.h"
 #include "xml6_ref.h"
 
-void
-perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
+DLLEXPORT void
+perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
     xmlXPathObjectPtr obj = NULL, obj2 = NULL;
     xmlChar* base = NULL;
     xmlChar* URI = NULL;
@@ -142,7 +142,7 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs){
 
 // Node Sets don't support reference counting. They should
 // only be referenced once.
-void
+DLLEXPORT void
 domReferenceNodeSet(xmlNodeSetPtr self) {
     int i;
 
@@ -173,7 +173,6 @@ static xmlNsPtr _domDupNs(xmlNsPtr ns) {
 
 DLLEXPORT void
 domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem) {
-    int i = 0;
     assert(self != NULL);
     assert(elem != NULL);
 
@@ -249,7 +248,7 @@ _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
     }
 }
 
-void
+DLLEXPORT void
 domUnreferenceNodeSet(xmlNodeSetPtr self) {
     int i;
     xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
@@ -377,7 +376,7 @@ static void _domXPathCtxtRemoveNS(xmlXPathContextPtr ctxt, xmlNsPtr *ns) {
     }
 }
 
-xmlNodePtr
+DLLEXPORT xmlNodePtr
 domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
     xmlNodePtr oldNode = ctxt->node;
 
@@ -401,7 +400,7 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
     return oldNode;
 }
 
-xmlXPathContextPtr
+DLLEXPORT xmlXPathContextPtr
 domXPathNewCtxt(xmlNodePtr refNode) {
     xmlXPathContextPtr ctxt = xmlXPathNewContext( NULL );
     xmlXPathRegisterFunc(ctxt,
@@ -414,7 +413,7 @@ domXPathNewCtxt(xmlNodePtr refNode) {
     return ctxt;
 }
 
-void
+DLLEXPORT void
 domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
     if (ctxt->namespaces != NULL) {
         xmlFree( ctxt->namespaces );
@@ -424,7 +423,7 @@ domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
 }
 
 
-xmlXPathObjectPtr
+DLLEXPORT xmlXPathObjectPtr
 domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
     xmlXPathObjectPtr rv = NULL;
     if ( refNode != NULL && comp != NULL ) {
@@ -436,7 +435,7 @@ domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
 }
 
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domXPathGetNodeSet(xmlXPathObjectPtr xpath_obj, int select) {
     xmlNodeSetPtr rv = NULL;
     if (xpath_obj != NULL) {
@@ -458,18 +457,18 @@ _domSelect(xmlXPathObjectPtr xpath_obj) {
     return domXPathGetNodeSet(xpath_obj, 1);
 }
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domXPathSelectStr( xmlNodePtr refNode, xmlChar* path ) {
     return _domSelect( _domXPathFindStr( refNode, path ) );
 }
 
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domXPathSelect( xmlNodePtr refNode, xmlXPathCompExprPtr comp ) {
     return _domSelect( domXPathFind( refNode, comp, 0 ));
 }
 
-xmlXPathObjectPtr
+DLLEXPORT xmlXPathObjectPtr
 domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode, int to_bool ) {
     xmlXPathObjectPtr rv = NULL;
     if ( ctxt != NULL && (ctxt->node != NULL || refNode != NULL) && comp != NULL ) {
@@ -508,7 +507,7 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
     return _domVetXPathObject(rv);
 }
 
-xmlNodeSetPtr
+DLLEXPORT xmlNodeSetPtr
 domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode) {
     return _domSelect(domXPathFindCtxt(ctxt, comp, refNode, 0));
 }

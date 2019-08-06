@@ -1552,9 +1552,9 @@ domAttrSerializeContent(xmlAttrPtr attr) {
 
 // check if prefix is of the form: base<digit+>
 static int _domPrefixMatch(const xmlChar *prefix, xmlChar *base) {
-    int len = strlen(base);
+    int len = xmlStrlen(base);
     int matched = 0;
-    if (prefix && strncmp(prefix, base, len) == 0) {
+    if (prefix && xmlStrncmp(prefix, base, len) == 0) {
         while (prefix[len]) {
             char d = prefix[len];
             if (d >= '0' && d <= '9' && matched <= 5) {
@@ -1584,7 +1584,9 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
     xmlHashTablePtr hash = xmlHashCreate(10);
     char entry[1];
 
-    if (base == NULL || *base == 0) base = "_ns";
+    if (base == NULL || *base == 0) {
+        base = (xmlChar*) "_ns";
+    }
 
     if ( all_ns ) {
         int i = 0;
@@ -1606,10 +1608,10 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
     {
         int seq;
         int spare = 0;
-        rv = xmlMalloc(strlen(base) + 6);
+        rv = xmlMalloc(xmlStrlen(base) + 6);
         // iterate until we generate an unused suffix
         for (seq = 0; !spare; seq++) {
-            sprintf(rv, "%s%d", base, seq);
+            sprintf((char*)rv, "%s%d", base, seq);
             spare = xmlHashLookup(hash, (xmlChar*)rv) == NULL;
         }
 
