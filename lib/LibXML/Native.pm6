@@ -680,22 +680,13 @@ class domNode is export does LibXML::Native::DOM::Node {
     method domSetNodeValue(Str) is native(BIND-LIB) {*}
     method domRemoveChild(domNode --> domNode) is native(BIND-LIB) {*}
     method domRemoveChildNodes(--> xmlDocFrag) is native(BIND-LIB) {*}
-    method domGetAttributeNode(xmlCharP $qname --> xmlAttr) is native(BIND-LIB) {*}
-    method domGetAttribute(xmlCharP $qname --> xmlCharP) is native(BIND-LIB)  {*}
-    method domHasAttributeNS(xmlCharP $uri, xmlCharP $name --> int32) is native(BIND-LIB) {*}
+
     method domSetNamespaceDeclURI(xmlCharP $prefix, xmlCharP $uri --> int32) is native(BIND-LIB) {*}
     method domGetNamespaceDeclURI(xmlCharP $prefix --> xmlCharP) is native(BIND-LIB) {*}
     method domSetNamespaceDeclPrefix(xmlCharP $prefix, xmlCharP $ns-prefix --> int32) is native(BIND-LIB) {*}
-    method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> xmlCharP) is native(BIND-LIB) {*}
-    method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name --> xmlAttr) is native(BIND-LIB) {*}
-    method domSetAttribute(Str, Str) is native(BIND-LIB) {*}
-    method domSetAttributeNode(xmlAttr --> xmlAttr) is native(BIND-LIB) {*}
-    method domSetAttributeNodeNS(xmlAttr --> xmlAttr) is native(BIND-LIB) {*}
-    method domSetAttributeNS(Str $URI, Str $name, Str $value --> xmlAttr) is native(BIND-LIB) {*}
     method domAppendTextChild(Str $name, Str $value) is native(BIND-LIB) {*}
     method domAddNewChild(Str $uri, Str $name --> domNode) is native(BIND-LIB) {*}
     method domSetNamespace(Str $URI, Str $prefix, int32 $flag --> int32) is native(BIND-LIB) {*}
-    method domGenNsPrefix(Str $base-prefix --> Str) is native(BIND-LIB) {*}
     method first-child(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_first_child') {*}
     method next-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_next') {*}
     method prev-node(int32 --> domNode) is native(BIND-LIB) is symbol('xml6_node_prev') {*}
@@ -790,6 +781,16 @@ class xmlNode is domNode does LibXML::Native::DOM::Element {
     has uint16          $.extra;       # extra data for XPath/XSLT
 
     method SetProp(Str, Str --> xmlAttr) is native(LIB) is symbol('xmlSetProp') {*}
+    method domGetAttributeNode(xmlCharP $qname --> xmlAttr) is native(BIND-LIB) {*}
+    method domGetAttribute(xmlCharP $qname --> xmlCharP) is native(BIND-LIB)  {*}
+    method domHasAttributeNS(xmlCharP $uri, xmlCharP $name --> int32) is native(BIND-LIB) {*}
+        method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> xmlCharP) is native(BIND-LIB) {*}
+    method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name --> xmlAttr) is native(BIND-LIB) {*}
+    method domSetAttribute(Str, Str) is native(BIND-LIB) {*}
+    method domSetAttributeNode(xmlAttr --> xmlAttr) is native(BIND-LIB) {*}
+    method domSetAttributeNodeNS(xmlAttr --> xmlAttr) is native(BIND-LIB) {*}
+    method domSetAttributeNS(Str $URI, Str $name, Str $value --> xmlAttr) is native(BIND-LIB) {*}
+    method domGenNsPrefix(Str $base-prefix --> Str) is native(BIND-LIB) {*}
 
     sub xmlNewNode(xmlNs, Str $name --> xmlNode) is native(LIB) {*}
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
