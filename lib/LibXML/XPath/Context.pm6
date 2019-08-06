@@ -38,15 +38,15 @@ class LibXML::XPath::Context {
         iterate-set(NodeSetElem, self!find($expr, $ref));
     }
 
-    method !select(xmlXPathObject $native, Bool :$literal) {
+    method !value(xmlXPathObject $native, Bool :$literal) {
         .rethrow with @!callback-errors.tail;
         my LibXML::XPath::Object $object .= new: :$native;
-        $object.select: :$literal;
+        $object.value: :$literal;
     }
 
     multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my domNode $node = .native with $ref-node;
-        self!select: $!native.find( native($xpath-expr), $node, :$bool), :$literal;
+        self!value: $!native.find( native($xpath-expr), $node, :$bool), :$literal;
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
@@ -194,7 +194,7 @@ class LibXML::XPath::Context {
             -> xmlXPathParserContext $ctxt, Int $n {
                 CATCH { default { @!callback-errors.push: $_ } }
                 my @params;
-                @params.unshift: self!select($ctxt.valuePop) for 0 ..^ $n;
+                @params.unshift: self!value($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c);
                 my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :$ctxt);
                 $ctxt.valuePush($_) for $out;

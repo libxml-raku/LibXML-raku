@@ -5,7 +5,7 @@ use LibXML::Native;
 use LibXML::Node :iterate-set, :NodeSetElem;
 use LibXML::Node::Set;
 
-has xmlXPathObject:D $.native is required;
+has xmlXPathObject:D $.native is required handles<type>;
 method native { with self { $!native } else { xmlXPathObject } }
 
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
@@ -22,11 +22,10 @@ method coerce(XPathDomain $content is copy) {
     self.new: :$native;
 }
 
-method select(|c) { self.value: :select, |c; }
-method value(Bool :$select = False, Bool :$literal,  --> XPathRange) {
-    given $!native.value(:$select) {
+method value(Bool :$literal,  --> XPathRange) {
+    given $!native.value {
         when xmlNodeSet {
-            given iterate-set(NodeSetElem, $select ?? $_ !! .copy) {
+            given iterate-set(NodeSetElem, .copy) {
                 $literal ?? .to-literal !! $_;
             }
         }

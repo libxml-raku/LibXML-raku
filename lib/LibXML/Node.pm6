@@ -271,18 +271,18 @@ class LibXML::Node {
     multi method findnodes(Str:D $expr) {
         self.findnodes( LibXML::XPath::Expression.new: :$expr);
     }
-    method !select(xmlXPathObject $native, Bool :$values) {
+    method !value(xmlXPathObject $native, Bool :$literal) {
         my $object = (require ::('LibXML::XPath::Object')).new: :$native;
-        $object.select: :$values;
+        $object.value: :$literal;
     }
     multi method find(LibXML::XPath::Expression:D $xpath-expr, Bool:D :$bool = False, Bool :$values) {
-        self!select: $!native.find( native($xpath-expr), :$bool);
+        self!value: $!native.find( native($xpath-expr), :$bool);
     }
     multi method find(Str:D $expr, |c) {
         self.find( LibXML::XPath::Expression.parse($expr), |c);
     }
     multi method findvalue(LibXML::XPath::Expression:D $xpath-expr) {
-        $.find( $xpath-expr, :values);
+        $.find( $xpath-expr, :literal);
     }
     multi method findvalue(Str:D $expr) {
         $.findvalue( LibXML::XPath::Expression.parse($expr));
