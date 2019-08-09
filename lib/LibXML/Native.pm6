@@ -786,7 +786,7 @@ class xmlNode is domNode does LibXML::Native::DOM::Element {
     method domHasAttributeNS(xmlCharP $uri, xmlCharP $name --> int32) is native(BIND-LIB) {*}
         method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> xmlCharP) is native(BIND-LIB) {*}
     method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name --> xmlAttr) is native(BIND-LIB) {*}
-    method domSetAttribute(Str, Str) is native(BIND-LIB) {*}
+    method domSetAttribute(Str, Str --> int32) is native(BIND-LIB) {*}
     method domSetAttributeNode(xmlAttr --> xmlAttr) is native(BIND-LIB) {*}
     method domSetAttributeNodeNS(xmlAttr --> xmlAttr) is native(BIND-LIB) {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value --> xmlAttr) is native(BIND-LIB) {*}

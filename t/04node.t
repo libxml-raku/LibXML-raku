@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 177;
+plan 178;
 
 use LibXML;
 use LibXML::Enums;
@@ -119,7 +119,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             # TEST
             is( $attr.nodeValue, "foobar", ' TODO : Add test name' );
             # TEST
-            is-deeply( $attr.hasChildNodes, False, ' TODO : Add test name');
+            is-deeply( $attr.hasChildNodes, False, 'hasChildNodes');
         }
 
         {
@@ -156,7 +156,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
             # TEST
             is( $xnode.nodeName, "foo", ' TODO : Add test name' );
             # TEST
-            ok( $xnode.hasChildNodes, ' TODO : Add test name' );
+            ok( $xnode.hasChildNodes, 'hasChildNodes' );
 	    # TEST
 	    is( $xnode.getAttribute('aaa'),'AAA', ' TODO : Add test name' );
 	    # TEST
@@ -164,11 +164,11 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
             my @cn = $xnode.childNodes;
             # TEST
-            ok( @cn, ' TODO : Add test name' );
+            ok( @cn, 'childNodes' );
             # TEST
-            is( +@cn, 1, ' TODO : Add test name');
+            is( +@cn, 1, 'childNodfes');
             # TEST
-            is( @cn[0].nodeName, "bar", ' TODO : Add test name' );
+            is( @cn[0].nodeName, "bar", 'first child node' );
             # TEST
             ok( !@cn[0].isSameNode( $c1node ), ' TODO : Add test name' );
 
@@ -509,8 +509,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(%att, ' TODO : Add test name');
     # TEST
-    is( +%att.keys, 2, ' TODO : Add test name');
-    is( +%att<http://kungfoo>, 1, ' TODO : Add test name');
+    todo "check against Perl 5";
+    is( +%att.keys, 3, ' TODO : Add test name');
+    is( +%att.ns(<http://kungfoo>), 1, ' TODO : Add test name');
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );
     $attributes.setNamedItem($newAttr);
@@ -518,16 +519,17 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(%att, ' TODO : Add test name');
     # TEST
+    todo "check against Perl 5";
+    is( +%att, 3, ' TODO : Add test name');
+    # TEST
+    is(%att<x:kung>, $newAttr.nodeValue, ' TODO : Add test name');
+    is(%att.ns(<http://kungfoo>)<kung>, $newAttr.nodeValue, ' TODO : Add test name');
+    $attributes.removeNamedItem( "x:kung");
+
+    # TEST
     is( +%att, 2, ' TODO : Add test name');
     # TEST
-    is(%att<http://kungfoo><kung>, $newAttr.nodeValue, ' TODO : Add test name');
-
-    $attributes.removeNamedItemNS( "http://kungfoo", "kung");
-    %att := $root.attributes;
-    # TEST
-    is( +%att, 1, ' TODO : Add test name');
-    # TEST
-    is($attributes.elems, 1, ' TODO : Add test name');
+    is($attributes.elems, 2, ' TODO : Add test name');
 }
 
 # 7. importing and adopting

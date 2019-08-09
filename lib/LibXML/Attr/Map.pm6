@@ -2,7 +2,7 @@ use LibXML::Attr;
 use LibXML::Enums;
 use LibXML::Node;
 use LibXML::Native;
-use LibXML::Types :NCName;
+use LibXML::Types :NCName, :QName;
 use NativeCall;
 
 class LibXML::Attr::Map {...}
@@ -12,43 +12,53 @@ class LibXML::Attr::MapNs does Associative {
     trusts LibXML::Attr::Map;
     has LibXML::Node $.node;
     has Str:D $.uri is required;
-    has LibXML::Attr:D %!store handles<EXISTS-KEY Numeric keys pairs kv elems list values List>;
-    method TWEAK { $!node.requireNamespace($!uri) } # vivify namespace
+    has Hash[LibXML::Attr:D] $.name-store is required;
+    has LibXML::Attr:D %!local-store{NCName}  handles<AT-KEY EXISTS-KEY Numeric keys pairs kv elems list values List>;
 
-    method !unlink(Str:D $key) {
-        $!node.removeChild($_)
-            with %!store{$key}:delete;
+    method !bind(LibXML::Attr:D $att) {
+        %!local-store{$att.localname} = $att;
+        $!name-store{$att.nodeName} = $att;
+        $att;
     }
-    method !store(Str:D $name, LibXML::Attr:D $att) {
-        self!unlink($name);
-        %!store{$name} = $att;
-    }
-
-    method AT-KEY($key) is rw {
-        %!store{$key};
+    method !unbind(LibXML::Attr:D $att) {
+        %!local-store{$att.localname}:delete;
+        $!name-store{$att.nodeName}:delete;
+        $att;
     }
 
-    multi method ASSIGN-KEY(Str() $name, Str() $val) {
-        self!store($name, $!node.setAttributeNS($!uri, $name, $val));
+    multi method ASSIGN-KEY(QName $name, Str() $val) {
+        $!node.requireNamespace($!uri)
+            if $!uri && $name ~~ NCName;
+        my LibXML::Attr $att = $!node.setAttributeNS($!uri, $name, $val);
+        self!bind($_) with $att;
     }
 
-    method BIND-KEY(Str() $name, Str() $val) {
-        self!unlink($name);
-        %!store{$name} := $!node.setAttributeNS($!uri, $name, $val);
-    }
-
-    method DELETE-KEY(Str() $name) {
-        self!unlink($name);
+    method DELETE-KEY(NCName:D $local-name) {
+        with %!local-store{$local-name} -> $att {
+            $!node.removeAttributeNode($att);
+            self!unbind($att);
+        }
+        else {
+            LibXML::Attr;
+        }
     }
 }
 
 class LibXML::Attr::Map does Associative {
     has LibXML::Node $.node;
-    has xmlNs %!ns;
-    my subset MapNode where LibXML::Attr:D|LibXML::Attr::MapNs:D;
-    has MapNode %!store handles <EXISTS-KEY Numeric keys pairs kv elems>;
+    has xmlNs %!ns-map;
+    has LibXML::Attr:D %.name-store handles <AT-KEY EXISTS-KEY Numeric keys pairs kv elems>;
+    has LibXML::Attr::MapNs %!ns;
 
     submethod TWEAK() {
+        self.init();
+    }
+
+    method init {
+        %!ns-map = ();
+        %!name-store = ();
+        %!ns = ();
+
         with $!node.native.properties -> domNode $prop is copy {
             my LibXML::Node $doc = $!node.doc;
             require LibXML::Attr;
@@ -56,7 +66,7 @@ class LibXML::Attr::Map does Associative {
                 if $prop.type == XML_ATTRIBUTE_NODE {
                     my xmlAttr $native := nativecast(xmlAttr, $prop);
                     my $att := LibXML::Attr.new: :$native, :$doc;
-                    self!tie-att($att);
+                    self!bind($att);
                 }
 
                 $prop = $prop.next;
@@ -64,97 +74,68 @@ class LibXML::Attr::Map does Associative {
         }
     }
 
-    method !unlink(Str:D $key) {
-        with %!store{$key}:delete {
-             when LibXML::Attr::MapNs {
-                 for .keys -> $key {
-                     .DELETE-KEY($key);
-                 }
-             }
-             when LibXML::Node {
-                 $!node.removeAttribute($key)
-             }
-        }
-    }
-    method !store(Str:D $name, MapNode:D $att) {
-        self!unlink($name);
-        %!store{$name} = $att;
-    }
-
-    method AT-KEY($key) is rw {
-        Proxy.new(
-            FETCH => sub ($) {
-                %!store{$key};
-            },
-            STORE => sub ($, Hash $ns) {
-                # for autovivication
-                self.ASSIGN-KEY($key, $ns);
-            },
-        );
-    }
-
     # merge in new attributes;
-    multi method ASSIGN-KEY(Str() $uri, LibXML::Attr::MapNs $ns-atts) {
-        self!store($ns-atts.uri, $ns-atts);
-    }
-
-    multi method ASSIGN-KEY(Str() $uri, Hash $atts) {
-        # plain hash; need to coerce
-        my LibXML::Attr::MapNs $ns-map .= new: :$!node, :$uri;
-        for $atts.pairs {
-            $ns-map{.key} = .value;
+    method ASSIGN-KEY(QName:D $name, Str:D $value) is default {
+        $!node.setAttribute($name, $value);
+        with $!node.getAttributeNode($name) {
+            # bind if we ended up with an attribute (didn't get caught
+            # up in LibXML::DOM::Native::Element 'xmlns' shenanigans)
+            self!bind($_);
         }
-        # redispatch
-        self.ASSIGN-KEY($uri, $ns-map);
     }
 
-    multi method ASSIGN-KEY(Str() $name, Str:D $val) is default {
-        $!node.setAttribute($name, $val);
-        self!store($name, $!node.getAttributeNode($name));
+    method DELETE-KEY(QName:D $key) {
+        with self.AT-KEY($key) -> $att {
+            self.removeAttributeNode($att);
+        }
     }
 
-    method DELETE-KEY(Str() $key) {
-        self!unlink($key);
+    multi method ns(Str $uri is copy) {
+        $uri //= '';
+        %!ns{$uri} //= LibXML::Attr::MapNs.new(:$uri, :$!node, :%!name-store);
     }
+    multi method ns is default { %!ns }
 
-    method !tie-att(LibXML::Attr:D $att) {
-        my Str:D $name = $att.native.getNodeName;
-        my Str $uri;
-        my ($prefix, $local-name) = $name.split(':', 2);
+    method !bind(LibXML::Attr:D $att) {
+        my QName:D $name = $att.name;
+        my Str $uri = $att.getNamespaceURI // '';
 
-        if $local-name {
-            with $!node.doc {
-                %!ns{$prefix} = .native.SearchNs($!node.native, $prefix)
-                    unless %!ns{$prefix}:exists;
+        if !$uri {
+            my ($prefix, $local-name) = $name.split(':', 2);
+            if $local-name {
+                # vivify the namespace from the prefix
+                with $!node.doc {
+                    %!ns-map{$prefix} = .native.SearchNs($!node.native, $prefix)
+                        unless %!ns-map{$prefix}:exists;
 
-                with %!ns{$prefix} -> $ns {
-                    $uri = $ns.href;
+                    with %!ns-map{$prefix} -> $ns {
+                        $uri = $ns.href;
+                        $att.setNamespace($uri, $prefix);
+                    }
                 }
             }
         }
 
-        with $uri {
-            self{$_} = %()
-                unless self{$_} ~~ LibXML::Attr::MapNs;
+        $.ns($uri)!LibXML::Attr::MapNs::bind($att);
+    }
 
-            $_!LibXML::Attr::MapNs::store($local-name, $att)
-                given %!store{$_};
+    method removeAttributeNode(LibXML::Attr:D $att) {
+        with $!node.removeAttributeNode($att) {
+            my Str $uri = $att.getNamespaceURI // '';
+            $.ns($uri)!LibXML::Attr::MapNs::unbind($att);
         }
-        else {
-            self!store($name, $att);
-        }
-
+        $att;
     }
 
     # DOM Support
     method setNamedItem(LibXML::Attr:D $att) {
-        $!node.addChild($att);
-        self!tie-att($att);
+        $!node.setAttributeNode($att);
+        self!bind($att);
     }
-    method getNamedItem(Str:D $name) {
+    method getNamedItem(QName:D $name) {
         self{$name};
     }
-    method removeNamedItem(Str:D $name) {
+    method removeNamedItem(QName:D $name) {
         self{$name}:delete;
     }
 
@@ -163,14 +144,15 @@ class LibXML::Attr::Map does Associative {
         # todo: allow namespace update on attributes?
         fail "changing attribute namespace is not supported"
             unless (!$uri && !$cur-uri) || $cur-uri ~~ $uri;
-        $.setNamedItem($att);
+        $!node.setAttributeNodeNS($att);
+        self!bind($att);
     }
-    method getNamedItemNS(Str $uri, LibXML::Attr:D $name) {
-        $uri ?? (.{$name} with self{$uri}) !! (self{$name});
+    method getNamedItemNS(Str $uri, NCName:D $local-name) {
+        .{$local-name} with %!ns{$uri // ''};
     }
 
-    method removeNamedItemNS(Str $uri, Str:D $name) {
-        $uri ?? (.{$name}:delete with self{$uri}) !! (self{$name}:delete);
+    method removeNamedItemNS(Str $uri, NCName:D $local-name) {
+        .{$local-name}:delete with %!ns{$uri // ''};
     }
 }
 
@@ -224,10 +206,19 @@ There are also some DOM (NamedNodeMap) compatible methods:
   $style = $atts.getNamedItem('style');
   $atts.removeNamedItem('style');
 
-=head2 Namespaces
+=head1 METHODS
 
-Attributes with namespaces are stored in a nested, map under the namespace's URL.
+=head2 ns($url)
 
+This method presents a view of attributes collated by namespace URL. Any
+attributes that don't have a namespace are stored with a key of `''`.
+
+  use LibXML;
+  use LibXML::Attr;
+  use LibXML::Attr::Map;
+  use LibXML::Element;
+
+  my $doc = LibXML.load(q:to<EOF>);
   <foo
     att1="AAA" att2="BBB"
     xmlns:x="http://myns.org" x:att3="CCC"
@@ -237,14 +228,12 @@ Attributes with namespaces are stored in a nested, map under the namespace's URL
   my LibXML::Element $node = $doc.root;
   my LibXML::Attr::Map $atts = $node.attributes;
 
-  say $atts.keys.sort;  # att1 att2 http://myns.org
-  say $atts<http://myns.org>.keys; # att3
-  my LibXML::Attr $att3 = $atts<http://myns.org><att3>;
+  say $atts.keys.sort;  # att1 att2 x:att3
+  say $atts.ns('').keys;  # att1 att2
+  say $atts.ns('http://myns.org').keys; # att3
+  my LibXML::Attr $att3 = $atts.ns('http://myns.org')<att3>;
   # assign to a new namespace
-  my $foo-bar = $attrs<http://www.foo.com/><bar> = 'baz';
-
-
-=head1 METHODS
+  my $foo-bar = $atts.ns('http://www.foo.com/')<bar> = 'baz';
 
 =begin item1
 keys, pairs, kv, elems, values, list

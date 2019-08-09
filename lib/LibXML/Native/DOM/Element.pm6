@@ -20,13 +20,12 @@ my subset AttrNode of Node where {!.defined || .type == XML_ATTRIBUTE_NODE};
 my constant XML_XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
 my constant XML_XML_NS   = 'http://www.w3.org/XML/1998/namespace';
 
-method setAttribute(QName:D $name, Str:D $value) {
+method setAttribute(QName:D $name, Str:D $value --> UInt) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {
         # user wants to set the special attribute for declaring XML namespace ...
 
         # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
-        # probably declare an attribute which looks like XML namespace declaration
-        # but isn't)
+        # probably declare an attribute which looks like XML namespace declaration but isn't)
         my NCName $prefix = ($0 // '').Str;
         my QName $nn = self.getNodeName;
 

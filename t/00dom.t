@@ -77,10 +77,10 @@ $elem.attributes = %(
 is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem set via attributes proxy');
 
 %atts := $elem.attributes;
-is-deeply %atts.keys.sort, ('foo', 'http://ns'), 'NS entries';
-is-deeply %atts<http://ns>.keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
+is-deeply %atts.keys.sort, ('foo', "x:aaa", "x:bbb", "x:ccc"), 'NS entries';
+is-deeply %atts.ns('http://ns').keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
 is %atts<foo>, 'bar', 'Non NS elem';
-is %atts<http://ns><aaa>, 'AAA', 'NS elem';
+is %atts.ns(<http://ns>)<aaa>, 'AAA', 'NS elem';
 
 my $prefix = $elem.native.genNsPrefix;
 is $prefix, '_ns0', 'first generated NS prefix';
@@ -92,7 +92,7 @@ lives-ok {$attr = $elem.getAttributeNodeNS('http://ns', 'aaa');};
 lives-ok {%atts.setNamedItemNS('http://ns', $attr);};
 dies-ok {%atts.setNamedItemNS('http://ns2', $attr);}, 'changing attribute NS; not currently supported';
 
-lives-ok {$attr = %atts<http://ns><aaa>:delete};
+lives-ok {$attr = %atts.ns(<http://ns>)<aaa>:delete}, 'delete via ns';
 
 is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem after NS proxy deletion');
 

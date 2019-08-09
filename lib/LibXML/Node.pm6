@@ -147,7 +147,7 @@ class LibXML::Node {
         );
     }
 
-    method localname     { $!native.name }
+    method localname     { $!native.name.subst(/^.*':'/,'') }
     method line-number   { $!native.GetLineNo }
     method prefix        { do with $!native.ns {.prefix} // Str }
     method getFirstChild { $.firstChild }

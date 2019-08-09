@@ -244,7 +244,7 @@ domGetAttributeNodeNS(xmlNodePtr, const xmlChar* nsURI, const xmlChar* name);
 DLLEXPORT xmlChar*
 domGetAttribute(xmlNodePtr node, const xmlChar* qname);
 
-DLLEXPORT void
+DLLEXPORT int
 domSetAttribute( xmlNodePtr self, xmlChar* name, xmlChar* value );
 
 DLLEXPORT xmlAttrPtr
