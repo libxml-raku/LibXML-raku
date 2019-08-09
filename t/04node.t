@@ -515,7 +515,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );
     $attributes.setNamedItem($newAttr);
-    %att := $root.attributes;
+    %att.sync;
     # TEST
     ok(%att, ' TODO : Add test name');
     # TEST
@@ -527,6 +527,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     $attributes.removeNamedItem( "x:kung");
 
     # TEST
+    %att.sync;
     is( +%att, 2, ' TODO : Add test name');
     # TEST
     is($attributes.elems, 2, ' TODO : Add test name');

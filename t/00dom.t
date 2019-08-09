@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 34;
+plan 36;
 
 # bootstrapping tests for the DOM
 
@@ -90,9 +90,11 @@ is $prefix, '_ns1', 'second generated NS prefix';
 
 lives-ok {$attr = $elem.getAttributeNodeNS('http://ns', 'aaa');};
 lives-ok {%atts.setNamedItemNS('http://ns', $attr);};
-dies-ok {%atts.setNamedItemNS('http://ns2', $attr);}, 'changing attribute NS; not currently supported';
+lives-ok {%atts.setNamedItemNS('http://ns2', $attr);}, 'changing attribute NS';
+is $attr.getNamespaceURI, 'http://ns2';
+is-deeply %atts.ns('http://ns2')<aaa>, $attr;
 
-lives-ok {$attr = %atts.ns(<http://ns>)<aaa>:delete}, 'delete via ns';
+lives-ok {$attr = %atts.ns(<http://ns2>)<aaa>:delete}, 'delete via ns';
 
 is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem after NS proxy deletion');
 

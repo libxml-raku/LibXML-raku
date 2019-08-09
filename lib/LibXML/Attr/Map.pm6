@@ -51,10 +51,10 @@ class LibXML::Attr::Map does Associative {
     has LibXML::Attr::MapNs %!ns;
 
     submethod TWEAK() {
-        self.init();
+        self.sync();
     }
 
-    method init {
+    method sync {
         %!ns-map = ();
         %!name-store = ();
         %!ns = ();
@@ -119,12 +119,19 @@ class LibXML::Attr::Map does Associative {
         $.ns($uri)!LibXML::Attr::MapNs::bind($att);
     }
 
+    method !unbind(LibXML::Attr:D $att) {
+        my Str $uri = $att.getNamespaceURI // '';
+        $.ns($uri)!LibXML::Attr::MapNs::unbind($att);
+        $att;
+    }
+
     method removeAttributeNode(LibXML::Attr:D $att) {
         with $!node.removeAttributeNode($att) {
-            my Str $uri = $att.getNamespaceURI // '';
-            $.ns($uri)!LibXML::Attr::MapNs::unbind($att);
+            self!unbind($_);
         }
-        $att;
+        else {
+            LibXML::Attr;
+        }
     }
 
     # DOM Support
@@ -140,10 +147,14 @@ class LibXML::Attr::Map does Associative {
     }
 
     method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
-        my $cur-uri = $att.getNamespaceURI;
-        # todo: allow namespace update on attributes?
-        fail "changing attribute namespace is not supported"
-            unless (!$uri && !$cur-uri) || $cur-uri ~~ $uri;
+        with $uri {
+            unless $att.getNamespaceURI ~~ $_ {
+                # changing URI and maybe prefix
+                self!unbind($att);
+                my $prefix = $!node.requireNamespace($_);
+                $att.setNamespace($_, $prefix);
+            }
+        }
         $!node.setAttributeNodeNS($att);
         self!bind($att);
     }
