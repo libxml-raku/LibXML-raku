@@ -56,9 +56,16 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function tries to bound the attribute to a given namespace. If `$nsURI ` is undefined or empty, the function discards any previous association of the attribute with a namespace. If the namespace was not previously declared in the context of the attribute, this function will fail. In this case you may wish to call setNamespace() on the ownerElement. If the namespace URI is non-empty and declared in the context of the attribute, but only with a different (non-empty) prefix, then the attribute is still bound to the namespace but gets a different prefix than `$prefix `. The function also fails if the prefix is empty but the namespace URI is not (because unprefixed attributes should by definition belong to no namespace). This function returns 1 on success, 0 otherwise.
 
+    If you don't want the overheads of managing namespaces, a quick way of ensuring that the namespace is not rejected is to call the `requireNamespace` method on the containing node:
+
+        # re-use any existing definitions in the current scope, or add to the
+        # parent with a generated prefix
+        my $prefix = $att.parent.requireNamespace($uri);
+        $att.setNamespace($uri, $prefix);
+
   * isId
 
-        my Bool $yup = $attr.isId;
+        my Bool $is-id = $attr.isId;
 
     Determine whether an attribute is of type ID. For documents with a DTD, this information is only available if DTD loading/validation has been requested. For HTML documents parsed with the HTML parser ID detection is done automatically. In XML documents, all "xml:id" attributes are considered to be of type ID.
 

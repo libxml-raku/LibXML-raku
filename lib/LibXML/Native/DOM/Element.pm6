@@ -3,6 +3,7 @@ unit role LibXML::Native::DOM::Element;
 use LibXML::Native::DOM::Node;
 use LibXML::Enums;
 use LibXML::Types :NCName, :QName;
+use LibXML::Native::Defs :XML_XMLNS_NS, :XML_XML_NS;
 
 my constant Node = LibXML::Native::DOM::Node;
 
@@ -17,8 +18,6 @@ method domSetAttributeNS { ... }
 method domGenNsPrefix { ... }
 
 my subset AttrNode of Node where {!.defined || .type == XML_ATTRIBUTE_NODE};
-my constant XML_XMLNS_NS = 'http://www.w3.org/2000/xmlns/';
-my constant XML_XML_NS   = 'http://www.w3.org/XML/1998/namespace';
 
 method setAttribute(QName:D $name, Str:D $value --> UInt) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {
@@ -29,10 +28,10 @@ method setAttribute(QName:D $name, Str:D $value --> UInt) {
         my NCName $prefix = ($0 // '').Str;
         my QName $nn = self.getNodeName;
 
-        if $nn.starts-with($prefix ~ ':') {
-	    # the element has the same prefix
-	    self.domSetNamespaceDeclURI($prefix, $value)
-	    || self.domSetNamespace($value, $prefix, 1);
+	self.domSetNamespaceDeclURI($prefix, $value)
+        || do {
+	    # activate, if the element has the same prefix
+            my Bool $activate = ? $nn.starts-with($prefix ~ ':');
             ##
             ## We set the namespace here.
             ## This is helpful, as in:
@@ -40,11 +39,7 @@ method setAttribute(QName:D $name, Str:D $value --> UInt) {
             ## |  $e = LibXML::Element.new: :name<foo:bar>;
             ## |  $e.setAttribute('xmlns:foo','http://yoyodine')
             ##
-        }
-        else {
-	    # just modify the namespace
-	    self.domSetNamespaceDeclURI($prefix, $value)
-	    || self.domSetNamespace($value, $prefix, 0);
+	    self.domSetNamespace($value, $prefix, +$activate);
         }
     }
     else {
@@ -111,7 +106,7 @@ method getAttributeNS(Str $uri, QName:D $att-name --> Str) {
 
 method getAttribute(QName:D $name) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {
-        # user wants to set the special attribute for declaring XML namespace ...
+        # user wants to get the special attribute for declaring XML namespace ...
 
         # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
         # probably declare an attribute which looks like XML namespace declaration

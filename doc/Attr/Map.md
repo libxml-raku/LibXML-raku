@@ -75,8 +75,8 @@ This method presents a view of attributes collated by namespace URL. Any attribu
     my LibXML::Attr::Map $atts = $node.attributes;
 
     say $atts.keys.sort;  # att1 att2 x:att3
-    say $atts.ns('').keys;  # att1 att2
-    say $atts.ns('http://myns.org').keys; # att3
+    say $atts.ns(:!uri).keys;  # att1 att2
+    say $atts.ns(:uri<'http://myns.org'>).keys; # att3
     my LibXML::Attr $att3 = $atts.ns('http://myns.org')<att3>;
     # assign to a new namespace
     my $foo-bar = $atts.ns('http://www.foo.com/')<bar> = 'baz';
@@ -89,7 +89,7 @@ This method presents a view of attributes collated by namespace URL. Any attribu
 
         $map.setNamedItem($new_node)
 
-    Sets the node with the same name as `$new_node ` to `$new_node `.
+    Adds or replaces node with the same name as `$new_node `.
 
   * removeNamedItem
 
@@ -105,7 +105,9 @@ This method presents a view of attributes collated by namespace URL. Any attribu
 
   * setNamedItemNS
 
-    *Not implemented yet. *. 
+        $map.setNamedItem($uri, $new_node)
+
+    Assigns $new_node name space to $uri. Adds or replaces an nodes same local name as `$new_node `.
 
   * removeNamedItemNS
 

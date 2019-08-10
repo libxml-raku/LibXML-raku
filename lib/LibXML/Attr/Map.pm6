@@ -46,7 +46,7 @@ class LibXML::Attr::MapNs does Associative {
 
 class LibXML::Attr::Map does Associative {
     has LibXML::Node $.node;
-    has xmlNs %!ns-map;
+    has xmlNs %!ns-map{NCName};
     has LibXML::Attr:D %.name-store handles <AT-KEY EXISTS-KEY Numeric keys pairs kv elems>;
     has LibXML::Attr::MapNs %!ns;
 
@@ -87,41 +87,55 @@ class LibXML::Attr::Map does Associative {
     method DELETE-KEY(QName:D $key) {
         with self.AT-KEY($key) -> $att {
             self.removeAttributeNode($att);
+            self!unbind($att);
         }
     }
 
-    multi method ns(Str $uri is copy) {
+    method !ns-map(NCName:D $prefix) {
+        unless %!ns-map{$prefix}:exists {
+            %!ns-map{$prefix} = .native.SearchNs($!node.native, $prefix)
+                with $!node.doc;
+        }
+        %!ns-map{$prefix};
+    }
+
+    method !href(Str $uri is copy) {
         $uri //= '';
         %!ns{$uri} //= LibXML::Attr::MapNs.new(:$uri, :$!node, :%!name-store);
     }
-    multi method ns is default { %!ns }
+    multi method ns(NCName:D :$prefix! where .so) {
+        with self!ns-map($prefix) {
+            self!href: .href;
+        }
+    }
+    multi method ns(Bool:D :$uri! where !.so) {
+        self!href('');
+    }
+    multi method ns(Str :$uri!) {
+        self!href($uri);
+    }
 
     method !bind(LibXML::Attr:D $att) {
-        my QName:D $name = $att.name;
-        my Str $uri = $att.getNamespaceURI // '';
+        my QName:D $name = $att.name ;
+        my Str $uri = $att.getNamespaceURI;
 
-        if !$uri {
+        if !$uri  {
             my ($prefix, $local-name) = $name.split(':', 2);
             if $local-name {
                 # vivify the namespace from the prefix
-                with $!node.doc {
-                    %!ns-map{$prefix} = .native.SearchNs($!node.native, $prefix)
-                        unless %!ns-map{$prefix}:exists;
-
-                    with %!ns-map{$prefix} -> $ns {
-                        $uri = $ns.href;
-                        $att.setNamespace($uri, $prefix);
-                    }
+                with self!ns-map($prefix) -> $ns {
+                    $uri = $ns.href;
+                    $att.setNamespace($uri, $prefix);
                 }
             }
         }
 
-        $.ns($uri)!LibXML::Attr::MapNs::bind($att);
+        $.ns(:$uri)!LibXML::Attr::MapNs::bind($att);
     }
 
     method !unbind(LibXML::Attr:D $att) {
         my Str $uri = $att.getNamespaceURI // '';
-        $.ns($uri)!LibXML::Attr::MapNs::unbind($att);
+        $.ns(:$uri)!LibXML::Attr::MapNs::unbind($att);
         $att;
     }
 
@@ -146,14 +160,19 @@ class LibXML::Attr::Map does Associative {
         self{$name}:delete;
     }
 
-    method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
-        with $uri {
-            unless $att.getNamespaceURI ~~ $_ {
+    method setNamedItemNS(Str $new-uri, LibXML::Attr:D $att) {
+        my $old-uri = $att.getNamespaceURI;
+        if $new-uri {
+            unless $old-uri ~~ $new-uri {
                 # changing URI and maybe prefix
                 self!unbind($att);
-                my $prefix = $!node.requireNamespace($_);
-                $att.setNamespace($_, $prefix);
+                my $prefix = $!node.requireNamespace($new-uri);
+                $att.setNamespace($new-uri, $prefix);
             }
+        }
+        elsif $old-uri {
+            self!unbind($att);
+            $att.removeNamespace;
         }
         $!node.setAttributeNodeNS($att);
         self!bind($att);
@@ -240,8 +259,8 @@ attributes that don't have a namespace are stored with a key of `''`.
   my LibXML::Attr::Map $atts = $node.attributes;
 
   say $atts.keys.sort;  # att1 att2 x:att3
-  say $atts.ns('').keys;  # att1 att2
-  say $atts.ns('http://myns.org').keys; # att3
+  say $atts.ns(:!uri).keys;  # att1 att2
+  say $atts.ns(:uri<'http://myns.org'>).keys; # att3
   my LibXML::Attr $att3 = $atts.ns('http://myns.org')<att3>;
   # assign to a new namespace
   my $foo-bar = $atts.ns('http://www.foo.com/')<bar> = 'baz';
@@ -258,7 +277,7 @@ setNamedItem
 
   $map.setNamedItem($new_node)
 
-Sets the node with the same name as C<<<<<< $new_node >>>>>> to C<<<<<< $new_node >>>>>>.
+Adds or replaces node with the same name as C<<<<<< $new_node >>>>>>.
 
 =end item1
 
@@ -283,7 +302,9 @@ C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
 =begin item1
 setNamedItemNS
 
-I<<<<<< Not implemented yet. >>>>>>. 
+  $map.setNamedItem($uri, $new_node)
+
+Assigns $new_node name space to $uri. Adds or replaces an nodes same local name as C<<<<<< $new_node >>>>>>.
 
 =end item1
 

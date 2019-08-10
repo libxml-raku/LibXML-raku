@@ -511,7 +511,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     todo "check against Perl 5";
     is( +%att.keys, 3, ' TODO : Add test name');
-    is( +%att.ns(<http://kungfoo>), 1, ' TODO : Add test name');
+    is( +%att.ns(:prefix<x>), 1, ' TODO : Add test name');
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );
     $attributes.setNamedItem($newAttr);
@@ -523,7 +523,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is( +%att, 3, ' TODO : Add test name');
     # TEST
     is(%att<x:kung>, $newAttr.nodeValue, ' TODO : Add test name');
-    is(%att.ns(<http://kungfoo>)<kung>, $newAttr.nodeValue, ' TODO : Add test name');
+    is(%att.ns(:uri<http://kungfoo>)<kung>, $newAttr.nodeValue, ' TODO : Add test name');
     $attributes.removeNamedItem( "x:kung");
 
     # TEST

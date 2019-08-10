@@ -3,6 +3,7 @@ use LibXML::Native;
 use LibXML::Types :NCName;
 use NativeCall;
 use Method::Also;
+use LibXML::Native::Defs :XML_XMLNS_NS;
 has xmlNs $!native handles <type prefix href Str>;
 
 method box(xmlNs $ns!) {
@@ -30,16 +31,15 @@ multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
 }
 
 method nodeType     { $!native.type }
-method URI is also<declaredURI getData getValue value>
+method URI is also<declaredURI getData getValue value string-value>
                     { $!native.href }
-method localname is also<declaredPrefix getLocalName>
+method localname(--> NCName) is also<declaredPrefix getLocalName>
                     { $!native.prefix }
-method string-value { $!native.href }
 method unique-key   { join('|', $!native.prefix//'', $!native.href//''); }
 method nodeName is also<name> {
-    $_ ?? 'xmlns:' ~ $_ !! 'xmlns' given $.localname;
+    'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
 }
-method getNamespaceURI { 'http://www.w3.org/2000/xmlns/' }
+method getNamespaceURI { XML_XMLNS_NS }
 method getPrefix { 'xmlns' }
 
 submethod DESTROY {

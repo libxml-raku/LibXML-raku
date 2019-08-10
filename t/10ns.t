@@ -270,7 +270,9 @@ print "# 8. changing namespace declarations\n";
 
     # changing the default namespace declaration
     # TEST
+    warn $root.Str;
     ok( $root.setNamespaceDeclURI('','http://test'), ' TODO : Add test name' );
+    warn $root.Str;
     # TEST
     is( $root.lookupNamespaceURI(''), 'http://test', ' TODO : Add test name' );
     # TEST

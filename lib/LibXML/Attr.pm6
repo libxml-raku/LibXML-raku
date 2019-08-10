@@ -104,7 +104,7 @@ This function returns 1 on success, 0 otherwise.
 
 If you don't want the overheads of managing namespaces, a quick way of ensuring
 that the namespace is not rejected is to call the `requireNamespace` method on
-the parent:
+the containing node:
 
   # re-use any existing definitions in the current scope, or add to the
   # parent with a generated prefix

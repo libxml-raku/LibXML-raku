@@ -86,13 +86,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         my LibXML::Attr $attrnode = $node.getAttributeNode( $aname );
 
-    Retrieve an attribute node by name. If no attribute with a given name exists, `undef ` is returned.
+    Retrieve an attribute node by name. If no attribute with a given name exists, `LibXML::Attr:U ` is returned.
 
   * getAttributeNodeNS
 
         my LibXML::Attr $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
 
-    Retrieves an attribute node by local name and namespace URI. If no attribute with a given localname and namespace exists, `undef ` is returned.
+    Retrieves an attribute node by local name and namespace URI. If no attribute with a given localname and namespace exists, `LibXML::Attr:U ` is returned.
 
   * removeAttribute
 
@@ -273,11 +273,15 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function manipulates directly with an existing namespace declaration on an element. It takes two parameters: the prefix by which it looks up the namespace declaration and a new namespace URI which replaces its previous value.
 
-    It returns 1 if the namespace declaration was found and changed, 0 otherwise.
+    It returns True if the namespace declaration was found and changed, False otherwise.
 
-    All elements and attributes (even those previously unbound from the document) for which the namespace declaration determines their namespace belong to the new namespace after the change. 
+    All elements and attributes (even those previously unbound from the document) for which the namespace declaration determines their namespace belong to the new namespace after the change. For example:
 
-    If the new URI is undef or empty, the nodes have no namespace and no prefix after the change. Namespace declarations once nulled in this way do not further appear in the serialized output (but do remain in the document for internal integrity of libxml2 data structures). 
+        my $node = LibXML.load('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>').root;
+        $node.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
+        say $node.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
+
+    If the new URI is undefined or empty, the nodes have no namespace and no prefix after the change. Namespace declarations once nulled in this way do not further appear in the serialized output (but do remain in the document for internal integrity of libxml2 data structures). 
 
   * setNamespaceDeclPrefix
 
@@ -289,9 +293,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     The function dies with an error if the element is in the scope of another declaration whose prefix equals to the new prefix, or if the change should result in a declaration with a non-empty prefix but empty namespace URI. Otherwise, it returns True if the namespace declaration was found and changed, or False if not found.
 
-    All elements and attributes (even those previously unbound from the document) for which the namespace declaration determines their namespace change their prefix to the new value. 
+    All elements and attributes (even those previously unbound from the document) for which the namespace declaration determines their namespace change their prefix to the new value. For example:
 
-    If the new prefix is undef or empty, the namespace declaration becomes a declaration of a default namespace. The corresponding nodes drop their namespace prefix (but remain in the, now default, namespace). In this case the function fails, if the containing element is in the scope of another default namespace declaration. 
+        my $node = LibXML.load('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>').root;
+        $node.setNamespaceDeclPrefix( 'xxx', 'yyy' );
+        say $node.Str; # <Doc xmlns:yyy="http://ns.com"><yyy:elem/></Doc>
+
+    If the new prefix is undefined or empty, the namespace declaration becomes a declaration of a default namespace. The corresponding nodes drop their namespace prefix (but remain in the, now default, namespace). In this case the function fails, if the containing element is in the scope of another default namespace declaration. 
 
 AUTHORS
 =======

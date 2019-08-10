@@ -293,10 +293,13 @@ class LibXML::Node {
         $.find($xpath-expr, :bool);
     }
     method addNamespace(Str $uri, NCName $prefix?) {
-        $.setNamespace($uri, $prefix, :!primary);
+        $.setNamespace($uri, $prefix, :!activate);
     }
     method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
-        $!native.setNamespace($uri, $prefix, :$activate);
+        ? $!native.setNamespace($uri, $prefix, :$activate);
+    }
+    method clearNamespace {
+        ? $!native.setNamespace(Str, Str);
     }
     method localNS {
         LibXML::Namespace.box: $!native.localNS;

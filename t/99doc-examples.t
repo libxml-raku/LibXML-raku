@@ -324,7 +324,7 @@ subtest 'LibXML::Namespace' => {
 };
 
 subtest 'LibXML::Node' => {
-    plan 7;
+    plan 8;
     use LibXML::Node;
     use LibXML::Element;
     use LibXML::Namespace;
@@ -358,6 +358,7 @@ subtest 'LibXML::Node' => {
     $node.replaceNode($newNode);
     $childNode = $node.appendChild( $childNode );
     $childNode = $node.addChild( $childNode );
+    ok $node.isSame($childNode.parent);
     $node = $parent.addNewChild( $nsURI, $name );
     $node.addSibling($newNode);
     $newNode = $node.cloneNode( :deep );
