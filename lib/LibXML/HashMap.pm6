@@ -37,17 +37,14 @@ role Assoc[LibXML::Node] {
 # node sets - experimental!
 role Assoc[LibXML::Node::Set] {
     method of {LibXML::Node::Set}
-    method freeze(LibXML::Node::Set $n) {
-        with $n.native {
+    method freeze(LibXML::Node::Set:D $n) {
+        given $n.native.copy {
             .Reference;
             nativecast(Pointer, $_);
         }
-        else {
-            Pointer;
-        }
     }
     method thaw(Pointer $p) {
-        my $native = nativecast(LibXML::Node::Set.native, $p);
+        my $native = nativecast(LibXML::Node::Set.native, $p).copy;
         LibXML::Node::Set.new: :$native;
     }
     method deallocator() {
@@ -100,10 +97,10 @@ role Assoc[UInt] {
 
 role Assoc [Str] {
     method of { Str }
-    sub toPointer(Str --> Pointer) is native(LIB) is symbol('xmlStrdup') {*}
-    sub toStr(Pointer --> Str) is native(LIB) is symbol('xmlStrdup') {*}
-    method freeze(Str() $v) { toPointer($v) }
-    method thaw(Pointer $p) { toStr($p) }
+    sub pointerDup(Str --> Pointer) is native(LIB) is symbol('xmlStrdup') {*}
+    sub stringDup(Pointer --> Str) is native(LIB) is symbol('xmlStrdup') {*}
+    method freeze(Str() $v) { pointerDup($v) }
+    method thaw(Pointer $p) { stringDup($p) }
 
 }
 
@@ -167,7 +164,7 @@ method kv {
 }
 method Hash { %( self.pairs ) }
 method AT-KEY(Str() $key) { self.thaw: $!native.Lookup($key); }
-method EXISTS-KEY(Str() $key) { ? $!native.Lookup($key); }
+method EXISTS-KEY(Str() $key) { $!native.Lookup($key).defined; }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     my Pointer $ptr := $.freeze($val);
     $!native.Update($key, $ptr, $.deallocator); $val;

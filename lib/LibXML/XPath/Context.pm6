@@ -28,7 +28,7 @@ class LibXML::XPath::Context {
         my domNode $node = .native with $ref;
         my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
         .rethrow with @!callback-errors.tail;
-        $node-set;
+        $node-set.copy;
     }
     multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
         iterate-set(NodeSetElem, self!find($expr, $ref));
@@ -157,8 +157,8 @@ class LibXML::XPath::Context {
             $ctxt-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
             # context stack is clear. We can also clear the associated pool
             ## todo: causing 31xpc-functions.t to flap
-            ## %!pool{$ctxt-addr} = []
-            ##     if .valueNr == 0  && !.value.defined;
+            %!pool{$ctxt-addr} = []
+                 if .valueNr == 0  && !.value.defined;
         }
         %!pool{$ctxt-addr}.push: LibXML::Node::Set.new: :$native;
         $native;

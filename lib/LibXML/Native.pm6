@@ -475,8 +475,8 @@ class xmlXPathObject is export {
     multi method coerce(Bool $v)           { xmlXPathNewBoolean($v) }
     multi method coerce(Numeric $v)        { xmlXPathNewFloat($v.Num) }
     multi method coerce(Str $v)            { xmlXPathNewString($v) }
-    multi method coerce(domNode $v)        { xmlXPathNewNodeSet($v) }
-    multi method coerce(xmlNodeSet $v)     { xmlXPathWrapNodeSet($v) }
+    multi method coerce(domNode:D $v)      { xmlXPathNewNodeSet($v) }
+    multi method coerce(xmlNodeSet:D $v)   { xmlXPathWrapNodeSet($v.copy) }
     multi method coerce($_) is default     { fail "unable to coerce to an XPath Object: {.perl}" }
 
     method select {
