@@ -8,6 +8,7 @@ class LibXML::Node::List does Iterable does Iterator {
     has $!cur;
     has $.of is required;
     has LibXML::Node @!store;
+    has Hash $!hstore;
     has Bool $!lazy = True;
     has LibXML::Node $!first; # just to keep the list alive
     has LibXML::Node $.parent;
@@ -17,25 +18,31 @@ class LibXML::Node::List does Iterable does Iterator {
         $!cur = $!native;
     }
 
-    method Array handles<AT-POS elems List list pairs keys values map grep> {
+    method Array handles<AT-POS elems List list values Numeric> {
         if $!lazy-- {
             $!cur = $!native;
             @!store = self;
         }
         @!store;
     }
+    method Hash {
+         $!hstore //= self.Array.classify(*.tagName);
+    }
     method push(LibXML::Node:D $node) {
         $.parent.appendChild($node);
         @!store.push($node) unless $!lazy;
+        .{$node.tagName}.push: $node with $!hstore;
         $node;
     } 
     method pop {
         do with self.Array.tail -> LibXML::Node $node {
             @!store.pop;
+            .{$node.tagName}.pop with $!hstore;
             $node.unbindNode;
         } // LibXML::Node;
     }
     method ASSIGN-POS(UInt() $pos, LibXML::Node $node) {
+        $!hstore = Nil; # invalidate Hash cache
         if $pos < $.elems {
             $.parent.replaceChild($node, $.Array[$pos]);
         }

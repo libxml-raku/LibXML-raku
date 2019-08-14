@@ -7,6 +7,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     has xmlNodeSet $.native;
     has UInt $!idx = 0;
     has @!store;
+    has Hash $!hstore;
     has Bool $!lazy = True;
 
     submethod TWEAK {
@@ -26,7 +27,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         } // $!of.WHAT;
     }
     method elems is also<Numeric> { $!native.nodeNr }
-    method Array handles<List list pairs keys values map grep> {
+    method Array handles<List list pairs keys values> {
         if $!lazy {
             $!idx = 0;
             @!store = self;
@@ -34,18 +35,25 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
         @!store;
     }
+    method Hash {
+        $!hstore //= self.Array.classify(*.tagName);
+    }
     multi method AT-POS(UInt:D $pos where !$!lazy) { @!store[$pos] }
     multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!of }
     multi method AT-POS(UInt:D $pos) is default {
         self!box: $!native.nodeTab[$pos].deref;
     }
-    method push(LibXML::Node:D $elem) {
+    method push(LibXML::Node:D $node) {
         @!store.push: $_ unless $!lazy;
-        $!native.push: $elem.native;
-        $elem;
+        .{$node.tagName}.push: $node with $!hstore;
+        $!native.push: $node.native;
+        $node;
     }
     method pop {
         my $node := $!native.pop;
+        if $node.defined {
+            .{$node.tagName}.pop with $!hstore;
+        }
         $!lazy ?? self!box($node) !! @!store.pop;
     }
     method string-value { do with self.AT-POS(0) { .string-value } // Str}

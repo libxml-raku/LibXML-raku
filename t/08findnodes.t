@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 37;
+plan 40;
 
 use LibXML;
 
@@ -58,6 +58,13 @@ if ( defined $dom ) {
     }
     else {
         flunk("getData");
+    }
+
+    {
+        my %species = $elem.findnodes( 'species/@name' ).Hash;
+        is-deeply %species.keys.sort, ("name",);
+        is %species<name>[0].Str, "Camel";
+        is %species<name>[1].Str, "Llama";
     }
 
     my $telem = $dom.createElement('test');

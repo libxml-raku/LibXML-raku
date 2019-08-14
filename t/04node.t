@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 178;
+plan 180;
 
 use LibXML;
 use LibXML::Enums;
@@ -126,6 +126,12 @@ my $doc    = $parser.parse: :string( $xmlstring );
             my %attributes := $xc.attributes;
             # TEST
             is( + %attributes, 1, ' TODO : Add test name' );
+        }
+
+        {
+            my %kids = $node.childNodes.Hash;
+            is-deeply %kids.keys.sort, ("#cdata-section", "#comment", "#text", "bar", "foobar");
+            is %kids<foobar>[0].Str, "<foobar/>";
         }
 
         # 1.2 Node Cloning
