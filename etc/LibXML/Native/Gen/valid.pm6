@@ -5,32 +5,32 @@ use v6;
 unit module LibXML::Native::Gen::valid;
 # The DTD validation:
 #    API for the DTD handling and the validity checking 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
-struct xmlAttributeTable is repr('CPointer') {
-    method xmlCopyAttributeTable( --> xmlAttributeTable) is native(LIB) {*};
-    method xmlFreeAttributeTable() is native(LIB) {*};
+class xmlAttributeTable is repr('CPointer') {
+    method Copy( --> xmlAttributeTable) is native(LIB) is symbol('xmlCopyAttributeTable') {*};
+    method Free() is native(LIB) is symbol('xmlFreeAttributeTable') {*};
 }
 
-struct xmlElementTable is repr('CPointer') {
-    method xmlCopyElementTable( --> xmlElementTable) is native(LIB) {*};
-    method xmlFreeElementTable() is native(LIB) {*};
+class xmlElementTable is repr('CPointer') {
+    method Copy( --> xmlElementTable) is native(LIB) is symbol('xmlCopyElementTable') {*};
+    method Free() is native(LIB) is symbol('xmlFreeElementTable') {*};
 }
 
-struct xmlIDTable is repr('CPointer') {
-    method xmlFreeIDTable() is native(LIB) {*};
+class xmlIDTable is repr('CPointer') {
+    method Free() is native(LIB) is symbol('xmlFreeIDTable') {*};
 }
 
-struct xmlNotationTable is repr('CPointer') {
-    method xmlCopyNotationTable( --> xmlNotationTable) is native(LIB) {*};
-    method xmlFreeNotationTable() is native(LIB) {*};
+class xmlNotationTable is repr('CPointer') {
+    method Copy( --> xmlNotationTable) is native(LIB) is symbol('xmlCopyNotationTable') {*};
+    method Free() is native(LIB) is symbol('xmlFreeNotationTable') {*};
 }
 
-struct xmlRefTable is repr('CPointer') {
-    method xmlFreeRefTable() is native(LIB) {*};
+class xmlRefTable is repr('CPointer') {
+    method Free() is native(LIB) is symbol('xmlFreeRefTable') {*};
 }
 
-struct xmlValidCtxt is repr('CStruct') {
+class xmlValidCtxt is repr('CStruct') {
     has Pointer $.userData; # user specific data block
     has xmlValidityErrorFunc $.error; # the callback in case of errors
     has xmlValidityWarningFunc $.warning; # the callback in case of warning Node analysis stack used when validating within entities
@@ -52,33 +52,33 @@ struct xmlValidCtxt is repr('CStruct') {
 
     sub xmlNewValidCtxt( --> xmlValidCtxt) is native(LIB) {*};
 
-    method xmlAddAttributeDecl(xmlDtd $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumeration $tree --> xmlAttribute) is native(LIB) {*};
-    method xmlAddElementDecl(xmlDtd $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContent $content --> xmlElement) is native(LIB) {*};
-    method xmlAddID(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlID) is native(LIB) {*};
-    method xmlAddNotationDecl(xmlDtd $dtd, xmlCharP $name, xmlCharP $PublicID, xmlCharP $SystemID --> xmlNotation) is native(LIB) {*};
-    method xmlAddRef(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlRef) is native(LIB) {*};
-    method xmlFreeValidCtxt() is native(LIB) {*};
-    method xmlValidBuildContentModel(xmlElement $elem --> int32) is native(LIB) {*};
-    method xmlValidCtxtNormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) {*};
-    method xmlValidateAttributeDecl(xmlDoc $doc, xmlAttribute $attr --> int32) is native(LIB) {*};
-    method xmlValidateDocument(xmlDoc $doc --> int32) is native(LIB) {*};
-    method xmlValidateDocumentFinal(xmlDoc $doc --> int32) is native(LIB) {*};
-    method xmlValidateDtd(xmlDoc $doc, xmlDtd $dtd --> int32) is native(LIB) {*};
-    method xmlValidateDtdFinal(xmlDoc $doc --> int32) is native(LIB) {*};
-    method xmlValidateElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
-    method xmlValidateElementDecl(xmlDoc $doc, xmlElement $elem --> int32) is native(LIB) {*};
-    method xmlValidateNotationDecl(xmlDoc $doc, xmlNotation $nota --> int32) is native(LIB) {*};
-    method xmlValidateNotationUse(xmlDoc $doc, xmlCharP $notationName --> int32) is native(LIB) {*};
-    method xmlValidateOneAttribute(xmlDoc $doc, xmlNode $elem, xmlAttr $attr, xmlCharP $value --> int32) is native(LIB) {*};
-    method xmlValidateOneElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
-    method xmlValidateOneNamespace(xmlDoc $doc, xmlNode $elem, xmlCharP $prefix, xmlNs $ns, xmlCharP $value --> int32) is native(LIB) {*};
-    method xmlValidatePopElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(LIB) {*};
-    method xmlValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(LIB) {*};
-    method xmlValidatePushElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(LIB) {*};
-    method xmlValidateRoot(xmlDoc $doc --> int32) is native(LIB) {*};
+    method AddAttributeDecl(xmlDtd $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumeration $tree --> xmlAttribute) is native(LIB) is symbol('xmlAddAttributeDecl') {*};
+    method AddElementDecl(xmlDtd $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContent $content --> xmlElement) is native(LIB) is symbol('xmlAddElementDecl') {*};
+    method AddID(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlID) is native(LIB) is symbol('xmlAddID') {*};
+    method AddNotationDecl(xmlDtd $dtd, xmlCharP $name, xmlCharP $PublicID, xmlCharP $SystemID --> xmlNotation) is native(LIB) is symbol('xmlAddNotationDecl') {*};
+    method AddRef(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlRef) is native(LIB) is symbol('xmlAddRef') {*};
+    method Free() is native(LIB) is symbol('xmlFreeValidCtxt') {*};
+    method BuildContentModel(xmlElement $elem --> int32) is native(LIB) is symbol('xmlValidBuildContentModel') {*};
+    method CtxtNormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) is symbol('xmlValidCtxtNormalizeAttributeValue') {*};
+    method ValidateAttributeDecl(xmlDoc $doc, xmlAttribute $attr --> int32) is native(LIB) is symbol('xmlValidateAttributeDecl') {*};
+    method ValidateDocument(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlValidateDocument') {*};
+    method ValidateDocumentFinal(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlValidateDocumentFinal') {*};
+    method ValidateDtd(xmlDoc $doc, xmlDtd $dtd --> int32) is native(LIB) is symbol('xmlValidateDtd') {*};
+    method ValidateDtdFinal(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlValidateDtdFinal') {*};
+    method ValidateElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) is symbol('xmlValidateElement') {*};
+    method ValidateElementDecl(xmlDoc $doc, xmlElement $elem --> int32) is native(LIB) is symbol('xmlValidateElementDecl') {*};
+    method ValidateNotationDecl(xmlDoc $doc, xmlNotation $nota --> int32) is native(LIB) is symbol('xmlValidateNotationDecl') {*};
+    method ValidateNotationUse(xmlDoc $doc, xmlCharP $notationName --> int32) is native(LIB) is symbol('xmlValidateNotationUse') {*};
+    method ValidateOneAttribute(xmlDoc $doc, xmlNode $elem, xmlAttr $attr, xmlCharP $value --> int32) is native(LIB) is symbol('xmlValidateOneAttribute') {*};
+    method ValidateOneElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) is symbol('xmlValidateOneElement') {*};
+    method ValidateOneNamespace(xmlDoc $doc, xmlNode $elem, xmlCharP $prefix, xmlNs $ns, xmlCharP $value --> int32) is native(LIB) is symbol('xmlValidateOneNamespace') {*};
+    method ValidatePopElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(LIB) is symbol('xmlValidatePopElement') {*};
+    method ValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(LIB) is symbol('xmlValidatePushCData') {*};
+    method ValidatePushElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(LIB) is symbol('xmlValidatePushElement') {*};
+    method ValidateRoot(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlValidateRoot') {*};
 }
 
-struct xmlValidState is repr('CPointer') {
+class xmlValidState is repr('CPointer') {
 }
 
 sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContent $content, int32 $englob) is native(LIB) {*};

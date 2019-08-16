@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlsave;
 # the XML document serializer:
 #    API to save document or subtree of document 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlSaveOption is export {
     XML_SAVE_AS_HTML => 64,
@@ -18,15 +18,15 @@ enum xmlSaveOption is export {
     XML_SAVE_XHTML => 16,
 }
 
-struct xmlSaveCtxt is repr('CPointer') {
+class xmlSaveCtxt is repr('CPointer') {
     sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
     sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
     sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
 
-    method xmlSaveClose( --> int32) is native(LIB) {*};
-    method xmlSaveDoc(xmlDoc $doc --> long) is native(LIB) {*};
-    method xmlSaveFlush( --> int32) is native(LIB) {*};
-    method xmlSaveSetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) {*};
-    method xmlSaveSetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) {*};
-    method xmlSaveTree(xmlNode $node --> long) is native(LIB) {*};
+    method Close( --> int32) is native(LIB) is symbol('xmlSaveClose') {*};
+    method Doc(xmlDoc $doc --> long) is native(LIB) is symbol('xmlSaveDoc') {*};
+    method Flush( --> int32) is native(LIB) is symbol('xmlSaveFlush') {*};
+    method SetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) is symbol('xmlSaveSetAttrEscape') {*};
+    method SetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) is symbol('xmlSaveSetEscape') {*};
+    method Tree(xmlNode $node --> long) is native(LIB) is symbol('xmlSaveTree') {*};
 }

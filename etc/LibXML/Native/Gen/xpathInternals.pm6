@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xpathInternals;
 # internal interfaces for XML Path Language implementation:
 #    internal interfaces for XML Path Language implementation used to build new modules on top of XPath like XPointer and XSLT 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlXPathDebugDumpCompExpr(FILE * $output, xmlXPathCompExpr $comp, int32 $depth) is native(LIB) {*};
 sub xmlXPathDebugDumpObject(FILE * $output, xmlXPathObject $cur, int32 $depth) is native(LIB) {*};

@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::HTMLtree;
 # specific APIs to process HTML tree, especially serialization:
 #    this module implements a few function needed to process tree in an HTML specific way. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub htmlDocDump(FILE * $f, xmlDoc $cur --> int32) is native(LIB) {*};
 sub htmlGetMetaEncoding(htmlDoc $doc --> xmlCharP) is native(LIB) {*};

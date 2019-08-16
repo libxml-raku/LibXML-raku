@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlerror;
 # error handling:
 #    the API used to report errors 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlErrorDomain is export {
     XML_FROM_BUFFER => 29,
@@ -785,7 +785,7 @@ enum xmlParserErrors is export {
     XML_XPTR_UNKNOWN_SCHEME => 1900,
 }
 
-struct xmlError is repr('CStruct') {
+class xmlError is repr('CStruct') {
     has int32 $.domain; # What part of the library raised this error
     has int32 $.code; # The error code, e.g. an xmlParserError
     has Str $.message; # human-readable informative error message
@@ -803,8 +803,8 @@ struct xmlError is repr('CStruct') {
     sub xmlCtxtGetLastError(Pointer $ctx --> xmlError) is native(LIB) {*};
     sub xmlGetLastError( --> xmlError) is native(LIB) {*};
 
-    method xmlCopyError(xmlError $to --> int32) is native(LIB) {*};
-    method xmlResetError() is native(LIB) {*};
+    method Copy(xmlError $to --> int32) is native(LIB) is symbol('xmlCopyError') {*};
+    method Reset() is native(LIB) is symbol('xmlResetError') {*};
 }
 
 sub initGenericErrorDefaultFunc(xmlGenericErrorFunc * $handler) is native(LIB) {*};

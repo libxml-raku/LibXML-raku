@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::c14n;
 # Provide Canonical XML and Exclusive XML Canonicalization:
 #    the c14n modules provides a  "Canonical XML" implementation
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlC14NMode is export {
     XML_C14N_1_0 => 0,

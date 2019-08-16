@@ -5,22 +5,22 @@ use v6;
 unit module LibXML::Native::Gen::threads;
 # interfaces for thread handling:
 #    set of generic threading related routines should work with pthreads, Windows native or TLS threads 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
-struct xmlMutex is repr('CPointer') {
+class xmlMutex is repr('CPointer') {
     sub xmlNewMutex( --> xmlMutex) is native(LIB) {*};
 
-    method xmlFreeMutex() is native(LIB) {*};
-    method xmlMutexLock() is native(LIB) {*};
-    method xmlMutexUnlock() is native(LIB) {*};
+    method Free() is native(LIB) is symbol('xmlFreeMutex') {*};
+    method Lock() is native(LIB) is symbol('xmlMutexLock') {*};
+    method Unlock() is native(LIB) is symbol('xmlMutexUnlock') {*};
 }
 
-struct xmlRMutex is repr('CPointer') {
+class xmlRMutex is repr('CPointer') {
     sub xmlNewRMutex( --> xmlRMutex) is native(LIB) {*};
 
-    method xmlFreeRMutex() is native(LIB) {*};
-    method xmlRMutexLock() is native(LIB) {*};
-    method xmlRMutexUnlock() is native(LIB) {*};
+    method Free() is native(LIB) is symbol('xmlFreeRMutex') {*};
+    method Lock() is native(LIB) is symbol('xmlRMutexLock') {*};
+    method Unlock() is native(LIB) is symbol('xmlRMutexUnlock') {*};
 }
 
 sub xmlCleanupThreads() is native(LIB) {*};

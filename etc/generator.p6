@@ -25,6 +25,7 @@ class Gen {
             );
 
             do with $!of {
+                s/'struct _'(.*)' *'/$0/;
                 (TypeMap{$_}:exists)
                     ?? TypeMap{$_}
                     !! .subst(/'Ptr'$/, '');
@@ -40,6 +41,16 @@ class Gen {
         submethod TWEAK(:$type) { $!type .= new: :of($_) with $type }
     }
 
+    multi sub abbrev($name where /^(xml|<[A..Z]><[a..z]>*)/, $base where /^($($0))[$|<!before [<[a..z]>]>]/) {
+        my $n = $0.chars;
+        abbrev($name.substr($n,*), $base.substr($n, *));
+    }
+    multi sub abbrev($name where /(<[A..Z]><[a..z]>*)$/, $base where /($($0))$/) {
+        my $n = $0.chars;
+        abbrev($name.substr(0, *-$n), $base.substr(0, *-$n) );
+    }
+    multi sub abbrev($name, $type) is default { $name }
+
     class Function {
         has $.name;
         has $.info;
@@ -50,14 +61,23 @@ class Gen {
         }
         method Str(:$method) {
             my @args = @!args.clone;
-            @args.shift if $method;
-            my $arg-str = @args.map(&arg-str).join: ', ';
             my $ret-type = .type with $!return;
             my $ret-str = do with $ret-type { " --> " ~ $_ } // '';
-            my $what = $method ?? 'method' !! 'sub';
             my $info = $!info ?? " # " ~ $!info.trim !! '';
-                
-            "$what $!name\({$arg-str}{$ret-str}\) is native\(LIB\) \{*\};$info";
+
+            if $method {
+                my $type = @args.shift.type;
+                my $name = $!name;
+                s/[Ctxt]$// for $name, $type;
+                $name = abbrev($name, $type);
+                my $arg-str = @args.map(&arg-str).join: ', ';
+                my $sym = $name ne $!name ?? " is symbol('$!name')" !! '';
+                "method $name\({$arg-str}{$ret-str}\) is native\(LIB\)$sym \{*\};$info";
+            }
+            else {
+                my $arg-str = @args.map(&arg-str).join: ', ';
+                "sub $!name\({$arg-str}{$ret-str}\) is native\(LIB\) \{*\};$info";
+            }
         }
     }
 
@@ -106,7 +126,7 @@ sub write-file(Gen::File:D $module) {
         say "unit module LibXML::Native::Gen::$module-name;";
         say "# $_:" with $module.summary;
         say "#    $_" with $module.description;
-        say 'use LibXML::Native::Defs :LIB, :XmlCharP;';
+        say 'use LibXML::Native::Defs :LIB, :xmlCharP;';
 
         for $module.enums.sort {
             my $name = .key;
@@ -122,7 +142,7 @@ sub write-file(Gen::File:D $module) {
             my $name = .name;
             my $repr = .fields ?? 'CStruct' !!  'CPointer';
             say '';
-            say "struct $name is repr('$repr') \{";
+            say "class $name is repr('$repr') \{";
             for .fields {
                 my $name = .name;
                 my $type = .type;
@@ -150,7 +170,7 @@ sub write-file(Gen::File:D $module) {
 }
 
 sub process-files(Str:D $xpath) {
-    for $*Root.findnodes($xpath) -> FileDefElem $_ {
+    for $*Root{$xpath} -> FileDefElem $_ {
         my $name = .Str with .<@name>;
         my $summary = .<summary>[0].textContent;
         my $description = .<description>[0].textContent;
@@ -161,7 +181,7 @@ sub process-files(Str:D $xpath) {
 }
 
 sub process-enums(Str:D $xpath) {
-    for $*Root.findnodes($xpath) -> EnumDefElem $_ {
+    for $*Root{$xpath} -> EnumDefElem $_ {
         my $name = .Str with .<@name>;
         my $type = .Str with .<@type>;
         my $file-name = .Str with .<@file>;
@@ -174,7 +194,7 @@ sub process-enums(Str:D $xpath) {
 }
 
 sub process-struct-fields(StructDefElem:D $_, Str:D $xpath, Gen::Struct :$struct!, ) {
-    for .findnodes($xpath) -> FieldDefElem $_ {
+    for .{$xpath} -> FieldDefElem $_ {
         my $name = .Str with .<@name>;
         my $type = .Str with .<@type>;
         my $info = .Str with .<@info>;
@@ -186,7 +206,7 @@ sub process-struct-fields(StructDefElem:D $_, Str:D $xpath, Gen::Struct :$struct
 }
 
 sub process-functions(Str:D $xpath) {
-    for $*Root.findnodes($xpath) -> FunctionDefElem $_ {
+    for $*Root{$xpath} -> FunctionDefElem $_ {
         my $name = .Str with .<@name>;
         my $type = .Str with .<@type>;
         my $file-name = .Str with .<@file>;
@@ -230,7 +250,7 @@ sub process-functions(Str:D $xpath) {
 }
 
 sub process-structs(Str:D $xpath) {
-    for $*Root.findnodes($xpath) -> StructDefElem $_ {
+    for $*Root{$xpath} -> StructDefElem $_ {
         my $name = .Str with .<@name>;
         my $file-name = .Str with .<@file>;
 

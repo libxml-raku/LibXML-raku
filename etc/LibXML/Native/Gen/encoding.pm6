@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::encoding;
 # interface for the encoding conversion functions:
 #    interface for the encoding conversion functions needed for XML basic encoding and iconv() support.  Related specs are rfc2044        (UTF-8 and UTF-16) F. Yergeau Alis Technologies [ISO-10646]    UTF-8 and UTF-16 in Annexes [ISO-8859-1]   ISO Latin-1 characters codes. [UNICODE]      The Unicode Consortium, "The Unicode Standard -- Worldwide Character Encoding -- Version 1.0", Addison- Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is described in Unicode Technical Report #4. [US-ASCII]     Coded Character Set--7-bit American Standard Code for Information Interchange, ANSI X3.4-1986. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlCharEncoding is export {
     XML_CHAR_ENCODING_2022_JP => 19,
@@ -34,7 +34,7 @@ enum xmlCharEncoding is export {
     XML_CHAR_ENCODING_UTF8 => 1,
 }
 
-struct uconv_t is repr('CStruct') {
+class uconv_t is repr('CStruct') {
     has UConverter * $.uconv; # for conversion between an encoding and UTF-16
     has UConverter * $.utf8; # for conversion between UTF-8 and UTF-16
     has UCharpivot_buf[ICU_PIVOT_BUF_SIZE] $.pivot_buf;
@@ -42,7 +42,7 @@ struct uconv_t is repr('CStruct') {
     has UChar * $.pivot_target;
 }
 
-struct xmlCharEncodingHandler is repr('CStruct') {
+class xmlCharEncodingHandler is repr('CStruct') {
     has Str $.name;
     has xmlCharEncodingInputFunc $.input;
     has xmlCharEncodingOutputFunc $.output;
@@ -55,8 +55,8 @@ struct xmlCharEncodingHandler is repr('CStruct') {
     sub xmlGetCharEncodingHandler(xmlCharEncoding $enc --> xmlCharEncodingHandler) is native(LIB) {*};
     sub xmlNewCharEncodingHandler(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandler) is native(LIB) {*};
 
-    method xmlAllocOutputBuffer( --> xmlOutputBuffer) is native(LIB) {*};
-    method xmlRegisterCharEncodingHandler() is native(LIB) {*};
+    method AllocOutputBuffer( --> xmlOutputBuffer) is native(LIB) is symbol('xmlAllocOutputBuffer') {*};
+    method Register() is native(LIB) is symbol('xmlRegisterCharEncodingHandler') {*};
 }
 
 sub UTF8Toisolat1(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(LIB) {*};

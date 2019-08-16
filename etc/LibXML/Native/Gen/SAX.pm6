@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::SAX;
 # Old SAX version 1 handler, deprecated:
 #    DEPRECATED set of SAX version 1 interfaces used to build the DOM tree. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub attribute(Pointer $ctx, xmlCharP $fullname, xmlCharP $value) is native(LIB) {*};
 sub attributeDecl(Pointer $ctx, xmlCharP $elem, xmlCharP $fullname, int32 $type, int32 $def, xmlCharP $defaultValue, xmlEnumeration $tree) is native(LIB) {*};

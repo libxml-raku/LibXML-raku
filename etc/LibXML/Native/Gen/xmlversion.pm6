@@ -5,6 +5,6 @@ use v6;
 unit module LibXML::Native::Gen::xmlversion;
 # compile-time version informations:
 #    compile-time version informations for the XML library 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlCheckVersion(int32 $version) is native(LIB) {*};

@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlstring;
 # set of routines to process strings:
 #    type and interfaces needed for the internal string handling of the library, especially UTF8 processing. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlCharStrdup(Str $cur --> xmlCharP) is native(LIB) {*};
 sub xmlCharStrndup(Str $cur, int32 $len --> xmlCharP) is native(LIB) {*};

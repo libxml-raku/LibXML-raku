@@ -5,16 +5,16 @@ use v6;
 unit module LibXML::Native::Gen::xpointer;
 # API to handle XML Pointers:
 #    API to handle XML Pointers Base implementation was made accordingly to W3C Candidate Recommendation 7 June 2000
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
-struct xmlLocationSet is repr('CStruct') {
+class xmlLocationSet is repr('CStruct') {
     has int32 $.locNr; # number of locations in the set
     has int32 $.locMax; # size of the array as allocated
     has xmlXPathObjectPtr * $.locTab; # array of locations
-    method xmlXPtrFreeLocationSet() is native(LIB) {*};
-    method xmlXPtrLocationSetAdd(xmlXPathObject $val) is native(LIB) {*};
-    method xmlXPtrLocationSetDel(xmlXPathObject $val) is native(LIB) {*};
-    method xmlXPtrLocationSetMerge(xmlLocationSet $val2 --> xmlLocationSet) is native(LIB) {*};
-    method xmlXPtrLocationSetRemove(int32 $val) is native(LIB) {*};
-    method xmlXPtrWrapLocationSet( --> xmlXPathObject) is native(LIB) {*};
+    method XPtrFree() is native(LIB) is symbol('xmlXPtrFreeLocationSet') {*};
+    method XPtrLocationSetAdd(xmlXPathObject $val) is native(LIB) is symbol('xmlXPtrLocationSetAdd') {*};
+    method XPtrLocationSetDel(xmlXPathObject $val) is native(LIB) is symbol('xmlXPtrLocationSetDel') {*};
+    method XPtrLocationSetMerge(xmlLocationSet $val2 --> xmlLocationSet) is native(LIB) is symbol('xmlXPtrLocationSetMerge') {*};
+    method XPtrLocationSetRemove(int32 $val) is native(LIB) is symbol('xmlXPtrLocationSetRemove') {*};
+    method XPtrWrap( --> xmlXPathObject) is native(LIB) is symbol('xmlXPtrWrapLocationSet') {*};
 }

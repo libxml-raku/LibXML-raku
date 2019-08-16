@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::parserInternals;
 # internals routines and limits exported by the parser.:
 #    this module exports a number of internal parsing routines they are not really all intended for applications but can prove useful doing low level processing. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub htmlCreateFileParserCtxt(Str $filename, Str $encoding --> htmlParserCtxt) is native(LIB) {*};
 sub htmlInitAutoClose() is native(LIB) {*};

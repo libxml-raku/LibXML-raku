@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::schematron;
 # XML Schemastron implementation:
 #    interface to the XML Schematron validity checking. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlSchematronValidOptions is export {
     XML_SCHEMATRON_OUT_BUFFER => 512,
@@ -17,21 +17,21 @@ enum xmlSchematronValidOptions is export {
     XML_SCHEMATRON_OUT_XML => 4,
 }
 
-struct xmlSchematron is repr('CPointer') {
-    method xmlSchematronFree() is native(LIB) {*};
-    method xmlSchematronNewValidCtxt(int32 $options --> xmlSchematronValidCtxt) is native(LIB) {*};
+class xmlSchematron is repr('CPointer') {
+    method Free() is native(LIB) is symbol('xmlSchematronFree') {*};
+    method NewValid(int32 $options --> xmlSchematronValidCtxt) is native(LIB) is symbol('xmlSchematronNewValidCtxt') {*};
 }
 
-struct xmlSchematronParserCtxt is repr('CPointer') {
+class xmlSchematronParserCtxt is repr('CPointer') {
     sub xmlSchematronNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchematronParserCtxt) is native(LIB) {*};
     sub xmlSchematronNewParserCtxt(Str $URL --> xmlSchematronParserCtxt) is native(LIB) {*};
 
-    method xmlSchematronFreeParserCtxt() is native(LIB) {*};
-    method xmlSchematronParse( --> xmlSchematron) is native(LIB) {*};
+    method Free() is native(LIB) is symbol('xmlSchematronFreeParserCtxt') {*};
+    method Parse( --> xmlSchematron) is native(LIB) is symbol('xmlSchematronParse') {*};
 }
 
-struct xmlSchematronValidCtxt is repr('CPointer') {
-    method xmlSchematronFreeValidCtxt() is native(LIB) {*};
-    method xmlSchematronSetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-    method xmlSchematronValidateDoc(xmlDoc $instance --> int32) is native(LIB) {*};
+class xmlSchematronValidCtxt is repr('CPointer') {
+    method Free() is native(LIB) is symbol('xmlSchematronFreeValidCtxt') {*};
+    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) is symbol('xmlSchematronSetValidStructuredErrors') {*};
+    method ValidateDoc(xmlDoc $instance --> int32) is native(LIB) is symbol('xmlSchematronValidateDoc') {*};
 }

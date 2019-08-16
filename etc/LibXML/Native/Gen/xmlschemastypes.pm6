@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlschemastypes;
 # implementation of XML Schema Datatypes:
 #    module providing the XML Schema Datatypes implementation both definition and validity checking 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlSchemaWhitespaceValueType is export {
     XML_SCHEMA_WHITESPACE_COLLAPSE => 3,

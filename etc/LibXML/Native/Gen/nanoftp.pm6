@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::nanoftp;
 # minimal FTP implementation:
 #    minimal FTP implementation allowing to fetch resources like external subset. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlNanoFTPCheckResponse(Pointer $ctx --> int32) is native(LIB) {*};
 sub xmlNanoFTPCleanup() is native(LIB) {*};

@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::entities;
 # interface for the XML entities handling:
 #    this module provides some of the entity API needed for the parser and applications. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlEntityType is export {
     XML_EXTERNAL_GENERAL_PARSED_ENTITY => 2,
@@ -16,11 +16,11 @@ enum xmlEntityType is export {
     XML_INTERNAL_PREDEFINED_ENTITY => 6,
 }
 
-struct xmlEntitiesTable is repr('CPointer') {
+class xmlEntitiesTable is repr('CPointer') {
     sub xmlCreateEntitiesTable( --> xmlEntitiesTable) is native(LIB) {*};
 
-    method xmlCopyEntitiesTable( --> xmlEntitiesTable) is native(LIB) {*};
-    method xmlFreeEntitiesTable() is native(LIB) {*};
+    method Copy( --> xmlEntitiesTable) is native(LIB) is symbol('xmlCopyEntitiesTable') {*};
+    method Free() is native(LIB) is symbol('xmlFreeEntitiesTable') {*};
 }
 
 sub xmlCleanupPredefinedEntities() is native(LIB) {*};

@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::relaxng;
 # implementation of the Relax-NG validation:
 #    implementation of the Relax-NG validation 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlRelaxNGParserFlag is export {
     XML_RELAXNGP_CRNG => 2,
@@ -56,33 +56,33 @@ enum xmlRelaxNGValidErr is export {
     XML_RELAXNG_OK => 0,
 }
 
-struct xmlRelaxNG is repr('CPointer') {
-    method xmlRelaxNGFree() is native(LIB) {*};
-    method xmlRelaxNGNewValidCtxt( --> xmlRelaxNGValidCtxt) is native(LIB) {*};
+class xmlRelaxNG is repr('CPointer') {
+    method Free() is native(LIB) is symbol('xmlRelaxNGFree') {*};
+    method NewValid( --> xmlRelaxNGValidCtxt) is native(LIB) is symbol('xmlRelaxNGNewValidCtxt') {*};
 }
 
-struct xmlRelaxNGParserCtxt is repr('CPointer') {
+class xmlRelaxNGParserCtxt is repr('CPointer') {
     sub xmlRelaxNGNewMemParserCtxt(Str $buffer, int32 $size --> xmlRelaxNGParserCtxt) is native(LIB) {*};
     sub xmlRelaxNGNewParserCtxt(Str $URL --> xmlRelaxNGParserCtxt) is native(LIB) {*};
 
-    method xmlRelaxNGFreeParserCtxt() is native(LIB) {*};
-    method xmlRelaxNGGetParserErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
-    method xmlRelaxNGParse( --> xmlRelaxNG) is native(LIB) {*};
-    method xmlRelaxNGSetParserErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
-    method xmlRelaxNGSetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-    method xmlRelaxParserSetFlag(int32 $flags --> int32) is native(LIB) {*};
+    method Free() is native(LIB) is symbol('xmlRelaxNGFreeParserCtxt') {*};
+    method GetParserErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) is symbol('xmlRelaxNGGetParserErrors') {*};
+    method Parse( --> xmlRelaxNG) is native(LIB) is symbol('xmlRelaxNGParse') {*};
+    method SetParserErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetParserErrors') {*};
+    method SetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetParserStructuredErrors') {*};
+    method ParserSetFlag(int32 $flags --> int32) is native(LIB) is symbol('xmlRelaxParserSetFlag') {*};
 }
 
-struct xmlRelaxNGValidCtxt is repr('CPointer') {
-    method xmlRelaxNGFreeValidCtxt() is native(LIB) {*};
-    method xmlRelaxNGGetValidErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
-    method xmlRelaxNGSetValidErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
-    method xmlRelaxNGSetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-    method xmlRelaxNGValidateDoc(xmlDoc $doc --> int32) is native(LIB) {*};
-    method xmlRelaxNGValidateFullElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
-    method xmlRelaxNGValidatePopElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
-    method xmlRelaxNGValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(LIB) {*};
-    method xmlRelaxNGValidatePushElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
+class xmlRelaxNGValidCtxt is repr('CPointer') {
+    method Free() is native(LIB) is symbol('xmlRelaxNGFreeValidCtxt') {*};
+    method GetValidErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) is symbol('xmlRelaxNGGetValidErrors') {*};
+    method SetValidErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetValidErrors') {*};
+    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) is symbol('xmlRelaxNGSetValidStructuredErrors') {*};
+    method ValidateDoc(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlRelaxNGValidateDoc') {*};
+    method ValidateFullElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) is symbol('xmlRelaxNGValidateFullElement') {*};
+    method ValidatePopElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) is symbol('xmlRelaxNGValidatePopElement') {*};
+    method ValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(LIB) is symbol('xmlRelaxNGValidatePushCData') {*};
+    method ValidatePushElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) is symbol('xmlRelaxNGValidatePushElement') {*};
 }
 
 sub xmlRelaxNGCleanupTypes() is native(LIB) {*};

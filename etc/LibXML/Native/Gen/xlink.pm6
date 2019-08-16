@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xlink;
 # unfinished XLink detection module:
 #    unfinished XLink detection module 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xlinkActuate is export {
     XLINK_ACTUATE_AUTO => 1,
@@ -27,14 +27,14 @@ enum xlinkType is export {
     XLINK_TYPE_SIMPLE => 1,
 }
 
-struct xlinkHandler is repr('CStruct') {
+class xlinkHandler is repr('CStruct') {
     has xlinkSimpleLinkFunk $.simple;
     has xlinkExtendedLinkFunk $.extended;
     has xlinkExtendedLinkSetFunk $.set;
 
     sub xlinkGetDefaultHandler( --> xlinkHandler) is native(LIB) {*};
 
-    method xlinkSetDefaultHandler() is native(LIB) {*};
+    method xlinkSetDefault() is native(LIB) is symbol('xlinkSetDefaultHandler') {*};
 }
 
 sub xlinkGetDefaultDetect( --> xlinkNodeDetectFunc) is native(LIB) {*};

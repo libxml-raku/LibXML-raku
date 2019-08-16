@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::catalog;
 # interfaces to the Catalog handling system:
 #    the catalog module implements the support for XML Catalogs and SGML catalogs 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlCatalogAllow is export {
     XML_CATA_ALLOW_ALL => 3,
@@ -20,21 +20,21 @@ enum xmlCatalogPrefer is export {
     XML_CATA_PREFER_SYSTEM => 2,
 }
 
-struct xmlCatalog is repr('CPointer') {
+class xmlCatalog is repr('CPointer') {
     sub xmlLoadACatalog(Str $filename --> xmlCatalog) is native(LIB) {*};
     sub xmlLoadSGMLSuperCatalog(Str $filename --> xmlCatalog) is native(LIB) {*};
     sub xmlNewCatalog(int32 $sgml --> xmlCatalog) is native(LIB) {*};
 
-    method xmlACatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(LIB) {*};
-    method xmlACatalogDump(FILE * $out) is native(LIB) {*};
-    method xmlACatalogRemove(xmlCharP $value --> int32) is native(LIB) {*};
-    method xmlACatalogResolve(xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(LIB) {*};
-    method xmlACatalogResolvePublic(xmlCharP $pubID --> xmlCharP) is native(LIB) {*};
-    method xmlACatalogResolveSystem(xmlCharP $sysID --> xmlCharP) is native(LIB) {*};
-    method xmlACatalogResolveURI(xmlCharP $URI --> xmlCharP) is native(LIB) {*};
-    method xmlCatalogIsEmpty( --> int32) is native(LIB) {*};
-    method xmlConvertSGMLCatalog( --> int32) is native(LIB) {*};
-    method xmlFreeCatalog() is native(LIB) {*};
+    method ACatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(LIB) is symbol('xmlACatalogAdd') {*};
+    method ACatalogDump(FILE * $out) is native(LIB) is symbol('xmlACatalogDump') {*};
+    method ACatalogRemove(xmlCharP $value --> int32) is native(LIB) is symbol('xmlACatalogRemove') {*};
+    method ACatalogResolve(xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(LIB) is symbol('xmlACatalogResolve') {*};
+    method ACatalogResolvePublic(xmlCharP $pubID --> xmlCharP) is native(LIB) is symbol('xmlACatalogResolvePublic') {*};
+    method ACatalogResolveSystem(xmlCharP $sysID --> xmlCharP) is native(LIB) is symbol('xmlACatalogResolveSystem') {*};
+    method ACatalogResolveURI(xmlCharP $URI --> xmlCharP) is native(LIB) is symbol('xmlACatalogResolveURI') {*};
+    method IsEmpty( --> int32) is native(LIB) is symbol('xmlCatalogIsEmpty') {*};
+    method ConvertSGML( --> int32) is native(LIB) is symbol('xmlConvertSGMLCatalog') {*};
+    method Free() is native(LIB) is symbol('xmlFreeCatalog') {*};
 }
 
 sub xmlCatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(LIB) {*};

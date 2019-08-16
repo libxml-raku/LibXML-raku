@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlregexp;
 # regular expressions handling:
 #    basic API for libxml regular expressions handling used for XML Schemas and validation. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlExpNodeType is export {
     XML_EXP_ATOM => 2,
@@ -16,46 +16,46 @@ enum xmlExpNodeType is export {
     XML_EXP_SEQ => 3,
 }
 
-struct xmlExpCtxt is repr('CPointer') {
+class xmlExpCtxt is repr('CPointer') {
     sub xmlExpNewCtxt(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(LIB) {*};
 
-    method xmlExpCtxtNbCons( --> int32) is native(LIB) {*};
-    method xmlExpCtxtNbNodes( --> int32) is native(LIB) {*};
-    method xmlExpExpDerive(xmlExpNode $exp, xmlExpNode $sub --> xmlExpNode) is native(LIB) {*};
-    method xmlExpFree(xmlExpNode $exp) is native(LIB) {*};
-    method xmlExpFreeCtxt() is native(LIB) {*};
-    method xmlExpGetLanguage(xmlExpNode $exp, const xmlChar ** $langList, int32 $len --> int32) is native(LIB) {*};
-    method xmlExpGetStart(xmlExpNode $exp, const xmlChar ** $tokList, int32 $len --> int32) is native(LIB) {*};
-    method xmlExpNewAtom(xmlCharP $name, int32 $len --> xmlExpNode) is native(LIB) {*};
-    method xmlExpNewOr(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(LIB) {*};
-    method xmlExpNewRange(xmlExpNode $subset, int32 $min, int32 $max --> xmlExpNode) is native(LIB) {*};
-    method xmlExpNewSeq(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(LIB) {*};
-    method xmlExpParse(Str $expr --> xmlExpNode) is native(LIB) {*};
-    method xmlExpStringDerive(xmlExpNode $exp, xmlCharP $str, int32 $len --> xmlExpNode) is native(LIB) {*};
-    method xmlExpSubsume(xmlExpNode $exp, xmlExpNode $sub --> int32) is native(LIB) {*};
+    method CtxtNbCons( --> int32) is native(LIB) is symbol('xmlExpCtxtNbCons') {*};
+    method CtxtNbNodes( --> int32) is native(LIB) is symbol('xmlExpCtxtNbNodes') {*};
+    method ExpDerive(xmlExpNode $exp, xmlExpNode $sub --> xmlExpNode) is native(LIB) is symbol('xmlExpExpDerive') {*};
+    method Free(xmlExpNode $exp) is native(LIB) is symbol('xmlExpFree') {*};
+    method Free() is native(LIB) is symbol('xmlExpFreeCtxt') {*};
+    method GetLanguage(xmlExpNode $exp, const xmlChar ** $langList, int32 $len --> int32) is native(LIB) is symbol('xmlExpGetLanguage') {*};
+    method GetStart(xmlExpNode $exp, const xmlChar ** $tokList, int32 $len --> int32) is native(LIB) is symbol('xmlExpGetStart') {*};
+    method NewAtom(xmlCharP $name, int32 $len --> xmlExpNode) is native(LIB) is symbol('xmlExpNewAtom') {*};
+    method NewOr(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(LIB) is symbol('xmlExpNewOr') {*};
+    method NewRange(xmlExpNode $subset, int32 $min, int32 $max --> xmlExpNode) is native(LIB) is symbol('xmlExpNewRange') {*};
+    method NewSeq(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(LIB) is symbol('xmlExpNewSeq') {*};
+    method Parse(Str $expr --> xmlExpNode) is native(LIB) is symbol('xmlExpParse') {*};
+    method StringDerive(xmlExpNode $exp, xmlCharP $str, int32 $len --> xmlExpNode) is native(LIB) is symbol('xmlExpStringDerive') {*};
+    method Subsume(xmlExpNode $exp, xmlExpNode $sub --> int32) is native(LIB) is symbol('xmlExpSubsume') {*};
 }
 
-struct xmlExpNode is repr('CPointer') {
-    method xmlExpIsNillable( --> int32) is native(LIB) {*};
-    method xmlExpMaxToken( --> int32) is native(LIB) {*};
-    method xmlExpRef() is native(LIB) {*};
+class xmlExpNode is repr('CPointer') {
+    method IsNillable( --> int32) is native(LIB) is symbol('xmlExpIsNillable') {*};
+    method MaxToken( --> int32) is native(LIB) is symbol('xmlExpMaxToken') {*};
+    method Ref() is native(LIB) is symbol('xmlExpRef') {*};
 }
 
-struct xmlRegExecCtxt is repr('CPointer') {
-    method xmlRegExecErrInfo(const xmlChar ** $string, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) {*};
-    method xmlRegExecNextValues(Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) {*};
-    method xmlRegExecPushString(xmlCharP $value, Pointer $data --> int32) is native(LIB) {*};
-    method xmlRegExecPushString2(xmlCharP $value, xmlCharP $value2, Pointer $data --> int32) is native(LIB) {*};
-    method xmlRegFreeExecCtxt() is native(LIB) {*};
+class xmlRegExecCtxt is repr('CPointer') {
+    method ErrInfo(const xmlChar ** $string, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) is symbol('xmlRegExecErrInfo') {*};
+    method NextValues(Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) is symbol('xmlRegExecNextValues') {*};
+    method PushString(xmlCharP $value, Pointer $data --> int32) is native(LIB) is symbol('xmlRegExecPushString') {*};
+    method PushString2(xmlCharP $value, xmlCharP $value2, Pointer $data --> int32) is native(LIB) is symbol('xmlRegExecPushString2') {*};
+    method Free() is native(LIB) is symbol('xmlRegFreeExecCtxt') {*};
 }
 
-struct xmlRegexp is repr('CPointer') {
+class xmlRegexp is repr('CPointer') {
     sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexp) is native(LIB) {*};
 
-    method xmlRegFreeRegexp() is native(LIB) {*};
-    method xmlRegNewExecCtxt(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(LIB) {*};
-    method xmlRegexpExec(xmlCharP $content --> int32) is native(LIB) {*};
-    method xmlRegexpIsDeterminist( --> int32) is native(LIB) {*};
+    method RegFree() is native(LIB) is symbol('xmlRegFreeRegexp') {*};
+    method RegNewExec(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(LIB) is symbol('xmlRegNewExecCtxt') {*};
+    method Exec(xmlCharP $content --> int32) is native(LIB) is symbol('xmlRegexpExec') {*};
+    method IsDeterminist( --> int32) is native(LIB) is symbol('xmlRegexpIsDeterminist') {*};
 }
 
 sub xmlRegexpPrint(FILE * $output, xmlRegexp $regexp) is native(LIB) {*};

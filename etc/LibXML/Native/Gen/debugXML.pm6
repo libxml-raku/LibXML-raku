@@ -5,9 +5,9 @@ use v6;
 unit module LibXML::Native::Gen::debugXML;
 # Tree debugging APIs:
 #    Interfaces to a set of routines used for debugging the tree produced by the XML parser. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
-struct xmlShellCtxt is repr('CStruct') {
+class xmlShellCtxt is repr('CStruct') {
     has Str $.filename;
     has xmlDoc $.doc;
     has xmlNode $.node;
@@ -15,16 +15,16 @@ struct xmlShellCtxt is repr('CStruct') {
     has int32 $.loaded;
     has FILE * $.output;
     has xmlShellReadlineFunc $.input;
-    method xmlShellBase(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellCat(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellDir(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellDu(Str $arg, xmlNode $tree, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellList(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellLoad(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellPwd(Str $buffer, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellSave(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellValidate(Str $dtd, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
-    method xmlShellWrite(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) {*};
+    method Base(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellBase') {*};
+    method Cat(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellCat') {*};
+    method Dir(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellDir') {*};
+    method Du(Str $arg, xmlNode $tree, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellDu') {*};
+    method List(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellList') {*};
+    method Load(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellLoad') {*};
+    method Pwd(Str $buffer, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellPwd') {*};
+    method Save(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellSave') {*};
+    method Validate(Str $dtd, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellValidate') {*};
+    method Write(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellWrite') {*};
 }
 
 sub xmlBoolToText(int32 $boolval --> Str) is native(LIB) {*};

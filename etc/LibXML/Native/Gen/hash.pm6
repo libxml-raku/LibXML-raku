@@ -5,34 +5,34 @@ use v6;
 unit module LibXML::Native::Gen::hash;
 # Chained hash tables:
 #    This module implements the hash table support used in various places in the library. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
-struct xmlHashTable is repr('CPointer') {
+class xmlHashTable is repr('CPointer') {
     sub xmlHashCreate(int32 $size --> xmlHashTable) is native(LIB) {*};
     sub xmlHashCreateDict(int32 $size, xmlDict $dict --> xmlHashTable) is native(LIB) {*};
 
-    method xmlHashAddEntry(xmlCharP $name, Pointer $userdata --> int32) is native(LIB) {*};
-    method xmlHashAddEntry2(xmlCharP $name, xmlCharP $name2, Pointer $userdata --> int32) is native(LIB) {*};
-    method xmlHashAddEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, Pointer $userdata --> int32) is native(LIB) {*};
-    method xmlHashCopy(xmlHashCopier $f --> xmlHashTable) is native(LIB) {*};
-    method xmlHashFree(xmlHashDeallocator $f) is native(LIB) {*};
-    method xmlHashLookup(xmlCharP $name --> Pointer) is native(LIB) {*};
-    method xmlHashLookup2(xmlCharP $name, xmlCharP $name2 --> Pointer) is native(LIB) {*};
-    method xmlHashLookup3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3 --> Pointer) is native(LIB) {*};
-    method xmlHashQLookup(xmlCharP $prefix, xmlCharP $name --> Pointer) is native(LIB) {*};
-    method xmlHashQLookup2(xmlCharP $prefix, xmlCharP $name, xmlCharP $prefix2, xmlCharP $name2 --> Pointer) is native(LIB) {*};
-    method xmlHashQLookup3(xmlCharP $prefix, xmlCharP $name, xmlCharP $prefix2, xmlCharP $name2, xmlCharP $prefix3, xmlCharP $name3 --> Pointer) is native(LIB) {*};
-    method xmlHashRemoveEntry(xmlCharP $name, xmlHashDeallocator $f --> int32) is native(LIB) {*};
-    method xmlHashRemoveEntry2(xmlCharP $name, xmlCharP $name2, xmlHashDeallocator $f --> int32) is native(LIB) {*};
-    method xmlHashRemoveEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, xmlHashDeallocator $f --> int32) is native(LIB) {*};
-    method xmlHashScan(xmlHashScanner $f, Pointer $data) is native(LIB) {*};
-    method xmlHashScan3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, xmlHashScanner $f, Pointer $data) is native(LIB) {*};
-    method xmlHashScanFull(xmlHashScannerFull $f, Pointer $data) is native(LIB) {*};
-    method xmlHashScanFull3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, xmlHashScannerFull $f, Pointer $data) is native(LIB) {*};
-    method xmlHashSize( --> int32) is native(LIB) {*};
-    method xmlHashUpdateEntry(xmlCharP $name, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) {*};
-    method xmlHashUpdateEntry2(xmlCharP $name, xmlCharP $name2, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) {*};
-    method xmlHashUpdateEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) {*};
+    method AddEntry(xmlCharP $name, Pointer $userdata --> int32) is native(LIB) is symbol('xmlHashAddEntry') {*};
+    method AddEntry2(xmlCharP $name, xmlCharP $name2, Pointer $userdata --> int32) is native(LIB) is symbol('xmlHashAddEntry2') {*};
+    method AddEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, Pointer $userdata --> int32) is native(LIB) is symbol('xmlHashAddEntry3') {*};
+    method Copy(xmlHashCopier $f --> xmlHashTable) is native(LIB) is symbol('xmlHashCopy') {*};
+    method Free(xmlHashDeallocator $f) is native(LIB) is symbol('xmlHashFree') {*};
+    method Lookup(xmlCharP $name --> Pointer) is native(LIB) is symbol('xmlHashLookup') {*};
+    method Lookup2(xmlCharP $name, xmlCharP $name2 --> Pointer) is native(LIB) is symbol('xmlHashLookup2') {*};
+    method Lookup3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3 --> Pointer) is native(LIB) is symbol('xmlHashLookup3') {*};
+    method QLookup(xmlCharP $prefix, xmlCharP $name --> Pointer) is native(LIB) is symbol('xmlHashQLookup') {*};
+    method QLookup2(xmlCharP $prefix, xmlCharP $name, xmlCharP $prefix2, xmlCharP $name2 --> Pointer) is native(LIB) is symbol('xmlHashQLookup2') {*};
+    method QLookup3(xmlCharP $prefix, xmlCharP $name, xmlCharP $prefix2, xmlCharP $name2, xmlCharP $prefix3, xmlCharP $name3 --> Pointer) is native(LIB) is symbol('xmlHashQLookup3') {*};
+    method RemoveEntry(xmlCharP $name, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashRemoveEntry') {*};
+    method RemoveEntry2(xmlCharP $name, xmlCharP $name2, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashRemoveEntry2') {*};
+    method RemoveEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashRemoveEntry3') {*};
+    method Scan(xmlHashScanner $f, Pointer $data) is native(LIB) is symbol('xmlHashScan') {*};
+    method Scan3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, xmlHashScanner $f, Pointer $data) is native(LIB) is symbol('xmlHashScan3') {*};
+    method ScanFull(xmlHashScannerFull $f, Pointer $data) is native(LIB) is symbol('xmlHashScanFull') {*};
+    method ScanFull3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, xmlHashScannerFull $f, Pointer $data) is native(LIB) is symbol('xmlHashScanFull3') {*};
+    method Size( --> int32) is native(LIB) is symbol('xmlHashSize') {*};
+    method UpdateEntry(xmlCharP $name, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashUpdateEntry') {*};
+    method UpdateEntry2(xmlCharP $name, xmlCharP $name2, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashUpdateEntry2') {*};
+    method UpdateEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashUpdateEntry3') {*};
 }
 
 sub xmlHashDefaultDeallocator(Pointer $entry, xmlCharP $name) is native(LIB) {*};

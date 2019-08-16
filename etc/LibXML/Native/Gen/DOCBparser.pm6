@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::DOCBparser;
 # old DocBook SGML parser:
 #    interface for a DocBook SGML non-verifying parser This code is DEPRECATED, and should not be used anymore. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub docbCreateFileParserCtxt(Str $filename, Str $encoding --> docbParserCtxt) is native(LIB) {*};
 sub docbCreatePushParserCtxt(docbSAXHandler $sax, Pointer $user_data, Str $chunk, int32 $size, Str $filename, xmlCharEncoding $enc --> docbParserCtxt) is native(LIB) {*};

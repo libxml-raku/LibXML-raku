@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlIO;
 # interface for the I/O interfaces used by the parser:
 #    interface for the I/O interfaces used by the parser 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlCheckFilename(Str $path --> int32) is native(LIB) {*};
 sub xmlCleanupInputCallbacks() is native(LIB) {*};

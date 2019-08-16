@@ -5,9 +5,9 @@ use v6;
 unit module LibXML::Native::Gen::uri;
 # library of generic URI related routines:
 #    library of generic URI related routines Implements RFC 2396 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
-struct xmlURI is repr('CStruct') {
+class xmlURI is repr('CStruct') {
     has Str $.scheme; # the URI scheme
     has Str $.opaque; # opaque part
     has Str $.authority; # the authority part
@@ -24,9 +24,9 @@ struct xmlURI is repr('CStruct') {
     sub xmlParseURI(Str $str --> xmlURI) is native(LIB) {*};
     sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURI) is native(LIB) {*};
 
-    method xmlFreeURI() is native(LIB) {*};
-    method xmlParseURIReference(Str $str --> int32) is native(LIB) {*};
-    method xmlSaveUri( --> xmlCharP) is native(LIB) {*};
+    method Free() is native(LIB) is symbol('xmlFreeURI') {*};
+    method ParseURIReference(Str $str --> int32) is native(LIB) is symbol('xmlParseURIReference') {*};
+    method SaveUri( --> xmlCharP) is native(LIB) is symbol('xmlSaveUri') {*};
 }
 
 sub xmlBuildRelativeURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) {*};

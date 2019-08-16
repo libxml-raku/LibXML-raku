@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::nanohttp;
 # minimal HTTP implementation:
 #    minimal HTTP implementation allowing to fetch resources like external subset. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlNanoHTTPAuthHeader(Pointer $ctx --> Str) is native(LIB) {*};
 sub xmlNanoHTTPCleanup() is native(LIB) {*};

@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::HTMLparser;
 # interface for an HTML 4.0 non-verifying parser:
 #    this module implements an HTML 4.0 non-verifying parser with API compatible with the XML parser ones. It should be able to parse "real world" HTML, even if severely broken from a specification point of view. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum htmlParserOption is export {
     HTML_PARSE_COMPACT => 65536,
@@ -28,7 +28,7 @@ enum htmlStatus is export {
     HTML_VALID => 4,
 }
 
-struct htmlElemDesc is repr('CStruct') {
+class htmlElemDesc is repr('CStruct') {
     has Str $.name; # The tag name
     has byte $.startTag; # Whether the start tag can be implied
     has byte $.endTag; # Whether the end tag can be implied
@@ -45,7 +45,7 @@ struct htmlElemDesc is repr('CStruct') {
     has const char ** $.attrs_req; # Required attributes
 }
 
-struct htmlEntityDesc is repr('CStruct') {
+class htmlEntityDesc is repr('CStruct') {
     has uint32 $.value; # the UNICODE value for the character
     has Str $.name; # The entity name
     has Str $.desc; # the description

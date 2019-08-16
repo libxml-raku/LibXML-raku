@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::parser;
 # the core parser module:
 #    Interfaces, constants and types related to the XML parser 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 enum xmlFeature is export {
     XML_WITH_AUTOMATA => 23,
@@ -100,23 +100,23 @@ enum xmlParserOption is export {
     XML_PARSE_XINCLUDE => 1024,
 }
 
-struct xmlParserNodeInfo is repr('CStruct') {
-    has const struct _xmlNode * $.node; # Position & line # that text that created the node begins & ends on
+class xmlParserNodeInfo is repr('CStruct') {
+    has const xmlNode $.node; # Position & line # that text that created the node begins & ends on
     has unsigned long $.begin_pos;
     has unsigned long $.begin_line;
     has unsigned long $.end_pos;
     has unsigned long $.end_line;
 }
 
-struct xmlParserNodeInfoSeq is repr('CStruct') {
+class xmlParserNodeInfoSeq is repr('CStruct') {
     has unsigned long $.maximum;
     has unsigned long $.length;
     has xmlParserNodeInfo * $.buffer;
-    method xmlClearNodeInfoSeq() is native(LIB) {*};
-    method xmlInitNodeInfoSeq() is native(LIB) {*};
+    method Clear() is native(LIB) is symbol('xmlClearNodeInfoSeq') {*};
+    method Init() is native(LIB) is symbol('xmlInitNodeInfoSeq') {*};
 }
 
-struct xmlSAXHandlerV1 is repr('CStruct') {
+class xmlSAXHandlerV1 is repr('CStruct') {
     has internalSubsetSAXFunc $.internalSubset;
     has isStandaloneSAXFunc $.isStandalone;
     has hasInternalSubsetSAXFunc $.hasInternalSubset;

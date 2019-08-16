@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::SAX2;
 # SAX2 parser interface used to build the DOM tree:
 #    those are the default SAX2 interfaces used by the library when building DOM tree. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub docbDefaultSAXHandlerInit() is native(LIB) {*};
 sub htmlDefaultSAXHandlerInit() is native(LIB) {*};

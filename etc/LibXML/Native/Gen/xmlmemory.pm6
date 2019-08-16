@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlmemory;
 # interface for the memory allocator:
 #    provides interfaces for the memory allocator, including debugging capabilities. 
-use LibXML::Native::Defs :LIB, :XmlCharP;
+use LibXML::Native::Defs :LIB, :xmlCharP;
 
 sub xmlCleanupMemory() is native(LIB) {*};
 sub xmlGcMemGet(xmlFreeFunc * $freeFunc, xmlMallocFunc * $mallocFunc, xmlMallocFunc * $mallocAtomicFunc, xmlReallocFunc * $reallocFunc, xmlStrdupFunc * $strdupFunc --> int32) is native(LIB) {*};
