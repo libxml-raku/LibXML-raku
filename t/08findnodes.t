@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 40;
+plan 41;
 
 use LibXML;
 
@@ -49,6 +49,13 @@ if ( defined $dom ) {
     }
     else {
         flunk('Attribute selection');
+    }
+    @list   = $elem<species/@name>;
+    if @list {
+        is(@list[0].gist, 'name="Camel"', 'Attribute selection' )
+    }
+    else {
+        flunk('Attribute selection (AT-KEY)');
     }
 
     my $x = LibXML::Text.new: :content(1234);

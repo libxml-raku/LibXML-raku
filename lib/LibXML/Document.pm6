@@ -308,7 +308,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc
 
     with self.native -> xmlDoc:D $doc {
 
-        my $skipped-dtd = $doc.getInternalSubset
+        my LibXML::Dtd $skipped-dtd = $doc.getInternalSubset
             if $skip-dtd;
 
         with $skipped-dtd {
@@ -344,7 +344,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
 
     with self.native -> xmlDoc:D $doc {
 
-        my $skipped-dtd = $doc.getInternalSubset
+        my LibXML::Dtd $skipped-dtd = $doc.getInternalSubset
             if $skip-dtd;
 
         with $skipped-dtd {

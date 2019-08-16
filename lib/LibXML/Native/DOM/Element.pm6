@@ -27,8 +27,9 @@ method setAttribute(QName:D $name, Str:D $value --> UInt) {
         # probably declare an attribute which looks like XML namespace declaration but isn't)
         my NCName $prefix = ($0 // '').Str;
         my QName $nn = self.getNodeName;
+        my $uri := $value;
 
-	self.domSetNamespaceDeclURI($prefix, $value)
+	self.domSetNamespaceDeclURI($prefix, $uri)
         || do {
 	    # activate, if the element has the same prefix
             my Bool $activate = ? $nn.starts-with($prefix ~ ':');
@@ -39,7 +40,7 @@ method setAttribute(QName:D $name, Str:D $value --> UInt) {
             ## |  $e = LibXML::Element.new: :name<foo:bar>;
             ## |  $e.setAttribute('xmlns:foo','http://yoyodine')
             ##
-	    self.domSetNamespace($value, $prefix, +$activate);
+	    self.domSetNamespace($uri, $prefix, +$activate);
         }
     }
     else {

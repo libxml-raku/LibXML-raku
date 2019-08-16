@@ -268,7 +268,7 @@ class LibXML::Node {
         my xmlNodeSet:D $node-set := $!native.findnodes: native($xpath-expr);
         iterate-set(NodeSetElem, $node-set);
     }
-    multi method findnodes(Str:D $expr) {
+    multi method findnodes(Str:D $expr) is also<AT-KEY> {
         self.findnodes( LibXML::XPath::Expression.new: :$expr);
     }
     method !value(xmlXPathObject $native, Bool :$literal) {
@@ -403,7 +403,7 @@ class LibXML::Node {
         );
     }
 
-    proto method Str(|) is also<serialize> {*}
+    proto method Str(|) is also<serialize> handles <Int Num> {*}
     multi method Str(:$C14N! where .so, |c) {
         self!c14n-str(|c);
     }

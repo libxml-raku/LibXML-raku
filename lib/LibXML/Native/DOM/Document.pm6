@@ -23,6 +23,7 @@ method domSetInternalSubset { ... }
 method domSetExternalSubset { ... }
 method GetCompressMode { ... }
 method SetCompressMode { ... }
+method new-node { ... }
 
 method documentElement is rw {
     Proxy.new(

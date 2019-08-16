@@ -174,6 +174,7 @@ LibXML::Element - LibXML Class for Element Nodes
   $avalue = $node.getAttribute( $aname );
   $avalue = $node.getAttributeNS( $nsURI, $aname );
   $attrnode = $node.getAttributeNode( $aname );
+  $attrnode = .[0] with $node{'@'~$name}; # xpath attribute selection
   $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
   my Bool $has-atts = $node.hasAttributes();
   my LibXML::Attr::Map $attrs = $node.attributes();
@@ -186,6 +187,7 @@ LibXML::Element - LibXML Class for Element Nodes
   @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
   @nodes = $node.getChildrenByLocalName($localname);
   @nodes = $node.getElementsByTagName($tagname);
+  @nodes = $node{$tagname}; # xpath node selection
   @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
   @nodes = $node.getElementsByLocalName($localname);
   $node.appendWellBalancedChunk( $chunk );
