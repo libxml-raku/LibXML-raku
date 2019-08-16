@@ -18,21 +18,20 @@ enum xmlSchematronValidOptions is export {
 }
 
 struct xmlSchematron is repr('CPointer') {
+    method xmlSchematronFree() is native(LIB) {*};
+    method xmlSchematronNewValidCtxt(int32 $options --> xmlSchematronValidCtxt) is native(LIB) {*};
 }
 
 struct xmlSchematronParserCtxt is repr('CPointer') {
+    sub xmlSchematronNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchematronParserCtxt) is native(LIB) {*};
+    sub xmlSchematronNewParserCtxt(Str $URL --> xmlSchematronParserCtxt) is native(LIB) {*};
+
+    method xmlSchematronFreeParserCtxt() is native(LIB) {*};
+    method xmlSchematronParse( --> xmlSchematron) is native(LIB) {*};
 }
 
 struct xmlSchematronValidCtxt is repr('CPointer') {
+    method xmlSchematronFreeValidCtxt() is native(LIB) {*};
+    method xmlSchematronSetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
+    method xmlSchematronValidateDoc(xmlDoc $instance --> int32) is native(LIB) {*};
 }
-
-sub xmlSchematronFree(xmlSchematronPtr $schema) is native(LIB) {*};
-sub xmlSchematronFreeParserCtxt(xmlSchematronParserCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlSchematronFreeValidCtxt(xmlSchematronValidCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlSchematronNewDocParserCtxt(xmlDocPtr $doc --> xmlSchematronParserCtxtPtr) is native(LIB) {*};
-sub xmlSchematronNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchematronParserCtxtPtr) is native(LIB) {*};
-sub xmlSchematronNewParserCtxt(Str $URL --> xmlSchematronParserCtxtPtr) is native(LIB) {*};
-sub xmlSchematronNewValidCtxt(xmlSchematronPtr $schema, int32 $options --> xmlSchematronValidCtxtPtr) is native(LIB) {*};
-sub xmlSchematronParse(xmlSchematronParserCtxtPtr $ctxt --> xmlSchematronPtr) is native(LIB) {*};
-sub xmlSchematronSetValidStructuredErrors(xmlSchematronValidCtxtPtr $ctxt, xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-sub xmlSchematronValidateDoc(xmlSchematronValidCtxtPtr $ctxt, xmlDocPtr $instance --> int32) is native(LIB) {*};

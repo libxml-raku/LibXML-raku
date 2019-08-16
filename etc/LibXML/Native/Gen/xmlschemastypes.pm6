@@ -14,37 +14,7 @@ enum xmlSchemaWhitespaceValueType is export {
     XML_SCHEMA_WHITESPACE_UNKNOWN => 0,
 }
 
-sub xmlSchemaCheckFacet(xmlSchemaFacetPtr $facet, xmlSchemaTypePtr $typeDecl, xmlSchemaParserCtxtPtr $pctxt, xmlCharP $name --> int32) is native(LIB) {*};
 sub xmlSchemaCleanupTypes() is native(LIB) {*};
 sub xmlSchemaCollapseString(xmlCharP $value --> xmlCharP) is native(LIB) {*};
-sub xmlSchemaCompareValues(xmlSchemaValPtr $x, xmlSchemaValPtr $y --> int32) is native(LIB) {*};
-sub xmlSchemaCompareValuesWhtsp(xmlSchemaValPtr $x, xmlSchemaWhitespaceValueType $xws, xmlSchemaValPtr $y, xmlSchemaWhitespaceValueType $yws --> int32) is native(LIB) {*};
-sub xmlSchemaCopyValue(xmlSchemaValPtr $val --> xmlSchemaValPtr) is native(LIB) {*};
-sub xmlSchemaFreeFacet(xmlSchemaFacetPtr $facet) is native(LIB) {*};
-sub xmlSchemaFreeValue(xmlSchemaValPtr $value) is native(LIB) {*};
-sub xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaTypePtr $type --> xmlSchemaTypePtr) is native(LIB) {*};
-sub xmlSchemaGetBuiltInType(xmlSchemaValType $type --> xmlSchemaTypePtr) is native(LIB) {*};
-sub xmlSchemaGetCanonValue(xmlSchemaValPtr $val, const xmlChar ** $retValue --> int32) is native(LIB) {*};
-sub xmlSchemaGetCanonValueWhtsp(xmlSchemaValPtr $val, const xmlChar ** $retValue, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) {*};
-sub xmlSchemaGetFacetValueAsULong(xmlSchemaFacetPtr $facet --> unsigned long) is native(LIB) {*};
-sub xmlSchemaGetPredefinedType(xmlCharP $name, xmlCharP $ns --> xmlSchemaTypePtr) is native(LIB) {*};
-sub xmlSchemaGetValType(xmlSchemaValPtr $val --> xmlSchemaValType) is native(LIB) {*};
 sub xmlSchemaInitTypes() is native(LIB) {*};
-sub xmlSchemaIsBuiltInTypeFacet(xmlSchemaTypePtr $type, int32 $facetType --> int32) is native(LIB) {*};
-sub xmlSchemaNewFacet( --> xmlSchemaFacetPtr) is native(LIB) {*};
-sub xmlSchemaNewNOTATIONValue(xmlCharP $name, xmlCharP $ns --> xmlSchemaValPtr) is native(LIB) {*};
-sub xmlSchemaNewQNameValue(xmlCharP $namespaceName, xmlCharP $localName --> xmlSchemaValPtr) is native(LIB) {*};
-sub xmlSchemaNewStringValue(xmlSchemaValType $type, xmlCharP $value --> xmlSchemaValPtr) is native(LIB) {*};
-sub xmlSchemaValPredefTypeNode(xmlSchemaTypePtr $type, xmlCharP $value, xmlSchemaValPtr * $val, xmlNodePtr $node --> int32) is native(LIB) {*};
-sub xmlSchemaValPredefTypeNodeNoNorm(xmlSchemaTypePtr $type, xmlCharP $value, xmlSchemaValPtr * $val, xmlNodePtr $node --> int32) is native(LIB) {*};
-sub xmlSchemaValidateFacet(xmlSchemaTypePtr $base, xmlSchemaFacetPtr $facet, xmlCharP $value, xmlSchemaValPtr $val --> int32) is native(LIB) {*};
-sub xmlSchemaValidateFacetWhtsp(xmlSchemaFacetPtr $facet, xmlSchemaWhitespaceValueType $fws, xmlSchemaValType $valType, xmlCharP $value, xmlSchemaValPtr $val, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) {*};
-sub xmlSchemaValidateLengthFacet(xmlSchemaTypePtr $type, xmlSchemaFacetPtr $facet, xmlCharP $value, xmlSchemaValPtr $val, unsigned long * $length --> int32) is native(LIB) {*};
-sub xmlSchemaValidateLengthFacetWhtsp(xmlSchemaFacetPtr $facet, xmlSchemaValType $valType, xmlCharP $value, xmlSchemaValPtr $val, unsigned long * $length, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) {*};
-sub xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacetPtr $facet, xmlCharP $value, unsigned long $actualLen, unsigned long * $expectedLen --> int32) is native(LIB) {*};
-sub xmlSchemaValidatePredefinedType(xmlSchemaTypePtr $type, xmlCharP $value, xmlSchemaValPtr * $val --> int32) is native(LIB) {*};
-sub xmlSchemaValueAppend(xmlSchemaValPtr $prev, xmlSchemaValPtr $cur --> int32) is native(LIB) {*};
-sub xmlSchemaValueGetAsBoolean(xmlSchemaValPtr $val --> int32) is native(LIB) {*};
-sub xmlSchemaValueGetAsString(xmlSchemaValPtr $val --> xmlCharP) is native(LIB) {*};
-sub xmlSchemaValueGetNext(xmlSchemaValPtr $cur --> xmlSchemaValPtr) is native(LIB) {*};
 sub xmlSchemaWhiteSpaceReplace(xmlCharP $value --> xmlCharP) is native(LIB) {*};

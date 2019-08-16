@@ -11,26 +11,10 @@ struct xmlLocationSet is repr('CStruct') {
     has int32 $.locNr; # number of locations in the set
     has int32 $.locMax; # size of the array as allocated
     has xmlXPathObjectPtr * $.locTab; # array of locations
+    method xmlXPtrFreeLocationSet() is native(LIB) {*};
+    method xmlXPtrLocationSetAdd(xmlXPathObject $val) is native(LIB) {*};
+    method xmlXPtrLocationSetDel(xmlXPathObject $val) is native(LIB) {*};
+    method xmlXPtrLocationSetMerge(xmlLocationSet $val2 --> xmlLocationSet) is native(LIB) {*};
+    method xmlXPtrLocationSetRemove(int32 $val) is native(LIB) {*};
+    method xmlXPtrWrapLocationSet( --> xmlXPathObject) is native(LIB) {*};
 }
-
-sub xmlXPtrBuildNodeList(xmlXPathObjectPtr $obj --> xmlNodePtr) is native(LIB) {*};
-sub xmlXPtrEval(xmlCharP $str, xmlXPathContextPtr $ctx --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrEvalRangePredicate(xmlXPathParserContextPtr $ctxt) is native(LIB) {*};
-sub xmlXPtrFreeLocationSet(xmlLocationSetPtr $obj) is native(LIB) {*};
-sub xmlXPtrLocationSetAdd(xmlLocationSetPtr $cur, xmlXPathObjectPtr $val) is native(LIB) {*};
-sub xmlXPtrLocationSetCreate(xmlXPathObjectPtr $val --> xmlLocationSetPtr) is native(LIB) {*};
-sub xmlXPtrLocationSetDel(xmlLocationSetPtr $cur, xmlXPathObjectPtr $val) is native(LIB) {*};
-sub xmlXPtrLocationSetMerge(xmlLocationSetPtr $val1, xmlLocationSetPtr $val2 --> xmlLocationSetPtr) is native(LIB) {*};
-sub xmlXPtrLocationSetRemove(xmlLocationSetPtr $cur, int32 $val) is native(LIB) {*};
-sub xmlXPtrNewCollapsedRange(xmlNodePtr $start --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewContext(xmlDocPtr $doc, xmlNodePtr $here, xmlNodePtr $origin --> xmlXPathContextPtr) is native(LIB) {*};
-sub xmlXPtrNewLocationSetNodeSet(xmlNodeSetPtr $set --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewLocationSetNodes(xmlNodePtr $start, xmlNodePtr $end --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewRange(xmlNodePtr $start, int32 $startindex, xmlNodePtr $end, int32 $endindex --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewRangeNodeObject(xmlNodePtr $start, xmlXPathObjectPtr $end --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewRangeNodePoint(xmlNodePtr $start, xmlXPathObjectPtr $end --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewRangeNodes(xmlNodePtr $start, xmlNodePtr $end --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewRangePointNode(xmlXPathObjectPtr $start, xmlNodePtr $end --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrNewRangePoints(xmlXPathObjectPtr $start, xmlXPathObjectPtr $end --> xmlXPathObjectPtr) is native(LIB) {*};
-sub xmlXPtrRangeToFunction(xmlXPathParserContextPtr $ctxt, int32 $nargs) is native(LIB) {*};
-sub xmlXPtrWrapLocationSet(xmlLocationSetPtr $val --> xmlXPathObjectPtr) is native(LIB) {*};

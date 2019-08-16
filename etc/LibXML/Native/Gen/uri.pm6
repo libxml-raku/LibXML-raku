@@ -19,20 +19,22 @@ struct xmlURI is repr('CStruct') {
     has Str $.fragment; # the fragment identifier
     has int32 $.cleanup; # parsing potentially unclean URI
     has Str $.query_raw; # the query string (as it appears in the URI)
+
+    sub xmlCreateURI( --> xmlURI) is native(LIB) {*};
+    sub xmlParseURI(Str $str --> xmlURI) is native(LIB) {*};
+    sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURI) is native(LIB) {*};
+
+    method xmlFreeURI() is native(LIB) {*};
+    method xmlParseURIReference(Str $str --> int32) is native(LIB) {*};
+    method xmlSaveUri( --> xmlCharP) is native(LIB) {*};
 }
 
 sub xmlBuildRelativeURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) {*};
 sub xmlBuildURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) {*};
 sub xmlCanonicPath(xmlCharP $path --> xmlCharP) is native(LIB) {*};
-sub xmlCreateURI( --> xmlURIPtr) is native(LIB) {*};
-sub xmlFreeURI(xmlURIPtr $uri) is native(LIB) {*};
 sub xmlNormalizeURIPath(Str $path --> int32) is native(LIB) {*};
-sub xmlParseURI(Str $str --> xmlURIPtr) is native(LIB) {*};
-sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURIPtr) is native(LIB) {*};
-sub xmlParseURIReference(xmlURIPtr $uri, Str $str --> int32) is native(LIB) {*};
 sub xmlPathToURI(xmlCharP $path --> xmlCharP) is native(LIB) {*};
-sub xmlPrintURI(FILE * $stream, xmlURIPtr $uri) is native(LIB) {*};
-sub xmlSaveUri(xmlURIPtr $uri --> xmlCharP) is native(LIB) {*};
+sub xmlPrintURI(FILE * $stream, xmlURI $uri) is native(LIB) {*};
 sub xmlURIEscape(xmlCharP $str --> xmlCharP) is native(LIB) {*};
 sub xmlURIEscapeStr(xmlCharP $str, xmlCharP $list --> xmlCharP) is native(LIB) {*};
 sub xmlURIUnescapeString(Str $str, int32 $len, Str $target --> Str) is native(LIB) {*};

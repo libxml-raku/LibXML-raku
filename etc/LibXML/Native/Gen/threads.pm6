@@ -8,24 +8,25 @@ unit module LibXML::Native::Gen::threads;
 use LibXML::Native::Defs :LIB, :XmlCharP;
 
 struct xmlMutex is repr('CPointer') {
+    sub xmlNewMutex( --> xmlMutex) is native(LIB) {*};
+
+    method xmlFreeMutex() is native(LIB) {*};
+    method xmlMutexLock() is native(LIB) {*};
+    method xmlMutexUnlock() is native(LIB) {*};
 }
 
 struct xmlRMutex is repr('CPointer') {
+    sub xmlNewRMutex( --> xmlRMutex) is native(LIB) {*};
+
+    method xmlFreeRMutex() is native(LIB) {*};
+    method xmlRMutexLock() is native(LIB) {*};
+    method xmlRMutexUnlock() is native(LIB) {*};
 }
 
 sub xmlCleanupThreads() is native(LIB) {*};
 sub xmlDllMain(Pointer $hinstDLL, unsigned long $fdwReason, Pointer $lpvReserved --> int32) is native(LIB) {*};
-sub xmlFreeMutex(xmlMutexPtr $tok) is native(LIB) {*};
-sub xmlFreeRMutex(xmlRMutexPtr $tok) is native(LIB) {*};
-sub xmlGetGlobalState( --> xmlGlobalStatePtr) is native(LIB) {*};
 sub xmlGetThreadId( --> int32) is native(LIB) {*};
 sub xmlInitThreads() is native(LIB) {*};
 sub xmlIsMainThread( --> int32) is native(LIB) {*};
 sub xmlLockLibrary() is native(LIB) {*};
-sub xmlMutexLock(xmlMutexPtr $tok) is native(LIB) {*};
-sub xmlMutexUnlock(xmlMutexPtr $tok) is native(LIB) {*};
-sub xmlNewMutex( --> xmlMutexPtr) is native(LIB) {*};
-sub xmlNewRMutex( --> xmlRMutexPtr) is native(LIB) {*};
-sub xmlRMutexLock(xmlRMutexPtr $tok) is native(LIB) {*};
-sub xmlRMutexUnlock(xmlRMutexPtr $tok) is native(LIB) {*};
 sub xmlUnlockLibrary() is native(LIB) {*};

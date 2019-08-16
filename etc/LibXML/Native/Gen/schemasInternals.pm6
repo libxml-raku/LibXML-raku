@@ -113,7 +113,7 @@ enum xmlSchemaValType is export {
 
 struct xmlSchemaAnnot is repr('CStruct') {
     has struct _xmlSchemaAnnot * $.next;
-    has xmlNodePtr $.content; # the annotation
+    has xmlNode $.content; # the annotation
 }
 
 struct xmlSchemaAttribute is repr('CStruct') {
@@ -125,17 +125,17 @@ struct xmlSchemaAttribute is repr('CStruct') {
     has xmlCharP $.refNs; # Deprecated; not used
     has xmlCharP $.typeName; # the local name of the type definition
     has xmlCharP $.typeNs; # the ns URI of the type definition
-    has xmlSchemaAnnotPtr $.annot;
-    has xmlSchemaTypePtr $.base; # Deprecated; not used
+    has xmlSchemaAnnot $.annot;
+    has xmlSchemaType $.base; # Deprecated; not used
     has int32 $.occurs; # Deprecated; not used
     has xmlCharP $.defValue; # The initial value of the value constraint
-    has xmlSchemaTypePtr $.subtypes; # the type definition
-    has xmlNodePtr $.node;
+    has xmlSchemaType $.subtypes; # the type definition
+    has xmlNode $.node;
     has xmlCharP $.targetNamespace;
     has int32 $.flags;
     has xmlCharP $.refPrefix; # Deprecated; not used
-    has xmlSchemaValPtr $.defVal; # The compiled value constraint
-    has xmlSchemaAttributePtr $.refDecl; # Deprecated; not used
+    has xmlSchemaVal $.defVal; # The compiled value constraint
+    has xmlSchemaAttribute $.refDecl; # Deprecated; not used
 }
 
 struct xmlSchemaAttributeGroup is repr('CStruct') {
@@ -145,13 +145,13 @@ struct xmlSchemaAttributeGroup is repr('CStruct') {
     has xmlCharP $.id;
     has xmlCharP $.ref; # Deprecated; not used
     has xmlCharP $.refNs; # Deprecated; not used
-    has xmlSchemaAnnotPtr $.annot;
-    has xmlSchemaAttributePtr $.attributes; # Deprecated; not used
-    has xmlNodePtr $.node;
+    has xmlSchemaAnnot $.annot;
+    has xmlSchemaAttribute $.attributes; # Deprecated; not used
+    has xmlNode $.node;
     has int32 $.flags;
-    has xmlSchemaWildcardPtr $.attributeWildcard;
+    has xmlSchemaWildcard $.attributeWildcard;
     has xmlCharP $.refPrefix; # Deprecated; not used
-    has xmlSchemaAttributeGroupPtr $.refItem; # Deprecated; not used
+    has xmlSchemaAttributeGroup $.refItem; # Deprecated; not used
     has xmlCharP $.targetNamespace;
     has Pointer $.attrUses;
 }
@@ -168,10 +168,10 @@ struct xmlSchemaElement is repr('CStruct') {
     has xmlCharP $.id; # Deprecated; not used
     has xmlCharP $.ref; # Deprecated; not used
     has xmlCharP $.refNs; # Deprecated; not used
-    has xmlSchemaAnnotPtr $.annot;
-    has xmlSchemaTypePtr $.subtypes; # the type definition
-    has xmlSchemaAttributePtr $.attributes;
-    has xmlNodePtr $.node;
+    has xmlSchemaAnnot $.annot;
+    has xmlSchemaType $.subtypes; # the type definition
+    has xmlSchemaAttribute $.attributes;
+    has xmlNode $.node;
     has int32 $.minOccurs; # Deprecated; not used
     has int32 $.maxOccurs; # Deprecated; not used
     has int32 $.flags;
@@ -183,10 +183,10 @@ struct xmlSchemaElement is repr('CStruct') {
     has xmlCharP $.scope;
     has xmlCharP $.value; # The original value of the value constraint.
     has struct _xmlSchemaElement * $.refDecl; # This will now be used for the substitution group affiliation
-    has xmlRegexpPtr $.contModel; # Obsolete for WXS, maybe used for RelaxNG
+    has xmlRegexp $.contModel; # Obsolete for WXS, maybe used for RelaxNG
     has xmlSchemaContentType $.contentType;
     has xmlCharP $.refPrefix; # Deprecated; not used
-    has xmlSchemaValPtr $.defVal; # The compiled value contraint.
+    has xmlSchemaVal $.defVal; # The compiled value contraint.
     has Pointer $.idcs; # The identity-constraint defs
 }
 
@@ -195,23 +195,32 @@ struct xmlSchemaFacet is repr('CStruct') {
     has struct _xmlSchemaFacet * $.next; # the next type if in a sequence ...
     has xmlCharP $.value; # The original value
     has xmlCharP $.id; # Obsolete
-    has xmlSchemaAnnotPtr $.annot;
-    has xmlNodePtr $.node;
+    has xmlSchemaAnnot $.annot;
+    has xmlNode $.node;
     has int32 $.fixed; # XML_SCHEMAS_FACET_PRESERVE, etc.
     has int32 $.whitespace;
-    has xmlSchemaValPtr $.val; # The compiled value
-    has xmlRegexpPtr $.regexp; # The regex for patterns
+    has xmlSchemaVal $.val; # The compiled value
+    has xmlRegexp $.regexp; # The regex for patterns
+
+    sub xmlSchemaNewFacet( --> xmlSchemaFacet) is native(LIB) {*};
+
+    method xmlSchemaCheckFacet(xmlSchemaType $typeDecl, xmlSchemaParserCtxt $pctxt, xmlCharP $name --> int32) is native(LIB) {*};
+    method xmlSchemaFreeFacet() is native(LIB) {*};
+    method xmlSchemaGetFacetValueAsULong( --> unsigned long) is native(LIB) {*};
+    method xmlSchemaValidateFacetWhtsp(xmlSchemaWhitespaceValueType $fws, xmlSchemaValType $valType, xmlCharP $value, xmlSchemaVal $val, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) {*};
+    method xmlSchemaValidateLengthFacetWhtsp(xmlSchemaValType $valType, xmlCharP $value, xmlSchemaVal $val, unsigned long * $length, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) {*};
+    method xmlSchemaValidateListSimpleTypeFacet(xmlCharP $value, unsigned long $actualLen, unsigned long * $expectedLen --> int32) is native(LIB) {*};
 }
 
 struct xmlSchemaFacetLink is repr('CStruct') {
     has struct _xmlSchemaFacetLink * $.next; # the next facet link ...
-    has xmlSchemaFacetPtr $.facet; # the linked facet
+    has xmlSchemaFacet $.facet; # the linked facet
 }
 
 struct xmlSchemaNotation is repr('CStruct') {
     has xmlSchemaTypeType $.type; # The kind of type
     has xmlCharP $.name;
-    has xmlSchemaAnnotPtr $.annot;
+    has xmlSchemaAnnot $.annot;
     has xmlCharP $.identifier;
     has xmlCharP $.targetNamespace;
 }
@@ -223,58 +232,83 @@ struct xmlSchemaType is repr('CStruct') {
     has xmlCharP $.id; # Deprecated; not used
     has xmlCharP $.ref; # Deprecated; not used
     has xmlCharP $.refNs; # Deprecated; not used
-    has xmlSchemaAnnotPtr $.annot;
-    has xmlSchemaTypePtr $.subtypes;
-    has xmlSchemaAttributePtr $.attributes; # Deprecated; not used
-    has xmlNodePtr $.node;
+    has xmlSchemaAnnot $.annot;
+    has xmlSchemaType $.subtypes;
+    has xmlSchemaAttribute $.attributes; # Deprecated; not used
+    has xmlNode $.node;
     has int32 $.minOccurs; # Deprecated; not used
     has int32 $.maxOccurs; # Deprecated; not used
     has int32 $.flags;
     has xmlSchemaContentType $.contentType;
     has xmlCharP $.base; # Base type's local name
     has xmlCharP $.baseNs; # Base type's target namespace
-    has xmlSchemaTypePtr $.baseType; # The base type component
-    has xmlSchemaFacetPtr $.facets; # Local facets
+    has xmlSchemaType $.baseType; # The base type component
+    has xmlSchemaFacet $.facets; # Local facets
     has struct _xmlSchemaType * $.redef; # Deprecated; not used
     has int32 $.recurse; # Obsolete
     has xmlSchemaAttributeLinkPtr * $.attributeUses; # Deprecated; not used
-    has xmlSchemaWildcardPtr $.attributeWildcard;
+    has xmlSchemaWildcard $.attributeWildcard;
     has int32 $.builtInType; # Type of built-in types.
-    has xmlSchemaTypeLinkPtr $.memberTypes; # member-types if a union type.
-    has xmlSchemaFacetLinkPtr $.facetSet; # All facets (incl. inherited)
+    has xmlSchemaTypeLink $.memberTypes; # member-types if a union type.
+    has xmlSchemaFacetLink $.facetSet; # All facets (incl. inherited)
     has xmlCharP $.refPrefix; # Deprecated; not used
-    has xmlSchemaTypePtr $.contentTypeDef; # Used for the simple content of complex types. Could we use @subtypes for this?
-    has xmlRegexpPtr $.contModel; # Holds the automaton of the content model
+    has xmlSchemaType $.contentTypeDef; # Used for the simple content of complex types. Could we use @subtypes for this?
+    has xmlRegexp $.contModel; # Holds the automaton of the content model
     has xmlCharP $.targetNamespace;
     has Pointer $.attrUses;
+
+    sub xmlSchemaGetBuiltInType(xmlSchemaValType $type --> xmlSchemaType) is native(LIB) {*};
+    sub xmlSchemaGetPredefinedType(xmlCharP $name, xmlCharP $ns --> xmlSchemaType) is native(LIB) {*};
+
+    method xmlSchemaFreeType() is native(LIB) {*};
+    method xmlSchemaGetBuiltInListSimpleTypeItemType( --> xmlSchemaType) is native(LIB) {*};
+    method xmlSchemaIsBuiltInTypeFacet(int32 $facetType --> int32) is native(LIB) {*};
+    method xmlSchemaValPredefTypeNode(xmlCharP $value, xmlSchemaValPtr * $val, xmlNode $node --> int32) is native(LIB) {*};
+    method xmlSchemaValPredefTypeNodeNoNorm(xmlCharP $value, xmlSchemaValPtr * $val, xmlNode $node --> int32) is native(LIB) {*};
+    method xmlSchemaValidateFacet(xmlSchemaFacet $facet, xmlCharP $value, xmlSchemaVal $val --> int32) is native(LIB) {*};
+    method xmlSchemaValidateLengthFacet(xmlSchemaFacet $facet, xmlCharP $value, xmlSchemaVal $val, unsigned long * $length --> int32) is native(LIB) {*};
+    method xmlSchemaValidatePredefinedType(xmlCharP $value, xmlSchemaValPtr * $val --> int32) is native(LIB) {*};
 }
 
 struct xmlSchemaTypeLink is repr('CStruct') {
     has struct _xmlSchemaTypeLink * $.next; # the next type link ...
-    has xmlSchemaTypePtr $.type; # the linked type
+    has xmlSchemaType $.type; # the linked type
 }
 
 struct xmlSchemaVal is repr('CPointer') {
+    sub xmlSchemaNewNOTATIONValue(xmlCharP $name, xmlCharP $ns --> xmlSchemaVal) is native(LIB) {*};
+    sub xmlSchemaNewQNameValue(xmlCharP $namespaceName, xmlCharP $localName --> xmlSchemaVal) is native(LIB) {*};
+    sub xmlSchemaNewStringValue(xmlSchemaValType $type, xmlCharP $value --> xmlSchemaVal) is native(LIB) {*};
+
+    method xmlSchemaCompareValues(xmlSchemaVal $y --> int32) is native(LIB) {*};
+    method xmlSchemaCompareValuesWhtsp(xmlSchemaWhitespaceValueType $xws, xmlSchemaVal $y, xmlSchemaWhitespaceValueType $yws --> int32) is native(LIB) {*};
+    method xmlSchemaCopyValue( --> xmlSchemaVal) is native(LIB) {*};
+    method xmlSchemaFreeValue() is native(LIB) {*};
+    method xmlSchemaGetCanonValue(const xmlChar ** $retValue --> int32) is native(LIB) {*};
+    method xmlSchemaGetCanonValueWhtsp(const xmlChar ** $retValue, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) {*};
+    method xmlSchemaGetValType( --> xmlSchemaValType) is native(LIB) {*};
+    method xmlSchemaValueAppend(xmlSchemaVal $cur --> int32) is native(LIB) {*};
+    method xmlSchemaValueGetAsBoolean( --> int32) is native(LIB) {*};
+    method xmlSchemaValueGetAsString( --> xmlCharP) is native(LIB) {*};
+    method xmlSchemaValueGetNext( --> xmlSchemaVal) is native(LIB) {*};
 }
 
 struct xmlSchemaWildcard is repr('CStruct') {
     has xmlSchemaTypeType $.type; # The kind of type
     has xmlCharP $.id; # Deprecated; not used
-    has xmlSchemaAnnotPtr $.annot;
-    has xmlNodePtr $.node;
+    has xmlSchemaAnnot $.annot;
+    has xmlNode $.node;
     has int32 $.minOccurs; # Deprecated; not used
     has int32 $.maxOccurs; # Deprecated; not used
     has int32 $.processContents;
     has int32 $.any; # Indicates if the ns constraint is of ##any
-    has xmlSchemaWildcardNsPtr $.nsSet; # The list of allowed namespaces
-    has xmlSchemaWildcardNsPtr $.negNsSet; # The negated namespace
+    has xmlSchemaWildcardNs $.nsSet; # The list of allowed namespaces
+    has xmlSchemaWildcardNs $.negNsSet; # The negated namespace
     has int32 $.flags;
+    method xmlSchemaFreeWildcard() is native(LIB) {*};
 }
 
 struct xmlSchemaWildcardNs is repr('CStruct') {
     has struct _xmlSchemaWildcardNs * $.next; # the next constraint link ...
     has xmlCharP $.value; # the value
 }
-
-sub xmlSchemaFreeType(xmlSchemaTypePtr $type) is native(LIB) {*};
-sub xmlSchemaFreeWildcard(xmlSchemaWildcardPtr $wildcard) is native(LIB) {*};

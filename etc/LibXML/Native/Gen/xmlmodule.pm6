@@ -13,9 +13,9 @@ enum xmlModuleOption is export {
 }
 
 struct xmlModule is repr('CPointer') {
-}
+    sub xmlModuleOpen(Str $name, int32 $options --> xmlModule) is native(LIB) {*};
 
-sub xmlModuleClose(xmlModulePtr $module --> int32) is native(LIB) {*};
-sub xmlModuleFree(xmlModulePtr $module --> int32) is native(LIB) {*};
-sub xmlModuleOpen(Str $name, int32 $options --> xmlModulePtr) is native(LIB) {*};
-sub xmlModuleSymbol(xmlModulePtr $module, Str $name, void ** $symbol --> int32) is native(LIB) {*};
+    method xmlModuleClose( --> int32) is native(LIB) {*};
+    method xmlModuleFree( --> int32) is native(LIB) {*};
+    method xmlModuleSymbol(Str $name, void ** $symbol --> int32) is native(LIB) {*};
+}

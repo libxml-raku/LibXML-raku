@@ -27,7 +27,7 @@ class Gen {
             do with $!of {
                 (TypeMap{$_}:exists)
                     ?? TypeMap{$_}
-                    !! $_;
+                    !! .subst(/'Ptr'$/, '');
             } // Str;
         }
 
@@ -130,9 +130,11 @@ sub write-file(Gen::File:D $module) {
                 $info = ' # ' ~ $info if $info;
                 say "    has $type \$\.$name;$info";
             }
+            say '' if .fields && .subs;
             for .subs.sort(*.name).list {
                 say "    " ~ .Str;
             }
+            say '' if .subs && .methods;
             for .methods.sort(*.name).list {
                 say "    " ~ .Str(:method);
             }
@@ -179,7 +181,7 @@ sub process-struct-fields(StructDefElem:D $_, Str:D $xpath, Gen::Struct :$struct
 
         my Gen::Field $field .= new: :$name, :$type, :$info;
         $struct.fields.push: $field;
-        $*ERR.print('>');
+        $*ERR.print('<');
     }
 }
 
@@ -207,8 +209,10 @@ sub process-functions(Str:D $xpath) {
 
         my Gen::Function $function .= new: :$name, :$return, :@args;
 
-        my $method-struct = %*Structs{.type//''} with @args[0];
-        my $return-struct = %*Structs{.type//''} with $return;
+        my $method-type = .type with @args[0];
+        my $return-type = .type with $return;
+        my $method-struct = %*Structs{$_} with $method-type;
+        my $return-struct = %*Structs{$_} with $return-type;
         with $method-struct {
             .methods.push: $function;
         }

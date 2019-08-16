@@ -45,58 +45,58 @@ struct xmlSchema is repr('CStruct') {
     has xmlCharP $.targetNamespace; # the target namespace
     has xmlCharP $.version;
     has xmlCharP $.id; # Obsolete
-    has xmlDocPtr $.doc;
-    has xmlSchemaAnnotPtr $.annot;
+    has xmlDoc $.doc;
+    has xmlSchemaAnnot $.annot;
     has int32 $.flags;
-    has xmlHashTablePtr $.typeDecl;
-    has xmlHashTablePtr $.attrDecl;
-    has xmlHashTablePtr $.attrgrpDecl;
-    has xmlHashTablePtr $.elemDecl;
-    has xmlHashTablePtr $.notaDecl;
-    has xmlHashTablePtr $.schemasImports;
+    has xmlHashTable $.typeDecl;
+    has xmlHashTable $.attrDecl;
+    has xmlHashTable $.attrgrpDecl;
+    has xmlHashTable $.elemDecl;
+    has xmlHashTable $.notaDecl;
+    has xmlHashTable $.schemasImports;
     has Pointer $._private; # unused by the library for users or bindings
-    has xmlHashTablePtr $.groupDecl;
-    has xmlDictPtr $.dict;
+    has xmlHashTable $.groupDecl;
+    has xmlDict $.dict;
     has Pointer $.includes; # the includes, this is opaque for now
     has int32 $.preserve; # whether to free the document
     has int32 $.counter; # used to give ononymous components unique names
-    has xmlHashTablePtr $.idcDef; # All identity-constraint defs.
+    has xmlHashTable $.idcDef; # All identity-constraint defs.
     has Pointer $.volatiles; # Obsolete
+    method xmlSchemaFree() is native(LIB) {*};
+    method xmlSchemaNewValidCtxt( --> xmlSchemaValidCtxt) is native(LIB) {*};
 }
 
 struct xmlSchemaParserCtxt is repr('CPointer') {
+    sub xmlSchemaNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchemaParserCtxt) is native(LIB) {*};
+    sub xmlSchemaNewParserCtxt(Str $URL --> xmlSchemaParserCtxt) is native(LIB) {*};
+
+    method xmlSchemaFreeParserCtxt() is native(LIB) {*};
+    method xmlSchemaGetParserErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
+    method xmlSchemaParse( --> xmlSchema) is native(LIB) {*};
+    method xmlSchemaSetParserErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
+    method xmlSchemaSetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
 }
 
 struct xmlSchemaSAXPlugStruct is repr('CPointer') {
 }
 
 struct xmlSchemaValidCtxt is repr('CPointer') {
+    method xmlSchemaFreeValidCtxt() is native(LIB) {*};
+    method xmlSchemaGetValidErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
+    method xmlSchemaIsValid( --> int32) is native(LIB) {*};
+    method xmlSchemaSAXPlug(xmlSAXHandlerPtr * $sax, void ** $user_data --> xmlSchemaSAXPlug) is native(LIB) {*};
+    method xmlSchemaSetValidErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
+    method xmlSchemaSetValidOptions(int32 $options --> int32) is native(LIB) {*};
+    method xmlSchemaSetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
+    method xmlSchemaValidCtxtGetOptions( --> int32) is native(LIB) {*};
+    method xmlSchemaValidCtxtGetParserCtxt( --> xmlParserCtxt) is native(LIB) {*};
+    method xmlSchemaValidateDoc(xmlDoc $doc --> int32) is native(LIB) {*};
+    method xmlSchemaValidateFile(Str $filename, int32 $options --> int32) is native(LIB) {*};
+    method xmlSchemaValidateOneElement(xmlNode $elem --> int32) is native(LIB) {*};
+    method xmlSchemaValidateSetFilename(Str $filename) is native(LIB) {*};
+    method xmlSchemaValidateSetLocator(xmlSchemaValidityLocatorFunc $f, Pointer $ctxt) is native(LIB) {*};
+    method xmlSchemaValidateStream(xmlParserInputBuffer $input, xmlCharEncoding $enc, xmlSAXHandler $sax, Pointer $user_data --> int32) is native(LIB) {*};
 }
 
-sub xmlSchemaDump(FILE * $output, xmlSchemaPtr $schema) is native(LIB) {*};
-sub xmlSchemaFree(xmlSchemaPtr $schema) is native(LIB) {*};
-sub xmlSchemaFreeParserCtxt(xmlSchemaParserCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlSchemaFreeValidCtxt(xmlSchemaValidCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlSchemaGetParserErrors(xmlSchemaParserCtxtPtr $ctxt, xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
-sub xmlSchemaGetValidErrors(xmlSchemaValidCtxtPtr $ctxt, xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
-sub xmlSchemaIsValid(xmlSchemaValidCtxtPtr $ctxt --> int32) is native(LIB) {*};
-sub xmlSchemaNewDocParserCtxt(xmlDocPtr $doc --> xmlSchemaParserCtxtPtr) is native(LIB) {*};
-sub xmlSchemaNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchemaParserCtxtPtr) is native(LIB) {*};
-sub xmlSchemaNewParserCtxt(Str $URL --> xmlSchemaParserCtxtPtr) is native(LIB) {*};
-sub xmlSchemaNewValidCtxt(xmlSchemaPtr $schema --> xmlSchemaValidCtxtPtr) is native(LIB) {*};
-sub xmlSchemaParse(xmlSchemaParserCtxtPtr $ctxt --> xmlSchemaPtr) is native(LIB) {*};
-sub xmlSchemaSAXPlug(xmlSchemaValidCtxtPtr $ctxt, xmlSAXHandlerPtr * $sax, void ** $user_data --> xmlSchemaSAXPlugPtr) is native(LIB) {*};
-sub xmlSchemaSAXUnplug(xmlSchemaSAXPlugPtr $plug --> int32) is native(LIB) {*};
-sub xmlSchemaSetParserErrors(xmlSchemaParserCtxtPtr $ctxt, xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
-sub xmlSchemaSetParserStructuredErrors(xmlSchemaParserCtxtPtr $ctxt, xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-sub xmlSchemaSetValidErrors(xmlSchemaValidCtxtPtr $ctxt, xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
-sub xmlSchemaSetValidOptions(xmlSchemaValidCtxtPtr $ctxt, int32 $options --> int32) is native(LIB) {*};
-sub xmlSchemaSetValidStructuredErrors(xmlSchemaValidCtxtPtr $ctxt, xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-sub xmlSchemaValidCtxtGetOptions(xmlSchemaValidCtxtPtr $ctxt --> int32) is native(LIB) {*};
-sub xmlSchemaValidCtxtGetParserCtxt(xmlSchemaValidCtxtPtr $ctxt --> xmlParserCtxtPtr) is native(LIB) {*};
-sub xmlSchemaValidateDoc(xmlSchemaValidCtxtPtr $ctxt, xmlDocPtr $doc --> int32) is native(LIB) {*};
-sub xmlSchemaValidateFile(xmlSchemaValidCtxtPtr $ctxt, Str $filename, int32 $options --> int32) is native(LIB) {*};
-sub xmlSchemaValidateOneElement(xmlSchemaValidCtxtPtr $ctxt, xmlNodePtr $elem --> int32) is native(LIB) {*};
-sub xmlSchemaValidateSetFilename(xmlSchemaValidCtxtPtr $vctxt, Str $filename) is native(LIB) {*};
-sub xmlSchemaValidateSetLocator(xmlSchemaValidCtxtPtr $vctxt, xmlSchemaValidityLocatorFunc $f, Pointer $ctxt) is native(LIB) {*};
-sub xmlSchemaValidateStream(xmlSchemaValidCtxtPtr $ctxt, xmlParserInputBufferPtr $input, xmlCharEncoding $enc, xmlSAXHandlerPtr $sax, Pointer $user_data --> int32) is native(LIB) {*};
+sub xmlSchemaDump(FILE * $output, xmlSchema $schema) is native(LIB) {*};
+sub xmlSchemaSAXUnplug(xmlSchemaSAXPlug $plug --> int32) is native(LIB) {*};

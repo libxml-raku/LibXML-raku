@@ -8,27 +8,27 @@ unit module LibXML::Native::Gen::xmlautomata;
 use LibXML::Native::Defs :LIB, :XmlCharP;
 
 struct xmlAutomata is repr('CPointer') {
+    sub xmlNewAutomata( --> xmlAutomata) is native(LIB) {*};
+
+    method xmlAutomataCompile( --> xmlRegexp) is native(LIB) {*};
+    method xmlAutomataGetInitState( --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataIsDeterminist( --> int32) is native(LIB) {*};
+    method xmlAutomataNewAllTrans(xmlAutomataState $from, xmlAutomataState $to, int32 $lax --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewCountTrans(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, int32 $min, int32 $max, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewCountTrans2(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, xmlCharP $token2, int32 $min, int32 $max, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewCountedTrans(xmlAutomataState $from, xmlAutomataState $to, int32 $counter --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewCounter(int32 $min, int32 $max --> int32) is native(LIB) {*};
+    method xmlAutomataNewCounterTrans(xmlAutomataState $from, xmlAutomataState $to, int32 $counter --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewEpsilon(xmlAutomataState $from, xmlAutomataState $to --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewNegTrans(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, xmlCharP $token2, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewOnceTrans(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, int32 $min, int32 $max, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewOnceTrans2(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, xmlCharP $token2, int32 $min, int32 $max, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewState( --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewTransition(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataNewTransition2(xmlAutomataState $from, xmlAutomataState $to, xmlCharP $token, xmlCharP $token2, Pointer $data --> xmlAutomataState) is native(LIB) {*};
+    method xmlAutomataSetFinalState(xmlAutomataState $state --> int32) is native(LIB) {*};
+    method xmlFreeAutomata() is native(LIB) {*};
 }
 
 struct xmlAutomataState is repr('CPointer') {
 }
-
-sub xmlAutomataCompile(xmlAutomataPtr $am --> xmlRegexpPtr) is native(LIB) {*};
-sub xmlAutomataGetInitState(xmlAutomataPtr $am --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataIsDeterminist(xmlAutomataPtr $am --> int32) is native(LIB) {*};
-sub xmlAutomataNewAllTrans(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, int32 $lax --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewCountTrans(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, int32 $min, int32 $max, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewCountTrans2(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, xmlCharP $token2, int32 $min, int32 $max, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewCountedTrans(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, int32 $counter --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewCounter(xmlAutomataPtr $am, int32 $min, int32 $max --> int32) is native(LIB) {*};
-sub xmlAutomataNewCounterTrans(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, int32 $counter --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewEpsilon(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewNegTrans(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, xmlCharP $token2, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewOnceTrans(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, int32 $min, int32 $max, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewOnceTrans2(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, xmlCharP $token2, int32 $min, int32 $max, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewState(xmlAutomataPtr $am --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewTransition(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataNewTransition2(xmlAutomataPtr $am, xmlAutomataStatePtr $from, xmlAutomataStatePtr $to, xmlCharP $token, xmlCharP $token2, Pointer $data --> xmlAutomataStatePtr) is native(LIB) {*};
-sub xmlAutomataSetFinalState(xmlAutomataPtr $am, xmlAutomataStatePtr $state --> int32) is native(LIB) {*};
-sub xmlFreeAutomata(xmlAutomataPtr $am) is native(LIB) {*};
-sub xmlNewAutomata( --> xmlAutomataPtr) is native(LIB) {*};

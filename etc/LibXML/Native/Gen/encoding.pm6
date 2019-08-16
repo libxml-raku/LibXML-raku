@@ -50,24 +50,27 @@ struct xmlCharEncodingHandler is repr('CStruct') {
     has iconv_t $.iconv_out;
     has uconv_t * $.uconv_in;
     has uconv_t * $.uconv_out;
+
+    sub xmlFindCharEncodingHandler(Str $name --> xmlCharEncodingHandler) is native(LIB) {*};
+    sub xmlGetCharEncodingHandler(xmlCharEncoding $enc --> xmlCharEncodingHandler) is native(LIB) {*};
+    sub xmlNewCharEncodingHandler(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandler) is native(LIB) {*};
+
+    method xmlAllocOutputBuffer( --> xmlOutputBuffer) is native(LIB) {*};
+    method xmlRegisterCharEncodingHandler() is native(LIB) {*};
 }
 
 sub UTF8Toisolat1(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(LIB) {*};
 sub isolat1ToUTF8(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(LIB) {*};
 sub xmlAddEncodingAlias(Str $name, Str $alias --> int32) is native(LIB) {*};
 sub xmlCharEncCloseFunc(xmlCharEncodingHandler * $handler --> int32) is native(LIB) {*};
-sub xmlCharEncFirstLine(xmlCharEncodingHandler * $handler, xmlBufferPtr $out, xmlBufferPtr $in --> int32) is native(LIB) {*};
-sub xmlCharEncInFunc(xmlCharEncodingHandler * $handler, xmlBufferPtr $out, xmlBufferPtr $in --> int32) is native(LIB) {*};
-sub xmlCharEncOutFunc(xmlCharEncodingHandler * $handler, xmlBufferPtr $out, xmlBufferPtr $in --> int32) is native(LIB) {*};
+sub xmlCharEncFirstLine(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(LIB) {*};
+sub xmlCharEncInFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(LIB) {*};
+sub xmlCharEncOutFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(LIB) {*};
 sub xmlCleanupCharEncodingHandlers() is native(LIB) {*};
 sub xmlCleanupEncodingAliases() is native(LIB) {*};
 sub xmlDelEncodingAlias(Str $alias --> int32) is native(LIB) {*};
 sub xmlDetectCharEncoding(const unsigned char * $in, int32 $len --> xmlCharEncoding) is native(LIB) {*};
-sub xmlFindCharEncodingHandler(Str $name --> xmlCharEncodingHandlerPtr) is native(LIB) {*};
-sub xmlGetCharEncodingHandler(xmlCharEncoding $enc --> xmlCharEncodingHandlerPtr) is native(LIB) {*};
 sub xmlGetCharEncodingName(xmlCharEncoding $enc --> Str) is native(LIB) {*};
 sub xmlGetEncodingAlias(Str $alias --> Str) is native(LIB) {*};
 sub xmlInitCharEncodingHandlers() is native(LIB) {*};
-sub xmlNewCharEncodingHandler(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandlerPtr) is native(LIB) {*};
 sub xmlParseCharEncoding(Str $name --> xmlCharEncoding) is native(LIB) {*};
-sub xmlRegisterCharEncodingHandler(xmlCharEncodingHandlerPtr $handler) is native(LIB) {*};

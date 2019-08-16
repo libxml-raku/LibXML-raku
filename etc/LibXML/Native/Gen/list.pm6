@@ -8,34 +8,34 @@ unit module LibXML::Native::Gen::list;
 use LibXML::Native::Defs :LIB, :XmlCharP;
 
 struct xmlLink is repr('CPointer') {
+    method xmlLinkGetData( --> Pointer) is native(LIB) {*};
 }
 
 struct xmlList is repr('CPointer') {
-}
+    sub xmlListCreate(xmlListDeallocator $deallocator, xmlListDataCompare $compare --> xmlList) is native(LIB) {*};
+    sub xmlListDup(const xmlList $old --> xmlList) is native(LIB) {*};
 
-sub xmlLinkGetData(xmlLinkPtr $lk --> Pointer) is native(LIB) {*};
-sub xmlListAppend(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListClear(xmlListPtr $l) is native(LIB) {*};
-sub xmlListCopy(xmlListPtr $cur, const xmlListPtr $old --> int32) is native(LIB) {*};
-sub xmlListCreate(xmlListDeallocator $deallocator, xmlListDataCompare $compare --> xmlListPtr) is native(LIB) {*};
-sub xmlListDelete(xmlListPtr $l) is native(LIB) {*};
-sub xmlListDup(const xmlListPtr $old --> xmlListPtr) is native(LIB) {*};
-sub xmlListEmpty(xmlListPtr $l --> int32) is native(LIB) {*};
-sub xmlListEnd(xmlListPtr $l --> xmlLinkPtr) is native(LIB) {*};
-sub xmlListFront(xmlListPtr $l --> xmlLinkPtr) is native(LIB) {*};
-sub xmlListInsert(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListMerge(xmlListPtr $l1, xmlListPtr $l2) is native(LIB) {*};
-sub xmlListPopBack(xmlListPtr $l) is native(LIB) {*};
-sub xmlListPopFront(xmlListPtr $l) is native(LIB) {*};
-sub xmlListPushBack(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListPushFront(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListRemoveAll(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListRemoveFirst(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListRemoveLast(xmlListPtr $l, Pointer $data --> int32) is native(LIB) {*};
-sub xmlListReverse(xmlListPtr $l) is native(LIB) {*};
-sub xmlListReverseSearch(xmlListPtr $l, Pointer $data --> Pointer) is native(LIB) {*};
-sub xmlListReverseWalk(xmlListPtr $l, xmlListWalker $walker, Pointer $user) is native(LIB) {*};
-sub xmlListSearch(xmlListPtr $l, Pointer $data --> Pointer) is native(LIB) {*};
-sub xmlListSize(xmlListPtr $l --> int32) is native(LIB) {*};
-sub xmlListSort(xmlListPtr $l) is native(LIB) {*};
-sub xmlListWalk(xmlListPtr $l, xmlListWalker $walker, Pointer $user) is native(LIB) {*};
+    method xmlListAppend(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListClear() is native(LIB) {*};
+    method xmlListCopy(const xmlList $old --> int32) is native(LIB) {*};
+    method xmlListDelete() is native(LIB) {*};
+    method xmlListEmpty( --> int32) is native(LIB) {*};
+    method xmlListEnd( --> xmlLink) is native(LIB) {*};
+    method xmlListFront( --> xmlLink) is native(LIB) {*};
+    method xmlListInsert(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListMerge(xmlList $l2) is native(LIB) {*};
+    method xmlListPopBack() is native(LIB) {*};
+    method xmlListPopFront() is native(LIB) {*};
+    method xmlListPushBack(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListPushFront(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListRemoveAll(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListRemoveFirst(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListRemoveLast(Pointer $data --> int32) is native(LIB) {*};
+    method xmlListReverse() is native(LIB) {*};
+    method xmlListReverseSearch(Pointer $data --> Pointer) is native(LIB) {*};
+    method xmlListReverseWalk(xmlListWalker $walker, Pointer $user) is native(LIB) {*};
+    method xmlListSearch(Pointer $data --> Pointer) is native(LIB) {*};
+    method xmlListSize( --> int32) is native(LIB) {*};
+    method xmlListSort() is native(LIB) {*};
+    method xmlListWalk(xmlListWalker $walker, Pointer $user) is native(LIB) {*};
+}

@@ -57,35 +57,35 @@ enum xmlRelaxNGValidErr is export {
 }
 
 struct xmlRelaxNG is repr('CPointer') {
+    method xmlRelaxNGFree() is native(LIB) {*};
+    method xmlRelaxNGNewValidCtxt( --> xmlRelaxNGValidCtxt) is native(LIB) {*};
 }
 
 struct xmlRelaxNGParserCtxt is repr('CPointer') {
+    sub xmlRelaxNGNewMemParserCtxt(Str $buffer, int32 $size --> xmlRelaxNGParserCtxt) is native(LIB) {*};
+    sub xmlRelaxNGNewParserCtxt(Str $URL --> xmlRelaxNGParserCtxt) is native(LIB) {*};
+
+    method xmlRelaxNGFreeParserCtxt() is native(LIB) {*};
+    method xmlRelaxNGGetParserErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
+    method xmlRelaxNGParse( --> xmlRelaxNG) is native(LIB) {*};
+    method xmlRelaxNGSetParserErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
+    method xmlRelaxNGSetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
+    method xmlRelaxParserSetFlag(int32 $flags --> int32) is native(LIB) {*};
 }
 
 struct xmlRelaxNGValidCtxt is repr('CPointer') {
+    method xmlRelaxNGFreeValidCtxt() is native(LIB) {*};
+    method xmlRelaxNGGetValidErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
+    method xmlRelaxNGSetValidErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
+    method xmlRelaxNGSetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
+    method xmlRelaxNGValidateDoc(xmlDoc $doc --> int32) is native(LIB) {*};
+    method xmlRelaxNGValidateFullElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
+    method xmlRelaxNGValidatePopElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
+    method xmlRelaxNGValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(LIB) {*};
+    method xmlRelaxNGValidatePushElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
 }
 
 sub xmlRelaxNGCleanupTypes() is native(LIB) {*};
-sub xmlRelaxNGDump(FILE * $output, xmlRelaxNGPtr $schema) is native(LIB) {*};
-sub xmlRelaxNGDumpTree(FILE * $output, xmlRelaxNGPtr $schema) is native(LIB) {*};
-sub xmlRelaxNGFree(xmlRelaxNGPtr $schema) is native(LIB) {*};
-sub xmlRelaxNGFreeParserCtxt(xmlRelaxNGParserCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlRelaxNGFreeValidCtxt(xmlRelaxNGValidCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlRelaxNGGetParserErrors(xmlRelaxNGParserCtxtPtr $ctxt, xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
-sub xmlRelaxNGGetValidErrors(xmlRelaxNGValidCtxtPtr $ctxt, xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) {*};
+sub xmlRelaxNGDump(FILE * $output, xmlRelaxNG $schema) is native(LIB) {*};
+sub xmlRelaxNGDumpTree(FILE * $output, xmlRelaxNG $schema) is native(LIB) {*};
 sub xmlRelaxNGInitTypes( --> int32) is native(LIB) {*};
-sub xmlRelaxNGNewDocParserCtxt(xmlDocPtr $doc --> xmlRelaxNGParserCtxtPtr) is native(LIB) {*};
-sub xmlRelaxNGNewMemParserCtxt(Str $buffer, int32 $size --> xmlRelaxNGParserCtxtPtr) is native(LIB) {*};
-sub xmlRelaxNGNewParserCtxt(Str $URL --> xmlRelaxNGParserCtxtPtr) is native(LIB) {*};
-sub xmlRelaxNGNewValidCtxt(xmlRelaxNGPtr $schema --> xmlRelaxNGValidCtxtPtr) is native(LIB) {*};
-sub xmlRelaxNGParse(xmlRelaxNGParserCtxtPtr $ctxt --> xmlRelaxNGPtr) is native(LIB) {*};
-sub xmlRelaxNGSetParserErrors(xmlRelaxNGParserCtxtPtr $ctxt, xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
-sub xmlRelaxNGSetParserStructuredErrors(xmlRelaxNGParserCtxtPtr $ctxt, xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-sub xmlRelaxNGSetValidErrors(xmlRelaxNGValidCtxtPtr $ctxt, xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(LIB) {*};
-sub xmlRelaxNGSetValidStructuredErrors(xmlRelaxNGValidCtxtPtr $ctxt, xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) {*};
-sub xmlRelaxNGValidateDoc(xmlRelaxNGValidCtxtPtr $ctxt, xmlDocPtr $doc --> int32) is native(LIB) {*};
-sub xmlRelaxNGValidateFullElement(xmlRelaxNGValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem --> int32) is native(LIB) {*};
-sub xmlRelaxNGValidatePopElement(xmlRelaxNGValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem --> int32) is native(LIB) {*};
-sub xmlRelaxNGValidatePushCData(xmlRelaxNGValidCtxtPtr $ctxt, xmlCharP $data, int32 $len --> int32) is native(LIB) {*};
-sub xmlRelaxNGValidatePushElement(xmlRelaxNGValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem --> int32) is native(LIB) {*};
-sub xmlRelaxParserSetFlag(xmlRelaxNGParserCtxtPtr $ctxt, int32 $flags --> int32) is native(LIB) {*};

@@ -17,22 +17,12 @@ enum xmlEntityType is export {
 }
 
 struct xmlEntitiesTable is repr('CPointer') {
+    sub xmlCreateEntitiesTable( --> xmlEntitiesTable) is native(LIB) {*};
+
+    method xmlCopyEntitiesTable( --> xmlEntitiesTable) is native(LIB) {*};
+    method xmlFreeEntitiesTable() is native(LIB) {*};
 }
 
-sub xmlAddDocEntity(xmlDocPtr $doc, xmlCharP $name, int32 $type, xmlCharP $ExternalID, xmlCharP $SystemID, xmlCharP $content --> xmlEntityPtr) is native(LIB) {*};
-sub xmlAddDtdEntity(xmlDocPtr $doc, xmlCharP $name, int32 $type, xmlCharP $ExternalID, xmlCharP $SystemID, xmlCharP $content --> xmlEntityPtr) is native(LIB) {*};
 sub xmlCleanupPredefinedEntities() is native(LIB) {*};
-sub xmlCopyEntitiesTable(xmlEntitiesTablePtr $table --> xmlEntitiesTablePtr) is native(LIB) {*};
-sub xmlCreateEntitiesTable( --> xmlEntitiesTablePtr) is native(LIB) {*};
-sub xmlDumpEntitiesTable(xmlBufferPtr $buf, xmlEntitiesTablePtr $table) is native(LIB) {*};
-sub xmlDumpEntityDecl(xmlBufferPtr $buf, xmlEntityPtr $ent) is native(LIB) {*};
-sub xmlEncodeEntities(xmlDocPtr $doc, xmlCharP $input --> xmlCharP) is native(LIB) {*};
-sub xmlEncodeEntitiesReentrant(xmlDocPtr $doc, xmlCharP $input --> xmlCharP) is native(LIB) {*};
 sub xmlEncodeSpecialChars(const xmlDoc * $doc, xmlCharP $input --> xmlCharP) is native(LIB) {*};
-sub xmlFreeEntitiesTable(xmlEntitiesTablePtr $table) is native(LIB) {*};
-sub xmlGetDocEntity(const xmlDoc * $doc, xmlCharP $name --> xmlEntityPtr) is native(LIB) {*};
-sub xmlGetDtdEntity(xmlDocPtr $doc, xmlCharP $name --> xmlEntityPtr) is native(LIB) {*};
-sub xmlGetParameterEntity(xmlDocPtr $doc, xmlCharP $name --> xmlEntityPtr) is native(LIB) {*};
-sub xmlGetPredefinedEntity(xmlCharP $name --> xmlEntityPtr) is native(LIB) {*};
 sub xmlInitializePredefinedEntities() is native(LIB) {*};
-sub xmlNewEntity(xmlDocPtr $doc, xmlCharP $name, int32 $type, xmlCharP $ExternalID, xmlCharP $SystemID, xmlCharP $content --> xmlEntityPtr) is native(LIB) {*};

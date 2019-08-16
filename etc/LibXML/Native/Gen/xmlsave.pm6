@@ -19,15 +19,14 @@ enum xmlSaveOption is export {
 }
 
 struct xmlSaveCtxt is repr('CPointer') {
-}
+    sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
+    sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
+    sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
 
-sub xmlSaveClose(xmlSaveCtxtPtr $ctxt --> int32) is native(LIB) {*};
-sub xmlSaveDoc(xmlSaveCtxtPtr $ctxt, xmlDocPtr $doc --> long) is native(LIB) {*};
-sub xmlSaveFlush(xmlSaveCtxtPtr $ctxt --> int32) is native(LIB) {*};
-sub xmlSaveSetAttrEscape(xmlSaveCtxtPtr $ctxt, xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) {*};
-sub xmlSaveSetEscape(xmlSaveCtxtPtr $ctxt, xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) {*};
-sub xmlSaveToBuffer(xmlBufferPtr $buffer, Str $encoding, int32 $options --> xmlSaveCtxtPtr) is native(LIB) {*};
-sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxtPtr) is native(LIB) {*};
-sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxtPtr) is native(LIB) {*};
-sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxtPtr) is native(LIB) {*};
-sub xmlSaveTree(xmlSaveCtxtPtr $ctxt, xmlNodePtr $node --> long) is native(LIB) {*};
+    method xmlSaveClose( --> int32) is native(LIB) {*};
+    method xmlSaveDoc(xmlDoc $doc --> long) is native(LIB) {*};
+    method xmlSaveFlush( --> int32) is native(LIB) {*};
+    method xmlSaveSetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) {*};
+    method xmlSaveSetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) {*};
+    method xmlSaveTree(xmlNode $node --> long) is native(LIB) {*};
+}

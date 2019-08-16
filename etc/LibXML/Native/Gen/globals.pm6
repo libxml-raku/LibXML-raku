@@ -41,12 +41,15 @@ struct xmlGlobalState is repr('CStruct') {
     has xmlParserInputBufferCreateFilenameFunc $.xmlParserInputBufferCreateFilenameValue;
     has xmlOutputBufferCreateFilenameFunc $.xmlOutputBufferCreateFilenameValue;
     has Pointer $.xmlStructuredErrorContext;
+
+    sub xmlGetGlobalState( --> xmlGlobalState) is native(LIB) {*};
+
+    method xmlInitializeGlobalState() is native(LIB) {*};
 }
 
 sub xmlCleanupGlobals() is native(LIB) {*};
 sub xmlDeregisterNodeDefault(xmlDeregisterNodeFunc $func --> xmlDeregisterNodeFunc) is native(LIB) {*};
 sub xmlInitGlobals() is native(LIB) {*};
-sub xmlInitializeGlobalState(xmlGlobalStatePtr $gs) is native(LIB) {*};
 sub xmlOutputBufferCreateFilenameDefault(xmlOutputBufferCreateFilenameFunc $func --> xmlOutputBufferCreateFilenameFunc) is native(LIB) {*};
 sub xmlParserInputBufferCreateFilenameDefault(xmlParserInputBufferCreateFilenameFunc $func --> xmlParserInputBufferCreateFilenameFunc) is native(LIB) {*};
 sub xmlRegisterNodeDefault(xmlRegisterNodeFunc $func --> xmlRegisterNodeFunc) is native(LIB) {*};

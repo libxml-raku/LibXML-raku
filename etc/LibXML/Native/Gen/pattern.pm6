@@ -15,23 +15,23 @@ enum xmlPatternFlags is export {
 }
 
 struct xmlPattern is repr('CPointer') {
+    sub xmlPatterncompile(xmlCharP $pattern, xmlDict * $dict, int32 $flags, const xmlChar ** $namespaces --> xmlPattern) is native(LIB) {*};
+
+    method xmlFreePattern() is native(LIB) {*};
+    method xmlFreePatternList() is native(LIB) {*};
+    method xmlPatternFromRoot( --> int32) is native(LIB) {*};
+    method xmlPatternGetStreamCtxt( --> xmlStreamCtxt) is native(LIB) {*};
+    method xmlPatternMatch(xmlNode $node --> int32) is native(LIB) {*};
+    method xmlPatternMaxDepth( --> int32) is native(LIB) {*};
+    method xmlPatternMinDepth( --> int32) is native(LIB) {*};
+    method xmlPatternStreamable( --> int32) is native(LIB) {*};
 }
 
 struct xmlStreamCtxt is repr('CPointer') {
+    method xmlFreeStreamCtxt() is native(LIB) {*};
+    method xmlStreamPop( --> int32) is native(LIB) {*};
+    method xmlStreamPush(xmlCharP $name, xmlCharP $ns --> int32) is native(LIB) {*};
+    method xmlStreamPushAttr(xmlCharP $name, xmlCharP $ns --> int32) is native(LIB) {*};
+    method xmlStreamPushNode(xmlCharP $name, xmlCharP $ns, int32 $nodeType --> int32) is native(LIB) {*};
+    method xmlStreamWantsAnyNode( --> int32) is native(LIB) {*};
 }
-
-sub xmlFreePattern(xmlPatternPtr $comp) is native(LIB) {*};
-sub xmlFreePatternList(xmlPatternPtr $comp) is native(LIB) {*};
-sub xmlFreeStreamCtxt(xmlStreamCtxtPtr $stream) is native(LIB) {*};
-sub xmlPatternFromRoot(xmlPatternPtr $comp --> int32) is native(LIB) {*};
-sub xmlPatternGetStreamCtxt(xmlPatternPtr $comp --> xmlStreamCtxtPtr) is native(LIB) {*};
-sub xmlPatternMatch(xmlPatternPtr $comp, xmlNodePtr $node --> int32) is native(LIB) {*};
-sub xmlPatternMaxDepth(xmlPatternPtr $comp --> int32) is native(LIB) {*};
-sub xmlPatternMinDepth(xmlPatternPtr $comp --> int32) is native(LIB) {*};
-sub xmlPatternStreamable(xmlPatternPtr $comp --> int32) is native(LIB) {*};
-sub xmlPatterncompile(xmlCharP $pattern, xmlDict * $dict, int32 $flags, const xmlChar ** $namespaces --> xmlPatternPtr) is native(LIB) {*};
-sub xmlStreamPop(xmlStreamCtxtPtr $stream --> int32) is native(LIB) {*};
-sub xmlStreamPush(xmlStreamCtxtPtr $stream, xmlCharP $name, xmlCharP $ns --> int32) is native(LIB) {*};
-sub xmlStreamPushAttr(xmlStreamCtxtPtr $stream, xmlCharP $name, xmlCharP $ns --> int32) is native(LIB) {*};
-sub xmlStreamPushNode(xmlStreamCtxtPtr $stream, xmlCharP $name, xmlCharP $ns, int32 $nodeType --> int32) is native(LIB) {*};
-sub xmlStreamWantsAnyNode(xmlStreamCtxtPtr $streamCtxt --> int32) is native(LIB) {*};

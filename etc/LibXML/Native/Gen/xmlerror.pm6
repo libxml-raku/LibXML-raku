@@ -799,20 +799,20 @@ struct xmlError is repr('CStruct') {
     has int32 $.int2; # error column # or 0 if N/A (todo: rename field when we would brk ABI)
     has Pointer $.ctxt; # the parser context if available
     has Pointer $.node; # the node in the tree
+
+    sub xmlCtxtGetLastError(Pointer $ctx --> xmlError) is native(LIB) {*};
+    sub xmlGetLastError( --> xmlError) is native(LIB) {*};
+
+    method xmlCopyError(xmlError $to --> int32) is native(LIB) {*};
+    method xmlResetError() is native(LIB) {*};
 }
 
 sub initGenericErrorDefaultFunc(xmlGenericErrorFunc * $handler) is native(LIB) {*};
-sub xmlCopyError(xmlErrorPtr $from, xmlErrorPtr $to --> int32) is native(LIB) {*};
-sub xmlCtxtGetLastError(Pointer $ctx --> xmlErrorPtr) is native(LIB) {*};
 sub xmlCtxtResetLastError(Pointer $ctx) is native(LIB) {*};
-sub xmlGetLastError( --> xmlErrorPtr) is native(LIB) {*};
 sub xmlParserError(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
-sub xmlParserPrintFileContext(xmlParserInputPtr $input) is native(LIB) {*};
-sub xmlParserPrintFileInfo(xmlParserInputPtr $input) is native(LIB) {*};
 sub xmlParserValidityError(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
 sub xmlParserValidityWarning(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
 sub xmlParserWarning(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
-sub xmlResetError(xmlErrorPtr $err) is native(LIB) {*};
 sub xmlResetLastError() is native(LIB) {*};
 sub xmlSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(LIB) {*};
 sub xmlSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(LIB) {*};

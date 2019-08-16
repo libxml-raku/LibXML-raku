@@ -17,44 +17,45 @@ enum xmlExpNodeType is export {
 }
 
 struct xmlExpCtxt is repr('CPointer') {
+    sub xmlExpNewCtxt(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(LIB) {*};
+
+    method xmlExpCtxtNbCons( --> int32) is native(LIB) {*};
+    method xmlExpCtxtNbNodes( --> int32) is native(LIB) {*};
+    method xmlExpExpDerive(xmlExpNode $exp, xmlExpNode $sub --> xmlExpNode) is native(LIB) {*};
+    method xmlExpFree(xmlExpNode $exp) is native(LIB) {*};
+    method xmlExpFreeCtxt() is native(LIB) {*};
+    method xmlExpGetLanguage(xmlExpNode $exp, const xmlChar ** $langList, int32 $len --> int32) is native(LIB) {*};
+    method xmlExpGetStart(xmlExpNode $exp, const xmlChar ** $tokList, int32 $len --> int32) is native(LIB) {*};
+    method xmlExpNewAtom(xmlCharP $name, int32 $len --> xmlExpNode) is native(LIB) {*};
+    method xmlExpNewOr(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(LIB) {*};
+    method xmlExpNewRange(xmlExpNode $subset, int32 $min, int32 $max --> xmlExpNode) is native(LIB) {*};
+    method xmlExpNewSeq(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(LIB) {*};
+    method xmlExpParse(Str $expr --> xmlExpNode) is native(LIB) {*};
+    method xmlExpStringDerive(xmlExpNode $exp, xmlCharP $str, int32 $len --> xmlExpNode) is native(LIB) {*};
+    method xmlExpSubsume(xmlExpNode $exp, xmlExpNode $sub --> int32) is native(LIB) {*};
 }
 
 struct xmlExpNode is repr('CPointer') {
+    method xmlExpIsNillable( --> int32) is native(LIB) {*};
+    method xmlExpMaxToken( --> int32) is native(LIB) {*};
+    method xmlExpRef() is native(LIB) {*};
 }
 
 struct xmlRegExecCtxt is repr('CPointer') {
+    method xmlRegExecErrInfo(const xmlChar ** $string, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) {*};
+    method xmlRegExecNextValues(Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) {*};
+    method xmlRegExecPushString(xmlCharP $value, Pointer $data --> int32) is native(LIB) {*};
+    method xmlRegExecPushString2(xmlCharP $value, xmlCharP $value2, Pointer $data --> int32) is native(LIB) {*};
+    method xmlRegFreeExecCtxt() is native(LIB) {*};
 }
 
 struct xmlRegexp is repr('CPointer') {
+    sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexp) is native(LIB) {*};
+
+    method xmlRegFreeRegexp() is native(LIB) {*};
+    method xmlRegNewExecCtxt(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(LIB) {*};
+    method xmlRegexpExec(xmlCharP $content --> int32) is native(LIB) {*};
+    method xmlRegexpIsDeterminist( --> int32) is native(LIB) {*};
 }
 
-sub xmlExpCtxtNbCons(xmlExpCtxtPtr $ctxt --> int32) is native(LIB) {*};
-sub xmlExpCtxtNbNodes(xmlExpCtxtPtr $ctxt --> int32) is native(LIB) {*};
-sub xmlExpDump(xmlBufferPtr $buf, xmlExpNodePtr $expr) is native(LIB) {*};
-sub xmlExpExpDerive(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $exp, xmlExpNodePtr $sub --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpFree(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $exp) is native(LIB) {*};
-sub xmlExpFreeCtxt(xmlExpCtxtPtr $ctxt) is native(LIB) {*};
-sub xmlExpGetLanguage(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $exp, const xmlChar ** $langList, int32 $len --> int32) is native(LIB) {*};
-sub xmlExpGetStart(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $exp, const xmlChar ** $tokList, int32 $len --> int32) is native(LIB) {*};
-sub xmlExpIsNillable(xmlExpNodePtr $exp --> int32) is native(LIB) {*};
-sub xmlExpMaxToken(xmlExpNodePtr $expr --> int32) is native(LIB) {*};
-sub xmlExpNewAtom(xmlExpCtxtPtr $ctxt, xmlCharP $name, int32 $len --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpNewCtxt(int32 $maxNodes, xmlDictPtr $dict --> xmlExpCtxtPtr) is native(LIB) {*};
-sub xmlExpNewOr(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $left, xmlExpNodePtr $right --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpNewRange(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $subset, int32 $min, int32 $max --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpNewSeq(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $left, xmlExpNodePtr $right --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpParse(xmlExpCtxtPtr $ctxt, Str $expr --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpRef(xmlExpNodePtr $exp) is native(LIB) {*};
-sub xmlExpStringDerive(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $exp, xmlCharP $str, int32 $len --> xmlExpNodePtr) is native(LIB) {*};
-sub xmlExpSubsume(xmlExpCtxtPtr $ctxt, xmlExpNodePtr $exp, xmlExpNodePtr $sub --> int32) is native(LIB) {*};
-sub xmlRegExecErrInfo(xmlRegExecCtxtPtr $exec, const xmlChar ** $string, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) {*};
-sub xmlRegExecNextValues(xmlRegExecCtxtPtr $exec, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(LIB) {*};
-sub xmlRegExecPushString(xmlRegExecCtxtPtr $exec, xmlCharP $value, Pointer $data --> int32) is native(LIB) {*};
-sub xmlRegExecPushString2(xmlRegExecCtxtPtr $exec, xmlCharP $value, xmlCharP $value2, Pointer $data --> int32) is native(LIB) {*};
-sub xmlRegFreeExecCtxt(xmlRegExecCtxtPtr $exec) is native(LIB) {*};
-sub xmlRegFreeRegexp(xmlRegexpPtr $regexp) is native(LIB) {*};
-sub xmlRegNewExecCtxt(xmlRegexpPtr $comp, xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxtPtr) is native(LIB) {*};
-sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexpPtr) is native(LIB) {*};
-sub xmlRegexpExec(xmlRegexpPtr $comp, xmlCharP $content --> int32) is native(LIB) {*};
-sub xmlRegexpIsDeterminist(xmlRegexpPtr $comp --> int32) is native(LIB) {*};
-sub xmlRegexpPrint(FILE * $output, xmlRegexpPtr $regexp) is native(LIB) {*};
+sub xmlRegexpPrint(FILE * $output, xmlRegexp $regexp) is native(LIB) {*};

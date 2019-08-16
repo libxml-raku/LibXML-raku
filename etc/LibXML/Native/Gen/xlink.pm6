@@ -31,10 +31,11 @@ struct xlinkHandler is repr('CStruct') {
     has xlinkSimpleLinkFunk $.simple;
     has xlinkExtendedLinkFunk $.extended;
     has xlinkExtendedLinkSetFunk $.set;
+
+    sub xlinkGetDefaultHandler( --> xlinkHandler) is native(LIB) {*};
+
+    method xlinkSetDefaultHandler() is native(LIB) {*};
 }
 
 sub xlinkGetDefaultDetect( --> xlinkNodeDetectFunc) is native(LIB) {*};
-sub xlinkGetDefaultHandler( --> xlinkHandlerPtr) is native(LIB) {*};
-sub xlinkIsLink(xmlDocPtr $doc, xmlNodePtr $node --> xlinkType) is native(LIB) {*};
 sub xlinkSetDefaultDetect(xlinkNodeDetectFunc $func) is native(LIB) {*};
-sub xlinkSetDefaultHandler(xlinkHandlerPtr $handler) is native(LIB) {*};

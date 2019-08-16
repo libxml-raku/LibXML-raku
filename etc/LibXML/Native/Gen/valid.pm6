@@ -8,111 +8,85 @@ unit module LibXML::Native::Gen::valid;
 use LibXML::Native::Defs :LIB, :XmlCharP;
 
 struct xmlAttributeTable is repr('CPointer') {
+    method xmlCopyAttributeTable( --> xmlAttributeTable) is native(LIB) {*};
+    method xmlFreeAttributeTable() is native(LIB) {*};
 }
 
 struct xmlElementTable is repr('CPointer') {
+    method xmlCopyElementTable( --> xmlElementTable) is native(LIB) {*};
+    method xmlFreeElementTable() is native(LIB) {*};
 }
 
 struct xmlIDTable is repr('CPointer') {
+    method xmlFreeIDTable() is native(LIB) {*};
 }
 
 struct xmlNotationTable is repr('CPointer') {
+    method xmlCopyNotationTable( --> xmlNotationTable) is native(LIB) {*};
+    method xmlFreeNotationTable() is native(LIB) {*};
 }
 
 struct xmlRefTable is repr('CPointer') {
+    method xmlFreeRefTable() is native(LIB) {*};
 }
 
 struct xmlValidCtxt is repr('CStruct') {
     has Pointer $.userData; # user specific data block
     has xmlValidityErrorFunc $.error; # the callback in case of errors
     has xmlValidityWarningFunc $.warning; # the callback in case of warning Node analysis stack used when validating within entities
-    has xmlNodePtr $.node; # Current parsed Node
+    has xmlNode $.node; # Current parsed Node
     has int32 $.nodeNr; # Depth of the parsing stack
     has int32 $.nodeMax; # Max depth of the parsing stack
     has xmlNodePtr * $.nodeTab; # array of nodes
     has uint32 $.finishDtd; # finished validating the Dtd ?
-    has xmlDocPtr $.doc; # the document
+    has xmlDoc $.doc; # the document
     has int32 $.valid; # temporary validity check result state state used for non-determinist content validation
     has xmlValidState * $.vstate; # current state
     has int32 $.vstateNr; # Depth of the validation stack
     has int32 $.vstateMax; # Max depth of the validation stack
     has xmlValidState * $.vstateTab; # array of validation states
-    has xmlAutomataPtr $.am; # the automata
-    has xmlAutomataStatePtr $.state; # used to build the automata
+    has xmlAutomata $.am; # the automata
+    has xmlAutomataState $.state; # used to build the automata
     has Pointer $.am;
     has Pointer $.state;
+
+    sub xmlNewValidCtxt( --> xmlValidCtxt) is native(LIB) {*};
+
+    method xmlAddAttributeDecl(xmlDtd $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumeration $tree --> xmlAttribute) is native(LIB) {*};
+    method xmlAddElementDecl(xmlDtd $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContent $content --> xmlElement) is native(LIB) {*};
+    method xmlAddID(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlID) is native(LIB) {*};
+    method xmlAddNotationDecl(xmlDtd $dtd, xmlCharP $name, xmlCharP $PublicID, xmlCharP $SystemID --> xmlNotation) is native(LIB) {*};
+    method xmlAddRef(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlRef) is native(LIB) {*};
+    method xmlFreeValidCtxt() is native(LIB) {*};
+    method xmlValidBuildContentModel(xmlElement $elem --> int32) is native(LIB) {*};
+    method xmlValidCtxtNormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) {*};
+    method xmlValidateAttributeDecl(xmlDoc $doc, xmlAttribute $attr --> int32) is native(LIB) {*};
+    method xmlValidateDocument(xmlDoc $doc --> int32) is native(LIB) {*};
+    method xmlValidateDocumentFinal(xmlDoc $doc --> int32) is native(LIB) {*};
+    method xmlValidateDtd(xmlDoc $doc, xmlDtd $dtd --> int32) is native(LIB) {*};
+    method xmlValidateDtdFinal(xmlDoc $doc --> int32) is native(LIB) {*};
+    method xmlValidateElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
+    method xmlValidateElementDecl(xmlDoc $doc, xmlElement $elem --> int32) is native(LIB) {*};
+    method xmlValidateNotationDecl(xmlDoc $doc, xmlNotation $nota --> int32) is native(LIB) {*};
+    method xmlValidateNotationUse(xmlDoc $doc, xmlCharP $notationName --> int32) is native(LIB) {*};
+    method xmlValidateOneAttribute(xmlDoc $doc, xmlNode $elem, xmlAttr $attr, xmlCharP $value --> int32) is native(LIB) {*};
+    method xmlValidateOneElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) {*};
+    method xmlValidateOneNamespace(xmlDoc $doc, xmlNode $elem, xmlCharP $prefix, xmlNs $ns, xmlCharP $value --> int32) is native(LIB) {*};
+    method xmlValidatePopElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(LIB) {*};
+    method xmlValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(LIB) {*};
+    method xmlValidatePushElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(LIB) {*};
+    method xmlValidateRoot(xmlDoc $doc --> int32) is native(LIB) {*};
 }
 
 struct xmlValidState is repr('CPointer') {
 }
 
-sub xmlAddAttributeDecl(xmlValidCtxtPtr $ctxt, xmlDtdPtr $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumerationPtr $tree --> xmlAttributePtr) is native(LIB) {*};
-sub xmlAddElementDecl(xmlValidCtxtPtr $ctxt, xmlDtdPtr $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContentPtr $content --> xmlElementPtr) is native(LIB) {*};
-sub xmlAddID(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlCharP $value, xmlAttrPtr $attr --> xmlIDPtr) is native(LIB) {*};
-sub xmlAddNotationDecl(xmlValidCtxtPtr $ctxt, xmlDtdPtr $dtd, xmlCharP $name, xmlCharP $PublicID, xmlCharP $SystemID --> xmlNotationPtr) is native(LIB) {*};
-sub xmlAddRef(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlCharP $value, xmlAttrPtr $attr --> xmlRefPtr) is native(LIB) {*};
-sub xmlCopyAttributeTable(xmlAttributeTablePtr $table --> xmlAttributeTablePtr) is native(LIB) {*};
-sub xmlCopyDocElementContent(xmlDocPtr $doc, xmlElementContentPtr $cur --> xmlElementContentPtr) is native(LIB) {*};
-sub xmlCopyElementContent(xmlElementContentPtr $cur --> xmlElementContentPtr) is native(LIB) {*};
-sub xmlCopyElementTable(xmlElementTablePtr $table --> xmlElementTablePtr) is native(LIB) {*};
-sub xmlCopyEnumeration(xmlEnumerationPtr $cur --> xmlEnumerationPtr) is native(LIB) {*};
-sub xmlCopyNotationTable(xmlNotationTablePtr $table --> xmlNotationTablePtr) is native(LIB) {*};
-sub xmlCreateEnumeration(xmlCharP $name --> xmlEnumerationPtr) is native(LIB) {*};
-sub xmlDumpAttributeDecl(xmlBufferPtr $buf, xmlAttributePtr $attr) is native(LIB) {*};
-sub xmlDumpAttributeTable(xmlBufferPtr $buf, xmlAttributeTablePtr $table) is native(LIB) {*};
-sub xmlDumpElementDecl(xmlBufferPtr $buf, xmlElementPtr $elem) is native(LIB) {*};
-sub xmlDumpElementTable(xmlBufferPtr $buf, xmlElementTablePtr $table) is native(LIB) {*};
-sub xmlDumpNotationDecl(xmlBufferPtr $buf, xmlNotationPtr $nota) is native(LIB) {*};
-sub xmlDumpNotationTable(xmlBufferPtr $buf, xmlNotationTablePtr $table) is native(LIB) {*};
-sub xmlFreeAttributeTable(xmlAttributeTablePtr $table) is native(LIB) {*};
-sub xmlFreeDocElementContent(xmlDocPtr $doc, xmlElementContentPtr $cur) is native(LIB) {*};
-sub xmlFreeElementContent(xmlElementContentPtr $cur) is native(LIB) {*};
-sub xmlFreeElementTable(xmlElementTablePtr $table) is native(LIB) {*};
-sub xmlFreeEnumeration(xmlEnumerationPtr $cur) is native(LIB) {*};
-sub xmlFreeIDTable(xmlIDTablePtr $table) is native(LIB) {*};
-sub xmlFreeNotationTable(xmlNotationTablePtr $table) is native(LIB) {*};
-sub xmlFreeRefTable(xmlRefTablePtr $table) is native(LIB) {*};
-sub xmlFreeValidCtxt(xmlValidCtxtPtr $cur) is native(LIB) {*};
-sub xmlGetDtdAttrDesc(xmlDtdPtr $dtd, xmlCharP $elem, xmlCharP $name --> xmlAttributePtr) is native(LIB) {*};
-sub xmlGetDtdElementDesc(xmlDtdPtr $dtd, xmlCharP $name --> xmlElementPtr) is native(LIB) {*};
-sub xmlGetDtdNotationDesc(xmlDtdPtr $dtd, xmlCharP $name --> xmlNotationPtr) is native(LIB) {*};
-sub xmlGetDtdQAttrDesc(xmlDtdPtr $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $prefix --> xmlAttributePtr) is native(LIB) {*};
-sub xmlGetDtdQElementDesc(xmlDtdPtr $dtd, xmlCharP $name, xmlCharP $prefix --> xmlElementPtr) is native(LIB) {*};
-sub xmlGetID(xmlDocPtr $doc, xmlCharP $ID --> xmlAttrPtr) is native(LIB) {*};
-sub xmlGetRefs(xmlDocPtr $doc, xmlCharP $ID --> xmlListPtr) is native(LIB) {*};
-sub xmlIsID(xmlDocPtr $doc, xmlNodePtr $elem, xmlAttrPtr $attr --> int32) is native(LIB) {*};
-sub xmlIsMixedElement(xmlDocPtr $doc, xmlCharP $name --> int32) is native(LIB) {*};
-sub xmlIsRef(xmlDocPtr $doc, xmlNodePtr $elem, xmlAttrPtr $attr --> int32) is native(LIB) {*};
-sub xmlNewDocElementContent(xmlDocPtr $doc, xmlCharP $name, xmlElementContentType $type --> xmlElementContentPtr) is native(LIB) {*};
-sub xmlNewElementContent(xmlCharP $name, xmlElementContentType $type --> xmlElementContentPtr) is native(LIB) {*};
-sub xmlNewValidCtxt( --> xmlValidCtxtPtr) is native(LIB) {*};
-sub xmlRemoveID(xmlDocPtr $doc, xmlAttrPtr $attr --> int32) is native(LIB) {*};
-sub xmlRemoveRef(xmlDocPtr $doc, xmlAttrPtr $attr --> int32) is native(LIB) {*};
-sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContentPtr $content, int32 $englob) is native(LIB) {*};
-sub xmlSprintfElementContent(Str $buf, xmlElementContentPtr $content, int32 $englob) is native(LIB) {*};
-sub xmlValidBuildContentModel(xmlValidCtxtPtr $ctxt, xmlElementPtr $elem --> int32) is native(LIB) {*};
-sub xmlValidCtxtNormalizeAttributeValue(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) {*};
+sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContent $content, int32 $englob) is native(LIB) {*};
+sub xmlSprintfElementContent(Str $buf, xmlElementContent $content, int32 $englob) is native(LIB) {*};
 sub xmlValidGetPotentialChildren(xmlElementContent * $ctree, const xmlChar ** $names, Pointer[int32] $len, int32 $max --> int32) is native(LIB) {*};
 sub xmlValidGetValidElements(xmlNode * $prev, xmlNode * $next, const xmlChar ** $names, int32 $max --> int32) is native(LIB) {*};
-sub xmlValidNormalizeAttributeValue(xmlDocPtr $doc, xmlNodePtr $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) {*};
-sub xmlValidateAttributeDecl(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlAttributePtr $attr --> int32) is native(LIB) {*};
 sub xmlValidateAttributeValue(xmlAttributeType $type, xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateDocument(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc --> int32) is native(LIB) {*};
-sub xmlValidateDocumentFinal(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc --> int32) is native(LIB) {*};
-sub xmlValidateDtd(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlDtdPtr $dtd --> int32) is native(LIB) {*};
-sub xmlValidateDtdFinal(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc --> int32) is native(LIB) {*};
-sub xmlValidateElement(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem --> int32) is native(LIB) {*};
-sub xmlValidateElementDecl(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlElementPtr $elem --> int32) is native(LIB) {*};
 sub xmlValidateNameValue(xmlCharP $value --> int32) is native(LIB) {*};
 sub xmlValidateNamesValue(xmlCharP $value --> int32) is native(LIB) {*};
 sub xmlValidateNmtokenValue(xmlCharP $value --> int32) is native(LIB) {*};
 sub xmlValidateNmtokensValue(xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateNotationDecl(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNotationPtr $nota --> int32) is native(LIB) {*};
-sub xmlValidateNotationUse(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlCharP $notationName --> int32) is native(LIB) {*};
-sub xmlValidateOneAttribute(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem, xmlAttrPtr $attr, xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateOneElement(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem --> int32) is native(LIB) {*};
-sub xmlValidateOneNamespace(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem, xmlCharP $prefix, xmlNsPtr $ns, xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidatePopElement(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem, xmlCharP $qname --> int32) is native(LIB) {*};
-sub xmlValidatePushCData(xmlValidCtxtPtr $ctxt, xmlCharP $data, int32 $len --> int32) is native(LIB) {*};
-sub xmlValidatePushElement(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc, xmlNodePtr $elem, xmlCharP $qname --> int32) is native(LIB) {*};
-sub xmlValidateRoot(xmlValidCtxtPtr $ctxt, xmlDocPtr $doc --> int32) is native(LIB) {*};
