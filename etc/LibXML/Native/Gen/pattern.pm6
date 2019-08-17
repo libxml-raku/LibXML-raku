@@ -20,7 +20,7 @@ class xmlPattern is repr('CPointer') {
     method Free() is native(LIB) is symbol('xmlFreePattern') {*};
     method FreePatternList() is native(LIB) is symbol('xmlFreePatternList') {*};
     method FromRoot( --> int32) is native(LIB) is symbol('xmlPatternFromRoot') {*};
-    method GetStream( --> xmlStreamCtxt) is native(LIB) is symbol('xmlPatternGetStreamCtxt') {*};
+    method GetStreamCtxt( --> xmlStreamCtxt) is native(LIB) is symbol('xmlPatternGetStreamCtxt') {*};
     method Match(xmlNode $node --> int32) is native(LIB) is symbol('xmlPatternMatch') {*};
     method MaxDepth( --> int32) is native(LIB) is symbol('xmlPatternMaxDepth') {*};
     method MinDepth( --> int32) is native(LIB) is symbol('xmlPatternMinDepth') {*};

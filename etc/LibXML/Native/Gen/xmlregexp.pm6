@@ -19,8 +19,8 @@ enum xmlExpNodeType is export {
 class xmlExpCtxt is repr('CPointer') {
     sub xmlExpNewCtxt(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(LIB) {*};
 
-    method CtxtNbCons( --> int32) is native(LIB) is symbol('xmlExpCtxtNbCons') {*};
-    method CtxtNbNodes( --> int32) is native(LIB) is symbol('xmlExpCtxtNbNodes') {*};
+    method NbCons( --> int32) is native(LIB) is symbol('xmlExpCtxtNbCons') {*};
+    method NbNodes( --> int32) is native(LIB) is symbol('xmlExpCtxtNbNodes') {*};
     method ExpDerive(xmlExpNode $exp, xmlExpNode $sub --> xmlExpNode) is native(LIB) is symbol('xmlExpExpDerive') {*};
     method Free(xmlExpNode $exp) is native(LIB) is symbol('xmlExpFree') {*};
     method Free() is native(LIB) is symbol('xmlExpFreeCtxt') {*};
@@ -53,7 +53,7 @@ class xmlRegexp is repr('CPointer') {
     sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexp) is native(LIB) {*};
 
     method RegFree() is native(LIB) is symbol('xmlRegFreeRegexp') {*};
-    method RegNewExec(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(LIB) is symbol('xmlRegNewExecCtxt') {*};
+    method RegNewExecCtxt(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(LIB) is symbol('xmlRegNewExecCtxt') {*};
     method Exec(xmlCharP $content --> int32) is native(LIB) is symbol('xmlRegexpExec') {*};
     method IsDeterminist( --> int32) is native(LIB) is symbol('xmlRegexpIsDeterminist') {*};
 }

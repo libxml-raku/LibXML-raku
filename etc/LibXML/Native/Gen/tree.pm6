@@ -290,11 +290,11 @@ class xmlDoc is repr('CStruct') {
     method ParseExternalEntity(xmlSAXHandler $sax, Pointer $user_data, int32 $depth, xmlCharP $URL, xmlCharP $ID, xmlNodePtr * $lst --> int32) is native(LIB) is symbol('xmlParseExternalEntity') {*};
     method ReaderWalker( --> xmlTextReader) is native(LIB) is symbol('xmlReaderWalker') {*};
     method ReconciliateNs(xmlNode $tree --> int32) is native(LIB) is symbol('xmlReconciliateNs') {*};
-    method RelaxNGNewDocParser( --> xmlRelaxNGParserCtxt) is native(LIB) is symbol('xmlRelaxNGNewDocParserCtxt') {*};
+    method RelaxNGNewDocParserCtxt( --> xmlRelaxNGParserCtxt) is native(LIB) is symbol('xmlRelaxNGNewDocParserCtxt') {*};
     method RemoveID(xmlAttr $attr --> int32) is native(LIB) is symbol('xmlRemoveID') {*};
     method RemoveRef(xmlAttr $attr --> int32) is native(LIB) is symbol('xmlRemoveRef') {*};
-    method SchemaNewDocParser( --> xmlSchemaParserCtxt) is native(LIB) is symbol('xmlSchemaNewDocParserCtxt') {*};
-    method SchematronNewDocParser( --> xmlSchematronParserCtxt) is native(LIB) is symbol('xmlSchematronNewDocParserCtxt') {*};
+    method SchemaNewDocParserCtxt( --> xmlSchemaParserCtxt) is native(LIB) is symbol('xmlSchemaNewDocParserCtxt') {*};
+    method SchematronNewDocParserCtxt( --> xmlSchematronParserCtxt) is native(LIB) is symbol('xmlSchematronNewDocParserCtxt') {*};
     method SearchNs(xmlNode $node, xmlCharP $nameSpace --> xmlNs) is native(LIB) is symbol('xmlSearchNs') {*};
     method SearchNsByHref(xmlNode $node, xmlCharP $href --> xmlNs) is native(LIB) is symbol('xmlSearchNsByHref') {*};
     method SetDocCompressMode(int32 $mode) is native(LIB) is symbol('xmlSetDocCompressMode') {*};
@@ -700,7 +700,7 @@ class xmlParserCtxt is repr('CStruct') {
     method NewInputFromFile(Str $filename --> xmlParserInput) is native(LIB) is symbol('xmlNewInputFromFile') {*};
     method NewInputStream( --> xmlParserInput) is native(LIB) is symbol('xmlNewInputStream') {*};
     method NewStringInputStream(xmlCharP $buffer --> xmlParserInput) is native(LIB) is symbol('xmlNewStringInputStream') {*};
-    method NewTextWriterPush(int32 $compression --> xmlTextWriter) is native(LIB) is symbol('xmlNewTextWriterPushParser') {*};
+    method NewTextWriterPushParser(int32 $compression --> xmlTextWriter) is native(LIB) is symbol('xmlNewTextWriterPushParser') {*};
     method NextChar() is native(LIB) is symbol('xmlNextChar') {*};
     method ParseAttValue( --> xmlCharP) is native(LIB) is symbol('xmlParseAttValue') {*};
     method ParseAttribute(xmlChar ** $value --> xmlCharP) is native(LIB) is symbol('xmlParseAttribute') {*};
@@ -762,7 +762,7 @@ class xmlParserCtxt is repr('CStruct') {
     method SetupParserForBuffer(xmlCharP $buffer, Str $filename) is native(LIB) is symbol('xmlSetupParserForBuffer') {*};
     method SkipBlankChars( --> int32) is native(LIB) is symbol('xmlSkipBlankChars') {*};
     method SplitQName(xmlCharP $name, xmlChar ** $prefix --> xmlCharP) is native(LIB) is symbol('xmlSplitQName') {*};
-    method Stop() is native(LIB) is symbol('xmlStopParser') {*};
+    method StopParser() is native(LIB) is symbol('xmlStopParser') {*};
     method StringCurrentChar(xmlCharP $cur, Pointer[int32] $len --> int32) is native(LIB) is symbol('xmlStringCurrentChar') {*};
     method StringDecodeEntities(xmlCharP $str, int32 $what, xmlChar $end, xmlChar $end2, xmlChar $end3 --> xmlCharP) is native(LIB) is symbol('xmlStringDecodeEntities') {*};
     method StringLenDecodeEntities(xmlCharP $str, int32 $len, int32 $what, xmlChar $end, xmlChar $end2, xmlChar $end3 --> xmlCharP) is native(LIB) is symbol('xmlStringLenDecodeEntities') {*};
@@ -868,8 +868,8 @@ class xmlSAXHandler is repr('CStruct') {
     has startElementNsSAX2Func $.startElementNs;
     has endElementNsSAX2Func $.endElementNs;
     has xmlStructuredErrorFunc $.serror;
-    method CreateIOParser(Pointer $user_data, xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, xmlCharEncoding $enc --> xmlParserCtxt) is native(LIB) is symbol('xmlCreateIOParserCtxt') {*};
-    method CreatePushParser(Pointer $user_data, Str $chunk, int32 $size, Str $filename --> xmlParserCtxt) is native(LIB) is symbol('xmlCreatePushParserCtxt') {*};
+    method CreateIOParserCtxt(Pointer $user_data, xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, xmlCharEncoding $enc --> xmlParserCtxt) is native(LIB) is symbol('xmlCreateIOParserCtxt') {*};
+    method CreatePushParserCtxt(Pointer $user_data, Str $chunk, int32 $size, Str $filename --> xmlParserCtxt) is native(LIB) is symbol('xmlCreatePushParserCtxt') {*};
     method IOParseDTD(xmlParserInputBuffer $input, xmlCharEncoding $enc --> xmlDtd) is native(LIB) is symbol('xmlIOParseDTD') {*};
     method ParseDTD(xmlCharP $ExternalID, xmlCharP $SystemID --> xmlDtd) is native(LIB) is symbol('xmlSAXParseDTD') {*};
     method ParseDoc(xmlCharP $cur, int32 $recovery --> xmlDoc) is native(LIB) is symbol('xmlSAXParseDoc') {*};

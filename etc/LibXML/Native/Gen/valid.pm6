@@ -59,7 +59,7 @@ class xmlValidCtxt is repr('CStruct') {
     method AddRef(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlRef) is native(LIB) is symbol('xmlAddRef') {*};
     method Free() is native(LIB) is symbol('xmlFreeValidCtxt') {*};
     method BuildContentModel(xmlElement $elem --> int32) is native(LIB) is symbol('xmlValidBuildContentModel') {*};
-    method CtxtNormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) is symbol('xmlValidCtxtNormalizeAttributeValue') {*};
+    method NormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(LIB) is symbol('xmlValidCtxtNormalizeAttributeValue') {*};
     method ValidateAttributeDecl(xmlDoc $doc, xmlAttribute $attr --> int32) is native(LIB) is symbol('xmlValidateAttributeDecl') {*};
     method ValidateDocument(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlValidateDocument') {*};
     method ValidateDocumentFinal(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlValidateDocumentFinal') {*};

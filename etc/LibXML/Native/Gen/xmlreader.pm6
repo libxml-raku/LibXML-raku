@@ -124,9 +124,9 @@ class xmlTextReader is repr('CPointer') {
     method ReadString( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadString') {*};
     method RelaxNGSetSchema(xmlRelaxNG $schema --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGSetSchema') {*};
     method RelaxNGValidate(Str $rng --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGValidate') {*};
-    method RelaxNGValidate(xmlRelaxNGValidCtxt $ctxt, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGValidateCtxt') {*};
+    method RelaxNGValidateCtxt(xmlRelaxNGValidCtxt $ctxt, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGValidateCtxt') {*};
     method SchemaValidate(Str $xsd --> int32) is native(LIB) is symbol('xmlTextReaderSchemaValidate') {*};
-    method SchemaValidate(xmlSchemaValidCtxt $ctxt, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderSchemaValidateCtxt') {*};
+    method SchemaValidateCtxt(xmlSchemaValidCtxt $ctxt, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderSchemaValidateCtxt') {*};
     method SetErrorHandler(xmlTextReaderErrorFunc $f, Pointer $arg) is native(LIB) is symbol('xmlTextReaderSetErrorHandler') {*};
     method SetParserProp(int32 $prop, int32 $value --> int32) is native(LIB) is symbol('xmlTextReaderSetParserProp') {*};
     method SetSchema(xmlSchema $schema --> int32) is native(LIB) is symbol('xmlTextReaderSetSchema') {*};

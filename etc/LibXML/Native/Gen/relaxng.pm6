@@ -58,7 +58,7 @@ enum xmlRelaxNGValidErr is export {
 
 class xmlRelaxNG is repr('CPointer') {
     method Free() is native(LIB) is symbol('xmlRelaxNGFree') {*};
-    method NewValid( --> xmlRelaxNGValidCtxt) is native(LIB) is symbol('xmlRelaxNGNewValidCtxt') {*};
+    method NewValidCtxt( --> xmlRelaxNGValidCtxt) is native(LIB) is symbol('xmlRelaxNGNewValidCtxt') {*};
 }
 
 class xmlRelaxNGParserCtxt is repr('CPointer') {

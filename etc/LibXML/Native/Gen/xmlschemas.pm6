@@ -63,7 +63,7 @@ class xmlSchema is repr('CStruct') {
     has xmlHashTable $.idcDef; # All identity-constraint defs.
     has Pointer $.volatiles; # Obsolete
     method Free() is native(LIB) is symbol('xmlSchemaFree') {*};
-    method NewValid( --> xmlSchemaValidCtxt) is native(LIB) is symbol('xmlSchemaNewValidCtxt') {*};
+    method NewValidCtxt( --> xmlSchemaValidCtxt) is native(LIB) is symbol('xmlSchemaNewValidCtxt') {*};
 }
 
 class xmlSchemaParserCtxt is repr('CPointer') {
@@ -83,13 +83,13 @@ class xmlSchemaSAXPlugStruct is repr('CPointer') {
 class xmlSchemaValidCtxt is repr('CPointer') {
     method Free() is native(LIB) is symbol('xmlSchemaFreeValidCtxt') {*};
     method GetValidErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) is symbol('xmlSchemaGetValidErrors') {*};
-    method Is( --> int32) is native(LIB) is symbol('xmlSchemaIsValid') {*};
+    method IsValid( --> int32) is native(LIB) is symbol('xmlSchemaIsValid') {*};
     method SAXPlug(xmlSAXHandlerPtr * $sax, void ** $user_data --> xmlSchemaSAXPlug) is native(LIB) is symbol('xmlSchemaSAXPlug') {*};
     method SetValidErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(LIB) is symbol('xmlSchemaSetValidErrors') {*};
     method SetValidOptions(int32 $options --> int32) is native(LIB) is symbol('xmlSchemaSetValidOptions') {*};
     method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(LIB) is symbol('xmlSchemaSetValidStructuredErrors') {*};
-    method CtxtGetOptions( --> int32) is native(LIB) is symbol('xmlSchemaValidCtxtGetOptions') {*};
-    method CtxtGetParser( --> xmlParserCtxt) is native(LIB) is symbol('xmlSchemaValidCtxtGetParserCtxt') {*};
+    method GetOptions( --> int32) is native(LIB) is symbol('xmlSchemaValidCtxtGetOptions') {*};
+    method GetParserCtxt( --> xmlParserCtxt) is native(LIB) is symbol('xmlSchemaValidCtxtGetParserCtxt') {*};
     method ValidateDoc(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlSchemaValidateDoc') {*};
     method ValidateFile(Str $filename, int32 $options --> int32) is native(LIB) is symbol('xmlSchemaValidateFile') {*};
     method ValidateOneElement(xmlNode $elem --> int32) is native(LIB) is symbol('xmlSchemaValidateOneElement') {*};

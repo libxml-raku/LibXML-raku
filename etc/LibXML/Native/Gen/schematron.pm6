@@ -19,7 +19,7 @@ enum xmlSchematronValidOptions is export {
 
 class xmlSchematron is repr('CPointer') {
     method Free() is native(LIB) is symbol('xmlSchematronFree') {*};
-    method NewValid(int32 $options --> xmlSchematronValidCtxt) is native(LIB) is symbol('xmlSchematronNewValidCtxt') {*};
+    method NewValidCtxt(int32 $options --> xmlSchematronValidCtxt) is native(LIB) is symbol('xmlSchematronNewValidCtxt') {*};
 }
 
 class xmlSchematronParserCtxt is repr('CPointer') {

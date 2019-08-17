@@ -21,6 +21,7 @@ class Gen {
                 'void *' => 'Pointer',
                 'void * *' => 'Pointer[Pointer]',
                 'long' => 'long',
+                'unsigned long' => 'ulong',
                 'void' => Str,
             );
 
@@ -67,16 +68,14 @@ class Gen {
 
             if $method {
                 my $type = @args.shift.type;
-                my $name = $!name;
-                s/[Ctxt]$// for $name, $type;
-                $name = abbrev($name, $type);
+                my $name = abbrev($!name, $type);
                 my $arg-str = @args.map(&arg-str).join: ', ';
                 my $sym = $name ne $!name ?? " is symbol('$!name')" !! '';
                 "method $name\({$arg-str}{$ret-str}\) is native\(LIB\)$sym \{*\};$info";
             }
             else {
                 my $arg-str = @args.map(&arg-str).join: ', ';
-                "sub $!name\({$arg-str}{$ret-str}\) is native\(LIB\) \{*\};$info";
+                "sub $!name\({$arg-str}{$ret-str}\) is native\(LIB\) is export \{*\};$info";
             }
         }
     }
