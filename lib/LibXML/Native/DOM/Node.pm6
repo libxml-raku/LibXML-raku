@@ -11,8 +11,6 @@ method doc { ... }
 method type { ... }
 method children { ... }
 method last { ... }
-method find { ... }
-method findnodes { ... }
 method copy { ... }
 method GetNodePath { ... }
 method lock { ... }
@@ -39,7 +37,7 @@ method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
 method domAddNewChild { ... }
 method domNormalize { ... }
-
+method domXPathSelectStr { ...}
 enum <SkipBlanks KeepBlanks>;
 
 method native { self } # already native
@@ -202,7 +200,6 @@ method lookupNamespaceURI(NCName $prefix --> Str) {
 method addNewChild(Str $uri, QName $name) {
     self.box: self.domAddNewChild($uri, $name);
 }
-
 
 method normalize { self.domNormalize }
 

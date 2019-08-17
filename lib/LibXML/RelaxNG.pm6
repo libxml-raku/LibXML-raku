@@ -75,7 +75,7 @@ my class ValidContext {
 
     method validate(LibXML::Document:D $_, Bool() :$check) {
         my xmlDoc:D $doc = .native;
-        my $rv := $!native.Validate($doc);
+        my $rv := $!native.ValidateDoc($doc);
 	$rv := $!errors.is-valid
             if $check;
         self.flush-errors;

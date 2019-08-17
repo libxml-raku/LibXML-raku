@@ -15,6 +15,7 @@ use LibXML::Native;
 use LibXML::Node::Set;
 use LibXML::Node::List;
 use LibXML::XPath::Object;
+use LibXML::XPath::Context;
 
 unit class LibXML
     is LibXML::Parser;

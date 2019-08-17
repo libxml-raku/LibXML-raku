@@ -27,7 +27,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         } // $!of.WHAT;
     }
     method elems is also<Numeric> { $!native.nodeNr }
-    method Array handles<List list pairs keys values> {
+    method Array handles<List list values> {
         if $!lazy {
             $!idx = 0;
             @!store = self;
@@ -35,7 +35,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
         @!store;
     }
-    method Hash {
+    method Hash handles <AT-KEY> {
         $!hstore //= self.Array.classify(*.tagName);
     }
     multi method AT-POS(UInt:D $pos where !$!lazy) { @!store[$pos] }

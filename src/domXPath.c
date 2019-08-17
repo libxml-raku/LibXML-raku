@@ -346,9 +346,14 @@ _domVetXPathObject(xmlXPathObjectPtr self) {
     return self;
 }
 
-static xmlNsPtr *_domXPathCtxtInheritNS(xmlXPathContextPtr ctxt, xmlDocPtr doc) {
-    /* inherit namespace information */
-    xmlNsPtr *ns = xmlGetNsList(doc, xmlDocGetRootElement( doc ));
+static xmlNsPtr *_domXPathCtxtRegisterNS(xmlXPathContextPtr ctxt, xmlNodePtr node) {
+    /* register namespace information from the context node */
+    xmlDocPtr doc = node->doc;
+    xmlNsPtr *ns = NULL;
+
+    if (node == doc) node = xmlDocGetRootElement( doc );
+    ns = xmlGetNsList(doc, node);
+
     if (ns != NULL) {
         int i;
         int n = 0;
@@ -362,7 +367,7 @@ static xmlNsPtr *_domXPathCtxtInheritNS(xmlXPathContextPtr ctxt, xmlDocPtr doc) 
                 n++;
             }
         }
-        // shorten the ns list to just those inherited
+        // shorten the list to just newly registered ns
         ns[n] = NULL;
     }
     return ns;
@@ -389,7 +394,7 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
             ctxt->doc = doc;
 
             if (doc) {
-                xmlNsPtr *ns = _domXPathCtxtInheritNS(ctxt, doc);
+                xmlNsPtr *ns = _domXPathCtxtRegisterNS(ctxt, node);
                 if (ns != NULL)
                      xmlFree(ns);
             }
@@ -474,12 +479,12 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
     if ( ctxt != NULL && (ctxt->node != NULL || refNode != NULL) && comp != NULL ) {
         xmlNodePtr old_node = ctxt->node;
         xmlDocPtr old_doc = ctxt->doc;
-        xmlNsPtr *inherited_ns = NULL;
+        xmlNsPtr *registered_ns = NULL;
         if (refNode) {
             ctxt->node = refNode;
             ctxt->doc  = refNode->doc;
-            if (ctxt->doc != old_doc && ctxt->doc != NULL)
-                inherited_ns = _domXPathCtxtInheritNS(ctxt, ctxt->doc);
+            if (ctxt->node != old_node && ctxt->node != NULL)
+                registered_ns = _domXPathCtxtRegisterNS(ctxt, ctxt->node);
         }
         if (to_bool) {
 #if LIBXML_VERSION >= 20627
@@ -499,9 +504,9 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
 
         ctxt->node = old_node;
         ctxt->doc = old_doc;
-        if (inherited_ns) {
-            _domXPathCtxtRemoveNS(ctxt, inherited_ns);
-            xmlFree(inherited_ns);
+        if (registered_ns) {
+            _domXPathCtxtRemoveNS(ctxt, registered_ns);
+            xmlFree(registered_ns);
         }
     }
     return _domVetXPathObject(rv);

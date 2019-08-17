@@ -174,7 +174,7 @@ class xmlBuf is repr('CStruct') is export {
     sub Create(--> xmlBuf) is native(LIB) is symbol('xmlBufCreate') {*}
     method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufWriteQuotedString') {*}
-    method xmlNodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is export { * }
+    method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is symbol('xmlBufNodeDump') is export { * }
     method Content(--> Str) is symbol('xmlBufContent') is native(LIB) is export { * }
     method Free is symbol('xmlBufFree') is native(LIB) is export { * }
     method new(--> xmlBuf:D) { Create() }
@@ -225,7 +225,7 @@ class xmlParserInput is repr('CStruct') is export {
     has xmlCharP                  $.encoding;    # the encoding string for entity
     has xmlCharP                  $.version;     # the version string for entity
     has int32                     $.standalone;  # Was that entity marked standalone
-    has int32                     $.id;          # int id
+    has int32                     $.id;          # a unique identifier for the entity
 
     sub xmlNewIOInputStream(parserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
     sub xmlNewInputFromFile(parserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
@@ -241,9 +241,13 @@ class xmlNs is export is repr('CStruct') {
 
     method Reference is native(BIND-LIB) is symbol('xml6_ns_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ns_remove_reference') {*}
-    sub xmlNewNs(xmlNode, Str $uri, Str $prefix --> xmlNs) is native(LIB) {*}
+    method Unreference {
+        with self {
+            .Free if .remove-reference;
+        }
+    }
     method new(Str:D :$URI!, Str :$prefix, domNode :$node) {
-        xmlNewNs($node, $URI, $prefix);
+        $node.NewNs($URI, $prefix);
     }
     method Free is native(LIB) is symbol('xmlFreeNs') {*}
     method Copy(--> xmlNs) is native(BIND-LIB) is symbol('xml6_ns_copy') {*}
@@ -424,6 +428,7 @@ class xmlError is export {
     has int32                  $.column;    # error column # or 0 if N/A
     has parserCtxt             $.ctxt;      # the parser context if available
     has xmlNode                $.node;      # the node in the tree
+    method Reset() is native(LIB) is symbol('xmlResetError') {*};
 }
 
 class xmlXPathObject is export {
@@ -614,7 +619,6 @@ class xmlXPathContext is repr('CStruct') is export {
     method RegisterFunc(xmlCharP $name, &func1 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
     method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func2 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
     method RegisterVariableLookup( &func3 (xmlXPathContext, Str, Str --> xmlXPathObject), Pointer ) is symbol('xmlXPathRegisterVariableLookup') is native(LIB) {*}
-
 }
 
 class xmlXPathParserContext is export {
@@ -664,8 +668,9 @@ class domNode is export does LibXML::Native::DOM::Node {
     method AddChild(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*}
     method AddChildList(xmlNode --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*}
     method AddContent(xmlCharP) is native(LIB) is symbol('xmlNodeAddContent') {*}
-    method XPathSetContext(xmlXPathContext --> int32) is symbol('xmlXPathSetContextNode') is native(LIB) {*}
+    method SetContext(xmlXPathContext --> int32) is symbol('xmlXPathSetContextNode') is native(LIB) {*}
     method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native(LIB) {*}
+    method NewNs(xmlCharP $href, xmlCharP $prefix --> xmlNs) is native(LIB) is symbol('xmlNewNs') {*};
     method domFailure(--> xmlCharP) is native(BIND-LIB) {*}
     method dom-error { die $_ with self.domFailure }
     method domAppendChild(domNode --> domNode) is native(BIND-LIB) {*}
@@ -693,18 +698,11 @@ class domNode is export does LibXML::Native::DOM::Node {
     method is-referenced(--> int32) is native(BIND-LIB) is symbol('domNodeIsReferenced') {*}
     method root(--> domNode) is native(BIND-LIB) is symbol('xml6_node_find_root') {*}
     method domXPathSelectStr(Str --> xmlNodeSet) is native(BIND-LIB) {*}
-    method domXPathSelect(xmlXPathCompExpr --> xmlNodeSet) is native(BIND-LIB) {*}
     method domXPathFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native(BIND-LIB) {*}
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native(BIND-LIB) {*}
     method domNormalize(--> int32) is native(BIND-LIB) {*}
-
-    method find(xmlXPathCompExpr:D $expr, Bool :$bool) {
-        self.domXPathFind($expr, $bool);
-    }
-
-    method findnodes(xmlXPathCompExpr:D $expr --> xmlNodeSet) { self.domXPathSelect($expr); }
 
     method xml6_node_to_str(int32 $opts --> Str) is native(BIND-LIB) {*}
     method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> Str) is native(BIND-LIB) {*}
@@ -908,8 +906,8 @@ class xmlDoc is domNode does LibXML::Native::DOM::Document is export {
     }
     method GetRootElement(--> xmlNode) is symbol('xmlDocGetRootElement') is native(LIB) is export { * }
     method SetRootElement(xmlNode --> xmlNode) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
-    method xmlCopyDoc(int32 $deep --> xmlDoc) is native(LIB) {*}
-    method copy(Bool :$deep = True) { $.xmlCopyDoc(+$deep) }
+    method Copy(int32 $deep --> xmlDoc) is symbol('xmlCopyDoc') is native(LIB) {*}
+    method copy(Bool :$deep = True) { $.Copy(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}
     method xmlParseBalancedChunkMemory(xmlSAXHandler $sax-handler, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw --> int32) is native(LIB) {*}
     method xmlParseBalancedChunkMemoryRecover(xmlSAXHandler $sax-handler, Pointer $user-data, int32 $depth, xmlCharP $string, Pointer[xmlNode] $list is rw, int32 $repair --> int32) is native(LIB) {*}
@@ -1003,8 +1001,8 @@ class xmlDtd is domNode is export {
     method publicId { $!ExternalID }
     method systemId { $!SystemID }
 
-    method xmlCopyDtd(--> xmlDtd) is native(LIB) {*}
-    method copy() { $.xmlCopyDtd }
+    method Copy(--> xmlDtd) is native(LIB) is symbol('xmlCopyDtd') {*}
+    method copy() { $.Copy }
     sub xmlIOParseDTD(xmlSAXHandler, xmlParserInputBuffer:D, int32 $enc --> xmlDtd) is native(LIB) {*}
     sub xmlSAXParseDTD(xmlSAXHandler, Str, Str --> xmlDtd) is native(LIB) {*}
 

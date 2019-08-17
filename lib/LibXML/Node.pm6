@@ -14,6 +14,7 @@ class LibXML::Node {
     my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
     my subset NodeSetElem is export(:NodeSetElem) where LibXML::Node|LibXML::Namespace;
     enum <SkipBlanks KeepBlanks>;
+    my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
     has LibXML::Node $.doc;
 
@@ -264,38 +265,21 @@ class LibXML::Node {
     method nonBlankChildNodes {
         iterate-list(self, LibXML::Node, $!native.first-child(SkipBlanks), :!keep-blanks);
     }
-    multi method findnodes(LibXML::XPath::Expression:D $xpath-expr) {
-        my xmlNodeSet:D $node-set := $!native.findnodes: native($xpath-expr);
-        iterate-set(NodeSetElem, $node-set);
+    has $!xpath-context;
+    method xpath-context handles<find findnodes findvalue exists AT-KEY registerNs> {
+        $!xpath-context //= (require ::('LibXML::XPath::Context')).new: :node(self);
     }
-    multi method findnodes(Str:D $expr) is also<AT-KEY> {
-        self.findnodes( LibXML::XPath::Expression.new: :$expr);
-    }
-    method !value(xmlXPathObject $native, Bool :$literal) {
-        my $object = (require ::('LibXML::XPath::Object')).new: :$native;
-        $object.value: :$literal;
-    }
-    multi method find(LibXML::XPath::Expression:D $xpath-expr, Bool:D :$bool = False, Bool :$values) {
-        self!value: $!native.find( native($xpath-expr), :$bool);
-    }
-    multi method find(Str:D $expr, |c) {
-        self.find( LibXML::XPath::Expression.parse($expr), |c);
-    }
-    multi method findvalue(LibXML::XPath::Expression:D $xpath-expr) {
-        $.find( $xpath-expr, :literal);
-    }
-    multi method findvalue(Str:D $expr) {
-        $.findvalue( LibXML::XPath::Expression.parse($expr));
-    }
-    my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
-    method exists(XPathExpr:D $xpath-expr --> Bool:D) {
-        $.find($xpath-expr, :bool);
-    }
     method addNamespace(Str $uri, NCName $prefix?) {
+        if $prefix {
+            .registerNs($prefix, $uri) with $!xpath-context;
+        }
         $.setNamespace($uri, $prefix, :!activate);
     }
     method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
+        if $prefix {
+            .registerNs($prefix, $uri) with $!xpath-context;
+        }
         ? $!native.setNamespace($uri, $prefix, :$activate);
     }
     method clearNamespace {

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 38;
+plan 43;
 
 # bootstrapping tests for the DOM
 
@@ -76,6 +76,11 @@ $elem.attributes = %(
    );
 is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem set via attributes proxy');
 is $elem<@foo>, 'bar';
+is $elem<@x:aaa>, 'AAA';
+is $elem<@*[name()='x:aaa']>, 'AAA';
+is $elem<@*><x:aaa>, 'AAA';
+is $elem<attribute::*><x:aaa>, 'AAA';
+is $elem.findvalue('name(@*)'), 'foo';
 
 %atts := $elem.attributes;
 is-deeply %atts.keys.sort, ('foo', "x:aaa", "x:bbb", "x:ccc"), 'NS entries';

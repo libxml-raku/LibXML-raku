@@ -7,9 +7,11 @@ class LibXML::XPath::Context {
     use LibXML::Types :QName;
     use LibXML::Node::List;
     use LibXML::Node::Set;
+    use LibXML::Namespace;
     use LibXML::XPath::Expression;
     use LibXML::XPath::Object :XPathRange;
     use NativeCall;
+    use Method::Also;
 
     has LibXML::Node $!context-node;
     has Exception @!callback-errors;
@@ -30,6 +32,7 @@ class LibXML::XPath::Context {
         .rethrow with @!callback-errors.tail;
         $node-set.copy;
     }
+    proto method findnodes($, $?) is also<AT-KEY> {*}
     multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
         iterate-set(NodeSetElem, self!find($expr, $ref));
     }
@@ -76,8 +79,11 @@ class LibXML::XPath::Context {
            if $stat == -1;
         $stat;
     }
-    multi method registerNs(NameVal $_) {
+    multi method registerNs(NameVal:D $_) {
         $.registerNs(.key, .value);
+    }
+    multi method registerNs(LibXML::Namespace:D $_) {
+        $.registerNs(.localname, .URI);
     }
 
     multi method unregisterNs(QName:D :$prefix!) {
@@ -156,7 +162,6 @@ class LibXML::XPath::Context {
             # scope to a particular parser/eval context
             $ctxt-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
             # context stack is clear. We can also clear the associated pool
-            ## todo: causing 31xpc-functions.t to flap
             %!pool{$ctxt-addr} = []
                  if .valueNr == 0  && !.value.defined;
         }

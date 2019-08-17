@@ -30,7 +30,7 @@ class xmlRelaxNGParserCtxt is repr(Stub) is export {
 class xmlRelaxNGValidCtxt is repr(Stub) is export {
     sub xmlRelaxNGNewValidCtxt(xmlRelaxNG:D --> xmlRelaxNGValidCtxt) is native(LIB) {*}
     method SetStructuredErrorFunc( &error-func (xmlRelaxNGValidCtxt $, xmlError $)) is native(LIB) is symbol('xmlRelaxNGSetValidStructuredErrors') {*};
-    method Validate(xmlDoc:D --> int32) is native(LIB) is symbol('xmlRelaxNGValidateDoc') {*}
+    method ValidateDoc(xmlDoc:D --> int32) is native(LIB) is symbol('xmlRelaxNGValidateDoc') {*}
     method Free is symbol('xmlRelaxNGFreeValidCtxt') is native(LIB) {*}
     method new(xmlRelaxNG:D :$schema!) {
         xmlRelaxNGNewValidCtxt($schema);
