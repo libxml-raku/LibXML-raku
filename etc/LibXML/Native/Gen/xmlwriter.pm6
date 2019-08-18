@@ -8,8 +8,8 @@ unit module LibXML::Native::Gen::xmlwriter;
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
 class xmlTextWriter is repr('CPointer') {
-    sub xmlNewTextWriterDoc(xmlDocPtr * $doc, int32 $compression --> xmlTextWriter) is native(LIB) {*};
-    sub xmlNewTextWriterFilename(Str $uri, int32 $compression --> xmlTextWriter) is native(LIB) {*};
+    sub xmlNewTextWriterDoc(xmlDocPtr * $doc, int32 $compression --> xmlTextWriter) is native(LIB) is export {*};
+    sub xmlNewTextWriterFilename(Str $uri, int32 $compression --> xmlTextWriter) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreeTextWriter') {*};
     method EndAttribute( --> int32) is native(LIB) is symbol('xmlTextWriterEndAttribute') {*};

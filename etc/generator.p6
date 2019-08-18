@@ -130,11 +130,11 @@ sub write-file(Gen::File:D $module) {
         for $module.enums.sort {
             my $name = .key;
             say '';
-            say "enum $name is export \{";
+            say "enum $name is export (";
             for .value.pairs.sort {
                 say "    {.key} => {.value},";
             }
-            say '}';
+            say ')';
         }
 
         for $module.structs {

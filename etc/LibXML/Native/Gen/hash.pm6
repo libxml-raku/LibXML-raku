@@ -8,8 +8,8 @@ unit module LibXML::Native::Gen::hash;
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
 class xmlHashTable is repr('CPointer') {
-    sub xmlHashCreate(int32 $size --> xmlHashTable) is native(LIB) {*};
-    sub xmlHashCreateDict(int32 $size, xmlDict $dict --> xmlHashTable) is native(LIB) {*};
+    sub xmlHashCreate(int32 $size --> xmlHashTable) is native(LIB) is export {*};
+    sub xmlHashCreateDict(int32 $size, xmlDict $dict --> xmlHashTable) is native(LIB) is export {*};
 
     method AddEntry(xmlCharP $name, Pointer $userdata --> int32) is native(LIB) is symbol('xmlHashAddEntry') {*};
     method AddEntry2(xmlCharP $name, xmlCharP $name2, Pointer $userdata --> int32) is native(LIB) is symbol('xmlHashAddEntry2') {*};
@@ -35,4 +35,4 @@ class xmlHashTable is repr('CPointer') {
     method UpdateEntry3(xmlCharP $name, xmlCharP $name2, xmlCharP $name3, Pointer $userdata, xmlHashDeallocator $f --> int32) is native(LIB) is symbol('xmlHashUpdateEntry3') {*};
 }
 
-sub xmlHashDefaultDeallocator(Pointer $entry, xmlCharP $name) is native(LIB) {*};
+sub xmlHashDefaultDeallocator(Pointer $entry, xmlCharP $name) is native(LIB) is export {*};

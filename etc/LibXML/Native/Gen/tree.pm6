@@ -7,14 +7,14 @@ unit module LibXML::Native::Gen::tree;
 #    this module describes the structures found in an tree resulting from an XML or HTML parsing, as well as the API provided for various processing on that tree 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlAttributeDefault is export {
+enum xmlAttributeDefault is export (
     XML_ATTRIBUTE_FIXED => 4,
     XML_ATTRIBUTE_IMPLIED => 3,
     XML_ATTRIBUTE_NONE => 1,
     XML_ATTRIBUTE_REQUIRED => 2,
-}
+)
 
-enum xmlAttributeType is export {
+enum xmlAttributeType is export (
     XML_ATTRIBUTE_CDATA => 1,
     XML_ATTRIBUTE_ENTITIES => 6,
     XML_ATTRIBUTE_ENTITY => 5,
@@ -25,18 +25,18 @@ enum xmlAttributeType is export {
     XML_ATTRIBUTE_NMTOKEN => 7,
     XML_ATTRIBUTE_NMTOKENS => 8,
     XML_ATTRIBUTE_NOTATION => 10,
-}
+)
 
-enum xmlBufferAllocationScheme is export {
+enum xmlBufferAllocationScheme is export (
     XML_BUFFER_ALLOC_BOUNDED => 6,
     XML_BUFFER_ALLOC_DOUBLEIT => 1,
     XML_BUFFER_ALLOC_EXACT => 2,
     XML_BUFFER_ALLOC_HYBRID => 5,
     XML_BUFFER_ALLOC_IMMUTABLE => 3,
     XML_BUFFER_ALLOC_IO => 4,
-}
+)
 
-enum xmlDocProperties is export {
+enum xmlDocProperties is export (
     XML_DOC_DTDVALID => 8,
     XML_DOC_HTML => 128,
     XML_DOC_INTERNAL => 64,
@@ -45,23 +45,23 @@ enum xmlDocProperties is export {
     XML_DOC_USERBUILT => 32,
     XML_DOC_WELLFORMED => 1,
     XML_DOC_XINCLUDE => 16,
-}
+)
 
-enum xmlElementContentOccur is export {
+enum xmlElementContentOccur is export (
     XML_ELEMENT_CONTENT_MULT => 3,
     XML_ELEMENT_CONTENT_ONCE => 1,
     XML_ELEMENT_CONTENT_OPT => 2,
     XML_ELEMENT_CONTENT_PLUS => 4,
-}
+)
 
-enum xmlElementContentType is export {
+enum xmlElementContentType is export (
     XML_ELEMENT_CONTENT_ELEMENT => 2,
     XML_ELEMENT_CONTENT_OR => 4,
     XML_ELEMENT_CONTENT_PCDATA => 1,
     XML_ELEMENT_CONTENT_SEQ => 3,
-}
+)
 
-enum xmlElementType is export {
+enum xmlElementType is export (
     XML_ATTRIBUTE_DECL => 16,
     XML_ATTRIBUTE_NODE => 2,
     XML_CDATA_SECTION_NODE => 4,
@@ -83,15 +83,15 @@ enum xmlElementType is export {
     XML_TEXT_NODE => 3,
     XML_XINCLUDE_END => 20,
     XML_XINCLUDE_START => 19,
-}
+)
 
-enum xmlElementTypeVal is export {
+enum xmlElementTypeVal is export (
     XML_ELEMENT_TYPE_ANY => 2,
     XML_ELEMENT_TYPE_ELEMENT => 4,
     XML_ELEMENT_TYPE_EMPTY => 1,
     XML_ELEMENT_TYPE_MIXED => 3,
     XML_ELEMENT_TYPE_UNDEFINED => 0,
-}
+)
 
 class xmlAttr is repr('CStruct') {
     has Pointer $._private; # application data
@@ -107,8 +107,8 @@ class xmlAttr is repr('CStruct') {
     has xmlAttributeType $.atype; # the attribute type if validating
     has Pointer $.psvi; # for type/PSVI informations
 
-    sub xmlHasNsProp(const xmlNode * $node, xmlCharP $name, xmlCharP $nameSpace --> xmlAttr) is native(LIB) {*};
-    sub xmlHasProp(const xmlNode * $node, xmlCharP $name --> xmlAttr) is native(LIB) {*};
+    sub xmlHasNsProp(const xmlNode * $node, xmlCharP $name, xmlCharP $nameSpace --> xmlAttr) is native(LIB) is export {*};
+    sub xmlHasProp(const xmlNode * $node, xmlCharP $name --> xmlAttr) is native(LIB) is export {*};
 
     method FreeProp() is native(LIB) is symbol('xmlFreeProp') {*};
     method FreePropList() is native(LIB) is symbol('xmlFreePropList') {*};
@@ -148,9 +148,9 @@ class xmlBuffer is repr('CStruct') {
     has xmlBufferAllocationScheme $.alloc; # The realloc method
     has xmlCharP $.contentIO; # in IO mode we may have a different base
 
-    sub xmlBufferCreate( --> xmlBuffer) is native(LIB) {*};
-    sub xmlBufferCreateSize(size_t $size --> xmlBuffer) is native(LIB) {*};
-    sub xmlBufferCreateStatic(Pointer $mem, size_t $size --> xmlBuffer) is native(LIB) {*};
+    sub xmlBufferCreate( --> xmlBuffer) is native(LIB) is export {*};
+    sub xmlBufferCreateSize(size_t $size --> xmlBuffer) is native(LIB) is export {*};
+    sub xmlBufferCreateStatic(Pointer $mem, size_t $size --> xmlBuffer) is native(LIB) is export {*};
 
     method htmlNodeDump(xmlDoc $doc, xmlNode $cur --> int32) is native(LIB) {*};
     method AttrSerializeTxtContent(xmlDoc $doc, xmlAttr $attr, xmlCharP $string) is native(LIB) is symbol('xmlAttrSerializeTxtContent') {*};
@@ -190,7 +190,7 @@ class xmlDOMWrapCtxt is repr('CStruct') {
     has Pointer $.namespaceMap; # * Use this one to acquire an xmlNsPtr intended for node->ns. * (Note that this is not intended for elem->nsDef). *
     has xmlDOMWrapAcquireNsFunction $.getNsForNodeFunc;
 
-    sub xmlDOMWrapNewCtxt( --> xmlDOMWrapCtxt) is native(LIB) {*};
+    sub xmlDOMWrapNewCtxt( --> xmlDOMWrapCtxt) is native(LIB) is export {*};
 
     method AdoptNode(xmlDoc $sourceDoc, xmlNode $node, xmlDoc $destDoc, xmlNode $destParent, int32 $options --> int32) is native(LIB) is symbol('xmlDOMWrapAdoptNode') {*};
     method CloneNode(xmlDoc $sourceDoc, xmlNode $node, xmlNodePtr * $resNode, xmlDoc $destDoc, xmlNode $destParent, int32 $deep, int32 $options --> int32) is native(LIB) is symbol('xmlDOMWrapCloneNode') {*};
@@ -225,20 +225,20 @@ class xmlDoc is repr('CStruct') {
     has int32 $.parseFlags; # set of xmlParserOption used to parse the document
     has int32 $.properties; # set of xmlDocProperties for this document set at the end of parsing
 
-    sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) {*};
-    sub xmlParseCatalogFile(Str $filename --> xmlDoc) is native(LIB) {*};
-    sub xmlParseDoc(xmlCharP $cur --> xmlDoc) is native(LIB) {*};
-    sub xmlParseEntity(Str $filename --> xmlDoc) is native(LIB) {*};
-    sub xmlParseFile(Str $filename --> xmlDoc) is native(LIB) {*};
-    sub xmlParseMemory(Str $buffer, int32 $size --> xmlDoc) is native(LIB) {*};
-    sub xmlReadDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) {*};
-    sub xmlReadFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) {*};
-    sub xmlReadFile(Str $filename, Str $encoding, int32 $options --> xmlDoc) is native(LIB) {*};
-    sub xmlReadIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) {*};
-    sub xmlReadMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) {*};
-    sub xmlRecoverDoc(xmlCharP $cur --> xmlDoc) is native(LIB) {*};
-    sub xmlRecoverFile(Str $filename --> xmlDoc) is native(LIB) {*};
-    sub xmlRecoverMemory(Str $buffer, int32 $size --> xmlDoc) is native(LIB) {*};
+    sub xmlNewDoc(xmlCharP $version --> xmlDoc) is native(LIB) is export {*};
+    sub xmlParseCatalogFile(Str $filename --> xmlDoc) is native(LIB) is export {*};
+    sub xmlParseDoc(xmlCharP $cur --> xmlDoc) is native(LIB) is export {*};
+    sub xmlParseEntity(Str $filename --> xmlDoc) is native(LIB) is export {*};
+    sub xmlParseFile(Str $filename --> xmlDoc) is native(LIB) is export {*};
+    sub xmlParseMemory(Str $buffer, int32 $size --> xmlDoc) is native(LIB) is export {*};
+    sub xmlReadDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) is export {*};
+    sub xmlReadFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) is export {*};
+    sub xmlReadFile(Str $filename, Str $encoding, int32 $options --> xmlDoc) is native(LIB) is export {*};
+    sub xmlReadIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) is export {*};
+    sub xmlReadMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> xmlDoc) is native(LIB) is export {*};
+    sub xmlRecoverDoc(xmlCharP $cur --> xmlDoc) is native(LIB) is export {*};
+    sub xmlRecoverFile(Str $filename --> xmlDoc) is native(LIB) is export {*};
+    sub xmlRecoverMemory(Str $buffer, int32 $size --> xmlDoc) is native(LIB) is export {*};
 
     method htmlDocDumpMemory(xmlChar ** $mem, Pointer[int32] $size) is native(LIB) {*};
     method htmlDocDumpMemoryFormat(xmlChar ** $mem, Pointer[int32] $size, int32 $format) is native(LIB) {*};
@@ -327,8 +327,8 @@ class xmlDtd is repr('CStruct') {
     has xmlCharP $.SystemID; # URI for a SYSTEM or PUBLIC DTD
     has Pointer $.pentities; # Hash table for param entities if any
 
-    sub xmlGetIntSubset(const xmlDoc * $doc --> xmlDtd) is native(LIB) {*};
-    sub xmlParseDTD(xmlCharP $ExternalID, xmlCharP $SystemID --> xmlDtd) is native(LIB) {*};
+    sub xmlGetIntSubset(const xmlDoc * $doc --> xmlDtd) is native(LIB) is export {*};
+    sub xmlParseDTD(xmlCharP $ExternalID, xmlCharP $SystemID --> xmlDtd) is native(LIB) is export {*};
 
     method Copy( --> xmlDtd) is native(LIB) is symbol('xmlCopyDtd') {*};
     method Free() is native(LIB) is symbol('xmlFreeDtd') {*};
@@ -366,7 +366,7 @@ class xmlElementContent is repr('CStruct') {
     has xmlElementContent $.parent; # parent
     has xmlCharP $.prefix; # Namespace prefix
 
-    sub xmlNewElementContent(xmlCharP $name, xmlElementContentType $type --> xmlElementContent) is native(LIB) {*};
+    sub xmlNewElementContent(xmlCharP $name, xmlElementContentType $type --> xmlElementContent) is native(LIB) is export {*};
 
     method Copy( --> xmlElementContent) is native(LIB) is symbol('xmlCopyElementContent') {*};
     method Free() is native(LIB) is symbol('xmlFreeElementContent') {*};
@@ -393,19 +393,19 @@ class xmlEntity is repr('CStruct') {
     has int32 $.owner; # does the entity own the childrens
     has int32 $.checked; # was the entity content checked this is also used to count entities * references done from that entity * and if it contains '<'
 
-    sub getEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) {*};
-    sub getParameterEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) {*};
-    sub xmlGetDocEntity(const xmlDoc * $doc, xmlCharP $name --> xmlEntity) is native(LIB) {*};
-    sub xmlGetPredefinedEntity(xmlCharP $name --> xmlEntity) is native(LIB) {*};
-    sub xmlSAX2GetEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) {*};
-    sub xmlSAX2GetParameterEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) {*};
+    sub getEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) is export {*};
+    sub getParameterEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) is export {*};
+    sub xmlGetDocEntity(const xmlDoc * $doc, xmlCharP $name --> xmlEntity) is native(LIB) is export {*};
+    sub xmlGetPredefinedEntity(xmlCharP $name --> xmlEntity) is native(LIB) is export {*};
+    sub xmlSAX2GetEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) is export {*};
+    sub xmlSAX2GetParameterEntity(Pointer $ctx, xmlCharP $name --> xmlEntity) is native(LIB) is export {*};
 }
 
 class xmlEnumeration is repr('CStruct') {
     has xmlEnumeration $.next; # next one
     has xmlCharP $.name; # Enumeration name
 
-    sub xmlCreateEnumeration(xmlCharP $name --> xmlEnumeration) is native(LIB) {*};
+    sub xmlCreateEnumeration(xmlCharP $name --> xmlEnumeration) is native(LIB) is export {*};
 
     method Copy( --> xmlEnumeration) is native(LIB) is symbol('xmlCopyEnumeration') {*};
     method Free() is native(LIB) is symbol('xmlFreeEnumeration') {*};
@@ -438,23 +438,23 @@ class xmlNode is repr('CStruct') {
     has unsigned short $.line; # line number
     has unsigned short $.extra; # extra data for XPath/XSLT
 
-    sub xmlDocGetRootElement(const xmlDoc * $doc --> xmlNode) is native(LIB) {*};
-    sub xmlGetLastChild(const xmlNode * $parent --> xmlNode) is native(LIB) {*};
-    sub xmlNewComment(xmlCharP $content --> xmlNode) is native(LIB) {*};
-    sub xmlNewDocText(const xmlDoc * $doc, xmlCharP $content --> xmlNode) is native(LIB) {*};
-    sub xmlNewPI(xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) {*};
-    sub xmlNewReference(const xmlDoc * $doc, xmlCharP $name --> xmlNode) is native(LIB) {*};
-    sub xmlNewText(xmlCharP $content --> xmlNode) is native(LIB) {*};
-    sub xmlNewTextLen(xmlCharP $content, int32 $len --> xmlNode) is native(LIB) {*};
-    sub xmlStringGetNodeList(const xmlDoc * $doc, xmlCharP $value --> xmlNode) is native(LIB) {*};
-    sub xmlStringLenGetNodeList(const xmlDoc * $doc, xmlCharP $value, int32 $len --> xmlNode) is native(LIB) {*};
+    sub xmlDocGetRootElement(const xmlDoc * $doc --> xmlNode) is native(LIB) is export {*};
+    sub xmlGetLastChild(const xmlNode * $parent --> xmlNode) is native(LIB) is export {*};
+    sub xmlNewComment(xmlCharP $content --> xmlNode) is native(LIB) is export {*};
+    sub xmlNewDocText(const xmlDoc * $doc, xmlCharP $content --> xmlNode) is native(LIB) is export {*};
+    sub xmlNewPI(xmlCharP $name, xmlCharP $content --> xmlNode) is native(LIB) is export {*};
+    sub xmlNewReference(const xmlDoc * $doc, xmlCharP $name --> xmlNode) is native(LIB) is export {*};
+    sub xmlNewText(xmlCharP $content --> xmlNode) is native(LIB) is export {*};
+    sub xmlNewTextLen(xmlCharP $content, int32 $len --> xmlNode) is native(LIB) is export {*};
+    sub xmlStringGetNodeList(const xmlDoc * $doc, xmlCharP $value --> xmlNode) is native(LIB) is export {*};
+    sub xmlStringLenGetNodeList(const xmlDoc * $doc, xmlCharP $value, int32 $len --> xmlNode) is native(LIB) is export {*};
 
     method AddChild(xmlNode $cur --> xmlNode) is native(LIB) is symbol('xmlAddChild') {*};
     method AddChildList(xmlNode $cur --> xmlNode) is native(LIB) is symbol('xmlAddChildList') {*};
     method AddNextSibling(xmlNode $elem --> xmlNode) is native(LIB) is symbol('xmlAddNextSibling') {*};
     method AddPrevSibling(xmlNode $elem --> xmlNode) is native(LIB) is symbol('xmlAddPrevSibling') {*};
     method AddSibling(xmlNode $elem --> xmlNode) is native(LIB) is symbol('xmlAddSibling') {*};
-    method ChildElementCount( --> unsigned long) is native(LIB) is symbol('xmlChildElementCount') {*};
+    method ChildElementCount( --> ulong) is native(LIB) is symbol('xmlChildElementCount') {*};
     method Copy(int32 $extended --> xmlNode) is native(LIB) is symbol('xmlCopyNode') {*};
     method CopyNodeList( --> xmlNode) is native(LIB) is symbol('xmlCopyNodeList') {*};
     method CopyProp(xmlAttr $cur --> xmlAttr) is native(LIB) is symbol('xmlCopyProp') {*};
@@ -527,7 +527,7 @@ class xmlNs is repr('CStruct') {
     has Pointer $._private; # application data
     has xmlDoc $.context; # normally an xmlDoc
 
-    sub getNamespace(Pointer $ctx --> xmlNs) is native(LIB) {*};
+    sub getNamespace(Pointer $ctx --> xmlNs) is native(LIB) is export {*};
 
     method CopyNamespace( --> xmlNs) is native(LIB) is symbol('xmlCopyNamespace') {*};
     method CopyNamespaceList( --> xmlNs) is native(LIB) is symbol('xmlCopyNamespaceList') {*};
@@ -548,10 +548,10 @@ class xmlOutputBuffer is repr('CStruct') {
     has int32 $.written; # total number of byte written
     has int32 $.error;
 
-    sub xmlOutputBufferCreateFd(int32 $fd, xmlCharEncodingHandler $encoder --> xmlOutputBuffer) is native(LIB) {*};
-    sub xmlOutputBufferCreateFile(FILE * $file, xmlCharEncodingHandler $encoder --> xmlOutputBuffer) is native(LIB) {*};
-    sub xmlOutputBufferCreateFilename(Str $URI, xmlCharEncodingHandler $encoder, int32 $compression --> xmlOutputBuffer) is native(LIB) {*};
-    sub xmlOutputBufferCreateIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, xmlCharEncodingHandler $encoder --> xmlOutputBuffer) is native(LIB) {*};
+    sub xmlOutputBufferCreateFd(int32 $fd, xmlCharEncodingHandler $encoder --> xmlOutputBuffer) is native(LIB) is export {*};
+    sub xmlOutputBufferCreateFile(FILE * $file, xmlCharEncodingHandler $encoder --> xmlOutputBuffer) is native(LIB) is export {*};
+    sub xmlOutputBufferCreateFilename(Str $URI, xmlCharEncodingHandler $encoder, int32 $compression --> xmlOutputBuffer) is native(LIB) is export {*};
+    sub xmlOutputBufferCreateIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, xmlCharEncodingHandler $encoder --> xmlOutputBuffer) is native(LIB) is export {*};
 
     method htmlDocContentDumpFormatOutput(xmlDoc $cur, Str $encoding, int32 $format) is native(LIB) {*};
     method htmlDocContentDumpOutput(xmlDoc $cur, Str $encoding) is native(LIB) {*};
@@ -652,21 +652,21 @@ class xmlParserCtxt is repr('CStruct') {
     has xmlAttr $.freeAttrs; # * the complete error informations for the last error. *
     has xmlError $.lastError;
     has xmlParserMode $.parseMode; # the parser mode
-    has unsigned long $.nbentities; # number of entities references
-    has unsigned long $.sizeentities; # size of parsed entities for use by HTML non-recursive parser
+    has ulong $.nbentities; # number of entities references
+    has ulong $.sizeentities; # size of parsed entities for use by HTML non-recursive parser
     has xmlParserNodeInfo * $.nodeInfo; # Current NodeInfo
     has int32 $.nodeInfoNr; # Depth of the parsing stack
     has int32 $.nodeInfoMax; # Max depth of the parsing stack
     has xmlParserNodeInfo * $.nodeInfoTab; # array of nodeInfos
     has int32 $.input_id; # we need to label inputs
-    has unsigned long $.sizeentcopy; # volume of entity copy
+    has ulong $.sizeentcopy; # volume of entity copy
 
-    sub xmlCreateDocParserCtxt(xmlCharP $cur --> xmlParserCtxt) is native(LIB) {*};
-    sub xmlCreateEntityParserCtxt(xmlCharP $URL, xmlCharP $ID, xmlCharP $base --> xmlParserCtxt) is native(LIB) {*};
-    sub xmlCreateFileParserCtxt(Str $filename --> xmlParserCtxt) is native(LIB) {*};
-    sub xmlCreateMemoryParserCtxt(Str $buffer, int32 $size --> xmlParserCtxt) is native(LIB) {*};
-    sub xmlCreateURLParserCtxt(Str $filename, int32 $options --> xmlParserCtxt) is native(LIB) {*};
-    sub xmlNewParserCtxt( --> xmlParserCtxt) is native(LIB) {*};
+    sub xmlCreateDocParserCtxt(xmlCharP $cur --> xmlParserCtxt) is native(LIB) is export {*};
+    sub xmlCreateEntityParserCtxt(xmlCharP $URL, xmlCharP $ID, xmlCharP $base --> xmlParserCtxt) is native(LIB) is export {*};
+    sub xmlCreateFileParserCtxt(Str $filename --> xmlParserCtxt) is native(LIB) is export {*};
+    sub xmlCreateMemoryParserCtxt(Str $buffer, int32 $size --> xmlParserCtxt) is native(LIB) is export {*};
+    sub xmlCreateURLParserCtxt(Str $filename, int32 $options --> xmlParserCtxt) is native(LIB) is export {*};
+    sub xmlNewParserCtxt( --> xmlParserCtxt) is native(LIB) is export {*};
 
     method inputPop( --> xmlParserInput) is native(LIB) {*};
     method inputPush(xmlParserInput $value --> int32) is native(LIB) {*};
@@ -781,17 +781,17 @@ class xmlParserInput is repr('CStruct') {
     has int32 $.length; # length if known
     has int32 $.line; # Current line
     has int32 $.col; # * NOTE: consumed is only tested for equality in the parser code, *       so even if there is an overflow this should not give troubles *       for parsing very large instances. *
-    has unsigned long $.consumed; # How many xmlChars already consumed
+    has ulong $.consumed; # How many xmlChars already consumed
     has xmlParserInputDeallocate $.free; # function to deallocate the base
     has xmlCharP $.encoding; # the encoding string for entity
     has xmlCharP $.version; # the version string for entity
     has int32 $.standalone; # Was that entity marked standalone
     has int32 $.id; # an unique identifier for the entity
 
-    sub resolveEntity(Pointer $ctx, xmlCharP $publicId, xmlCharP $systemId --> xmlParserInput) is native(LIB) {*};
-    sub xmlLoadExternalEntity(Str $URL, Str $ID, xmlParserCtxt $ctxt --> xmlParserInput) is native(LIB) {*};
-    sub xmlNoNetExternalEntityLoader(Str $URL, Str $ID, xmlParserCtxt $ctxt --> xmlParserInput) is native(LIB) {*};
-    sub xmlSAX2ResolveEntity(Pointer $ctx, xmlCharP $publicId, xmlCharP $systemId --> xmlParserInput) is native(LIB) {*};
+    sub resolveEntity(Pointer $ctx, xmlCharP $publicId, xmlCharP $systemId --> xmlParserInput) is native(LIB) is export {*};
+    sub xmlLoadExternalEntity(Str $URL, Str $ID, xmlParserCtxt $ctxt --> xmlParserInput) is native(LIB) is export {*};
+    sub xmlNoNetExternalEntityLoader(Str $URL, Str $ID, xmlParserCtxt $ctxt --> xmlParserInput) is native(LIB) is export {*};
+    sub xmlSAX2ResolveEntity(Pointer $ctx, xmlCharP $publicId, xmlCharP $systemId --> xmlParserInput) is native(LIB) is export {*};
 
     method FreeInputStream() is native(LIB) is symbol('xmlFreeInputStream') {*};
     method Grow(int32 $len --> int32) is native(LIB) is symbol('xmlParserInputGrow') {*};
@@ -810,15 +810,15 @@ class xmlParserInputBuffer is repr('CStruct') {
     has xmlBuf $.raw; # if encoder != NULL buffer for raw input
     has int32 $.compressed; # -1=unknown, 0=not compressed, 1=compressed
     has int32 $.error;
-    has unsigned long $.rawconsumed; # amount consumed from raw
+    has ulong $.rawconsumed; # amount consumed from raw
 
-    sub xmlAllocParserInputBuffer(xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
-    sub xmlParserInputBufferCreateFd(int32 $fd, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
-    sub xmlParserInputBufferCreateFile(FILE * $file, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
-    sub xmlParserInputBufferCreateFilename(Str $URI, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
-    sub xmlParserInputBufferCreateIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
-    sub xmlParserInputBufferCreateMem(Str $mem, int32 $size, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
-    sub xmlParserInputBufferCreateStatic(Str $mem, int32 $size, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) {*};
+    sub xmlAllocParserInputBuffer(xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
+    sub xmlParserInputBufferCreateFd(int32 $fd, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
+    sub xmlParserInputBufferCreateFile(FILE * $file, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
+    sub xmlParserInputBufferCreateFilename(Str $URI, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
+    sub xmlParserInputBufferCreateIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
+    sub xmlParserInputBufferCreateMem(Str $mem, int32 $size, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
+    sub xmlParserInputBufferCreateStatic(Str $mem, int32 $size, xmlCharEncoding $enc --> xmlParserInputBuffer) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreeParserInputBuffer') {*};
     method NewTextReader(Str $URI --> xmlTextReader) is native(LIB) is symbol('xmlNewTextReader') {*};
@@ -889,41 +889,41 @@ class xmlSAXLocator is repr('CStruct') {
     has int(*getColumnNumber) $.getColumnNumber;
 }
 
-sub xmlBufContent(const xmlBuf * $buf --> xmlCharP) is native(LIB) {*};
-sub xmlBufUse(const xmlBuf $buf --> size_t) is native(LIB) {*};
-sub xmlBufferContent(const xmlBuffer * $buf --> xmlCharP) is native(LIB) {*};
-sub xmlBufferDump(FILE * $file, xmlBuffer $buf --> int32) is native(LIB) {*};
-sub xmlBufferLength(const xmlBuffer * $buf --> int32) is native(LIB) {*};
-sub xmlBuildQName(xmlCharP $ncname, xmlCharP $prefix, xmlCharP $memory, int32 $len --> xmlCharP) is native(LIB) {*};
-sub xmlDocDump(FILE * $f, xmlDoc $cur --> int32) is native(LIB) {*};
-sub xmlDocFormatDump(FILE * $f, xmlDoc $cur, int32 $format --> int32) is native(LIB) {*};
-sub xmlElemDump(FILE * $f, xmlDoc $doc, xmlNode $cur) is native(LIB) {*};
-sub xmlGetBufferAllocationScheme( --> xmlBufferAllocationScheme) is native(LIB) {*};
-sub xmlGetCompressMode( --> int32) is native(LIB) {*};
-sub xmlGetDocCompressMode(const xmlDoc * $doc --> int32) is native(LIB) {*};
-sub xmlGetLineNo(const xmlNode * $node --> long) is native(LIB) {*};
-sub xmlGetNoNsProp(const xmlNode * $node, xmlCharP $name --> xmlCharP) is native(LIB) {*};
-sub xmlGetNodePath(const xmlNode * $node --> xmlCharP) is native(LIB) {*};
-sub xmlGetNsList(const xmlDoc * $doc, const xmlNode * $node --> xmlNsPtr *) is native(LIB) {*};
-sub xmlGetNsProp(const xmlNode * $node, xmlCharP $name, xmlCharP $nameSpace --> xmlCharP) is native(LIB) {*};
-sub xmlGetProp(const xmlNode * $node, xmlCharP $name --> xmlCharP) is native(LIB) {*};
-sub xmlIsBlankNode(const xmlNode * $node --> int32) is native(LIB) {*};
-sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native(LIB) {*};
-sub xmlNodeGetBase(const xmlDoc * $doc, const xmlNode * $cur --> xmlCharP) is native(LIB) {*};
-sub xmlNodeGetContent(const xmlNode * $cur --> xmlCharP) is native(LIB) {*};
-sub xmlNodeGetLang(const xmlNode * $cur --> xmlCharP) is native(LIB) {*};
-sub xmlNodeGetSpacePreserve(const xmlNode * $cur --> int32) is native(LIB) {*};
-sub xmlNodeIsText(const xmlNode * $node --> int32) is native(LIB) {*};
-sub xmlNodeListGetRawString(const xmlDoc * $doc, const xmlNode * $list, int32 $inLine --> xmlCharP) is native(LIB) {*};
-sub xmlSaveFile(Str $filename, xmlDoc $cur --> int32) is native(LIB) {*};
-sub xmlSaveFileEnc(Str $filename, xmlDoc $cur, Str $encoding --> int32) is native(LIB) {*};
-sub xmlSaveFormatFile(Str $filename, xmlDoc $cur, int32 $format --> int32) is native(LIB) {*};
-sub xmlSaveFormatFileEnc(Str $filename, xmlDoc $cur, Str $encoding, int32 $format --> int32) is native(LIB) {*};
-sub xmlSetBufferAllocationScheme(xmlBufferAllocationScheme $scheme) is native(LIB) {*};
-sub xmlSetCompressMode(int32 $mode) is native(LIB) {*};
-sub xmlSplitQName2(xmlCharP $name, xmlChar ** $prefix --> xmlCharP) is native(LIB) {*};
-sub xmlSplitQName3(xmlCharP $name, Pointer[int32] $len --> xmlCharP) is native(LIB) {*};
-sub xmlValidateNCName(xmlCharP $value, int32 $space --> int32) is native(LIB) {*};
-sub xmlValidateNMToken(xmlCharP $value, int32 $space --> int32) is native(LIB) {*};
-sub xmlValidateName(xmlCharP $value, int32 $space --> int32) is native(LIB) {*};
-sub xmlValidateQName(xmlCharP $value, int32 $space --> int32) is native(LIB) {*};
+sub xmlBufContent(const xmlBuf * $buf --> xmlCharP) is native(LIB) is export {*};
+sub xmlBufUse(const xmlBuf $buf --> size_t) is native(LIB) is export {*};
+sub xmlBufferContent(const xmlBuffer * $buf --> xmlCharP) is native(LIB) is export {*};
+sub xmlBufferDump(FILE * $file, xmlBuffer $buf --> int32) is native(LIB) is export {*};
+sub xmlBufferLength(const xmlBuffer * $buf --> int32) is native(LIB) is export {*};
+sub xmlBuildQName(xmlCharP $ncname, xmlCharP $prefix, xmlCharP $memory, int32 $len --> xmlCharP) is native(LIB) is export {*};
+sub xmlDocDump(FILE * $f, xmlDoc $cur --> int32) is native(LIB) is export {*};
+sub xmlDocFormatDump(FILE * $f, xmlDoc $cur, int32 $format --> int32) is native(LIB) is export {*};
+sub xmlElemDump(FILE * $f, xmlDoc $doc, xmlNode $cur) is native(LIB) is export {*};
+sub xmlGetBufferAllocationScheme( --> xmlBufferAllocationScheme) is native(LIB) is export {*};
+sub xmlGetCompressMode( --> int32) is native(LIB) is export {*};
+sub xmlGetDocCompressMode(const xmlDoc * $doc --> int32) is native(LIB) is export {*};
+sub xmlGetLineNo(const xmlNode * $node --> long) is native(LIB) is export {*};
+sub xmlGetNoNsProp(const xmlNode * $node, xmlCharP $name --> xmlCharP) is native(LIB) is export {*};
+sub xmlGetNodePath(const xmlNode * $node --> xmlCharP) is native(LIB) is export {*};
+sub xmlGetNsList(const xmlDoc * $doc, const xmlNode * $node --> xmlNsPtr *) is native(LIB) is export {*};
+sub xmlGetNsProp(const xmlNode * $node, xmlCharP $name, xmlCharP $nameSpace --> xmlCharP) is native(LIB) is export {*};
+sub xmlGetProp(const xmlNode * $node, xmlCharP $name --> xmlCharP) is native(LIB) is export {*};
+sub xmlIsBlankNode(const xmlNode * $node --> int32) is native(LIB) is export {*};
+sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native(LIB) is export {*};
+sub xmlNodeGetBase(const xmlDoc * $doc, const xmlNode * $cur --> xmlCharP) is native(LIB) is export {*};
+sub xmlNodeGetContent(const xmlNode * $cur --> xmlCharP) is native(LIB) is export {*};
+sub xmlNodeGetLang(const xmlNode * $cur --> xmlCharP) is native(LIB) is export {*};
+sub xmlNodeGetSpacePreserve(const xmlNode * $cur --> int32) is native(LIB) is export {*};
+sub xmlNodeIsText(const xmlNode * $node --> int32) is native(LIB) is export {*};
+sub xmlNodeListGetRawString(const xmlDoc * $doc, const xmlNode * $list, int32 $inLine --> xmlCharP) is native(LIB) is export {*};
+sub xmlSaveFile(Str $filename, xmlDoc $cur --> int32) is native(LIB) is export {*};
+sub xmlSaveFileEnc(Str $filename, xmlDoc $cur, Str $encoding --> int32) is native(LIB) is export {*};
+sub xmlSaveFormatFile(Str $filename, xmlDoc $cur, int32 $format --> int32) is native(LIB) is export {*};
+sub xmlSaveFormatFileEnc(Str $filename, xmlDoc $cur, Str $encoding, int32 $format --> int32) is native(LIB) is export {*};
+sub xmlSetBufferAllocationScheme(xmlBufferAllocationScheme $scheme) is native(LIB) is export {*};
+sub xmlSetCompressMode(int32 $mode) is native(LIB) is export {*};
+sub xmlSplitQName2(xmlCharP $name, xmlChar ** $prefix --> xmlCharP) is native(LIB) is export {*};
+sub xmlSplitQName3(xmlCharP $name, Pointer[int32] $len --> xmlCharP) is native(LIB) is export {*};
+sub xmlValidateNCName(xmlCharP $value, int32 $space --> int32) is native(LIB) is export {*};
+sub xmlValidateNMToken(xmlCharP $value, int32 $space --> int32) is native(LIB) is export {*};
+sub xmlValidateName(xmlCharP $value, int32 $space --> int32) is native(LIB) is export {*};
+sub xmlValidateQName(xmlCharP $value, int32 $space --> int32) is native(LIB) is export {*};

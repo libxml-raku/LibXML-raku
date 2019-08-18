@@ -7,7 +7,7 @@ unit module LibXML::Native::Gen::xmlsave;
 #    API to save document or subtree of document 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlSaveOption is export {
+enum xmlSaveOption is export (
     XML_SAVE_AS_HTML => 64,
     XML_SAVE_AS_XML => 32,
     XML_SAVE_FORMAT => 1,
@@ -16,12 +16,12 @@ enum xmlSaveOption is export {
     XML_SAVE_NO_XHTML => 8,
     XML_SAVE_WSNONSIG => 128,
     XML_SAVE_XHTML => 16,
-}
+)
 
 class xmlSaveCtxt is repr('CPointer') {
-    sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
-    sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
-    sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) {*};
+    sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) is export {*};
+    sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) is export {*};
+    sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) is export {*};
 
     method Close( --> int32) is native(LIB) is symbol('xmlSaveClose') {*};
     method Doc(xmlDoc $doc --> long) is native(LIB) is symbol('xmlSaveDoc') {*};

@@ -7,10 +7,10 @@ unit module LibXML::Native::Gen::parserInternals;
 #    this module exports a number of internal parsing routines they are not really all intended for applications but can prove useful doing low level processing. 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-sub htmlCreateFileParserCtxt(Str $filename, Str $encoding --> htmlParserCtxt) is native(LIB) {*};
-sub htmlInitAutoClose() is native(LIB) {*};
-sub xmlCheckLanguageID(xmlCharP $lang --> int32) is native(LIB) {*};
-sub xmlCopyChar(int32 $len, xmlCharP $out, int32 $val --> int32) is native(LIB) {*};
-sub xmlCopyCharMultiByte(xmlCharP $out, int32 $val --> int32) is native(LIB) {*};
-sub xmlIsLetter(int32 $c --> int32) is native(LIB) {*};
-sub xmlSetEntityReferenceFunc(xmlEntityReferenceFunc $func) is native(LIB) {*};
+sub htmlCreateFileParserCtxt(Str $filename, Str $encoding --> htmlParserCtxt) is native(LIB) is export {*};
+sub htmlInitAutoClose() is native(LIB) is export {*};
+sub xmlCheckLanguageID(xmlCharP $lang --> int32) is native(LIB) is export {*};
+sub xmlCopyChar(int32 $len, xmlCharP $out, int32 $val --> int32) is native(LIB) is export {*};
+sub xmlCopyCharMultiByte(xmlCharP $out, int32 $val --> int32) is native(LIB) is export {*};
+sub xmlIsLetter(int32 $c --> int32) is native(LIB) is export {*};
+sub xmlSetEntityReferenceFunc(xmlEntityReferenceFunc $func) is native(LIB) is export {*};

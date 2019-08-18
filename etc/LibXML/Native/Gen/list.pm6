@@ -12,8 +12,8 @@ class xmlLink is repr('CPointer') {
 }
 
 class xmlList is repr('CPointer') {
-    sub xmlListCreate(xmlListDeallocator $deallocator, xmlListDataCompare $compare --> xmlList) is native(LIB) {*};
-    sub xmlListDup(const xmlList $old --> xmlList) is native(LIB) {*};
+    sub xmlListCreate(xmlListDeallocator $deallocator, xmlListDataCompare $compare --> xmlList) is native(LIB) is export {*};
+    sub xmlListDup(const xmlList $old --> xmlList) is native(LIB) is export {*};
 
     method Append(Pointer $data --> int32) is native(LIB) is symbol('xmlListAppend') {*};
     method Clear() is native(LIB) is symbol('xmlListClear') {*};

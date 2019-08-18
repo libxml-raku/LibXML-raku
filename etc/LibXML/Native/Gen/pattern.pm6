@@ -7,15 +7,15 @@ unit module LibXML::Native::Gen::pattern;
 #    allows to compile and test pattern expressions for nodes either in a tree or based on a parser state. 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlPatternFlags is export {
+enum xmlPatternFlags is export (
     XML_PATTERN_DEFAULT => 0,
     XML_PATTERN_XPATH => 1,
     XML_PATTERN_XSFIELD => 4,
     XML_PATTERN_XSSEL => 2,
-}
+)
 
 class xmlPattern is repr('CPointer') {
-    sub xmlPatterncompile(xmlCharP $pattern, xmlDict * $dict, int32 $flags, const xmlChar ** $namespaces --> xmlPattern) is native(LIB) {*};
+    sub xmlPatterncompile(xmlCharP $pattern, xmlDict * $dict, int32 $flags, const xmlChar ** $namespaces --> xmlPattern) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreePattern') {*};
     method FreePatternList() is native(LIB) is symbol('xmlFreePatternList') {*};

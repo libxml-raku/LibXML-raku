@@ -7,17 +7,17 @@ unit module LibXML::Native::Gen::xmlregexp;
 #    basic API for libxml regular expressions handling used for XML Schemas and validation. 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlExpNodeType is export {
+enum xmlExpNodeType is export (
     XML_EXP_ATOM => 2,
     XML_EXP_COUNT => 5,
     XML_EXP_EMPTY => 0,
     XML_EXP_FORBID => 1,
     XML_EXP_OR => 4,
     XML_EXP_SEQ => 3,
-}
+)
 
 class xmlExpCtxt is repr('CPointer') {
-    sub xmlExpNewCtxt(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(LIB) {*};
+    sub xmlExpNewCtxt(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(LIB) is export {*};
 
     method NbCons( --> int32) is native(LIB) is symbol('xmlExpCtxtNbCons') {*};
     method NbNodes( --> int32) is native(LIB) is symbol('xmlExpCtxtNbNodes') {*};
@@ -50,7 +50,7 @@ class xmlRegExecCtxt is repr('CPointer') {
 }
 
 class xmlRegexp is repr('CPointer') {
-    sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexp) is native(LIB) {*};
+    sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexp) is native(LIB) is export {*};
 
     method RegFree() is native(LIB) is symbol('xmlRegFreeRegexp') {*};
     method RegNewExecCtxt(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(LIB) is symbol('xmlRegNewExecCtxt') {*};
@@ -58,4 +58,4 @@ class xmlRegexp is repr('CPointer') {
     method IsDeterminist( --> int32) is native(LIB) is symbol('xmlRegexpIsDeterminist') {*};
 }
 
-sub xmlRegexpPrint(FILE * $output, xmlRegexp $regexp) is native(LIB) {*};
+sub xmlRegexpPrint(FILE * $output, xmlRegexp $regexp) is native(LIB) is export {*};

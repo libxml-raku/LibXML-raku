@@ -7,7 +7,7 @@ unit module LibXML::Native::Gen::parser;
 #    Interfaces, constants and types related to the XML parser 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlFeature is export {
+enum xmlFeature is export (
     XML_WITH_AUTOMATA => 23,
     XML_WITH_C14N => 14,
     XML_WITH_CATALOG => 15,
@@ -42,9 +42,9 @@ enum xmlFeature is export {
     XML_WITH_XPATH => 16,
     XML_WITH_XPTR => 17,
     XML_WITH_ZLIB => 31,
-}
+)
 
-enum xmlParserInputState is export {
+enum xmlParserInputState is export (
     XML_PARSER_ATTRIBUTE_VALUE => 12,
     XML_PARSER_CDATA_SECTION => 8,
     XML_PARSER_COMMENT => 5,
@@ -63,18 +63,18 @@ enum xmlParserInputState is export {
     XML_PARSER_START => 0,
     XML_PARSER_START_TAG => 6,
     XML_PARSER_SYSTEM_LITERAL => 13,
-}
+)
 
-enum xmlParserMode is export {
+enum xmlParserMode is export (
     XML_PARSE_DOM => 1,
     XML_PARSE_PUSH_DOM => 3,
     XML_PARSE_PUSH_SAX => 4,
     XML_PARSE_READER => 5,
     XML_PARSE_SAX => 2,
     XML_PARSE_UNKNOWN => 0,
-}
+)
 
-enum xmlParserOption is export {
+enum xmlParserOption is export (
     XML_PARSE_BIG_LINES => 4194304,
     XML_PARSE_COMPACT => 65536,
     XML_PARSE_DTDATTR => 8,
@@ -98,19 +98,19 @@ enum xmlParserOption is export {
     XML_PARSE_RECOVER => 1,
     XML_PARSE_SAX1 => 512,
     XML_PARSE_XINCLUDE => 1024,
-}
+)
 
 class xmlParserNodeInfo is repr('CStruct') {
     has const xmlNode $.node; # Position & line # that text that created the node begins & ends on
-    has unsigned long $.begin_pos;
-    has unsigned long $.begin_line;
-    has unsigned long $.end_pos;
-    has unsigned long $.end_line;
+    has ulong $.begin_pos;
+    has ulong $.begin_line;
+    has ulong $.end_pos;
+    has ulong $.end_line;
 }
 
 class xmlParserNodeInfoSeq is repr('CStruct') {
-    has unsigned long $.maximum;
-    has unsigned long $.length;
+    has ulong $.maximum;
+    has ulong $.length;
     has xmlParserNodeInfo * $.buffer;
     method Clear() is native(LIB) is symbol('xmlClearNodeInfoSeq') {*};
     method Init() is native(LIB) is symbol('xmlInitNodeInfoSeq') {*};
@@ -147,15 +147,15 @@ class xmlSAXHandlerV1 is repr('CStruct') {
     has uint32 $.initialized;
 }
 
-sub xmlCleanupParser() is native(LIB) {*};
-sub xmlGetExternalEntityLoader( --> xmlExternalEntityLoader) is native(LIB) {*};
-sub xmlGetFeaturesList(Pointer[int32] $len, const char ** $result --> int32) is native(LIB) {*};
-sub xmlHasFeature(xmlFeature $feature --> int32) is native(LIB) {*};
-sub xmlInitParser() is native(LIB) {*};
-sub xmlKeepBlanksDefault(int32 $val --> int32) is native(LIB) {*};
-sub xmlLineNumbersDefault(int32 $val --> int32) is native(LIB) {*};
-sub xmlParserFindNodeInfo(const xmlParserCtxt $ctx, const xmlNode $node --> const xmlParserNodeInfo *) is native(LIB) {*};
-sub xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq $seq, const xmlNode $node --> unsigned long) is native(LIB) {*};
-sub xmlPedanticParserDefault(int32 $val --> int32) is native(LIB) {*};
-sub xmlSetExternalEntityLoader(xmlExternalEntityLoader $f) is native(LIB) {*};
-sub xmlSubstituteEntitiesDefault(int32 $val --> int32) is native(LIB) {*};
+sub xmlCleanupParser() is native(LIB) is export {*};
+sub xmlGetExternalEntityLoader( --> xmlExternalEntityLoader) is native(LIB) is export {*};
+sub xmlGetFeaturesList(Pointer[int32] $len, const char ** $result --> int32) is native(LIB) is export {*};
+sub xmlHasFeature(xmlFeature $feature --> int32) is native(LIB) is export {*};
+sub xmlInitParser() is native(LIB) is export {*};
+sub xmlKeepBlanksDefault(int32 $val --> int32) is native(LIB) is export {*};
+sub xmlLineNumbersDefault(int32 $val --> int32) is native(LIB) is export {*};
+sub xmlParserFindNodeInfo(const xmlParserCtxt $ctx, const xmlNode $node --> const xmlParserNodeInfo *) is native(LIB) is export {*};
+sub xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq $seq, const xmlNode $node --> ulong) is native(LIB) is export {*};
+sub xmlPedanticParserDefault(int32 $val --> int32) is native(LIB) is export {*};
+sub xmlSetExternalEntityLoader(xmlExternalEntityLoader $f) is native(LIB) is export {*};
+sub xmlSubstituteEntitiesDefault(int32 $val --> int32) is native(LIB) is export {*};

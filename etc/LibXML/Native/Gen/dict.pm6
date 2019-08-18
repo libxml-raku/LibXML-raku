@@ -8,7 +8,7 @@ unit module LibXML::Native::Gen::dict;
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
 class xmlDict is repr('CPointer') {
-    sub xmlDictCreate( --> xmlDict) is native(LIB) {*};
+    sub xmlDictCreate( --> xmlDict) is native(LIB) is export {*};
 
     method CreateSub( --> xmlDict) is native(LIB) is symbol('xmlDictCreateSub') {*};
     method Exists(xmlCharP $name, int32 $len --> xmlCharP) is native(LIB) is symbol('xmlDictExists') {*};
@@ -22,5 +22,5 @@ class xmlDict is repr('CPointer') {
     method Size( --> int32) is native(LIB) is symbol('xmlDictSize') {*};
 }
 
-sub xmlDictCleanup() is native(LIB) {*};
-sub xmlInitializeDict( --> int32) is native(LIB) {*};
+sub xmlDictCleanup() is native(LIB) is export {*};
+sub xmlInitializeDict( --> int32) is native(LIB) is export {*};

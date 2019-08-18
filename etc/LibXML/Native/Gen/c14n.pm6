@@ -7,8 +7,8 @@ unit module LibXML::Native::Gen::c14n;
 #    the c14n modules provides a  "Canonical XML" implementation
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlC14NMode is export {
+enum xmlC14NMode is export (
     XML_C14N_1_0 => 0,
     XML_C14N_1_1 => 2,
     XML_C14N_EXCLUSIVE_1_0 => 1,
-}
+)

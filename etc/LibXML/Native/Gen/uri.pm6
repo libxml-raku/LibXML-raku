@@ -20,21 +20,21 @@ class xmlURI is repr('CStruct') {
     has int32 $.cleanup; # parsing potentially unclean URI
     has Str $.query_raw; # the query string (as it appears in the URI)
 
-    sub xmlCreateURI( --> xmlURI) is native(LIB) {*};
-    sub xmlParseURI(Str $str --> xmlURI) is native(LIB) {*};
-    sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURI) is native(LIB) {*};
+    sub xmlCreateURI( --> xmlURI) is native(LIB) is export {*};
+    sub xmlParseURI(Str $str --> xmlURI) is native(LIB) is export {*};
+    sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURI) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreeURI') {*};
     method ParseURIReference(Str $str --> int32) is native(LIB) is symbol('xmlParseURIReference') {*};
     method SaveUri( --> xmlCharP) is native(LIB) is symbol('xmlSaveUri') {*};
 }
 
-sub xmlBuildRelativeURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) {*};
-sub xmlBuildURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) {*};
-sub xmlCanonicPath(xmlCharP $path --> xmlCharP) is native(LIB) {*};
-sub xmlNormalizeURIPath(Str $path --> int32) is native(LIB) {*};
-sub xmlPathToURI(xmlCharP $path --> xmlCharP) is native(LIB) {*};
-sub xmlPrintURI(FILE * $stream, xmlURI $uri) is native(LIB) {*};
-sub xmlURIEscape(xmlCharP $str --> xmlCharP) is native(LIB) {*};
-sub xmlURIEscapeStr(xmlCharP $str, xmlCharP $list --> xmlCharP) is native(LIB) {*};
-sub xmlURIUnescapeString(Str $str, int32 $len, Str $target --> Str) is native(LIB) {*};
+sub xmlBuildRelativeURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) is export {*};
+sub xmlBuildURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) is export {*};
+sub xmlCanonicPath(xmlCharP $path --> xmlCharP) is native(LIB) is export {*};
+sub xmlNormalizeURIPath(Str $path --> int32) is native(LIB) is export {*};
+sub xmlPathToURI(xmlCharP $path --> xmlCharP) is native(LIB) is export {*};
+sub xmlPrintURI(FILE * $stream, xmlURI $uri) is native(LIB) is export {*};
+sub xmlURIEscape(xmlCharP $str --> xmlCharP) is native(LIB) is export {*};
+sub xmlURIEscapeStr(xmlCharP $str, xmlCharP $list --> xmlCharP) is native(LIB) is export {*};
+sub xmlURIUnescapeString(Str $str, int32 $len, Str $target --> Str) is native(LIB) is export {*};

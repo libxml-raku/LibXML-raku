@@ -8,7 +8,7 @@ unit module LibXML::Native::Gen::threads;
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
 class xmlMutex is repr('CPointer') {
-    sub xmlNewMutex( --> xmlMutex) is native(LIB) {*};
+    sub xmlNewMutex( --> xmlMutex) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreeMutex') {*};
     method Lock() is native(LIB) is symbol('xmlMutexLock') {*};
@@ -16,17 +16,17 @@ class xmlMutex is repr('CPointer') {
 }
 
 class xmlRMutex is repr('CPointer') {
-    sub xmlNewRMutex( --> xmlRMutex) is native(LIB) {*};
+    sub xmlNewRMutex( --> xmlRMutex) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreeRMutex') {*};
     method Lock() is native(LIB) is symbol('xmlRMutexLock') {*};
     method Unlock() is native(LIB) is symbol('xmlRMutexUnlock') {*};
 }
 
-sub xmlCleanupThreads() is native(LIB) {*};
-sub xmlDllMain(Pointer $hinstDLL, unsigned long $fdwReason, Pointer $lpvReserved --> int32) is native(LIB) {*};
-sub xmlGetThreadId( --> int32) is native(LIB) {*};
-sub xmlInitThreads() is native(LIB) {*};
-sub xmlIsMainThread( --> int32) is native(LIB) {*};
-sub xmlLockLibrary() is native(LIB) {*};
-sub xmlUnlockLibrary() is native(LIB) {*};
+sub xmlCleanupThreads() is native(LIB) is export {*};
+sub xmlDllMain(Pointer $hinstDLL, ulong $fdwReason, Pointer $lpvReserved --> int32) is native(LIB) is export {*};
+sub xmlGetThreadId( --> int32) is native(LIB) is export {*};
+sub xmlInitThreads() is native(LIB) is export {*};
+sub xmlIsMainThread( --> int32) is native(LIB) is export {*};
+sub xmlLockLibrary() is native(LIB) is export {*};
+sub xmlUnlockLibrary() is native(LIB) is export {*};

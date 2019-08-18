@@ -7,13 +7,13 @@ unit module LibXML::Native::Gen::relaxng;
 #    implementation of the Relax-NG validation 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlRelaxNGParserFlag is export {
+enum xmlRelaxNGParserFlag is export (
     XML_RELAXNGP_CRNG => 2,
     XML_RELAXNGP_FREE_DOC => 1,
     XML_RELAXNGP_NONE => 0,
-}
+)
 
-enum xmlRelaxNGValidErr is export {
+enum xmlRelaxNGValidErr is export (
     XML_RELAXNG_ERR_ATTREXTRANS => 20,
     XML_RELAXNG_ERR_ATTRNAME => 14,
     XML_RELAXNG_ERR_ATTRNONS => 16,
@@ -54,7 +54,7 @@ enum xmlRelaxNGValidErr is export {
     XML_RELAXNG_ERR_VALELEM => 29,
     XML_RELAXNG_ERR_VALUE => 32,
     XML_RELAXNG_OK => 0,
-}
+)
 
 class xmlRelaxNG is repr('CPointer') {
     method Free() is native(LIB) is symbol('xmlRelaxNGFree') {*};
@@ -62,8 +62,8 @@ class xmlRelaxNG is repr('CPointer') {
 }
 
 class xmlRelaxNGParserCtxt is repr('CPointer') {
-    sub xmlRelaxNGNewMemParserCtxt(Str $buffer, int32 $size --> xmlRelaxNGParserCtxt) is native(LIB) {*};
-    sub xmlRelaxNGNewParserCtxt(Str $URL --> xmlRelaxNGParserCtxt) is native(LIB) {*};
+    sub xmlRelaxNGNewMemParserCtxt(Str $buffer, int32 $size --> xmlRelaxNGParserCtxt) is native(LIB) is export {*};
+    sub xmlRelaxNGNewParserCtxt(Str $URL --> xmlRelaxNGParserCtxt) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlRelaxNGFreeParserCtxt') {*};
     method GetParserErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) is symbol('xmlRelaxNGGetParserErrors') {*};
@@ -85,7 +85,7 @@ class xmlRelaxNGValidCtxt is repr('CPointer') {
     method ValidatePushElement(xmlDoc $doc, xmlNode $elem --> int32) is native(LIB) is symbol('xmlRelaxNGValidatePushElement') {*};
 }
 
-sub xmlRelaxNGCleanupTypes() is native(LIB) {*};
-sub xmlRelaxNGDump(FILE * $output, xmlRelaxNG $schema) is native(LIB) {*};
-sub xmlRelaxNGDumpTree(FILE * $output, xmlRelaxNG $schema) is native(LIB) {*};
-sub xmlRelaxNGInitTypes( --> int32) is native(LIB) {*};
+sub xmlRelaxNGCleanupTypes() is native(LIB) is export {*};
+sub xmlRelaxNGDump(FILE * $output, xmlRelaxNG $schema) is native(LIB) is export {*};
+sub xmlRelaxNGDumpTree(FILE * $output, xmlRelaxNG $schema) is native(LIB) is export {*};
+sub xmlRelaxNGInitTypes( --> int32) is native(LIB) is export {*};

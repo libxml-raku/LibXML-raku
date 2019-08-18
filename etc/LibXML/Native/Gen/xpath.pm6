@@ -7,7 +7,7 @@ unit module LibXML::Native::Gen::xpath;
 #    API for the XML Path Language implementation  XML Path Language implementation XPath is a language for addressing parts of an XML document, designed to be used by both XSLT and XPointer
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlXPathError is export {
+enum xmlXPathError is export (
     XPATH_ENCODING_ERROR => 20,
     XPATH_EXPRESSION_OK => 0,
     XPATH_EXPR_ERROR => 7,
@@ -33,9 +33,9 @@ enum xmlXPathError is export {
     XPTR_RESOURCE_ERROR => 17,
     XPTR_SUB_RESOURCE_ERROR => 18,
     XPTR_SYNTAX_ERROR => 16,
-}
+)
 
-enum xmlXPathObjectType is export {
+enum xmlXPathObjectType is export (
     XPATH_BOOLEAN => 2,
     XPATH_LOCATIONSET => 7,
     XPATH_NODESET => 1,
@@ -46,7 +46,7 @@ enum xmlXPathObjectType is export {
     XPATH_UNDEFINED => 0,
     XPATH_USERS => 8,
     XPATH_XSLT_TREE => 9,
-}
+)
 
 class xmlNodeSet is repr('CStruct') {
     has int32 $.nodeNr; # number of nodes in the set
@@ -88,7 +88,7 @@ class xmlXPathAxis is repr('CStruct') {
 }
 
 class xmlXPathCompExpr is repr('CPointer') {
-    sub xmlXPathCompile(xmlCharP $str --> xmlXPathCompExpr) is native(LIB) {*};
+    sub xmlXPathCompile(xmlCharP $str --> xmlXPathCompExpr) is native(LIB) is export {*};
 
     method CompiledEval(xmlXPathContext $ctx --> xmlXPathObject) is native(LIB) is symbol('xmlXPathCompiledEval') {*};
     method CompiledEvalToBoolean(xmlXPathContext $ctxt --> int32) is native(LIB) is symbol('xmlXPathCompiledEvalToBoolean') {*};
@@ -173,16 +173,16 @@ class xmlXPathObject is repr('CStruct') {
     has Pointer $.user2;
     has int32 $.index2;
 
-    sub xmlXPathEval(xmlCharP $str, xmlXPathContext $ctx --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathEvalExpression(xmlCharP $str, xmlXPathContext $ctxt --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathNewBoolean(int32 $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathNewCString(Str $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathNewFloat(num64 $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathNewString(xmlCharP $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathWrapCString(Str $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathWrapExternal(Pointer $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPathWrapString(xmlCharP $val --> xmlXPathObject) is native(LIB) {*};
-    sub xmlXPtrEval(xmlCharP $str, xmlXPathContext $ctx --> xmlXPathObject) is native(LIB) {*};
+    sub xmlXPathEval(xmlCharP $str, xmlXPathContext $ctx --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathEvalExpression(xmlCharP $str, xmlXPathContext $ctxt --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathNewBoolean(int32 $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathNewCString(Str $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathNewFloat(num64 $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathNewString(xmlCharP $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathWrapCString(Str $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathWrapExternal(Pointer $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPathWrapString(xmlCharP $val --> xmlXPathObject) is native(LIB) is export {*};
+    sub xmlXPtrEval(xmlCharP $str, xmlXPathContext $ctx --> xmlXPathObject) is native(LIB) is export {*};
 
     method ShellPrintXPathResult() is native(LIB) is symbol('xmlShellPrintXPathResult') {*};
     method CastToBoolean( --> int32) is native(LIB) is symbol('xmlXPathCastToBoolean') {*};
@@ -214,7 +214,7 @@ class xmlXPathParserContext is repr('CStruct') {
     has xmlNode $.ancestor; # used for walking preceding axis
     has int32 $.valueFrame; # used to limit Pop on the stack
 
-    sub xmlXPathNewParserContext(xmlCharP $str, xmlXPathContext $ctxt --> xmlXPathParserContext) is native(LIB) {*};
+    sub xmlXPathNewParserContext(xmlCharP $str, xmlXPathContext $ctxt --> xmlXPathParserContext) is native(LIB) is export {*};
 
     method valuePop( --> xmlXPathObject) is native(LIB) {*};
     method valuePush(xmlXPathObject $value --> int32) is native(LIB) {*};
@@ -293,12 +293,12 @@ class xmlXPathVariable is repr('CStruct') {
     has xmlXPathObject $.value; # the value
 }
 
-sub xmlXPathCastBooleanToNumber(int32 $val --> num64) is native(LIB) {*};
-sub xmlXPathCastBooleanToString(int32 $val --> xmlCharP) is native(LIB) {*};
-sub xmlXPathCastNumberToBoolean(num64 $val --> int32) is native(LIB) {*};
-sub xmlXPathCastNumberToString(num64 $val --> xmlCharP) is native(LIB) {*};
-sub xmlXPathCastStringToBoolean(xmlCharP $val --> int32) is native(LIB) {*};
-sub xmlXPathCastStringToNumber(xmlCharP $val --> num64) is native(LIB) {*};
-sub xmlXPathInit() is native(LIB) {*};
-sub xmlXPathIsInf(num64 $val --> int32) is native(LIB) {*};
-sub xmlXPathIsNaN(num64 $val --> int32) is native(LIB) {*};
+sub xmlXPathCastBooleanToNumber(int32 $val --> num64) is native(LIB) is export {*};
+sub xmlXPathCastBooleanToString(int32 $val --> xmlCharP) is native(LIB) is export {*};
+sub xmlXPathCastNumberToBoolean(num64 $val --> int32) is native(LIB) is export {*};
+sub xmlXPathCastNumberToString(num64 $val --> xmlCharP) is native(LIB) is export {*};
+sub xmlXPathCastStringToBoolean(xmlCharP $val --> int32) is native(LIB) is export {*};
+sub xmlXPathCastStringToNumber(xmlCharP $val --> num64) is native(LIB) is export {*};
+sub xmlXPathInit() is native(LIB) is export {*};
+sub xmlXPathIsInf(num64 $val --> int32) is native(LIB) is export {*};
+sub xmlXPathIsNaN(num64 $val --> int32) is native(LIB) is export {*};

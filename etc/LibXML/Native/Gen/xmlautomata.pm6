@@ -8,7 +8,7 @@ unit module LibXML::Native::Gen::xmlautomata;
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
 class xmlAutomata is repr('CPointer') {
-    sub xmlNewAutomata( --> xmlAutomata) is native(LIB) {*};
+    sub xmlNewAutomata( --> xmlAutomata) is native(LIB) is export {*};
 
     method Compile( --> xmlRegexp) is native(LIB) is symbol('xmlAutomataCompile') {*};
     method GetInitState( --> xmlAutomataState) is native(LIB) is symbol('xmlAutomataGetInitState') {*};

@@ -7,21 +7,21 @@ unit module LibXML::Native::Gen::xmlreader;
 #    API of the XML streaming API based on C# interfaces. 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlParserProperties is export {
+enum xmlParserProperties is export (
     XML_PARSER_DEFAULTATTRS => 2,
     XML_PARSER_LOADDTD => 1,
     XML_PARSER_SUBST_ENTITIES => 4,
     XML_PARSER_VALIDATE => 3,
-}
+)
 
-enum xmlParserSeverities is export {
+enum xmlParserSeverities is export (
     XML_PARSER_SEVERITY_ERROR => 4,
     XML_PARSER_SEVERITY_VALIDITY_ERROR => 2,
     XML_PARSER_SEVERITY_VALIDITY_WARNING => 1,
     XML_PARSER_SEVERITY_WARNING => 3,
-}
+)
 
-enum xmlReaderTypes is export {
+enum xmlReaderTypes is export (
     XML_READER_TYPE_ATTRIBUTE => 2,
     XML_READER_TYPE_CDATA => 4,
     XML_READER_TYPE_COMMENT => 8,
@@ -40,24 +40,24 @@ enum xmlReaderTypes is export {
     XML_READER_TYPE_TEXT => 3,
     XML_READER_TYPE_WHITESPACE => 13,
     XML_READER_TYPE_XML_DECLARATION => 17,
-}
+)
 
-enum xmlTextReaderMode is export {
+enum xmlTextReaderMode is export (
     XML_TEXTREADER_MODE_CLOSED => 4,
     XML_TEXTREADER_MODE_EOF => 3,
     XML_TEXTREADER_MODE_ERROR => 2,
     XML_TEXTREADER_MODE_INITIAL => 0,
     XML_TEXTREADER_MODE_INTERACTIVE => 1,
     XML_TEXTREADER_MODE_READING => 5,
-}
+)
 
 class xmlTextReader is repr('CPointer') {
-    sub xmlNewTextReaderFilename(Str $URI --> xmlTextReader) is native(LIB) {*};
-    sub xmlReaderForDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) {*};
-    sub xmlReaderForFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) {*};
-    sub xmlReaderForFile(Str $filename, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) {*};
-    sub xmlReaderForIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) {*};
-    sub xmlReaderForMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) {*};
+    sub xmlNewTextReaderFilename(Str $URI --> xmlTextReader) is native(LIB) is export {*};
+    sub xmlReaderForDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
+    sub xmlReaderForFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
+    sub xmlReaderForFile(Str $filename, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
+    sub xmlReaderForIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
+    sub xmlReaderForMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlFreeTextReader') {*};
     method ReaderNewDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlReaderNewDoc') {*};
@@ -137,5 +137,5 @@ class xmlTextReader is repr('CPointer') {
     method XmlLang( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderXmlLang') {*};
 }
 
-sub xmlTextReaderLocatorBaseURI(xmlTextReaderLocator $locator --> xmlCharP) is native(LIB) {*};
-sub xmlTextReaderLocatorLineNumber(xmlTextReaderLocator $locator --> int32) is native(LIB) {*};
+sub xmlTextReaderLocatorBaseURI(xmlTextReaderLocator $locator --> xmlCharP) is native(LIB) is export {*};
+sub xmlTextReaderLocatorLineNumber(xmlTextReaderLocator $locator --> int32) is native(LIB) is export {*};

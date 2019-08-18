@@ -50,7 +50,7 @@ class xmlValidCtxt is repr('CStruct') {
     has Pointer $.am;
     has Pointer $.state;
 
-    sub xmlNewValidCtxt( --> xmlValidCtxt) is native(LIB) {*};
+    sub xmlNewValidCtxt( --> xmlValidCtxt) is native(LIB) is export {*};
 
     method AddAttributeDecl(xmlDtd $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumeration $tree --> xmlAttribute) is native(LIB) is symbol('xmlAddAttributeDecl') {*};
     method AddElementDecl(xmlDtd $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContent $content --> xmlElement) is native(LIB) is symbol('xmlAddElementDecl') {*};
@@ -81,12 +81,12 @@ class xmlValidCtxt is repr('CStruct') {
 class xmlValidState is repr('CPointer') {
 }
 
-sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContent $content, int32 $englob) is native(LIB) {*};
-sub xmlSprintfElementContent(Str $buf, xmlElementContent $content, int32 $englob) is native(LIB) {*};
-sub xmlValidGetPotentialChildren(xmlElementContent * $ctree, const xmlChar ** $names, Pointer[int32] $len, int32 $max --> int32) is native(LIB) {*};
-sub xmlValidGetValidElements(xmlNode * $prev, xmlNode * $next, const xmlChar ** $names, int32 $max --> int32) is native(LIB) {*};
-sub xmlValidateAttributeValue(xmlAttributeType $type, xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateNameValue(xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateNamesValue(xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateNmtokenValue(xmlCharP $value --> int32) is native(LIB) {*};
-sub xmlValidateNmtokensValue(xmlCharP $value --> int32) is native(LIB) {*};
+sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContent $content, int32 $englob) is native(LIB) is export {*};
+sub xmlSprintfElementContent(Str $buf, xmlElementContent $content, int32 $englob) is native(LIB) is export {*};
+sub xmlValidGetPotentialChildren(xmlElementContent * $ctree, const xmlChar ** $names, Pointer[int32] $len, int32 $max --> int32) is native(LIB) is export {*};
+sub xmlValidGetValidElements(xmlNode * $prev, xmlNode * $next, const xmlChar ** $names, int32 $max --> int32) is native(LIB) is export {*};
+sub xmlValidateAttributeValue(xmlAttributeType $type, xmlCharP $value --> int32) is native(LIB) is export {*};
+sub xmlValidateNameValue(xmlCharP $value --> int32) is native(LIB) is export {*};
+sub xmlValidateNamesValue(xmlCharP $value --> int32) is native(LIB) is export {*};
+sub xmlValidateNmtokenValue(xmlCharP $value --> int32) is native(LIB) is export {*};
+sub xmlValidateNmtokensValue(xmlCharP $value --> int32) is native(LIB) is export {*};

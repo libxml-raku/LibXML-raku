@@ -7,7 +7,7 @@ unit module LibXML::Native::Gen::schematron;
 #    interface to the XML Schematron validity checking. 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlSchematronValidOptions is export {
+enum xmlSchematronValidOptions is export (
     XML_SCHEMATRON_OUT_BUFFER => 512,
     XML_SCHEMATRON_OUT_ERROR => 8,
     XML_SCHEMATRON_OUT_FILE => 256,
@@ -15,7 +15,7 @@ enum xmlSchematronValidOptions is export {
     XML_SCHEMATRON_OUT_QUIET => 1,
     XML_SCHEMATRON_OUT_TEXT => 2,
     XML_SCHEMATRON_OUT_XML => 4,
-}
+)
 
 class xmlSchematron is repr('CPointer') {
     method Free() is native(LIB) is symbol('xmlSchematronFree') {*};
@@ -23,8 +23,8 @@ class xmlSchematron is repr('CPointer') {
 }
 
 class xmlSchematronParserCtxt is repr('CPointer') {
-    sub xmlSchematronNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchematronParserCtxt) is native(LIB) {*};
-    sub xmlSchematronNewParserCtxt(Str $URL --> xmlSchematronParserCtxt) is native(LIB) {*};
+    sub xmlSchematronNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchematronParserCtxt) is native(LIB) is export {*};
+    sub xmlSchematronNewParserCtxt(Str $URL --> xmlSchematronParserCtxt) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlSchematronFreeParserCtxt') {*};
     method Parse( --> xmlSchematron) is native(LIB) is symbol('xmlSchematronParse') {*};

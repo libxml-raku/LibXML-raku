@@ -7,7 +7,7 @@ unit module LibXML::Native::Gen::xmlschemas;
 #    interface to the XML Schemas handling and schema validity checking, it is incomplete right now. 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlSchemaValidError is export {
+enum xmlSchemaValidError is export (
     XML_SCHEMAS_ERR_ => 24,
     XML_SCHEMAS_ERR_ATTRINVALID => 21,
     XML_SCHEMAS_ERR_ATTRUNKNOWN => 20,
@@ -34,11 +34,11 @@ enum xmlSchemaValidError is export {
     XML_SCHEMAS_ERR_VALUE => 22,
     XML_SCHEMAS_ERR_WRONGELEM => 5,
     XML_SCHEMAS_ERR_XXX => 25,
-}
+)
 
-enum xmlSchemaValidOption is export {
+enum xmlSchemaValidOption is export (
     XML_SCHEMA_VAL_VC_I_CREATE => 1,
-}
+)
 
 class xmlSchema is repr('CStruct') {
     has xmlCharP $.name; # schema name
@@ -67,8 +67,8 @@ class xmlSchema is repr('CStruct') {
 }
 
 class xmlSchemaParserCtxt is repr('CPointer') {
-    sub xmlSchemaNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchemaParserCtxt) is native(LIB) {*};
-    sub xmlSchemaNewParserCtxt(Str $URL --> xmlSchemaParserCtxt) is native(LIB) {*};
+    sub xmlSchemaNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchemaParserCtxt) is native(LIB) is export {*};
+    sub xmlSchemaNewParserCtxt(Str $URL --> xmlSchemaParserCtxt) is native(LIB) is export {*};
 
     method Free() is native(LIB) is symbol('xmlSchemaFreeParserCtxt') {*};
     method GetParserErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(LIB) is symbol('xmlSchemaGetParserErrors') {*};
@@ -98,5 +98,5 @@ class xmlSchemaValidCtxt is repr('CPointer') {
     method ValidateStream(xmlParserInputBuffer $input, xmlCharEncoding $enc, xmlSAXHandler $sax, Pointer $user_data --> int32) is native(LIB) is symbol('xmlSchemaValidateStream') {*};
 }
 
-sub xmlSchemaDump(FILE * $output, xmlSchema $schema) is native(LIB) {*};
-sub xmlSchemaSAXUnplug(xmlSchemaSAXPlug $plug --> int32) is native(LIB) {*};
+sub xmlSchemaDump(FILE * $output, xmlSchema $schema) is native(LIB) is export {*};
+sub xmlSchemaSAXUnplug(xmlSchemaSAXPlug $plug --> int32) is native(LIB) is export {*};

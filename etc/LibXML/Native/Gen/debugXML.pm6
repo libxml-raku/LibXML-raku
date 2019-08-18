@@ -27,17 +27,17 @@ class xmlShellCtxt is repr('CStruct') {
     method Write(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(LIB) is symbol('xmlShellWrite') {*};
 }
 
-sub xmlBoolToText(int32 $boolval --> Str) is native(LIB) {*};
-sub xmlDebugCheckDocument(FILE * $output, xmlDoc $doc --> int32) is native(LIB) {*};
-sub xmlDebugDumpAttr(FILE * $output, xmlAttr $attr, int32 $depth) is native(LIB) {*};
-sub xmlDebugDumpAttrList(FILE * $output, xmlAttr $attr, int32 $depth) is native(LIB) {*};
-sub xmlDebugDumpDTD(FILE * $output, xmlDtd $dtd) is native(LIB) {*};
-sub xmlDebugDumpDocument(FILE * $output, xmlDoc $doc) is native(LIB) {*};
-sub xmlDebugDumpDocumentHead(FILE * $output, xmlDoc $doc) is native(LIB) {*};
-sub xmlDebugDumpEntities(FILE * $output, xmlDoc $doc) is native(LIB) {*};
-sub xmlDebugDumpNode(FILE * $output, xmlNode $node, int32 $depth) is native(LIB) {*};
-sub xmlDebugDumpNodeList(FILE * $output, xmlNode $node, int32 $depth) is native(LIB) {*};
-sub xmlDebugDumpOneNode(FILE * $output, xmlNode $node, int32 $depth) is native(LIB) {*};
-sub xmlDebugDumpString(FILE * $output, xmlCharP $str) is native(LIB) {*};
-sub xmlLsOneNode(FILE * $output, xmlNode $node) is native(LIB) {*};
-sub xmlShellPrintXPathError(int32 $errorType, Str $arg) is native(LIB) {*};
+sub xmlBoolToText(int32 $boolval --> Str) is native(LIB) is export {*};
+sub xmlDebugCheckDocument(FILE * $output, xmlDoc $doc --> int32) is native(LIB) is export {*};
+sub xmlDebugDumpAttr(FILE * $output, xmlAttr $attr, int32 $depth) is native(LIB) is export {*};
+sub xmlDebugDumpAttrList(FILE * $output, xmlAttr $attr, int32 $depth) is native(LIB) is export {*};
+sub xmlDebugDumpDTD(FILE * $output, xmlDtd $dtd) is native(LIB) is export {*};
+sub xmlDebugDumpDocument(FILE * $output, xmlDoc $doc) is native(LIB) is export {*};
+sub xmlDebugDumpDocumentHead(FILE * $output, xmlDoc $doc) is native(LIB) is export {*};
+sub xmlDebugDumpEntities(FILE * $output, xmlDoc $doc) is native(LIB) is export {*};
+sub xmlDebugDumpNode(FILE * $output, xmlNode $node, int32 $depth) is native(LIB) is export {*};
+sub xmlDebugDumpNodeList(FILE * $output, xmlNode $node, int32 $depth) is native(LIB) is export {*};
+sub xmlDebugDumpOneNode(FILE * $output, xmlNode $node, int32 $depth) is native(LIB) is export {*};
+sub xmlDebugDumpString(FILE * $output, xmlCharP $str) is native(LIB) is export {*};
+sub xmlLsOneNode(FILE * $output, xmlNode $node) is native(LIB) is export {*};
+sub xmlShellPrintXPathError(int32 $errorType, Str $arg) is native(LIB) is export {*};

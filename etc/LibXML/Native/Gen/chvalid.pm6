@@ -24,12 +24,12 @@ class xmlChSRange is repr('CStruct') {
     has unsigned short $.high;
 }
 
-sub xmlCharInRange(uint32 $val, const xmlChRangeGroup * $rptr --> int32) is native(LIB) {*};
-sub xmlIsBaseChar(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsBlank(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsChar(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsCombining(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsDigit(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsExtender(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsIdeographic(uint32 $ch --> int32) is native(LIB) {*};
-sub xmlIsPubidChar(uint32 $ch --> int32) is native(LIB) {*};
+sub xmlCharInRange(uint32 $val, const xmlChRangeGroup * $rptr --> int32) is native(LIB) is export {*};
+sub xmlIsBaseChar(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsBlank(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsChar(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsCombining(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsDigit(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsExtender(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsIdeographic(uint32 $ch --> int32) is native(LIB) is export {*};
+sub xmlIsPubidChar(uint32 $ch --> int32) is native(LIB) is export {*};

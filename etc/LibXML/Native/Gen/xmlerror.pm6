@@ -7,7 +7,7 @@ unit module LibXML::Native::Gen::xmlerror;
 #    the API used to report errors 
 use LibXML::Native::Defs :LIB, :xmlCharP;
 
-enum xmlErrorDomain is export {
+enum xmlErrorDomain is export (
     XML_FROM_BUFFER => 29,
     XML_FROM_C14N => 21,
     XML_FROM_CATALOG => 20,
@@ -39,16 +39,16 @@ enum xmlErrorDomain is export {
     XML_FROM_XPATH => 12,
     XML_FROM_XPOINTER => 13,
     XML_FROM_XSLT => 22,
-}
+)
 
-enum xmlErrorLevel is export {
+enum xmlErrorLevel is export (
     XML_ERR_ERROR => 2,
     XML_ERR_FATAL => 3,
     XML_ERR_NONE => 0,
     XML_ERR_WARNING => 1,
-}
+)
 
-enum xmlParserErrors is export {
+enum xmlParserErrors is export (
     XML_BUF_OVERFLOW => 7000,
     XML_C14N_CREATE_CTXT => 1950,
     XML_C14N_CREATE_STACK => 1952,
@@ -783,7 +783,7 @@ enum xmlParserErrors is export {
     XML_XPTR_SUB_RESOURCE_ERROR => 1218,
     XML_XPTR_SYNTAX_ERROR => 1216,
     XML_XPTR_UNKNOWN_SCHEME => 1900,
-}
+)
 
 class xmlError is repr('CStruct') {
     has int32 $.domain; # What part of the library raised this error
@@ -800,19 +800,19 @@ class xmlError is repr('CStruct') {
     has Pointer $.ctxt; # the parser context if available
     has Pointer $.node; # the node in the tree
 
-    sub xmlCtxtGetLastError(Pointer $ctx --> xmlError) is native(LIB) {*};
-    sub xmlGetLastError( --> xmlError) is native(LIB) {*};
+    sub xmlCtxtGetLastError(Pointer $ctx --> xmlError) is native(LIB) is export {*};
+    sub xmlGetLastError( --> xmlError) is native(LIB) is export {*};
 
     method Copy(xmlError $to --> int32) is native(LIB) is symbol('xmlCopyError') {*};
     method Reset() is native(LIB) is symbol('xmlResetError') {*};
 }
 
-sub initGenericErrorDefaultFunc(xmlGenericErrorFunc * $handler) is native(LIB) {*};
-sub xmlCtxtResetLastError(Pointer $ctx) is native(LIB) {*};
-sub xmlParserError(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
-sub xmlParserValidityError(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
-sub xmlParserValidityWarning(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
-sub xmlParserWarning(Pointer $ctx, Str $msg, ... $...) is native(LIB) {*};
-sub xmlResetLastError() is native(LIB) {*};
-sub xmlSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(LIB) {*};
-sub xmlSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(LIB) {*};
+sub initGenericErrorDefaultFunc(xmlGenericErrorFunc * $handler) is native(LIB) is export {*};
+sub xmlCtxtResetLastError(Pointer $ctx) is native(LIB) is export {*};
+sub xmlParserError(Pointer $ctx, Str $msg, ... $...) is native(LIB) is export {*};
+sub xmlParserValidityError(Pointer $ctx, Str $msg, ... $...) is native(LIB) is export {*};
+sub xmlParserValidityWarning(Pointer $ctx, Str $msg, ... $...) is native(LIB) is export {*};
+sub xmlParserWarning(Pointer $ctx, Str $msg, ... $...) is native(LIB) is export {*};
+sub xmlResetLastError() is native(LIB) is export {*};
+sub xmlSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(LIB) is export {*};
+sub xmlSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(LIB) is export {*};
