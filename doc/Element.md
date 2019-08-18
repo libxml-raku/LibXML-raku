@@ -7,7 +7,6 @@ SYNOPSIS
 ========
 
     use LibXML::Element;
-    use LibXML::Attr::Map;
     # Only methods specific to Element nodes are listed here,
     # see the LibXML::Node manpage for other methods
 
@@ -20,7 +19,8 @@ SYNOPSIS
     $attrnode = .[0] with $node{'@'~$name}; # xpath attribute selection
     $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
     my Bool $has-atts = $node.hasAttributes();
-    my LibXML::Attr::Map $attrs = $node.attributes();
+    my LibXML::Node::Set $attrs = $node.attributes();
+    $attrs = $node<attributes::>; # xpath
     my LibXML::Attr @props = $node.properties();
     $node.removeAttribute( $aname );
     $node.removeAttributeNS( $nsURI, $aname );
@@ -130,8 +130,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         use LibXML::Attr::Map;
         my LibXML::Attr::Map $atts = $node.attributes();
-
-    This function returns an updatable map of attributes declarations assigned to the given node. See [LibXML::Attr::Map](LibXML::Attr::Map) for more details.
 
     Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
