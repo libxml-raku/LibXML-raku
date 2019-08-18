@@ -36,7 +36,13 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         @!store;
     }
     method Hash handles <AT-KEY> {
-        $!hstore //= self.Array.classify(*.tagName);
+        $!hstore //= do {
+            my LibXML::Node::Set %h = ();
+            for self.Array {
+                (%h{.tagName} //= LibXML::Node::Set.new).push: $_;
+            }
+            %h;
+        }
     }
     multi method AT-POS(UInt:D $pos where !$!lazy) { @!store[$pos] }
     multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!of }
@@ -48,6 +54,17 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         .{$node.tagName}.push: $node with $!hstore;
         $!native.push: $node.native;
         $node;
+    }
+    method delete(LibXML::Node:D $node) {
+        my UInt $idx := $!native.delete($node.native);
+        if $idx >= 0 {
+            @!store.slice($idx, 1) unless $!lazy;
+            .{$node.tagName}.delete with $!hstore;
+            $node;
+        }
+        else {
+            LibXML::Node;
+        }
     }
     method pop {
         my $node := $!native.pop;

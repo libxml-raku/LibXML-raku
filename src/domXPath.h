@@ -42,6 +42,8 @@ DLLEXPORT void domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem);
 
 DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self);
 
+DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item);
+
 DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr);
 
 DLLEXPORT xmlNodeSetPtr

@@ -648,8 +648,6 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
   is($dom.encoding, "UTF-8", 'Document encoding');
   $dom.encoding = Nil;
   # TEST
-  todo "may fail on Rakudo 2018.12+ blead"
-      if $*PERL.compiler.version >= v2018.12;
   is-deeply($dom.encoding, Str, 'Document encoding cleared');
   # TEST
   is($dom.Str, $xml, ' TODO : Add test name');

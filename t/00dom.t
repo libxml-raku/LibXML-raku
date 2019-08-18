@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 43;
+plan 36;
 
 # bootstrapping tests for the DOM
 
@@ -63,12 +63,12 @@ my %atts := $elem.attributes;
 is($elem.Str, '<foo aaa="bbb"/>', 'Elem attribute set via attributes map');
 $elem.attributes = 'xxx' => 'yyy';
 is($elem.Str, '<foo xxx="yyy"/>', 'Elem attribute set via attributes proxy');
-$elem.attributes<xxx>:delete;
+$elem<@xxx>:delete;
 is($elem.Str, '<foo/>', 'Elem with attribute removed via attributes map');
 
 $elem.attributes = 'x:bbb' => 'zzz';
 is($elem.Str, '<foo x:bbb="zzz"/>', 'QName Elem set via attributes proxy');
-$elem.attributes = %(
+$elem<@*> = %(
     'http://ns' => %('x:aaa' => 'AAA',
                      'x:bbb' => 'BBB',
                      'y:ccc' => 'CCC'),
@@ -78,16 +78,12 @@ is($elem.Str, '<foo xmlns:x="http://ns" foo="bar" x:aaa="AAA" x:bbb="BBB" x:ccc=
 is $elem<@foo>, 'bar';
 is $elem<@x:aaa>, 'AAA';
 is $elem<@*[name()='x:aaa']>, 'AAA';
-is $elem<@*><x:aaa>, 'AAA';
-is $elem<attribute::*><x:aaa>, 'AAA';
+is $elem<attribute::x:aaa>, 'AAA';
 is $elem.findvalue('name(@*)'), 'foo';
+is-deeply %atts.keys.sort, ('foo', "x:aaa", "x:bbb", "x:ccc"), 'attribute keys';
 
-%atts := $elem.attributes;
-is-deeply %atts.keys.sort, ('foo', "x:aaa", "x:bbb", "x:ccc"), 'NS entries';
-is-deeply %atts.ns(:uri<http://ns>).keys.sort, ('aaa', 'bbb', 'ccc'), 'NS sub-entries';
-is %atts<foo>, 'bar', 'Non NS elem';
-is %atts.ns(:uri<http://ns>)<aaa>, 'AAA', 'NS elem by uri';
-is %atts.ns(:prefix<x>)<aaa>, 'AAA', 'NS elem by prefix';
+lives-ok  {$elem<@x:aaa> = 'BBB' };
+is $elem<@x:aaa>,'BBB';
 
 my $prefix = $elem.native.genNsPrefix;
 is $prefix, '_ns0', 'first generated NS prefix';
@@ -95,13 +91,9 @@ $elem.requireNamespace('http://ns2');
 $prefix = $elem.native.genNsPrefix;
 is $prefix, '_ns1', 'second generated NS prefix';
 
-lives-ok {$attr = $elem.getAttributeNodeNS('http://ns', 'aaa');};
-lives-ok {%atts.setNamedItemNS('http://ns', $attr);};
-lives-ok {%atts.setNamedItemNS('http://ns2', $attr);}, 'changing attribute NS';
-is $attr.getNamespaceURI, 'http://ns2';
-is-deeply %atts.ns(:uri<http://ns2>)<aaa>, $attr;
-
-lives-ok {$attr = %atts.ns(:uri<http://ns2>)<aaa>:delete}, 'delete via ns';
+$elem.registerNs('ns1', 'http://ns');
+is $elem<@ns1:aaa>, 'BBB', 'registered namespace';
+lives-ok {$attr = ($elem<@ns1:aaa>:delete)[0]}, 'delete via ns';
 
 is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem after NS proxy deletion');
 

@@ -266,7 +266,7 @@ class LibXML::Node {
         iterate-list(self, LibXML::Node, $!native.first-child(SkipBlanks), :!keep-blanks);
     }
     has $!xpath-context;
-    method xpath-context handles<find findnodes findvalue exists AT-KEY registerNs> {
+    method xpath-context handles<find findnodes findvalue exists registerNs> {
         $!xpath-context //= (require ::('LibXML::XPath::Context')).new: :node(self);
     }
 

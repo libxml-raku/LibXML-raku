@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 180;
+plan 177;
 
 use LibXML;
 use LibXML::Enums;
@@ -104,7 +104,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
             ok( $attributes, 'got attributes' );
             # TEST
 
-            isa-ok( $attributes, "LibXML::Attr::Map", ' TODO : Add test name' );
             # TEST
             is( +$attributes, 1, ' TODO : Add test name' );
             my $attr = $attributes<foo>;
@@ -123,9 +122,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
         }
 
         {
-            my %attributes := $xc.attributes;
+            my $attributes := $xc.attributes;
             # TEST
-            is( + %attributes, 1, ' TODO : Add test name' );
+            is( + $attributes, 1, ' TODO : Add test name' );
         }
 
         {
@@ -502,7 +501,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
     ok($attributes, ' TODO : Add test name');
     my $newAttr = $doc.createAttribute( "kung", "foo" );
     $attributes.setNamedItem( $newAttr );
-
     my %att := $root.attributes;
     # TEST
     ok(%att, ' TODO : Add test name');
@@ -515,25 +513,19 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # TEST
     ok(%att, ' TODO : Add test name');
     # TEST
-    todo "check against Perl 5";
     is( +%att.keys, 3, ' TODO : Add test name');
-    is( +%att.ns(:prefix<x>), 1, ' TODO : Add test name');
 
     $newAttr = $doc.createAttributeNS( "http://kungfoo", "x:kung", "bar" );
     $attributes.setNamedItem($newAttr);
-    %att.sync;
     # TEST
     ok(%att, ' TODO : Add test name');
     # TEST
-    todo "check against Perl 5";
     is( +%att, 3, ' TODO : Add test name');
     # TEST
     is(%att<x:kung>, $newAttr.nodeValue, ' TODO : Add test name');
-    is(%att.ns(:uri<http://kungfoo>)<kung>, $newAttr.nodeValue, ' TODO : Add test name');
     $attributes.removeNamedItem( "x:kung");
 
     # TEST
-    %att.sync;
     is( +%att, 2, ' TODO : Add test name');
     # TEST
     is($attributes.elems, 2, ' TODO : Add test name');

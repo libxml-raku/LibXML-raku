@@ -12,6 +12,7 @@ use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :QName, :NCName;
+use XML::Grammar;
 use Method::Also;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
@@ -58,11 +59,6 @@ method namespaces {
     iterate-ns(LibXML::Namespace, $.native.nsDef, :$.doc);
 }
 
-method !get-attributes {
-    require LibXML::Attr::Map;
-    LibXML::Attr::Map.new: :node(self);
-}
-
 method !set-attributes(@atts) {
     # clear out old attributes
     with $.native.properties -> domNode:D $node is copy {
@@ -89,13 +85,41 @@ method !set-attributes(@atts) {
 # hashy attribute containers
 method attributes is rw is also<attr> {
     Proxy.new(
-        FETCH => { self!get-attributes },
+        FETCH => {
+            require LibXML::Attr::Map;
+            LibXML::Attr::Map.new: :node(self)
+        },
         STORE => sub ($, %atts) {
             self!set-attributes: %atts.pairs.sort;
         }
     );
 }
 
+multi method AT-KEY('@*') is rw { self.attributes }
+multi method AT-KEY('attributes::') is rw { self.attributes }
+multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Grammar::pident>':']?<name=.XML::Grammar::pident>$/) is rw {
+        my $ctx := $.xpath-context;
+        my Str:D $name := $<name>.Str;
+        my Str $href;
+        with $<pfx> {
+            $href = $ctx.lookupNs(.Str)
+                // fail "unknown namespace prefix $_";
+        }
+        Proxy.new(
+            FETCH => { $.xpath-context.AT-KEY($att-path) },
+            STORE => sub ($, Str() $val) {
+                self.setAttributeNS($href, $name, $val);
+            }
+        )
+    }
+multi method AT-KEY(Str:D $xpath) is default {
+    $.xpath-context.AT-KEY($xpath);
+}
+method DELETE-KEY(Str:D $xpath) {
+    my $deleted  = $.xpath-context.AT-KEY($xpath);
+    .unlink for $deleted.list;
+    $deleted;
+}
 # attributes as an ordered list
 method properties {
     iterate-list(self, LibXML::Attr, $.native.properties);
@@ -139,9 +163,12 @@ method setAttributeNodeNS(AttrNode:D $att) {
     $att.keep: $.native.setAttributeNodeNS($att.native);
 }
 multi method setAttributeNS(Str $uri, NameVal:D $_) {
-    $.native.setAttributeNS($uri, .key, .value);
+    $.setAttributeNS($uri, .key, .value);
 }
 multi method setAttributeNS(Str $uri, QName $name, Str $value) {
+    if $name {
+        self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
+    }
     box-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
 }
 method getAttributeNode(Str $att-name --> LibXML::Node) {
@@ -164,7 +191,6 @@ LibXML::Element - LibXML Class for Element Nodes
 
 
   use LibXML::Element;
-  use LibXML::Attr::Map;
   # Only methods specific to Element nodes are listed here,
   # see the LibXML::Node manpage for other methods
 
@@ -177,7 +203,8 @@ LibXML::Element - LibXML Class for Element Nodes
   $attrnode = .[0] with $node{'@'~$name}; # xpath attribute selection
   $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
   my Bool $has-atts = $node.hasAttributes();
-  my LibXML::Attr::Map $attrs = $node.attributes();
+  my LibXML::Node::Set $attrs = $node.attributes();
+  $attrs = $node<attributes::>; # xpath
   my LibXML::Attr @props = $node.properties();
   $node.removeAttribute( $aname );
   $node.removeAttributeNS( $nsURI, $aname );
@@ -341,10 +368,6 @@ attributes
 
   use LibXML::Attr::Map;
   my LibXML::Attr::Map $atts = $node.attributes();
-
-
-This function returns an updatable map of attributes declarations assigned to the
-given node. See L<LibXML::Attr::Map> for more details.
 
 Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 

@@ -73,8 +73,8 @@ class LibXML::XPath::Context {
     }
     multi method registerNs(QName:D $prefix!, Str $uri?) {
         my $stat = $uri
-        ?? $.native.RegisterNs($prefix, $uri)
-        !! $.native.RegisterNs($prefix, Str);
+            ?? $.native.RegisterNs($prefix, $uri)
+            !! $.native.RegisterNs($prefix, Str);
         die "XPathContext: cannot {$uri ?? '' !! 'un'}register namespace"
            if $stat == -1;
         $stat;

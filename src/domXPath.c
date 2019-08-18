@@ -202,6 +202,27 @@ DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self) {
     return rv;
 }
 
+DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item) {
+    int pos = -1;
+    int i;
+    assert(self != NULL);
+    assert(item != NULL);
+    for (i = 0; i < self->nodeNr; i++) {
+        xmlNodePtr elem = self->nodeTab[i];
+        if (pos >= 0) {
+            self->nodeTab[i-1] = self->nodeTab[i];
+        }
+        else if (elem == item) {
+            xml6_node_remove_reference(elem);
+            pos = i;
+        }
+    }
+    if (pos >= 0) {
+        self->nodeNr--;
+    }
+    return pos;
+}
+
 DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
     xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
     int i;
@@ -351,7 +372,7 @@ static xmlNsPtr *_domXPathCtxtRegisterNS(xmlXPathContextPtr ctxt, xmlNodePtr nod
     xmlDocPtr doc = node->doc;
     xmlNsPtr *ns = NULL;
 
-    if (node == doc) node = xmlDocGetRootElement( doc );
+    if ((xmlDocPtr)node == doc) node = xmlDocGetRootElement( doc );
     ns = xmlGetNsList(doc, node);
 
     if (ns != NULL) {

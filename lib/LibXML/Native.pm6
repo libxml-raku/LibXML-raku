@@ -147,6 +147,7 @@ class xmlNodeSet is export {
     sub xmlXPathNodeSetCreate(domNode --> xmlNodeSet) is export is native(LIB) {*}
     method Reference is native(BIND-LIB) is symbol('domReferenceNodeSet') {*}
     method Unreference is native(BIND-LIB) is symbol('domUnreferenceNodeSet') {*}
+    method delete(domNode --> int32) is symbol('domDeleteNodeSetItem') is native(BIND-LIB) {*}
     method copy(--> xmlNodeSet) is symbol('domCopyNodeSet') is native(BIND-LIB) {*}
     method push(domNode) is symbol('domPushNodeSet') is native(BIND-LIB) {*}
     method pop(--> xmlNodeSetElem) is symbol('domPopNodeSet') is native(BIND-LIB) {*}

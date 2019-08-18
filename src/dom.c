@@ -1487,10 +1487,11 @@ domSetAttributeNode( xmlNodePtr self, xmlAttrPtr attr ) {
 DLLEXPORT xmlAttrPtr
 domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
     xmlAttrPtr old = NULL;
-    xmlNsPtr ns = NULL;
+    const xmlChar* href = NULL;
     if ( self == NULL || attr == NULL ) {
         return attr;
     }
+
     if ( attr->type != XML_ATTRIBUTE_NODE )
         return NULL;
     if ( self == attr->parent ) {
@@ -1500,13 +1501,8 @@ domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
         domImportNode( self->doc, (xmlNodePtr) attr, 1, 1 );
     }
     
-    ns = attr->ns;
-    if ( ns != NULL ) {
-        old = xmlHasNsProp( self, ns->href, attr->name );
-    }
-    else {
-        old = xmlHasNsProp( self, NULL, attr->name );
-    }
+    href = attr->ns ? attr->ns->href : NULL;
+    old = xmlHasNsProp( self, attr->name, href );
 
     if ( old && old->type == XML_ATTRIBUTE_NODE ) {
         if ( old == attr) {
