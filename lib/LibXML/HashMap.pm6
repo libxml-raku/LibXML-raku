@@ -11,10 +11,9 @@ use NativeCall;
 use Method::Also;
 
 has xmlHashTable $!native;
-method native { $!native }
 
-role Assoc[LibXML::Node] {
-    method of {LibXML::Node}
+role Assoc[LibXML::Node $of] {
+    method of {$of}
     method freeze(LibXML::Node $n) {
         with $n.native {
             .Reference;
@@ -35,8 +34,8 @@ role Assoc[LibXML::Node] {
 }
 
 # node sets - experimental!
-role Assoc[LibXML::Node::Set] {
-    method of {LibXML::Node::Set}
+role Assoc[LibXML::Node::Set $of] {
+    method of {$of}
     method freeze(LibXML::Node::Set:D $n) {
         given $n.native.copy {
             .Reference;
@@ -55,11 +54,11 @@ role Assoc[LibXML::Node::Set] {
 }
 
 # xpath objects experimental!
-role Assoc[XPathDomain] {
+role Assoc[LibXML::XPath::Object] {
     method of {XPathDomain}
 
     method freeze(XPathDomain $content) {
-        given LibXML::XPath::Object.coerce($content).native {
+        given LibXML::XPath::Object.coerce-to-native($content) {
             .Reference;
             nativecast(Pointer, $_);
         }
@@ -79,24 +78,24 @@ role Assoc[XPathDomain] {
 
     method deallocator() {
         -> Pointer $p, Str $k {
-            do with $p {
-                given nativecast(LibXML::XPath::Object.native, $p) -> $obj {
-                    .Unreference with $obj;
+            with $p {
+                with nativecast(LibXML::XPath::Object.native, $p) {
+                    .Unreference;
                 }
             }
         }
     }
 }
 
-role Assoc[UInt] {
-    method of {UInt}
+role Assoc[UInt $of] {
+    method of {$of}
     method deallocator { -> | {} }
     method freeze(UInt()  $v) { Pointer.new($v); }
     method thaw(Pointer $p) { +$p }
 }
 
-role Assoc [Str] {
-    method of { Str }
+role Assoc [Str $of] {
+    method of {$of}
     sub pointerDup(Str --> Pointer) is native(LIB) is symbol('xmlStrdup') {*}
     sub stringDup(Pointer --> Str) is native(LIB) is symbol('xmlStrdup') {*}
     method freeze(Str() $v) { pointerDup($v) }
@@ -110,10 +109,11 @@ submethod TWEAK(CArray :$pairs) is default {
     $!native .= new;
     $!native.add-pairs($_, self.deallocator)
         with $pairs;
+    $!native.Lookup('wtf');
 }
 submethod DESTROY { .Free(self.deallocator) with $!native; }
 
-subset OfType where Str|UInt|LibXML::Node|LibXML::Node::Set|XPathDomain;
+subset OfType where Str|UInt|LibXML::Node|LibXML::Node::Set|LibXML::XPath::Object;
 
 method ^parameterize(Mu:U \p, OfType:U \t) {
     my $w := p.^mixin: Assoc[t];
@@ -163,11 +163,42 @@ method kv {
      }
 }
 method Hash { %( self.pairs ) }
-method AT-KEY(Str() $key) { self.thaw: $!native.Lookup($key); }
-method EXISTS-KEY(Str() $key) { $!native.Lookup($key).defined; }
+method AT-KEY(Str() $key) is rw {
+    Proxy.new(
+        FETCH => { with $!native.Lookup($key) { self.thaw($_) } else { self.of } },
+        STORE => -> $, $val { self.ASSIGN-KEY($key, $val) },
+    )
+}
+method EXISTS-KEY(Str() $key) { $!native.Lookup($key); }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     my Pointer $ptr := $.freeze($val);
     $!native.Update($key, $ptr, $.deallocator); $val;
 }
 method DELETE-KEY(Str() $key) { $!native.Remove($key, $.deallocator) }
 
+=begin pod
+=head1 NAME
+
+LibXML::HashMap - LibXML::HashMap Class for Mapped XPath Objects
+
+=head1 SYNOPSIS
+
+my LibXML::HashMap[UInt] $int-hash .= new;
+my LibXML::HashMap[Str] $str-hash .= new;
+my LibXML::HashMap[LibXML::Node::Set] $set-hash .= new;
+my LibXML::HashMap[LibXML::Node] $node-hash .= new;
+my LibXML::HashMap[LibXML::XPath::Object] $obj-hash .= new;
+
+$obj-hash<element> = LibXML::Element.new('test');
+$obj-hash<number> = 42e0;
+$obj-hash<string> = 'test';
+
+say $obj-hash<element>.tagName;
+
+=head1 DESCRIPTION
+
+**Experimental**
+
+This module uses an xmlHash object as a native store for various object types.
+
+=end pod
