@@ -369,7 +369,7 @@ class xmlSAXHandler is repr('CStruct') is export {
         method xml6_sax_set_ignorableWhitespace( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.processingInstruction is rw-ptr(
-        method xml6_sax_processingInstruction( &cb (parserCtxt $ctx, Str $target, Str $data) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_processingInstruction( &cb (parserCtxt $ctx, Str $target, Str $data) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.comment is rw-ptr(
         method xml6_sax_set_comment( &cb (parserCtxt $ctx, Str $value) ) is native(BIND-LIB) {*}

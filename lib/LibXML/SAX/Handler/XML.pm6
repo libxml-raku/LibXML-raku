@@ -5,8 +5,11 @@ class LibXML::SAX::Handler::XML
 
     # This class Builds a pure perl 'XML' document,
 
+    use XML::CDATA;
+    use XML::Comment;
     use XML::Document;
     use XML::Element;
+    use XML::PI;
     use XML::Text;
     use NativeCall;
     use LibXML::Document;
@@ -22,7 +25,6 @@ class LibXML::SAX::Handler::XML
     }
 
     method startElement($name, CArray :$atts) is sax-cb {
-        callsame;
         my $attribs = atts2Hash($atts);
         my XML::Element $elem .= new: :$name, :$attribs;
         # append and step down
@@ -32,18 +34,33 @@ class LibXML::SAX::Handler::XML
         else {
             $_ .= new: :root($elem);
         }
+        $*ERR.print: '!';
         $!node = $elem;
     }
 
     method endElement(Str $name) is sax-cb {
-        callsame;
         # step up the tree
         $!node = $!node.parent // Nil;
     }
 
+    method cdataBlock(Str $data) is sax-cb {
+        .append: XML::CDATA.new(:$data)
+            with $!node;
+    }
+
     method characters(Str $text) is sax-cb {
-        callsame;
         .append: XML::Text.new(:$text)
+            with $!node;
+    }
+
+    method comment(Str $text) is sax-cb {
+        .append: XML::Comment.new(:$text)
+            with $!node;
+    }
+
+    method processingInstruction(Str $target, Str $value) is sax-cb {
+        my $data = $target ~ ' ' ~ $value;
+        .append: XML::PI.new(:$data)
             with $!node;
     }
 

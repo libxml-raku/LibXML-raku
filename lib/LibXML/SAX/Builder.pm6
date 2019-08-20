@@ -1,6 +1,5 @@
 class LibXML::SAX::Builder {
     use LibXML::Native;
-    use LibXML::HashMap;
     use NativeCall;
 
     my role is-sax-cb {
@@ -9,8 +8,14 @@ class LibXML::SAX::Builder {
         $m does is-sax-cb;
     }
 
-    sub atts2Hash(CArray[Str] $pairs) is export(:atts2Hash) {
-        LibXML::HashMap[Str].new: :$pairs;
+    sub atts2Hash(CArray[Str] $atts) is export(:atts2Hash) {
+        my %atts;
+        with $atts {
+            loop (my int $i = 0; my $key := .[$i++]; ) {
+                %atts{$key} = .[$i++];
+            }
+        }
+        %atts
     }
 
     my %SAXLocatorDispatch = %(

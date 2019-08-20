@@ -26,7 +26,14 @@ class LibXML::Node::List does Iterable does Iterator {
         @!store;
     }
     method Hash {
-         $!hstore //= self.Array.classify(*.tagName);
+        $!hstore //= do {
+            my $set-class := (require ::('LibXML::Node::Set'));
+            my %h = ();
+            for self.Array {
+                (%h{.tagName} //= $set-class.new).push: $_;
+            }
+            %h;
+        }
     }
     method push(LibXML::Node:D $node) {
         $.parent.appendChild($node);
