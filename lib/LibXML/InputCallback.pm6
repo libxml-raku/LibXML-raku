@@ -241,7 +241,7 @@ register callback groups.
 
 
 
-my  LibXML::InputCallback.$input-callbacks . = new(
+my LibXML::InputCallback.$input-callbacks . = new(
     :&match, :&open, :&read, :&close);
   # setup second callback group (named arguments)
   $input-callbacks.register-callbacks(match => &match-cb2, open => &open-cb2,

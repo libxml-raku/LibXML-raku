@@ -7,7 +7,6 @@ class LibXML::SAX::Handler::SAX2::Locator {
 
     method getSystemId(:$ctx!) returns Str {
         $ctx.xmlSAX2GetSystemId;
-
     }
 
     method getLineNumber(:$ctx!) returns UInt {

@@ -82,7 +82,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * createDocument
 
-        $dom = LibXML::Document.createDocument( $version, $encoding );
+        my LibXML::Document $dom .= createDocument( $version, $encoding );
 
     DOM-style constructor for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument *() will create the document:
 
@@ -96,11 +96,11 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     Alternatively one can call this constructor directly from the LibXML class level, to avoid some typing. This will not have any effect on the class instance, which is always LibXML::Document.
 
-        my $document = LibXML.createDocument( "1.0", "UTF-8" );
+        my LibXML::Document $document = LibXML.createDocument( "1.0", "UTF-8" );
 
-    is therefore a shortcut for
+    is therefore equivalent to:
 
-        my $document = LibXML::Document.createDocument( "1.0", "UTF-8" );
+        my LibXML::Document $document .= createDocument( "1.0", "UTF-8" );
 
   * parse
 

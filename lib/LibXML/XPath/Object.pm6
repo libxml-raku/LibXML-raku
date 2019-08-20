@@ -11,14 +11,19 @@ method native { with self { $!native } else { xmlXPathObject } }
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
 my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Node;
 
-method coerce(XPathDomain $content is copy) {
+method coerce-to-native(XPathDomain $content is copy) {
     if $content ~~ LibXML::Node|LibXML::Node::Set {
         $content .= native;
         # node-sets can't be multiply referenced
         $content .= copy if $content ~~ xmlNodeSet;
     }
 
-    my xmlXPathObject:D $native = xmlXPathObject.coerce($content);
+    xmlXPathObject.coerce($content);
+}
+
+
+method coerce($content) {
+    my xmlXPathObject:D $native = self.coerce-to-native($content);
     self.new: :$native;
 }
 

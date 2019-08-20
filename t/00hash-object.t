@@ -18,16 +18,16 @@ subtest 'node-hash' => {
     is-deeply [$elems.keys.sort], [(1..5).map('e'~*)], 'keys';
     is-deeply [$elems.values.map(*.Str).sort], [(1..5).map({'<Elem'~$_~'/>'})], 'values';
 
-    skip 'hash updates', 2;
-    #$elems<e5>:delete;
-    #ok ($elems<e5>:!exists), 'deleted element';
-    #$elems<e4> .= new('Replaced');
-    #is $elems<e4>.Str, '<Replaced/>', 'replaced element';
+    $elems<e5>:delete;
+    skip 'issue #12', 2;
+##    ok ($elems<e5>:!exists), 'deleted element';
+##    $elems<e4> .= new('Replaced');
+##    is $elems<e4>.Str, '<Replaced/>', 'replaced element';
 }
 
-skip 'object hashes';
-sub {
+skip 'issue #12';
 ##subtest 'object-hash' => {
+sub not-working-see-issue12 {
     plan 20;
 
     my LibXML::HashMap[LibXML::XPath::Object] $h .= new;

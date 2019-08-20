@@ -301,7 +301,7 @@ sub {
 
 {
   my $chunk = '<app>LOGOUT</app><bar/>';
-  my $builder = LibXML::SAX::Builder.new( Encoding => 'UTF-8' );
+  my $builder = LibXML::SAX::Builder.new();
   my $parser = LibXML::SAX.new( Handler => $builder );
   $parser.start_document();
   $builder.start_element({Name=>'foo'});

@@ -34,7 +34,7 @@ is-deeply $h1.pairs.sort, (a => "A", b => "B");
 is-deeply $h1.kv.sort, ("A", "B", "a", "b");
 
 my LibXML::HashMap[Int] $h2 .= new;
-is-deeply $h2.of, UInt;
+is-deeply $h2.of, Int;
 $h2<Xx> = 42;
 is-deeply $h2<Xx>, 42;
 is-deeply $h2.kv, ("Xx", 42);

@@ -22,7 +22,7 @@ class LibXML::XPath::Expression {
 =begin pod
 =head1 NAME
 
-LibXML::XPath::Expression - LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
+LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
 
 =head1 SYNOPSIS
 

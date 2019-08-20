@@ -79,7 +79,7 @@ METHODS
 
   * value
 
-        print $ns.value();
+        say $ns.value();
 
     Alias for getData()
 

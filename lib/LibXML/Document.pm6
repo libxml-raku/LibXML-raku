@@ -459,7 +459,7 @@ new
 =begin item
 createDocument
 
-  $dom = LibXML::Document.createDocument( $version, $encoding );
+  my LibXML::Document $dom .= createDocument( $version, $encoding );
 
 DOM-style constructor for the document class. As parameters it takes the version
 string and (optionally) the encoding string. Simply calling I<<<<<< createDocument >>>>>>() will create the document:
@@ -483,13 +483,13 @@ instance, which is always LibXML::Document.
 
 
 
-  my $document = LibXML.createDocument( "1.0", "UTF-8" );
+  my LibXML::Document $document = LibXML.createDocument( "1.0", "UTF-8" );
 
-is therefore a shortcut for
+is therefore equivalent to:
 
 
 
-  my $document = LibXML::Document.createDocument( "1.0", "UTF-8" );
+  my LibXML::Document $document .= createDocument( "1.0", "UTF-8" );
 =end item
 
 =begin item

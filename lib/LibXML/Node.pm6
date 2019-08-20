@@ -87,9 +87,11 @@ class LibXML::Node {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                         unless $class ~~ self.WHAT|LibXML::Namespace;
                 }
-                .remove-reference with $!native;
-                .Reference with $new-struct;
-                $!native = cast-struct($new-struct);
+                unless $!native.defined && $!native.isSame($new-struct) {
+                    .Unreference with $!native;
+                    .Reference with $new-struct;
+                    $!native = cast-struct($new-struct);
+                }
             },
         );
     }
@@ -215,7 +217,7 @@ class LibXML::Node {
             ?? nativecast(xmlNs, $elem)
             !! cast-struct( nativecast(domNode, $elem) );
     }
-    multi sub cast-elem(Pointer $p is raw) is default { cast-elem(nativecast(xmlNodeSetElem, $p)) }
+    multi sub cast-elem(Pointer $p) is default { cast-elem(nativecast(xmlNodeSetElem, $p)) }
 
     method box(LibXML::Native::DOM::Node $struct,
                LibXML::Node :$doc = $.doc, # reusable document object

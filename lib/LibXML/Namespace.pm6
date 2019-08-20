@@ -162,7 +162,7 @@ Alias for getData()
 =begin item
 value
 
-  print $ns.value();
+  say $ns.value();
 
 Alias for getData()
 =end item

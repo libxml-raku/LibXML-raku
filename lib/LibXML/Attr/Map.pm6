@@ -119,33 +119,6 @@ There are also some DOM (NamedNodeMap) compatible methods:
 
 =head1 METHODS
 
-=head2 ns($url)
-
-This method presents a view of attributes collated by namespace URL. Any
-attributes that don't have a namespace are stored with a key of `''`.
-
-  use LibXML;
-  use LibXML::Attr;
-  use LibXML::Attr::Map;
-  use LibXML::Element;
-
-  my $doc = LibXML.load(q:to<EOF>);
-  <foo
-    att1="AAA" att2="BBB"
-    xmlns:x="http://myns.org" x:att3="CCC"
-  />
-  EOF
-
-  my LibXML::Element $node = $doc.root;
-  my LibXML::Attr::Map $atts = $node.attributes;
-
-  say $atts.keys.sort;  # att1 att2 x:att3
-  say $atts.ns(:!uri).keys;  # att1 att2
-  say $atts.ns(:uri<'http://myns.org'>).keys; # att3
-  my LibXML::Attr $att3 = $atts.ns('http://myns.org')<att3>;
-  # assign to a new namespace
-  my $foo-bar = $atts.ns('http://www.foo.com/')<bar> = 'baz';
-
 =begin item1
 keys, pairs, kv, elems, values, list
 

@@ -4,7 +4,7 @@ unit class LibXML::HashMap does Associative;
 use LibXML::Node :cast-elem;
 use LibXML::Node::Set;
 use LibXML::XPath::Object :XPathDomain;
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :LIB, :BIND-LIB, :xmlCharP;
 use LibXML::Native::HashTable;
 use LibXML::Enums;
 use NativeCall;
@@ -28,7 +28,10 @@ role Assoc[LibXML::Node $of] {
     }
     method deallocator() {
         -> Pointer $p, Str $k {
-            cast-elem($_).Unreference with $p;
+            with $p {
+                my $n := cast-elem($_);
+                $n.Unreference;
+            }
         }
     }
 }
@@ -109,7 +112,6 @@ submethod TWEAK(CArray :$pairs) is default {
     $!native .= new;
     $!native.add-pairs($_, self.deallocator)
         with $pairs;
-    $!native.Lookup('wtf');
 }
 submethod DESTROY { .Free(self.deallocator) with $!native; }
 
@@ -169,12 +171,12 @@ method AT-KEY(Str() $key) is rw {
         STORE => -> $, $val { self.ASSIGN-KEY($key, $val) },
     )
 }
-method EXISTS-KEY(Str() $key) { $!native.Lookup($key); }
+method EXISTS-KEY(Str() $key) { $!native.Lookup($key).defined; }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     my Pointer $ptr := $.freeze($val);
-    $!native.Update($key, $ptr, $.deallocator); $val;
+    $!native.UpdateEntry($key, $ptr, $.deallocator); $val;
 }
-method DELETE-KEY(Str() $key) { $!native.Remove($key, $.deallocator) }
+method DELETE-KEY(Str() $key) { $!native.RemoveEntry($key, $.deallocator) }
 
 =begin pod
 =head1 NAME

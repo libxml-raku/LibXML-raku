@@ -212,23 +212,10 @@ class LibXML::SAX::Builder {
 
 LibXML::SAX::Builder - Building DOM trees from SAX events.
 
-=head1 SYNOPSIS
-
-
-
-  use XML::SAX::Builder;
-  my $builder = LibXML::SAX::Builder->new();
-  
-  my $gen = XML::Generator::DBI->new(Handler => $builder, dbh => $dbh);
-  $gen->execute("SELECT * FROM Users");
-  
-  my $doc = $builder->result();
-
-
 =head1 DESCRIPTION
 
-This is a SAX handler that generates a DOM tree from SAX events. Usage is as
-above. Input is accepted from any SAX1 or SAX2 event generator.
+This module provides mappings from native SAX callbacks to Perl. It is
+usually used in conjunction with a LibXML::SAX::Handler base-class.
 
 =head1 EXAMPLE
 

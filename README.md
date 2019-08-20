@@ -66,9 +66,13 @@ Other
 
   * [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
-  * [LibXML::Parser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Regular Expression bindings
+  * [LibXML::Parser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Parser bindings
+
+  * [LibXML::Pattern](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Pattern.md) - LibXML Patterns
 
   * [LibXML::RegExp](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
+
+  * [LibXML::Reader](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Reader.md) - LibXML Reader (pull parser) bindings
 
   * [LibXML::XPath::Expression](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Compiled Expressions
 

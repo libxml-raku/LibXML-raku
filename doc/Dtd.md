@@ -6,10 +6,10 @@ LibXML::Dtd - LibXML DTD Handling
 SYNOPSIS
 ========
 
-    use LibXML;
+    use LibXML::Dtd;
 
-    $dtd = LibXML::Dtd.new($public-id, $system-id);
-    $dtd = LibXML::Dtd.parse: :string($dtd-str);
+    my LibXML::Dtd $dtd .= new($public-id, $system-id);
+    my LibXML::Dtd $dtd .= parse: :string($dtd-str);
     my Str $dtdName = $dtd.getName();
     my Str $publicId = $dtd.publicId();
     my Str $systemId = $dtd.systemId();
