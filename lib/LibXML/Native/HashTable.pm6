@@ -14,8 +14,4 @@ class xmlHashTable is repr(Stub) is export {
     method RemoveEntry(Str, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashRemoveEntry') is native(LIB) {*}
     method Size(--> int32) is symbol('xmlHashSize') is native(LIB) {*}
     method Free( &deallocator ( Pointer, xmlCharP ) ) is symbol('xmlHashFree') is native(LIB) {*}
-    method keys(CArray[Str]) is native(BIND-LIB) is symbol('xml6_hash_keys') {*}
-    method values(CArray[Pointer]) is native(BIND-LIB) is symbol('xml6_hash_values') {*}
-    method key-values(CArray[Pointer]) is native(BIND-LIB) is symbol('xml6_hash_key_values') {*}
-    method add-pairs(CArray, &deallocator ( Pointer, xmlCharP ) ) is native(BIND-LIB) is symbol('xml6_hash_add_pairs') {*}
 }
