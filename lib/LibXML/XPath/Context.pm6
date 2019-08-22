@@ -27,7 +27,7 @@ class LibXML::XPath::Context {
     }
 
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
-        my domNode $node = .native with $ref;
+        my anyNode $node = .native with $ref;
         my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
         .rethrow with @!callback-errors.tail;
         $node-set.copy;
@@ -48,7 +48,7 @@ class LibXML::XPath::Context {
     }
 
     multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
-        my domNode $node = .native with $ref-node;
+        my anyNode $node = .native with $ref-node;
         self!value: $!native.find( native($xpath-expr), $node, :$bool), :$literal;
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
@@ -110,7 +110,7 @@ class LibXML::XPath::Context {
 
     #| undefining the context node
     multi method setContextNode(LibXML::Node:U $!context-node) is default {
-        $!native.domXPathCtxtSetNode(domNode);
+        $!native.domXPathCtxtSetNode(anyNode);
         $!context-node;
     }
 

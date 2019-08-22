@@ -61,7 +61,7 @@ submethod TWEAK(
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;
     $struct.setCompression($_) with $compression;
-    with $struct.documentElement {
+    with $struct.getDocumentElement {
         $!documentElement .= new: :native($_), :doc(self);
     }
 }
@@ -106,21 +106,26 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
-method importNode(LibXML::Node:D $node) { LibXML::Node.box: $.native.importNode($node.native); }
-method adoptNode(LibXML::Node:D $node)  { LibXML::Node.box: $.native.adoptNode($node.native); }
+method importNode(LibXML::Node:D $node) { LibXML::Node.box($.native.importNode($node.native), :doc(self)) }
+method adoptNode(LibXML::Node:D $node)  {
+    given $.native.adoptNode($node.native) {
+        LibXML::Node.box($_, :doc(self));
+    }
+}
 
-method getDocumentElement { $!documentElement }
-method setDocumentElement(LibXML::Element $_) {
-    $.documentElement = $_;
+method getDocumentElement { $!documentElement //= LibXML::Element.box($.native.getDocumentElement)}
+method setDocumentElement(LibXML::Element $!documentElement) {
+    $!documentElement.setOwnerDocument(self);
+    self.native.setDocumentElement($!documentElement.native);
+    $!documentElement;
 }
 method documentElement is rw is also<root> {
     Proxy.new(
         FETCH => sub ($) {
-            $!documentElement;
+            self.getDocumentElement;
         },
-        STORE => sub ($, $!documentElement) {
-            $!documentElement.doc = self;
-            $.native.documentElement = $!documentElement.native;
+        STORE => sub ($, LibXML::Node $elem) {
+            self.setDocumentElement($elem);
         }
     );
 }

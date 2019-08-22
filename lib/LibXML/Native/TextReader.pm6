@@ -24,8 +24,8 @@ class xmlTextReader is repr('CPointer') is export {
     method close(--> int32) is native(LIB) is symbol('xmlTextReaderClose') {*}
     method columnNumber(--> int32) is native(LIB) is symbol('xmlTextReaderGetParserColumnNumber') {*}
     method currentDoc(--> xmlDoc) is native(LIB) is symbol('xmlTextReaderCurrentDoc') {*}
-    method currentNode(--> domNode) is native(LIB) is symbol('xmlTextReaderCurrentNode') {*}
-    method currentNodeTree(--> domNode) is native(LIB) is symbol('xmlTextReaderExpand') {*}
+    method currentNode(--> anyNode) is native(LIB) is symbol('xmlTextReaderCurrentNode') {*}
+    method currentNodeTree(--> anyNode) is native(LIB) is symbol('xmlTextReaderExpand') {*}
     method depth(--> int32) is native(LIB) is symbol('xmlTextReaderDepth') {*}
     method getAttribute(QName --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttribute') {*}
     method getAttributeNo(int32 --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNo') {*}
@@ -57,7 +57,7 @@ class xmlTextReader is repr('CPointer') is export {
     method nextSiblingElement(Str, Str --> int32) is native(BIND-LIB) is symbol('xml6_reader_next_sibling_element') {*}
     method nodeType(--> int32) is native(LIB) is symbol('xmlTextReaderNodeType') {*}
     method prefix(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstPrefix') {*}
-    method preserveNode(--> domNode) is native(LIB) is symbol('xmlTextReaderPreserve') {*}
+    method preserveNode(--> anyNode) is native(LIB) is symbol('xmlTextReaderPreserve') {*}
     method preservePattern(xmlCharP, CArray[Str] --> int32) is native(LIB) is symbol('xmlTextReaderPreservePattern') {*}
     method read(--> int32) is native(LIB) is symbol('xmlTextReaderRead') {*}
     method readAttributeValue(--> int32) is native(LIB) is symbol('xmlTextReaderReadAttributeValue') {*}

@@ -25,17 +25,8 @@ method GetCompressMode { ... }
 method SetCompressMode { ... }
 method new-node { ... }
 
-method documentElement is rw {
-    Proxy.new(
-        FETCH => sub ($) { self.GetRootElement },
-        STORE => sub ($, Node $e) {
-            with self.GetRootElement {
-                return if .isSameNode($e);
-                .Release;
-            }
-            self.SetRootElement($e);
-        });
-}
+method getDocumentElement { self.GetRootElement }
+method setDocumentElement(Node $e) { self.SetRootElement($e) }
 
 method createElementNS(Str $URI, QName:D $name is copy) {
     return self.createElement($name) without $URI;

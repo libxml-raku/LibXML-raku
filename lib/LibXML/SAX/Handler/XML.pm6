@@ -9,13 +9,16 @@ class LibXML::SAX::Handler::XML
     use XML::Comment;
     use XML::Document;
     use XML::Element;
+    use XML::Entity;
     use XML::PI;
     use XML::Text;
     use NativeCall;
     use LibXML::Document;
 
-    has XML::Document $.doc; # The document that we're really building
-    has XML::Element  $!node; # Current node
+    has XML::Document $.doc;    # The document that we're really building
+    has XML::Element  $!node;   # Current node
+    has XML::Entity   $.entity; # Entity declarations
+    method entity { $!entity //=  XML::Entity.new }
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
@@ -34,7 +37,6 @@ class LibXML::SAX::Handler::XML
         else {
             $_ .= new: :root($elem);
         }
-        $*ERR.print: '!';
         $!node = $elem;
     }
 
@@ -64,4 +66,9 @@ class LibXML::SAX::Handler::XML
             with $!node;
     }
 
+    method getEntity(Str $name) is sax-cb {
+        my $text = '&' ~ $name ~ ';';
+        .append: XML::Text.new(:$text)
+            with $!node;
+    }
 }

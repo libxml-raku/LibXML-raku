@@ -17,11 +17,11 @@ use Method::Also;
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
-multi submethod TWEAK(xmlNode:D :native($)!) { }
+multi submethod TWEAK(xmlElem:D :native($)!) { }
 multi submethod TWEAK(:doc($doc-obj), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
     my xmlDoc:D $doc = .native with $doc-obj;
     my xmlNs:D $ns = .native with $ns-obj;
-    self.native = xmlNode.new: :$name, :$doc, :$ns;
+    self.native = xmlElem.new: :$name, :$doc, :$ns;
 }
 
 method native is rw handles<
@@ -29,7 +29,7 @@ method native is rw handles<
         getAttribute getAttributeNS getNamespaceDeclURI
         hasAttributes hasAttribute hasAttributeNS
         removeAttribute removeAttributeNS
-        > { callsame; }
+        > { callsame() }
 
 multi method new(QName:D $name, *%o) {
     self.new(:$name, |%o);
@@ -61,7 +61,7 @@ method namespaces {
 
 method !set-attributes(@atts) {
     # clear out old attributes
-    with $.native.properties -> domNode:D $node is copy {
+    with $.native.properties -> anyNode:D $node is copy {
         while $node.defined {
             my $next = $node.next;
             $node.Release

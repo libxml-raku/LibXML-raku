@@ -168,7 +168,7 @@ class LibXML::Reader {
     }
 
     method copyCurrentNode(Bool :$deep) {
-        my domNode $node = self!try(
+        my anyNode $node = self!try(
             $deep ?? 'currentNodeTree' !! 'currentNode'
         );
         $node .= copy: :$deep;
@@ -217,7 +217,7 @@ class LibXML::Reader {
 
     method preserveNode(Bool :$deep) {
         $.document; # realise containing document
-        my domNode $node = self!try('preserveNode');
+        my anyNode $node = self!try('preserveNode');
         LibXML::Node.box($node);
     }
 

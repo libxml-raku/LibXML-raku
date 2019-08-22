@@ -51,7 +51,7 @@ multi method matchesNode(LibXML::Node $node) {
     self!try-bool('Match', $node.native);
 }
 
-multi method matchesNode(domNode $node) {
+multi method matchesNode(anyNode $node) {
     self!try-bool('Match', $node);
 }
 

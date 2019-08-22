@@ -18,7 +18,7 @@ class LibXML::Node {
 
     has LibXML::Node $.doc;
 
-    has domNode $.native is rw handles <
+    has anyNode $.native is rw handles <
         domCheck domFailure
         hasChildNodes
         getNodeName getNodeValue
@@ -47,7 +47,7 @@ class LibXML::Node {
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
                 $_, method (LibXML::Node:D $node, LibXML::Node $ref) {
-                    $node.keep: $!native."$_"($node.native, do with $ref {.native} // domNode);
+                    $node.keep: $!native."$_"($node.native, do with $ref {.native} // anyNode);
                 });
         }
     }
@@ -81,8 +81,8 @@ class LibXML::Node {
 
     method native is rw {
         Proxy.new(
-            FETCH => { with self {$!native} else {domNode} },
-            STORE => -> $, domNode:D $new-struct {
+            FETCH => { with self {$!native} else {anyNode} },
+            STORE => -> $, anyNode:D $new-struct {
                 given box-class($new-struct.type) -> $class {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
                         unless $class ~~ self.WHAT|LibXML::Namespace;
@@ -185,7 +185,7 @@ class LibXML::Node {
     multi sub native(LibXML::Namespace:D $_) { .native }
     multi sub native($_) is default  { $_ }
 
-    our sub cast-struct(domNode:D $struct is raw) {
+    our sub cast-struct(anyNode:D $struct is raw) {
         my $delegate := do given $struct.type {
             when XML_ATTRIBUTE_NODE     { xmlAttr }
             when XML_ATTRIBUTE_DECL     { xmlAttrDecl }
@@ -195,16 +195,16 @@ class LibXML::Node {
             when XML_DTD_NODE           { xmlDtd }
             when XML_DOCUMENT_NODE      { xmlDoc }
             when XML_HTML_DOCUMENT_NODE { htmlDoc }
-            when XML_ELEMENT_NODE       { xmlNode }
+            when XML_ELEMENT_NODE       { xmlElem }
             when XML_ELEMENT_DECL       { xmlElementDecl }
-            when XML_ENTITY_DECL        { xmlEntityDecl }
+            when XML_ENTITY_DECL        { xmlEntity }
             when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
             when XML_NAMESPACE_DECL     { xmlNs }
             when XML_PI_NODE            { xmlPINode }
             when XML_TEXT_NODE          { xmlTextNode }
             default {
                 warn "node content-type not yet handled: $_";
-                domNode;
+                anyNode;
             }
         }
 
@@ -215,7 +215,7 @@ class LibXML::Node {
     multi sub cast-elem(xmlNodeSetElem:D $elem is raw) {
         $elem.type == XML_NAMESPACE_DECL
             ?? nativecast(xmlNs, $elem)
-            !! cast-struct( nativecast(domNode, $elem) );
+            !! cast-struct( nativecast(anyNode, $elem) );
     }
     multi sub cast-elem(Pointer $p) is default { cast-elem(nativecast(xmlNodeSetElem, $p)) }
 
@@ -243,7 +243,7 @@ class LibXML::Node {
         } // self.WHAT;
     }
 
-    sub iterate-list($parent, $of, domNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
+    sub iterate-list($parent, $of, anyNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.
         (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks, :$parent;
     }

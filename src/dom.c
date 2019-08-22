@@ -543,7 +543,6 @@ domReleaseNode( xmlNodePtr node ) {
 DLLEXPORT xmlNodePtr
 domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
     xmlNodePtr imported_node = node;
-
     if ( move ) {
         imported_node = node;
         xmlUnlinkNode( node );
@@ -689,7 +688,7 @@ domSetNodeName(xmlNodePtr self , xmlChar *string) {
  * @newCld: the node to append
  *
  * Returns newCld on success otherwise NULL
- * The function will unbind newCld first if nesseccary. As well the
+ * The function will unbind newCld first if necessary. As well the
  * function will fail, if par or newCld is a Attribute Node OR if newCld
  * is a parent of par.
  *
@@ -1619,9 +1618,6 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
 
     return rv;
 }
-
-DLLEXPORT int
-domNormalize( xmlNodePtr node );
 
 DLLEXPORT int
 domNormalizeList( xmlNodePtr nodelist ) {
