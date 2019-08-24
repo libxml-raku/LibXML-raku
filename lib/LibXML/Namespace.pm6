@@ -25,7 +25,7 @@ multi submethod TWEAK(xmlNs:D :$!native!) {
 }
 
 multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
-    my xmlNode $node = .native with $node-obj;
+    my xmlElem $node = .native with $node-obj;
     $!native .= new: :$URI, :$prefix, :$node;
     $!native.Reference;
 }

@@ -53,8 +53,8 @@ domClearPSVIInList(xmlNodePtr list) {
     }
 }
 
-DLLEXPORT void
-domAddNsDef(xmlNodePtr tree, xmlNsPtr ns) {
+static void
+_domAddNsDef(xmlNodePtr tree, xmlNsPtr ns) {
     xmlNsPtr i = tree->nsDef;
     while(i != NULL && i != ns)
         i = i->next;
@@ -64,8 +64,8 @@ domAddNsDef(xmlNodePtr tree, xmlNsPtr ns) {
     }
 }
 
-DLLEXPORT char
-domRemoveNsDef(xmlNodePtr tree, xmlNsPtr ns) {
+static int
+_domRemoveNsDef(xmlNodePtr tree, xmlNsPtr ns) {
     xmlNsPtr i = tree->nsDef;
 
     if( ns == tree->nsDef ) {
@@ -121,7 +121,7 @@ _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused) {
         if( ns != NULL && ns->href != NULL && attr->ns->href != NULL &&
             xmlStrcmp(ns->href,attr->ns->href) == 0 ) {
             /* Remove the declaration from the element */
-            if( domRemoveNsDef(tree, attr->ns) )
+            if( _domRemoveNsDef(tree, attr->ns) )
                 /* Queue up this namespace for freeing */
                 *unused = _domAddNsChain(*unused, attr->ns);
 
@@ -130,13 +130,13 @@ _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused) {
         }
         else {
             /* If the declaration is here, we don't need to do anything */
-            if( domRemoveNsDef(tree, attr->ns) )
-                domAddNsDef(tree, attr->ns);
+            if( _domRemoveNsDef(tree, attr->ns) )
+                _domAddNsDef(tree, attr->ns);
             else {
                 /* Replace/Add the namespace declaration on the element */
                 attr->ns = xmlCopyNamespace(attr->ns);
                 if (attr->ns) {
-                    domAddNsDef(tree, attr->ns);
+                    _domAddNsDef(tree, attr->ns);
                 }
             }
         }
@@ -162,7 +162,7 @@ _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
         if( ns != NULL && ns->href != NULL && tree->ns->href != NULL &&
             xmlStrcmp(ns->href,tree->ns->href) == 0 ) {
             /* Remove the declaration (if present) */
-            if( domRemoveNsDef(tree, tree->ns) )
+            if( _domRemoveNsDef(tree, tree->ns) )
                 /* Queue the namespace for freeing */
                 *unused = _domAddNsChain(*unused, tree->ns);
 
@@ -171,13 +171,13 @@ _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
         }
         else {
             /* If the declaration is here, we don't need to do anything */
-            if( domRemoveNsDef(tree, tree->ns) ) {
-                domAddNsDef(tree, tree->ns);
+            if( _domRemoveNsDef(tree, tree->ns) ) {
+                _domAddNsDef(tree, tree->ns);
             }
             else {
                 /* Restart the namespace at this point */
                 tree->ns = xmlCopyNamespace(tree->ns);
-                domAddNsDef(tree, tree->ns);
+                _domAddNsDef(tree, tree->ns);
             }
         }
     }

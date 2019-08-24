@@ -134,7 +134,7 @@ sub write-file(Gen::File:D $module) {
             for .value.pairs.sort {
                 say "    {.key} => {.value},";
             }
-            say ')';
+            say ');';
         }
 
         for $module.structs {

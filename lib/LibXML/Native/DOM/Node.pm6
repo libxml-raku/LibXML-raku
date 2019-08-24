@@ -198,7 +198,7 @@ method lookupNamespaceURI(NCName $prefix --> Str) {
 }
 
 method addNewChild(Str $uri, QName $name) {
-    self.box: self.domAddNewChild($uri, $name);
+    self.domAddNewChild($uri, $name);
 }
 
 method normalize { self.domNormalize }

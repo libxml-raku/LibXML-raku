@@ -3,19 +3,8 @@
  * Author: Christian Glahn (2001)
  * Ported from Perl 5 to 6 by David Warring (2019)
  *
- * This header file provides some definitions for wrapper functions.
- * These functions hide most of libxml2 code, and should make the
- * code in the XS file more readable .
+ * This header file provides some definitions for dom wrapper functions.
  *
- * The Functions are sorted in four parts:
- * part 0 ..... general wrapper functions which do not belong
- *              to any of the other parts and not specified in DOM.
- * part A ..... wrapper functions for general node access
- * part B ..... document wrapper
- * part C ..... element wrapper
- *
- * I did not implement any Text, CDATASection or comment wrapper functions,
- * since it is pretty straight-forward to access these nodes.
  */
 
 #ifndef __LIBXML_DOM_H__

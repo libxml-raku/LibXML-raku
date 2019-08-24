@@ -2,7 +2,7 @@ use v6;
 unit class LibXML::XPath::Object;
 
 use LibXML::Native;
-use LibXML::Node :iterate-set, :NodeSetElem;
+use LibXML::Node :iterate-set, :NodeSetItem;
 use LibXML::Node::Set;
 
 has xmlXPathObject:D $.native is required handles<type>;
@@ -30,7 +30,7 @@ method coerce($content) {
 method value(Bool :$literal,  --> XPathRange) {
     given $!native.value {
         when xmlNodeSet {
-            given iterate-set(NodeSetElem, .copy) {
+            given iterate-set(NodeSetItem, .copy) {
                 $literal ?? .to-literal !! $_;
             }
         }

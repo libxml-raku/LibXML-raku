@@ -2,7 +2,7 @@ use v6;
 class LibXML::XPath::Context {
 
     use LibXML::Native;
-    use LibXML::Node :iterate-set, :NodeSetElem, :NameVal, :native;
+    use LibXML::Node :iterate-set, :NodeSetItem, :NameVal, :native;
     use LibXML::Document;
     use LibXML::Types :QName;
     use LibXML::Node::List;
@@ -34,11 +34,11 @@ class LibXML::XPath::Context {
     }
     proto method findnodes($, $?) is also<AT-KEY> {*}
     multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        iterate-set(NodeSetElem, self!find($expr, $ref));
+        iterate-set(NodeSetItem, self!find($expr, $ref));
     }
     multi method findnodes(Str:D $_, LibXML::Node $ref?) is default {
         my $expr = LibXML::XPath::Expression.new: :expr($_);
-        iterate-set(NodeSetElem, self!find($expr, $ref));
+        iterate-set(NodeSetItem, self!find($expr, $ref));
     }
 
     method !value(xmlXPathObject $native, Bool :$literal) {
