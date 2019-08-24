@@ -16,7 +16,7 @@ SYNOPSIS
     $avalue = $node.getAttribute( $aname );
     $avalue = $node.getAttributeNS( $nsURI, $aname );
     $attrnode = $node.getAttributeNode( $aname );
-    $attrnode = .[0] with $node{'@'~$name}; # xpath attribute selection
+    $attrnode = $node{'@'~$aname}; # xpath attribute selection
     $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
     my Bool $has-atts = $node.hasAttributes();
     my LibXML::Node::Set $attrs = $node.attributes();
@@ -40,6 +40,15 @@ SYNOPSIS
     $node.setNamespace( $nsURI , $nsPrefix, $activate );
     $node.setNamespaceDeclURI( $nsPrefix, $newURI );
     $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
+
+    # Associative interface (XPath sugar)
+    my @a-nodes = $elem<a>;  # equivalent to: $elem.findnodes<a>;
+    my $b-attr  = $elem<@b>; # equivalent to: $elem.findnodes<@b>;
+    my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+    $elem<c>:delete;         # equivalent to: .delete for $elem,findnodes<c>;
+    say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
+    say $_ for $elem.attributes.keys;  # att-1 .. att-n
+    say $_ for $elem.childNodes.keys;  # tag-1 .. tag-n
 
 METHODS
 =======
@@ -129,29 +138,39 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
   * attributes
 
         use LibXML::Attr::Map;
-        my LibXML::Attr::Map $atts = $node.attributes();
+        my LibXML::Attr::Map $atts = $elem.attributes();
+
+        for $atts.keys { ... }
+        $atts<color> = 'red';
+        $atts<style>:delete;
+
+    Proves an associative interface to a node's attributes.
 
     Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
         See also:
 
-        * the `properties` method, which returns a list of [LibXML::Attr](LibXML::Attr) attributes.
+        * the `properties` method, which returns an [LibXML::Attr](LibXML::Attr) attributes iterator.
 
-        * the `namespaces` method, which returns a list of [LibXML::Namespace](LibXML::Namespace) namespaces.
+        * the `namespaces` method, which returns an [LibXML::Namespace](LibXML::Namespace) namespaces iterator.
 
   * properties
 
-        my LibXML::Attr @props = $node.properties;
-        my LibXML::Node::List $props = $node.properties;
+        my LibXML::Attr @props = $elem.properties;
+        my LibXML::Node::List $props = $elem.properties;
 
-    returns a list of Attributes for the node.
+    returns attributes for the node. It can be used to iterate through an elements properties:
+
+        for $elem.properties -> LibXML::Attr $attr { ... }
 
   * namespaces
 
         my LibXML::Namespace @ns = $node.namespaces;
         my LibXML::Node::List $ns = $node.namespaces;
 
-    returns a list of Namespace declarations for the node.
+    returns a list of Namespace declarations for the node. It can be used to iterate through an element's namespaces:
+
+        for $elem.namespaces -> LibXML::Namespace $ns { ... }
 
   * getChildrenByTagName
 

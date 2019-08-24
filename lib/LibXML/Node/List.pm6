@@ -18,7 +18,7 @@ class LibXML::Node::List does Iterable does Iterator {
         $!cur = $!native;
     }
 
-    method Array handles<AT-POS elems List list values Numeric> {
+    method Array handles<AT-POS elems List list values map grep Numeric> {
         if $!lazy-- {
             $!cur = $!native;
             @!store = self;

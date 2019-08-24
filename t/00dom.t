@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 36;
+plan 37;
 
 # bootstrapping tests for the DOM
 
@@ -81,6 +81,8 @@ is $elem<@*[name()='x:aaa']>, 'AAA';
 is $elem<attribute::x:aaa>, 'AAA';
 is $elem.findvalue('name(@*)'), 'foo';
 is-deeply %atts.keys.sort, ('foo', "x:aaa", "x:bbb", "x:ccc"), 'attribute keys';
+$elem.appendTextChild('p', "some text");
+is-deeply $elem.keys.sort, ('@foo', "@x:aaa", "@x:bbb", "@x:ccc", "p"), 'element keys';
 
 lives-ok  {$elem<@x:aaa> = 'BBB' };
 is $elem<@x:aaa>,'BBB';
@@ -95,7 +97,7 @@ $elem.registerNs('ns1', 'http://ns');
 is $elem<@ns1:aaa>, 'BBB', 'registered namespace';
 lives-ok {$attr = ($elem<@ns1:aaa>:delete)[0]}, 'delete via ns';
 
-is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"/>', 'NS Elem after NS proxy deletion');
+is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"><p>some text</p></foo>', 'NS Elem after NS proxy deletion');
 
 
 

@@ -27,7 +27,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         } // $!of;
     }
     method elems is also<Numeric> { $!native.nodeNr }
-    method Array handles<List list values> {
+    method Array handles<List list values map grep> {
         if $!lazy {
             $!idx = 0;
             @!store = self;

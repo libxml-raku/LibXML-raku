@@ -230,7 +230,8 @@ class LibXML::Node {
         $!doc = LibXML::Node;
         self;
     }
-    method childNodes is also<getChildnodes> handles <AT-POS ASSIGN-POS elems List list pairs keys values map grep push pop> {
+    method Hash handles <keys pairs kv> { $.childNodes.Hash }
+    method childNodes is also<getChildnodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
         iterate-list(self, LibXML::Node, $!native.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
@@ -449,8 +450,11 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   say $node[1].Str; # <B/>
   $node[1] = LibXML::Element.new: :name<C>;
   say $node.values.map(*.Str).join(':');  # <A/>:<C/>
-  $node.pop;
+  $node.pop;  # remove last child
 
+  # Associative interface (ready-only)
+  my %kids = $node.Hash;  # nodes by tag-name
+  my LibXML::Node $first-a = %kids<a>[0];
 
 =head1 DESCRIPTION
 
@@ -900,13 +904,21 @@ the returned value is a non-zero number or a non-empty string.
 =end item1
 
 =begin item1
-childNodes
+childNodes (handles: elems List values map grep push pop)
 
   my LibXML::Node @kids = $node.childNodes();
   my LibXML::Node::List $kids = $node.childNodes();
 
 I<<<<<< childNodes >>>>>> implements a more intuitive interface to the childnodes of the current node. It
-enables you to pass all children directly to a C<<<<<< map >>>>>> or C<<<<<< grep >>>>>>. If this function is called in scalar context, a L<<<<<< LibXML::NodeList >>>>>> object will be returned.
+enables you to pass all children directly to a C<<<<<< map >>>>>> or C<<<<<< grep >>>>>>.
+
+Note that child nodes are iterable:
+
+   for $elem.childNodes { ... }
+
+They also directly support a number of update operations, including 'push' (add an element), 'pop' (remove last element) and ASSIGN-POS, e.g.:
+
+   $elem.childNodes[3] = LibXML::TextNode.new('p', 'replacement text for 4th child');
 
 =end item1
 

@@ -69,7 +69,11 @@ SYNOPSIS
     say $node[1].Str; # <B/>
     $node[1] = LibXML::Element.new: :name<C>;
     say $node.values.map(*.Str).join(':');  # <A/>:<C/>
-    $node.pop;
+    $node.pop;  # remove last child
+
+    # Associative interface (ready-only)
+    my %kids = $node.Hash;  # nodes by tag-name
+    my LibXML::Node $first-a = %kids<a>[0];
 
 DESCRIPTION
 ===========
@@ -343,12 +347,20 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     For XPath expressions that do not return node-set, the method returns true if the returned value is a non-zero number or a non-empty string.
 
-  * childNodes
+  * childNodes (handles: elems List values map grep push pop)
 
         my LibXML::Node @kids = $node.childNodes();
         my LibXML::Node::List $kids = $node.childNodes();
 
-    *childNodes * implements a more intuitive interface to the childnodes of the current node. It enables you to pass all children directly to a `map ` or `grep `. If this function is called in scalar context, a [LibXML::NodeList ](LibXML::NodeList ) object will be returned.
+    *childNodes * implements a more intuitive interface to the childnodes of the current node. It enables you to pass all children directly to a `map ` or `grep `.
+
+    Note that child nodes are iterable:
+
+        for $elem.childNodes { ... }
+
+    They also directly support a number of update operations, including 'push' (add an element), 'pop' (remove last element) and ASSIGN-POS, e.g.:
+
+        $elem.childNodes[3] = LibXML::TextNode.new('p', 'replacement text for 4th child');
 
   * nonBlankChildNodes
 

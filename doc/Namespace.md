@@ -10,7 +10,7 @@ SYNOPSIS
     my LibXML::Namespace $ns .= new(:$URI, :$prefix);
     say $ns.nodeName();
     say $ns.name();
-    my Str $localname = $ns.getLocalName();
+    my Str $localname = $ns.localname();
     say $ns.getValue();
     say $ns.value();
     my Str $known-uri = $ns.getNamespaceURI();
@@ -22,7 +22,7 @@ DESCRIPTION
 
 Namespace nodes are returned by both $element.findnodes('namespace::foo') or by $node.getNamespaces().
 
-The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not * a sub class of [LibXML::Node ](LibXML::Node ), however Namespace nodes act a lot like attribute nodes. Both perform the [LibXML::_Attr](LibXML::_Attr) role. Similarly named methods return what you would expect if you treated the namespace node as an attribute.
+The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not * a sub class of [LibXML::Node ](LibXML::Node ), however Namespace nodes act a lot like attribute nodes (both perform the [LibXML::_Attr](LibXML::_Attr) role). Similarly named methods return what you would expect if you treated the namespace node as an attribute.
 
 METHODS
 =======

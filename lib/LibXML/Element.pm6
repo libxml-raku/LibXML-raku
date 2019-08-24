@@ -95,6 +95,11 @@ method attributes is rw is also<attr> {
     );
 }
 
+method Hash { # handles: keys, pairs, kv -- see LibXML::Node
+    my %h := callsame;
+    %h{'@' ~ .tagName } = $_ for self.findnodes('@*');
+    %h;
+}
 multi method AT-KEY('@*') is rw { self.attributes }
 multi method AT-KEY('attributes::') is rw { self.attributes }
 multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Grammar::pident>':']?<name=.XML::Grammar::pident>$/) is rw {
@@ -200,7 +205,7 @@ LibXML::Element - LibXML Class for Element Nodes
   $avalue = $node.getAttribute( $aname );
   $avalue = $node.getAttributeNS( $nsURI, $aname );
   $attrnode = $node.getAttributeNode( $aname );
-  $attrnode = .[0] with $node{'@'~$name}; # xpath attribute selection
+  $attrnode = $node{'@'~$aname}; # xpath attribute selection
   $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
   my Bool $has-atts = $node.hasAttributes();
   my LibXML::Node::Set $attrs = $node.attributes();
@@ -224,6 +229,15 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.setNamespace( $nsURI , $nsPrefix, $activate );
   $node.setNamespaceDeclURI( $nsPrefix, $newURI );
   $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
+
+  # Associative interface (XPath sugar)
+  my @a-nodes = $elem<a>;  # equivalent to: $elem.findnodes<a>;
+  my $b-attr  = $elem<@b>; # equivalent to: $elem.findnodes<@b>;
+  my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+  $elem<c>:delete;         # equivalent to: .delete for $elem,findnodes<c>;
+  say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
+  say $_ for $elem.attributes.keys;  # att-1 .. att-n
+  say $_ for $elem.childNodes.keys;  # tag-1 .. tag-n
 
 =head1 METHODS
 
@@ -367,23 +381,32 @@ returns True if the current node has any attributes set, otherwise False is retu
 attributes
 
   use LibXML::Attr::Map;
-  my LibXML::Attr::Map $atts = $node.attributes();
+  my LibXML::Attr::Map $atts = $elem.attributes();
+
+  for $atts.keys { ... }
+  $atts<color> = 'red';
+  $atts<style>:delete;
+
+Proves an associative interface to a node's attributes.
 
 Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
  See also:
- =item2 the C<properties> method, which returns a list of L<LibXML::Attr> attributes.
- =item2 the C<namespaces> method, which returns a list of L<LibXML::Namespace> namespaces.
+ =item2 the C<properties> method, which returns an L<LibXML::Attr> attributes iterator.
+ =item2 the C<namespaces> method, which returns an L<LibXML::Namespace> namespaces iterator.
 
 =end item1
 
 =begin item
 properties
 
-  my LibXML::Attr @props = $node.properties;
-  my LibXML::Node::List $props = $node.properties;
+  my LibXML::Attr @props = $elem.properties;
+  my LibXML::Node::List $props = $elem.properties;
 
-returns a list of Attributes for the node.
+returns attributes for the node. It can be used to iterate through an elements properties:
+
+  for $elem.properties -> LibXML::Attr $attr { ... }
+
 =end item
 
 =begin item
@@ -392,7 +415,10 @@ namespaces
   my LibXML::Namespace @ns = $node.namespaces;
   my LibXML::Node::List $ns = $node.namespaces;
 
-returns a list of Namespace declarations for the node.
+returns a list of Namespace declarations for the node. It can be used to iterate through an element's namespaces:
+
+  for $elem.namespaces -> LibXML::Namespace $ns { ... }
+
 =end item
 
 =begin item1
