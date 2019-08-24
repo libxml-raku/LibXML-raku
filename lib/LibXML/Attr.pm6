@@ -1,7 +1,9 @@
 use LibXML::Node;
+use LibXML::_Attr;
 
 unit class LibXML::Attr
-    is LibXML::Node;
+    is LibXML::Node
+    does LibXML::_Attr;
 
 use LibXML::Native;
 use LibXML::Types :QName;

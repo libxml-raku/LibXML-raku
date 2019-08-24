@@ -298,7 +298,7 @@ subtest 'XML::LibXML::InputCallback' => {
 }
 
 subtest 'LibXML::Namespace' => {
-    plan 13;
+    plan 12;
     use LibXML::Namespace;
     use LibXML::Attr;
     my $URI = 'http://test.org';
@@ -308,12 +308,11 @@ subtest 'LibXML::Namespace' => {
     is $ns.declaredPrefix, $prefix, 'declaredPrefix';
     is $ns.nodeName, 'xmlns:'~$prefix, 'nodeName';
     is $ns.name, 'xmlns:'~$prefix, 'nodeName';
-    is $ns.getLocalName, $prefix, 'localName';
-    is $ns.getData, $URI, 'getData';
+    is $ns.localname, $prefix, 'localName';
     is $ns.getValue, $URI, 'getValue';
     is $ns.value, $URI, 'value';
     is $ns.getNamespaceURI, 'http://www.w3.org/2000/xmlns/';
-    is $ns.getPrefix, 'xmlns';
+    is $ns.prefix, 'xmlns';
     ok $ns.unique-key, 'unique_key sanity';
     my LibXML::Namespace $ns-again .= new(:$URI, :$prefix);
     my LibXML::Namespace $ns-different .= new(URI => $URI~'X', :$prefix);

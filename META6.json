@@ -66,8 +66,9 @@
     "LibXML::XPath::Context" : "lib/LibXML/XPath/Context.pm6",
     "LibXML::XPath::Expression" : "lib/LibXML/XPath/Expression.pm6",
     "LibXML::XPath::Object" : "lib/LibXML/XPath/Object.pm6",
-    "LibXML::_Options" : "lib/LibXML/_Options.pm6",
+    "LibXML::_Attr" : "lib/LibXML/_Attr.pm6",
     "LibXML::_DOMNode" : "lib/LibXML/_DOMNode.pm6",
+    "LibXML::_Options" : "lib/LibXML/_Options.pm6",
     "LibXML::_TextNode" : "lib/LibXML/_TextNode.pm6"
   },
   "resources" : [

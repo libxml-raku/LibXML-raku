@@ -1,10 +1,13 @@
-unit class LibXML::Namespace;
+use LibXML::_Attr;
+unit class LibXML::Namespace
+    does LibXML::_Attr;
+
 use LibXML::Native;
 use LibXML::Types :NCName;
 use NativeCall;
 use Method::Also;
 use LibXML::Native::Defs :XML_XMLNS_NS;
-has xmlNs $!native handles <type prefix href Str>;
+has xmlNs $!native handles <type href Str>;
 
 method box(xmlNs $ns!) {
     do with $ns {
@@ -31,16 +34,16 @@ multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
 }
 
 method nodeType     { $!native.type }
-method URI is also<declaredURI getData getValue value string-value>
+method URI is also<declaredURI getValue value string-value>
                     { $!native.href }
-method localname(--> NCName) is also<declaredPrefix getLocalName>
+method localname(--> NCName) is also<declaredPrefix>
                     { $!native.prefix }
 method unique-key   { join('|', $!native.prefix//'', $!native.href//''); }
 method nodeName is also<name> {
     'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
 }
 method getNamespaceURI { XML_XMLNS_NS }
-method getPrefix { 'xmlns' }
+method prefix { 'xmlns' }
 
 submethod DESTROY {
     with $!native {
@@ -58,18 +61,14 @@ LibXML::Namespace - LibXML Namespace Implementation
 
 
   use LibXML::Namespace;
-  # Only methods specific to Namespace nodes are listed here,
-  # see the LibXML::Node manpage for other methods
-
   my LibXML::Namespace $ns .= new(:$URI, :$prefix);
   say $ns.nodeName();
   say $ns.name();
-  my Str $localname = $ns.getLocalName();
-  say $ns.getData();
+  my Str $localname = $ns.localname();
   say $ns.getValue();
   say $ns.value();
   my Str $known-uri = $ns.getNamespaceURI();
-  my Str $known-prefix = $ns.getPrefix();
+  my Str $known-prefix = $ns.prefix();
   $key = $ns.unique-key();
 
 =head1 DESCRIPTION
@@ -78,9 +77,8 @@ Namespace nodes are returned by both $element.findnodes('namespace::foo') or
 by $node.getNamespaces().
 
 The namespace node API is not part of any current DOM API, and so it is quite
-minimal. It should be noted that namespace nodes are I<<<<<< not >>>>>> a sub class of L<<<<<< LibXML::Node >>>>>>, however Namespace nodes act a lot like attribute nodes, and similarly named
-methods will return what you would expect if you treated the namespace node as
-an attribute.
+minimal. It should be noted that namespace nodes are I<<<<<< not >>>>>> a sub class of L<<<<<< LibXML::Node >>>>>>, however Namespace nodes act a lot like attribute nodes (both perform the L<LibXML::_Attr> role). Similarly named
+methods return what you would expect if you treated the namespace node as an attribute.
 
 
 =head1 METHODS
