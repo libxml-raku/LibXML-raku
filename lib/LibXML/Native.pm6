@@ -1101,10 +1101,10 @@ class xmlNodeSet is export {
     method copy(--> xmlNodeSet) is symbol('domCopyNodeSet') is native(BIND-LIB) {*}
     method push(itemNode) is symbol('domPushNodeSet') is native(BIND-LIB) {*}
     method pop(--> itemNode) is symbol('domPopNodeSet') is native(BIND-LIB) {*}
-    sub xml6_nodeset_from_nodelist(anyNode, int32 --> xmlNodeSet) is native(BIND-LIB) {*}
+    sub domCreateNodeSetFromList(itemNode, int32 --> xmlNodeSet) is native(BIND-LIB) {*}
 
-    multi method new(anyNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {
-        xml6_nodeset_from_nodelist($node, +$keep-blanks);
+    multi method new(itemNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {
+        domCreateNodeSetFromList($node, +$keep-blanks);
     }
     multi method new(anyNode :$node) is default {
         xmlXPathNodeSetCreate($node);

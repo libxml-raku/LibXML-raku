@@ -1,9 +1,11 @@
 use Test;
-plan 144;
+plan 145;
 
 use LibXML;
 use LibXML::Enums;
+use LibXML::Item;
 use LibXML::XPath::Context;
+use LibXML::Node::Set;
 
 my $parser = LibXML.new();
 
@@ -78,6 +80,7 @@ print "# 2.    multiple namespaces \n";
     for :URI<http://kungfoo>, :localname<c>, :name<xmlns:c>, :prefix<xmlns>,  :declaredPrefix<c>, :type(+XML_NAMESPACE_DECL), :Str<xmlns:c="http://kungfoo"> {
         is-deeply $ns1."{.key}"(), .value, "namespace {.key} accessor";
     }
+    is $elem.namespaces.pull-one.declaredPrefix, 'b', '$elem.namespaces.pull-one';
 }
 
 print "# 3.   nested names \n";
@@ -133,7 +136,7 @@ EOX
     my $b = $docb.documentElement.firstChild;
 
     my $c = $doca.importNode( $b );
-    my @attra = flat $c.properties, $c.namespaces;
+    my LibXML::Item @attra = flat $c.properties, $c.namespaces;
     # TEST
     is( +@attra, 1, ' TODO : Add test name' );
     # TEST
@@ -143,7 +146,7 @@ EOX
     # TEST
 
     ok( $d.isSameNode( $b ), ' TODO : Add test name' );
-    my @attrb = flat $d.properties, $c.namespaces;
+    my LibXML::Item @attrb = flat $d.properties, $c.namespaces;
     # TEST
     is( +@attrb, 1, ' TODO : Add test name' );
     # TEST

@@ -113,10 +113,11 @@ LibXML::Node::Set - LibXML Class for Node Collections
   my LibXML::Node::Set %nodes-by-tag-name = $node-set.Hash;
   ...
 
-=head2 DESCRIPTION
+=head1 DESCRIPTION
 
-This is a positional class, commonlu used for handling results from XPath queries.
+This class is commonly used for handling result sets from XPath queries.
 
 =end pod
 
+=head1 METHODS
 

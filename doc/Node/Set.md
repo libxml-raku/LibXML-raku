@@ -21,7 +21,10 @@ SYNOPSIS
     ...
 
 DESCRIPTION
------------
+===========
 
-This is a positional class, commonlu used for handling results from XPath queries.
+This class is commonly used for handling result sets from XPath queries.
+
+METHODS
+=======
 

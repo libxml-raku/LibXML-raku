@@ -29,19 +29,3 @@ DLLEXPORT xmlNodeSetPtr xml6_nodeset_resize(xmlNodeSetPtr rv, int nodeMax) {
     return rv;
 }
 
-DLLEXPORT xmlNodeSetPtr xml6_nodeset_from_nodelist(xmlNodePtr elem, int keep_blanks) {
-    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
-    int i = 0;
-    assert(rv != NULL);
-    while (elem != NULL) {
-        if (i >= rv->nodeMax) {
-            xml6_nodeset_resize(rv, rv->nodeMax * 2);
-        }
-
-        rv->nodeTab[i++] = elem;
-        elem = xml6_node_next(elem, keep_blanks);
-    }
-    rv->nodeNr = i;
-
-    return rv;
-}

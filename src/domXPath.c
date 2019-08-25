@@ -190,6 +190,27 @@ domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem) {
     self->nodeTab[self->nodeNr++] = elem;
 }
 
+DLLEXPORT xmlNodeSetPtr
+domCreateNodeSetFromList(xmlNodePtr elem, int keep_blanks) {
+    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
+    int i = 0;
+    assert(rv != NULL);
+    while (elem != NULL) {
+        domPushNodeSet(rv, elem);
+
+        if (elem->type == XML_NAMESPACE_DECL) {
+            elem = (xmlNodePtr) ((xmlNsPtr) elem)->next;
+        }
+        else {
+            elem = xml6_node_next(elem, keep_blanks);
+        }
+    }
+    rv->nodeNr = i;
+
+    return rv;
+}
+
+
 DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self) {
     xmlNodePtr rv = NULL;
     assert(self != NULL);

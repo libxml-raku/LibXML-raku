@@ -88,7 +88,7 @@ LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node.
 
 This is a containing role for XPath queries with may return either namespaces or other nodes.
 
-LibXML::Namespace is distinct from the other LibXML::Node classes. It cannot
+The LibXML::Namespace class is distinct from LibXML::Node classes. It cannot
 itself contain namespaces and lacks parent or child nodes.
 
 Both nodes and namespaces support the following common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
