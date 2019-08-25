@@ -72,8 +72,9 @@ SYNOPSIS
     $node.pop;  # remove last child
 
     # Associative interface (ready-only)
-    my %kids = $node.Hash;  # nodes by tag-name
+    my LibXML::Node::Set %kids = $node.Hash;  # node-sets by tag-name
     my LibXML::Node $first-a = %kids<a>[0];
+    for %kids<a> { ... }
 
 DESCRIPTION
 ===========

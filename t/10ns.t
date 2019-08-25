@@ -1,5 +1,5 @@
 use Test;
-plan 137;
+plan 144;
 
 use LibXML;
 use LibXML::Enums;
@@ -72,6 +72,12 @@ print "# 2.    multiple namespaces \n";
     is(@cn[1].namespaceURI, "http://whatever", ' TODO : Add test name' );
     # TEST
     is(@cn[2].namespaceURI, "http://kungfoo", ' TODO : Add test name' );
+
+    my $namespaces = $elem.findnodes("namespace::*");
+    my LibXML::Namespace:D $ns1 = $namespaces[0];
+    for :URI<http://kungfoo>, :localname<c>, :name<xmlns:c>, :prefix<xmlns>,  :declaredPrefix<c>, :type(+XML_NAMESPACE_DECL), :Str<xmlns:c="http://kungfoo"> {
+        is-deeply $ns1."{.key}"(), .value, "namespace {.key} accessor";
+    }
 }
 
 print "# 3.   nested names \n";

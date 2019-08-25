@@ -1,6 +1,6 @@
-use LibXML::_Attr;
+use LibXML::Item;
 unit class LibXML::Namespace
-    does LibXML::_Attr;
+    does LibXML::Item;
 
 use LibXML::Native;
 use LibXML::Types :NCName;
@@ -34,14 +34,14 @@ multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
 }
 
 method nodeType     { $!native.type }
-method URI is also<declaredURI getValue value string-value>
+method nodeName is also<name> {
+    'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
+}
+method URI is also<declaredURI getValue string-value value>
                     { $!native.href }
 method localname(--> NCName) is also<declaredPrefix>
                     { $!native.prefix }
 method unique-key   { join('|', $!native.prefix//'', $!native.href//''); }
-method nodeName is also<name> {
-    'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
-}
 method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }
 
@@ -77,7 +77,7 @@ Namespace nodes are returned by both $element.findnodes('namespace::foo') or
 by $node.getNamespaces().
 
 The namespace node API is not part of any current DOM API, and so it is quite
-minimal. It should be noted that namespace nodes are I<<<<<< not >>>>>> a sub class of L<<<<<< LibXML::Node >>>>>>, however Namespace nodes act a lot like attribute nodes (both perform the L<LibXML::_Attr> role). Similarly named
+minimal. It should be noted that namespace nodes are I<<<<<< not >>>>>> a sub class of L<<<<<< LibXML::Node >>>>>>, however Namespace nodes act a lot like attribute nodes (both perform the L<LibXML::Item> role). Similarly named
 methods return what you would expect if you treated the namespace node as an attribute.
 
 

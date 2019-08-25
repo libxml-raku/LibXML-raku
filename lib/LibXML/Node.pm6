@@ -1,9 +1,11 @@
-class LibXML::Node {
+use v6;
+use LibXML::Item :box-class;
+
+class LibXML::Node does LibXML::Item {
     use Method::Also;
     use NativeCall;
 
     use LibXML::Native;
-    use LibXML::Native::DOM::Node;
     use LibXML::Config;
     use LibXML::Enums;
     use LibXML::Namespace;
@@ -12,7 +14,6 @@ class LibXML::Node {
 
     constant config = LibXML::Config;
     my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
-    my subset NodeSetItem is export(:NodeSetItem) where LibXML::Node|LibXML::Namespace;
     enum <SkipBlanks KeepBlanks>;
     my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
@@ -25,6 +26,7 @@ class LibXML::Node {
         lookupNamespacePrefix lookupNamespaceURI
         nodePath
         setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
+        type
         unique-key lock unlock
     >;
 
@@ -85,7 +87,7 @@ class LibXML::Node {
             STORE => -> $, anyNode:D $new-struct {
                 given box-class($new-struct.type) -> $class {
                     die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-                        unless $class ~~ self.WHAT|LibXML::Namespace;
+                        unless $class ~~ self.WHAT;
                 }
                 unless $!native.defined && $!native.isSame($new-struct) {
                     .Unreference with $!native;
@@ -145,7 +147,7 @@ class LibXML::Node {
         );
     }
 
-    method nodeValue is rw {
+    method nodeValue is rw is also<value> {
         Proxy.new(
             FETCH => sub ($) { self.getNodeValue },
             STORE => sub ($, Str() $_) { self.setNodeValue($_) },
@@ -157,60 +159,6 @@ class LibXML::Node {
     method prefix        { do with $!native.ns {.prefix} // Str }
     method getFirstChild { $.firstChild }
     method getLastChild  { $.lastChild }
-
-    sub box-class(UInt $_) is export(:box-class) {
-        when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
-        when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
-        when XML_CDATA_SECTION_NODE { require LibXML::CDATA }
-        when XML_COMMENT_NODE       { require LibXML::Comment }
-        when XML_DTD_NODE           { require LibXML::Dtd }
-        when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
-        when XML_DOCUMENT_NODE
-           | XML_HTML_DOCUMENT_NODE { require LibXML::Document }
-        when XML_ELEMENT_NODE       { require LibXML::Element }
-        when XML_ELEMENT_DECL       { require LibXML::ElementDecl }
-        when XML_ENTITY_DECL        { require LibXML::EntityDecl }
-        when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
-        when XML_NAMESPACE_DECL     { require LibXML::Namespace }
-        when XML_PI_NODE            { require LibXML::PI }
-        when XML_TEXT_NODE          { require LibXML::Text }
-
-        default {
-            warn "node content-type not yet handled: $_";
-            LibXML::Node;
-        }
-    }
-
-    proto sub native($) is export(:native) {*}
-    multi sub native(LibXML::XPath::Expression:D $_) { .native }
-    multi sub native(LibXML::Node:D $_) { .native }
-    multi sub native(LibXML::Namespace:D $_) { .native }
-    multi sub native($_) is default  { $_ }
-
-    method box(LibXML::Native::DOM::Node $struct,
-               LibXML::Node :$doc = $.doc, # reusable document object
-              ) {
-        do with $struct {
-            my $class := box-class(.type);
-            die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-                unless $class ~~ self.WHAT|LibXML::Namespace;
-            my $native := .delegate;
-            $class.new: :$native, :$doc;
-        } // self.WHAT; 
-    }
-    method unbox { $.native }
-
-    method keep(LibXML::Native::DOM::Node $rv,
-                LibXML::Node :$doc = $.doc, # reusable document object
-                --> LibXML::Node) {
-        do with $rv {
-            do with self -> $obj {
-                die "returned unexpected node: {$.Str}"
-                    unless native($obj).isSameNode($_);
-                $obj;
-            } // self.box: $_, :$doc;
-        } // self.WHAT;
-    }
 
     sub iterate-list($parent, $of, anyNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.
@@ -453,8 +401,9 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $node.pop;  # remove last child
 
   # Associative interface (ready-only)
-  my %kids = $node.Hash;  # nodes by tag-name
+  my LibXML::Node::Set %kids = $node.Hash;  # node-sets by tag-name
   my LibXML::Node $first-a = %kids<a>[0];
+  for %kids<a> { ... }
 
 =head1 DESCRIPTION
 

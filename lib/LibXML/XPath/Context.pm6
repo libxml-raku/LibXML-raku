@@ -2,7 +2,8 @@ use v6;
 class LibXML::XPath::Context {
 
     use LibXML::Native;
-    use LibXML::Node :iterate-set, :NodeSetItem, :NameVal, :native;
+    use LibXML::Item;
+    use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
     use LibXML::Types :QName;
     use LibXML::Node::List;
@@ -26,19 +27,24 @@ class LibXML::XPath::Context {
         .Free with $!native;
     }
 
+    my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
+    proto sub native-expr(XPathExpr) {*}
+    multi sub native-expr(LibXML::XPath::Expression:D $_) { .native }
+    multi sub native-expr(Str() $_) is default { $_ }
+
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
-        my xmlNodeSet $node-set := $.native.findnodes( native($xpath-expr), $node);
+        my xmlNodeSet $node-set := $.native.findnodes( native-expr($xpath-expr), $node);
         .rethrow with @!callback-errors.tail;
         $node-set.copy;
     }
     proto method findnodes($, $?) is also<AT-KEY> {*}
     multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        iterate-set(NodeSetItem, self!find($expr, $ref));
+        iterate-set(LibXML::Item, self!find($expr, $ref));
     }
     multi method findnodes(Str:D $_, LibXML::Node $ref?) is default {
         my $expr = LibXML::XPath::Expression.new: :expr($_);
-        iterate-set(NodeSetItem, self!find($expr, $ref));
+        iterate-set(LibXML::Item, self!find($expr, $ref));
     }
 
     method !value(xmlXPathObject $native, Bool :$literal) {
@@ -49,7 +55,7 @@ class LibXML::XPath::Context {
 
     multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my anyNode $node = .native with $ref-node;
-        self!value: $!native.find( native($xpath-expr), $node, :$bool), :$literal;
+        self!value: $!native.find( native-expr($xpath-expr), $node, :$bool), :$literal;
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
@@ -62,9 +68,7 @@ class LibXML::XPath::Context {
         $.findvalue(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
     }
 
-    my subset XPathDomain where LibXML::XPath::Expression|Str|Any:U;
-
-    method exists(XPathDomain:D $xpath-expr, LibXML::Node $node? --> Bool:D) {
+    method exists(XPathExpr:D $xpath-expr, LibXML::Node $node? --> Bool:D) {
         $.find($xpath-expr, $node, :bool);
     }
 

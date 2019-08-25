@@ -31,6 +31,7 @@
     "LibXML::Enums"  : "lib/LibXML/Enums.pm6",
     "LibXML::ErrorHandler" : "lib/LibXML/ErrorHandler.pm6",
     "LibXML::InputCallback" : "lib/LibXML/InputCallback.pm6",
+    "LibXML::Item" : "lib/LibXML/Item.pm6",
     "LibXML::Namespace" : "lib/LibXML/Namespace.pm6",
     "LibXML::Native" : "lib/LibXML/Native.pm6",
     "LibXML::Native::Defs" : "lib/LibXML/Native/Defs.pm6",
@@ -66,7 +67,6 @@
     "LibXML::XPath::Context" : "lib/LibXML/XPath/Context.pm6",
     "LibXML::XPath::Expression" : "lib/LibXML/XPath/Expression.pm6",
     "LibXML::XPath::Object" : "lib/LibXML/XPath/Object.pm6",
-    "LibXML::_Attr" : "lib/LibXML/_Attr.pm6",
     "LibXML::_DOMNode" : "lib/LibXML/_DOMNode.pm6",
     "LibXML::_Options" : "lib/LibXML/_Options.pm6",
     "LibXML::_TextNode" : "lib/LibXML/_TextNode.pm6"

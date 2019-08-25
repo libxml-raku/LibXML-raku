@@ -1,9 +1,9 @@
 class LibXML::Node::Set does Iterable does Iterator does Positional {
     use LibXML::Native;
-    use LibXML::Node :box-class, :NodeSetItem;
+    use LibXML::Item :box-class;
     use Method::Also;
 
-    has Any:U $.of = NodeSetItem;
+    has Any:U $.of = LibXML::Item;
     has xmlNodeSet $.native;
     has UInt $!idx = 0;
     has @!store;
@@ -49,13 +49,13 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     multi method AT-POS(UInt:D $pos) is default {
         self!box: $!native.nodeTab[$pos];
     }
-    method push(LibXML::Node:D $node) {
+    method push(LibXML::Item:D $node) {
         @!store.push: $_ unless $!lazy;
         .{$node.tagName}.push: $node with $!hstore;
         $!native.push: $node.native.ItemNode;
         $node;
     }
-    method delete(LibXML::Node:D $node) {
+    method delete(LibXML::Item:D $node) {
         my UInt $idx := $!native.delete($node.native.ItemNode);
         if $idx >= 0 {
             @!store.slice($idx, 1) unless $!lazy;
@@ -91,4 +91,32 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
     }
 }
+
+=begin pod
+=head1 NAME
+
+LibXML::Node::Set - LibXML Class for Node Collections
+
+=head1 SYNOPSIS
+
+  use LibXML::Node::Set;
+  my LibXML::Node::Set $node-set;
+
+  $node-set = $elem.childNodes;
+  $node-set = $elem.findnodes($xpath);
+  $node-set .= new;
+  $node-set.push: $elem;
+
+  for $node-set -> LibXML::Item $item { ... }
+  for 0 ..^ $node-set.elems { my $item = $node-set[$_]; ... }
+
+  my LibXML::Node::Set %nodes-by-tag-name = $node-set.Hash;
+  ...
+
+=head2 DESCRIPTION
+
+This is a positional class, commonlu used for handling results from XPath queries.
+
+=end pod
+
 

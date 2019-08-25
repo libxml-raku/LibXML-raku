@@ -1,4 +1,4 @@
-use LibXML::Node :iterate-list, :iterate-set, :box-class;
+use LibXML::Node :iterate-list, :iterate-set;
 use LibXML::_DOMNode;
 
 unit class LibXML::Element
@@ -9,6 +9,7 @@ use NativeCall;
 
 use LibXML::Attr;
 use LibXML::Enums;
+use LibXML::Item :box-class;
 use LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :QName, :NCName;
