@@ -13,6 +13,7 @@ has xmlSchema $.native;
 my class Parser::Context {
     has xmlSchemaParserCtxt $!native;
     has LibXML::ErrorHandler $!errors handles<structured-error flush-errors> .= new;
+    has Blob $!buf;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
     }
@@ -22,12 +23,11 @@ my class Parser::Context {
     multi submethod BUILD(Str:D :location($url)!) {
         self.BUILD: :$url;
     }
-    multi submethod BUILD(Blob:D :$buf!) {
-        $!native .= new: :$buf;
+    multi submethod BUILD(Blob:D :$!buf!) {
+        $!native .= new: :$!buf;
     }
     multi submethod BUILD(Str:D :$string!) {
-        my Blob:D $buf = $string.encode;
-        self.BUILD: :$buf;
+        self.BUILD: :buf($string.encode);
     }
     multi submethod BUILD(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .native;
@@ -42,6 +42,7 @@ my class Parser::Context {
     }
 
     submethod DESTROY {
+        $!buf = Nil;
         .Free with $!native;
     }
 
