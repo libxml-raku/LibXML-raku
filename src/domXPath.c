@@ -139,32 +139,46 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
         xmlXPathFreeObject(obj2);
 }
 
-static xmlNodePtr _domNewItem(xmlNodePtr item) {
+static xmlNodePtr _domItemOwner(xmlNodePtr item) {
+    xmlNodePtr owner = NULL;
     if (item != NULL) {
         if (item->type == XML_NAMESPACE_DECL) {
-            item = (xmlNodePtr) xml6_ns_copy((xmlNsPtr)item);
+            xmlNsPtr ns = (xmlNsPtr)item;
+            if (ns->next && ns->next->type != XML_NAMESPACE_DECL) {
+                owner = (xmlNodePtr) ns->next;
+            }
         }
         else {
-            xml6_node_add_reference(item);
+            owner = item;
         }
     }
+    return owner;
+}
+
+static xmlNodePtr _domNewItem(xmlNodePtr item) {
+    xmlNodePtr owner = _domItemOwner(item);
+
+    if (!owner && item->type == XML_NAMESPACE_DECL) {
+         item = (xmlNodePtr) xml6_ns_copy((xmlNsPtr)item);
+    }
+ 
     return item;
 }
 
 static void _domReferenceItem(xmlNodePtr item) {
-    if (item != NULL) {
-        if (item->type != XML_NAMESPACE_DECL) {
-            xml6_node_add_reference(item);
-        }
+    xmlNodePtr owner = _domItemOwner(item);
+    if (owner != NULL) {
+        assert(owner->type != XML_NAMESPACE_DECL);
+        xml6_node_add_reference(owner);
     }
 }
 
-static void _domUnreferenceItem(xmlNodePtr item) {
-    if (item != NULL) {
-        if (item->type != XML_NAMESPACE_DECL) {
-            xml6_node_remove_reference(item);
-        }
+static xmlNodePtr _domUnreferenceItem(xmlNodePtr item) {
+    xmlNodePtr owner = _domItemOwner(item);
+    if (owner != NULL) {
+        xml6_node_remove_reference(item);
     }
+    return owner;
 }
 
 // Node Sets don't support reference counting. They should
@@ -239,7 +253,8 @@ DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
         }
 
         for (i = 0; i < self->nodeNr; i++) {
-            rv->nodeTab[i] = self->nodeTab[i];
+            xmlNodePtr item = self->nodeTab[i];
+            rv->nodeTab[i] = _domNewItem(item);
         }
         rv->nodeNr = self->nodeNr;
     }
@@ -250,22 +265,25 @@ DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
 static void
 _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
     xmlNodePtr twig = (xmlNodePtr) entry;
-    if (twig->type == XML_NAMESPACE_DECL) {
-        xmlNsPtr ns = (xmlNsPtr) twig;
-        ns->next = NULL;
-
-        if (ns->_private == NULL) {
-            // not referenced
-            xmlXPathNodeSetFreeNs(ns);
-        }
-        else {
-            // we're not reference counting xmlNs objects
-            xml6_warn("namespace node is inuse or private");
+    xmlNodePtr owner = _domItemOwner(twig);
+    if (owner) {
+        if (domNodeIsReferenced(owner) == 0) {
+            xmlFreeNode(owner);
         }
     }
     else {
-        if (domNodeIsReferenced(twig) == 0) {
-            xmlFreeNode(twig);
+        if (twig->type == XML_NAMESPACE_DECL) {
+            xmlNsPtr ns = (xmlNsPtr) twig;
+            ns->next = NULL;
+
+            if (ns->_private == NULL) {
+                // not referenced
+                xmlXPathNodeSetFreeNs(ns);
+            }
+            else {
+                // we're not reference counting xmlNs objects
+                xml6_warn("namespace node is inuse or private");
+            }
         }
     }
 }
@@ -302,26 +320,26 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
         xmlNodePtr cur = self->nodeTab[i];
 
         if (cur != NULL) {
-            xmlNodePtr twig;
+            xmlNodePtr twig = _domUnreferenceItem(cur);
 
-            _domUnreferenceItem(cur);
-
-            if (cur->type == XML_NAMESPACE_DECL) {
-                twig = cur;
+            if (!twig) {
+                if (cur->type == XML_NAMESPACE_DECL) {
+                    _domNodeSetDeallocator(cur, NULL);
+                }
             }
             else {
-                twig = xml6_node_find_root(cur);
-            }
+                twig = xml6_node_find_root(twig);
 
-            if (twig != last_twig) {
-                char key[20];
-                sprintf(key, "%ld", (long) cur);
+                if (twig != last_twig) {
+                    char key[20];
+                    sprintf(key, "%ld", (long) cur);
 
-                if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
-                    xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
+                    if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
+                        xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
+                    }
+
+                    last_twig = twig;
                 }
-
-                last_twig = twig;
             }
         }
     }

@@ -8,11 +8,13 @@
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
     assert(self != NULL);
+    assert(self->type != XML_NAMESPACE_DECL);
     xml6_ref_add( &(self->_private) );
 }
 
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
     assert(self != NULL);
+    assert(self->type != XML_NAMESPACE_DECL);
     return xml6_ref_remove( &(self->_private), "node", (void*) self);
 }
 
