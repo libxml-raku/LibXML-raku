@@ -24,16 +24,14 @@ multi method new(|c) is default { nextsame }
 
 multi submethod TWEAK(xmlNs:D :$!native!) {
     $!native .= Copy;
-    $!native.Reference;
 }
 
 multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
     my xmlElem $node = .native with $node-obj;
     $!native .= new: :$URI, :$prefix, :$node;
-    $!native.Reference;
 }
 
-method nodeType     { $!native.type }
+method nodeType { $!native.type }
 method nodeName is also<name> {
     'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
 }
@@ -46,9 +44,7 @@ method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }
 
 submethod DESTROY {
-    with $!native {
-        .Free if .remove-reference;
-    }
+    .Free with $!native;
 }
 
 =begin pod

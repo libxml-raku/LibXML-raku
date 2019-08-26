@@ -19,6 +19,7 @@
 #include "domXPath.h"
 #include "xml6.h"
 #include "xml6_node.h"
+#include "xml6_ns.h"
 #include "xml6_nodeset.h"
 #include "xml6_ref.h"
 
@@ -127,8 +128,6 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
                 if (doc == NULL)
                     valuePush(ctxt, xmlXPathNewNodeSet(NULL));
                 else {
-                    /* TODO: use XPointer of HTML location for fragment ID */
-                    /* pbm #xxx can lead to location sets, not nodesets :-) */
                     valuePush(ctxt, xmlXPathNewNodeSet((xmlNodePtr) doc));
                 }
             }
@@ -140,6 +139,34 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
         xmlXPathFreeObject(obj2);
 }
 
+static xmlNodePtr _domNewItem(xmlNodePtr item) {
+    if (item != NULL) {
+        if (item->type == XML_NAMESPACE_DECL) {
+            item = (xmlNodePtr) xml6_ns_copy((xmlNsPtr)item);
+        }
+        else {
+            xml6_node_add_reference(item);
+        }
+    }
+    return item;
+}
+
+static void _domReferenceItem(xmlNodePtr item) {
+    if (item != NULL) {
+        if (item->type != XML_NAMESPACE_DECL) {
+            xml6_node_add_reference(item);
+        }
+    }
+}
+
+static void _domUnreferenceItem(xmlNodePtr item) {
+    if (item != NULL) {
+        if (item->type != XML_NAMESPACE_DECL) {
+            xml6_node_remove_reference(item);
+        }
+    }
+}
+
 // Node Sets don't support reference counting. They should
 // only be referenced once.
 DLLEXPORT void
@@ -147,80 +174,100 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
     int i;
 
     for (i = 0; i < self->nodeNr; i++) {
-        xmlNodePtr cur = self->nodeTab[i];
-
-        if (cur != NULL) {
-            if (cur->type != XML_NAMESPACE_DECL) {
-                xml6_node_add_reference(cur);
-            }
-        }
+        _domReferenceItem( self->nodeTab[i]);
     }
 }
 
-static xmlNsPtr _domDupNs(xmlNsPtr ns) {
-    xmlNsPtr dup = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
-    assert(dup != NULL);
-    memset(dup, 0, sizeof(xmlNs));
-    dup->type = XML_NAMESPACE_DECL;
-    if (ns->href != NULL)
-        dup->href = xmlStrdup(ns->href);
-    if (ns->prefix != NULL)
-        dup->prefix = xmlStrdup(ns->prefix);
-    dup->next = ns->next;
-    return dup;
-}
-
-
 DLLEXPORT void
-domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem) {
+domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr item) {
     assert(self != NULL);
-    assert(elem != NULL);
+    assert(item != NULL);
 
     if (self->nodeNr >= self->nodeMax) {
         xml6_nodeset_resize(self, self->nodeMax * 2);
     }
 
-    if (elem->type == XML_NAMESPACE_DECL) {
-        elem = (xmlNodePtr) _domDupNs( (xmlNsPtr) elem );
-    }
-    else {
-        xml6_node_add_reference(elem);
-    }
-
-    self->nodeTab[self->nodeNr++] = elem;
+    self->nodeTab[self->nodeNr++] = _domNewItem(item);
 }
 
 DLLEXPORT xmlNodeSetPtr
-domCreateNodeSetFromList(xmlNodePtr elem, int keep_blanks) {
+domCreateNodeSetFromList(xmlNodePtr item, int keep_blanks) {
     xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
-    int i = 0;
+    int n = 0;
     assert(rv != NULL);
-    while (elem != NULL) {
-        domPushNodeSet(rv, elem);
 
-        if (elem->type == XML_NAMESPACE_DECL) {
-            elem = (xmlNodePtr) ((xmlNsPtr) elem)->next;
+    while (item != NULL) {
+        if (n >= rv->nodeMax) {
+            xml6_nodeset_resize(rv, rv->nodeMax * 2);
+        }
+
+        rv->nodeTab[n++] = _domNewItem(item);
+
+        if (item->type == XML_NAMESPACE_DECL) {
+            item = (xmlNodePtr) ((xmlNsPtr) item)->next;
         }
         else {
-            elem = xml6_node_next(elem, keep_blanks);
+            item = xml6_node_next(item, keep_blanks);
         }
     }
-    rv->nodeNr = i;
+    rv->nodeNr = n;
 
     return rv;
 }
-
 
 DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self) {
     xmlNodePtr rv = NULL;
     assert(self != NULL);
     if (self->nodeNr > 0) {
         rv = self->nodeTab[--self->nodeNr];
-        if (rv->type != XML_NAMESPACE_DECL) {
-            xml6_node_remove_reference(rv);
-        }
+        _domUnreferenceItem(rv);
     }
     return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
+    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
+    int i;
+    xmlNodePtr prev = NULL;
+
+    assert(rv != NULL);
+
+    if (self != NULL) {
+
+        if (self->nodeNr > rv->nodeMax) {
+            xml6_nodeset_resize(rv, self->nodeNr);
+        }
+
+        for (i = 0; i < self->nodeNr; i++) {
+            rv->nodeTab[i] = self->nodeTab[i];
+        }
+        rv->nodeNr = self->nodeNr;
+    }
+
+    return rv;
+}
+
+static void
+_domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
+    xmlNodePtr twig = (xmlNodePtr) entry;
+    if (twig->type == XML_NAMESPACE_DECL) {
+        xmlNsPtr ns = (xmlNsPtr) twig;
+        ns->next = NULL;
+
+        if (ns->_private == NULL) {
+            // not referenced
+            xmlXPathNodeSetFreeNs(ns);
+        }
+        else {
+            // we're not reference counting xmlNs objects
+            xml6_warn("namespace node is inuse or private");
+        }
+    }
+    else {
+        if (domNodeIsReferenced(twig) == 0) {
+            xmlFreeNode(twig);
+        }
+    }
 }
 
 DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item) {
@@ -234,7 +281,8 @@ DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item) {
             self->nodeTab[i-1] = self->nodeTab[i];
         }
         else if (elem == item) {
-            xml6_node_remove_reference(elem);
+            _domUnreferenceItem(elem);
+            _domNodeSetDeallocator(elem, NULL);
             pos = i;
         }
     }
@@ -242,52 +290,6 @@ DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item) {
         self->nodeNr--;
     }
     return pos;
-}
-
-DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
-    xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
-    int i;
-
-    assert(rv != NULL);
-
-    if (self != NULL) {
-
-        if (self->nodeNr > rv->nodeMax) {
-            xml6_nodeset_resize(rv, self->nodeNr);
-        }
-
-        for (i = 0; i < self->nodeNr; i++) {
-            xmlNodePtr elem = self->nodeTab[i];
-            if (elem->type == XML_NAMESPACE_DECL) {
-                elem = (xmlNodePtr) _domDupNs( (xmlNsPtr) elem );
-            }
-            rv->nodeTab[i] = elem;
-            rv->nodeNr++;
-        }
-    }
-
-    return rv;
-}
-
-static void
-_domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
-    xmlNodePtr twig = (xmlNodePtr) entry;
-    if (twig->type == XML_NAMESPACE_DECL) {
-        xmlNsPtr ns = (xmlNsPtr) twig;
-        if (ns->_private == NULL) {
-            // not referenced
-            xmlXPathNodeSetFreeNs(ns);
-        }
-        else {
-            // sanity check for externally referenced namespaces. shouldn't really happen
-            xml6_warn("namespace node is inuse or private");
-        }
-    }
-    else {
-        if (domNodeIsReferenced(twig) == 0) {
-            xmlFreeNode(twig);
-        }
-    }
 }
 
 DLLEXPORT void
@@ -302,11 +304,12 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
         if (cur != NULL) {
             xmlNodePtr twig;
 
+            _domUnreferenceItem(cur);
+
             if (cur->type == XML_NAMESPACE_DECL) {
                 twig = cur;
             }
             else {
-                xml6_node_remove_reference(cur);
                 twig = xml6_node_find_root(cur);
             }
 

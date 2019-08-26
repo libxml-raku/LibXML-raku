@@ -205,13 +205,6 @@ class xmlNs is export is repr('CStruct') {
     has Pointer  $._private;   # application data
     has xmlDoc   $.context;    # normally an xmlDoc
 
-    method Reference is native(BIND-LIB) is symbol('xml6_ns_add_reference') {*}
-    method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_ns_remove_reference') {*}
-    method Unreference {
-        with self {
-            .Free if .remove-reference;
-        }
-    }
     method new(Str:D :$URI!, Str :$prefix, xmlElem :$node) {
         $node.NewNs($URI, $prefix);
     }

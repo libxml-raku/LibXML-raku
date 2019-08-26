@@ -503,9 +503,11 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
 
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr cur) {
-    if (cur == NULL) {
-        xml6_warn("unexpected null node");
-        return 0;
+    assert(cur != NULL);
+
+    if (cur->type == XML_NAMESPACE_DECL) {
+        // should we follow next links?
+        return ((xmlNsPtr) cur)->_private != NULL;
     }
 
     if (cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE|| cur->type == XML_DOCB_DOCUMENT_NODE) {
