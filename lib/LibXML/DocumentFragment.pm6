@@ -17,8 +17,10 @@ multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :native($)!) {}
 multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
     my xmlDoc:D $doc = .native with $doc-obj;
     my xmlDocFrag $doc-frag-struct .= new: :$doc;
-    self.native = $doc-frag-struct;
+    self.set-native: $doc-frag-struct;
 }
+
+method native { callsame() // xmlDocFrag }
 
 # The native DOM returns the document fragment content as
 # a nodelist; rather than the fragment itself

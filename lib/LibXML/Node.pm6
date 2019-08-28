@@ -19,7 +19,8 @@ class LibXML::Node does LibXML::Item {
 
     has LibXML::Node $.doc;
 
-    has anyNode $.native is rw handles <
+    has anyNode $.native;
+    method native handles <
         domCheck domFailure
         hasChildNodes
         getNodeName getNodeValue
@@ -28,7 +29,9 @@ class LibXML::Node does LibXML::Item {
         setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
         type
         unique-key lock unlock
-    >;
+    > {
+        with self { $!native } else { anyNode }
+    }
 
     BEGIN {
         # wrap methods that return raw nodes
@@ -52,6 +55,14 @@ class LibXML::Node does LibXML::Item {
                     $node.keep: $!native."$_"($node.native, do with $ref {.native} // anyNode);
                 });
         }
+    }
+
+    submethod TWEAK {
+        .Reference with $!native;
+    }
+
+    submethod DESTROY {
+        .Unreference with $!native;
     }
 
     method protect(&action) {
@@ -81,27 +92,14 @@ class LibXML::Node does LibXML::Item {
         $!native.appendText($text);
     }
 
-    method native is rw {
-        Proxy.new(
-            FETCH => { with self {$!native} else {anyNode} },
-            STORE => -> $, anyNode:D $new-struct {
-                given box-class($new-struct.type) -> $class {
-                    die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-                        unless $class ~~ self.WHAT;
-                }
-                unless $!native.defined && $!native.isSame($new-struct) {
-                    .Unreference with $!native;
-                    given $new-struct.delegate {
-                        .Reference;
-                        $!native = $_;
-                    }
-                }
-            },
-        );
-    }
-
-    submethod TWEAK {
-        .Reference with $!native;
+    method set-native(anyNode:D $new-struct) {
+        given box-class($new-struct.type) -> $class {
+            die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
+            unless $class ~~ self.WHAT;
+        }
+        .Reference with $new-struct;
+        .Unreference with $!native;
+        $!native = $new-struct.delegate;
     }
 
     method setOwnerDocument( LibXML::Node $doc) {
@@ -321,9 +319,6 @@ class LibXML::Node does LibXML::Item {
         $!native.Blob(:$enc, :$options);
     }
 
-    submethod DESTROY {
-        .Unreference with $!native;
-    }
 }
 
 =begin pod

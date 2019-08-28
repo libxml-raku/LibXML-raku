@@ -11,9 +11,10 @@ multi submethod TWEAK(LibXML::Node :doc($)!, xmlCDataNode:D :native($)!) { }
 multi submethod TWEAK(:doc($owner), Str :$content!) {
     my xmlDoc:D $doc = .native with $owner;
     my xmlCDataNode:D $cdata-struct .= new: :$content, :$doc;
-    self.native = $cdata-struct;
+    self.set-native: $cdata-struct;
 }
 
+method native { callsame() // xmlCDataNode }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod

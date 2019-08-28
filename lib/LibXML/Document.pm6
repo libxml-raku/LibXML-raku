@@ -14,7 +14,6 @@ use LibXML::ElementDecl;
 use LibXML::Attr;
 use LibXML::AttrDecl;
 use LibXML::Dtd;
-use LibXML::EntityDecl;
 use LibXML::EntityRef;
 use LibXML::Types :QName, :NCName;
 use LibXML::Parser::Context;
@@ -35,7 +34,7 @@ constant config = LibXML::Config;
 has LibXML::Parser::Context $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 
-method native is rw handles <encoding setCompression getCompression standalone URI> { callsame() }
+method native handles <encoding setCompression getCompression standalone URI> { callsame() }
 method doc { self }
 method input-compressed {
     with self.?ctx.native.?input.?buf.compressed {
@@ -50,13 +49,10 @@ submethod TWEAK(
                 Str  :$URI,
                 Bool :$html,
                 Int  :$compression,
-               ) {
-    my xmlDoc:D $struct = self.native //= do {
-        given ($html ?? htmlDoc !! xmlDoc).new {
-            .Reference;
-            $_;
-        }
-    }
+) {
+    my xmlDoc:D $struct = self.native
+        // self.set-native: ($html ?? htmlDoc !! xmlDoc).new;
+
     $struct.version = $_ with $version;
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;

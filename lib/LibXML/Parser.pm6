@@ -124,7 +124,7 @@ class LibXML::Parser {
             !! xmlMemoryParserCtxt.new: :$string;
 
             $ctx.input.filename = $_ with $URI;
-            $handler.native = $ctx;
+            $handler.set-native: $ctx;
             $ctx.ParseDocument;
         };
         self!publish: :$handler;
@@ -162,7 +162,7 @@ class LibXML::Parser {
                !! xmlFileParserCtxt.new(:$file);
             die "unable to load file: $file"
                 without $ctx;
-            $handler.native = $ctx;
+            $handler.set-native: $ctx;
             $ctx.ParseDocument;
         };
 
@@ -184,7 +184,7 @@ class LibXML::Parser {
             my parserCtxt $ctx = $html
                ?? htmlParserCtxt.new
                !! xmlParserCtxt.new;
-            $handler.native = $ctx;
+            $handler.set-native: $ctx;
             $native = $ctx.ReadFd($fd, $URI, $enc, $flags);
         };
 

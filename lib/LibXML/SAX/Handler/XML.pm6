@@ -14,7 +14,9 @@ class LibXML::SAX::Handler::XML
     use XML::Text;
     use NativeCall;
     use LibXML::Document;
+    use LibXML::EntityRef;
 
+    has LibXML::Document $!myDoc;
     has XML::Document $.doc;    # The document that we're really building
     has XML::Element  $!node;   # Current node
     has XML::Entity   $.entity; # Entity declarations
@@ -66,9 +68,4 @@ class LibXML::SAX::Handler::XML
             with $!node;
     }
 
-    method getEntity(Str $name) is sax-cb {
-        my $text = '&' ~ $name ~ ';';
-        .append: XML::Text.new(:$text)
-            with $!node;
-    }
 }

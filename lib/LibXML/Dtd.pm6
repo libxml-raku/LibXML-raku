@@ -48,7 +48,7 @@ class ValidContext {
 }
 
 method native handles <publicId systemId> {
-    nextsame;
+    callsame() // xmlDtd;
 }
 
 multi submethod TWEAK(xmlDtd:D :native($)!) { }
@@ -58,7 +58,7 @@ multi submethod TWEAK(
     Str :$external-id, Str :$system-id, ) {
     my xmlDoc $doc = .native with $owner;
     my xmlDtd:D $dtd-struct .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
-    self.native = $dtd-struct;
+    self.set-native($dtd-struct);
 }
 
 # for Perl 5 compat

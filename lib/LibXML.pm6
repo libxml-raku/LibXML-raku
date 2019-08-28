@@ -10,6 +10,7 @@ use LibXML::Comment;
 use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Element;
+use LibXML::Entity;
 use LibXML::Text;
 use LibXML::Native;
 use LibXML::Node::Set;

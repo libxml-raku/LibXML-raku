@@ -195,6 +195,7 @@ class xmlParserInput is repr('CStruct') is export {
 
     sub xmlNewIOInputStream(parserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
     sub xmlNewInputFromFile(parserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
+    method Free is native(LIB) is symbol('xmlFreeInputStream') {*}
 }
 
 class xmlNs is export is repr('CStruct') {
@@ -1037,7 +1038,7 @@ class xmlEntity is anyNode is export {
     }
     method Free is native(LIB) is symbol('xmlFreeEntity') {*}
     method create(Str:D :$name!, Str:D :$content!, Int :$type = XML_INTERNAL_GENERAL_ENTITY, Str :$external-id, Str :$internal-id) {
-        xml6_entity_create($name, $type, $content, $external-id, $internal-id, $content );
+        xml6_entity_create($name, $type, $external-id, $internal-id, $content );
     }
 }
 
@@ -1282,6 +1283,11 @@ class parserCtxt is export {
     method Reference is native(BIND-LIB) is symbol('xml6_parser_ctx_add_reference') {*}
     method remove-reference(--> int32) is native(BIND-LIB) is symbol('xml6_parser_ctx_remove_reference') {*}
     method Free is native(LIB) is symbol('xmlFreeParserCtxt') { * }
+    method Unreference {
+        with self {
+            .Free if .remove-reference;
+        }
+    }
 
     # SAX2 Handler callbacks
     #-- Document Properties --#

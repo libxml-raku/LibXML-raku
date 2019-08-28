@@ -22,15 +22,15 @@ multi submethod TWEAK(xmlElem:D :native($)!) { }
 multi submethod TWEAK(:doc($doc-obj), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
     my xmlDoc:D $doc = .native with $doc-obj;
     my xmlNs:D $ns = .native with $ns-obj;
-    self.native = xmlElem.new: :$name, :$doc, :$ns;
+    self.set-native: xmlElem.new( :$name, :$doc, :$ns );
 }
 
-method native is rw handles<
+method native handles<
         content
         getAttribute getAttributeNS getNamespaceDeclURI
         hasAttributes hasAttribute hasAttributeNS
         removeAttribute removeAttributeNS
-        > { callsame() }
+        > { callsame() // xmlElem }
 
 multi method new(QName:D $name, *%o) {
     self.new(:$name, |%o);

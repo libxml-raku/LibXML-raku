@@ -12,8 +12,10 @@ multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :native($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
     my xmlDoc $doc = .native with $owner;
     my xmlTextNode $text-struct .= new: :$content, :$doc;
-    self.native = $text-struct;
+    self.set-native($text-struct);
 }
+
+method native { callsame() // xmlTextNode }
 
 method content is rw handles<substr substr-rw> { $.native.content };
 

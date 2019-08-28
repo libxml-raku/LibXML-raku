@@ -11,9 +11,10 @@ multi submethod TWEAK(LibXML::Node :doc($)!, xmlCommentNode:D :native($)!) { }
 multi submethod TWEAK(LibXML::Node :doc($doc-obj), Str :$content!) {
     my xmlDoc:D $doc = .native with $doc-obj;
     my xmlCommentNode $comment-struct .= new: :$content, :$doc;
-    self.native = $comment-struct;
+    self.set-native: $comment-struct;
 }
 
+method native { callsame() // xmlCommentNode }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod

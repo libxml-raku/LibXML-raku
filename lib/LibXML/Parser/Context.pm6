@@ -15,37 +15,30 @@ class LibXML::Parser::Context {
     method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
     method suppress-errors { ?($!flags +& XML_PARSE_NOERROR) }
 
-    method native is rw {
-        Proxy.new(
-            FETCH => sub ($) { $!native },
-            STORE => sub ($, parserCtxt $native) {
-                with $!native {
-                    .Free if .remove-reference;
-                }
-                with $native {
-                    .Reference;
+    method native { $!native }
+    method set-native(parserCtxt $native) {
+        .Reference with $native;
+        .Unreference with $!native;
 
-                    .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
-                    .linenumbers = +?$!line-numbers;
-                    .SetStructuredErrorFunc: -> parserCtxt:D $ctx, xmlError:D $err {
-                        self.structured-error($err);
-                        $ctx.StopParser
-                            if $err.level ~~ XML_ERR_FATAL;
-                    };
-                    $!native = $_;
-                    $!native.sax = .native with $!sax-handler;
-                }
-            });
+        with $native {
+            .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
+            .linenumbers = +?$!line-numbers;
+            .SetStructuredErrorFunc: -> parserCtxt:D $ctx, xmlError:D $err {
+                self.structured-error($err);
+                $ctx.StopParser
+                    if $err.level ~~ XML_ERR_FATAL;
+            };
+            $!native = $_;
+            $!native.sax = .native with $!sax-handler;
         }
+    }
 
     submethod TWEAK(parserCtxt :$native) {
-        self.native = $_ with $native;
+        self.set-native($_) with $native;
     }
 
     submethod DESTROY {
-        with $!native {
-            .Free if .remove-reference;
-        }
+        .Unreference with $!native;
     }
 
     method try(&action, Bool :$recover is copy, Bool :$check-valid) {

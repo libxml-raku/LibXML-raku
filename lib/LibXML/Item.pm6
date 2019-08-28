@@ -28,7 +28,7 @@ sub box-class(UInt $_) is export(:box-class) {
        | XML_HTML_DOCUMENT_NODE { require LibXML::Document }
     when XML_ELEMENT_NODE       { require LibXML::Element }
     when XML_ELEMENT_DECL       { require LibXML::ElementDecl }
-    when XML_ENTITY_DECL        { require LibXML::EntityDecl }
+    when XML_ENTITY_DECL        { require LibXML::Entity }
     when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
     when XML_NAMESPACE_DECL     { require LibXML::Namespace }
     when XML_PI_NODE            { require LibXML::PI }

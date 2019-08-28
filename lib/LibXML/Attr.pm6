@@ -11,11 +11,11 @@ multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :native($)!) {
 }
 multi submethod TWEAK(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!) {
     my xmlDoc $doc = .native with $doc-obj;
-    self.native = xmlAttr.new: :$name, :$value, :$doc;
+    self.set-native: xmlAttr.new( :$name, :$value, :$doc );
 }
 
 method native handles <atype isId name serializeContent> {
-    nextsame;
+    callsame() // xmlAttr;
 }
 
 method value is rw { $.nodeValue }

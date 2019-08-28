@@ -2,6 +2,9 @@ class LibXML::SAX::Builder {
     use LibXML::Native;
     use NativeCall;
 
+    use LibXML::Node;
+    use LibXML::Entity;
+
     my role is-sax-cb {
     }
     multi trait_mod:<is>(Method $m, :sax-cb($)!) is export(:sax-cb) {
@@ -70,21 +73,22 @@ class LibXML::SAX::Builder {
             -> $obj, &callb {
                 sub (parserCtxt $ctx --> UInt) {
                     CATCH { default { handle-error($ctx, $_, :ret(UInt)) } }
-                    callb($obj, :$ctx);
+                    my UInt $ := callb($obj, :$ctx);
                 }
         },
         'resolveEntity' =>
             -> $obj, &callb {
                 sub (parserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, :$ctx, :$public-id, :$system-id);
+                    my xmlParserInput $ := callb($obj, :$ctx, :$public-id, :$system-id);
                 }
         },
         'getEntity' =>
             -> $obj, &callb {
                 sub (parserCtxt $ctx, Str $name --> xmlEntity) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, :$ctx);
+                    my LibXML::Entity $ent := callb($obj, $name, :$ctx);
+                    $ent.native;
                 }
         },
         'entityDecl' =>

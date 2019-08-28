@@ -5,7 +5,7 @@ use LibXML::Native::Dict;
 has xmlDict $!native;
 
 multi submethod TWEAK(xmlDict:D :$!native!) { $!native.Reference }
-multi submethod TWEAK is default { $!native .= new; }
+multi submethod TWEAK is default { $!native .= new; $!native.Reference }
 
 submethod DESTROY {
     .Unreference with $!native;
