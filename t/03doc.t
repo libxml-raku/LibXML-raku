@@ -619,7 +619,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
        ok(1, ' TODO : Add test name');
     }
     {
-       my $doc=LibXML.new.parse: :string('<foo xmlns:x="http://foo.bar"/>');
+       my $doc=LibXML.parse: :string('<foo xmlns:x="http://foo.bar"/>');
        my $x=$doc.createAttributeNS('http://foo.bar','x:foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
@@ -631,7 +631,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
       # valgrind this
       my $object=LibXML::Element.new( :name<object> );
       my $xml = qq{<?xml version="1.0" encoding="UTF-8"?>\n<lom/>};
-      my $lom_doc=LibXML.new.parse: :string($xml);
+      my $lom_doc=LibXML.parse: :string($xml);
       my $lom_root=$lom_doc.getDocumentElement();
       $object.appendChild( $lom_root );
       # TEST
@@ -643,7 +643,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
   my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 <test/>
 };
-  my $dom = LibXML.new.parse: :string($xml);
+  my $dom = LibXML.parse: :string($xml);
   # TEST
   is($dom.encoding, "UTF-8", 'Document encoding');
   $dom.encoding = Nil;
@@ -666,7 +666,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         my $string = ($xml-header, $xml-root, '').join: "\n";
 
         my Blob $buf = $string.encode: $enc;
-        my $dom = LibXML.new.parse: :$buf;
+        my $dom = LibXML.parse: :$buf;
         
         # TEST:$c++;
         is $dom.encoding, $enc, "$enc encoding";
@@ -695,16 +695,16 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 subtest 'compress' => {
     plan 5;
     use File::Temp;
-    my LibXML::Document:D $doc = LibXML.load: :file( "example/test.xml" );
+    my LibXML::Document:D $doc = LibXML.parse: :file( "example/test.xml" );
     is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';
     if LibXML.have-compression {
-        lives-ok { $doc = LibXML.load: :file<test/compression/test.xml.gz> }, 'load compressed document';
+        lives-ok { $doc = LibXML.parse: :file<test/compression/test.xml.gz> }, 'load compressed document';
         is-deeply $doc.input-compressed, True, 'document input-compression';
         $doc.compression = 5;
         is $doc.compression, 5, 'set document compression';
         my (Str:D $file) = tempfile();
         my $n = $doc.write: :$file;
-        $doc = LibXML.load: :$file;
+        $doc = LibXML.parse: :$file;
         is-deeply $doc.input-compressed , True, 'compression of written document';
     }
     else {

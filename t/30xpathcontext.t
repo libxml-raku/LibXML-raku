@@ -5,7 +5,7 @@ use LibXML;
 use LibXML::XPath::Context;
 use LibXML::XPath::Expression;
 
-my $doc = LibXML.new.parse: :string(q:to<XML>);
+my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b"></bar></foo>
 XML
 
@@ -64,7 +64,7 @@ is(LibXML::XPath::Context.new(:$doc).find('1*3'), 3, ' TODO : Add test name');
 
 is(LibXML::XPath::Context.new(:$doc).find('1=1'), True, ' TODO : Add test name');
 
-my $doc1 = LibXML.new.parse: :string(q:to<XML>);
+my $doc1 = LibXML.parse: :string(q:to<XML>);
 <foo xmlns="http://example.com/foobar"><bar a="b"></bar></foo>
 XML
 
@@ -118,7 +118,7 @@ ok($xc.getContextNode.isSameNode($doc1.getDocumentElement), 'Context node is doc
 ok($xc.findnodes('.').pop.isSameNode($doc1.getDocumentElement), 'First node is document element');
 
 # test xpath context preserves the document
-$doc = LibXML.new.parse: :string(q:to<XML>);
+$doc = LibXML.parse: :string(q:to<XML>);
 <foo/>
 XML
 my $xc2 = LibXML::XPath::Context.new( :$doc );
@@ -126,7 +126,7 @@ my $xc2 = LibXML::XPath::Context.new( :$doc );
 is($xc2.findnodes('//*').pop.nodeName, 'foo', 'First node is root node');
 
 # test xpath context preserves context node
-my $doc2 = LibXML.new.parse: :string(q:to<XML>);
+my $doc2 = LibXML.parse: :string(q:to<XML>);
 <foo><bar/></foo>
 XML
 my $xc3 = LibXML::XPath::Context.new(node => $doc2.getDocumentElement);
@@ -175,7 +175,7 @@ ok($xc4.getContextNode.isSameNode($doc2.getDocumentElement), ' TODO : Add test n
 
 my $xc5 = LibXML::XPath::Context.new();
 $xc5.registerNs('pfx', 'http://www.foo.com');
-$doc = LibXML.new.parse: :string('<foo xmlns="http://www.foo.com" />');
+$doc = LibXML.parse: :string('<foo xmlns="http://www.foo.com" />');
 $xc5.setContextNode($doc);
 $xc5.findnodes('/');
 dies-ok {$xc5.setContextNode($doc2)}, 'changing document is not supported';

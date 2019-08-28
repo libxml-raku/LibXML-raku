@@ -9,7 +9,7 @@ use LibXML::Enums;
 plan 11;
 
 try {
-    LibXML.new.parse: :string(
+    LibXML.parse: :string(
 '<foo attr1="value1" attr2="value2" attr3="value2" attr4="value2"'
 ~ ' attr5="value2" attr6="value2" attr7="value2" attr8="value2"'
 ~ ' attr9="value2" attr10="value2" attr11="value2" attr12="value2"'

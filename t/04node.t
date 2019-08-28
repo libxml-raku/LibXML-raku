@@ -388,7 +388,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
     # 2.3 DOM extensions
     {
         my $string = "<foo><bar/>com</foo>";
-        my $doc = LibXML.new.parse: :$string;
+        my $doc = LibXML.parse: :$string;
         my $elem= $doc.documentElement;
         # TEST
         is( $elem, '<foo><bar/>com</foo>', ' TODO : Add test name' );
@@ -635,10 +635,8 @@ my $doc    = $parser.parse: :string( $xmlstring );
 </r>
 EOF
 
-    # TEST:$count=2;
-    for $string -> $arg_to_parse
     {
-        my $doc = LibXML.load: :string($arg_to_parse);
+        my $doc = LibXML.load: :$string;
         my $r = $doc.getDocumentElement;
         # TEST*$count
         ok($r, ' TODO : Add test name');

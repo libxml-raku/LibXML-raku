@@ -102,9 +102,8 @@ class LibXML::Parser {
         $handler.try: { $doc.XIncludeProcessFlags($flags) }
     }
 
-    method load(|c) {
-        my $obj = do with self { .clone } else { .new };
-        $obj.parse(|c);
+    proto method parse(|c) is also<load> {
+        with self {return {*}} else { self.new.parse(|c) }
     }
 
     multi method parse(Str:D() :$string!,
@@ -113,8 +112,6 @@ class LibXML::Parser {
                        xmlEncodingStr :$enc = $!enc,
                        *%opts 
                       ) {
-
-        # gives better diagnositics
 
         my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
 
@@ -292,30 +289,30 @@ LibXML::Parser - Parsing XML Data with LibXML
   
   # Parsing XML
   
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       location => $file-or-url,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       file => $file-or-url,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       string => $xml-string,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       io => $perl-file-handle,
       # parser options ...
     );
   # dispatch to above depending on type
-  $dom = $parser.load($src ...);
+  $dom = $parser.parse($src ...);
   			  
   # Parsing HTML
   
-  $dom = LibXML.load(..., :html);
-  $dom = $parser.load(..., :html);
-  $parser.html = True; $parser.load(...);
+  $dom = LibXML.parse(..., :html);
+  $dom = $parser.parse(..., :html);
+  $parser.html = True; $parser.parse(...);
   			  
   # Parsing well-balanced XML chunks
   			       
@@ -370,19 +367,18 @@ interfaces:
 
 =head2 Creating a Parser Instance
 
-LibXML provides an OO interface to the libxml2 parser functions. Thus you have
-to create a parser instance before you can parse any XML data.
+LibXML provides an OO interface to the libxml2 parser functions.
 
 =begin item1
 new
 
   
   my LibXML $parser .= new();
-  my LibXML $parser .= new(option=>value, ...);
+  my LibXML $parser .= new: :$opt1, :$opt2, ...;
 
 Create a new XML and HTML parser instance. Each parser instance holds default
-values for various parser options. Optionally, one can pass a hash reference or
-a list of option => value pairs to set a different default set of options.
+values for various parser options. Optionally, one can pass options to override
+default.
 Unless specified otherwise, the options C<<<<<< load-ext-dtd >>>>>>, and C<<<<<< expand-entities >>>>>> are set to True. See L<<<<<< Parser Options >>>>>> for a list of libxml2 parser's options. 
 
 =end item1
@@ -403,45 +399,44 @@ invalid. To prevent this causing your program exiting, wrap the call in a
 try {} block
 
 =begin item1
-load
+parse
 
   my LibXML::Document::HTML $dom;
 
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       location => $file-or-url,
       :$html, :$URI, :$enc,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       string => $xml-string,
       :$html, :$URI, :$enc,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       io => $perl-path-or-file-handle,
       :$html, :$URI, :$enc,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       buf => $perl-blob-or-buf,
       :$html, :$URI, :$enc,
       # parser options ...
     );
-  $dom = LibXML.load(
+  $dom = LibXML.parse(
       fd => $file-descriptor-num,
       :$html, :$URI, :$enc,
       # parser options ...
     );
-  $dom = LibXML.load( $src, :$html, :$URI, :$enc,
+  $dom = LibXML.parse( $src, :$html, :$URI, :$enc,
       # parser options ...
   );
-  $dom = $parser.load(...);
+  $dom = $parser.parse(...);
   			  
 
 This function provides an interface
 to the XML parser that parses given file (or URL), string, or input stream to a
-DOM tree. The arguments can be passed in a HASH reference or as name => value
-pairs. The function can be called as a class method or an object method. In
+DOM tree. The function can be called as a class method or an object method. In
 both cases it internally creates a new parser instance passing the specified
 parser options; if called as an object method, it clones the original parser
 (preserving its settings) and additionally applies the specified options to the
@@ -450,12 +445,12 @@ new parser. See the constructor C<<<<<< new >>>>>> and L<<<<<< Parser Options >>
 =end item1
 
 =begin item1
-load: :html
+parse: :html
 
 
   use LibXML::Document :HTML;  
-  my HTML $dom = LibXML.load: :html, ...;
-  my HTML $dom = $parser.load: :html, ...;
+  my HTML $dom = LibXML.parse: :html, ...;
+  my HTML $dom = $parser.parse: :html, ...;
   			  
 
 The :html option provides an interface to the HTML parser.

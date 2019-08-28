@@ -271,10 +271,6 @@ method removeExternalSubset {
     LibXML::Dtd.box: self.native.removeExternalSubset;
 }
 
-method getElementById(Str:D $id --> LibXML::Node) is also< getElementsById> {
-    LibXML::Node.box: self.native.getElementById($id);
-}
-
 method externalSubset is rw {
     Proxy.new( FETCH => sub ($) { self.getExternalSubset },
                STORE => sub ($, LibXML::Dtd $dtd) {
@@ -283,16 +279,20 @@ method externalSubset is rw {
              );
 }
 
+method getElementById(Str:D $id --> LibXML::Node) is also< getElementsById> {
+    LibXML::Node.box: self.native.getElementById($id);
+}
+
 method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
     $valid-ctx.validate(:doc(self), :$dtd, :$check);
 }
 method is-valid(|c) { $.validate(:check, |c); }
 
-method parse(|c --> LibXML::Document) { (require ::('LibXML')).load(|c); }
+method parser handles<parse> { require LibXML::Parser; }
 
 method processXIncludes(|c) is also<process-xincludes> {
-    (require ::('LibXML::Parser')).new.processXIncludes(self, |c);
+    self.parser.new.processXIncludes(self, |c);
 }
 
 method serialize-html(Bool :$format = True) {

@@ -65,7 +65,7 @@ my $close_xml_counter = Counter.new(
 my $open_xml_counter = Counter.new(
     gen-cb => -> &inc-cb {
         -> $uri {
-            my $dom = LibXML.new.parse: :string(q{<?xml version="1.0"?><foo><tmp/>barbar</foo>});
+            my $dom = LibXML.parse: :string(q{<?xml version="1.0"?><foo><tmp/>barbar</foo>});
 
             with ($dom)
             {

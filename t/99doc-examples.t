@@ -245,7 +245,12 @@ subtest 'XML::LibXML::Element' => {
     $node.setNamespace( $nsURI , $nsPrefix, :$activate );
     $node.setNamespaceDeclURI( $nsPrefix, $newURI );
     $node.setNamespaceDeclPrefix( $nsPrefix, $newPrefix );
-    ok(1);
+
+    # verify detailed handling of namespaces, as documented for setAttributeNS
+    my $aname2 = 'ns2:att2';
+    my $avalue2 = 'my-val2';
+    $node.setAttributeNS( $nsURI, $aname2, $avalue2 );
+    is $node<@ns:att2>, $avalue2;
 }
 
 subtest 'XML::LibXML::InputCallback' => {
@@ -674,8 +679,8 @@ subtest 'LibXML::XPath::Context' => {
             return $data{$name};
         }
 
-        my $areas = LibXML.new.parse: :file('example/article.xml');
-        my $empl = LibXML.new.parse: :file('example/test.xml');
+        my $areas = LibXML.parse: :file('example/article.xml');
+        my $empl = LibXML.parse: :file('example/test.xml');
   
         my $xc = LibXML::XPath::Context.new(node => $empl);
   

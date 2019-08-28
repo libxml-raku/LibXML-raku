@@ -5,7 +5,7 @@ use LibXML;
 use LibXML::XPath::Context;
 use LibXML::Enums;
 
-my $doc = LibXML.new.parse: :string(q:to<XML>);
+my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>
 XML
 

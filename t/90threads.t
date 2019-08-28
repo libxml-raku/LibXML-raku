@@ -44,7 +44,7 @@ EOF
 
 
 {
-    my X::LibXML::Parser:D @err = blat { try { LibXML.new.parse: :string('foo'); } for 1..100; $! };
+    my X::LibXML::Parser:D @err = blat { try { LibXML.parse: :string('foo'); } for 1..100; $! };
     is @err.elems, MAX_THREADS, 'parse errors';
     ok(1, "XML error");
 }

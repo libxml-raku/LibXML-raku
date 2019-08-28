@@ -108,6 +108,8 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
         my Str:D $name := $<name>.Str;
         my Str $href;
         with $<pfx> {
+            fail "'xmlns' prefix is reserved"
+                when $_ eq 'xmlns';
             $href = $ctx.lookupNs(.Str)
                 // fail "unknown namespace prefix $_";
         }

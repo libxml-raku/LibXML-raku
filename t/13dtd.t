@@ -38,7 +38,7 @@ ok($dtdstr, "DTD String read");
     my $dtd = LibXML::Dtd.parse: :string($dtdstr);
     # TEST
     ok($dtd, '.parse_string 2');
-    my $xml = LibXML.load: :file('example/article.xml');
+    my $xml = LibXML.parse: :file('example/article.xml');
     # TEST
     ok($xml, 'parse the article.xml file');
     # TEST
@@ -52,7 +52,7 @@ ok($dtdstr, "DTD String read");
     my $dtd = LibXML::Dtd.parse: :string($dtdstr);
     # TEST
     ok($dtd, '.parse_string 3');
-    my $xml = LibXML.new.parse: :file('example/article_bad.xml');
+    my $xml = LibXML.parse: :file('example/article_bad.xml');
     # TEST
     ok(!$xml.is-valid($dtd), 'invalid XML');
     dies-ok {

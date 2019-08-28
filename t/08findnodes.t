@@ -88,7 +88,7 @@ ok( $dom, ' TODO : Add test name' );
 # test to make sure that multiple array findnodes() returns
 # don't segfault perl; it'll happen after the second one if it does
 for (0..3) {
-    my $doc = LibXML.new.parse: :string(
+    my $doc = LibXML.parse: :string(
 '<?xml version="1.0" encoding="UTF-8"?>
 <?xsl-stylesheet type="text/xsl" href="a.xsl"?>
 <a />');

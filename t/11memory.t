@@ -191,7 +191,7 @@ use LibXML;
             my $xml;
             try {
                 quietly {
-                    $xml = LibXML.new.parse: :file('example/article_bad.xml');
+                    $xml = LibXML.parse: :file('example/article_bad.xml');
                 }
             };
             for ( 1..TIMES_THROUGH ) {
@@ -242,7 +242,7 @@ dromeds.xml
         {
             # my $str = "<foo><bar><foo/></bar></foo>";
             my $str = $xml;
-            my $doc = LibXML.new.parse: :string( $str );
+            my $doc = LibXML.parse: :string( $str );
             for ( 1..TIMES_THROUGH ) {
                  processMessage($xml, '/dromedaries/species' );
 #                my @nodes = $doc.findnodes("/foo/bar/foo");
@@ -255,7 +255,7 @@ dromeds.xml
 
         {
             my $str = "<foo><bar><foo/></bar></foo>";
-            my $doc = LibXML.new.parse: :string( $str );
+            my $doc = LibXML.parse: :string( $str );
             for ( 1..TIMES_THROUGH ) {
                 my $nodes = $doc.find("/foo/bar/foo");
             }

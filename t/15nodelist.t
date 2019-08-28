@@ -7,7 +7,7 @@ use LibXML;
 # TEST
 ok(1, ' TODO : Add test name');
 
-my $dom = LibXML.new.parse: :string(data());
+my $dom = LibXML.parse: :string(data());
 
 # TEST
 ok($dom, ' TODO : Add test name');

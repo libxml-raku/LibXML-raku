@@ -4,8 +4,6 @@ plan 1;
 
 use LibXML;
 
-# LibXML.load_catalog( "example/catalog.xml" );
-
 # the following document should not be able to get parsed
 # if the catalog is not available
 

@@ -42,7 +42,7 @@ $xo .= coerce('Zsófia');
 is $xo.type, +XPATH_STRING;
 is $xo.select, 'Zsófia';
 
-my LibXML::Document $doc = LibXML.load: :string("<a><b/><c/><d/></a>");
+my LibXML::Document $doc = LibXML.parse: :string("<a><b/><c/><d/></a>");
 my LibXML::Node::Set:D $nodes = $doc.find('*/*');
 is $nodes.size, 3;
 

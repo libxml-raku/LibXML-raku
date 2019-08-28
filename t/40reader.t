@@ -108,7 +108,7 @@ for :$fd, :$io -> Pair:D $how {
 
 # DOM
 {
-  my LibXML::Document:D $DOM = LibXML.new.parse: :file($file);
+  my LibXML::Document:D $DOM = LibXML.parse: :file($file);
   my $reader = LibXML::Reader.new(:$DOM);
   isa-ok($reader, "LibXML::Reader");
   $reader.read;
@@ -291,7 +291,7 @@ EOF
     is($matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,');
   }
   {
-    my $dom = LibXML.new.parse: :string($xml);
+    my $dom = LibXML.parse: :string($xml);
     ok($dom);
     my $matches='';
     for $dom.findnodes('//node()|@*') -> $node {

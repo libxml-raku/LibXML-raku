@@ -169,7 +169,7 @@ print "# 6. lossless setting of namespaces with setAttribute\n";
 
 print "# 7. namespaced attributes\n";
 {
-    my $doc = LibXML.new.parse: :string(q:to<EOF>);
+    my $doc = LibXML.parse: :string(q:to<EOF>);
 <test xmlns:xxx="http://example.com"/>
 EOF
     my $root = $doc.getDocumentElement();
@@ -537,10 +537,10 @@ print "# 9. namespace reconciliation\n";
 
 print "# 10. xml namespace\n";
 {
-    my $docOne = LibXML.new.parse: :string(
+    my $docOne = LibXML.parse: :string(
         '<foo><inc xml:id="test"/></foo>'
     );
-    my $docTwo = LibXML.new.parse: :string(
+    my $docTwo = LibXML.parse: :string(
         '<bar><urgh xml:id="foo"/></bar>'
     );
 

@@ -5,7 +5,7 @@ use LibXML;
 use LibXML::Document;
 use LibXML::XPath::Context;
 
-my $doc = LibXML.new.parse: :string(q:to<XML>);
+my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>
 XML
 # TEST
@@ -125,7 +125,7 @@ my ($test_node) = $xc.findnodes('new-foo()');
 
 $xc.registerFunction('new-chunk',
 		      sub {
-			    LibXML.new.parse(:string('<x><y><a/><a/></y><y><a/></y></x>')).find('//a');
+			    LibXML.parse(:string('<x><y><a/><a/></y><y><a/></y></x>')).find('//a');
 		      });
 # TEST
 

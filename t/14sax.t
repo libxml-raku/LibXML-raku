@@ -106,7 +106,7 @@ my $parser;
     ok($sax, ' TODO : Add test name');
 
     my $str = "example/dromeds.xml".IO.slurp;
-    my $doc = LibXML.new.parse: :string($str);
+    my $doc = LibXML.parse: :string($str);
     # TEST
     ok($doc, ' TODO : Add test name');
 
@@ -484,7 +484,7 @@ sub fatal_error {
 
 sub start_element {
     # test if we can do other stuff
-    LibXML.new.parse_string("<foo/>");
+    LibXML.parse_string("<foo/>");
     return;
 }
 sub new {

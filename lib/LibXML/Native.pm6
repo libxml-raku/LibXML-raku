@@ -28,19 +28,20 @@ my subset xmlEncodingStr of Str is export where {!.defined || xmlFindCharEncodin
 # forward declarations
 class anyNode        is repr('CStruct') is export {...}
 class itemNode       is repr('CStruct') is export {...}
+class xmlAttr        is repr('CStruct') is export {...}
+class xmlDtd         is repr('CStruct') is export {...}
 class xmlDoc         is repr('CStruct') is export {...}
 class xmlDocFrag     is repr('CStruct') is export {...}
 class xmlElem        is repr('CStruct') is export {...}
+class xmlEntity      is repr('CStruct') is export {...}
 class xmlError       is repr('CStruct') is export {...}
 class xmlNode        is repr('CStruct') is export {...}
 class xmlNodeSet     is repr('CStruct') is export {...}
-class xmlAttr        is repr('CStruct') is export {...}
-class xmlDtd         is repr('CStruct') is export {...}
+
+class xmlParserCtxt  is repr('CStruct') is export {...}
 class xmlXPathParserContext
                      is repr('CStruct') is export { ...}
 class xmlXPathObject is repr('CStruct') is export {...}
-class xmlParserCtxt  is repr('CStruct') is export {...}
-class xmlEntity      is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
 class xmlAutomata is repr(Stub) is export {}
@@ -1051,7 +1052,7 @@ class xmlElementDecl is repr('CStruct') is anyNode is export {
 }
 
 # itemNodes are xmlNodeSet members; which can be either anyNode or xmlNs objects.
-# These have distinct structs, but can be distinguish from 'type', the second field
+# These have distinct structs, but have the second field, 'type' in common
 class itemNode is export {
     has Pointer $._; # first field depends on type
     has int32 $.type;
@@ -1345,7 +1346,9 @@ class xmlFileParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 class xmlPushParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 
     sub xmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path --> xmlPushParserCtxt) is native(LIB) {*};
-    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path) }
+    method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path) {
+        xmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path);
+    }
     method ParseChunk(Blob $chunk, int32 $size, int32 $terminate --> int32) is native(LIB) is symbol('xmlParseChunk') {*};
 };
 
