@@ -15,7 +15,7 @@ my %atts-seen;
 
 # 1. RAW Native SAX Handler
 
-sub startElement(parserCtxt $ctx, Str $name, CArray[Str] $atts) {
+sub startElement(xmlParserCtxt $ctx, Str $name, CArray[Str] $atts) {
     @start-tags.push: $name;
     my $i = 0;
     loop {
@@ -26,7 +26,7 @@ sub startElement(parserCtxt $ctx, Str $name, CArray[Str] $atts) {
     
 }
 
-sub endElement(parserCtxt $ctx, Str $name) {
+sub endElement(xmlParserCtxt $ctx, Str $name) {
     @end-tags.push: $name;
 }
 

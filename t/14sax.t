@@ -355,17 +355,17 @@ class SAXTester
     use NativeCall;
     use LibXML::SAX::Builder :sax-cb;
 
-    method startDocument(parserCtxt :$ctx!, |) is sax-cb {
+    method startDocument(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
         $SAXTester_start_document_counter.cb.()
     }
 
-    method endDocument(parserCtxt :$ctx!, |) is sax-cb {
+    method endDocument(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
         $SAXTester_end_document_counter.cb.()
     }
 
-    method startElement(parserCtxt :$ctx!, |) is sax-cb {
+    method startElement(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
         with $ctx.node {
             my LibXML::Node $node .= box($_);
@@ -373,7 +373,7 @@ class SAXTester
         }
     }
 
-    method endElement(parserCtxt :$ctx!, |) is sax-cb {
+    method endElement(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
     }
 }
@@ -384,7 +384,7 @@ class  SAXNSTester
 
     use LibXML::SAX::Builder :sax-cb;
 
-    method startElementNs($name, parserCtxt :$ctx!, |c) is sax-cb {
+    method startElementNs($name, xmlParserCtxt :$ctx!, |c) is sax-cb {
         callsame;
         with $ctx.node {
             my LibXML::Node $node .= box($_);
@@ -392,7 +392,7 @@ class  SAXNSTester
         }
     }
 
-    method endElementNs(parserCtxt :$ctx!, |) is sax-cb {
+    method endElementNs(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
    }
 

@@ -79,7 +79,7 @@ class LibXML::Parser {
         $flags;
     }
 
-    method !make-handler(parserCtxt :$native, *%opts) {
+    method !make-handler(xmlParserCtxt :$native, *%opts) {
         my UInt $flags = self.get-flags(|%opts);
         LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
@@ -119,7 +119,7 @@ class LibXML::Parser {
         my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
 
         $handler.try: {
-            my parserCtxt:D $ctx = $html
+            my xmlParserCtxt:D $ctx = $html
             ?? htmlMemoryParserCtxt.new: :$string
             !! xmlMemoryParserCtxt.new: :$string;
 
@@ -137,7 +137,7 @@ class LibXML::Parser {
                        *%opts,
                       ) {
 
-        my parserCtxt:D $ctx = $html
+        my xmlParserCtxt:D $ctx = $html
            ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
            !! xmlMemoryParserCtxt.new(:$buf);
 
@@ -157,7 +157,7 @@ class LibXML::Parser {
         my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
 
         $handler.try: {
-            my parserCtxt $ctx = $html
+            my xmlParserCtxt $ctx = $html
                ?? htmlFileParserCtxt.new(:$file, :$enc)
                !! xmlFileParserCtxt.new(:$file);
             die "unable to load file: $file"
@@ -181,7 +181,7 @@ class LibXML::Parser {
         my xmlDoc $native;
 
         $handler.try: {
-            my parserCtxt $ctx = $html
+            my xmlParserCtxt $ctx = $html
                ?? htmlParserCtxt.new
                !! xmlParserCtxt.new;
             $handler.set-native: $ctx;

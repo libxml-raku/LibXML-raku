@@ -26,22 +26,21 @@ sub xmlFindCharEncodingHandler(Str --> xmlCharEncodingHandler) is export is nati
 my subset xmlEncodingStr of Str is export where {!.defined || xmlFindCharEncodingHandler($_).defined}
 
 # forward declarations
-class anyNode    is repr('CStruct') is export {...}
-class itemNode   is repr('CStruct') is export {...}
-class xmlDoc     is repr('CStruct') is export {...}
-class xmlDocFrag is repr('CStruct') is export {...}
-class xmlElem    is repr('CStruct') is export {...}
-class xmlError   is repr('CStruct') is export {...}
-class xmlNode    is repr('CStruct') is export {...}
-class xmlNodeSet is repr('CStruct') is export {...}
-class xmlAttr    is repr('CStruct') is export {...}
-class xmlDtd     is repr('CStruct') is export {...}
+class anyNode        is repr('CStruct') is export {...}
+class itemNode       is repr('CStruct') is export {...}
+class xmlDoc         is repr('CStruct') is export {...}
+class xmlDocFrag     is repr('CStruct') is export {...}
+class xmlElem        is repr('CStruct') is export {...}
+class xmlError       is repr('CStruct') is export {...}
+class xmlNode        is repr('CStruct') is export {...}
+class xmlNodeSet     is repr('CStruct') is export {...}
+class xmlAttr        is repr('CStruct') is export {...}
+class xmlDtd         is repr('CStruct') is export {...}
 class xmlXPathParserContext
-                 is repr('CStruct') is export { ...}
-class xmlXPathObject
-                 is repr('CStruct') is export {...}
-class parserCtxt is repr('CStruct') is export {...}
-class xmlEntity  is repr('CStruct') is export {...}
+                     is repr('CStruct') is export { ...}
+class xmlXPathObject is repr('CStruct') is export {...}
+class xmlParserCtxt  is repr('CStruct') is export {...}
+class xmlEntity      is repr('CStruct') is export {...}
 
 # Opaque/stubbed structs
 class xmlAutomata is repr(Stub) is export {}
@@ -193,8 +192,8 @@ class xmlParserInput is repr('CStruct') is export {
     has int32                     $.standalone;  # Was that entity marked standalone
     has int32                     $.id;          # a unique identifier for the entity
 
-    sub xmlNewIOInputStream(parserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
-    sub xmlNewInputFromFile(parserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
+    sub xmlNewIOInputStream(xmlParserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
+    sub xmlNewInputFromFile(xmlParserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
     method Free is native(LIB) is symbol('xmlFreeInputStream') {*}
 }
 
@@ -236,19 +235,19 @@ class xmlNs is export is repr('CStruct') {
 
 class xmlSAXLocator is repr('CStruct') is export {
     has Pointer  $.getPublicId is rw-ptr(
-        method xml6_sax_locator_set_getPublicId( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
+        method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
     has Pointer $.getSystemId is rw-ptr(
-        method xml6_sax_locator_set_getSystemId( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
+        method xml6_sax_locator_set_getSystemId( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
     has Pointer $.getLineNumber is rw-ptr(
-        method xml6_sax_locator_set_getLineNumber( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
+        method xml6_sax_locator_set_getLineNumber( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
     has Pointer $.getColumnNumber is rw-ptr(
-        method xml6_sax_locator_set_getColumnNumber( &cb (parserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
+        method xml6_sax_locator_set_getColumnNumber( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-LIB) {*}
     );
 
     method init is native(LIB) is symbol('xml6_sax_locator_init') {*}
@@ -269,99 +268,99 @@ class xmlSAXHandler is repr('CStruct') is export {
     method native { self } # already native
 
     has Pointer   $.internalSubset is rw-ptr(
-        method xml6_sax_set_internalSubset( &cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_internalSubset( &cb (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.isStandalone is rw-ptr(
-        method xml6_sax_set_isStandalone( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_isStandalone( &cb (xmlParserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.hasInternalSubset is rw-ptr(
-        method xml6_sax_set_hasInternalSubset( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_hasInternalSubset( &cb (xmlParserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.hasExternalSubset is rw-ptr(
-        method xml6_sax_set_hasExternalSubset( &cb (parserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_hasExternalSubset( &cb (xmlParserCtxt $ctx --> int32) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.resolveEntity is rw-ptr(
-        method xml6_sax_set_resolveEntity( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id --> xmlParserInput) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_resolveEntity( &cb (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id --> xmlParserInput) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.getEntity is rw-ptr(
-        method xml6_sax_set_getEntity( &cb (parserCtxt $ctx, Str $name --> xmlEntity) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_getEntity( &cb (xmlParserCtxt $ctx, Str $name --> xmlEntity) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.entityDecl is rw-ptr(
-        method xml6_sax_set_entityDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_entityDecl( &cb (xmlParserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.notationDecl is rw-ptr(
-        method xml6_sax_set_notationDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_notationDecl( &cb (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.attributeDecl is rw-ptr(
         # todo xmlEnumeration $tree
-        method xml6_sax_set_attributeDecl( &cb (parserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_attributeDecl( &cb (xmlParserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.elementDecl is rw-ptr(
-        method xml6_sax_set_elementDecl( &cb (parserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_elementDecl( &cb (xmlParserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.unparsedEntityDecl is rw-ptr(
-        method xml6_sax_set_unparsedEntityDecl( &cb (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_unparsedEntityDecl( &cb (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.setDocumentLocator is rw-ptr(
-        method xml6_sax_set_setDocumentLocator( &cb (parserCtxt $ctx, xmlSAXLocator $loc) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_setDocumentLocator( &cb (xmlParserCtxt $ctx, xmlSAXLocator $loc) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.startDocument is rw-ptr(
-        method xml6_sax_set_startDocument( &cb (parserCtxt $ctx) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_startDocument( &cb (xmlParserCtxt $ctx) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.endDocument is rw-ptr(
-        method xml6_sax_set_endDocument( &cb (parserCtxt $ctx) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_endDocument( &cb (xmlParserCtxt $ctx) ) is native(BIND-LIB) {*}
     );
 
     has Pointer   $.startElement is rw-ptr(
-        method xml6_sax_set_startElement( &cb (parserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_startElement( &cb (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts) ) is native(BIND-LIB) {*}
     );
     
     has Pointer   $.endElement is rw-ptr(
-        method xml6_sax_set_endElement( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_endElement( &cb (xmlParserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.reference is rw-ptr(
-        method xml6_sax_set_reference( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_reference( &cb (xmlParserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.characters is rw-ptr(
-        method xml6_sax_set_characters( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_characters( &cb (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.ignorableWhitespace is rw-ptr(
-        method xml6_sax_set_ignorableWhitespace( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_ignorableWhitespace( &cb (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.processingInstruction is rw-ptr(
-        method xml6_sax_set_processingInstruction( &cb (parserCtxt $ctx, Str $target, Str $data) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_processingInstruction( &cb (xmlParserCtxt $ctx, Str $target, Str $data) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.comment is rw-ptr(
-        method xml6_sax_set_comment( &cb (parserCtxt $ctx, Str $value) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_comment( &cb (xmlParserCtxt $ctx, Str $value) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.warning is rw-ptr(
-        method xml6_sax_set_warning( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_warning( &cb (xmlParserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.error is rw-ptr(
-        method xml6_sax_set_error( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_error( &cb (xmlParserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.fatalError is rw-ptr(
-        method xml6_sax_set_fatalError( &cb (parserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_fatalError( &cb (xmlParserCtxt $ctx, Str $msg) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.getParameterEntity is rw-ptr(
-        method xml6_sax_set_getParameterEntity( &cb (parserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_getParameterEntity( &cb (xmlParserCtxt $ctx, Str $name) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.cdataBlock is rw-ptr(
-        method xml6_sax_set_cdataBlock( &cb (parserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_cdataBlock( &cb (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.externalSubset is rw-ptr(
-        method xml6_sax_set_externalSubset( &cb (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_externalSubset( &cb (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native(BIND-LIB) {*}
     );
     has uint32    $.initialized;
     has Pointer   $._private;
     has Pointer   $.startElementNs is rw-ptr(
-        method xml6_sax_set_startElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_startElementNs( &cb (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.endElementNs is rw-ptr(
-        method xml6_sax_set_endElementNs( &cb (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_endElementNs( &cb (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) ) is native(BIND-LIB) {*}
     );
     has Pointer   $.serror is rw-ptr(
-        method xml6_sax_set_serror( &cb (parserCtxt $ctx, xmlError $error) ) is native(BIND-LIB) {*}
+        method xml6_sax_set_serror( &cb (xmlParserCtxt $ctx, xmlError $error) ) is native(BIND-LIB) {*}
     );
 
     method xmlSAX2InitDefaultSAXHandler(int32 $warning) is native(LIB) {*}
@@ -387,7 +386,7 @@ class xmlError is export {
     has Str                    $.str3;      # extra string information
     has int32                  $.int1;      # extra number information
     has int32                  $.column;    # error column # or 0 if N/A
-    has parserCtxt             $.ctxt;      # the parser context if available
+    has xmlParserCtxt          $.ctxt;      # the parser context if available
     has anyNode                $.node;      # the node in the tree
     method Reset() is native(LIB) is symbol('xmlResetError') {*};
 }
@@ -1152,7 +1151,7 @@ class xmlValidCtxt is repr('CStruct') is export {
     }
 }
 
-class parserCtxt is export {
+class xmlParserCtxt is export {
     has xmlSAXHandler          $.sax is rw-ptr(       # The SAX handler
         method xml6_parser_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
     );
@@ -1274,9 +1273,14 @@ class parserCtxt is export {
     has int32                  $.input_id;     # we need to label inputs
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
+    sub xmlNewParserCtxt (--> xmlParserCtxt) is native(LIB) {*};
+    method new { xmlNewParserCtxt() }
+    method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(LIB) is symbol('xmlCtxtReadDoc') {*};
+    method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(LIB) is symbol('xmlCtxtReadFile') {*};
+    method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(LIB) is symbol('xmlCtxtReadFd') {*};
     method UseOptions(int32 --> int32) is native(LIB) is symbol('xmlCtxtUseOptions') { * }
-    method SetGenericErrorFunc( &error-func (parserCtxt $, Str $fmt, Pointer $arg)) is symbol('xmlSetGenericErrorFunc') is native(LIB) {*};
-    method SetStructuredErrorFunc( &error-func (parserCtxt $, xmlError $)) is native(LIB) is symbol('xmlSetStructuredErrorFunc') {*};
+    method SetGenericErrorFunc( &error-func (xmlParserCtxt $, Str $fmt, Pointer $arg)) is symbol('xmlSetGenericErrorFunc') is native(LIB) {*};
+    method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native(LIB) is symbol('xmlSetStructuredErrorFunc') {*};
     method GetLastError(--> xmlError) is native(LIB) is symbol('xmlCtxtGetLastError') is native('xml2') {*}
     method ParserError(Str $msg) is native(LIB) is symbol('xmlParserError') {*}
     method StopParser is native(LIB) is symbol('xmlStopParser') { * }
@@ -1329,23 +1333,8 @@ class parserCtxt is export {
     method xmlSAX2CDataBlock(Blob $chars, int32 $len) is native(LIB) {*};
 }
 
-class _htmlParserCtxt is parserCtxt is repr('CStruct') {
-    method myDoc { nativecast(htmlDoc, callsame) }
-    method UseOptions(int32 --> int32) is native(LIB) is symbol('htmlCtxtUseOptions') { * }
-}
-
-#| a vanilla XML parser context - can be used to read files or strings
-class xmlParserCtxt is parserCtxt is repr('CStruct') is export {
-
-    sub xmlNewParserCtxt (--> xmlParserCtxt) is native(LIB) {*};
-    method new { xmlNewParserCtxt() }
-    method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(LIB) is symbol('xmlCtxtReadDoc') {*};
-    method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(LIB) is symbol('xmlCtxtReadFile') {*};
-    method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(LIB) is symbol('xmlCtxtReadFd') {*};
-};
-
 # XML file parser context
-class xmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
+class xmlFileParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 
     sub xmlCreateFileParserCtxt(Str $file --> xmlFileParserCtxt) is native(LIB) {*};
     method ParseDocument(--> int32) is native(LIB) is symbol('xmlParseDocument') {*}
@@ -1353,7 +1342,7 @@ class xmlFileParserCtxt is parserCtxt is repr('CStruct') is export {
 }
 
 #| an incremental XML push parser context. Determines encoding and reads data in binary chunks
-class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
+class xmlPushParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 
     sub xmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path --> xmlPushParserCtxt) is native(LIB) {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path) { xmlCreatePushParserCtxt($sax-handler, $user-data, $chunk, $size, $path) }
@@ -1361,7 +1350,10 @@ class xmlPushParserCtxt is parserCtxt is repr('CStruct') is export {
 };
 
 #| a vanilla HTML parser context - can be used to read files or strings
-class htmlParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
+class htmlParserCtxt is xmlParserCtxt is repr('CStruct') is export {
+
+    method myDoc { nativecast(htmlDoc, callsame) }
+    method UseOptions(int32 --> int32) is native(LIB) is symbol('htmlCtxtUseOptions') { * }
 
     sub htmlNewParserCtxt(--> htmlParserCtxt) is native(LIB) {*};
     method new { htmlNewParserCtxt() }
@@ -1371,7 +1363,7 @@ class htmlParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
 };
 
 # HTML file parser context
-class htmlFileParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
+class htmlFileParserCtxt is htmlParserCtxt is repr('CStruct') is export {
 
     sub htmlCreateFileParserCtxt(Str $file, xmlEncodingStr $enc --> htmlFileParserCtxt) is native(LIB) {*};
     method ParseDocument(--> int32) is native(LIB) is symbol('htmlParseDocument') {*}
@@ -1379,7 +1371,7 @@ class htmlFileParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
 }
 
 #| an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
-class htmlPushParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
+class htmlPushParserCtxt is htmlParserCtxt is repr('CStruct') is export {
 
     sub htmlCreatePushParserCtxt(xmlSAXHandler $sax-handler, Pointer $user-data, Blob $chunk, int32 $size, Str $path, int32 $encoding --> htmlPushParserCtxt) is native(LIB) {*};
     method new(Blob :$chunk!, :$size = +$chunk, xmlSAXHandler :$sax-handler, Pointer :$user-data, Str :$path, xmlEncodingStr :$enc) {
@@ -1389,7 +1381,7 @@ class htmlPushParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
     method ParseChunk(Blob $chunk, int32 $size, int32 $terminate --> int32) is native(LIB) is symbol('htmlParseChunk') { *};
 };
 
-class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
+class xmlMemoryParserCtxt is xmlParserCtxt is repr('CStruct') is export {
     sub xmlCreateMemoryParserCtxt(Blob $buf, int32 $len --> xmlMemoryParserCtxt) is native(LIB) {*}
     method ParseDocument(--> int32) is native(LIB) is symbol('xmlParseDocument') {*}
     multi method new( Str() :$string! ) {
@@ -1401,7 +1393,7 @@ class xmlMemoryParserCtxt is parserCtxt is repr('CStruct') is export {
     }
 }
 
-class htmlMemoryParserCtxt is _htmlParserCtxt is repr('CStruct') is export {
+class htmlMemoryParserCtxt is htmlParserCtxt is repr('CStruct') is export {
     sub CreateStr(xmlCharP:D, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_parser_ctx_html_create_str') {*}
     sub CreateBuf(Blob:D, int32, xmlEncodingStr --> htmlMemoryParserCtxt) is native(BIND-LIB) is symbol('xml6_parser_ctx_html_create_buf') {*}
     method ParseDocument(--> int32) is native(LIB) is symbol('htmlParseDocument') {*}
@@ -1417,7 +1409,7 @@ sub xmlFree(Pointer) is native(LIB) is export { * }
 
 sub xmlGetLastError(--> xmlError) is export is native(LIB) { * }
 
-multi method GetLastError(parserCtxt:D $ctx) { $ctx.GetLastError() // $.GetLastError()  }
+multi method GetLastError(xmlParserCtxt:D $ctx) { $ctx.GetLastError() // $.GetLastError()  }
 multi method GetLastError { xmlGetLastError()  }
 
 ## Input callbacks

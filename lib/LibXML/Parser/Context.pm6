@@ -4,7 +4,7 @@ class LibXML::Parser::Context {
     use LibXML::Enums;
     use LibXML::ErrorHandler;
 
-    has parserCtxt $!native handles <wellFormed valid>;
+    has xmlParserCtxt $!native handles <wellFormed valid>;
     has uint32 $.flags;
     has Bool $.line-numbers;
     has $.input-callbacks;
@@ -16,14 +16,14 @@ class LibXML::Parser::Context {
     method suppress-errors { ?($!flags +& XML_PARSE_NOERROR) }
 
     method native { $!native }
-    method set-native(parserCtxt $native) {
+    method set-native(xmlParserCtxt $native) {
         .Reference with $native;
         .Unreference with $!native;
 
         with $native {
             .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
             .linenumbers = +?$!line-numbers;
-            .SetStructuredErrorFunc: -> parserCtxt:D $ctx, xmlError:D $err {
+            .SetStructuredErrorFunc: -> xmlParserCtxt:D $ctx, xmlError:D $err {
                 self.structured-error($err);
                 $ctx.StopParser
                     if $err.level ~~ XML_ERR_FATAL;
@@ -33,7 +33,7 @@ class LibXML::Parser::Context {
         }
     }
 
-    submethod TWEAK(parserCtxt :$native) {
+    submethod TWEAK(xmlParserCtxt :$native) {
         self.set-native($_) with $native;
     }
 
@@ -44,7 +44,7 @@ class LibXML::Parser::Context {
     method try(&action, Bool :$recover is copy, Bool :$check-valid) {
 
         my $obj = self;
-        $_ = .new: :native(parserCtxt.new)
+        $_ = .new: :native(xmlParserCtxt.new)
             without $obj;
 
         $recover //= $obj.recover;

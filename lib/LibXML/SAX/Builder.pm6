@@ -38,7 +38,7 @@ class LibXML::SAX::Builder {
             },
     );
 
-    sub handle-error(parserCtxt $ctx, Exception $err, :$ret) {
+    sub handle-error(xmlParserCtxt $ctx, Exception $err, :$ret) {
         with $ctx {
             .ParserError($err.message ~ "\n");
         }
@@ -51,7 +51,7 @@ class LibXML::SAX::Builder {
     my %SAXHandlerDispatch = %(
         'characters'|'ignorableWhitespace'|'cdataBlock' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, CArray[byte] $chars, int32 $len) {
+                sub (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     # ensure null termination
                     sub memcpy(Blob $dest, CArray $chars, size_t $n) is native {*};
@@ -64,28 +64,28 @@ class LibXML::SAX::Builder {
         },
         'internalSubset'|'externalSubset' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $name, Str $external-id, Str $system-id) {
+                sub (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $name, :$ctx, :$external-id, :$system-id);
                 }
         },
         'isStandalone'|'hasInternalSubset'|'hasExternalSubset' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx --> UInt) {
+                sub (xmlParserCtxt $ctx --> UInt) {
                     CATCH { default { handle-error($ctx, $_, :ret(UInt)) } }
                     my UInt $ := callb($obj, :$ctx);
                 }
         },
         'resolveEntity' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
+                sub (xmlParserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     my xmlParserInput $ := callb($obj, :$ctx, :$public-id, :$system-id);
                 }
         },
         'getEntity' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $name --> xmlEntity) {
+                sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     my LibXML::Entity $ent := callb($obj, $name, :$ctx);
                     $ent.native;
@@ -93,70 +93,70 @@ class LibXML::SAX::Builder {
         },
         'entityDecl' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $public-id, Str $system-id) {
+                sub (xmlParserCtxt $ctx, Str $public-id, Str $system-id) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, :$ctx, :$public-id, :$system-id);
                 }
         },
         'attributeDecl' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) {
+                sub (xmlParserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree);
                 }
         },
         'elementDecl' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
+                sub (xmlParserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $name, :$ctx, :$type, :$content);
                 }
         },
         'unparsedEntityDecl' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
+                sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $name, :$ctx, :$public-id, :$system-id, :$notation-name);
                 }
         },
         'setDocumentLocator' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, xmlSAXLocator $locator) {
+                sub (xmlParserCtxt $ctx, xmlSAXLocator $locator) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $locator, :$ctx);
                 }
         },
         'startDocument'|'endDocument' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx) {
+                sub (xmlParserCtxt $ctx) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, :$ctx);
                 }
         },
         'startElement' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $name, CArray[Str] $atts) {
+                sub (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $name, :$ctx, :$atts);
                 }
         },
         'endElement'|'reference'|'comment'|'getParameterEntity' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $text) {
+                sub (xmlParserCtxt $ctx, Str $text) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $text, :$ctx);
                 }
         },
         'warning'|'error'|'fatalError' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $text) {
+                sub (xmlParserCtxt $ctx, Str $text) {
                     CATCH { default { warn "unable to handle error: $_" } }
                     callb($obj, $text, :$ctx);
                 }
         },
         'processingInstruction' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $target, Str $data) {
+                sub (xmlParserCtxt $ctx, Str $target, Str $data) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $target, $data, :$ctx);
                 }
@@ -164,21 +164,21 @@ class LibXML::SAX::Builder {
         # Introduced with SAX2 
         'startElementNs' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts) {
+                sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts, :$ctx );
                 }
         },
         'endElementNs' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
+                sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $local-name, :$prefix, :$uri, :$ctx);
                 }
         },
         'serror' =>
             -> $obj, &callb {
-                sub (parserCtxt $ctx, xmlError $error) {
+                sub (xmlParserCtxt $ctx, xmlError $error) {
                     callb($obj, $error, :$ctx);
                 }
         },

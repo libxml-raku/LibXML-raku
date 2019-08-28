@@ -13,7 +13,7 @@ multi sub TWEAK(LibXML::Parser::Context :ctx($ctx-obj)!, Blob:D :$!buf, |c) {
 }
 
 multi sub TWEAK(LibXML::Parser::Context :ctx($ctx-obj)!, Str:D :$!filename, |c) {
-    my parserCtxt $ctx = $ctx-obj.native;
+    my xmlParserCtxt $ctx = $ctx-obj.native;
     $!native = xmlNewInputFromFile($ctx, $filename)
 }
 
