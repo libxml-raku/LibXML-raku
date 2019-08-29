@@ -3,17 +3,45 @@ class LibXML::Parser::Context {
     use LibXML::Native;
     use LibXML::Enums;
     use LibXML::ErrorHandler;
+    use LibXML::_Options;
 
     has xmlParserCtxt $!native handles <wellFormed valid>;
-    has uint32 $.flags;
+    has uint32 $.flags is rw = 0;
     has Bool $.line-numbers;
     has $.input-callbacks;
     has $.sax-handler;
     has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors is-valid> .= new;
 
-    method recover { ?($!flags +& XML_PARSE_RECOVER) }
-    method suppress-warnings { ?($!flags +& XML_PARSE_NOWARNING) }
-    method suppress-errors { ?($!flags +& XML_PARSE_NOERROR) }
+    our constant %Opts = %(
+        :clean-namespaces(XML_PARSE_NSCLEAN),
+        :complete-attributes(XML_PARSE_DTDATTR),
+        :dtd(XML_PARSE_DTDLOAD +| XML_PARSE_DTDVALID
+             +| XML_PARSE_DTDATTR +| XML_PARSE_NOENT),
+        :expand-entities(XML_PARSE_NOENT),
+        :expand-xinclude(XML_PARSE_XINCLUDE),
+        :huge(XML_PARSE_HUGE),
+        :load-ext-dtd(XML_PARSE_DTDLOAD),
+        :no-base-fix(XML_PARSE_NOBASEFIX),
+        :no-blanks(XML_PARSE_NOBLANKS),
+        :no-keep-blanks(XML_PARSE_NOBLANKS),
+        :no-cdata(XML_PARSE_NOCDATA),
+        :no-def-dtd(HTML_PARSE_NODEFDTD),
+        :no-network(XML_PARSE_NONET),
+        :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
+        :old10(XML_PARSE_OLD10),
+        :oldsax(XML_PARSE_OLDSAX),
+        :pedantic-parser(XML_PARSE_PEDANTIC),
+        :recover(XML_PARSE_RECOVER),
+        :recover-quietly(XML_PARSE_RECOVER +| XML_PARSE_NOWARNING),
+        :recover-silently(XML_PARSE_RECOVER +| XML_PARSE_NOERROR),
+        :suppress-errors(XML_PARSE_NOERROR),
+        :suppress-warnings(XML_PARSE_NOWARNING),
+        :validation(XML_PARSE_DTDVALID),
+        :xinclude(XML_PARSE_XINCLUDE),
+    );
+
+
+   also does LibXML::_Options[%Opts];
 
     method native { $!native }
     method set-native(xmlParserCtxt $native) {
@@ -75,4 +103,9 @@ class LibXML::Parser::Context {
         $rv;
     }
 
+    method FALLBACK($key, |c) is rw {
+        $.option-exists($key)
+        ?? $.option($key, |c)
+        !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
+    }
 }

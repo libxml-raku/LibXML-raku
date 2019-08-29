@@ -21,36 +21,11 @@ class LibXML::Parser {
     multi method input-callbacks($!input-callbacks) {}
 
     use LibXML::_Options;
-    also does LibXML::_Options[
-        %(
-            :URI, :html, :line-numbers, :sax-handler,
-            :input-callbacks, :enc,
-            :clean-namespaces(XML_PARSE_NSCLEAN),
-            :complete-attributes(XML_PARSE_DTDATTR),
-            :dtd(XML_PARSE_DTDLOAD +| XML_PARSE_DTDVALID
-                 +| XML_PARSE_DTDATTR +| XML_PARSE_NOENT),
-            :expand-entities(XML_PARSE_NOENT),
-            :expand-xinclude(XML_PARSE_XINCLUDE),
-            :huge(XML_PARSE_HUGE),
-            :load-ext-dtd(XML_PARSE_DTDLOAD),
-            :no-base-fix(XML_PARSE_NOBASEFIX),
-            :no-blanks(XML_PARSE_NOBLANKS),
-            :no-keep-blanks(XML_PARSE_NOBLANKS),
-            :no-cdata(XML_PARSE_NOCDATA),
-            :no-def-dtd(HTML_PARSE_NODEFDTD),
-            :no-network(XML_PARSE_NONET),
-            :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
-            :old10(XML_PARSE_OLD10),
-            :oldsax(XML_PARSE_OLDSAX),
-            :pedantic-parser(XML_PARSE_PEDANTIC),
-            :recover(XML_PARSE_RECOVER),
-            :recover-quietly(XML_PARSE_RECOVER +| XML_PARSE_NOWARNING),
-            :recover-silently(XML_PARSE_RECOVER +| XML_PARSE_NOERROR),
-            :suppress-errors(XML_PARSE_NOERROR),
-            :suppress-warnings(XML_PARSE_NOWARNING),
-            :validation(XML_PARSE_DTDVALID),
-            :xinclude(XML_PARSE_XINCLUDE),
-        )];
+    constant %Opts = %( flat %LibXML::Parser::Context::Opts,
+                        (:URI, :html, :line-numbers,
+                         :sax-handler, :input-callbacks, :enc,)
+                      );
+    also does LibXML::_Options[%Opts];
 
     # Perl 5 compat
     multi method recover is rw {
