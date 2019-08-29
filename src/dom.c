@@ -502,16 +502,32 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
 }
 
 DLLEXPORT int
-domNodeIsReferenced(xmlNodePtr cur) {
-    assert(cur != NULL);
+domNodeIsReferenced(xmlNodePtr self) {
+    xmlAttrPtr attr;
+    xmlNodePtr cur;
+    assert(self != NULL);
 
-    if (cur->type == XML_NAMESPACE_DECL) {
-        // should we follow next links?
-        return ((xmlNsPtr) cur)->_private != NULL;
+    // cheap checks
+    if (self->type == XML_NAMESPACE_DECL) {
+        return ((xmlNsPtr) self)->_private != NULL;
+    }
+    else {
+        if (self->_private != NULL) {
+            return 1;
+        }
     }
 
-    if (cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE|| cur->type == XML_DOCB_DOCUMENT_NODE) {
-        xmlDocPtr doc = (xmlDocPtr) cur;
+    if (self->type == XML_ELEMENT_NODE) {
+        // scan element attributes
+        for (attr = self->properties; attr != NULL; attr = attr->next) {
+            if (attr->type == XML_ATTRIBUTE_NODE && attr->_private != NULL) {
+                return 1;
+            }
+        }
+    }
+    else  if (self->type == XML_DOCUMENT_NODE || self->type == XML_HTML_DOCUMENT_NODE|| self->type == XML_DOCB_DOCUMENT_NODE) {
+        // scan document dtds
+        xmlDocPtr doc = (xmlDocPtr) self;
         if (doc->intSubset != NULL
             && domNodeIsReferenced((xmlNodePtr)doc->intSubset)) {
             return 1;
@@ -522,13 +538,13 @@ domNodeIsReferenced(xmlNodePtr cur) {
         }
     }
 
-    while (cur) {
+    // scan siblings and children
+    for (cur = self; cur != NULL; cur = cur->next) {
         xmlNodePtr kids = cur->children;
         if (cur->_private != NULL
             || (kids != NULL && domNodeIsReferenced(kids))) {
             return 1;
         }
-        cur = cur->next;
     }
 
     return 0;
