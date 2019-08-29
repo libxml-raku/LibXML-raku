@@ -95,7 +95,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
 =begin pod
 =head1 NAME
 
-LibXML::Node::Set - LibXML Class for Node Collections
+LibXML::Node::Set - LibXML Class for XPath Node Collections
 
 =head1 SYNOPSIS
 
@@ -107,6 +107,7 @@ LibXML::Node::Set - LibXML Class for Node Collections
   $node-set .= new;
   $node-set.push: $elem;
 
+  my LibXML::Item @items = $node-set;
   for $node-set -> LibXML::Item $item { ... }
   for 0 ..^ $node-set.elems { my $item = $node-set[$_]; ... }
 

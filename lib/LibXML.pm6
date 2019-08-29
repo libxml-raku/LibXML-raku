@@ -52,9 +52,7 @@ LibXML - Perl 6 bindings to the libxml2 native library
 
 This module is an interface to libxml2, providing XML and HTML parsers with
 DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and
-a XML::XPath-like interface to XPath API of libxml2. The module is split into
-several packages which are not described in this section; unless stated
-otherwise, you only need to C<<<<<< use XML::LibXML; >>>>>> in your programs.
+a XML::XPath-like interface to XPath API of libxml2.
 
 For further information, please check the following documentation:
 
@@ -67,11 +65,9 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML's DOM L2 Document Fragment implementation
 
-=item [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for DOM element nodes
+=item [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for element nodes
 
-=item [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML DOM attribute class
-
-=item [LibXML::Attr::Map](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr/Map.md) - LibXML DOM attribute map class
+=item [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML attribute class
 
 =item [LibXML::CDATA](https://github.com/p6-xml/LibXML-p6/blob/master/doc/CDATASection.md) - LibXML class for DOM CDATA sections
 
@@ -79,7 +75,7 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::Dtd](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
 
-=item [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespace nodes
+=item [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespace nodes (Inherits from LibXML::Item)
 
 =item [LibXML::Node](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node.md) - LibXML DOM base node class
 
@@ -89,28 +85,42 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::PI](https://github.com/p6-xml/LibXML-p6/blob/master/doc/PI.md) - LibXML DOM processing instruction nodes
 
-=head2 Other
+=head2 Container/Mapping classes
 
-=item [LibXML::Node::Set](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - LibXML schema validation class
+=item [LibXML::Attr::Map](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr/Map.md) - LibXML DOM attribute map class
 
-=item [LibXML::Schema](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Schema.md) - LibXML schema validation class
+=item [LibXML::Node::List](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - Sibling Node Lists
 
-=item [LibXML::RelaxNG](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RelaxNG.md) - LibXML RelaxNG validation class
+=item [LibXML::Node::Set](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - XPath Node Sets
 
-=item [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
-
-=item [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
+=head2 Parsing
 
 =item [LibXML::Parser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Parser bindings
+
+=item [LibXML::PushParser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Push Parser bindings
+
+=item [LibXML::Reader](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Reader.md) - LibXML Reader (pull parser) bindings
+
+=head2 XPath and Searching
+
+=item [LibXML::XPath::Expression](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Compiled Expressions
+
+=item [LibXML::XPath::Context](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Evaluation Contexts
 
 =item [LibXML::Pattern](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Pattern.md) - LibXML Patterns
 
 =item [LibXML::RegExp](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
 
-=item [LibXML::Reader](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Reader.md) - LibXML Reader (pull parser) bindings
+=head2 Validation
 
-=item [LibXML::XPath::Expression](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Compiled Expressions
+=item [LibXML::Schema](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Schema.md) - LibXML schema validation class
 
-=item [LibXML::XPath::Context](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Evaluation Contexts
+=item [LibXML::RelaxNG](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RelaxNG.md) - LibXML RelaxNG validation class
+
+=head2 Other
+
+=item [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
+
+=item [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
 =end pod

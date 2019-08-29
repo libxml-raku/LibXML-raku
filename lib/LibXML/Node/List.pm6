@@ -88,27 +88,35 @@ class LibXML::Node::List does Iterable does Iterator {
 =begin pod
 =head1 NAME
 
-LibXML::Node::Set - LibXML Class for Node Collections
+LibXML::Node::List - LibXML Class for Sibling Node Lists
 
 =head1 SYNOPSIS
 
-  use LibXML::Node::Set;
-  my LibXML::Node::Set $node-set;
+  use LibXML::Node::List;
+  my LibXML::Node::List $node-list, $att-list;
 
-  $node-set = $elem.childNodes;
-  $node-set = $elem.findnodes($xpath);
-  $node-set .= new;
-  $node-set.push: $elem;
+  $att-list = $elem.attributes;
+  $node-list = $elem.childNodes;
+  $node-list.push: $elem;
 
-  for $node-set -> LibXML::Item $item { ... }
+  for $node-list -> LibXML::Node $item { ... }
   for 0 ..^ $node-set.elems { my $item = $node-set[$_]; ... }
 
-  my LibXML::Node::Set %nodes-by-tag-name = $node-set.Hash;
+  my LibXML::Node::Set %nodes-by-tag-name = $node-list.Hash;
   ...
 
 =head2 DESCRIPTION
 
-This class is commonly used for handling results from XPath queries.
+This class is used for traversing child nodes or attribute lists.
+
+Unlike node-sets, the list is tied to the DOM and can be used to update
+nodes.
+
+  $node-set[3] = LibXML::TextNode.new :content("Replacement Text");
+  my $deleted-node = $node-set.pop;
+  $node-set.push: LibXML::Element.new(:name<NewElem>);
+
+Currently, the only tied methods are `push`, `pop` and `ASSIGN-POS`.
 
 =end pod
 
