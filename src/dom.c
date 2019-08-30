@@ -525,7 +525,9 @@ domNodeIsReferenced(xmlNodePtr self) {
             }
         }
     }
-    else  if (self->type == XML_DOCUMENT_NODE || self->type == XML_HTML_DOCUMENT_NODE|| self->type == XML_DOCB_DOCUMENT_NODE) {
+    else if (self->type == XML_DOCUMENT_NODE
+             || self->type == XML_HTML_DOCUMENT_NODE
+             || self->type == XML_DOCB_DOCUMENT_NODE) {
         // scan document dtds
         xmlDocPtr doc = (xmlDocPtr) self;
         if (doc->intSubset != NULL

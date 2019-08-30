@@ -127,15 +127,15 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 }
 
 class xmlBuf is repr('CStruct') is export {
-    has xmlCharP  $.content;     # The buffer content UTF8
-    has uint32    $.compat_use;  # for binary compatibility
+    has xmlCharP      $.content; # The buffer content UTF8
+    has uint32     $.compat_use; # for binary compatibility
     has uint32    $.compat_size; # for binary compatibility
     has int32     $.alloc is rw; # The realloc method
-    has xmlCharP  $.contentIO;   # in IO mode we may have a different base
-    has size_t    $.use;         # The buffer size used
-    has size_t    $.size;        # The buffer size
-    has xmlBufOld $.buffer;      # wrapper for an old buffer
-    has int32     $.error;       # an error code if a failure occurred
+    has xmlCharP    $.contentIO; # in IO mode we may have a different base
+    has size_t            $.use; # The buffer size used
+    has size_t           $.size; # The buffer size
+    has xmlBufOld      $.buffer; # wrapper for an old buffer
+    has int32           $.error; # an error code if a failure occurred
 
     sub Create(--> xmlBuf) is native(LIB) is symbol('xmlBufCreate') {*}
     method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufCat') {*}
@@ -175,23 +175,22 @@ class xmlParserInputBuffer is repr('CStruct') is export {
 }
 
 class xmlParserInput is repr('CStruct') is export {
-    has xmlParserInputBuffer      $.buf;         # UTF-8 encoded buffer
-    has Str                       $.filename is rw-str(
-        method xml6_input_set_filename(Str) is native(BIND-LIB) {*}
-    );    # The file analyzed, if any
-    has Str                       $.directory;   # the directory/base of the file
-    has xmlCharP                  $.base;        # Base of the array to parse
-    has xmlCharP                  $.cur;         # Current char being parsed
-    has xmlCharP                  $.end;         # end of the array to parse
-    has int32                     $.length;      # length if known
-    has int32                     $.line;        # Current line
-    has int32                     $.col;         # Current column
-    has ulong                     $.consumed;    # How many xmlChars already consumed
-    has xmlParserInputDeallocate  $.free;        # function to deallocate the base
-    has xmlCharP                  $.encoding;    # the encoding string for entity
-    has xmlCharP                  $.version;     # the version string for entity
-    has int32                     $.standalone;  # Was that entity marked standalone
-    has int32                     $.id;          # a unique identifier for the entity
+    has xmlParserInputBuffer           $.buf;  # UTF-8 encoded buffer
+    has Str                       $.filename   # The file analyzed, if any
+          is rw-str(method xml6_input_set_filename(Str) is native(BIND-LIB) {*});
+    has Str                       $.directory; # the directory/base of the file
+    has xmlCharP                       $.base; # Base of the array to parse
+    has xmlCharP                        $.cur; # Current char being parsed
+    has xmlCharP                        $.end; # end of the array to parse
+    has int32                        $.length; # length if known
+    has int32                          $.line; # Current line
+    has int32                           $.col; # Current column
+    has ulong                      $.consumed; # How many xmlChars already consumed
+    has xmlParserInputDeallocate       $.free; # function to deallocate the base
+    has xmlCharP                   $.encoding; # the encoding string for entity
+    has xmlCharP                    $.version; # the version string for entity
+    has int32                    $.standalone; # Was that entity marked standalone
+    has int32                            $.id; # a unique identifier for the entity
 
     sub xmlNewIOInputStream(xmlParserCtxt, xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native(LIB) is export {*}
     sub xmlNewInputFromFile(xmlParserCtxt, Str --> xmlParserInput) is native(LIB) is export {*}
@@ -199,12 +198,12 @@ class xmlParserInput is repr('CStruct') is export {
 }
 
 class xmlNs is export is repr('CStruct') {
-    has xmlNs    $.next;       # next Ns link for this node
-    has int32    $.type;       # global or local (enum xmlNsType)
-    has xmlCharP $.href;       # URL for the namespace
-    has xmlCharP $.prefix;     # prefix for the namespace
-    has Pointer  $._private;   # application data
-    has xmlDoc   $.context;    # normally an xmlDoc
+    has xmlNs        $.next; # next Ns link for this node
+    has int32        $.type; # global or local (enum xmlNsType)
+    has xmlCharP     $.href; # URL for the namespace
+    has xmlCharP   $.prefix; # prefix for the namespace
+    has Pointer  $._private; # application data
+    has xmlDoc    $.context; # normally an xmlDoc
 
     method new(Str:D :$URI!, Str :$prefix, xmlElem :$node) {
         $node.NewNs($URI, $prefix);
@@ -376,19 +375,20 @@ class xmlSAXHandler is repr('CStruct') is export {
 }
 
 class xmlError is export {
-    has int32                  $.domain;    # What part of the library raised this error
-    has int32                  $.code;      # The error code, e.g. an xmlParserError
-    has Str                    $.message;   # human-readable informative error message
-    has int32                  $.level;     # how consequent is the error
-    has Str                    $.file;      # the filename
-    has int32                  $.line;      # the line number if available
-    has Str                    $.str1;      # extra string information
-    has Str                    $.str2;      # extra string information
-    has Str                    $.str3;      # extra string information
-    has int32                  $.int1;      # extra number information
-    has int32                  $.column;    # error column # or 0 if N/A
-    has xmlParserCtxt          $.ctxt;      # the parser context if available
-    has anyNode                $.node;      # the node in the tree
+    has int32           $.domain; # What part of the library raised this error
+    has int32             $.code; # The error code, e.g. an xmlParserError
+    has Str            $.message; # human-readable informative error message
+    has int32            $.level; # how consequent is the error
+    has Str               $.file; # the filename
+    has int32             $.line; # the line number if available
+    has Str               $.str1; # extra string information
+    has Str               $.str2; # extra string information
+    has Str               $.str3; # extra string information
+    has int32             $.int1; # extra number information
+    has int32           $.column; # error column # or 0 if N/A
+    has xmlParserCtxt     $.ctxt; # the parser context if available
+    has anyNode           $.node; # the node in the tree
+
     method Reset() is native(LIB) is symbol('xmlResetError') {*};
 }
 
@@ -396,14 +396,14 @@ class xmlXPathObject is export {
     has int32 $.type;
 
     has xmlNodeSet $.nodeset is rw;
-    has int32      $.bool;
+    has int32       $.bool;
     has num64      $.float;
-    has xmlCharP   $.string;
+    has xmlCharP  $.string;
 
-    has Pointer    $.user;
+    has Pointer     $.user;
     has int32      $.index;
     has Pointer    $.user2;
-    has int32      $.index2;
+    has int32     $.index2;
 
     sub xmlXPathIsInf(num64 --> int32) is native(LIB) is export {*}
     sub xmlXPathIsNaN(num64 --> int32) is native(LIB) is export {*}
@@ -528,24 +528,24 @@ class xmlXPathContext is repr('CStruct') is export {
 
     # function lookup function and data
     my constant xmlXPathFuncLookupFunc = Pointer;
-    has xmlXPathFuncLookupFunc $.funcLookupFunc;  # function lookup func
-    has Pointer $.funcLookupData;                 # function lookup data
+    has xmlXPathFuncLookupFunc $.funcLookupFunc; # function lookup func
+    has Pointer $.funcLookupData;                # function lookup data
 
     # temporary namespace lists kept for walking the namespace axis
-    has Pointer[xmlNs] $.tmpNsList;               # Array of namespaces
-    has int32 $.tmpNsNr;                          # number of namespaces in scope
+    has Pointer[xmlNs] $.tmpNsList;              # Array of namespaces
+    has int32 $.tmpNsNr;                         # number of namespaces in scope
 
     # error reporting mechanism
-    has Pointer $.userData;                       # user specific data block
+    has Pointer $.userData;                      # user specific data block
     my constant xmlStructuredErrorFunc = Pointer;
-    has xmlStructuredErrorFunc $.error;           # the callback in case of errors
-    HAS xmlError $.lastError;                     # the last error
-    has anyNode  $.debugNode;                     # the source node XSLT
+    has xmlStructuredErrorFunc $.error;          # the callback in case of errors
+    HAS xmlError $.lastError;                    # the last error
+    has anyNode  $.debugNode;                    # the source node XSLT
 
     # dictionary
-    has xmlDict $.dict;                           # dictionary if any
+    has xmlDict $.dict;                          # dictionary if any
 
-    has int32 $.flags;                            # flags to control compilation
+    has int32 $.flags;                           # flags to control compilation
 
     # Cache for reusal of XPath objects
     has Pointer $.cache;
@@ -589,36 +589,35 @@ class xmlXPathParserContext is export {
 
     has int32 $.error;                       # error code
 
-    has xmlXPathContext  $.context;          # the evaluation context
-    has xmlXPathObject   $.value;            # the current value
-    has int32            $.valueNr;          # number of values stacked
-    has int32            $.valueMax;         # max number of values stacked
-    has Pointer[xmlXPathObject] $.valueTab;  # stack of values
+    has xmlXPathContext          $.context; # the evaluation context
+    has xmlXPathObject             $.value; # the current value
+    has int32                    $.valueNr; # number of values stacked
+    has int32                   $.valueMax; # max number of values stacked
+    has Pointer[xmlXPathObject] $.valueTab; # stack of values
 
-    has xmlXPathCompExpr $.comp;             # the precompiled expression
-    has int32 $.xptr;                        # it this an XPointer expression
-    has anyNode          $.ancestor;         # used for walking preceding axis
+    has xmlXPathCompExpr            $.comp; # the precompiled expression
+    has int32                       $.xptr; # it this an XPointer expression
+    has anyNode                 $.ancestor; # used for walking preceding axis
 
-    has int32            $.valueFrame;       # used to limit Pop on the stack
+    has int32                 $.valueFrame; # used to limit Pop on the stack
 
     method valuePop(--> xmlXPathObject) is native(LIB) {*}
     method valuePush(xmlXPathObject --> int32) is native(LIB) {*}
 }
 
 class anyNode is export does LibXML::Native::DOM::Node {
-    has Pointer         $._private;    # application data
-    has int32           $.type;        # type number, must be second !
-    has xmlCharP        $!name;        # the name of the node, or the entity
-    method name         { $!name }
-    has xmlNode         $.children;    # parent->childs link
-    has xmlNode         $.last;        # last child link
-    has xmlNode         $.parent;      # child->parent link
-    has xmlNode         $.next;        # next sibling link
-    has xmlNode         $.prev;        # previous sibling link
-    has xmlDoc          $.doc is rw-ptr(   # the containing document
-        method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*}
-    );
-    # + additional fields, depending on node-type
+    has Pointer $._private; # application data
+    has int32       $.type; # type number, must be second !
+    has xmlCharP    $!name; # the name of the node, or the entity
+    method name { $!name }
+    has xmlNode $.children; # parent->childs link
+    has xmlNode     $.last; # last child link
+    has xmlNode   $.parent; # child->parent link
+    has xmlNode     $.next; # next sibling link
+    has xmlNode     $.prev; # previous sibling link
+    has xmlDoc       $.doc  # the containing document
+         is rw-ptr(method xml6_node_set_doc(xmlDoc) is native(BIND-LIB) {*});
+    # + additional fields, depending on node-type; see xmlElem, xmlDoc, xmlAttr, etc...
 
     method GetBase { self.doc.NodeGetBase(self) }
     method SetBase(xmlCharP) is native(LIB) is symbol('xmlNodeSetBase') {*}
@@ -727,19 +726,16 @@ class anyNode is export does LibXML::Native::DOM::Node {
 }
 
 class xmlNode is anyNode {
-    has xmlNs           $.ns is rw-ptr(   # pointer to the associated namespace
-        method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*}
-    );
-    has xmlCharP        $.content is rw-str(     # the content
-        method xml6_node_set_content(xmlCharP) is native(BIND-LIB) {*}
-    );
-    has xmlAttr         $.properties;  # properties list
-    has xmlNs           $.nsDef is rw-ptr( # namespace definitions on this node
-        method xml6_node_set_nsDef(xmlNs) is native(BIND-LIB) {*}
-    );
-    has Pointer         $.psvi;        # for type/PSVI informations
-    has uint16          $.line;        # line number
-    has uint16          $.extra;       # extra data for XPath/XSLT
+    has xmlNs            $.ns  # pointer to the associated namespace
+        is rw-ptr( method xml6_node_set_ns(xmlNs) is native(BIND-LIB) {*});
+    has xmlCharP    $.content  # the content
+        is rw-str(method xml6_node_set_content(xmlCharP) is native(BIND-LIB) {*});
+    has xmlAttr  $.properties; # properties list
+    has xmlNs         $.nsDef  # namespace definitions on this node
+        is rw-ptr(method xml6_node_set_nsDef(xmlNs) is native(BIND-LIB) {*});
+    has Pointer        $.psvi; # for type/PSVI informations
+    has uint16         $.line; # line number
+    has uint16        $.extra; # extra data for XPath/XSLT
 
     method domSetNamespaceDeclURI(xmlCharP $prefix, xmlCharP $uri --> int32) is native(BIND-LIB) {*}
     method domGetNamespaceDeclURI(xmlCharP $prefix --> xmlCharP) is native(BIND-LIB) {*}
@@ -830,9 +826,9 @@ class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
 
 class xmlAttr is anyNode does LibXML::Native::DOM::Attr is export {
     # type: XML_ATTRIBUTE_NODE
-    has xmlNs           $.ns;      # the associated namespace
-    has int32           $.atype;   # the attribute type if validating
-    has Pointer         $.psvi;    # for type/PSVI informations
+    has xmlNs       $.ns; # the associated namespace
+    has int32    $.atype; # the attribute type if validating
+    has Pointer   $.psvi; # for type/PSVI informations
 
     method Free is native(LIB) is symbol('xmlFreeProp') {*}
     method xmlCopyProp(--> xmlAttr) is native(LIB) {*}
@@ -855,20 +851,18 @@ class xmlDoc is anyNode does LibXML::Native::DOM::Document is export {
     has xmlDtd          $.intSubset;   # the document internal subset
     has xmlDtd          $.extSubset;   # the document external subset
     has xmlNs           $.oldNs;       # Global namespace, the old way
-    has xmlCharP        $.version is rw-str(
-            method xml6_doc_set_version(Str) is native(BIND-LIB) {*}
-        );     # the XML version string
-    has xmlCharP        $.encoding is rw-str(
-            method xml6_doc_set_encoding(Str) is native(BIND-LIB) {*}
-        );    # external initial encoding, if any
+    has xmlCharP        $.version      # the XML version string
+             is rw-str(method xml6_doc_set_version(Str) is native(BIND-LIB) {*});
+    has xmlCharP        $.encoding     # external initial encoding, if any
+             is rw-str(method xml6_doc_set_encoding(Str) is native(BIND-LIB) {*});
     has Pointer         $.ids;         # Hash table for ID attributes if any
     has Pointer         $.refs;        # Hash table for IDREFs attributes if any
-    has xmlCharP        $.URI is rw-str(
-            method xml6_doc_set_URI(Str) is native(BIND-LIB) {*});         # The URI for that document
+    has xmlCharP        $.URI          # The URI for that document
+             is rw-str(method xml6_doc_set_URI(Str) is native(BIND-LIB) {*});
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
-    has xmlDict         $.dict is rw-ptr(  # dict used to allocate names or NULL
-        method xml6_doc_set_dict(xmlDict) is native(BIND-LIB) {*});
+    has xmlDict         $.dict         # dict used to allocate names or NULL
+             is rw-ptr(method xml6_doc_set_dict(xmlDict) is native(BIND-LIB) {*});
     has Pointer         $.psvi;        # for type/PSVI informations
     has int32           $.parseFlags;  # set of xmlParserOption used to parse the
                                        # document
@@ -970,13 +964,13 @@ class xmlDocFrag is xmlNode is export {
 
 class xmlDtd is anyNode is export {
     # type: XML_DTD_NODE
-    has Pointer  $.notations;  # Hash table for notations if any
-    has Pointer  $.elements;   # Hash table for elements if any
+    has Pointer   $.notations; # Hash table for notations if any
+    has Pointer    $.elements; # Hash table for elements if any
     has Pointer  $.attributes; # Hash table for attributes if any
-    has Pointer  $.entities;   # Hash table for entities if any
+    has Pointer    $.entities; # Hash table for entities if any
     has xmlCharP $.ExternalID; # External identifier for PUBLIC DTD
-    has xmlCharP $.SystemID;   # URI for a SYSTEM or PUBLIC DTD
-    has Pointer  $.pentities;  # Hash table for param entities if any
+    has xmlCharP   $.SystemID; # URI for a SYSTEM or PUBLIC DTD
+    has Pointer   $.pentities; # Hash table for param entities if any
 
     method publicId { $!ExternalID }
     method systemId { $!SystemID }
@@ -1005,32 +999,32 @@ class xmlDtd is anyNode is export {
 
 class xmlAttrDecl is repr('CStruct') is anyNode is export {
     # type: XML_ATTRIBUTE_DECL
-    has xmlAttr         $.nexth;        # next in hash table
-    has int32           $.atype;        # the attribute type
-    has int32           $.def;          # default mode (enum xmlAttributeDefault)
-    has xmlCharP        $.defaultValue; # or the default value
-    has xmlEnumeration  $.tree;         # or the enumeration tree if any
-    has xmlCharP        $.prefix;       # the namespace prefix if any
-    has xmlCharP        $.elem;         # Element holding the attribute
+    has xmlAttr        $.nexth; # next in hash table
+    has int32          $.atype; # the attribute type
+    has int32            $.def; # default mode (enum xmlAttributeDefault)
+    has xmlCharP$.defaultValue; # or the default value
+    has xmlEnumeration  $.tree; # or the enumeration tree if any
+    has xmlCharP      $.prefix; # the namespace prefix if any
+    has xmlCharP        $.elem; # Element holding the attribute
 
 }
 
 class xmlEntity is anyNode is export {
     # type: XML_ENTITY_DECL
-    has xmlCharP              $.orig;    # content without ref substitution */
-    has xmlCharP           $.content;    # content or ndata if unparsed */
-    has int32               $.length;    # the content length */
-    has int32                $.etype;    # The entity type */
-    has xmlCharP        $.ExternalID;    # External identifier for PUBLIC */
-    has xmlCharP          $.SystemID;    # URI for a SYSTEM or PUBLIC Entity */
+    has xmlCharP       $.orig; # content without ref substitution */
+    has xmlCharP    $.content; # content or ndata if unparsed */
+    has int32        $.length; # the content length */
+    has int32         $.etype; # The entity type */
+    has xmlCharP $.ExternalID; # External identifier for PUBLIC */
+    has xmlCharP   $.SystemID; # URI for a SYSTEM or PUBLIC Entity */
 
-    has xmlEntity            $.nexte;    # unused */
-    has xmlCharP               $.URI;    # the full URI as computed */
-    has int32                $.owner;    # does the entity own the childrens */
-    has int32               $.checked;   # was the entity content checked */
-                                         # this is also used to count entities
-                                         # references done from that entity
-                                         # and if it contains '<' */
+    has xmlEntity     $.nexte; # unused */
+    has xmlCharP        $.URI; # the full URI as computed */
+    has int32         $.owner; # does the entity own the childrens */
+    has int32       $.checked; # was the entity content checked */
+                               # this is also used to count entities
+                               # references done from that entity
+                               # and if it contains '<' */
     sub xmlGetPredefinedEntity(xmlCharP $name --> xmlEntity) is native(LIB)is export { * }
     sub xml6_entity_create(xmlCharP $name, int32 $type, xmlCharP $ext-id, xmlCharP $int-id, xmlCharP $value --> xmlEntity) is native(BIND-LIB) {*}
     method get-predefined(Str :$name!) {
@@ -1044,11 +1038,11 @@ class xmlEntity is anyNode is export {
 
 class xmlElementDecl is repr('CStruct') is anyNode is export {
     # type: XML_ELEMENT_DECL
-    has int32                $.etype;    # The type */
-    has xmlElementContent  $.content;    # the allowed element content */
-    has xmlAttrDecl     $.attributes;    # List of the declared attributes */
-    has xmlCharP            $.prefix;    # the namespace prefix if any */
-    has xmlRegexp        $.contModel;    # the validating regexp */
+    has int32                $.etype; # The type */
+    has xmlElementContent  $.content; # the allowed element content */
+    has xmlAttrDecl     $.attributes; # List of the declared attributes */
+    has xmlCharP            $.prefix; # the namespace prefix if any */
+    has xmlRegexp        $.contModel; # the validating regexp */
 }
 
 # itemNodes are xmlNodeSet members; which can be either anyNode or xmlNs objects.
@@ -1153,9 +1147,8 @@ class xmlValidCtxt is repr('CStruct') is export {
 }
 
 class xmlParserCtxt is export {
-    has xmlSAXHandler          $.sax is rw-ptr(       # The SAX handler
-        method xml6_parser_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*}
-    );
+    has xmlSAXHandler          $.sax           # The SAX handler
+        is rw-ptr(method xml6_parser_ctx_set_sax( xmlSAXHandler ) is native(BIND-LIB) {*} );
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
     has xmlDoc                 $.myDoc;        # the document being built
     has int32                  $.wellFormed;   # is the document well formed
