@@ -255,7 +255,7 @@ Ilya Martynov and Petr Pajas, based on LibXML and XML::LibXSLT code by Matt Serg
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas, 
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

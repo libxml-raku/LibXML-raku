@@ -58,7 +58,11 @@ because I<<<<<< libxml2 >>>>>> treats the different text node types slightly dif
 
 Matt Sergeant,
 Christian Glahn,
-Petr Pajas
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 
 =head1 VERSION

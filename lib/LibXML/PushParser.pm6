@@ -170,4 +170,32 @@ This can be annoying if the closing tag is missed by accident. The following cod
 
 =end item1
 
+
+=head1 AUTHORS
+
+Matt Sergeant,
+Christian Glahn,
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
+
+=head1 VERSION
+
+2.0200
+
+=head1 COPYRIGHT
+
+2001-2007, AxKit.com Ltd.
+
+2002-2006, Christian Glahn.
+
+2006-2009, Petr Pajas.
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.
+
 =end pod

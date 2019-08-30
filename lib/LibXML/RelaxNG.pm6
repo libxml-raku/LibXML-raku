@@ -184,7 +184,11 @@ Returns either True or False depending on whether the passed Document is valid o
 
 Matt Sergeant, 
 Christian Glahn, 
-Petr Pajas, 
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 =head1 VERSION
 

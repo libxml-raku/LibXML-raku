@@ -41,9 +41,7 @@ This is a perl interface to libxml2's implementation of regular expressions, whi
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas
-
-Ported from Perl 5 to 6 by David Warring <david.warring@gmail.com>
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

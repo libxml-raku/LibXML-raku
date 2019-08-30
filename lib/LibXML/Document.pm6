@@ -1083,7 +1083,11 @@ if this feature is not available in the running libxml2.
 
 Matt Sergeant,
 Christian Glahn,
-Petr Pajas
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 
 =head1 VERSION

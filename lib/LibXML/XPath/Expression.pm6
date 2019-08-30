@@ -75,7 +75,11 @@ Alternative constructor.
 
 Matt Sergeant, 
 Christian Glahn, 
-Petr Pajas, 
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 =head1 VERSION
 

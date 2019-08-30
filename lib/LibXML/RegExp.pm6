@@ -97,10 +97,11 @@ otherwise. (See the definition of determinism in the XML spec (L<<<<<< http://ww
 
 Matt Sergeant,
 Christian Glahn,
-Petr Pajas
-
-Ported from Perl 5 to 6 by David Warring <david.warring@gmail.com>
-
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 =head1 VERSION
 

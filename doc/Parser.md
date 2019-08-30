@@ -527,7 +527,7 @@ Note: since version 1.59, get-last-error() is no longer available in LibXML for 
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas, 
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

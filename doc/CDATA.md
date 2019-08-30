@@ -33,7 +33,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

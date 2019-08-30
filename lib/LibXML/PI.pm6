@@ -96,7 +96,11 @@ before it is appended to the PI.
 
 Matt Sergeant,
 Christian Glahn,
-Petr Pajas
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 
 =head1 VERSION

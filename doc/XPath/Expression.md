@@ -43,7 +43,7 @@ This is a perl interface to libxml2's pre-compiled XPath expressions. Pre-compil
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas, 
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

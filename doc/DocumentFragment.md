@@ -26,7 +26,7 @@ As well *all * unbound nodes (all nodes that do not belong to any document sub-t
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

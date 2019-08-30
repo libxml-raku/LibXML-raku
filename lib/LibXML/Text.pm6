@@ -216,7 +216,11 @@ complex variants it is recommended to use the code snippet above.
 
 Matt Sergeant, 
 Christian Glahn, 
-Petr Pajas, 
+Petr Pajas,
+Shlomi Fish,
+Tobias Leich,
+Xliff,
+David Warring
 
 =head1 VERSION
 

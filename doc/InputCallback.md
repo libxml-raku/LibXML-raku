@@ -131,7 +131,7 @@ The following example is a purely fictitious example that uses a minimal MySchem
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas, 
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

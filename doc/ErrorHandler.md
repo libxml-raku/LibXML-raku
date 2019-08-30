@@ -113,7 +113,7 @@ The X:LibXML::Parser exception class is a tiny frontend to *libxml2 *'s structur
 AUTHORS
 =======
 
-Matt Sergeant, Christian Glahn, Petr Pajas, 
+Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======
