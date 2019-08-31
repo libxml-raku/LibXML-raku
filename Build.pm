@@ -12,9 +12,15 @@ class Build {
     sub make(Str $folder, Str $destfolder, IO() :$libname!) {
         my %vars = LibraryMake::get-vars($destfolder);
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
-        %vars<LIB-LDFLAGS> = chomp qx<xml2-config --libs>;
-        %vars<LIB-CFLAGS> = chomp qx<xml2-config --cflags>;
-        s/:s '-DNDEBUG'// for %vars<CCFLAGS>, %vars<LDFLAGS>;
+        if $*VM.config<dll> ~~ /dll/ {
+            %vars<LIB-LDFLAGS> = '-llibxml2 -liconv -lz';
+            %vars<LIB-CFLAGS> = '';
+        }
+        else {
+            %vars<LIB-LDFLAGS> = chomp qx<xml2-config --libs>;
+            %vars<LIB-CFLAGS> = chomp qx<xml2-config --cflags>;
+            s/:s '-DNDEBUG'// for %vars<CCFLAGS>, %vars<LDFLAGS>;
+        }
 
         mkdir($destfolder);
         LibraryMake::process-makefile($folder, %vars);
