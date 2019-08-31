@@ -5,7 +5,7 @@ platform: x64
 environment:
         matrix:
         - test_moar: '2017.07'
-        - test_moar: '2019.17.1' #latest
+        - test_moar: '2019.07.1' #latest
 
 install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
@@ -20,6 +20,8 @@ install:
   - rakudobrew build zef
   - cd %APPVEYOR_BUILD_FOLDER%
   - set AUTHOR_TESTING=1
+  - zef --verbose --force install Test::Output
+  - zef --verbose --force install META6
   - zef --verbose --depsonly install .
 
 build: off
