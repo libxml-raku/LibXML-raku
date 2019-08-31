@@ -4,14 +4,13 @@ platform: x64
 
 environment:
         matrix:
-        - test_moar: '2017.07'
+        - test_moar: '2018.07'
         - test_moar: '2019.07.1' #latest
 
 install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
   - choco install strawberryperl --allow-empty-checksums
   - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
-  - cpanm -i XML::LibXML
   - git clone https://github.com/tadzik/rakudobrew %USERPROFILE%\rakudobrew
   - SET PATH=%USERPROFILE%\rakudobrew\bin;%PATH%
   - rakudobrew build moar %TEST_MOAR%
@@ -28,7 +27,8 @@ install:
 build: off
 
 test_script:
-  -  prove -ve "perl6 -I."
+  - zef build . 
+  - prove -ve "perl6 -I."
   - zef install .
 
 shallow_clone: true
