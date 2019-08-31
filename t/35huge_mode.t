@@ -9,13 +9,6 @@ use LibXML;
 
 plan 4;
 
-given LibXML.version {
-    when * < v2.07.00 {
-        skip-rest "XML_PARSE_HUGE option not supported for libxml2: $_ < 2.07.0";
-        exit;
-    }
-}
-
 my $benign_xml = q:to<EOF>;
 <?xml version="1.0"?>
 <!DOCTYPE lolz [

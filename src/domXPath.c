@@ -550,17 +550,8 @@ domXPathFindCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr 
                 registered_ns = _domXPathCtxtRegisterNS(ctxt, ctxt->node);
         }
         if (to_bool) {
-#if LIBXML_VERSION >= 20627
             int val = xmlXPathCompiledEvalToBoolean(comp, ctxt);
             rv = xmlXPathNewBoolean(val);
-#else
-            rv = xmlXPathCompiledEval(comp, ctxt);
-            if (rv != NULL) {
-                int val = xmlXPathCastToBoolean(rv);
-                xmlXPathFreeObject(rv);
-                rv = xmlXPathNewBoolean(val);
-            }
-#endif
         } else {
             rv = xmlXPathCompiledEval(comp, ctxt);
         }

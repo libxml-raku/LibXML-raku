@@ -1446,30 +1446,7 @@ static void _addAttr(xmlNodePtr node, xmlAttrPtr attr) {
 DLLEXPORT int
 domSetAttribute( xmlNodePtr self, xmlChar* name, xmlChar* value ) {
     xmlAttrPtr node = NULL;
-#if LIBXML_VERSION >= 20621
-    /*
-     * For libxml2-2.6.21 and later we can use just xmlSetProp
-     */
-    node = xmlSetProp(self,name,value);
-#else
-    xmlChar* prefix = NULL;
-    xmlChar* localname = xmlSplitQName2(name, &prefix);
-
-    if (localname != NULL) {
-        xmlNsPtr ns = xmlSearchNs(self->doc, self, prefix);
-
-        if (prefix != NULL)
-            xmlFree(prefix);
-        if (ns != NULL)
-            node = xmlSetNsProp(self, ns, localname, value);
-        else
-            node = xmlSetNsProp(self, NULL, name, value);
-        xmlFree(localname);
-    } else {
-        node = xmlSetNsProp(self, NULL, name, value);
-    }
-#endif
-    // could actually be other than xmlAttrPtr.
+    node = xmlSetProp(self, name, value);
     return(node != NULL);
 }
 

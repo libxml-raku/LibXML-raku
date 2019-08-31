@@ -219,19 +219,12 @@ my $final_source = q:to<EOF>;
 EOF
 
 {
-    # RT #84564
-    # https://bugzilla.gnome.org/show_bug.cgi?id=447899
-    if LibXML.version < v2.07.04 {
-        skip('Known double-free with libxml2 < 2.7.4', 1);
-    }
-    else {
-        my %opts = %( :!validation, :!load-ext-dtd);
-        # TEST
-        my LibXML::Reader $got .= new: :string($final_source), |%opts;
-        my LibXML::Reader $expected .= new: :string($xml_source), |%opts;
+    my %opts = %( :!validation, :!load-ext-dtd);
+    # TEST
+    my LibXML::Reader $got .= new: :string($final_source), |%opts;
+    my LibXML::Reader $expected .= new: :string($xml_source), |%opts;
 
-        Test::XML::Ordered::is-xml-ordered( :$got, :$expected, :diag-message<foo> );
-    }
+    Test::XML::Ordered::is-xml-ordered( :$got, :$expected, :diag-message<foo> );
 }
 
 # TEST

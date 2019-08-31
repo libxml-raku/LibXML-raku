@@ -4,8 +4,9 @@ use LibXML;
 use LibXML::Config;
 
 constant config = LibXML::Config;
+constant Min-LibXML-Version = v2.09.00;
 
-plan 8;
+plan 9;
 
 my LibXML $p .= new();
 
@@ -16,6 +17,9 @@ my $version = $p.version;
 ok $version, 'LibXML.version is trueish';
 
 diag "Running libxml2 version: " ~ $version;
+
+ok($version >= Min-LibXML-Version, "LibXML version is suppported")
+    or diag "sorry this version of libxml is not supported ($version < {Min-LibXML-Version})";
 
 for True, False -> $kb {
     lives-ok { config.keep-blanks-default = $kb }, 'set keep-blanks-default';

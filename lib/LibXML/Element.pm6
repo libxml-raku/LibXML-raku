@@ -153,16 +153,19 @@ my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBU
 method appendChild(LibXML::Node:D $n) is also<addChild> {
     $n ~~ AttrNode:D ?? $.setAttributeNode($n) !! nextsame
 };
-multi method setAttribute(NameVal:D $_) {
-    $.native.setAttribute(.key, .value);
-}
-multi method setAttribute(QName $name, Str:D $value) {
+my $n;
+method !set-attr(QName $name, Str:D $value) {
     $.native.setAttribute($name, $value);
 }
+multi method setAttribute(NameVal:D $_) {
+    self!set-attr(.key, .value);
+}
+multi method setAttribute(QName $name, Str:D $value) {
+    self!set-attr($name, $value);
+}
 multi method setAttribute(*%atts) {
-    for %atts.pairs.sort -> NameVal $_ {
-        $.setAttribute(.key, .value);
-    }
+    self!set-attr(.key, .value)
+        for %atts.pairs.sort;
 }
 method setAttributeNode(AttrNode:D $att) {
     $att.keep: $.native.setAttributeNode($att.native);

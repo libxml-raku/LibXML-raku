@@ -242,11 +242,6 @@ sub _utf16_content_test
 
     SKIP:
     {
-        if LibXML.version < v2.07.00
-        {
-            skip "UTF-16 and HTML broken in libxml2 < 2.7", 1;
-        }
-
         is($nodes_ref[0].textContent,
             "utf-16 test with umlauts: \x[e4]\x[f6]\x[fc]\x[c4]\x[d6]\x[dc]\x[df]",
             $blurb,

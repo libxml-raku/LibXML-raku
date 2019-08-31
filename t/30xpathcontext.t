@@ -301,13 +301,6 @@ dies-ok { $xc4.findvalue('last()') }, ' TODO : Add test name';
 
 SKIP:
 {
-    # 37332
-    if LibXML.version < v2.06.17 {
-        skip(
-            'xpath does not work on nodes without a document in libxml2 < 2.6.17',
-            3
-        );
-    }
     my $frag = LibXML::DocumentFragment.new;
     my $foo = LibXML::Element.new('foo');
     my $xpc = LibXML::XPath::Context.new;

@@ -425,10 +425,6 @@ EOF
 
         SKIP:
         {
-            if (LibXML.version < v2.06.27)
-            {
-                skip('skipping for libxml2 < 2.6.27', 1);
-            }
             # TEST*$xml
             is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', 'ns_fixed is ns_foo')
         }

@@ -772,10 +772,6 @@ EOXML
 }
 
 SKIP: {
-    unless LibXML.version >= v2.06.00 {
-        skip("LibXML version is below 2.06.00", 8);
-        last SKIP;
-    }
     my Str ( $xsDoc1, $xsDoc2 );
     my Str $fn1 = "example/xmlns/goodguy.xml";
     my Str $fn2 = "example/xmlns/badguy.xml";

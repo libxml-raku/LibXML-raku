@@ -189,9 +189,6 @@ skip "iso-8859-2 nyi", 2;
     {
         my $num_tests = 2;
 
-        if v2.06.27 > LibXML.version {
-            skip("skipping for libxml2 < 2.6.27", $num_tests);
-        }
         # translate to UTF8 on perl-side
         $io = $test_file.IO.open( :r,  :enc<iso-8859-2>);
         $htmldoc = $parser.parse, :html, :$io, :enc<utf-8>;
@@ -263,10 +260,6 @@ EOF
     # 70878
     # HTML_PARSE_NODEFDTD
 
-    when LibXML.version < v2.07.08 {
-        skip("LibXML version is below 2.07.08", 2);
-    }
-        
     default {
         my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
         my $p = LibXML.new;
