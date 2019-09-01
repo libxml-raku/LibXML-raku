@@ -14,11 +14,11 @@ class Build {
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
         if $*VM.config<dll> ~~ /dll/ {
             %vars<LIB-LDFLAGS> = '-llibxml2 -liconv -lz';
-            %vars<LIB-CFLAGS> = '';
+            %vars<LIB-CFLAGS> = '-I/usr/include/libxml2';
         }
         else {
-            %vars<LIB-LDFLAGS> = chomp qx<xml2-config --libs>;
-            %vars<LIB-CFLAGS> = chomp qx<xml2-config --cflags>;
+            %vars<LIB-LDFLAGS> = chomp(qx{xml2-config --libs 2>/dev/null} || '-lxml2');
+            %vars<LIB-CFLAGS>  = chomp(qx{xml2-config --cflags 2>/dev/null} || '-I/usr/include/libxml2');
             s/:s '-DNDEBUG'// for %vars<CCFLAGS>, %vars<LDFLAGS>;
         }
 

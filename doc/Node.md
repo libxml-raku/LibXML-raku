@@ -512,16 +512,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     If the line-numbers flag of the parser was not activated before parsing, line-number() will always return 0.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

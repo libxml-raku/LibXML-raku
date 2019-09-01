@@ -1,9 +1,9 @@
 unit module LibXML::Native::HashTable;
 
 use NativeCall;
-use LibXML::Native::Defs :LIB, :BIND-LIB, :Stub, :xmlCharP;
+use LibXML::Native::Defs :LIB, :BIND-LIB, :Opaque, :xmlCharP;
 
-class xmlHashTable is repr(Stub) is export {
+class xmlHashTable is repr(Opaque) is export {
     sub xmlHashCreate(int32 --> xmlHashTable) is native(LIB) {*}
     sub xmlHashDefaultDeallocator(Pointer, xmlCharP) is native(LIB) is export {*};
     sub xml6_hash_null_deallocator(Pointer, xmlCharP) is native(LIB) is export {*};

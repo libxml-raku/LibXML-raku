@@ -75,16 +75,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function is not part of DOM API. It returns attribute content in the form in which it serializes into XML, that is with all meta-characters properly quoted and with raw entity references (except for entities expanded during parse time).
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0132
-
 COPYRIGHT
 =========
 

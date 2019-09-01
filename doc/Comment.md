@@ -30,16 +30,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     The constructor is the only provided function for this package. It is required, because *libxml2 * treats text nodes and comment nodes slightly differently.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0132
-
 COPYRIGHT
 =========
 

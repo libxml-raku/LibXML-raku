@@ -128,16 +128,6 @@ The following example is a purely fictitious example that uses a minimal MySchem
     my LibXML $parser .= new;
     $parser.parse: :file('myscheme:stub.xml')
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

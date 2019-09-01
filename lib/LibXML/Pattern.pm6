@@ -148,21 +148,6 @@ the compiled pattern expression.
 
 L<<<<<< LibXML::Reader >>>>>> for other methods involving compiled patterns.
 
-=head1 AUTHORS
-
-Matt Sergeant, 
-Christian Glahn, 
-Petr Pajas,
-Shlomi Fish,
-Tobias Leich,
-Xliff,
-David Warring
-
-
-=head1 VERSION
-
-2.0200
-
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.

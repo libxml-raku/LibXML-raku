@@ -10,6 +10,7 @@ environment:
 install:
   - '"C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64'
   - choco install strawberryperl --allow-empty-checksums
+  - vcpkg install libxml2:x64-windows
   - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - git clone https://github.com/tadzik/rakudobrew %USERPROFILE%\rakudobrew
   - SET PATH=%USERPROFILE%\rakudobrew\bin;%PATH%
@@ -20,8 +21,6 @@ install:
   - rakudobrew build zef
   - cd %APPVEYOR_BUILD_FOLDER%
   - set AUTHOR_TESTING=1
-  - zef --verbose --force install Test::Output
-  - zef --verbose --force install META6
   - zef --verbose --depsonly install .
 
 build: off

@@ -64,16 +64,6 @@ SEE ALSO
 
 [LibXML::Reader ](LibXML::Reader ) for other methods involving compiled patterns.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

@@ -171,20 +171,6 @@ C<$map.removedNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>
 
 =end item1
 
-=head1 AUTHORS
-
-Matt Sergeant,
-Christian Glahn,
-Petr Pajas,
-Shlomi Fish,
-Tobias Leich,
-Xliff,
-David Warring
-
-=head1 VERSION
-
-2.0200
-
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.

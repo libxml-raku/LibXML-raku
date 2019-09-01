@@ -18,7 +18,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML
+unit class LibXML:ver<0.0.1>
     is LibXML::Parser;
 
 method config handles <version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -119,14 +119,17 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =head2 Other
 
+=item [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML class for Error handling
+
 =item [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
 
 =item [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
-=head1 AUTHORS
+=head1 CONTRIBUTERS
 
-Matt Sergeant,
 Christian Glahn,
+Ilya Martynov,
+Matt Sergeant,
 Petr Pajas,
 Shlomi Fish,
 Tobias Leich,

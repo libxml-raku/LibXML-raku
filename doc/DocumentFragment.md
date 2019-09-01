@@ -23,16 +23,6 @@ This class is a helper class as described in the DOM Level 2 Specification. It i
 
 As well *all * unbound nodes (all nodes that do not belong to any document sub-tree) are implicit members of document fragments.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0132
-
 COPYRIGHT
 =========
 

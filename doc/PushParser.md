@@ -84,16 +84,6 @@ Internally LibXML provides three functions that control the push parser process:
 
         print $doc.Str(); # returns "<foo>bar</foo>"
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

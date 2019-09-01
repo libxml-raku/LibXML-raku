@@ -524,16 +524,6 @@ Also note that an increasing number of functions throw errors if bad data is pas
 
 Note: since version 1.59, get-last-error() is no longer available in LibXML for thread-safety reasons.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

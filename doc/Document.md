@@ -470,16 +470,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function returns number of elements indexed, -1 if error occurred, or -2 if this feature is not available in the running libxml2.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0132
-
 COPYRIGHT
 =========
 

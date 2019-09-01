@@ -38,16 +38,6 @@ This is a perl interface to libxml2's implementation of regular expressions, whi
 
     Returns True if the regular expression is deterministic; returns False otherwise. (See the definition of determinism in the XML spec ([http://www.w3.org/TR/REC-xml/#determinism ](http://www.w3.org/TR/REC-xml/#determinism )))
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0132
-
 COPYRIGHT
 =========
 

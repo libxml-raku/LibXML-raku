@@ -53,16 +53,6 @@ METHODS
 
     Returns either True or False depending on whether the passed Document is valid or not.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

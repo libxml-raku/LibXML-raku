@@ -94,14 +94,16 @@ Validation
 Other
 -----
 
+  * [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML class for Error handling
+
   * [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
 
   * [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
-AUTHORS
-=======
+CONTRIBUTERS
+============
 
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
+Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
 
 VERSION
 =======

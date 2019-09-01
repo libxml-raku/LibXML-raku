@@ -40,16 +40,6 @@ This is a perl interface to libxml2's pre-compiled XPath expressions. Pre-compil
 
     Alternative constructor.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

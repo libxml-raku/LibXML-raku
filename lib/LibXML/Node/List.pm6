@@ -118,19 +118,6 @@ nodes.
 
 Currently, the only tied methods are `push`, `pop` and `ASSIGN-POS`.
 
-=head1 AUTHORS
-
-Matt Sergeant,
-Christian Glahn,
-Petr Pajas,
-Shlomi Fish,
-Tobias Leich,
-Xliff,
-David Warring
-
-=head1 VERSION
-
-2.0200
 
 =head1 COPYRIGHT
 

@@ -29,16 +29,6 @@ This class is commonly used for handling result sets from XPath queries.
 METHODS
 =======
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

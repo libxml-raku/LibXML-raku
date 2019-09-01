@@ -83,21 +83,6 @@ functions are aware of document fragments.
 As well I<<<<<< all >>>>>> unbound nodes (all nodes that do not belong to any document sub-tree) are
 implicit members of document fragments.
 
-=head1 AUTHORS
-
-Matt Sergeant,
-Christian Glahn,
-Petr Pajas,
-Shlomi Fish,
-Tobias Leich,
-Xliff,
-David Warring
-
-
-=head1 VERSION
-
-2.0132
-
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.

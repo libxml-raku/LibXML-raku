@@ -1,9 +1,9 @@
 unit module LibXML::Native::Dict;
 
 use NativeCall;
-use LibXML::Native::Defs :LIB, :Stub;
+use LibXML::Native::Defs :LIB, :Opaque;
 
-class xmlDict is repr(Stub) is export {
+class xmlDict is repr(Opaque) is export {
     sub Create(--> xmlDict) is native(LIB) is symbol('xmlDictCreate') {*};
     method Exists(Str, int32 --> Str) is native(LIB) is symbol('xmlDictExists') {*};
     method Lookup(Str, int32 --> Str) is native(LIB) is symbol('xmlDictLookup') {*};

@@ -68,8 +68,9 @@ realclean : clean
 	@rm -f Makefile doc/*.md doc/*/*.md
 
 doc : README.md doc/Attr.md doc/Attr/Map.md doc/CDATA.md doc/Comment.md doc/Document.md doc/DocumentFragment.md\
-      doc/Dtd.md doc/Element.md doc/ErrorHandler.md doc/InputCallback.md doc/Item.md doc/Namespace.md doc/Node.md  doc/Node/List.md doc/Node/Set.md doc/PI.md doc/RelaxNG.md doc/Text.md\
-      doc/Pattern.md doc/Parser.md doc/PushParser.md doc/RegExp.md doc/Reader.md doc/Schema.md doc/XPath/Context.md doc/XPath/Expression.md
+      doc/Dtd.md doc/Element.md doc/ErrorHandler.md doc/InputCallback.md doc/Item.md doc/Namespace.md doc/Native.md\
+      doc/Node.md doc/Node/List.md doc/Node/Set.md doc/PI.md doc/RelaxNG.md doc/Text.md doc/Pattern.md\
+      doc/Parser.md doc/PushParser.md doc/RegExp.md doc/Reader.md doc/Schema.md doc/XPath/Context.md doc/XPath/Expression.md
 
 README.md : lib/LibXML.pm6
 	(\
@@ -113,6 +114,9 @@ doc/Item.md : lib/LibXML/Item.pm6
 
 doc/Namespace.md : lib/LibXML/Namespace.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Namespace.pm6 > doc/Namespace.md
+
+doc/Native.md : lib/LibXML/Native.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/Native.pm6 > doc/Native.md
 
 doc/Node.md : lib/LibXML/Node.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Node.pm6 > doc/Node.md

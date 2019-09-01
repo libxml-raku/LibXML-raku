@@ -2,13 +2,13 @@ unit module LibXML::Native::RelaxNG;
 
 use NativeCall;
 use LibXML::Native;
-use LibXML::Native::Defs :LIB, :Stub;
+use LibXML::Native::Defs :LIB, :Opaque;
 
-class xmlRelaxNG is repr(Stub) is export {
+class xmlRelaxNG is repr(Opaque) is export {
     method Free is symbol('xmlRelaxNGFree') is native(LIB) {*}
 }
 
-class xmlRelaxNGParserCtxt is repr(Stub) is export {
+class xmlRelaxNGParserCtxt is repr(Opaque) is export {
     sub xmlRelaxNGNewParserCtxt(Str:D --> xmlRelaxNGParserCtxt) is native(LIB) {*}
     sub xmlRelaxNGNewMemParserCtxt(Blob:D, int32 --> xmlRelaxNGParserCtxt) is native(LIB) {*}
     sub xmlRelaxNGNewDocParserCtxt(xmlDoc:D --> xmlRelaxNGParserCtxt) is native(LIB) {*}
@@ -27,7 +27,7 @@ class xmlRelaxNGParserCtxt is repr(Stub) is export {
     }
 }
 
-class xmlRelaxNGValidCtxt is repr(Stub) is export {
+class xmlRelaxNGValidCtxt is repr(Opaque) is export {
     sub xmlRelaxNGNewValidCtxt(xmlRelaxNG:D --> xmlRelaxNGValidCtxt) is native(LIB) {*}
     method SetStructuredErrorFunc( &error-func (xmlRelaxNGValidCtxt $, xmlError $)) is native(LIB) is symbol('xmlRelaxNGSetValidStructuredErrors') {*};
     method ValidateDoc(xmlDoc:D --> int32) is native(LIB) is symbol('xmlRelaxNGValidateDoc') {*}

@@ -137,16 +137,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function can make things easier to read for simple replacements. For more complex variants it is recommended to use the code snippet above.
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

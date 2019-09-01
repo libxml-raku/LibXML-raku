@@ -2,13 +2,13 @@ unit module LibXML::Native::Schema;
 
 use NativeCall;
 use LibXML::Native;
-use LibXML::Native::Defs :LIB, :Stub;
+use LibXML::Native::Defs :LIB, :Opaque;
 
-class xmlSchema is repr(Stub) is export {
+class xmlSchema is repr(Opaque) is export {
    method Free is symbol('xmlSchemaFree') is native(LIB) {*}
 }
 
-class xmlSchemaParserCtxt is repr(Stub) is export {
+class xmlSchemaParserCtxt is repr(Opaque) is export {
     sub xmlSchemaNewParserCtxt(Str:D --> xmlSchemaParserCtxt) is native(LIB) {*}
     sub xmlSchemaNewMemParserCtxt(Blob:D, int32 --> xmlSchemaParserCtxt) is native(LIB) {*}
     sub xmlSchemaNewDocParserCtxt(xmlDoc:D --> xmlSchemaParserCtxt) is native(LIB) {*}
@@ -27,7 +27,7 @@ class xmlSchemaParserCtxt is repr(Stub) is export {
     }
 }
 
-class xmlSchemaValidCtxt is repr(Stub) is export {
+class xmlSchemaValidCtxt is repr(Opaque) is export {
     sub xmlSchemaNewValidCtxt(xmlSchema:D --> xmlSchemaValidCtxt) is native(LIB) {*}
     method SetStructuredErrorFunc( &error-func (xmlSchemaValidCtxt $, xmlError $)) is native(LIB) is symbol('xmlSchemaSetValidStructuredErrors') {*};
     method ValidateDoc(xmlDoc:D --> int32) is native(LIB) is symbol('xmlSchemaValidateDoc') {*}

@@ -25,16 +25,6 @@ Both nodes and namespaces support the following common methods: getNamespaceURI,
 
 Please see [LibXML::Node](LibXML::Node) and [LibXML::Namespace](LibXML::Namespace).
 
-AUTHORS
-=======
-
-Matt Sergeant, Christian Glahn, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
-
-VERSION
-=======
-
-2.0200
-
 COPYRIGHT
 =========
 

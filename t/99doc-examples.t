@@ -2,7 +2,7 @@
 
 use Test;
 
-plan 17;
+plan 18;
 
 subtest 'LibXML::Attr' => {
     plan 5;
@@ -695,5 +695,18 @@ subtest 'LibXML::XPath::Context' => {
     }
 
 };
+
+subtest 'LibXML::Native' => {
+    plan 1;
+    do {
+        use LibXML::Native;
+        my xmlDoc:D $doc .= new;
+        my xmlElem:D $root = $doc.new-node: :name<Hello>, :content<World!>;
+        .Reference for $doc, $root;
+        $doc.SetRootElement($root);
+        is $doc.Str.lines[1], "<Hello>World!</Hello>";
+        .Unreference for $root, $doc;
+    }
+}
 
 done-testing

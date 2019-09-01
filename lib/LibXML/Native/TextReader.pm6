@@ -5,7 +5,7 @@ use LibXML::Native;
 use LibXML::Native::RelaxNG;
 use LibXML::Native::Schema;
 use LibXML::Types :QName;
-use LibXML::Native::Defs :LIB, :BIND-LIB, :Stub, :xmlCharP;
+use LibXML::Native::Defs :LIB, :BIND-LIB, :Opaque, :xmlCharP;
 
 sub xml6_gbl_have_libxml_reader(--> int32) is native(BIND-LIB) is export {*}
 
