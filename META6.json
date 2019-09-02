@@ -8,7 +8,7 @@
     "Pod::To::Markdown"
   ],
   "depends" : [ "XML", "Method::Also", "File::Temp" ],
-  "description" : "Interface to libxml2; offering xml and html parsers",
+  "description" : "Perl 6 bindings to the libxml2 native library",
   "license" : "Artistic-2.0",
   "name" : "LibXML",
   "perl" : "6",
