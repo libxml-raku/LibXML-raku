@@ -47,6 +47,7 @@ class LibXML::Reader {
             :no-base-fix(XML_PARSE_NOBASEFIX),
             :no-blanks(XML_PARSE_NOBLANKS),
             :no-cdata(XML_PARSE_NOCDATA),
+            :no-network(XML_PARSE_NONET),
             :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
             :pedantic-parser(XML_PARSE_PEDANTIC),
             :recover(XML_PARSE_RECOVER),

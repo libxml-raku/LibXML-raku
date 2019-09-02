@@ -1,1 +1,6 @@
-0.0.1 2019-03-40 Initial release
+0.0.1 2019-03-40
+    Initial release
+
+0.0.2 2019-03-xx
+    - [LibXML::Reader] add missing :!network option. Fix unintended
+      network fetch in 40reader_mem_error.t

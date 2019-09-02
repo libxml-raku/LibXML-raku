@@ -219,7 +219,7 @@ my $final_source = q:to<EOF>;
 EOF
 
 {
-    my %opts = %( :!validation, :!load-ext-dtd);
+    my %opts = %( :!validation, :!load-ext-dtd, :!network);
     # TEST
     my LibXML::Reader $got .= new: :string($final_source), |%opts;
     my LibXML::Reader $expected .= new: :string($xml_source), |%opts;
