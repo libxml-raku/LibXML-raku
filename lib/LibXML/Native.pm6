@@ -53,8 +53,7 @@ can be reference counted:
        $_ = Nil;
    }
 
- Otherwise, the object can usually be copied. That copy then needs to be free, to avoid
-memory leaks:
+Otherwise, the object can usually be copied. That copy then needs to be freed, to avoid memory leaks:
 
   my LibXML::Namespace $ns .= new: :prefix<foo>, :URI<http://foo.org>;
   my xmlNs:D $native = $ns.native;

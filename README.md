@@ -94,7 +94,7 @@ Validation
 Other
 -----
 
-  * [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML class for Error handling
+  * [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
 
   * [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
 
@@ -103,12 +103,12 @@ Other
 CONTRIBUTERS
 ============
 
-Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff, David Warring
+With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff.
 
 VERSION
 =======
 
-2.0200
+0.0.1
 
 COPYRIGHT
 =========

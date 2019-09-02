@@ -24,8 +24,8 @@ is $err.file, 'test.xml', 'File is OK.';
 is $err.line, 1, 'Line is OK';
 is $err.level, +XML_ERR_FATAL, 'level is OK';
 is $err.code, +XML_ERR_SPACE_REQUIRED, 'code is OK';
-todo "column() unreliable in libxml2.version < v2.09.03"
-    if LibXML.version < v2.09.03;
+todo "column() unreliable in libxml2.version < v2.09.02"
+    if LibXML.version < v2.09.02;
 is $err.column(), 204, "Column is OK.";
 is $err.domain-num, +XML_FROM_PARSER;
 is $err.domain, 'parser';

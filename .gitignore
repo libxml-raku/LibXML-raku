@@ -6,5 +6,5 @@ blib/
 README.md
 *.gz
 resources
-Font-FreeType-*
+LibXML-*
 .gitignore

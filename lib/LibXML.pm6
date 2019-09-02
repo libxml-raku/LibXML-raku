@@ -119,7 +119,7 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =head2 Other
 
-=item [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML class for Error handling
+=item [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
 
 =item [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
 
@@ -127,18 +127,19 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =head1 CONTRIBUTERS
 
+With thanks to:
 Christian Glahn,
 Ilya Martynov,
 Matt Sergeant,
 Petr Pajas,
 Shlomi Fish,
 Tobias Leich,
-Xliff,
-David Warring
+Xliff.
+
 
 =head1 VERSION
 
-2.0200
+0.0.1
 
 =head1 COPYRIGHT
 

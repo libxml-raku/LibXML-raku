@@ -696,8 +696,8 @@ subtest 'compress' => {
     plan 5;
     use File::Temp;
     my LibXML::Document:D $doc = LibXML.parse: :file( "example/test.xml" );
-    todo '$doc.input-compressed is unreliable in libxml <= v2.09.00'
-        if LibXML.version <= v2.09.00;
+    todo '$doc.input-compressed is unreliable in libxml <= v2.09.01'
+        if LibXML.version <= v2.09.01;
     is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';
     if LibXML.have-compression {
         lives-ok { $doc = LibXML.parse: :file<test/compression/test.xml.gz> }, 'load compressed document';
