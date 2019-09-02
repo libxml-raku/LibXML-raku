@@ -26,7 +26,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
             $class.box: .delegate;
         } // $!of;
     }
-    method elems is also<Numeric> { $!native.nodeNr }
+    method elems is also<size Numeric> { $!native.nodeNr }
     method Array handles<List list values map grep> {
         if $!lazy {
             $!idx = 0;
@@ -77,7 +77,6 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     multi method to-literal( :list($)! where .so ) { self.map({ .string-value }) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
     method Str handles <Int Num trim chomp> { $.to-literal }
-    method size { $!native.nodeNr }
     method iterator {
         $!idx = 0;
         self;
