@@ -103,6 +103,8 @@ method Hash { # handles: keys, pairs, kv -- see LibXML::Node
 }
 multi method AT-KEY('@*') is rw { self.attributes }
 multi method AT-KEY('attributes::') is rw { self.attributes }
+multi method AT-KEY('#text') { self.AT-KEY("text()") }
+multi method AT-KEY('#comment') { self.Hash<#comment> }
 multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Grammar::pident>':']?<name=.XML::Grammar::pident>$/) is rw {
         my $ctx := $.xpath-context;
         my Str:D $name := $<name>.Str;
@@ -119,7 +121,7 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
                 self.setAttributeNS($href, $name, $val);
             }
         )
-    }
+}
 multi method AT-KEY(Str:D $xpath) is default {
     $.xpath-context.AT-KEY($xpath);
 }
@@ -236,14 +238,16 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.setNamespaceDeclURI( $nsPrefix, $newURI );
   $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
-  # Associative interface (XPath sugar)
-  my @a-nodes = $elem<a>;  # equivalent to: $elem.findnodes<a>;
-  my $b-attr  = $elem<@b>; # equivalent to: $elem.findnodes<@b>;
-  my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
-  $elem<c>:delete;         # equivalent to: .delete for $elem,findnodes<c>;
+  # Associative and positional interfaces (experimental)
+  my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
+  my $b-value  = $elem<@b>.Str;    # value of 'b' attribute
+  my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+  my LibXML::Node $parent = $elem<..>;
+  my $text-content = $elem<#text>;
   say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
   say $_ for $elem.attributes.keys;  # att-1 .. att-n
-  say $_ for $elem.childNodes.keys;  # tag-1 .. tag-n
+  say $_ for $elem.childNodes.keys;  # 0, 1, ...
+  say $elem[1];  # second child node
 
 =head1 METHODS
 

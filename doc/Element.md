@@ -41,14 +41,16 @@ SYNOPSIS
     $node.setNamespaceDeclURI( $nsPrefix, $newURI );
     $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
-    # Associative interface (XPath sugar)
-    my @a-nodes = $elem<a>;  # equivalent to: $elem.findnodes<a>;
-    my $b-attr  = $elem<@b>; # equivalent to: $elem.findnodes<@b>;
-    my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
-    $elem<c>:delete;         # equivalent to: .delete for $elem,findnodes<c>;
+    # Associative and positional interfaces (experimental)
+    my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
+    my $b-value  = $elem<@b>.Str;    # value of 'b' attribute
+    my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+    my LibXML::Node $parent = $elem<..>;
+    my $text-content = $elem<#text>;
     say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
     say $_ for $elem.attributes.keys;  # att-1 .. att-n
-    say $_ for $elem.childNodes.keys;  # tag-1 .. tag-n
+    say $_ for $elem.childNodes.keys;  # 0, 1, ...
+    say $elem[1];  # second child node
 
 METHODS
 =======
