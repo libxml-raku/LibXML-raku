@@ -1,3 +1,6 @@
+0.0.3  2019-09-04
+    - [src/xml6_ref.6] fix 'uint' compilation error #16
+    - [META6.json] fix source URL #17
 0.0.2 2019-09-04
     - [LibXML::Node] adopt LibXML::Element associative interface. Fix
       handling of '#text', '#comment' and '#cdata' DOM classes (which
