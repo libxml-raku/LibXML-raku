@@ -326,9 +326,9 @@ class LibXML::Node does LibXML::Item {
     }
 
     method DELETE-KEY(Str:D $xpath) {
-        my $deletee  = $.xpath-context.AT-KEY($xpath);
-        .unlink for $deletee.list;
-        $deletee;
+        my $ejected = $.xpath-context.AT-KEY($xpath);
+        .unlink for $ejected.list;
+        $ejected;
     }
 }
 

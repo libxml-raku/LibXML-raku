@@ -6,7 +6,6 @@ constant config =  LibXML::Config;
 plan 1;
 
 sub handler(*@p) {
-    warn;
   "ENTITY:" ~ @p.map({$_//''}).join: ',';
 }
 

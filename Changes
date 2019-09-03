@@ -1,6 +1,11 @@
-0.0.1 2019-03-40
-    Initial release
-
-0.0.2 2019-03-xx
+0.0.2 2019-09-04
+    - [LibXML::Node] adopt LibXML::Element associative interface. Fix
+      handling of '#text', '#comment' and '#cdata' DOM classes (which
+      can be returned by the .keys method).
+    - [LibXML::Node::List] optimisations to .AT-POS method
+    - [LibXML::Node::Set] rename .push method to .add
     - [LibXML::Reader] add missing :!network option. Fix unintended
-      network fetch in 40reader_mem_error.t
+      network fetch of an external Dtd in 40reader_mem_error.t
+
+0.0.1 2019-09-03
+    Initial release

@@ -50,7 +50,7 @@ class LibXML::Node::List does Iterable does Iterator {
             my $set-class := (require ::('LibXML::Node::Set'));
             my %h = ();
             for self.Array {
-                (%h{.tagName} //= $set-class.new).push: $_;
+                (%h{.tagName} //= $set-class.new).add: $_;
             }
             %h;
         }
