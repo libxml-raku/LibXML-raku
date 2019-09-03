@@ -62,9 +62,6 @@ because I<<<<<< libxml2 >>>>>> treats text nodes and comment nodes slightly diff
 
 2006-2009, Petr Pajas.
 
-=cut
-
-
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under

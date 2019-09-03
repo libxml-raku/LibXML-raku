@@ -22,7 +22,7 @@ DESCRIPTION
 
 Processing instructions are implemented with LibXML with read and write access. The PI data is the PI without the PI target (as specified in XML 1.0 [17]) as a string. This string can be accessed with getData as implemented in [LibXML::Node ](LibXML::Node ).
 
-The write access is aware about the fact, that many processing instructions have attribute like data. Therefore setData() provides besides the DOM spec conform Interface to pass a set of named parameter. So the code segment
+Many processing instructions have attribute like data. Therefore setData() provides, in addition to the DOM spec, the passing of named parameters. So the code segment:
 
     my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
     $pi.setData(foo=>'bar', foobar=>'foobar');
@@ -55,11 +55,6 @@ COPYRIGHT
 2002-2006, Christian Glahn.
 
 2006-2009, Petr Pajas.
-
-cut
-===
-
-
 
 LICENSE
 =======

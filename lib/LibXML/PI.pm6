@@ -49,9 +49,8 @@ Processing instructions are implemented with LibXML with read and write
 access. The PI data is the PI without the PI target (as specified in XML 1.0
 [17]) as a string. This string can be accessed with getData as implemented in L<<<<<< LibXML::Node >>>>>>.
 
-The write access is aware about the fact, that many processing instructions
-have attribute like data. Therefore setData() provides besides the DOM spec
-conform Interface to pass a set of named parameter. So the code segment
+Many processing instructions have attribute like data. Therefore setData() provides,
+in addition to the DOM spec, the passing of named parameters. So the code segment:
 
 
 
@@ -100,13 +99,9 @@ before it is appended to the PI.
 
 2006-2009, Petr Pajas.
 
-=cut
-
-
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
-
 
 =end pod

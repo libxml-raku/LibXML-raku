@@ -37,11 +37,11 @@ The following is unsafe:
     $elem = Nil;
     say $native.Str; # could have been destroyed along with $elem
 
-If the native object supports the `Reference` and `Unreference` methods, the object can be reference counted:
+If the native object supports the `Reference` and `Unreference` methods, the object can be reference counted and uncounted:
 
     my LibXML::Element $elem .= new: :name<Test>;
     my xmlElem:D $native = $elem.native;
-    $native.Reference; # add a reference tot he object
+    $native.Reference; # add a reference to the object
     $elem = Nil;
     say $native.Str; # now safe
     with $native {

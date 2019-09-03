@@ -139,7 +139,7 @@ Xliff.
 
 =head1 VERSION
 
-0.0.2
+0.0.3
 
 =head1 COPYRIGHT
 

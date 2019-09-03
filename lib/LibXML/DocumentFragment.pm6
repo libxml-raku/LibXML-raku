@@ -80,9 +80,6 @@ This class is a helper class as described in the DOM Level 2 Specification. It
 is implemented as a node without name. All adding, inserting or replacing
 functions are aware of document fragments.
 
-As well I<<<<<< all >>>>>> unbound nodes (all nodes that do not belong to any document sub-tree) are
-implicit members of document fragments.
-
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.
@@ -90,9 +87,6 @@ implicit members of document fragments.
 2002-2006, Christian Glahn.
 
 2006-2009, Petr Pajas.
-
-=cut
-
 
 =head1 LICENSE
 
