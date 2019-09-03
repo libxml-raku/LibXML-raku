@@ -4,7 +4,7 @@
 #include <string.h>
 
 struct _xml6Ref {
-    uint magic;     /* for verification */
+    int magic;     /* for verification */
     int ref_count;
     xmlMutexPtr mutex;
     xmlChar *fail;
