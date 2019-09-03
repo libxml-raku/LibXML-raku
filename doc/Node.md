@@ -72,9 +72,8 @@ SYNOPSIS
     $node.pop;  # remove last child
 
     # Associative interface (ready-only)
-    my LibXML::Node::Set %kids = $node.Hash;  # node-sets by tag-name
-    my LibXML::Node $first-a = %kids<a>[0];
-    for %kids<a> { ... }
+    for %kids<a> { ... }; # all '<a>..</a>' kids
+    for %kids<#text> { ... }; # text nodes
 
 DESCRIPTION
 ===========
@@ -92,7 +91,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     Returns the node's name. This function is aware of namespaces and returns the full name of the current node (`prefix:localname `). 
 
-    Since 1.62 this function also returns the correct DOM names for node types with constant names, namely: #text, #cdata-section, #comment, #document, #document-fragment. 
+    This function also returns the correct DOM names for node types with constant names, namely: #text, #cdata-section, #comment, #document, #document-fragment.
 
   * setNodeName
 

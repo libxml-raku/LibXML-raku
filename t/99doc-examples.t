@@ -196,7 +196,7 @@ subtest 'LibXML::Dtd' => {
 }
 
 subtest 'XML::LibXML::Element' => {
-    plan 6;
+    plan 8;
     use LibXML::Attr;
     use LibXML::Attr::Map;
     use LibXML::Node;
@@ -246,14 +246,17 @@ subtest 'XML::LibXML::Element' => {
     $node.setNamespaceDeclURI( $nsPrefix, $newURI );
     $node.setNamespaceDeclPrefix( $nsPrefix, $newPrefix );
 
-    # Associative interface (XPath sugar)
+    # Associative and positional interfaces
+    my @z-grand-kids = $node<*/z>;   # equiv: $node.findnodes<*/z>;
     my LibXML::Node @as = $node<a>;  # equivalent to: $node.findnodes<a>;
     is $node<@ns:att>.Str, "my-val";
+    is $node[0].Str, '<a>XXX</a>';
     is-deeply $node[0]<#text>.Str, 'XXX';
-    my @z-grand-kids = $node<*/z>;   # equiv: $node.findnodes<*/z>;
     is-deeply $node.keys.sort, <#text @ns:att a b kid>;
     is-deeply $node.attributes.keys.sort, ("ns:att", );
     is-deeply $node.childNodes.keys, (0, 1, 2, 3);
+    my $bs = $node<b>:delete;
+    is $bs[0].Str, '<b/>';
 
     # verify detailed handling of namespaces, as documented for setAttributeNS
     my $aname2 = 'ns2:att2';

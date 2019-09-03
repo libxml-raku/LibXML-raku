@@ -319,6 +319,17 @@ class LibXML::Node does LibXML::Item {
         $!native.Blob(:$enc, :$options);
     }
 
+    multi method AT-KEY(Str:D $xpath) is default {
+        $xpath.starts-with('#')
+            ?? self.childNodes.Hash.AT-KEY($xpath)   # DOM style name, e.g. '#text', '#comment'
+            !! $.xpath-context.AT-KEY($xpath);
+    }
+
+    method DELETE-KEY(Str:D $xpath) {
+        my $deletee  = $.xpath-context.AT-KEY($xpath);
+        .unlink for $deletee.list;
+        $deletee;
+    }
 }
 
 =begin pod
@@ -396,9 +407,8 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $node.pop;  # remove last child
 
   # Associative interface (ready-only)
-  my LibXML::Node::Set %kids = $node.Hash;  # node-sets by tag-name
-  my LibXML::Node $first-a = %kids<a>[0];
-  for %kids<a> { ... }
+  for %kids<a> { ... }; # all '<a>..</a>' kids
+  for %kids<#text> { ... }; # text nodes
 
 =head1 DESCRIPTION
 
@@ -422,9 +432,9 @@ nodeName
 Returns the node's name. This function is aware of namespaces and returns the
 full name of the current node (C<<<<<< prefix:localname >>>>>>). 
 
-Since 1.62 this function also returns the correct DOM names for node types with
+This function also returns the correct DOM names for node types with
 constant names, namely: #text, #cdata-section, #comment, #document,
-#document-fragment. 
+#document-fragment.
 
 =end item1
 
