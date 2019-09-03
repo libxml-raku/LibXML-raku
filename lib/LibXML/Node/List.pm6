@@ -5,8 +5,9 @@ class LibXML::Node::List does Iterable does Iterator {
     has Bool $.keep-blanks;
     has $.doc is required;
     has anyNode $.native is required handles <string-value>;
-    has $!cur;
+    has anyNode $!cur;
     has $.of is required;
+    has int $.idx = 0;
     has LibXML::Node @!store;
     has Hash $!hstore;
     has Bool $!lazy = True;
@@ -16,14 +17,33 @@ class LibXML::Node::List does Iterable does Iterator {
     submethod TWEAK {
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
+        $!idx = 0;
     }
 
-    method Array handles<AT-POS elems List list values map grep Numeric> {
+    method Array handles<elems List list values map grep Numeric> {
         if $!lazy-- {
+            $!idx = 0;
             $!cur = $!native;
             @!store = self;
         }
         @!store;
+    }
+    # allow lazy incremental iteration
+    method AT-POS(UInt() $pos) {
+        when $pos == $!idx {
+            # current element
+            $!of.box: $!cur, :$!doc;
+        }
+        when $pos == $!idx+1 {
+            # next element
+            $!idx++;
+            $_ = .next-node($!keep-blanks) with $!cur;
+            $!of.box: $!cur, :$!doc;
+        }
+        default {
+            # switch to random access
+            self.Array.AT-POS($pos);
+        }
     }
     method Hash {
         $!hstore //= do {
@@ -48,10 +68,11 @@ class LibXML::Node::List does Iterable does Iterator {
             $node.unbindNode;
         } // LibXML::Node;
     }
-    method ASSIGN-POS(UInt() $pos, LibXML::Node $node) {
+    method ASSIGN-POS(UInt() $pos, LibXML::Node:D $node) {
         if $pos < $.elems {
             $!hstore = Nil; # invalidate Hash cache
             $.parent.replaceChild($node, $.Array[$pos]);
+            $!cur = $node.native if $pos == $!idx;
             @!store[$pos] = $node;
         }
         elsif $pos == $.elems {
@@ -71,6 +92,7 @@ class LibXML::Node::List does Iterable does Iterator {
     }
     method pull-one {
         with $!cur -> $this {
+            $!idx++;
             $!cur = $this.next-node($!keep-blanks);
             $!of.box: $this, :$!doc
         }
