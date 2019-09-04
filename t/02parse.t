@@ -74,7 +74,8 @@ XML_DECL,                                  # only XML Declaration
 XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar &foo;="ouch"/>',          # bad placed entity
 XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar=&quot;foo&quot;">]><foobar &foo;/>', # even worse
 '<ouch><!---></ouch>',                     # bad comment
-(LibXML.version >= v2.09.00 ?? '<ouch><!-----></ouch>' !! '<ouch><!---></ouch>'),                   # bad either... (is this conform with the spec????)
+## valgrind warnings + sefaults - issue #18: '<ouch><!-----></ouch>'
+'<ouch>todo issue#18<!---></ouch>',                   # bad either... (is this conform with the spec????)
                     );
 
 
