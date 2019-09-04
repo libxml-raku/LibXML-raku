@@ -74,7 +74,7 @@ A state int the automata description,
 class LibXML::Native::xmlBuffer32
 ---------------------------------
 
-old buffer struct limited to 32bit signed addressing (2Gb). Please use xmlBuf
+old buffer struct limited to 32bit signed addressing (2Gb). xmlBuf is preferred, where available
 
 class LibXML::Native::xmlBuf
 ----------------------------

@@ -4,7 +4,7 @@ use LibXML;
 use LibXML::Config;
 
 constant config = LibXML::Config;
-constant Min-LibXML-Version = v2.09.00;
+constant Min-LibXML-Version = v2.08.00;
 
 plan 9;
 

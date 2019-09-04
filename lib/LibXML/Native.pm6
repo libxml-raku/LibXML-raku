@@ -116,17 +116,25 @@ class xmlAutomata is repr(Opaque) is export {}
 #| A state int the automata description,
 class xmlAutomataState is repr(Opaque) is export {}
 
-#| old buffer struct limited to 32bit signed addressing (2Gb). Please use xmlBuf
-class xmlBuffer32 is repr(Opaque) is export {}
+#| old buffer struct limited to 32bit signed addressing (2Gb). xmlBuf is preferred, where available
+class xmlBuffer32 is repr(Opaque) is export {
+    sub Create( --> xmlBuffer32) is native(LIB) is symbol('xmlBufferCreate') is export {*};
+    method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufferCat') {*}
+    method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufferWriteQuotedString') {*}
+    method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is symbol('xmlNodeDump') {*};
+    method Content(--> Str) is symbol('xmlBufferContent') is native(LIB) { * }
+    method Free() is native(LIB) is symbol('xmlBufferFree') {*};
+    method new(--> xmlBuffer32:D) { Create() }
+}
 
 #| New buffer structure, introduced in libxml 2.09.00, the actual structure internals are not public
 class xmlBuf is repr(Opaque) is export {
     sub Create(--> xmlBuf) is native(LIB) is symbol('xmlBufCreate') {*}
     method Write(xmlCharP --> int32) is native(LIB) is symbol('xmlBufCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native(LIB) is symbol('xmlBufWriteQuotedString') {*}
-    method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is symbol('xmlBufNodeDump') is export { * }
-    method Content(--> Str) is symbol('xmlBufContent') is native(LIB) is export { * }
-    method Free is symbol('xmlBufFree') is native(LIB) is export { * }
+    method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native(LIB) is symbol('xmlBufNodeDump') { * }
+    method Content(--> Str) is symbol('xmlBufContent') is native(LIB) { * }
+    method Free is symbol('xmlBufFree') is native(LIB) { * }
     method new(--> xmlBuf:D) { Create() }
 }
 
@@ -306,7 +314,7 @@ class xmlNs is export is repr('CStruct') {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';
         # approximation of xmlsave.c: xmlNsDumpOutput(...)
-        my xmlBuf $buf .= new;
+        my xmlBuffer32 $buf .= new;
 
         $buf.Write('xmlns');
         $buf.Write(':' ~ $_)
@@ -976,14 +984,14 @@ class xmlDoc is anyNode does LibXML::Native::DOM::Document is export {
     has int32           $.properties;  # set of xmlDocProperties for this document
                                        # set at the end of parsing
 
-    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) is export {*}
+    method DumpFormatMemoryEnc(Pointer[uint8] $ is rw, int32 $ is rw, Str, int32 ) is symbol('xmlDocDumpFormatMemoryEnc') is native(LIB) {*}
     sub xmlSaveFormatFile(Str $filename, xmlDoc $doc, int32 $format --> int32) is native(LIB) is export {*}
     # this method can save documents with compression
     method write(Str:D $filename, Int() :$format = 0) {
          xmlSaveFormatFile($filename, self, $format);
     }
-    method GetRootElement(--> xmlElem) is symbol('xmlDocGetRootElement') is native(LIB) is export { * }
-    method SetRootElement(xmlElem --> xmlElem) is symbol('xmlDocSetRootElement') is native(LIB) is export { * }
+    method GetRootElement(--> xmlElem) is symbol('xmlDocGetRootElement') is native(LIB) { * }
+    method SetRootElement(xmlElem --> xmlElem) is symbol('xmlDocSetRootElement') is native(LIB) { * }
     method Copy(int32 $deep --> xmlDoc) is symbol('xmlCopyDoc') is native(LIB) {*}
     method copy(Bool :$deep = True) { $.Copy(+$deep) }
     method Free is native(LIB) is symbol('xmlFreeDoc') {*}

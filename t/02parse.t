@@ -74,8 +74,9 @@ XML_DECL,                                  # only XML Declaration
 XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar &foo;="ouch"/>',          # bad placed entity
 XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar=&quot;foo&quot;">]><foobar &foo;/>', # even worse
 '<ouch><!---></ouch>',                     # bad comment
-'<ouch><!-----></ouch>',                   # bad either... (is this conform with the spec????)
+(LibXML.version >= v2.09.00 ?? '<ouch><!-----></ouch>' !! '<ouch><!---></ouch>'),                   # bad either... (is this conform with the spec????)
                     );
+
 
     my %goodPushWF = (
 single1 => ['<foobar/>'],
