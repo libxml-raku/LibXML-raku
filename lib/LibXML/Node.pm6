@@ -19,8 +19,7 @@ class LibXML::Node does LibXML::Item {
 
     has LibXML::Node $.doc;
 
-    has anyNode $.native;
-    method native handles <
+    has anyNode $.native handles <
         domCheck domFailure
         hasChildNodes
         getNodeName getNodeValue
@@ -29,14 +28,10 @@ class LibXML::Node does LibXML::Item {
         setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
         type
         unique-key lock unlock
-    > {
-        with self { $!native } else { anyNode }
-    }
+    >;
 
     BEGIN {
-        # wrap methods that return raw nodes
-        # simple navigation; no arguments
-        # todo: migrate to LibXML::_DOMNode
+        # wrap methods that return raw nodes; simple navigation; no arguments
         for <
              firstChild firstNonBlankChild
              next nextSibling nextNonBlankSibling
@@ -112,16 +107,17 @@ class LibXML::Node does LibXML::Item {
     }
 
     method getOwnerDocument {
+        my \doc-class = box-class(XML_DOCUMENT_NODE);
         do with self {
             with .native.doc -> xmlDoc $struct {
-                $!doc = box-class(XML_DOCUMENT_NODE).box($struct)
+                $!doc = doc-class.box($struct)
                     if ! ($!doc && !$!doc.native.isSameNode($struct));
             }
             else {
                 $!doc = Nil;
             }
             $!doc;
-        } // (require ::('LibXML::Document'));
+        } // doc-class;
     }
 
     method doc is rw is also<ownerDocument getOwner> {
