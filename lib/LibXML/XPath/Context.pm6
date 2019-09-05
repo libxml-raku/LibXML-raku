@@ -32,10 +32,19 @@ class LibXML::XPath::Context {
     multi sub native-expr(LibXML::XPath::Expression:D $_) { .native }
     multi sub native-expr(Str() $_) is default { $_ }
 
+    method !flush-errors {
+        if @!callback-errors {
+            my $error = @!callback-errors.pop;
+            $*ERR.say($_) for @!callback-errors;
+            @!callback-errors = ();
+            $error.rethrow;
+        }
+    }
+
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
         my xmlNodeSet $node-set := $.native.findnodes( native-expr($xpath-expr), $node);
-        .rethrow with @!callback-errors.tail;
+        self!flush-errors;
         $node-set.copy;
     }
     proto method findnodes($, $?) is also<AT-KEY> {*}
@@ -48,7 +57,7 @@ class LibXML::XPath::Context {
     }
 
     method !value(xmlXPathObject $native, Bool :$literal) {
-        .rethrow with @!callback-errors.tail;
+        self!flush-errors;
         my LibXML::XPath::Object $object .= new: :$native;
         $object.value: :$literal;
     }

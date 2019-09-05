@@ -16,7 +16,7 @@ $xc.registerNs('foo','urn:foo');
 
 # low level test
 use LibXML::Native;
-$xc.registerFunctionNS('copy','urn:foo', -> $v, $v2? { $v }  );
+$xc.registerFunctionNS('copy','urn:foo', -> $v { $v }  );
 
 # copy string, real, integer, nodelist
 # TEST
@@ -36,7 +36,7 @@ my ($foo)=$xc.findnodes('(//*)[2]');
 ok($xc.findnodes('foo:copy(//*)[2]').pop.isSameNode($foo), ' TODO : Add test name');
 
 # too many arguments
-todo("error handling");
+
 dies-ok { $xc.findvalue('foo:copy(1,xyz)') }, ' TODO : Add test name';
 
 # without a namespace
