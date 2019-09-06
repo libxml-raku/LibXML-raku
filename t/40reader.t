@@ -1,5 +1,5 @@
 use Test;
-plan 101;
+plan 103;
 
 use LibXML;
 use LibXML::Reader;
@@ -19,6 +19,11 @@ my $file = "test/textReader/countries.xml";
 {
   my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
   isa-ok($reader, "LibXML::Reader");
+
+  is-deeply($reader.getParserProp('expand-entities'), True, "getParserProp");
+  lives-ok({$reader.setParserProp(:!expand-entities)}, "setParserProp");
+  is-deeply($reader.getParserProp('expand-entities'), False, "getParserProp");
+
   is($reader.read, True, "read");
   is($reader.byteConsumed, 488, "byteConsumed");
   is($reader.attributeCount, 0, "attributeCount");
@@ -71,8 +76,6 @@ my $file = "test/textReader/countries.xml";
   is($reader.readInnerXml, "", "readInnerXml");
   is($reader.readOuterXml, "\n", "readOuterXml");
   ok($reader.readState, "readState");
-
-  is($reader.getParserProp('expand-entities'), 1, "getParserProp");
 
   ok($reader.standalone, "standalone");
   is($reader.value, "\n", "value");

@@ -18,7 +18,7 @@ class LibXML::Reader {
     use LibXML::RelaxNG;
     use LibXML::Schema;
     use LibXML::_Options;
-    use  LibXML::Parser::Context;
+    use LibXML::Parser::Context;
 
     has xmlTextReader $.native handles<
         attributeCount baseURI byteConsumed columnNumber depth
@@ -158,19 +158,30 @@ class LibXML::Reader {
         LibXML::Node.box($node);
     }
 
+    constant %ParserProp = %(
+        :complete-attributes(XML_PARSER_DEFAULTATTRS),
+        :expand-entities(XML_PARSER_SUBST_ENTITIES),
+        :load-ext-entity(XML_PARSER_LOADDTD),
+        :validation(XML_PARSER_VALIDATE),
+    );
+
     multi method getParserProp(Str:D $opt) {
-        my UInt $flag = %(
-                    :complete-attributes(XML_PARSER_DEFAULTATTRS),
-                    :expand-entities(XML_PARSER_SUBST_ENTITIES),
-                    :load-ext-entity(XML_PARSER_LOADDTD),
-                    :validation(XML_PARSER_VALIDATE),
-                ){$opt.lc.subst('_', '-', :g)} // fail "Unknown parser property: $opt";
+        my UInt $prop = %ParserProp{$opt} // fail "Unknown parser property: $opt";
                     
-        $!native.getParserProp: $flag;
+        ? $!native.getParserProp: $prop;
     }
 
-    multi method getParserProp(Numeric:D $opt) {
-        $!native.getParserProp: $opt;
+    multi method getParserProp(Numeric:D $prop) {
+        ? $!native.getParserProp: $prop;
+    }
+
+    method setParserProp( *%props ) {
+        for %props.sort {
+            my $prop = %ParserProp{.key} // fail "Unknown parser property: {.key}";
+            $!native.setParserProp($prop, +.value);
+            self.set-flag($!flags, .key, $!native.getParserProp($prop));
+        }
+        %props;
     }
 
     method moveToAttributeNs(QName:D $name, Str $URI) {
@@ -880,11 +891,11 @@ if run on non-UTF-8 input.
 =end item1
 
 =begin item1
-setParserProp(prop => value, ...)
+setParserProp(:$prop)
 
 Change the parser processing behaviour by changing some of its internal
 properties. The following properties are available with this function:
-``load-ext-dtd'', ``complete-attributes'', ``validation'', ``expand-entities''.
+`load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`
 
 Since some of the properties can only be changed before any read has been done,
 it is best to set the parsing properties at the constructor.
@@ -894,11 +905,11 @@ Returns 0 if the call was successful, or -1 in case of error
 =end item1
 
 =begin item1
-getParserProp(prop)
+my Bool $flag = getParserProp($prop);
 
 Get value of an parser internal property. The following property names can be
-used: ``load-ext-dtd'', ``complete-attributes'', ``validation'',
-``expand-entities''.
+used: `load-ext-dtd`, `complete-attributes`, `validation`,
+`expand-entities`.
 
 Returns the value, usually True, False, or Failure in case of error.
 

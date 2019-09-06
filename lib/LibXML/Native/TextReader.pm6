@@ -33,6 +33,8 @@ class xmlTextReader is repr('CPointer') is export {
     method encoding(--> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstEncoding') {*}
     method finish(--> int32) is native(BIND-LIB) is symbol('xml6_reader_finish') {*}
     method getParserProp(int32 --> int32) is native(LIB) is symbol('xmlTextReaderGetParserProp') {*}
+    method setParserProp(int32 $prop, int32 $value --> int32) is native(LIB) is symbol('xmlTextReaderSetParserProp') {*};
+
     method hasAttributes(--> int32) is native(LIB) is symbol('xmlTextReaderHasAttributes') {*}
     method hasValue(--> int32) is native(LIB) is symbol('xmlTextReaderHasValue') {*}
     method isDefault(--> int32) is native(LIB) is symbol('xmlTextReaderIsDefault') {*}
