@@ -1,7 +1,7 @@
 use Test;
 use LibXML::RegExp;
 
-plan 13;
+plan 14;
 
 
 {
@@ -42,7 +42,12 @@ plan 13;
     ok( ! $nondet_re.isDeterministic, 'It is not deterministic' );
 }
 
+# silence this test
+my $errors;
+LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, $arg { $errors++ }
+
 {
     my $bad_regex = '[0-9]{5}(-[0-9]{4}?';
     dies-ok { LibXML::RegExp.new(regexp => $bad_regex); },  'An exception was thrown on bad regex';
+    ok $errors, 'error handler called';
 }

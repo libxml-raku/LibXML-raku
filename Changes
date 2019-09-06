@@ -1,10 +1,12 @@
-0.0.5 2019-09-07
+0.0.5 2019-09-08
     - [LibXML::Reader] fix get/set of parser options #20
-0.0.4 2019-09-05
+    - [LibXML::XPath:::Context] - imnproved error handling
+    - reduced displayed errors in test suite #19
+0.0.4 2019-09-06
     - [LibXML::Node] remove custom native accessor
     - drop min supported libxml version from v2.09.00 to v2.08.00
     - skip too successful 'comment' test for open issue #18 (segfaulting)
-0.0.3 2019-09-04
+0.0.3 2019-09-05
     - [src/xml6_ref.6] fix 'uint' compilation error #16
     - [META6.json] fix source URL #17
 0.0.2 2019-09-04

@@ -16,7 +16,7 @@ my $validfile    = "test/relaxng/demo.xml";
 my $invalidfile  = "test/relaxng/invaliddemo.xml";
 my $demo4        = "test/relaxng/demo4.rng";
 
-diag "# 1 parse schema from a file\n";
+# 1 parse schema from a file
 {
     my $rngschema = LibXML::RelaxNG.new( location => $file );
     # TEST
