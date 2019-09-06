@@ -680,7 +680,9 @@ class xmlXPathContext is repr('CStruct') is export {
         domXPathNewCtxt($node);
     }
 
-    method findnodes(xmlXPathCompExpr:D $expr, anyNode $ref-node? --> xmlNodeSet) { self.domXPathSelectCtxt($expr, $ref-node); }
+    method findnodes(xmlXPathCompExpr:D $expr, anyNode $ref-node? --> xmlNodeSet) {
+        self.domXPathSelectCtxt($expr, $ref-node);
+    }
 
     method find(xmlXPathCompExpr:D $expr, anyNode $ref-node?, Bool :$bool) {
         self.domXPathFindCtxt($expr, $ref-node, $bool);
@@ -691,6 +693,11 @@ class xmlXPathContext is repr('CStruct') is export {
     method RegisterFunc(xmlCharP $name, &func1 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native(LIB) {*}
     method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func2 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native(LIB) {*}
     method RegisterVariableLookup( &func3 (xmlXPathContext, Str, Str --> xmlXPathObject), Pointer ) is symbol('xmlXPathRegisterVariableLookup') is native(LIB) {*}
+    constant xmlXPathFunction = Pointer;
+    method RegisterFuncLookup( &func4 (xmlXPathContext, xmlCharP $name, xmlCharP $ns-uri --> xmlXPathFunction), Pointer) is native(LIB) is symbol('xmlXPathRegisterFuncLookup') {*};
+    method FunctionLookupNS(xmlCharP $name, xmlCharP $ns_uri --> xmlXPathFunction) is native(LIB) is symbol('xmlXPathFunctionLookupNS') {*};
+    method SetStructuredErrorFunc( &error-func (xmlXPathContext $, xmlError $)) is native(BIND-LIB) is symbol('domSetXPathCtxtErrorHandler') {*};
+    method SetGenericErrorFunc( &error-func (xmlXPathContext $, Str $fmt, Pointer $arg)) is symbol('xmlSetGenericErrorFunc') is native(LIB) {*};
 }
 
 #| An XPath parser context. It contains pure parsing informations,
@@ -1582,6 +1589,19 @@ method ExternalEntityLoader is rw {
         FETCH => { nativecast( :(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput), xmlGetExternalEntityLoader()) },
         STORE => sub ($, &loader) {
              xmlSetExternalEntityLoader(&loader)
+        }
+    );
+}
+
+my constant xmlGenericErrorDefaultFunc is export := cglobal(LIB, 'xmlGenericErrorDefaultFunc', Pointer);
+
+method GenericErrorFunc is rw {
+    sub xmlSetGenericErrorFunc( Pointer, &handler (Pointer, xmlCharP, Pointer) ) is native(LIB) is export {*}
+    my constant xmlGenericError is export := cglobal(LIB, 'xmlGenericError', Pointer);
+    Proxy.new(
+        FETCH => { nativecast( :(Pointer, xmlCharP, xmlCharP), xmlGenericError ) },
+        STORE => sub ($, &handler) {
+             xmlSetGenericErrorFunc(Pointer, &handler)
         }
     );
 }

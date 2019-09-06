@@ -10,7 +10,7 @@ my subset DocNode of LibXML::Node where {!.defined || .native ~~ xmlDoc};
 
 class ValidContext {
     has xmlValidCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
 
     multi submethod BUILD( xmlValidCtxt:D :$!native! ) { }
     multi submethod BUILD {
@@ -41,7 +41,6 @@ class ValidContext {
     }
 
     method is-valid(|c) {
-        warn;
         self.validate(:check, |c);
     }
 

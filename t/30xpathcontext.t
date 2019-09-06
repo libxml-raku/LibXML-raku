@@ -5,6 +5,8 @@ use LibXML;
 use LibXML::XPath::Context;
 use LibXML::XPath::Expression;
 
+my $errors;
+
 my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b"></bar></foo>
 XML
@@ -61,7 +63,6 @@ ok(LibXML::XPath::Context.new(:$doc).find(LibXML::XPath::Expression.parse('/foo/
 
 is(LibXML::XPath::Context.new(:$doc).find('1*3'), 3, ' TODO : Add test name');
 # TEST
-
 is(LibXML::XPath::Context.new(:$doc).find('1=1'), True, ' TODO : Add test name');
 
 my $doc1 = LibXML.parse: :string(q:to<XML>);
@@ -71,6 +72,9 @@ XML
 # test registerNs()
 my $compiled = LibXML::XPath::Expression.parse('/xxx:foo');
 my $xc = LibXML::XPath::Context.new: :doc($doc1);
+LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, $arg {
+     $errors++;
+}
 $xc.registerNs('xxx', 'http://example.com/foobar');
 # TEST
 
@@ -93,13 +97,11 @@ ok($xc.exists('xxx:bar', $doc1.getDocumentElement), ' TODO : Add test name');
 
 # test unregisterNs()
 $xc.unregisterNs('xxx');
-todo "not dying";
 dies-ok { $xc.findnodes('/xxx:foo') }, 'Find unregistered NS';
 # TEST
 
 ok(!defined($xc.lookupNs('xxx')), 'Lookup unregistered NS');
 
-todo "not dying";
 dies-ok { $xc.findnodes($compiled) }, ' TODO : Add test name';
 # TEST
 
@@ -299,7 +301,6 @@ dies-ok { $xc4.findvalue('last()') }, ' TODO : Add test name';
     }
 }
 
-SKIP:
 {
     my $frag = LibXML::DocumentFragment.new;
     my $foo = LibXML::Element.new('foo');

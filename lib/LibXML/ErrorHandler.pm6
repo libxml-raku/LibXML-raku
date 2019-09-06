@@ -3,8 +3,7 @@ use NativeCall;
 use LibXML::Native;
 use LibXML::Enums;
 
-class X::LibXML::Parser is Exception {
-
+class X::LibXML is Exception {
     constant @ErrorDomains = (
         "", "parser", "tree", "namespace", "validity",
         "HTML parser", "memory", "output", "I/O", "ftp",
@@ -16,50 +15,64 @@ class X::LibXML::Parser is Exception {
         "Schematron validity",
     );
 
+    has UInt $.level;
+    has UInt $.domain-num;
+    method domain returns Str { @ErrorDomains[$!domain-num // 0] }
+    has X::LibXML $.prev is rw;
+}
+
+#| trapped callback errors
+class X::LibXML::XPath::AdHoc is X::LibXML {
+    method domain-num {XML_FROM_XPATH}
+    method level {XML_ERR_ERROR}
+    has Exception $.error handles<message>;
+}
+
+#| xmlError mapped errors
+class X::LibXML::Parser is X::LibXML {
+
     has Str $.file;
     has UInt $.line;
     has UInt $.column;
-    has UInt $.level;
     has UInt $.code;
-    has UInt $.domain-num;
-    method domain returns Str { @ErrorDomains[$!domain-num] }
     has Str $.msg;
-    has X::LibXML::Parser $.prev is rw;
 
     method messages {
-        (do with $!prev { .messages } else { '' }) ~ $!msg;
+        (do with $.prev { .messages } else { '' }) ~ $!msg;
     }
 
     method message {
         my @meta;
         @meta.push: $_ with $.domain;
-        if $!level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
+        if $.level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
             @meta.push: 'error';
         }
-        elsif $!level == XML_ERR_WARNING {
+        elsif $.level == XML_ERR_WARNING {
             @meta.push: 'warning';
         }
 
-        my $message = @meta.join(' ') ~ ' : ' ~ $.messages.join;
-        join(':', ($!file//''), $!line, ' ' ~ chomp($message));
+        my $message = chomp(@meta.join(' ') ~ ' : ' ~ $.messages.join);
+        $!line
+            ?? join(':', ($!file//''), $!line, ' ' ~ $message)
+            !! $message;
     }
 }
 
 class LibXML::ErrorHandler {
-    has X::LibXML::Parser @!errors;
+    has X::LibXML @!errors;
     has Bool $.recover is rw;
     has Bool $.suppress-warnings;
     has Bool $.suppress-errors;
 
     method generic-error(Str $fmt, Pointer $arg) {
         CATCH { default { warn "error handling failure: $_" } }
-        my $msg = $fmt eq '%s' ?? nativecast(Str, $arg) !! $fmt;
+        my $msg = $fmt.subst('%s', nativecast(Str, $arg));
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
     }
 
     method generic-warning(Str $fmt, Pointer $arg) {
         CATCH { default { warn "error handling failure: $_" } }
-        my $msg = $fmt eq '%s' ?? nativecast(Str, $arg) !! $fmt;
+        my $msg = $fmt.subst('%s', nativecast(Str, $arg));
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_WARNING), :$msg );
     }
 
@@ -76,10 +89,14 @@ class LibXML::ErrorHandler {
         @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num );
     }
 
+    method callback-error(X::LibXML $_) {
+        @!errors.push: $_;
+    }
+
     method is-valid(|c) {
         my Bool $valid = True;
         if @!errors {
-            my X::LibXML::Parser @errs;
+            my X::LibXML @errs;
             for @!errors {
                 if .domain-num ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV {
 		    $valid = False;
@@ -95,7 +112,7 @@ class LibXML::ErrorHandler {
 
     method flush-errors(:$recover = $.recover) {
         if @!errors {
-            my X::LibXML::Parser @errs = @!errors;
+            my X::LibXML @errs = @!errors;
             @!errors = ();
 
             if $!suppress-errors {
@@ -108,8 +125,8 @@ class LibXML::ErrorHandler {
             @errs[$_].prev = @errs[$_-1] for 1 ..^ +@errs;
 
             if @errs {
-                my X::LibXML::Parser $fatal = @errs.first: { .level >= XML_ERR_ERROR };
-                my X::LibXML::Parser $err = $fatal // @errs[0];
+                my X::LibXML $fatal = @errs.first: { .level >= XML_ERR_ERROR };
+                my X::LibXML $err = $fatal // @errs[0];
 
                 if !$fatal.defined || $recover {
                     warn $err; 

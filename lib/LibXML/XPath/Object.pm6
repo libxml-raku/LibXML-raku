@@ -7,7 +7,6 @@ use LibXML::Node :iterate-set;
 use LibXML::Node::Set;
 
 has xmlXPathObject:D $.native is required handles<type>;
-method native { with self { $!native } else { xmlXPathObject } }
 
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
 my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Item;

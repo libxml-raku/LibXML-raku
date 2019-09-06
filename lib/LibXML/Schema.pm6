@@ -12,7 +12,7 @@ has xmlSchema $.native;
 
 my class Parser::Context {
     has xmlSchemaParserCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
     has Blob $!buf;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
@@ -36,7 +36,7 @@ my class Parser::Context {
 
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: -> xmlSchemaParserCtxt $ctx, xmlError:D $err {
-                self.structured-error($err);
+            self.structured-error($err);
         };
 
     }

@@ -1,5 +1,5 @@
 use Test;
-plan 31;
+plan 32;
 
 use LibXML;
 use LibXML::Document;
@@ -11,9 +11,11 @@ XML
 # TEST
 ok($doc, ' TODO : Add test name');
 
-my $xc = LibXML::XPath::Context.new(:$doc);
-$xc.registerNs('foo','urn:foo');
+my $errors;
 
+my LibXML::XPath::Context $xc .= new(:$doc); use NativeCall;
+LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, $arg { $errors++ }
+$xc.registerNs('foo','urn:foo');
 # low level test
 use LibXML::Native;
 $xc.registerFunctionNS('copy','urn:foo', -> $v { $v }  );
@@ -37,7 +39,7 @@ ok($xc.findnodes('foo:copy(//*)[2]').pop.isSameNode($foo), ' TODO : Add test nam
 
 # too many arguments
 
-dies-ok { $xc.findvalue('foo:copy(1,xyz)') }, ' TODO : Add test name';
+throws-like { $xc.findvalue('foo:copy(1,xyz)') }, X::LibXML::XPath::AdHoc, :message("Too many positionals passed; expected 1 argument but got 2"), ' TODO : Add test name';
 
 # without a namespace
 $xc.registerFunction('dummy', sub { 'DUMMY' });
@@ -59,7 +61,6 @@ is($xc.findvalue('dummy2()'), 'DUMMY2', ' TODO : Add test name');
 # unregister
 $xc.unregisterFunction('dummy2');
 dies-ok { $xc.findvalue('dummy2()') }, ' TODO : Add test name';
-
 
 # a mix of different arguments types
 $xc.registerFunction(
@@ -167,3 +168,5 @@ is($pass1.size, 301, ' TODO : Add test name');
 # TEST
 
 is($xc.find('pass2(//*)').size(), 301, ' TODO : Add test name');
+
+ok $errors, 'errors trapped';

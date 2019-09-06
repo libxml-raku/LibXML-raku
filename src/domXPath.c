@@ -482,6 +482,11 @@ domXPathNewCtxt(xmlNodePtr refNode) {
 }
 
 DLLEXPORT void
+domSetXPathCtxtErrorHandler(xmlXPathContextPtr ctxt, xmlStructuredErrorFunc error_func) {
+    ctxt->error = error_func;
+}
+
+DLLEXPORT void
 domXPathFreeCtxt(xmlXPathContextPtr ctxt) {
     if (ctxt->namespaces != NULL) {
         xmlFree( ctxt->namespaces );

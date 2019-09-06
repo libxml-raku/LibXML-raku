@@ -5,6 +5,7 @@ class LibXML::XPath::Context {
     use LibXML::Item;
     use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
+    use LibXML::ErrorHandler;
     use LibXML::Types :QName;
     use LibXML::Node::List;
     use LibXML::Node::Set;
@@ -16,11 +17,17 @@ class LibXML::XPath::Context {
 
     has LibXML::Node $!context-node;
     has Exception @!callback-errors;
+    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error> .= new;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
     submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc) {
         self.setContextNode($_) with $node // $doc;
+        with $!native {
+            .SetStructuredErrorFunc: -> xmlXPathContext $ctx, xmlError $err {
+                self.structured-error($err);
+            }
+        }
     }
 
     submethod DESTROY {
@@ -32,19 +39,10 @@ class LibXML::XPath::Context {
     multi sub native-expr(LibXML::XPath::Expression:D $_) { .native }
     multi sub native-expr(Str() $_) is default { $_ }
 
-    method !flush-errors {
-        if @!callback-errors {
-            my $error = @!callback-errors.pop;
-            $*ERR.say($_) for @!callback-errors;
-            @!callback-errors = ();
-            $error.rethrow;
-        }
-    }
-
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
         my xmlNodeSet $node-set := $.native.findnodes( native-expr($xpath-expr), $node);
-        self!flush-errors;
+        self.flush-errors;
         $node-set.copy;
     }
     proto method findnodes($, $?) is also<AT-KEY> {*}
@@ -56,10 +54,12 @@ class LibXML::XPath::Context {
         iterate-set(LibXML::Item, self!find($expr, $ref));
     }
 
-    method !value(xmlXPathObject $native, Bool :$literal) {
-        self!flush-errors;
-        my LibXML::XPath::Object $object .= new: :$native;
-        $object.value: :$literal;
+    method !value(xmlXPathObject $_, Bool :$literal) {
+        self.flush-errors;
+        do with $_ -> $native {
+            my LibXML::XPath::Object $object .= new: :$native;
+            $object.value: :$literal;
+        } // fail "No value";
     }
 
     multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
@@ -210,7 +210,7 @@ class LibXML::XPath::Context {
         $!native.RegisterFuncNS(
             $name, $url,
             -> xmlXPathParserContext $ctxt, Int $n {
-                CATCH { default { @!callback-errors.push: $_ } }
+                CATCH { default { $!errors.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @params;
                 @params.unshift: self!value($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c);
@@ -223,7 +223,7 @@ class LibXML::XPath::Context {
     method registerVarLookupFunc(&func, |c) {
         $!native.RegisterVariableLookup(
             -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
-                CATCH { default { @!callback-errors.push: $_ } }
+                CATCH { default { $!errors.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my $ret = &func($name, $url, |c);
                 xmlXPathObject.coerce: $.park($ret);
             },
@@ -253,6 +253,7 @@ class LibXML::XPath::Context {
 
     method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
     method unregisterFunctionNS(QName:D $name, Str $url) { $!native.RegisterFuncNS($name, $url, Pointer) }
+
 }
 
 =begin pod

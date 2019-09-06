@@ -24,7 +24,10 @@ DLLEXPORT xmlXPathContextPtr
 domXPathNewCtxt(xmlNodePtr refNode);
 
 DLLEXPORT void
-domXPathFreeCtxt(xmlXPathContextPtr ctxt);
+domSetXPathCtxtErrorHandler(xmlXPathContextPtr, xmlStructuredErrorFunc);
+
+DLLEXPORT void
+domXPathFreeCtxt(xmlXPathContextPtr);
 
 xmlXPathObjectPtr
 domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool );
