@@ -21,14 +21,12 @@ class X::LibXML is Exception {
     has X::LibXML $.prev is rw;
 }
 
-#| trapped callback errors
 class X::LibXML::XPath::AdHoc is X::LibXML {
     method domain-num {XML_FROM_XPATH}
     method level {XML_ERR_ERROR}
     has Exception $.error handles<message>;
 }
 
-#| xmlError mapped errors
 class X::LibXML::Parser is X::LibXML {
 
     has Str $.file;

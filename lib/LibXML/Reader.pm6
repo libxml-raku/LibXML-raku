@@ -18,6 +18,7 @@ class LibXML::Reader {
     use LibXML::RelaxNG;
     use LibXML::Schema;
     use LibXML::_Options;
+    use  LibXML::Parser::Context;
 
     has xmlTextReader $.native handles<
         attributeCount baseURI byteConsumed columnNumber depth
@@ -36,25 +37,7 @@ class LibXML::Reader {
     has Schema  $!Schema;
 
     # Perl 5 compat
-    also does LibXML::_Options[
-        %(
-            :clean-namespaces(XML_PARSE_NSCLEAN),
-            :complete-attributes(XML_PARSER_DEFAULTATTRS),
-            :expand-entities(XML_PARSER_SUBST_ENTITIES),
-            :expand-xinclude(XML_PARSE_XINCLUDE),
-            :huge(XML_PARSE_HUGE),
-            :load-ext-dtd(XML_PARSER_LOADDTD),
-            :no-base-fix(XML_PARSE_NOBASEFIX),
-            :no-blanks(XML_PARSE_NOBLANKS),
-            :no-cdata(XML_PARSE_NOCDATA),
-            :no-network(XML_PARSE_NONET),
-            :no-xinclude-nodes(XML_PARSE_NOXINCNODE),
-            :pedantic-parser(XML_PARSE_PEDANTIC),
-            :recover(XML_PARSE_RECOVER),
-            :suppress-errors(XML_PARSE_NOERROR),
-            :suppress-warnings(XML_PARSE_NOWARNING),
-            :validation(XML_PARSER_VALIDATE),
-        )];
+    also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 
     multi method recover is rw {
         Proxy.new(
@@ -169,15 +152,21 @@ class LibXML::Reader {
     }
 
     method copyCurrentNode(Bool :$deep) {
-        my anyNode $node = self!try(
-            $deep ?? 'currentNodeTree' !! 'currentNode'
-        );
+        my $call := $deep ?? 'currentNodeTree' !! 'currentNode';
+        my anyNode $node = self!try($call);
         $node .= copy: :$deep;
         LibXML::Node.box($node);
     }
 
     multi method getParserProp(Str:D $opt) {
-        $!native.getParserProp: self.get-option($opt);
+        my UInt $flag = %(
+                    :complete-attributes(XML_PARSER_DEFAULTATTRS),
+                    :expand-entities(XML_PARSER_SUBST_ENTITIES),
+                    :load-ext-entity(XML_PARSER_LOADDTD),
+                    :validation(XML_PARSER_VALIDATE),
+                ){$opt.lc.subst('_', '-', :g)} // fail "Unknown parser property: $opt";
+                    
+        $!native.getParserProp: $flag;
     }
 
     multi method getParserProp(Numeric:D $opt) {
@@ -908,7 +897,7 @@ Returns 0 if the call was successful, or -1 in case of error
 getParserProp(prop)
 
 Get value of an parser internal property. The following property names can be
-used: ``load-ext-dtd'', ``complete_attributes'', ``validation'',
+used: ``load-ext-dtd'', ``complete-attributes'', ``validation'',
 ``expand-entities''.
 
 Returns the value, usually True, False, or Failure in case of error.

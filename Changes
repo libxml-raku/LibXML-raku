@@ -1,3 +1,5 @@
+0.0.5 2019-09-07
+    - [LibXML::Reader] fix get/set of parser options #20
 0.0.4 2019-09-05
     - [LibXML::Node] remove custom native accessor
     - drop min supported libxml version from v2.09.00 to v2.08.00

@@ -390,7 +390,7 @@ OTHER METHODS
 
   * getParserProp(prop)
 
-    Get value of an parser internal property. The following property names can be used: ``load-ext-dtd'', ``complete_attributes'', ``validation'', ``expand-entities''.
+    Get value of an parser internal property. The following property names can be used: ``load-ext-dtd'', ``complete-attributes'', ``validation'', ``expand-entities''.
 
     Returns the value, usually True, False, or Failure in case of error.
 
