@@ -619,7 +619,7 @@ parser look at the L<<<<<< LibXML::SAX >>>>>> man page
 =head1 SERIALIZATION
 
 LibXML provides some functions to serialize nodes and documents. The
-serialization functions are described on the L<<<<<< LibXML::Node >>>>>> manpage or the L<<<<<< LibXML::Document >>>>>> manpage. LibXML checks three global flags that alter the serialization process:
+serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the L<<<<<< LibXML::Document >>>>>> documentation. LibXML checks three global flags that alter the serialization process:
 
 =item1 * skip-xml-declaration
 
@@ -661,7 +661,7 @@ option-exists
 
   $parser.option-exists($name);
 
-Returns 1 if the current LibXML version supports the option C<<<<<< $name >>>>>>, otherwise returns 0 (note that this does not necessarily mean that the option
+Returns True if the current LibXML version supports the option C<<<<<< $name >>>>>>, otherwise returns False (note that this does not necessarily mean that the option
 is supported by the underlying libxml2 library).
 
 =end item1
@@ -1006,21 +1006,11 @@ Loads the XML catalog file $catalog-file.
 =head1 ERROR REPORTING
 
 LibXML throws exceptions during parsing, validation or XPath processing (and
-some other occasions). These errors can be caught by using I<<<<<< eval >>>>>> blocks. The error is stored in I<<<<<< $@ >>>>>>. There are two implementations: the old one throws $@ which is just a message
-string, in the new one $@ is an object from the class LibXML::Error; this class
-overrides the operator "" so that when printed, the object flattens to the
-usual error message. 
+some other occasions). These errors can be caught by using `try` or `CATCH` blocks.
 
 LibXML throws errors as they occur. This is a very common misunderstanding in
 the use of LibXML. If the eval is omitted, LibXML will always halt your script
-by "croaking" (see Carp man page for details).
-
-Also note that an increasing number of functions throw errors if bad data is
-passed as arguments. If you cannot assure valid data passed to LibXML you
-should eval these functions.
-
-Note: since version 1.59, get-last-error() is no longer available in LibXML for
-thread-safety reasons.
+by throwing an exception.
 
 =head1 COPYRIGHT
 

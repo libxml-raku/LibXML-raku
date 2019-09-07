@@ -120,7 +120,7 @@ new()
   $pattern = LibXML::Pattern.new( pattern, :ns{ prefix => namespace_URI, ... } );
 
 The constructor of a pattern takes a pattern expression (as described by the
-BNF grammar above) and an optional HASH reference mapping prefixes to namespace
+BNF grammar above) and an optional Hash mapping prefixes to namespace
 URIs. The method returns a compiled pattern object. 
 
 Note that if the document has a default namespace, it must still be given an
@@ -136,7 +136,7 @@ example, to match an element C<<<<<< &lt;a xmlns="http://foo.bar"&lt;/a&gt; >>>>
 =begin item1
 matchesNode($node)
 
-  $bool = $pattern.matchesNode($node);
+  my Bool $matched = $pattern.matchesNode($node);
 
 Given an LibXML::Node object, returns Tru if the node is matched by
 the compiled pattern expression.

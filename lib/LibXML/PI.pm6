@@ -35,13 +35,15 @@ LibXML::PI - LibXML Processing Instructions
   use LibXML::Document;
   use LibXML::PI;
   # Only methods specific to Processing Instruction nodes are listed here,
-  # see the LibXML::Node manpage for other methods
+  # see the LibXML::Node documentation for other methods
 
   my LibXML::Document $dom .= new;
   my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
 
   $pi.setData( $data_string );
   $pi.setData( name=>string_value [...] );
+
+  $pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 
 =head1 DESCRIPTION
 

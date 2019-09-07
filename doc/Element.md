@@ -8,7 +8,7 @@ SYNOPSIS
 
     use LibXML::Element;
     # Only methods specific to Element nodes are listed here,
-    # see the LibXML::Node manpage for other methods
+    # see the LibXML::Node documentation for other methods
 
     my LibXML::Element $node .= new( $name );
     $node.setAttribute( $aname, $avalue );

@@ -8,9 +8,11 @@ SYNOPSIS
 
     use LibXML::CDATA;
     # Only methods specific to CDATA nodes are listed here,
-    # see the LibXML::Node manpage for other methods
+    # see the LibXML::Node documentation for other methods
 
-    my LibXML::CDATA $node .= new( :$content );
+    my LibXML::CDATA $cdata .= new( :$content );
+
+    $cdata.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 
 DESCRIPTION
 ===========

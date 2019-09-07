@@ -220,7 +220,7 @@ registered ones.
 While parsing the data stream, the libxml2 parser checks if a registered
 callback group will handle a URI - if they will not, the URI will be
 interpreted as I<<<<<< file://URI >>>>>>. To handle a URI, the I<<<<<< match >>>>>> callback will have to return True. If that happens, the handling of the URI will
-be passed to that callback group. Next, the URI will be passed to the I<<<<<< open >>>>>> callback, which should return a I<<<<<< reference >>>>>> to the data stream if it successfully opened the file, '0' otherwise. If
+be passed to that callback group. Next, the URI will be passed to the I<<<<<< open >>>>>> callback, which should return a defined data streaming object if it successfully opened the file, or an undefined value otherwise. If
 opening the stream was successful, the I<<<<<< read >>>>>> callback will be called repeatedly until it returns an empty string. After the
 read callback, the I<<<<<< close >>>>>> callback will be called to close the stream.
 
@@ -228,9 +228,9 @@ read callback, the I<<<<<< close >>>>>> callback will be called to close the str
 =head3 Organisation of callback groups in LibXML::InputCallback
 
 Callback groups are implemented as a stack (Array), each entry holds a
-reference to an array of the callbacks. For the libxml2 library, the
+an array of the callbacks. For the libxml2 library, the
 LibXML::InputCallback callback implementation appears as one single callback
-group. The Perl implementation however allows one to manage different callback
+group. The Perl implementations however allows one to manage different callback
 stacks on a per libxml2-parser basis.
 
 
@@ -272,7 +272,7 @@ register-callbacks( &$match-cb, &open-cb, &read-cb, &close-cb);
 register-callbacks( match => &$match-cb, open => &open-cb,
                     read => &read-cb, close => &close-cb);
 
-The four callbacks I<<<<<< have >>>>>> to be given as array reference in the above order I<<<<<< match >>>>>>, I<<<<<< open >>>>>>, I<<<<<< read >>>>>>, I<<<<<< close >>>>>>!
+The four callbacks I<<<<<< have >>>>>> to be given as array in the above order I<<<<<< match >>>>>>, I<<<<<< open >>>>>>, I<<<<<< read >>>>>>, I<<<<<< close >>>>>>!
 
 =end item1
 
@@ -280,7 +280,7 @@ The four callbacks I<<<<<< have >>>>>> to be given as array reference in the abo
 unregister-callbacks( $match-cb, $open-cb, $read-cb, $close-cb )
 
 With no arguments given, C<<<<<< unregister-callbacks() >>>>>> will delete the last registered callback group from the stack. If four
-callbacks are passed as array reference, the callback group to unregister will
+callbacks are passed as array, the callback group to unregister will
 be identified by the I<<<<<< match >>>>>> callback and deleted from the callback stack. Note that if several identical I<<<<<< match >>>>>> callbacks are defined in different callback groups, ALL of them will be deleted
 from the stack.
 

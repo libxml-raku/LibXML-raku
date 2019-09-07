@@ -287,7 +287,7 @@ or
 
 =head1 DESCRIPTION
 
-This is a perl interface to libxml2's pull-parser implementation xmlTextReader I<<<<<< http://xmlsoft.org/html/libxml-xmlreader.html >>>>>>. This feature requires at least libxml2-2.6.21. Pull-parsers (such as StAX in
+This is a perl interface to libxml2's pull-parser implementation xmlTextReader I<<<<<< http://xmlsoft.org/html/libxml-xmlreader.html >>>>>>. Pull-parsers (such as StAX in
 Java, or XmlReader in C#) use an iterator approach to parse XML documents. They
 are easier to program than event-based parser (SAX) and much more lightweight
 than tree-based parser (DOM), which load the complete tree into memory.
@@ -334,36 +334,35 @@ where ... are (optional) reader options described below in L<<<<<< Reader option
 =head2 Source specification
 
 =begin item1
-location
+Str :$location
 
 Read XML from a local file or URL.
 
 =end item1
 
 =begin item1
-string
+Str :$string
 
 Read XML from a string.
 
 =end item1
 
 =begin item1
-IO
+IO::Handle :$io
 
-Read XML a Perl IO filehandle.
-
-=end item1
-
-=begin item1
-FD
-
-Read XML from a file descriptor (bypasses Perl I/O layer, only applicable to
-filehandles for regular files or pipes). Possibly faster than IO.
+Read XML a Perl 6 IO::Handle object.
 
 =end item1
 
 =begin item1
-DOM
+UInt :$fd
+
+Read XML from a file descriptor number. Possibly faster than IO.
+
+=end item1
+
+=begin item1
+LibXML::Document :$DOM
 
 Use reader API to walk through a pre-parsed L<<<<<< LibXML::Document >>>>>>.
 
@@ -410,8 +409,8 @@ read()
 
 Moves the position to the next node in the stream, exposing its properties.
 
-Returns 1 if the node was read successfully, 0 if there is no more nodes to
-read, or -1 in case of error
+Returns True if the node was read successfully, False if there is no more nodes to
+read, or Failure in case of error
 
 =end item1
 
@@ -420,8 +419,8 @@ readAttributeValue()
 
 Parses an attribute value into one or more Text and EntityReference nodes.
 
-Returns 1 in case of success, 0 if the reader was not positioned on an
-attribute node or all the attribute values have been read, or -1 in case of
+Returns True in case of success, False if the reader was not positioned on an
+attribute node or all the attribute values have been read, or Failure in case of
 error.
 
 =end item1
@@ -660,7 +659,7 @@ This tells the XML Reader to preserve all nodes matched by the pattern (which
 is a streaming XPath subset). A document tree consisting of the preserved nodes
 and their content can be obtained using the method C<<<<<< document() >>>>>> once parsing is finished.
 
-An :%ns may be used to pass a reference mapping
+An :%ns may be used to pass a mapping
 prefixes used by the XPath to namespace URIs.
 
 The XPath subset available with this function is described at
@@ -827,9 +826,9 @@ error.
 =begin item1
 standalone()
 
-Determine the standalone status of the document being read. Returns 1 if the
-document was declared to be standalone, 0 if it was declared to be not
-standalone, or -1 if the document did not specify its standalone status or in
+Determine the standalone status of the document being read. Returns True if the
+document was declared to be standalone, False if it was declared to be not
+standalone, or Bool (undefined) if the document did not specify its standalone status or in
 case of error.
 
 =end item1
@@ -900,7 +899,7 @@ properties. The following properties are available with this function:
 Since some of the properties can only be changed before any read has been done,
 it is best to set the parsing properties at the constructor.
 
-Returns 0 if the call was successful, or -1 in case of error
+Returns True if the call was successful, or Failure in case of error
 
 =end item1
 

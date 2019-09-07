@@ -36,7 +36,7 @@ or
 DESCRIPTION
 ===========
 
-This is a perl interface to libxml2's pull-parser implementation xmlTextReader *http://xmlsoft.org/html/libxml-xmlreader.html *. This feature requires at least libxml2-2.6.21. Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
+This is a perl interface to libxml2's pull-parser implementation xmlTextReader *http://xmlsoft.org/html/libxml-xmlreader.html *. Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
 
 The Reader acts as a cursor going forward on the document stream and stopping at each node on the way. At every point, the DOM-like methods of the Reader object allow one to examine the current node (name, namespace, attributes, etc.)
 
@@ -64,23 +64,23 @@ where ... are (optional) reader options described below in [Reader options ](Rea
 Source specification
 --------------------
 
-  * location
+  * Str :$location
 
     Read XML from a local file or URL.
 
-  * string
+  * Str :$string
 
     Read XML from a string.
 
-  * IO
+  * IO::Handle :$io
 
-    Read XML a Perl IO filehandle.
+    Read XML a Perl 6 IO::Handle object.
 
-  * FD
+  * UInt :$fd
 
-    Read XML from a file descriptor (bypasses Perl I/O layer, only applicable to filehandles for regular files or pipes). Possibly faster than IO.
+    Read XML from a file descriptor number. Possibly faster than IO.
 
-  * DOM
+  * LibXML::Document :$DOM
 
     Use reader API to walk through a pre-parsed [LibXML::Document ](LibXML::Document ).
 
@@ -110,13 +110,13 @@ METHODS CONTROLLING PARSING PROGRESS
 
     Moves the position to the next node in the stream, exposing its properties.
 
-    Returns 1 if the node was read successfully, 0 if there is no more nodes to read, or -1 in case of error
+    Returns True if the node was read successfully, False if there is no more nodes to read, or Failure in case of error
 
   * readAttributeValue()
 
     Parses an attribute value into one or more Text and EntityReference nodes.
 
-    Returns 1 in case of success, 0 if the reader was not positioned on an attribute node or all the attribute values have been read, or -1 in case of error.
+    Returns True in case of success, False if the reader was not positioned on an attribute node or all the attribute values have been read, or Failure in case of error.
 
   * readState()
 
@@ -246,7 +246,7 @@ METHODS EXTRACTING DOM NODES
 
     This tells the XML Reader to preserve all nodes matched by the pattern (which is a streaming XPath subset). A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
 
-    An :%ns may be used to pass a reference mapping prefixes used by the XPath to namespace URIs.
+    An :%ns may be used to pass a mapping prefixes used by the XPath to namespace URIs.
 
     The XPath subset available with this function is described at
 
@@ -348,7 +348,7 @@ OTHER METHODS
 
   * standalone()
 
-    Determine the standalone status of the document being read. Returns 1 if the document was declared to be standalone, 0 if it was declared to be not standalone, or -1 if the document did not specify its standalone status or in case of error.
+    Determine the standalone status of the document being read. Returns True if the document was declared to be standalone, False if it was declared to be not standalone, or Bool (undefined) if the document did not specify its standalone status or in case of error.
 
   * xmlVersion()
 
@@ -380,15 +380,15 @@ OTHER METHODS
 
     This function provides the current index of the parser relative to the start of the current entity. This function is computed in bytes from the beginning starting at zero and finishing at the size in bytes of the file if parsing a file. The function is of constant cost if the input is UTF-8 but can be costly if run on non-UTF-8 input.
 
-  * setParserProp(prop => value, ...)
+  * setParserProp(:$prop)
 
     Change the parser processing behaviour by changing some of its internal properties. The following properties are available with this function: `load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`
 
     Since some of the properties can only be changed before any read has been done, it is best to set the parsing properties at the constructor.
 
-    Returns 0 if the call was successful, or -1 in case of error
+    Returns True if the call was successful, or Failure in case of error
 
-  * getParserProp(prop)
+  * my Bool $flag = getParserProp($prop);
 
     Get value of an parser internal property. The following property names can be used: `load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`.
 

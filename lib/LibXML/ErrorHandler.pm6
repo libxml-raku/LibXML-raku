@@ -200,7 +200,7 @@ prev
 
   my X::LibXML::Parser$previous-error = $!.prev();
 
-This field can possibly hold a reference to another X::LibXML::Parser object
+This field can possibly refer to another X::LibXML::Parser object
 representing an error which occurred just before this error.
 
 =end item1

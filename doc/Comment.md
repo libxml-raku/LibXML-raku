@@ -8,9 +8,10 @@ SYNOPSIS
 
     use LibXML::Comment;
     # Only methods specific to Comment nodes are listed here,
-    # see the LibXML::Node manpage for other methods
+    # see the LibXML::Node documentation for other methods
+    my LibXML::Comment $comment .= new( :$content );
 
-    my LibXML::Comment $node .= new( :$content );
+    $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 
 DESCRIPTION
 ===========

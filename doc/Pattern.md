@@ -47,7 +47,7 @@ Patterns are particularly useful for stream parsing provided via the `LibXML::Re
 
         $pattern = LibXML::Pattern.new( pattern, :ns{ prefix => namespace_URI, ... } );
 
-    The constructor of a pattern takes a pattern expression (as described by the BNF grammar above) and an optional HASH reference mapping prefixes to namespace URIs. The method returns a compiled pattern object. 
+    The constructor of a pattern takes a pattern expression (as described by the BNF grammar above) and an optional Hash mapping prefixes to namespace URIs. The method returns a compiled pattern object. 
 
     Note that if the document has a default namespace, it must still be given an prefix in order to be matched (as demanded by the XPath 1.0 specification). For example, to match an element `&lt;a xmlns="http://foo.bar"&lt;/a&gt; `, one should use a pattern like this: 
 
@@ -55,7 +55,7 @@ Patterns are particularly useful for stream parsing provided via the `LibXML::Re
 
   * matchesNode($node)
 
-        $bool = $pattern.matchesNode($node);
+        my Bool $matched = $pattern.matchesNode($node);
 
     Given an LibXML::Node object, returns Tru if the node is matched by the compiled pattern expression.
 

@@ -598,11 +598,11 @@ by the given node.
 =begin item1
 cloneNode
 
-  $newnode = $node.cloneNode( $deep );
+  $newnode = $node.cloneNode( :$deep );
 
-I<<<<<< cloneNode >>>>>> creates a copy of C<<<<<< $node >>>>>>. When $deep is set to 1 (true) the function will copy all child nodes as well.
-If $deep is 0 only the current node will be copied. Note that in case of
-element, attributes are copied even if $deep is 0. 
+I<<<<<< cloneNode >>>>>> creates a copy of C<<<<<< $node >>>>>>. When $deep is True the function will copy all child nodes as well.
+Otherwise the current node will be copied. Note that in case of
+element, attributes are copied even if $deep is not True. 
 
 Note that the behavior of this function for $deep=0 has changed in 1.62 in
 order to be consistent with the DOM spec (in older versions attributes and
@@ -844,9 +844,8 @@ exists
 
   my Bool $found = $node.exists( $xpath_expression );
 
-This method behaves like I<<<<<< findnodes >>>>>>, except that it only returns a boolean value (1 if the expression matches a
-node, 0 otherwise) and may be faster than I<<<<<< findnodes >>>>>>, because the XPath evaluation may stop early on the first match (this is true
-for libxml2 >= 2.6.27). 
+This method behaves like I<<<<<< findnodes >>>>>>, except that it only returns a boolean value (True if the expression matches a
+node, False otherwise) and may be faster than I<<<<<< findnodes >>>>>>, because the XPath evaluation may stop early on the first match.
 
 For XPath expressions that do not return node-set, the method returns true if
 the returned value is a non-zero number or a non-empty string.
@@ -1039,7 +1038,7 @@ normalize
 
 This function normalizes adjacent text nodes. This function is not as strict as
 libxml2's xmlTextMerge() function, since it will not free a node that is still
-referenced by the perl layer.
+referenced by the Perl layer.
 
 =end item1
 
@@ -1110,7 +1109,7 @@ structure based XPath for a given node.
 =end item1
 
 =begin item1
-line_number
+line-number
 
   my Uint $lineno = $node.line-number();
 
@@ -1121,7 +1120,7 @@ a node from one document is passed to another one.
 IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
 65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
 
-Note: linenumber() is special to LibXML and not part of the DOM specification.
+Note: line-number() is special to LibXML and not part of the DOM specification.
 
 If the line-numbers flag of the parser was not activated before parsing,
 line-number() will always return 0.

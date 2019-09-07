@@ -37,7 +37,7 @@ LibXML::Attr - LibXML Attribute Class
   use LibXML::Attr;
   use LibXML::Element;
   # Only methods specific to Attribute nodes are listed here,
-  # see the LibXML::Node manpage for other methods
+  # see the LibXML::Node documentation for other methods
 
   my LibXML::Attr $attr .= new(:$name, :$value);
   my Str $value = $attr.value;
@@ -100,7 +100,7 @@ declared in the context of the attribute, but only with a different (non-empty)
 prefix, then the attribute is still bound to the namespace but gets a different
 prefix than C<<<<<< $prefix >>>>>>. The function also fails if the prefix is empty but the namespace URI is not
 (because unprefixed attributes should by definition belong to no namespace).
-This function returns 1 on success, 0 otherwise.
+This function returns True on success, Failure otherwise.
 
 If you don't want the overheads of managing namespaces, a quick way of ensuring
 that the namespace is not rejected is to call the `requireNamespace` method on

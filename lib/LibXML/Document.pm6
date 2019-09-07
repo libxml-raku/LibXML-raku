@@ -381,7 +381,7 @@ LibXML::Document - LibXML DOM Document Class
 
   use LibXML::Document;
   # Only methods specific to Document nodes are listed here,
-  # see the LibXML::Node manpage for other methods
+  # see the LibXML::Node documentation for other methods
 
   my LibXML::Document $doc  .= new: :$version, :$enc;
   $doc .= createDocument($version, $enc);

@@ -8,7 +8,7 @@ SYNOPSIS
 
     use LibXML::Text;
     # Only methods specific to Text nodes are listed here,
-    # see the LibXML::Node manpage for other methods
+    # see the LibXML::Node documentation for other methods
 
     my LibXML::Text $text .= new: :$content; 
     my Str $content = $text.data;

@@ -272,7 +272,7 @@ This is NOT a streaming SAX parser. This parser reads the entire document into a
 SERIALIZATION
 =============
 
-LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](LibXML::Node ) manpage or the [LibXML::Document ](LibXML::Document ) manpage. LibXML checks three global flags that alter the serialization process:
+LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](LibXML::Node ) or the [LibXML::Document ](LibXML::Document ) documentation. LibXML checks three global flags that alter the serialization process:
 
   * * skip-xml-declaration
 
@@ -303,7 +303,7 @@ Handling of libxml2 parser options has been unified and improved in LibXML 1.70.
 
         $parser.option-exists($name);
 
-    Returns 1 if the current LibXML version supports the option `$name `, otherwise returns 0 (note that this does not necessarily mean that the option is supported by the underlying libxml2 library).
+    Returns True if the current LibXML version supports the option `$name `, otherwise returns False (note that this does not necessarily mean that the option is supported by the underlying libxml2 library).
 
   * get-option
 
@@ -516,13 +516,9 @@ Note also that catalogs are not used when a custom external entity handler is sp
 ERROR REPORTING
 ===============
 
-LibXML throws exceptions during parsing, validation or XPath processing (and some other occasions). These errors can be caught by using *eval * blocks. The error is stored in *$@ *. There are two implementations: the old one throws $@ which is just a message string, in the new one $@ is an object from the class LibXML::Error; this class overrides the operator "" so that when printed, the object flattens to the usual error message. 
+LibXML throws exceptions during parsing, validation or XPath processing (and some other occasions). These errors can be caught by using `try` or `CATCH` blocks.
 
-LibXML throws errors as they occur. This is a very common misunderstanding in the use of LibXML. If the eval is omitted, LibXML will always halt your script by "croaking" (see Carp man page for details).
-
-Also note that an increasing number of functions throw errors if bad data is passed as arguments. If you cannot assure valid data passed to LibXML you should eval these functions.
-
-Note: since version 1.59, get-last-error() is no longer available in LibXML for thread-safety reasons.
+LibXML throws errors as they occur. This is a very common misunderstanding in the use of LibXML. If the eval is omitted, LibXML will always halt your script by throwing an exception.
 
 COPYRIGHT
 =========
