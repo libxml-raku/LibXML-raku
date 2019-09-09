@@ -79,7 +79,7 @@ use LibXML::Native::DOM::Node;
 
 use LibXML::Native::Defs :LIB, :BIND-LIB, :Opaque, :xmlCharP;
 
-my constant xmlParserVersion is export := cglobal(LIB, 'xmlParserVersion', Str);
+sub xmlParserVersion is export { cglobal(LIB, 'xmlParserVersion', Str); }
 sub xml6_gbl_have_threads(-->int32) is native(BIND-LIB) is export {*}
 sub xml6_gbl_have_compression(-->int32) is native(BIND-LIB) is export {*}
 
@@ -1559,11 +1559,10 @@ INIT {
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {
-    constant value = cglobal(LIB, "xmlKeepBlanksDefaultValue", int32);
     sub xmlKeepBlanksDefault(int32 $v --> int32) is native(LIB) is export { * }
 
     Proxy.new(
-        FETCH => { ? value },
+        FETCH => { ? cglobal(LIB, "xmlKeepBlanksDefaultValue", int32); },
         STORE => sub ($, Bool() $_) {
             xmlKeepBlanksDefault($_);
         },
@@ -1571,11 +1570,10 @@ method KeepBlanksDefault is rw {
 }
 
 method TagExpansion is rw {
-    constant value = cglobal(LIB, "xmlSaveNoEmptyTags", int32);
     sub xml6_gbl_set_tag_expansion(int32 $v --> int32) is native(BIND-LIB) is export { * }
 
     Proxy.new(
-        FETCH => { ? value },
+        FETCH => { ? cglobal(LIB, "xmlSaveNoEmptyTags", int32); },
         STORE => sub ($, Bool() $_) {
             xml6_gbl_set_tag_expansion($_);
         },
@@ -1595,9 +1593,8 @@ method ExternalEntityLoader is rw {
 
 method GenericErrorFunc is rw {
     sub xmlSetGenericErrorFunc( Pointer, &handler (Pointer, xmlCharP, Pointer) ) is native(LIB) is export {*}
-    my constant xmlGenericError is export := cglobal(LIB, 'xmlGenericError', Pointer);
     Proxy.new(
-        FETCH => { nativecast( :(Pointer, xmlCharP, xmlCharP), xmlGenericError ) },
+        FETCH => { nativecast( :(Pointer, xmlCharP, xmlCharP), cglobal(LIB, 'xmlGenericError', Pointer) ) },
         STORE => sub ($, &handler) {
              xmlSetGenericErrorFunc(Pointer, &handler)
         }
