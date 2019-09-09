@@ -1,4 +1,4 @@
-unit role LibXML::_TextNode;
+unit role LibXML::_StringyNode;
 
 method nodeValue { ... }
 method content {...}

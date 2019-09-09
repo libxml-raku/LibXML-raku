@@ -22,8 +22,8 @@ SYNOPSIS
     $text.data   ~~ s/$remstring//;               # delete once
     $text.data   ~~ s:g/$remstring//;             # delete all
     $text.data.substr-rw($offset, $length) = $string; # replace
-    $text.data   ~~ s/<[a..z]>/-/;     # replace pattern
-    $text.data   ~~ s:g/<[a..z]>/-/;   # replace pattern, all
+    $text.data   ~~ s/(<[a..z]>)/-/;         # replace pattern
+    $text.data   ~~ s:g/<[a..z]>/{$0.uc}/;   # replace pattern, all
 
     # DOM Interface
     $text.setData( $text-content );
@@ -38,7 +38,11 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-Unlike the DOM specification, LibXML implements the text node as the base class of all character data node. Therefore there exists no CharacterData class. This allows one to apply methods of text nodes also to Comments and CDATA-sections.
+Unlike the DOM specification, LibXML implements the text node as the base class of all character data node. Therefore there exists no CharacterData class. This allows one to apply methods of text nodes also to Comments CDATA-sections and Processing instruction nodes.
+
+The DOM methods are provided for compatibility with ported Perl 5 code.
+
+`data` provides a proxy to a rw string, which allows for idiomatic Perl 6 string manipulation and update.
 
 METHODS
 =======
@@ -79,7 +83,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     Extracts a range of data from the node. (DOM Spec) This function takes the two parameters $offset and $length and returns the sub-string, if available.
 
-    If the node contains no data or $offset refers to an non-existing string index, this function will return *undef *. If $length is out of range `substringData ` will return the data starting at $offset instead of causing an error.
+    If the node contains no data or $offset refers to an non-existing string index, this function will return *Str:U *. If $length is out of range `substringData ` will return the data starting at $offset instead of causing an error.
 
   * appendData($string)
 
@@ -101,13 +105,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This method removes a chunk from the existing node data at the given offset. The $length parameter tells, how many characters should be removed from the string.
 
-  * deleteDataString($string, [$all])
+  * deleteDataString($string, :g)
 
-        $text.deleteDataString($remstring, $all);
+        $text.deleteDataString($remstring, :g);
 
     This method removes a chunk from the existing node data. Since the DOM spec is quite unhandy if you already know `which ` string to remove from a text node, this method allows more perlish code :)
 
-    The functions takes two parameters: *$string * and optional the *$all * flag. If $all is not set, *undef * or *0 *, `deleteDataString ` will remove only the first occurrence of $string. If $all is *TRUE *`deleteDataString ` will remove all occurrences of *$string * from the node data.
+    The functions takes two parameters: *$string * and optional the *:g * flag. If :g is not set, `deleteDataString ` will remove only the first occurrence of $string. If $all is *TRUE *`deleteDataString ` will remove all occurrences of *$string * from the node data.
 
   * replaceData($offset, $length, $string)
 

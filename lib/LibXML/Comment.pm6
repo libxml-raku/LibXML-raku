@@ -1,9 +1,9 @@
 use LibXML::Node;
-use LibXML::_TextNode;
+use LibXML::_StringyNode;
 
 unit class LibXML::Comment
     is LibXML::Node
-    does LibXML::_TextNode;
+    does LibXML::_StringyNode;
 
 use LibXML::Native;
 

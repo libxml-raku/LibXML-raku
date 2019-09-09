@@ -554,7 +554,7 @@ subtest 'LibXML::XPath::Expression' => {
 };
 
 subtest 'LibXML::Text' => {
-    plan 20;
+    plan 22;
     use LibXML::Text;
 
     #++ setup
@@ -570,6 +570,11 @@ subtest 'LibXML::Text' => {
     # Stringy Interface
     $text.data = $text-content;
     is $text.data, 'Some text!';
+    $text.data   ~~ s/(<[a..z]>)/{$0.uc}/;
+    is $text.data, 'SOme text!';
+    $text.data   ~~ s:g/(<[a..z]>)/{$0.uc}/;
+    is $text.data, 'SOME TEXT!';
+    $text.data = $text-content;
     my $substr    = $text.substr($offset, $length);
     is $substr, 'me t';
     $text.data   ~= $somedata ;

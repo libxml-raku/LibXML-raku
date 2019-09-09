@@ -69,7 +69,7 @@
     "LibXML::XPath::Object" : "lib/LibXML/XPath/Object.pm6",
     "LibXML::_DOMNode" : "lib/LibXML/_DOMNode.pm6",
     "LibXML::_Options" : "lib/LibXML/_Options.pm6",
-    "LibXML::_TextNode" : "lib/LibXML/_TextNode.pm6"
+    "LibXML::_StringyNode" : "lib/LibXML/_StringyNode.pm6"
   },
   "resources" : [
     "libraries/xml6"

@@ -1,9 +1,9 @@
 use LibXML::Node;
-use LibXML::_TextNode;
+use LibXML::_StringyNode;
 
 unit class LibXML::Text
     is LibXML::Node
-    does LibXML::_TextNode;
+    does LibXML::_StringyNode;
 
 use LibXML::Native;
 use Method::Also;
@@ -44,8 +44,8 @@ LibXML::Text - LibXML Class for Text Nodes
   $text.data   ~~ s/$remstring//;               # delete once
   $text.data   ~~ s:g/$remstring//;             # delete all
   $text.data.substr-rw($offset, $length) = $string; # replace
-  $text.data   ~~ s/<[a..z]>/-/;     # replace pattern
-  $text.data   ~~ s:g/<[a..z]>/-/;   # replace pattern, all
+  $text.data   ~~ s/(<[a..z]>)/-/;         # replace pattern
+  $text.data   ~~ s:g/<[a..z]>/{$0.uc}/;   # replace pattern, all
 
   # DOM Interface
   $text.setData( $text-content );
@@ -61,7 +61,12 @@ LibXML::Text - LibXML Class for Text Nodes
 
 Unlike the DOM specification, LibXML implements the text node as the base class
 of all character data node. Therefore there exists no CharacterData class. This
-allows one to apply methods of text nodes also to Comments and CDATA-sections.
+allows one to apply methods of text nodes also to Comments CDATA-sections and
+Processing instruction nodes.
+
+The DOM methods are provided for compatibility with ported Perl 5 code.
+
+`data` provides a proxy to a rw string, which allows for idiomatic Perl 6 string manipulation and update.
 
 
 =head1 METHODS
@@ -102,6 +107,7 @@ will have the same result and are not different entities.
 
 =end item1
 
+
 =begin item1
 setData($string)
 
@@ -121,7 +127,7 @@ Extracts a range of data from the node. (DOM Spec) This function takes the two
 parameters $offset and $length and returns the sub-string, if available.
 
 If the node contains no data or $offset refers to an non-existing string index,
-this function will return I<<<<<< undef >>>>>>. If $length is out of range C<<<<<< substringData >>>>>> will return the data starting at $offset instead of causing an error.
+this function will return I<<<<<< Str:U >>>>>>. If $length is out of range C<<<<<< substringData >>>>>> will return the data starting at $offset instead of causing an error.
 
 =end item1
 
@@ -160,14 +166,14 @@ string.
 =end item1
 
 =begin item1
-deleteDataString($string, [$all])
+deleteDataString($string, :g)
 
-  $text.deleteDataString($remstring, $all);
+  $text.deleteDataString($remstring, :g);
 
 This method removes a chunk from the existing node data. Since the DOM spec is
 quite unhandy if you already know C<<<<<< which >>>>>> string to remove from a text node, this method allows more perlish code :)
 
-The functions takes two parameters: I<<<<<< $string >>>>>> and optional the I<<<<<< $all >>>>>> flag. If $all is not set, I<<<<<< undef >>>>>> or I<<<<<< 0 >>>>>>, C<<<<<< deleteDataString >>>>>> will remove only the first occurrence of $string. If $all is I<<<<<< TRUE >>>>>>C<<<<<< deleteDataString >>>>>> will remove all occurrences of I<<<<<< $string >>>>>> from the node data.
+The functions takes two parameters: I<<<<<< $string >>>>>> and optional the I<<<<<< :g >>>>>> flag. If :g is not set, C<<<<<< deleteDataString >>>>>> will remove only the first occurrence of $string. If $all is I<<<<<< TRUE >>>>>>C<<<<<< deleteDataString >>>>>> will remove all occurrences of I<<<<<< $string >>>>>> from the node data.
 
 =end item1
 

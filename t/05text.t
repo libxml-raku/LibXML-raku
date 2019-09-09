@@ -93,10 +93,8 @@ my $doc = LibXML::Document.new();
     $textnode.replaceData( "es", "new" );
     # TEST
     is( $textnode.nodeValue(), "tnewt", 'replaceDataString() 1');
-
-    $textnode.replaceData( rx/n(.)w/, { "$0s"} );
+    $textnode.content ~~  s/n(.)w/{$0}s/;
     # TEST
-    todo "proper substitution";
     is( $textnode.nodeValue(), "test", 'replaceDataRegEx() 2');
 
     $textnode.setData( "blue phish, white phish, no phish" );
@@ -228,9 +226,8 @@ my $doc = LibXML::Document.new();
     is( $textnode.nodeValue(), "t" ~ $new_str ~ "t",
         'UTF-8 replaceData() 1');
 
-    $textnode.replaceData( rx/n(.)w/, { "$0s" } );
+    $textnode.content ~~ s/n(.)w/{$0}s/;
     # TEST
-    todo "proper substitution";
     is( $textnode.nodeValue(), "t\x[1D522]st", 'UTF-8 replaceDataRegEx() 2');
 
     $textnode.setData( "blue $phish_str, white $phish_str, no $phish_str" );
