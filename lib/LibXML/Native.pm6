@@ -1593,8 +1593,6 @@ method ExternalEntityLoader is rw {
     );
 }
 
-my constant xmlGenericErrorDefaultFunc is export := cglobal(LIB, 'xmlGenericErrorDefaultFunc', Pointer);
-
 method GenericErrorFunc is rw {
     sub xmlSetGenericErrorFunc( Pointer, &handler (Pointer, xmlCharP, Pointer) ) is native(LIB) is export {*}
     my constant xmlGenericError is export := cglobal(LIB, 'xmlGenericError', Pointer);
