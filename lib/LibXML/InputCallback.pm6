@@ -12,6 +12,7 @@ my class CallbackGroup {
 
 my class Context {
     use NativeCall;
+    use LibXML::Native::Defs :CLIB;
 
     has CallbackGroup $.cb is required;
 
@@ -20,14 +21,14 @@ my class Context {
         method addr { with self { $!addr } else { 0 } }
         has $.fh is rw;
         has Blob $.buf is rw;
-        sub malloc(size_t --> Pointer) is native {*}
-        sub free(Pointer:D) is native {*}
+        sub malloc(size_t --> Pointer) is native(CLIB) {*}
+        sub free(Pointer:D) is native(CLIB) {*}
         submethod TWEAK   { $!addr = malloc(1); }
         submethod DESTROY { free($_) with $!addr }
     }
     has Handle %.handles{UInt};
 
-    sub memcpy(CArray[uint8], CArray[uint8], size_t --> CArray[uint8]) is native {*}
+    sub memcpy(CArray[uint8], CArray[uint8], size_t --> CArray[uint8]) is native(CLIB) {*}
 
     method match {
         -> Str:D $file --> Int {

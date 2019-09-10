@@ -98,6 +98,22 @@ Other
 
   * [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
+Prerequisites
+=============
+
+This module requires the libxml library to be installed. Please follow the instructions below based on your platform:
+
+Debian Linux
+------------
+
+    sudo apt-get install libxml2-dev
+
+Mac OS X
+--------
+
+    brew update
+    brew install libxml2
+
 CONTRIBUTERS
 ============
 
@@ -106,7 +122,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.0.5
+0.0.6
 
 COPYRIGHT
 =========

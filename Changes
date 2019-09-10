@@ -1,3 +1,6 @@
+0.0.6 2019-09-10
+    - [LibXML::Native] Change cglobals from constants to subs (avoid compilation failures #16)
+      [LibXML::Native::Defs] rename library constants LIB -> XML2, BIND-LIB -> BIND-XML2; add CLIB for windows.
 0.0.5 2019-09-08
     - [LibXML::Reader]
       -- fix get/set of parser options #20

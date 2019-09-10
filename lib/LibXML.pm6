@@ -18,7 +18,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.0.5>
+unit class LibXML:ver<0.0.6>
     is LibXML::Parser;
 
 method config handles <version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -123,6 +123,19 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
+=head1 Prerequisites
+
+This module requires the libxml library to be installed. Please follow the instructions below based on your platform:
+
+=head2 Debian Linux
+
+  sudo apt-get install libxml2-dev
+
+=head2 Mac OS X
+
+  brew update
+  brew install libxml2
+
 =head1 CONTRIBUTERS
 
 With thanks to:
@@ -137,7 +150,7 @@ Xliff.
 
 =head1 VERSION
 
-0.0.5
+0.0.6
 
 =head1 COPYRIGHT
 
