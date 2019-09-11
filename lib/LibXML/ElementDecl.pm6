@@ -6,3 +6,5 @@ unit class LibXML::ElementDecl
 use LibXML::Native;
 
 submethod TWEAK(LibXML::Node :doc($)!, xmlElementDecl:D :native($)!) { }
+
+method native { callsame() // xmlElementDecl }

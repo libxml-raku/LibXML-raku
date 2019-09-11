@@ -15,14 +15,15 @@ use LibXML::Attr;
 use LibXML::AttrDecl;
 use LibXML::Dtd;
 use LibXML::EntityRef;
+use LibXML::PI;
 use LibXML::Types :QName, :NCName;
 use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
 
-subset XML  is export(:XML)  where .native.type == XML_DOCUMENT_NODE;
-subset HTML is export(:HTML) where .native.type == XML_HTML_DOCUMENT_NODE;
-subset DOCB is export(:DOCB) where .native.type == XML_DOCB_DOCUMENT_NODE;
+subset XML  is export(:XML)  of LibXML::Document:D where .nodeType == XML_DOCUMENT_NODE;
+subset HTML is export(:HTML) of LibXML::Document:D where .nodeType == XML_HTML_DOCUMENT_NODE;
+subset DOCB is export(:DOCB) of LibXML::Document:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
 
 enum XmlStandalone is export(:XmlStandalone) (
     XmlStandaloneYes => 1,
@@ -34,7 +35,9 @@ constant config = LibXML::Config;
 has LibXML::Parser::Context $.ctx handles <wellFormed valid>;
 has LibXML::Element $!documentElement;
 
-method native handles <encoding setCompression getCompression standalone URI> { callsame() }
+method native handles <encoding setCompression getCompression standalone URI> {
+    callsame() // xmlDoc
+}
 method doc { self }
 method input-compressed {
     with self.?ctx.native.?input.?buf.compressed {
@@ -102,7 +105,11 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
-method importNode(LibXML::Node:D $node) { LibXML::Node.box($.native.importNode($node.native), :doc(self)) }
+method importNode(LibXML::Node:D $node) {
+    given $.native.importNode($node.native) {
+        LibXML::Node.box($_, :doc(self));
+    }
+}
 method adoptNode(LibXML::Node:D $node)  {
     given $.native.adoptNode($node.native) {
         LibXML::Node.box($_, :doc(self));
@@ -198,7 +205,6 @@ multi method createPI(NameVal $_!, |c) {
     $.createPI(.key, .value, |c);
 }
 multi method createPI(NCName $name, Str $content?) {
-    need LibXML::PI;
     LibXML::PI.new: :doc(self), :$name, :$content;
 }
 
