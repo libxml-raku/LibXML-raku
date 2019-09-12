@@ -16,6 +16,7 @@ use Stacker;
 
 class SAXTester { ... }
 class SAXNSTester { ... }
+class SAXNS2Tester { ... }
 class SAXLocatorTester { ... }
 
 # TEST
@@ -31,10 +32,10 @@ sub _create_simple_counter {
     );
 }
 
-my $SAXTester_start_document_counter = _create_simple_counter();
-my $SAXTester_end_document_counter = _create_simple_counter();
+my $SAXTester_startDocument_counter = _create_simple_counter();
+my $SAXTester_endDocument_counter = _create_simple_counter();
 
-my $SAXTester_start_element_stacker = Stacker.new(
+my $SAXTester_startElement_stacker = Stacker.new(
     gen-cb => -> &push-cb {
 
         -> LibXML::Element $el {
@@ -48,7 +49,7 @@ my $SAXTester_start_element_stacker = Stacker.new(
     }
 );
 
-my $SAXNSTester_start_element_stacker = Stacker.new(
+my $SAXNSTester_startElement_stacker = Stacker.new(
     gen-cb => -> &push-cb {
 
         ->  LibXML::Node $node {
@@ -63,7 +64,7 @@ my $SAXNSTester_start_element_stacker = Stacker.new(
     }
 );
 
-my $SAXNS2Tester_start_element_stacker = Stacker.new(
+my $SAXNS2Tester_startElement_stacker = Stacker.new(
     gen-cb => -> &push-cb {
         -> LibXML::Element $elt {
 
@@ -99,7 +100,7 @@ my $SAXNSTester_end_prefix_mapping_stacker = _create_urn_stacker();
 
 my $parser;
 {
-    my $sax = SAXTester.new;
+    my SAXTester $sax .= new;
     # TEST
     ok($sax, ' TODO : Add test name');
 
@@ -112,18 +113,18 @@ my $parser;
     # TEST
     ok($generator, ' TODO : Add test name');
 
-    $generator.reparse($doc); # start_element*10
+    $generator.reparse($doc); # startElement*10
 
     # TEST
-    $SAXTester_start_element_stacker.test(
+    $SAXTester_startElement_stacker.test(
         ['true' xx 10],
-        'start_element was successful 10 times.',
+        'startElement was successful 10 times.',
     );
 
     # TEST
-    $SAXTester_start_document_counter.test(1, 'start_document called once.');
+    $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
     # TEST
-    $SAXTester_end_document_counter.test(1, 'end_document called once.');
+    $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
     # TEST
     my $gen2 = LibXML::SAX.new;
@@ -139,31 +140,31 @@ my $parser;
     $parser = LibXML::SAX.new(sax-handler => $sax);
     # TEST
     ok($parser, ' TODO : Add test name');
-    $parser.parse: :file("example/dromeds.xml"); # start_element*10
+    $parser.parse: :file("example/dromeds.xml"); # startElement*10
 
     # TEST
-    $SAXTester_start_element_stacker.test(
+    $SAXTester_startElement_stacker.test(
         ['true' xx 10],
-        'parse: file(): start_element was successful 10 times.',
+        'parse: file(): startElement was successful 10 times.',
     );
     # TEST
-    $SAXTester_start_document_counter.test(1, 'start_document called once.');
+    $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
     # TEST
-    $SAXTester_end_document_counter.test(1, 'end_document called once.');
+    $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
-    $parser.parse: :string(q:to<EOT>); # start_element*1
+    $parser.parse: :string(q:to<EOT>); # startElement*1
 <?xml version='1.0' encoding="US-ASCII"?>
 <dromedaries one="1" />
 EOT
     # TEST
-    $SAXTester_start_element_stacker.test(
+    $SAXTester_startElement_stacker.test(
         ['true'],
-        'parse: :string() : start_element was successful 1 times.',
+        'parse: :string() : startElement was successful 1 times.',
     );
     # TEST
-    $SAXTester_start_document_counter.test(1, 'start_document called once.');
+    $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
     # TEST
-    $SAXTester_end_document_counter.test(1, 'end_document called once.');
+    $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 }
 
 {
@@ -175,7 +176,7 @@ EOT
     $parser.parse: :file("example/ns.xml");
 
     # TEST
-    $SAXNSTester_start_element_stacker.test(
+    $SAXNSTester_startElement_stacker.test(
         [
             'true' xx 3
         ],
@@ -221,15 +222,15 @@ EOT
 EOT
 
     my $expecting = [
-        start_document => [ 2, 1  ],
-        start_element  => [ 2, 6  ],
+        startDocument => [ 2, 1  ],
+        startElement  => [ 2, 6  ],
         characters     => [ 4, 1  ],
         comment        => [ 4, 17 ],
         characters     => [ 5, 1  ],
-        cdata_block    => [ 5, 20 ],
+        cdataBlock    => [ 5, 20 ],
         characters     => [ 6, 1  ],
-        end_element    => [ 6, 8  ],
-        end_document   => [ 6, 8  ],
+        endElement    => [ 6, 8  ],
+        endDocument   => [ 6, 8  ],
     ];
 
     # TEST
@@ -237,33 +238,25 @@ EOT
 }
 
 
-skip("todo: port remaining tests", 34);
-=begin TODO
-
 ########### Namespace test ( empty namespaces ) ########
 
 {
-    my $h = "SAXNS2Tester";
+    my SAXNS2Tester $sax .= new;
     my $xml = "<a xmlns='xml://A'><b/></a>";
     my @tests = (
-sub {
-    LibXML::SAX        .new( Handler => $h ).parse_string( $xml );
-    # TEST
-    $SAXNS2Tester_start_element_stacker.test([qw(true)], 'LibXML::SAX');
-},
-
-sub {
-    LibXML::SAX::Parser.new( Handler => $h ).parse_string( $xml );
-    # TEST
-    $SAXNS2Tester_start_element_stacker.test([qw(true)], 'LibXML::SAX::Parser');
-},
-);
+        sub {
+            LibXML::SAX.new(sax-handler => $sax).parse: :string( $xml );
+            # TEST
+            $SAXNS2Tester_startElement_stacker.test(['true'], 'LibXML::SAX');
+        },
+    );
 
     $_.() for @tests;
 
-
 }
 
+skip("todo: port remaining tests", 33);
+=begin TODO
 
 ########### Error Handling ###########
 {
@@ -295,12 +288,12 @@ sub {
   my $chunk = '<app>LOGOUT</app><bar/>';
   my $builder = LibXML::SAX::Builder.new();
   my $parser = LibXML::SAX.new( Handler => $builder );
-  $parser.start_document();
-  $builder.start_element({Name=>'foo'});
+  $parser.startDocument();
+  $builder.startElement({Name=>'foo'});
   $parser.parse_chunk($chunk);
   $parser.parse_chunk($chunk);
-  $builder.end_element({Name=>'foo'});
-  $parser.end_document();
+  $builder.endElement({Name=>'foo'});
+  $parser.endDocument();
   # TEST
   is($builder.result().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
 }
@@ -314,7 +307,7 @@ sub {
   use warnings;
   use parent 'XML::SAX::Base';
   use Carp;
-  sub start_element {
+  sub startElement {
     my( $self, $elm) = @_;
     if ( $elm.{LocalName} eq 'TVChannel' ) {
       die bless({ Message => "My exception"},"MySAXException");
@@ -349,19 +342,19 @@ class SAXTester
 
     method startDocument(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
-        $SAXTester_start_document_counter.cb.()
+        $SAXTester_startDocument_counter.cb.()
     }
 
     method endDocument(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
-        $SAXTester_end_document_counter.cb.()
+        $SAXTester_endDocument_counter.cb.()
     }
 
     method startElement(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
         with $ctx.node {
             my LibXML::Node $node .= box($_);
-            $SAXTester_start_element_stacker.cb.($node);
+            $SAXTester_startElement_stacker.cb.($node);
         }
     }
 
@@ -387,7 +380,7 @@ class SAXNSTester
             for 0 ..^ $num-namespaces {
                 $SAXNSTester_start_prefix_mapping_stacker.cb().($node)
             }
-            $SAXNSTester_start_element_stacker.cb.($node);
+            $SAXNSTester_startElement_stacker.cb.($node);
         }
     }
 
@@ -405,7 +398,17 @@ class SAXNSTester
 
 class SAXNS2Tester
     is LibXML::SAX::Handler::SAX2 {
+    use LibXML::SAX::Builder :sax-cb;
 
+    method startElement(:$ctx!, |) is sax-cb {
+        callsame;
+        with $ctx.node {
+            my LibXML::Node $node .= box($_);
+            warn $node.Str;
+            $SAXNS2Tester_startElement_stacker.cb.($node);
+        }
+    }
+    method endElement(|) is sax-cb { callsame; }
 }
 
 class SAXLocatorTester
@@ -417,9 +420,9 @@ class SAXLocatorTester
 
     BEGIN {
         for <
-            start_document end_document
-            start_element end_element
-            cdata_block
+            startDocument endDocument
+            startElement endElement
+            cdataBlock
             characters comment> -> $name {
             my &meth = method (|c) {
                 &!cb(self, $name, |c);
@@ -439,7 +442,7 @@ sub new {
     bless {}, shift;
 }
 
-sub end_document {
+sub endDocument {
     print "End doc: @_\n";
     return 1; # Shouldn't be reached
 }
@@ -451,7 +454,7 @@ sub fatal_error {
     $_[0].{fatal_called} = 1;
 }
 
-sub start_element {
+sub startElement {
     # test if we can do other stuff
     LibXML.parse_string("<foo/>");
     return;
@@ -460,7 +463,7 @@ sub new {
     bless {}, shift;
 }
 
-sub end_document {
+sub endDocument {
     print "End doc: @_\n";
     return 1; # Shouldn't be reached
 }

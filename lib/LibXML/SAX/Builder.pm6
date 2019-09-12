@@ -7,7 +7,7 @@ class LibXML::SAX::Builder {
     use LibXML::Entity;
 
     my role is-sax-cb[Str $name] is export(:is-sax-cb) {
-        method sax-name { $name.subst(/<[-_]>(.)/, {$0.uc}, :g) }
+        method sax-name { $name }
     }
     multi trait_mod:<is>(Method $m, :sax-cb($cb)!) is export(:sax-cb) {
         my Str $name := $cb ~~ Str ?? $cb !! $m.name;
@@ -23,23 +23,6 @@ class LibXML::SAX::Builder {
         }
         %atts
     }
-
-    my %SAXLocatorDispatch = %(
-        'getPublicId'|'getSystemId' =>
-            -> $obj, &callb {
-                CATCH { default { warn $_; } }
-                sub (--> Str) {
-                    callb($obj);
-                }
-            },
-        'getLineNumber'|'getColumnNumber' =>
-            -> $obj, &callb {
-                CATCH { default { warn $_; } }
-                sub (--> UInt) {
-                    callb($obj);
-                }
-            },
-    );
 
     sub handle-error(xmlParserCtxt $ctx, Exception $err, :$ret) {
         with $ctx {
@@ -214,9 +197,6 @@ class LibXML::SAX::Builder {
         self!build($obj, $sax, %SAXHandlerDispatch);
     }
 
-    method build-sax-locator($obj, xmlSAXLocator :$locator = xmlSAXLocator.new) {
-        self!build($obj, $locator, %SAXLocatorDispatch);
-    }
 }
 
 =begin pod
