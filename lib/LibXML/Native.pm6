@@ -334,28 +334,55 @@ class xmlNs is export is repr('CStruct') {
 
 #| A SAX Locator.
 class xmlSAXLocator is repr('CStruct') is export {
-    has Pointer  $.getPublicId is rw-ptr(
+    has Pointer  $.getPublicIdFunc is rw-ptr(
         method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-XML2) {*}
     );
 
-    has Pointer $.getSystemId is rw-ptr(
+    has Pointer $.getSystemIdFunc is rw-ptr(
         method xml6_sax_locator_set_getSystemId( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-XML2) {*}
     );
 
-    has Pointer $.getLineNumber is rw-ptr(
-        method xml6_sax_locator_set_getLineNumber( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-XML2) {*}
+    has Pointer $.getLineNumberFunc is rw-ptr(
+        method xml6_sax_locator_set_getLineNumber( &cb (xmlParserCtxt $ctx --> int32) ) is native(BIND-XML2) {*}
     );
 
-    has Pointer $.getColumnNumber is rw-ptr(
-        method xml6_sax_locator_set_getColumnNumber( &cb (xmlParserCtxt $ctx --> Str) ) is native(BIND-XML2) {*}
+    has Pointer $.getColumnNumberFunc is rw-ptr(
+        method xml6_sax_locator_set_getColumnNumber( &cb (xmlParserCtxt $ctx --> int32) ) is native(BIND-XML2) {*}
     );
-
     method init is native(XML2) is symbol('xml6_sax_locator_init') {*}
 
     submethod BUILD(*%atts) {
         for %atts.pairs.sort {
             self."{.key}"() = .value;
         }
+    }
+
+    method getPublicId(xmlParserCtxt $ctx) {
+        with nativecast(:(xmlParserCtxt $ctx --> int32), $!getPublicIdFunc) -> &cb {
+            &cb($ctx)
+        }
+    }
+
+    method getSystemId(xmlParserCtxt $ctx) {
+        with nativecast(:(xmlParserCtxt $ctx --> int32), $!getSystemIdFunc) -> &cb {
+            &cb($ctx)
+        }
+    }
+
+    method getLineNumber(xmlParserCtxt $ctx) {
+        with nativecast(:(xmlParserCtxt $ctx --> int32), $!getLineNumberFunc) -> &cb {
+            &cb($ctx)
+        }
+    }
+
+    method getColumnNumber(xmlParserCtxt $ctx) {
+        with nativecast(:(xmlParserCtxt $ctx --> int32), $!getColumnNumberFunc) -> &cb {
+            &cb($ctx)
+        }
+    }
+
+    method default {
+         cglobal(XML2, 'xmlDefaultSAXLocator', xmlSAXLocator);
     }
 }
 

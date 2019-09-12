@@ -1,10 +1,9 @@
 use v6;
 use Test;
-plan 54;
+plan 56;
 
 use LibXML;
 use LibXML::SAX;
-#use LibXML::SAX::Parser;
 use LibXML::SAX::Builder;
 use LibXML::SAX::Handler::SAX2;
 use LibXML::Node;
@@ -17,6 +16,7 @@ use Stacker;
 
 class SAXTester { ... }
 class SAXNSTester { ... }
+class SAXLocatorTester { ... }
 
 # TEST
 ok(1, 'Loaded');
@@ -97,8 +97,6 @@ sub _create_urn_stacker
 my $SAXNSTester_start_prefix_mapping_stacker = _create_urn_stacker();
 my $SAXNSTester_end_prefix_mapping_stacker = _create_urn_stacker();
 
-temp $XML::SAX::ParserPackage = 'LibXML::SAX::Parser';
-
 my $parser;
 {
     my $sax = SAXTester.new;
@@ -170,14 +168,10 @@ EOT
 
 {
     my $sax = SAXNSTester.new;
-
     # TEST
     ok($sax, ' TODO : Add test name');
 
     $parser.sax-handler = $sax;
-}; skip("todo: port remaining tests", 37);
-=begin TODO
-
     $parser.parse: :file("example/ns.xml");
 
     # TEST
@@ -204,27 +198,24 @@ EOT
 }
 
 {
-    local $XML::SAX::ParserPackage = 'LibXML::SAX';
-
     my @stack;
-    my $sax = SAXLocatorTester.new( sub {
-        my ($self, $method, @args) = @_;
-        push( @stack, $method => [
-            $self.{locator}.{LineNumber},
-            $self.{locator}.{ColumnNumber}
+    my $sax = SAXLocatorTester.new( cb => -> $sax, $name, :$ctx, |c {
+        push( @stack, $name => [
+            $sax.line-number($ctx),
+            $sax.column-number($ctx)
         ] );
     } );
 
     # TEST
     ok($sax, 'Created SAX handler with document locator');
 
-    my $parser = XML::SAX::ParserFactory.parser(Handler => $sax);
+    my $parser = LibXML::SAX.new(sax-handler => $sax);
 
-    $parser.parse_string(<<EOT);
+    $parser.parse: :string(q:to<EOT>.chomp);
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 1
-<!-- comment -.
+<!-- comment -->
 <![CDATA[ a < b ]]>
 </root>
 EOT
@@ -235,18 +226,19 @@ EOT
         characters     => [ 4, 1  ],
         comment        => [ 4, 17 ],
         characters     => [ 5, 1  ],
-        start_cdata    => [ 5, 20 ],
-        characters     => [ 5, 20 ],
-        end_cdata      => [ 5, 20 ],
+        cdata_block    => [ 5, 20 ],
         characters     => [ 6, 1  ],
         end_element    => [ 6, 8  ],
         end_document   => [ 6, 8  ],
     ];
 
     # TEST
-    is_deeply( \@stack, $expecting, "Check locator positions" );
+    is-deeply( @stack, $expecting, "Check locator positions" );
 }
 
+
+skip("todo: port remaining tests", 34);
+=begin TODO
 
 ########### Namespace test ( empty namespaces ) ########
 
@@ -333,7 +325,7 @@ sub {
   use strict;
   use warnings;
   my $parser = LibXML::SAX.new( Handler => MySAXHandler.new( )) ;
-  eval { $parser.parse_string( <<'EOF' ) };
+  eval { $parser.parse_string(q:to<EOF> ) };
 <TVChannel TVChannelID="71" TVChannelName="ARD">
         <Moin>Moin</Moin>
 </TVChannel>
@@ -379,89 +371,66 @@ class SAXTester
 }
 
 
-class  SAXNSTester
+class SAXNSTester
     is LibXML::SAX::Handler::SAX2 {
 
-    use LibXML::SAX::Builder :sax-cb;
+    use LibXML::SAX::Builder :sax-cb, :atts2Hash;
+    has Hash @!ns;
+    has LibXML::Node @!nodes;
 
-    method startElementNs($name, xmlParserCtxt :$ctx!, |c) is sax-cb {
+    method startElementNs($name, xmlParserCtxt :$ctx!, :$num-namespaces, :$namespaces) is sax-cb {
         callsame;
-        with $ctx.node {
+        @!ns.push: ${ :num-namespaces, :$namespaces };
+        given $ctx.node {
             my LibXML::Node $node .= box($_);
+            @!nodes.push: $node;
+            for 0 ..^ $num-namespaces {
+                $SAXNSTester_start_prefix_mapping_stacker.cb().($node)
+            }
             $SAXNSTester_start_element_stacker.cb.($node);
         }
     }
 
     method endElementNs(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
+        my %ns = @!ns.pop;
+        my LibXML::Node $node = @!nodes.pop;
+
+        for 0 ..^ %ns<num-namespaces> {
+            $SAXNSTester_end_prefix_mapping_stacker.cb().($node)
+        }
    }
 
-sub start_prefix_mapping {
-    my ($self, $node) = @_;
-
-    $SAXNSTester_start_prefix_mapping_stacker.cb().($node);
-
-    return;
 }
 
-sub end_prefix_mapping {
-    my ($self, $node) = @_;
+class SAXNS2Tester
+    is LibXML::SAX::Handler::SAX2 {
 
-    $SAXNSTester_end_prefix_mapping_stacker.cb().($node);
-
-    return;
 }
+
+class SAXLocatorTester
+    is LibXML::SAX::Handler::SAX2 {
+
+    use LibXML::SAX::Builder :sax-cb, :is-sax-cb;
+
+    has &.cb;
+
+    BEGIN {
+        for <
+            start_document end_document
+            start_element end_element
+            cdata_block
+            characters comment> -> $name {
+            my &meth = method (|c) {
+                &!cb(self, $name, |c);
+            }
+            $?CLASS.^add_method($name, &meth does is-sax-cb[$name]);
+        }
+    }
 
 }
 
 =begin TODO2
-
-package SAXNS2Tester;
-use Test::More;
-
-#sub new {
-#    my $class = shift;
-#    return bless {}, $class;
-#}
-
-sub start_element {
-    my $self = shift;
-    my ( $elt ) = @_;
-
-    $SAXNS2Tester_start_element_stacker.cb().($elt);
-
-    return;
-}
-
-
-package SAXLocatorTester;
-use Test::More;
-
-sub new {
-    my ($class, $cb) = @_;
-    my $self = bless {}, $class;
-
-    for my $method ( qw(
-        start_document end_document
-        start_element end_element
-        start_cdata end_cdata
-        start_dtd end_dtd
-        characters
-        comment
-    ) ) {
-        no strict 'refs';
-        *$method = sub { $cb.( $_[0], $method, @_[1..$#_]) };
-    }
-
-    return $self;
-}
-
-sub set_document_locator {
-    my ($self, $locator) = @_;
-    $self.{locator} = $locator;
-}
-
-1;
 
 package SAXErrorTester;
 use Test::More;

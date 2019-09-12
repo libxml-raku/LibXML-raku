@@ -56,8 +56,8 @@ use LibXML::SAX::Builder :atts2Hash;
 
 class SaxHandler is LibXML::SAX::Handler {
     use LibXML::SAX::Builder :sax-cb;
-    method startElement($name, CArray :$atts) is sax-cb {
-        %atts-seen ,= atts2Hash($atts).Hash;
+    method startElement($name, :%attribs) is sax-cb {
+        %atts-seen ,= %attribs;
         @start-tags.push: $name; 
     }
     method endElement($name) is sax-cb {

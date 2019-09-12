@@ -1,19 +1,21 @@
 class LibXML::SAX::Handler::SAX2::Locator {
     use LibXML::Native;
+    use Method::Also;
+    has xmlSAXLocator $.native .= default();
 
-    method getPublicId(:$ctx!) returns Str {
-        $ctx.xmlSAX2GetPublicId;
+    method getPublicId(xmlParserCtxt $ctx --> Str) {
+        $!native.getPublicId($ctx);
     }
 
-    method getSystemId(:$ctx!) returns Str {
-        $ctx.xmlSAX2GetSystemId;
+    method getSystemId(xmlParserCtxt $ctx --> Str) {
+        $!native.getSystemId($ctx);
     }
 
-    method getLineNumber(:$ctx!) returns UInt {
-        $ctx.xmlSAX2GetLineNumber;
+    method getLineNumber(xmlParserCtxt $ctx --> UInt) is also<line-number> {
+        $!native.getLineNumber($ctx);
     }
 
-    method getColumnNumber(:$ctx!) returns UInt {
-        $ctx.xmlSAX2GetColumnNumber;
+    method getColumnNumber(xmlParserCtxt $ctx --> UInt) is also<column-number> {
+        $!native.getColumnNumber($ctx);
     }
 }

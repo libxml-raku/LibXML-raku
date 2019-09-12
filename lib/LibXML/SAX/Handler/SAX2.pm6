@@ -6,27 +6,20 @@ class LibXML::SAX::Handler::SAX2
     use LibXML::Native;
     use NativeCall;
     use LibXML::SAX::Handler::SAX2::Locator;
-    has LibXML::SAX::Handler::SAX2::Locator $.locator .= new;
+    has LibXML::SAX::Handler::SAX2::Locator $.locator handles<line-number column-number> .= new;
 
     use LibXML::Document;
     use LibXML::DocumentFragment;
     use LibXML::Types :QName, :NCName;
 
-    multi method finish(LibXML::Document :$doc!) {
+    multi method publish(LibXML::Document :$doc!) {
         $doc;
     }
-    multi method finish(LibXML::DocumentFragment :$doc!) {
+    multi method publish(LibXML::DocumentFragment :$doc!) {
         $doc;
     }
 
     constant Ctx = xmlParserCtxt;
-
-    method setDocumentLocator(xmlSAXLocator $loc, :$ctx!) {
-        use LibXML::SAX::Builder;
-        LibXML::SAX::Builder.build-locator($.locator, $loc);
-
-        $ctx.xmlSAX2SetDocumentLocator($loc);
-    }
 
     method isStandalone(Ctx :$ctx!) returns Bool {
         ? $ctx.xmlSAX2IsStandalone;
@@ -40,16 +33,16 @@ class LibXML::SAX::Handler::SAX2
         $ctx.xmlSAX2EndDocument;
     }
 
-    method startElement(QName:D $name, CArray :$atts!, Ctx :$ctx!) {
-        $ctx.xmlSAX2StartElement($name, $atts);
+    method startElement(QName:D $name, CArray :$atts-raw!, Ctx :$ctx!) {
+        $ctx.xmlSAX2StartElement($name, $atts-raw);
     }
 
     method endElement(QName:D $name, Ctx :$ctx!) {
         $ctx.xmlSAX2EndElement($name);
     }
 
-    method startElementNs($local-name, Str :$prefix, Str :$uri, UInt :$num-namespaces, CArray :$namespaces, UInt :$num-atts, UInt :$num-defaulted, CArray :$atts, Ctx :$ctx!) {
-        $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts);
+    method startElementNs($local-name, Str :$prefix!, Str :$uri!, UInt :$num-namespaces!, CArray :$namespaces!, UInt :$num-atts!, UInt :$num-defaulted!, CArray :$atts-raw!, Ctx :$ctx!) {
+        $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts-raw);
     }
 
     method endElementNs($local-name, Str :$prefix, Str :$uri, Ctx :$ctx!) {

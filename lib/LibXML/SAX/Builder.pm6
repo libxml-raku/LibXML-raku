@@ -6,10 +6,12 @@ class LibXML::SAX::Builder {
     use LibXML::Node;
     use LibXML::Entity;
 
-    my role is-sax-cb {
+    my role is-sax-cb[Str $name] is export(:is-sax-cb) {
+        method sax-name { $name.subst(/<[-_]>(.)/, {$0.uc}, :g) }
     }
-    multi trait_mod:<is>(Method $m, :sax-cb($)!) is export(:sax-cb) {
-        $m does is-sax-cb;
+    multi trait_mod:<is>(Method $m, :sax-cb($cb)!) is export(:sax-cb) {
+        my Str $name := $cb ~~ Str ?? $cb !! $m.name;
+        $m does is-sax-cb[$name];
     }
 
     sub atts2Hash(CArray[Str] $atts) is export(:atts2Hash) {
@@ -136,9 +138,10 @@ class LibXML::SAX::Builder {
         },
         'startElement' =>
             -> $obj, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts) {
+                sub (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts-raw) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, :$ctx, :$atts);
+                    my $attribs = atts2Hash($atts-raw);
+                    callb($obj, $name, :$ctx, :$atts-raw, :$attribs);
                 }
         },
         'endElement'|'reference'|'comment'|'getParameterEntity' =>
@@ -165,9 +168,9 @@ class LibXML::SAX::Builder {
         # Introduced with SAX2 
         'startElementNs' =>
             -> $obj, &callb {
-                sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts) {
+                sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts, :$ctx );
+                    callb($obj, $local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts-raw, :$ctx );
                 }
         },
         'endElementNs' =>
@@ -189,7 +192,7 @@ class LibXML::SAX::Builder {
     method !build(Any:D $obj, $handler, %dispatches) {
         my Bool %seen;
         for $obj.^methods.grep(* ~~ is-sax-cb) -> &meth {
-            my $name = &meth.name;
+            my $name = &meth.sax-name;
             with %dispatches{$name} -> &dispatch {
                 %seen{$name} = True;
                 $handler."$name"() = &dispatch($obj, &meth);

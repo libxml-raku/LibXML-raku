@@ -24,14 +24,13 @@ class LibXML::SAX::Handler::XML
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
-    method finish(LibXML::Document:D :doc($)!) {
+    method publish(LibXML::Document:D :doc($)!) {
         # ignore SAX created document; replace with our own
         $!doc;
     }
 
-    method startElement($name, CArray :$atts) is sax-cb {
-        my $attribs = atts2Hash($atts);
-        my XML::Element $elem .= new: :$name, :$attribs;
+    method startElement($name, :%attribs) is sax-cb {
+        my XML::Element $elem .= new: :$name, :%attribs;
         # append and step down
         with $!doc {
             $!node.append: $elem;
