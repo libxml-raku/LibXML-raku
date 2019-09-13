@@ -273,8 +273,11 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
         domImportNode( self, (xmlNodePtr) dtd, 1, 1);
     }
 
-    if (dtd != NULL) {
-        if (ext_dtd && ext_dtd != int_dtd) {
+    if (dtd != NULL && ext_dtd != NULL) {
+        if (ext_dtd == dtd) {
+            xmlUnlinkNode((xmlNodePtr) ext_dtd);
+        }
+        else {
             domReleaseNode((xmlNodePtr) ext_dtd);
         }
         self->extSubset = NULL;
@@ -314,6 +317,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
         else {
             domReleaseNode( (xmlNodePtr) int_dtd);
         }
+        self->intSubset = NULL;
     }
     self->extSubset = dtd;
     dtd->parent = self;
