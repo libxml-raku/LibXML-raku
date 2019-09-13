@@ -257,11 +257,11 @@ LibXML also provides a DOM based SAX parser. The SAX parser is defined in the mo
 
 The API of this parser is exactly the same as any other Perl SAX2 parser. See XML::SAX::Intro for details.
 
-Aside from the regular parsing methods, you can access the DOM tree traverser directly, using the generate() method:
+Aside from the regular parsing methods, you can access the DOM tree traverser directly, using the reparse() method:
 
     my LibXML::Document $doc = build-yourself-a-document();
     my $saxparser = $LibXML::SAX::Parser.new( ... );
-    $parser.generate( $doc );
+    $parser.reparse( $doc );
 
 This is useful for serializing DOM trees, for example that you might have done prior processing on, or that you have as a result of XSLT processing.
 

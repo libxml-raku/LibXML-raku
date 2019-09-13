@@ -15,7 +15,7 @@ SYNOPSIS
 DESCRIPTON
 ==========
 
-LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node.
+LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node based classes.
 
 This is a containing role for XPath queries with may return either namespaces or other nodes.
 
