@@ -64,7 +64,13 @@ class LibXML::Parser {
         $doc.URI = $_ with $URI;
         self.processXIncludes($doc, :$handler)
             if $.expand-xinclude;
-        $doc;
+
+        with $!sax-handler {
+            .publish($doc);
+        }
+        else {
+            $doc;
+        }
     }
 
     method processXIncludes (
@@ -214,7 +220,7 @@ class LibXML::Parser {
     )
     {
         with $!push-parser {
-            my $doc := .finish-push(:$URI, :$recover);
+            my $doc := .finish-push(:$URI, :$recover, :$!sax-handler);
             $_ = Nil;
             $doc;
         }
@@ -227,7 +233,20 @@ class LibXML::Parser {
         use LibXML::DocumentFragment;
         my LibXML::DocumentFragment $frag .= new: :$doc;
         my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
-        $frag;
+        with $!sax-handler {
+            .publish($frag);
+        }
+        else {
+            $frag;
+        }
+    }
+
+    # cheat's implementation of Perl 5's .generate function
+    # re-serializes, rather than rerunning SAX actions on the DOM
+    method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
+        # document DOM with the SAX handler
+        my $string = $doc.Str;
+        $.parse( :$string, |c );
     }
 
     method load-catalog(Str:D $filename) {
@@ -598,13 +617,13 @@ The API of this parser is exactly the same as any other Perl SAX2 parser. See
 XML::SAX::Intro for details.
 
 Aside from the regular parsing methods, you can access the DOM tree traverser
-directly, using the generate() method:
+directly, using the reparse() method:
 
 
 
   my LibXML::Document $doc = build-yourself-a-document();
   my $saxparser = $LibXML::SAX::Parser.new( ... );
-  $parser.generate( $doc );
+  $parser.reparse( $doc );
 
 This is useful for serializing DOM trees, for example that you might have done
 prior processing on, or that you have as a result of XSLT processing.

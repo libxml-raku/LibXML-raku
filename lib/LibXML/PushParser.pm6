@@ -37,16 +37,21 @@ class LibXML::PushParser {
         self!parse-chunk($chunk);
     }
 
-    method finish-push(Str :$URI, Bool :$recover = False) {
+    method finish-push(Str :$URI, Bool :$recover = False, :$sax-handler) {
         $!ctx.try: :$recover, {
             self!parse-chunk: :terminate;
         }
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
         my xmlDoc $native = $!ctx.native.myDoc;
-        my $rv := LibXML::Document.new( :$native, :$!ctx, :$URI);
+        my $doc := LibXML::Document.new( :$native, :$!ctx, :$URI);
         $!ctx = Nil;
-        $rv;
+        with $sax-handler {
+            .publish($doc)
+        }
+        else {
+            $doc;
+        }
     }
 
 }

@@ -12,10 +12,10 @@ class LibXML::SAX::Handler::SAX2
     use LibXML::DocumentFragment;
     use LibXML::Types :QName, :NCName;
 
-    multi method publish(LibXML::Document :$doc!) {
+    multi method publish(LibXML::Document $doc!) {
         $doc;
     }
-    multi method publish(LibXML::DocumentFragment :$doc!) {
+    multi method publish(LibXML::DocumentFragment $doc!) {
         $doc;
     }
 

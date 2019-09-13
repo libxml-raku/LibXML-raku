@@ -16,7 +16,6 @@ class LibXML::SAX::Handler::XML
     use LibXML::Document;
     use LibXML::EntityRef;
 
-    has LibXML::Document $!myDoc;
     has XML::Document $.doc;    # The document that we're really building
     has XML::Element  $!node;   # Current node
     has XML::Entity   $.entity; # Entity declarations
@@ -24,7 +23,7 @@ class LibXML::SAX::Handler::XML
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
 
-    method publish(LibXML::Document:D :doc($)!) {
+    method publish($) {
         # ignore SAX created document; replace with our own
         $!doc;
     }
