@@ -18,6 +18,8 @@ class SAXTester { ... }
 class SAXNSTester { ... }
 class SAXNS2Tester { ... }
 class SAXLocatorTester { ... }
+class SAXErrorTester { ... }
+class SAXErrorCallbackTester { ... }
 
 # TEST
 ok(1, 'Loaded');
@@ -255,49 +257,47 @@ EOT
 
 }
 
-skip("todo: port remaining tests", 33);
-=begin TODO
-
 ########### Error Handling ###########
 {
   my $xml = '<foo><bar/><a>Text</b></foo>';
 
-  my $handler = SAXErrorTester.new;
+  my $sax = SAXErrorTester.new;
 
-  foreach my $pkg (qw(LibXML::SAX::Parser LibXML::SAX)) {
-    undef $@;
-    eval {
-      $pkg.new(Handler => $handler).parse_string($xml);
-    };
-    # TEST*2
-    ok($@, ' TODO : Add test name'); # We got an error
-  }
+  try {
+      LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
+  };
+  # TEST*2
+  ok($!, ' TODO : Add test name'); # We got an error
+  ok $sax.errors, 'error handler called';
 
-  $handler = SAXErrorCallbackTester.new;
-  eval { LibXML::SAX.new(Handler => $handler ).parse_string($xml) };
+  $sax = SAXErrorCallbackTester.new;
+  try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
   # TEST
-  ok($@, ' TODO : Add test name'); # We got an error
+  ok($!, ' TODO : Add test name'); # We got an error
   # TEST
-  ok( $handler.{fatal_called}, ' TODO : Add test name' );
+  ok $sax.errors, 'error handler called';
 
 }
 
-########### LibXML::SAX::parse_chunk test ###########
+ ########### LibXML::SAX::parse-chunk test ###########
+
+skip("todo: port remaining tests", 29);
+=begin TODO
+
 
 {
   my $chunk = '<app>LOGOUT</app><bar/>';
-  my $builder = LibXML::SAX::Builder.new();
-  my $parser = LibXML::SAX.new( Handler => $builder );
+  my $sax = LibXML::SAX::Handler::SAX2.new();
+  my $parser = LibXML::SAX.new(sax-handler => $sax );
   $parser.startDocument();
-  $builder.startElement({Name=>'foo'});
-  $parser.parse_chunk($chunk);
-  $parser.parse_chunk($chunk);
-  $builder.endElement({Name=>'foo'});
+  $sax.startElement('foo');
+  $parser.parse-chunk($chunk);
+  $parser.parse-chunk($chunk);
+  $builder.endElement('foo');
   $parser.endDocument();
   # TEST
-  is($builder.result().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
+  is($builder.publish().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
 }
-
 
 ######## TEST error exceptions ##############
 {
@@ -328,8 +328,10 @@ EOF
   # TEST
   is(ref($@) && $@.{Message}, "My exception", ' TODO : Add test name');
 }
-########### Helper class #############
+
 =end TODO
+
+########### Helper class #############
 
 use LibXML::SAX::Handler::SAX2;
 use LibXML::Native;
@@ -404,7 +406,6 @@ class SAXNS2Tester
         callsame;
         with $ctx.node {
             my LibXML::Node $node .= box($_);
-            warn $node.Str;
             $SAXNS2Tester_startElement_stacker.cb.($node);
         }
     }
@@ -433,38 +434,31 @@ class SAXLocatorTester
 
 }
 
-=begin TODO2
+class SAXErrorTester
+    is LibXML::SAX::Handler::SAX2 {
+    use LibXML::SAX::Builder :sax-cb, :is-sax-cb;
+    has $.start-doc-calls = 0;
+    has $.end-doc-calls = 0;
+    has @.errors;
 
-package SAXErrorTester;
-use Test::More;
-
-sub new {
-    bless {}, shift;
+    method startDocument(|c) is sax-cb { $!start-doc-calls++; }
+    method endDocument(|c) is sax-cb { $!end-doc-calls++; }
+    method warning($_) is sax-cb { @!errors.push: 'warning' => $_ }
+    method error($_) is sax-cb { @!errors.push: 'error' => $_; }
+    method fatalError($_) is sax-cb { @!errors.push: 'fatal' => $_; }
 }
 
-sub endDocument {
-    print "End doc: @_\n";
-    return 1; # Shouldn't be reached
+class SAXErrorCallbackTester
+    is SAXErrorTester { # check inheritance
+
+    use LibXML::SAX::Builder :sax-cb, :is-sax-cb;
+    has Bool $.start-element-ok;
+    method startElement(|c) is sax-cb {
+        # test if we can do other stuff
+        LibXML.parse: :string("<foo/>");
+        callsame;
+        LibXML.parse: :string("<bar/>");
+        $!start-element-ok = True; warn;
+    }
 }
 
-package SAXErrorCallbackTester;
-use Test::More;
-
-sub fatal_error {
-    $_[0].{fatal_called} = 1;
-}
-
-sub startElement {
-    # test if we can do other stuff
-    LibXML.parse_string("<foo/>");
-    return;
-}
-sub new {
-    bless {}, shift;
-}
-
-sub endDocument {
-    print "End doc: @_\n";
-    return 1; # Shouldn't be reached
-}
-=end TODO2

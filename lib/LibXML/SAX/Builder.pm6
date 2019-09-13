@@ -169,16 +169,15 @@ class LibXML::SAX::Builder {
                     callb($obj, $error, :$ctx);
                 }
         },
-
     );
 
-    method !build(Any:D $obj, $handler, %dispatches) {
+    method !build(Any:D $obj, %dispatches) {
         my Bool %seen;
         for $obj.^methods.grep(* ~~ is-sax-cb) -> &meth {
             my $name = &meth.sax-name;
             with %dispatches{$name} -> &dispatch {
                 %seen{$name} = True;
-                $handler."$name"() = &dispatch($obj, &meth);
+                $obj.set-sax-callback($name, &dispatch($obj, &meth));
             }
             else {
                 my $known = %dispatches.keys.sort.join: ' ';
@@ -189,12 +188,12 @@ class LibXML::SAX::Builder {
             if %seen<startElement> && %seen<startElementNs>;
         warn "'endElement' and 'endElementNs' callbacks are mutually exclusive"
             if %seen<endElement> && %seen<endElementNs>;
-        $handler;
+        $obj;
     }
 
-    method build-sax-handler($obj, xmlSAXHandler :$sax = xmlSAXHandler.new) {
-        $sax.init;
-        self!build($obj, $sax, %SAXHandlerDispatch);
+    method build-sax-handler($obj) {
+        $obj.native.init;
+        self!build($obj, %SAXHandlerDispatch);
     }
 
 }

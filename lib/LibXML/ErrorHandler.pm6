@@ -61,17 +61,38 @@ class LibXML::ErrorHandler {
     has Bool $.recover is rw;
     has Bool $.suppress-warnings;
     has Bool $.suppress-errors;
+    has $.sax-handler;
+
+    method !sax-error-cb-structured(xmlError:D $err) {
+        with $!sax-handler -> $sax {
+            $_($err.ctxt, $err) with $sax.serror-cb;
+        }
+    }
+
+    method !sax-error-cb-unstructured(UInt:D $level, Str $msg) {
+        # unstructured error handler
+        with $!sax-handler -> $sax {
+            my &cb = do given $level {
+                when XML_ERR_FATAL   { $sax.fatalError-cb // $sax.error-cb }
+                when XML_ERR_ERROR   { $sax.error-cb }
+                when XML_ERR_WARNING { $sax.warning-cb }
+            }
+            $_(xmlParserCtxt, $msg.chomp) with &cb;
+        }
+    }
 
     method generic-error(Str $fmt, Pointer $arg) {
         CATCH { default { warn "error handling failure: $_" } }
         my $msg = $fmt.subst('%s', nativecast(Str, $arg));
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
+        self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
     }
 
     method generic-warning(Str $fmt, Pointer $arg) {
         CATCH { default { warn "error handling failure: $_" } }
         my $msg = $fmt.subst('%s', nativecast(Str, $arg));
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_WARNING), :$msg );
+        self!sax-error-cb-unstructured(XML_ERR_WARNING, $msg);
     }
 
     method structured-error(xmlError $_) {
@@ -85,6 +106,9 @@ class LibXML::ErrorHandler {
         my UInt:D $domain-num = .domain;
 
         @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num );
+
+        self!sax-error-cb-structured($_);
+        self!sax-error-cb-unstructured($level, $msg);
     }
 
     method callback-error(X::LibXML $_) {

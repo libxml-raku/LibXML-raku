@@ -1453,6 +1453,8 @@ class xmlParserCtxt is export {
     method xmlSAX2HasExternalSubset(--> int32) is native(XML2) {*};
     method xmlSAX2InternalSubset(Str $name , Str $ext-id, Str $int-id--> int32) is native(XML2) {*};
     method xmlSAX2ExternalSubset(Str $name , Str $ext-id, Str $int-id--> int32) is native(XML2) {*};
+    method xmlParserWarning(Str $msg ) is native(XML2) {*};
+    method xmlParserError(Str $msg ) is native(XML2) {*};
 
     #-- Entities --#
     method xmlSAX2GetEntity(Str $name --> xmlEntity) is native(XML2) {*};

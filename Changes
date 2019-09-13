@@ -1,5 +1,7 @@
 0.0.7 2019-09-xx
-    - [LibXML::SAX::Handler::SAX2] replace .finish method with .publish
+    - [LibXML::SAX::Handler::SAX2]
+      -- replace .finish method with .publish
+      -- Add error handling callbacks: .warning, .error, fatalError, serror
 0.0.6 2019-09-10
     - [LibXML::Native] Change cglobals from constants to subs (avoid compilation failures #16)
     - [LibXML::Native::Defs] rename library constants LIB -> XML2, BIND-LIB -> BIND-XML2; add CLIB for windows.

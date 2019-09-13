@@ -10,7 +10,7 @@ class LibXML::Parser::Context {
     has Bool $.line-numbers;
     has $.input-callbacks;
     has $.sax-handler;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors is-valid> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors is-valid> .= new: :$!sax-handler;
 
     our constant %Opts = %(
         :clean-namespaces(XML_PARSE_NSCLEAN),
