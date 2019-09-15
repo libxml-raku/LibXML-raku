@@ -226,11 +226,11 @@ EOT
     my $expecting = [
         startDocument => [ 2, 1  ],
         startElement  => [ 2, 6  ],
-        characters     => [ 4, 1  ],
-        comment        => [ 4, 17 ],
-        characters     => [ 5, 1  ],
+        characters    => [ 4, 1  ],
+        comment       => [ 4, 17 ],
+        characters    => [ 5, 1  ],
         cdataBlock    => [ 5, 20 ],
-        characters     => [ 6, 1  ],
+        characters    => [ 6, 1  ],
         endElement    => [ 6, 8  ],
         endDocument   => [ 6, 8  ],
     ];

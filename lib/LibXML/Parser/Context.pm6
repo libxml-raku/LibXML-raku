@@ -40,10 +40,10 @@ class LibXML::Parser::Context {
         :xinclude(XML_PARSE_XINCLUDE),
     );
 
-
    also does LibXML::_Options[%Opts];
 
     method native { $!native }
+
     method set-native(xmlParserCtxt $native) {
         .Reference with $native;
         .Unreference with $!native;
@@ -52,9 +52,7 @@ class LibXML::Parser::Context {
             .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
             .linenumbers = +?$!line-numbers;
             .SetStructuredErrorFunc: -> xmlParserCtxt:D $ctx, xmlError:D $err {
-                self.structured-error($err);
-                $ctx.StopParser
-                    if $err.level ~~ XML_ERR_FATAL;
+                $*XML-CONTEXT.structured-error($err);
             };
             $!native = $_;
             $!native.sax = .native with $!sax-handler;
@@ -66,26 +64,27 @@ class LibXML::Parser::Context {
     }
 
     submethod DESTROY {
+        $*ERR.print('-');
         .Unreference with $!native;
     }
 
     method try(&action, Bool :$recover is copy, Bool :$check-valid) {
 
-        my $obj = self;
+        my $*XML-CONTEXT = self;
         $_ = .new: :native(xmlParserCtxt.new)
-            without $obj;
+            without $*XML-CONTEXT;
 
-        $recover //= $obj.recover;
+        $recover //= $*XML-CONTEXT.recover;
 
         my @input-contexts = .make-contexts
-            with $obj.input-callbacks;
+            with $*XML-CONTEXT.input-callbacks;
 
         # just to make sure we've initialised
         xmlRegisterDefaultInputCallbacks();
 
         for @input-contexts {
             die "unable to register input callbacks"
-            if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
+                if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
         }
 
         &*chdir(~$*CWD);
@@ -97,15 +96,15 @@ class LibXML::Parser::Context {
                 if xmlPopInputCallbacks() < 0;
         }
 
-	$rv := $obj.is-valid if $check-valid;
-        $obj.flush-errors: :$recover;
+	$rv := $*XML-CONTEXT.is-valid if $check-valid;
+        $*XML-CONTEXT.flush-errors: :$recover;
 
         $rv;
     }
 
     method FALLBACK($key, |c) is rw {
         $.option-exists($key)
-        ?? $.option($key, |c)
-        !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
+            ?? $.option($key, |c)
+            !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
     }
 }

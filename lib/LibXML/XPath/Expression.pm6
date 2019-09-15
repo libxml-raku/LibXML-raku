@@ -2,11 +2,15 @@ use v6;
 class LibXML::XPath::Expression {
 
     use LibXML::Native;
+    use LibXML::ErrorHandler;
     has xmlXPathCompExpr $!native;
+    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors> .= new;
     method native { $!native }
 
     multi submethod TWEAK(Str:D :$expr!) {
+        my $*XML-CONTEXT = self;
         $!native .= new(:$expr);
+        self.flush-errors;
         die "invalid xpath expression: $expr"
             without $!native;
     }

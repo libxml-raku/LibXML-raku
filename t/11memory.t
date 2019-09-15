@@ -528,7 +528,7 @@ use LibXML::SAX::Handler::SAX2;
 class sax_null
     is LibXML::SAX::Handler::SAX2 {
 
-    method finish(:$doc) { $doc }
+    method finish($doc) { $doc }
 
     #method startDocument(|) is sax-cb {
     #}

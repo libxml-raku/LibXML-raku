@@ -19,7 +19,7 @@ class ValidContext {
 
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: -> $, xmlError $err {
-            self.structured-error($err);
+            $*XML-CONTEXT.structured-error($err);
         };
     }
 
@@ -31,6 +31,7 @@ class ValidContext {
         my xmlDoc:D $doc = .native with $doc-obj;
         my xmlDtd   $dtd = .native with $dtd-obj;
 
+        my $*XML-CONTEXT = self;
         my $rv := $!native.validate(:$doc, :$dtd);
 
 	$rv := $!errors.is-valid

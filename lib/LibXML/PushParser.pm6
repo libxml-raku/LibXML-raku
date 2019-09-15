@@ -20,27 +20,27 @@ class LibXML::PushParser {
         $!ctx .= new: :$native, |c;
     }
 
-    method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$terminate = False) {
-        with $!ctx.native {
-            .ParseChunk($chunk, $size, +$terminate);
-        }
-        else {
-            die "parser has been finished";
-        }
-    }
-
-    multi method push(Str $chunk) {
-        self!parse-chunk($chunk.encode);
-    }
-
-    multi method push(Blob $chunk) is default {
-        self!parse-chunk($chunk);
-    }
-
-    method finish-push(Str :$URI, Bool :$recover = False, :$sax-handler) {
+    method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
         $!ctx.try: :$recover, {
-            self!parse-chunk: :terminate;
+            with $!ctx.native {
+                .ParseChunk($chunk, $size, +$terminate);
+            }
+            else {
+                die "parser has been finished";
+            }
         }
+    }
+
+    multi method push(Str $chunk, |c) {
+        self!parse-chunk($chunk.encode, |c);
+    }
+
+    multi method push(Blob $chunk, |c) is default {
+        self!parse-chunk($chunk, |c);
+    }
+
+    method finish-push(Str :$URI, Bool :$recover, :$sax-handler, |c) {
+        self!parse-chunk: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
         my xmlDoc $native = $!ctx.native.myDoc;

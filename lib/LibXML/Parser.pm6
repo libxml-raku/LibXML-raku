@@ -59,10 +59,10 @@ class LibXML::Parser {
         LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
     }
 
-    method !publish(:$URI, LibXML::Parser::Context :$handler!, xmlDoc :$native = $handler.native.myDoc) {
-        my LibXML::Document:D $doc .= new: :ctx($handler), :$native;
+    method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
+        my LibXML::Document:D $doc .= new: :$ctx, :$native;
         $doc.URI = $_ with $URI;
-        self.processXIncludes($doc, :$handler)
+        self.processXIncludes($doc, :$ctx)
             if $.expand-xinclude;
 
         with $!sax-handler {
@@ -75,12 +75,12 @@ class LibXML::Parser {
 
     method processXIncludes (
         LibXML::Document $_,
-        LibXML::Parser::Context:D :$handler = self!make-handler(:native(xmlParserCtxt.new)),
+        LibXML::Parser::Context:D :$ctx = self!make-handler(:native(xmlParserCtxt.new)),
         *%opts --> Int)
     is also<process-xincludes> {
         my xmlDoc $doc = .native;
         my $flags = self.get-flags(|%opts);
-        $handler.try: { $doc.XIncludeProcessFlags($flags) }
+        $ctx.try: { $doc.XIncludeProcessFlags($flags) }
     }
 
     proto method parse(|c) is also<load> {
@@ -94,18 +94,18 @@ class LibXML::Parser {
                        *%opts 
                       ) {
 
-        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
+        my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
-        $handler.try: {
-            my xmlParserCtxt:D $ctx = $html
+        $ctx.try: {
+            my xmlParserCtxt:D $native = $html
             ?? htmlMemoryParserCtxt.new: :$string
             !! xmlMemoryParserCtxt.new: :$string;
 
-            $ctx.input.filename = $_ with $URI;
-            $handler.set-native: $ctx;
-            $ctx.ParseDocument;
+            $native.input.filename = $_ with $URI;
+            $ctx.set-native: $native;
+            $native.ParseDocument;
         };
-        self!publish: :$handler;
+        self!publish: :$ctx;
     }
 
     multi method parse(Blob:D :$buf!,
@@ -115,15 +115,15 @@ class LibXML::Parser {
                        *%opts,
                       ) {
 
-        my xmlParserCtxt:D $ctx = $html
+        my xmlParserCtxt:D $native = $html
            ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
            !! xmlMemoryParserCtxt.new(:$buf);
 
-        $ctx.input.filename = $_ with $URI;
+        $native.input.filename = $_ with $URI;
 
-        my LibXML::Parser::Context $handler = self!make-handler: :native($ctx), :$html, |%opts;
-        $handler.try: { $ctx.ParseDocument };
-        self!publish: :$handler;
+        my LibXML::Parser::Context $ctx = self!make-handler: :$native, :$html, |%opts;
+        $ctx.try: { $native.ParseDocument };
+        self!publish: :$ctx;
     }
 
     multi method parse(Str() :$file!,
@@ -132,19 +132,19 @@ class LibXML::Parser {
                        Str :$URI = $!URI,
                        *%opts,
                       ) {
-        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
+        my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
-        $handler.try: {
-            my xmlParserCtxt $ctx = $html
+        $ctx.try: {
+            my xmlParserCtxt $native = $html
                ?? htmlFileParserCtxt.new(:$file, :$enc)
                !! xmlFileParserCtxt.new(:$file);
             die "unable to load file: $file"
-                without $ctx;
-            $handler.set-native: $ctx;
-            $ctx.ParseDocument;
+                without $native;
+            $ctx.set-native: $native;
+            $native.ParseDocument;
         };
 
-        self!publish: :$URI, :$handler;
+        self!publish: :$URI, :$ctx;
     }
 
     multi method parse(UInt :$fd!,
@@ -154,19 +154,19 @@ class LibXML::Parser {
                        *%opts,
                       ) {
 
-        my LibXML::Parser::Context $handler = self!make-handler: :$html, |%opts;
+        my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
         my UInt $flags = self.get-flags(|%opts, :$html);
-        my xmlDoc $native;
+        my xmlDoc $doc;
 
-        $handler.try: {
-            my xmlParserCtxt $ctx = $html
+        $ctx.try: {
+            my xmlParserCtxt $native = $html
                ?? htmlParserCtxt.new
                !! xmlParserCtxt.new;
-            $handler.set-native: $ctx;
-            $native = $ctx.ReadFd($fd, $URI, $enc, $flags);
+            $ctx.set-native: $native;
+            $doc = $native.ReadFd($fd, $URI, $enc, $flags);
         };
 
-        self!publish: :$handler, :$native;
+        self!publish: :$ctx, :native($doc);
     }
 
     multi method parse(IO::Handle :$io!,
@@ -209,9 +209,9 @@ class LibXML::Parser {
         }
     }
     multi method push(@chunks) is default { self.push($_) for @chunks }
-    method parse-chunk($chunk?, :$terminate) {
+    method parse-chunk($chunk?, :$terminate, |c) {
         $.push($_) with $chunk;
-        $.finish-push
+        $.finish-push(|c)
             if $terminate;
     }
     method finish-push (

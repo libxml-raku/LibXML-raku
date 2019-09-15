@@ -36,7 +36,7 @@ my class Parser::Context {
 
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: -> xmlSchemaParserCtxt $ctx, xmlError:D $err {
-            self.structured-error($err);
+            $*XML-CONTEXT.structured-error($err);
         };
 
     }
@@ -47,6 +47,7 @@ my class Parser::Context {
     }
 
     method parse {
+        my $*XML-CONTEXT = self;
         my $rv := $!native.Parse;
         self.flush-errors;
         $rv;

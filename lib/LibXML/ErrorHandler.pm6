@@ -98,12 +98,13 @@ class LibXML::ErrorHandler {
     method structured-error(xmlError $_) {
         CATCH { default { warn "error handling failure: $_" } }
         my Int $level = .level;
-        my Str $msg = .message;
         my Str $file = .file;
         my UInt:D $line = .line;
         my UInt:D $column = .column;
         my UInt:D $code = .code;
         my UInt:D $domain-num = .domain;
+        my Str $msg = .message;
+        $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
 
         @!errors.push:  X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num );
 
