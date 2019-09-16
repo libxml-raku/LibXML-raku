@@ -12,6 +12,7 @@ use LibXML::Native;
 use LibXML::Node;
 use NativeCall;
 use Method::Also;
+use LibXML::Parser::Context;
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :native($)!) {}
 multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
@@ -38,7 +39,7 @@ multi method parse(
     my Pointer[xmlNode] $nodes .= new;
     my $stat;
     # may return a linked list of nodes
-    do {
+    LibXML::Parser::Context.try: {
         temp LibXML::Native.KeepBlanksDefault = $keep-blanks;
         $stat := (self.native.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
             $sax, $user-data, 0, $string, $nodes, +$repair

@@ -66,8 +66,10 @@ class LibXML::Parser::Context {
     }
 
     submethod DESTROY {
-        $*ERR.print('-');
-        .Unreference with $!native;
+        with $!native {
+            .sax = Nil;
+            .Unreference;
+        }
     }
 
     method try(&action, Bool :$recover is copy, Bool :$check-valid) {
