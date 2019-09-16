@@ -17,10 +17,11 @@ class ValidContext {
         $!native .= new;
     }
 
+    sub structured-error-cb(xmlValidCtxt $ctx, xmlError:D $err) {
+        $*XML-CONTEXT.structured-error($err);
+    }
     submethod TWEAK {
-        $!native.SetStructuredErrorFunc: -> $, xmlError $err {
-            $*XML-CONTEXT.structured-error($err);
-        };
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
     }
 
     submethod DESTROY {

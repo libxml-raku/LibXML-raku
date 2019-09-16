@@ -21,12 +21,13 @@ class LibXML::XPath::Context {
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
+    sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) {
+        $*XML-CONTEXT.structured-error($err);
+    }
     submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc) {
         self.setContextNode($_) with $node // $doc;
         with $!native {
-            .SetStructuredErrorFunc: -> $ctx, xmlError:D $err {
-                $*XML-CONTEXT.structured-error($err);
-            };
+            .SetStructuredErrorFunc: &structured-error-cb;
         }
     }
 

@@ -40,9 +40,13 @@ class LibXML::Parser::Context {
         :xinclude(XML_PARSE_XINCLUDE),
     );
 
-   also does LibXML::_Options[%Opts];
+    also does LibXML::_Options[%Opts];
 
     method native { $!native }
+
+    sub structured-error-cb(xmlParserCtxt:D $ctx, xmlError:D $err) {
+        $*XML-CONTEXT.structured-error($err);
+    }
 
     method set-native(xmlParserCtxt $native) {
         .Reference with $native;
@@ -51,15 +55,13 @@ class LibXML::Parser::Context {
         with $native {
             .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
             .linenumbers = +?$!line-numbers;
-            .SetStructuredErrorFunc: -> xmlParserCtxt:D $ctx, xmlError:D $err {
-                $*XML-CONTEXT.structured-error($err);
-            };
+            .SetStructuredErrorFunc: &structured-error-cb; 
             $!native = $_;
             $!native.sax = .native with $!sax-handler;
         }
     }
 
-    submethod TWEAK(xmlParserCtxt :$native) {
+   submethod TWEAK(xmlParserCtxt :$native) {
         self.set-native($_) with $native;
     }
 

@@ -34,11 +34,12 @@ my class Parser::Context {
         $!native .= new: :$doc;
     }
 
-    submethod TWEAK {
-        $!native.SetStructuredErrorFunc: -> xmlSchemaParserCtxt $ctx, xmlError:D $err {
-            $*XML-CONTEXT.structured-error($err);
-        };
+    sub structured-error-cb(xmlSchemaParserCtxt $ctx, xmlError:D $err) {
+        $*XML-CONTEXT.structured-error($err);
+    }
 
+    submethod TWEAK {
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
     }
 
     submethod DESTROY {
@@ -65,11 +66,11 @@ my class ValidContext {
         $!native .= new: :$schema;
     }
 
+    sub structured-error-cb(xmlSchemaValidCtxt $ctx, xmlError:D $err) {
+        $*XML-CONTEXT.structured-error($err);
+    }
     submethod TWEAK {
-        $!native.SetStructuredErrorFunc: -> xmlSchemaValidCtxt $ctx, xmlError:D $err {
-                self.structured-error($err);
-        };
-
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
     }
 
     submethod DESTROY {
@@ -77,6 +78,7 @@ my class ValidContext {
     }
 
     multi method validate(LibXML::Document:D $_, Bool() :$check) {
+        my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .native;
         my $rv := $!native.ValidateDoc($doc);
 	$rv := $!errors.is-valid
