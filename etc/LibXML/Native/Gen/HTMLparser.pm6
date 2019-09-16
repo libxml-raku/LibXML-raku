@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::HTMLparser;
 # interface for an HTML 4.0 non-verifying parser:
 #    this module implements an HTML 4.0 non-verifying parser with API compatible with the XML parser ones. It should be able to parse "real world" HTML, even if severely broken from a specification point of view. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum htmlParserOption is export (
     HTML_PARSE_COMPACT => 65536,
@@ -18,7 +18,7 @@ enum htmlParserOption is export (
     HTML_PARSE_NOWARNING => 64,
     HTML_PARSE_PEDANTIC => 128,
     HTML_PARSE_RECOVER => 1,
-)
+);
 
 enum htmlStatus is export (
     HTML_DEPRECATED => 2,
@@ -26,7 +26,7 @@ enum htmlStatus is export (
     HTML_NA => 0,
     HTML_REQUIRED => 12,
     HTML_VALID => 4,
-)
+);
 
 class htmlElemDesc is repr('CStruct') {
     has Str $.name; # The tag name
@@ -51,41 +51,41 @@ class htmlEntityDesc is repr('CStruct') {
     has Str $.desc; # the description
 }
 
-sub UTF8ToHtml(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(LIB) is export {*};
-sub htmlAttrAllowed(const htmlElemDesc * $elt, xmlCharP $attr, int32 $legacy --> htmlStatus) is native(LIB) is export {*};
-sub htmlAutoCloseTag(htmlDoc $doc, xmlCharP $name, htmlNode $elem --> int32) is native(LIB) is export {*};
-sub htmlCreateMemoryParserCtxt(Str $buffer, int32 $size --> htmlParserCtxt) is native(LIB) is export {*};
-sub htmlCreatePushParserCtxt(htmlSAXHandler $sax, Pointer $user_data, Str $chunk, int32 $size, Str $filename, xmlCharEncoding $enc --> htmlParserCtxt) is native(LIB) is export {*};
-sub htmlCtxtReadDoc(htmlParserCtxt $ctxt, xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlCtxtReadFd(htmlParserCtxt $ctxt, int32 $fd, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlCtxtReadFile(htmlParserCtxt $ctxt, Str $filename, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlCtxtReadIO(htmlParserCtxt $ctxt, xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlCtxtReadMemory(htmlParserCtxt $ctxt, Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlCtxtReset(htmlParserCtxt $ctxt) is native(LIB) is export {*};
-sub htmlCtxtUseOptions(htmlParserCtxt $ctxt, int32 $options --> int32) is native(LIB) is export {*};
-sub htmlElementAllowedHere(const htmlElemDesc * $parent, xmlCharP $elt --> int32) is native(LIB) is export {*};
-sub htmlElementStatusHere(const htmlElemDesc * $parent, const htmlElemDesc * $elt --> htmlStatus) is native(LIB) is export {*};
-sub htmlEncodeEntities(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen, int32 $quoteChar --> int32) is native(LIB) is export {*};
-sub htmlEntityLookup(xmlCharP $name --> const htmlEntityDesc *) is native(LIB) is export {*};
-sub htmlEntityValueLookup(uint32 $value --> const htmlEntityDesc *) is native(LIB) is export {*};
-sub htmlFreeParserCtxt(htmlParserCtxt $ctxt) is native(LIB) is export {*};
-sub htmlHandleOmittedElem(int32 $val --> int32) is native(LIB) is export {*};
-sub htmlIsAutoClosed(htmlDoc $doc, htmlNode $elem --> int32) is native(LIB) is export {*};
-sub htmlIsScriptAttribute(xmlCharP $name --> int32) is native(LIB) is export {*};
-sub htmlNewParserCtxt( --> htmlParserCtxt) is native(LIB) is export {*};
-sub htmlNodeStatus(const htmlNode $node, int32 $legacy --> htmlStatus) is native(LIB) is export {*};
-sub htmlParseCharRef(htmlParserCtxt $ctxt --> int32) is native(LIB) is export {*};
-sub htmlParseChunk(htmlParserCtxt $ctxt, Str $chunk, int32 $size, int32 $terminate --> int32) is native(LIB) is export {*};
-sub htmlParseDoc(xmlCharP $cur, Str $encoding --> htmlDoc) is native(LIB) is export {*};
-sub htmlParseDocument(htmlParserCtxt $ctxt --> int32) is native(LIB) is export {*};
-sub htmlParseElement(htmlParserCtxt $ctxt) is native(LIB) is export {*};
-sub htmlParseEntityRef(htmlParserCtxt $ctxt, const xmlChar ** $str --> const htmlEntityDesc *) is native(LIB) is export {*};
-sub htmlParseFile(Str $filename, Str $encoding --> htmlDoc) is native(LIB) is export {*};
-sub htmlReadDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlReadFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlReadFile(Str $filename, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlReadIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlReadMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(LIB) is export {*};
-sub htmlSAXParseDoc(xmlCharP $cur, Str $encoding, htmlSAXHandler $sax, Pointer $userData --> htmlDoc) is native(LIB) is export {*};
-sub htmlSAXParseFile(Str $filename, Str $encoding, htmlSAXHandler $sax, Pointer $userData --> htmlDoc) is native(LIB) is export {*};
-sub htmlTagLookup(xmlCharP $tag --> const htmlElemDesc *) is native(LIB) is export {*};
+sub UTF8ToHtml(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*};
+sub htmlAttrAllowed(const htmlElemDesc * $elt, xmlCharP $attr, int32 $legacy --> htmlStatus) is native(XML2) is export {*};
+sub htmlAutoCloseTag(htmlDoc $doc, xmlCharP $name, htmlNode $elem --> int32) is native(XML2) is export {*};
+sub htmlCreateMemoryParserCtxt(Str $buffer, int32 $size --> htmlParserCtxt) is native(XML2) is export {*};
+sub htmlCreatePushParserCtxt(htmlSAXHandler $sax, Pointer $user_data, Str $chunk, int32 $size, Str $filename, xmlCharEncoding $enc --> htmlParserCtxt) is native(XML2) is export {*};
+sub htmlCtxtReadDoc(htmlParserCtxt $ctxt, xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlCtxtReadFd(htmlParserCtxt $ctxt, int32 $fd, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlCtxtReadFile(htmlParserCtxt $ctxt, Str $filename, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlCtxtReadIO(htmlParserCtxt $ctxt, xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlCtxtReadMemory(htmlParserCtxt $ctxt, Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlCtxtReset(htmlParserCtxt $ctxt) is native(XML2) is export {*};
+sub htmlCtxtUseOptions(htmlParserCtxt $ctxt, int32 $options --> int32) is native(XML2) is export {*};
+sub htmlElementAllowedHere(const htmlElemDesc * $parent, xmlCharP $elt --> int32) is native(XML2) is export {*};
+sub htmlElementStatusHere(const htmlElemDesc * $parent, const htmlElemDesc * $elt --> htmlStatus) is native(XML2) is export {*};
+sub htmlEncodeEntities(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen, int32 $quoteChar --> int32) is native(XML2) is export {*};
+sub htmlEntityLookup(xmlCharP $name --> const htmlEntityDesc *) is native(XML2) is export {*};
+sub htmlEntityValueLookup(uint32 $value --> const htmlEntityDesc *) is native(XML2) is export {*};
+sub htmlFreeParserCtxt(htmlParserCtxt $ctxt) is native(XML2) is export {*};
+sub htmlHandleOmittedElem(int32 $val --> int32) is native(XML2) is export {*};
+sub htmlIsAutoClosed(htmlDoc $doc, htmlNode $elem --> int32) is native(XML2) is export {*};
+sub htmlIsScriptAttribute(xmlCharP $name --> int32) is native(XML2) is export {*};
+sub htmlNewParserCtxt( --> htmlParserCtxt) is native(XML2) is export {*};
+sub htmlNodeStatus(const htmlNode $node, int32 $legacy --> htmlStatus) is native(XML2) is export {*};
+sub htmlParseCharRef(htmlParserCtxt $ctxt --> int32) is native(XML2) is export {*};
+sub htmlParseChunk(htmlParserCtxt $ctxt, Str $chunk, int32 $size, int32 $terminate --> int32) is native(XML2) is export {*};
+sub htmlParseDoc(xmlCharP $cur, Str $encoding --> htmlDoc) is native(XML2) is export {*};
+sub htmlParseDocument(htmlParserCtxt $ctxt --> int32) is native(XML2) is export {*};
+sub htmlParseElement(htmlParserCtxt $ctxt) is native(XML2) is export {*};
+sub htmlParseEntityRef(htmlParserCtxt $ctxt, const xmlChar ** $str --> const htmlEntityDesc *) is native(XML2) is export {*};
+sub htmlParseFile(Str $filename, Str $encoding --> htmlDoc) is native(XML2) is export {*};
+sub htmlReadDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlReadFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlReadFile(Str $filename, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlReadIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlReadMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> htmlDoc) is native(XML2) is export {*};
+sub htmlSAXParseDoc(xmlCharP $cur, Str $encoding, htmlSAXHandler $sax, Pointer $userData --> htmlDoc) is native(XML2) is export {*};
+sub htmlSAXParseFile(Str $filename, Str $encoding, htmlSAXHandler $sax, Pointer $userData --> htmlDoc) is native(XML2) is export {*};
+sub htmlTagLookup(xmlCharP $tag --> const htmlElemDesc *) is native(XML2) is export {*};

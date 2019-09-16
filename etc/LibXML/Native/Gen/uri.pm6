@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::uri;
 # library of generic URI related routines:
 #    library of generic URI related routines Implements RFC 2396 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 class xmlURI is repr('CStruct') {
     has Str $.scheme; # the URI scheme
@@ -20,21 +20,21 @@ class xmlURI is repr('CStruct') {
     has int32 $.cleanup; # parsing potentially unclean URI
     has Str $.query_raw; # the query string (as it appears in the URI)
 
-    sub xmlCreateURI( --> xmlURI) is native(LIB) is export {*};
-    sub xmlParseURI(Str $str --> xmlURI) is native(LIB) is export {*};
-    sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURI) is native(LIB) is export {*};
+    sub xmlCreateURI( --> xmlURI) is native(XML2) is export {*};
+    sub xmlParseURI(Str $str --> xmlURI) is native(XML2) is export {*};
+    sub xmlParseURIRaw(Str $str, int32 $raw --> xmlURI) is native(XML2) is export {*};
 
-    method Free() is native(LIB) is symbol('xmlFreeURI') {*};
-    method ParseURIReference(Str $str --> int32) is native(LIB) is symbol('xmlParseURIReference') {*};
-    method SaveUri( --> xmlCharP) is native(LIB) is symbol('xmlSaveUri') {*};
+    method Free() is native(XML2) is symbol('xmlFreeURI') {*};
+    method ParseURIReference(Str $str --> int32) is native(XML2) is symbol('xmlParseURIReference') {*};
+    method SaveUri( --> xmlCharP) is native(XML2) is symbol('xmlSaveUri') {*};
 }
 
-sub xmlBuildRelativeURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) is export {*};
-sub xmlBuildURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(LIB) is export {*};
-sub xmlCanonicPath(xmlCharP $path --> xmlCharP) is native(LIB) is export {*};
-sub xmlNormalizeURIPath(Str $path --> int32) is native(LIB) is export {*};
-sub xmlPathToURI(xmlCharP $path --> xmlCharP) is native(LIB) is export {*};
-sub xmlPrintURI(FILE * $stream, xmlURI $uri) is native(LIB) is export {*};
-sub xmlURIEscape(xmlCharP $str --> xmlCharP) is native(LIB) is export {*};
-sub xmlURIEscapeStr(xmlCharP $str, xmlCharP $list --> xmlCharP) is native(LIB) is export {*};
-sub xmlURIUnescapeString(Str $str, int32 $len, Str $target --> Str) is native(LIB) is export {*};
+sub xmlBuildRelativeURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(XML2) is export {*};
+sub xmlBuildURI(xmlCharP $URI, xmlCharP $base --> xmlCharP) is native(XML2) is export {*};
+sub xmlCanonicPath(xmlCharP $path --> xmlCharP) is native(XML2) is export {*};
+sub xmlNormalizeURIPath(Str $path --> int32) is native(XML2) is export {*};
+sub xmlPathToURI(xmlCharP $path --> xmlCharP) is native(XML2) is export {*};
+sub xmlPrintURI(FILE * $stream, xmlURI $uri) is native(XML2) is export {*};
+sub xmlURIEscape(xmlCharP $str --> xmlCharP) is native(XML2) is export {*};
+sub xmlURIEscapeStr(xmlCharP $str, xmlCharP $list --> xmlCharP) is native(XML2) is export {*};
+sub xmlURIUnescapeString(Str $str, int32 $len, Str $target --> Str) is native(XML2) is export {*};

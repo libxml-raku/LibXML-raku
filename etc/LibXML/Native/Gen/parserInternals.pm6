@@ -5,12 +5,12 @@ use v6;
 unit module LibXML::Native::Gen::parserInternals;
 # internals routines and limits exported by the parser.:
 #    this module exports a number of internal parsing routines they are not really all intended for applications but can prove useful doing low level processing. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub htmlCreateFileParserCtxt(Str $filename, Str $encoding --> htmlParserCtxt) is native(LIB) is export {*};
-sub htmlInitAutoClose() is native(LIB) is export {*};
-sub xmlCheckLanguageID(xmlCharP $lang --> int32) is native(LIB) is export {*};
-sub xmlCopyChar(int32 $len, xmlCharP $out, int32 $val --> int32) is native(LIB) is export {*};
-sub xmlCopyCharMultiByte(xmlCharP $out, int32 $val --> int32) is native(LIB) is export {*};
-sub xmlIsLetter(int32 $c --> int32) is native(LIB) is export {*};
-sub xmlSetEntityReferenceFunc(xmlEntityReferenceFunc $func) is native(LIB) is export {*};
+sub htmlCreateFileParserCtxt(Str $filename, Str $encoding --> htmlParserCtxt) is native(XML2) is export {*};
+sub htmlInitAutoClose() is native(XML2) is export {*};
+sub xmlCheckLanguageID(xmlCharP $lang --> int32) is native(XML2) is export {*};
+sub xmlCopyChar(int32 $len, xmlCharP $out, int32 $val --> int32) is native(XML2) is export {*};
+sub xmlCopyCharMultiByte(xmlCharP $out, int32 $val --> int32) is native(XML2) is export {*};
+sub xmlIsLetter(int32 $c --> int32) is native(XML2) is export {*};
+sub xmlSetEntityReferenceFunc(xmlEntityReferenceFunc $func) is native(XML2) is export {*};

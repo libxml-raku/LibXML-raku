@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::xmlsave;
 # the XML document serializer:
 #    API to save document or subtree of document 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum xmlSaveOption is export (
     XML_SAVE_AS_HTML => 64,
@@ -16,17 +16,17 @@ enum xmlSaveOption is export (
     XML_SAVE_NO_XHTML => 8,
     XML_SAVE_WSNONSIG => 128,
     XML_SAVE_XHTML => 16,
-)
+);
 
 class xmlSaveCtxt is repr('CPointer') {
-    sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) is export {*};
-    sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) is export {*};
-    sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(LIB) is export {*};
+    sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is export {*};
+    sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is export {*};
+    sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is export {*};
 
-    method Close( --> int32) is native(LIB) is symbol('xmlSaveClose') {*};
-    method Doc(xmlDoc $doc --> long) is native(LIB) is symbol('xmlSaveDoc') {*};
-    method Flush( --> int32) is native(LIB) is symbol('xmlSaveFlush') {*};
-    method SetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) is symbol('xmlSaveSetAttrEscape') {*};
-    method SetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(LIB) is symbol('xmlSaveSetEscape') {*};
-    method Tree(xmlNode $node --> long) is native(LIB) is symbol('xmlSaveTree') {*};
+    method Close( --> int32) is native(XML2) is symbol('xmlSaveClose') {*};
+    method Doc(xmlDoc $doc --> long) is native(XML2) is symbol('xmlSaveDoc') {*};
+    method Flush( --> int32) is native(XML2) is symbol('xmlSaveFlush') {*};
+    method SetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(XML2) is symbol('xmlSaveSetAttrEscape') {*};
+    method SetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(XML2) is symbol('xmlSaveSetEscape') {*};
+    method Tree(xmlNode $node --> long) is native(XML2) is symbol('xmlSaveTree') {*};
 }

@@ -5,21 +5,21 @@ use v6;
 unit module LibXML::Native::Gen::xmlreader;
 # the XMLReader implementation:
 #    API of the XML streaming API based on C# interfaces. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum xmlParserProperties is export (
     XML_PARSER_DEFAULTATTRS => 2,
     XML_PARSER_LOADDTD => 1,
     XML_PARSER_SUBST_ENTITIES => 4,
     XML_PARSER_VALIDATE => 3,
-)
+);
 
 enum xmlParserSeverities is export (
     XML_PARSER_SEVERITY_ERROR => 4,
     XML_PARSER_SEVERITY_VALIDITY_ERROR => 2,
     XML_PARSER_SEVERITY_VALIDITY_WARNING => 1,
     XML_PARSER_SEVERITY_WARNING => 3,
-)
+);
 
 enum xmlReaderTypes is export (
     XML_READER_TYPE_ATTRIBUTE => 2,
@@ -40,7 +40,7 @@ enum xmlReaderTypes is export (
     XML_READER_TYPE_TEXT => 3,
     XML_READER_TYPE_WHITESPACE => 13,
     XML_READER_TYPE_XML_DECLARATION => 17,
-)
+);
 
 enum xmlTextReaderMode is export (
     XML_TEXTREADER_MODE_CLOSED => 4,
@@ -49,93 +49,93 @@ enum xmlTextReaderMode is export (
     XML_TEXTREADER_MODE_INITIAL => 0,
     XML_TEXTREADER_MODE_INTERACTIVE => 1,
     XML_TEXTREADER_MODE_READING => 5,
-)
+);
 
 class xmlTextReader is repr('CPointer') {
-    sub xmlNewTextReaderFilename(Str $URI --> xmlTextReader) is native(LIB) is export {*};
-    sub xmlReaderForDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
-    sub xmlReaderForFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
-    sub xmlReaderForFile(Str $filename, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
-    sub xmlReaderForIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
-    sub xmlReaderForMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(LIB) is export {*};
+    sub xmlNewTextReaderFilename(Str $URI --> xmlTextReader) is native(XML2) is export {*};
+    sub xmlReaderForDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(XML2) is export {*};
+    sub xmlReaderForFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(XML2) is export {*};
+    sub xmlReaderForFile(Str $filename, Str $encoding, int32 $options --> xmlTextReader) is native(XML2) is export {*};
+    sub xmlReaderForIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(XML2) is export {*};
+    sub xmlReaderForMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> xmlTextReader) is native(XML2) is export {*};
 
-    method Free() is native(LIB) is symbol('xmlFreeTextReader') {*};
-    method ReaderNewDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlReaderNewDoc') {*};
-    method ReaderNewFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlReaderNewFd') {*};
-    method ReaderNewFile(Str $filename, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlReaderNewFile') {*};
-    method ReaderNewIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlReaderNewIO') {*};
-    method ReaderNewMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlReaderNewMemory') {*};
-    method ReaderNewWalker(xmlDoc $doc --> int32) is native(LIB) is symbol('xmlReaderNewWalker') {*};
-    method AttributeCount( --> int32) is native(LIB) is symbol('xmlTextReaderAttributeCount') {*};
-    method BaseUri( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderBaseUri') {*};
-    method ByteConsumed( --> long) is native(LIB) is symbol('xmlTextReaderByteConsumed') {*};
-    method Close( --> int32) is native(LIB) is symbol('xmlTextReaderClose') {*};
-    method ConstBaseUri( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstBaseUri') {*};
-    method ConstEncoding( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstEncoding') {*};
-    method ConstLocalName( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstLocalName') {*};
-    method ConstName( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstName') {*};
-    method ConstNamespaceUri( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstNamespaceUri') {*};
-    method ConstPrefix( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstPrefix') {*};
-    method ConstString(xmlCharP $str --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstString') {*};
-    method ConstValue( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstValue') {*};
-    method ConstXmlLang( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstXmlLang') {*};
-    method ConstXmlVersion( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderConstXmlVersion') {*};
-    method CurrentDoc( --> xmlDoc) is native(LIB) is symbol('xmlTextReaderCurrentDoc') {*};
-    method CurrentNode( --> xmlNode) is native(LIB) is symbol('xmlTextReaderCurrentNode') {*};
-    method Depth( --> int32) is native(LIB) is symbol('xmlTextReaderDepth') {*};
-    method Expand( --> xmlNode) is native(LIB) is symbol('xmlTextReaderExpand') {*};
-    method GetAttribute(xmlCharP $name --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttribute') {*};
-    method GetAttributeNo(int32 $no --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNo') {*};
-    method GetAttributeNs(xmlCharP $localName, xmlCharP $namespaceURI --> xmlCharP) is native(LIB) is symbol('xmlTextReaderGetAttributeNs') {*};
-    method GetErrorHandler(xmlTextReaderErrorFunc * $f, void ** $arg) is native(LIB) is symbol('xmlTextReaderGetErrorHandler') {*};
-    method GetParserColumnNumber( --> int32) is native(LIB) is symbol('xmlTextReaderGetParserColumnNumber') {*};
-    method GetParserLineNumber( --> int32) is native(LIB) is symbol('xmlTextReaderGetParserLineNumber') {*};
-    method GetParserProp(int32 $prop --> int32) is native(LIB) is symbol('xmlTextReaderGetParserProp') {*};
-    method GetRemainder( --> xmlParserInputBuffer) is native(LIB) is symbol('xmlTextReaderGetRemainder') {*};
-    method HasAttributes( --> int32) is native(LIB) is symbol('xmlTextReaderHasAttributes') {*};
-    method HasValue( --> int32) is native(LIB) is symbol('xmlTextReaderHasValue') {*};
-    method IsDefault( --> int32) is native(LIB) is symbol('xmlTextReaderIsDefault') {*};
-    method IsEmptyElement( --> int32) is native(LIB) is symbol('xmlTextReaderIsEmptyElement') {*};
-    method IsNamespaceDecl( --> int32) is native(LIB) is symbol('xmlTextReaderIsNamespaceDecl') {*};
-    method IsValid( --> int32) is native(LIB) is symbol('xmlTextReaderIsValid') {*};
-    method LocalName( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderLocalName') {*};
-    method LookupNamespace(xmlCharP $prefix --> xmlCharP) is native(LIB) is symbol('xmlTextReaderLookupNamespace') {*};
-    method MoveToAttribute(xmlCharP $name --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttribute') {*};
-    method MoveToAttributeNo(int32 $no --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNo') {*};
-    method MoveToAttributeNs(xmlCharP $localName, xmlCharP $namespaceURI --> int32) is native(LIB) is symbol('xmlTextReaderMoveToAttributeNs') {*};
-    method MoveToElement( --> int32) is native(LIB) is symbol('xmlTextReaderMoveToElement') {*};
-    method MoveToFirstAttribute( --> int32) is native(LIB) is symbol('xmlTextReaderMoveToFirstAttribute') {*};
-    method MoveToNextAttribute( --> int32) is native(LIB) is symbol('xmlTextReaderMoveToNextAttribute') {*};
-    method Name( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderName') {*};
-    method NamespaceUri( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderNamespaceUri') {*};
-    method Next( --> int32) is native(LIB) is symbol('xmlTextReaderNext') {*};
-    method NextSibling( --> int32) is native(LIB) is symbol('xmlTextReaderNextSibling') {*};
-    method NodeType( --> int32) is native(LIB) is symbol('xmlTextReaderNodeType') {*};
-    method Normalization( --> int32) is native(LIB) is symbol('xmlTextReaderNormalization') {*};
-    method Prefix( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderPrefix') {*};
-    method Preserve( --> xmlNode) is native(LIB) is symbol('xmlTextReaderPreserve') {*};
-    method PreservePattern(xmlCharP $pattern, const xmlChar ** $namespaces --> int32) is native(LIB) is symbol('xmlTextReaderPreservePattern') {*};
-    method QuoteChar( --> int32) is native(LIB) is symbol('xmlTextReaderQuoteChar') {*};
-    method Read( --> int32) is native(LIB) is symbol('xmlTextReaderRead') {*};
-    method ReadAttributeValue( --> int32) is native(LIB) is symbol('xmlTextReaderReadAttributeValue') {*};
-    method ReadInnerXml( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadInnerXml') {*};
-    method ReadOuterXml( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadOuterXml') {*};
-    method ReadState( --> int32) is native(LIB) is symbol('xmlTextReaderReadState') {*};
-    method ReadString( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderReadString') {*};
-    method RelaxNGSetSchema(xmlRelaxNG $schema --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGSetSchema') {*};
-    method RelaxNGValidate(Str $rng --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGValidate') {*};
-    method RelaxNGValidateCtxt(xmlRelaxNGValidCtxt $ctxt, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderRelaxNGValidateCtxt') {*};
-    method SchemaValidate(Str $xsd --> int32) is native(LIB) is symbol('xmlTextReaderSchemaValidate') {*};
-    method SchemaValidateCtxt(xmlSchemaValidCtxt $ctxt, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderSchemaValidateCtxt') {*};
-    method SetErrorHandler(xmlTextReaderErrorFunc $f, Pointer $arg) is native(LIB) is symbol('xmlTextReaderSetErrorHandler') {*};
-    method SetParserProp(int32 $prop, int32 $value --> int32) is native(LIB) is symbol('xmlTextReaderSetParserProp') {*};
-    method SetSchema(xmlSchema $schema --> int32) is native(LIB) is symbol('xmlTextReaderSetSchema') {*};
-    method SetStructuredErrorHandler(xmlStructuredErrorFunc $f, Pointer $arg) is native(LIB) is symbol('xmlTextReaderSetStructuredErrorHandler') {*};
-    method Setup(xmlParserInputBuffer $input, Str $URL, Str $encoding, int32 $options --> int32) is native(LIB) is symbol('xmlTextReaderSetup') {*};
-    method Standalone( --> int32) is native(LIB) is symbol('xmlTextReaderStandalone') {*};
-    method Value( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderValue') {*};
-    method XmlLang( --> xmlCharP) is native(LIB) is symbol('xmlTextReaderXmlLang') {*};
+    method Free() is native(XML2) is symbol('xmlFreeTextReader') {*};
+    method ReaderNewDoc(xmlCharP $cur, Str $URL, Str $encoding, int32 $options --> int32) is native(XML2) is symbol('xmlReaderNewDoc') {*};
+    method ReaderNewFd(int32 $fd, Str $URL, Str $encoding, int32 $options --> int32) is native(XML2) is symbol('xmlReaderNewFd') {*};
+    method ReaderNewFile(Str $filename, Str $encoding, int32 $options --> int32) is native(XML2) is symbol('xmlReaderNewFile') {*};
+    method ReaderNewIO(xmlInputReadCallback $ioread, xmlInputCloseCallback $ioclose, Pointer $ioctx, Str $URL, Str $encoding, int32 $options --> int32) is native(XML2) is symbol('xmlReaderNewIO') {*};
+    method ReaderNewMemory(Str $buffer, int32 $size, Str $URL, Str $encoding, int32 $options --> int32) is native(XML2) is symbol('xmlReaderNewMemory') {*};
+    method ReaderNewWalker(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlReaderNewWalker') {*};
+    method AttributeCount( --> int32) is native(XML2) is symbol('xmlTextReaderAttributeCount') {*};
+    method BaseUri( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderBaseUri') {*};
+    method ByteConsumed( --> long) is native(XML2) is symbol('xmlTextReaderByteConsumed') {*};
+    method Close( --> int32) is native(XML2) is symbol('xmlTextReaderClose') {*};
+    method ConstBaseUri( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstBaseUri') {*};
+    method ConstEncoding( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstEncoding') {*};
+    method ConstLocalName( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstLocalName') {*};
+    method ConstName( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstName') {*};
+    method ConstNamespaceUri( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstNamespaceUri') {*};
+    method ConstPrefix( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstPrefix') {*};
+    method ConstString(xmlCharP $str --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstString') {*};
+    method ConstValue( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstValue') {*};
+    method ConstXmlLang( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstXmlLang') {*};
+    method ConstXmlVersion( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstXmlVersion') {*};
+    method CurrentDoc( --> xmlDoc) is native(XML2) is symbol('xmlTextReaderCurrentDoc') {*};
+    method CurrentNode( --> xmlNode) is native(XML2) is symbol('xmlTextReaderCurrentNode') {*};
+    method Depth( --> int32) is native(XML2) is symbol('xmlTextReaderDepth') {*};
+    method Expand( --> xmlNode) is native(XML2) is symbol('xmlTextReaderExpand') {*};
+    method GetAttribute(xmlCharP $name --> xmlCharP) is native(XML2) is symbol('xmlTextReaderGetAttribute') {*};
+    method GetAttributeNo(int32 $no --> xmlCharP) is native(XML2) is symbol('xmlTextReaderGetAttributeNo') {*};
+    method GetAttributeNs(xmlCharP $localName, xmlCharP $namespaceURI --> xmlCharP) is native(XML2) is symbol('xmlTextReaderGetAttributeNs') {*};
+    method GetErrorHandler(xmlTextReaderErrorFunc * $f, void ** $arg) is native(XML2) is symbol('xmlTextReaderGetErrorHandler') {*};
+    method GetParserColumnNumber( --> int32) is native(XML2) is symbol('xmlTextReaderGetParserColumnNumber') {*};
+    method GetParserLineNumber( --> int32) is native(XML2) is symbol('xmlTextReaderGetParserLineNumber') {*};
+    method GetParserProp(int32 $prop --> int32) is native(XML2) is symbol('xmlTextReaderGetParserProp') {*};
+    method GetRemainder( --> xmlParserInputBuffer) is native(XML2) is symbol('xmlTextReaderGetRemainder') {*};
+    method HasAttributes( --> int32) is native(XML2) is symbol('xmlTextReaderHasAttributes') {*};
+    method HasValue( --> int32) is native(XML2) is symbol('xmlTextReaderHasValue') {*};
+    method IsDefault( --> int32) is native(XML2) is symbol('xmlTextReaderIsDefault') {*};
+    method IsEmptyElement( --> int32) is native(XML2) is symbol('xmlTextReaderIsEmptyElement') {*};
+    method IsNamespaceDecl( --> int32) is native(XML2) is symbol('xmlTextReaderIsNamespaceDecl') {*};
+    method IsValid( --> int32) is native(XML2) is symbol('xmlTextReaderIsValid') {*};
+    method LocalName( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderLocalName') {*};
+    method LookupNamespace(xmlCharP $prefix --> xmlCharP) is native(XML2) is symbol('xmlTextReaderLookupNamespace') {*};
+    method MoveToAttribute(xmlCharP $name --> int32) is native(XML2) is symbol('xmlTextReaderMoveToAttribute') {*};
+    method MoveToAttributeNo(int32 $no --> int32) is native(XML2) is symbol('xmlTextReaderMoveToAttributeNo') {*};
+    method MoveToAttributeNs(xmlCharP $localName, xmlCharP $namespaceURI --> int32) is native(XML2) is symbol('xmlTextReaderMoveToAttributeNs') {*};
+    method MoveToElement( --> int32) is native(XML2) is symbol('xmlTextReaderMoveToElement') {*};
+    method MoveToFirstAttribute( --> int32) is native(XML2) is symbol('xmlTextReaderMoveToFirstAttribute') {*};
+    method MoveToNextAttribute( --> int32) is native(XML2) is symbol('xmlTextReaderMoveToNextAttribute') {*};
+    method Name( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderName') {*};
+    method NamespaceUri( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderNamespaceUri') {*};
+    method Next( --> int32) is native(XML2) is symbol('xmlTextReaderNext') {*};
+    method NextSibling( --> int32) is native(XML2) is symbol('xmlTextReaderNextSibling') {*};
+    method NodeType( --> int32) is native(XML2) is symbol('xmlTextReaderNodeType') {*};
+    method Normalization( --> int32) is native(XML2) is symbol('xmlTextReaderNormalization') {*};
+    method Prefix( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderPrefix') {*};
+    method Preserve( --> xmlNode) is native(XML2) is symbol('xmlTextReaderPreserve') {*};
+    method PreservePattern(xmlCharP $pattern, const xmlChar ** $namespaces --> int32) is native(XML2) is symbol('xmlTextReaderPreservePattern') {*};
+    method QuoteChar( --> int32) is native(XML2) is symbol('xmlTextReaderQuoteChar') {*};
+    method Read( --> int32) is native(XML2) is symbol('xmlTextReaderRead') {*};
+    method ReadAttributeValue( --> int32) is native(XML2) is symbol('xmlTextReaderReadAttributeValue') {*};
+    method ReadInnerXml( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderReadInnerXml') {*};
+    method ReadOuterXml( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderReadOuterXml') {*};
+    method ReadState( --> int32) is native(XML2) is symbol('xmlTextReaderReadState') {*};
+    method ReadString( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderReadString') {*};
+    method RelaxNGSetSchema(xmlRelaxNG $schema --> int32) is native(XML2) is symbol('xmlTextReaderRelaxNGSetSchema') {*};
+    method RelaxNGValidate(Str $rng --> int32) is native(XML2) is symbol('xmlTextReaderRelaxNGValidate') {*};
+    method RelaxNGValidateCtxt(xmlRelaxNGValidCtxt $ctxt, int32 $options --> int32) is native(XML2) is symbol('xmlTextReaderRelaxNGValidateCtxt') {*};
+    method SchemaValidate(Str $xsd --> int32) is native(XML2) is symbol('xmlTextReaderSchemaValidate') {*};
+    method SchemaValidateCtxt(xmlSchemaValidCtxt $ctxt, int32 $options --> int32) is native(XML2) is symbol('xmlTextReaderSchemaValidateCtxt') {*};
+    method SetErrorHandler(xmlTextReaderErrorFunc $f, Pointer $arg) is native(XML2) is symbol('xmlTextReaderSetErrorHandler') {*};
+    method SetParserProp(int32 $prop, int32 $value --> int32) is native(XML2) is symbol('xmlTextReaderSetParserProp') {*};
+    method SetSchema(xmlSchema $schema --> int32) is native(XML2) is symbol('xmlTextReaderSetSchema') {*};
+    method SetStructuredErrorHandler(xmlStructuredErrorFunc $f, Pointer $arg) is native(XML2) is symbol('xmlTextReaderSetStructuredErrorHandler') {*};
+    method Setup(xmlParserInputBuffer $input, Str $URL, Str $encoding, int32 $options --> int32) is native(XML2) is symbol('xmlTextReaderSetup') {*};
+    method Standalone( --> int32) is native(XML2) is symbol('xmlTextReaderStandalone') {*};
+    method Value( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderValue') {*};
+    method XmlLang( --> xmlCharP) is native(XML2) is symbol('xmlTextReaderXmlLang') {*};
 }
 
-sub xmlTextReaderLocatorBaseURI(xmlTextReaderLocator $locator --> xmlCharP) is native(LIB) is export {*};
-sub xmlTextReaderLocatorLineNumber(xmlTextReaderLocator $locator --> int32) is native(LIB) is export {*};
+sub xmlTextReaderLocatorBaseURI(xmlTextReaderLocator $locator --> xmlCharP) is native(XML2) is export {*};
+sub xmlTextReaderLocatorLineNumber(xmlTextReaderLocator $locator --> int32) is native(XML2) is export {*};

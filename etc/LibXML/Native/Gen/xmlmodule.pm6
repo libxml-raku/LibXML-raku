@@ -5,17 +5,17 @@ use v6;
 unit module LibXML::Native::Gen::xmlmodule;
 # dynamic module loading:
 #    basic API for dynamic module loading, used by libexslt added in 2.6.17 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum xmlModuleOption is export (
     XML_MODULE_LAZY => 1,
     XML_MODULE_LOCAL => 2,
-)
+);
 
 class xmlModule is repr('CPointer') {
-    sub xmlModuleOpen(Str $name, int32 $options --> xmlModule) is native(LIB) is export {*};
+    sub xmlModuleOpen(Str $name, int32 $options --> xmlModule) is native(XML2) is export {*};
 
-    method Close( --> int32) is native(LIB) is symbol('xmlModuleClose') {*};
-    method Free( --> int32) is native(LIB) is symbol('xmlModuleFree') {*};
-    method Symbol(Str $name, void ** $symbol --> int32) is native(LIB) is symbol('xmlModuleSymbol') {*};
+    method Close( --> int32) is native(XML2) is symbol('xmlModuleClose') {*};
+    method Free( --> int32) is native(XML2) is symbol('xmlModuleFree') {*};
+    method Symbol(Str $name, void ** $symbol --> int32) is native(XML2) is symbol('xmlModuleSymbol') {*};
 }

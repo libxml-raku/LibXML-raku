@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::schemasInternals;
 # internal interfaces for XML Schemas:
 #    internal interfaces for the XML Schemas handling and schema validity checking The Schemas development is a Work In Progress. Some of those interfaces are not guaranteed to be API or ABI stable ! 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum xmlSchemaContentType is export (
     XML_SCHEMA_CONTENT_ANY => 7,
@@ -16,7 +16,7 @@ enum xmlSchemaContentType is export (
     XML_SCHEMA_CONTENT_MIXED_OR_ELEMENTS => 5,
     XML_SCHEMA_CONTENT_SIMPLE => 4,
     XML_SCHEMA_CONTENT_UNKNOWN => 0,
-)
+);
 
 enum xmlSchemaTypeType is export (
     XML_SCHEMA_EXTRA_ATTR_USE_PROHIB => 2001,
@@ -59,7 +59,7 @@ enum xmlSchemaTypeType is export (
     XML_SCHEMA_TYPE_SIMPLE_CONTENT => 9,
     XML_SCHEMA_TYPE_UNION => 20,
     XML_SCHEMA_TYPE_UR => 11,
-)
+);
 
 enum xmlSchemaValType is export (
     XML_SCHEMAS_ANYSIMPLETYPE => 46,
@@ -109,7 +109,7 @@ enum xmlSchemaValType is export (
     XML_SCHEMAS_ULONG => 38,
     XML_SCHEMAS_UNKNOWN => 0,
     XML_SCHEMAS_USHORT => 40,
-)
+);
 
 class xmlSchemaAnnot is repr('CStruct') {
     has xmlSchemaAnnot $.next;
@@ -202,14 +202,14 @@ class xmlSchemaFacet is repr('CStruct') {
     has xmlSchemaVal $.val; # The compiled value
     has xmlRegexp $.regexp; # The regex for patterns
 
-    sub xmlSchemaNewFacet( --> xmlSchemaFacet) is native(LIB) is export {*};
+    sub xmlSchemaNewFacet( --> xmlSchemaFacet) is native(XML2) is export {*};
 
-    method Check(xmlSchemaType $typeDecl, xmlSchemaParserCtxt $pctxt, xmlCharP $name --> int32) is native(LIB) is symbol('xmlSchemaCheckFacet') {*};
-    method Free() is native(LIB) is symbol('xmlSchemaFreeFacet') {*};
-    method GetFacetValueAsULong( --> ulong) is native(LIB) is symbol('xmlSchemaGetFacetValueAsULong') {*};
-    method ValidateFacetWhtsp(xmlSchemaWhitespaceValueType $fws, xmlSchemaValType $valType, xmlCharP $value, xmlSchemaVal $val, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) is symbol('xmlSchemaValidateFacetWhtsp') {*};
-    method ValidateLengthFacetWhtsp(xmlSchemaValType $valType, xmlCharP $value, xmlSchemaVal $val, unsigned long * $length, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) is symbol('xmlSchemaValidateLengthFacetWhtsp') {*};
-    method ValidateListSimpleType(xmlCharP $value, ulong $actualLen, unsigned long * $expectedLen --> int32) is native(LIB) is symbol('xmlSchemaValidateListSimpleTypeFacet') {*};
+    method Check(xmlSchemaType $typeDecl, xmlSchemaParserCtxt $pctxt, xmlCharP $name --> int32) is native(XML2) is symbol('xmlSchemaCheckFacet') {*};
+    method Free() is native(XML2) is symbol('xmlSchemaFreeFacet') {*};
+    method GetFacetValueAsULong( --> ulong) is native(XML2) is symbol('xmlSchemaGetFacetValueAsULong') {*};
+    method ValidateFacetWhtsp(xmlSchemaWhitespaceValueType $fws, xmlSchemaValType $valType, xmlCharP $value, xmlSchemaVal $val, xmlSchemaWhitespaceValueType $ws --> int32) is native(XML2) is symbol('xmlSchemaValidateFacetWhtsp') {*};
+    method ValidateLengthFacetWhtsp(xmlSchemaValType $valType, xmlCharP $value, xmlSchemaVal $val, unsigned long * $length, xmlSchemaWhitespaceValueType $ws --> int32) is native(XML2) is symbol('xmlSchemaValidateLengthFacetWhtsp') {*};
+    method ValidateListSimpleType(xmlCharP $value, ulong $actualLen, unsigned long * $expectedLen --> int32) is native(XML2) is symbol('xmlSchemaValidateListSimpleTypeFacet') {*};
 }
 
 class xmlSchemaFacetLink is repr('CStruct') {
@@ -257,17 +257,17 @@ class xmlSchemaType is repr('CStruct') {
     has xmlCharP $.targetNamespace;
     has Pointer $.attrUses;
 
-    sub xmlSchemaGetBuiltInType(xmlSchemaValType $type --> xmlSchemaType) is native(LIB) is export {*};
-    sub xmlSchemaGetPredefinedType(xmlCharP $name, xmlCharP $ns --> xmlSchemaType) is native(LIB) is export {*};
+    sub xmlSchemaGetBuiltInType(xmlSchemaValType $type --> xmlSchemaType) is native(XML2) is export {*};
+    sub xmlSchemaGetPredefinedType(xmlCharP $name, xmlCharP $ns --> xmlSchemaType) is native(XML2) is export {*};
 
-    method Free() is native(LIB) is symbol('xmlSchemaFreeType') {*};
-    method GetBuiltInListSimpleTypeItem( --> xmlSchemaType) is native(LIB) is symbol('xmlSchemaGetBuiltInListSimpleTypeItemType') {*};
-    method IsBuiltInTypeFacet(int32 $facetType --> int32) is native(LIB) is symbol('xmlSchemaIsBuiltInTypeFacet') {*};
-    method ValPredefTypeNode(xmlCharP $value, xmlSchemaValPtr * $val, xmlNode $node --> int32) is native(LIB) is symbol('xmlSchemaValPredefTypeNode') {*};
-    method ValPredefTypeNodeNoNorm(xmlCharP $value, xmlSchemaValPtr * $val, xmlNode $node --> int32) is native(LIB) is symbol('xmlSchemaValPredefTypeNodeNoNorm') {*};
-    method ValidateFacet(xmlSchemaFacet $facet, xmlCharP $value, xmlSchemaVal $val --> int32) is native(LIB) is symbol('xmlSchemaValidateFacet') {*};
-    method ValidateLengthFacet(xmlSchemaFacet $facet, xmlCharP $value, xmlSchemaVal $val, unsigned long * $length --> int32) is native(LIB) is symbol('xmlSchemaValidateLengthFacet') {*};
-    method ValidatePredefined(xmlCharP $value, xmlSchemaValPtr * $val --> int32) is native(LIB) is symbol('xmlSchemaValidatePredefinedType') {*};
+    method Free() is native(XML2) is symbol('xmlSchemaFreeType') {*};
+    method GetBuiltInListSimpleTypeItem( --> xmlSchemaType) is native(XML2) is symbol('xmlSchemaGetBuiltInListSimpleTypeItemType') {*};
+    method IsBuiltInTypeFacet(int32 $facetType --> int32) is native(XML2) is symbol('xmlSchemaIsBuiltInTypeFacet') {*};
+    method ValPredefTypeNode(xmlCharP $value, xmlSchemaValPtr * $val, xmlNode $node --> int32) is native(XML2) is symbol('xmlSchemaValPredefTypeNode') {*};
+    method ValPredefTypeNodeNoNorm(xmlCharP $value, xmlSchemaValPtr * $val, xmlNode $node --> int32) is native(XML2) is symbol('xmlSchemaValPredefTypeNodeNoNorm') {*};
+    method ValidateFacet(xmlSchemaFacet $facet, xmlCharP $value, xmlSchemaVal $val --> int32) is native(XML2) is symbol('xmlSchemaValidateFacet') {*};
+    method ValidateLengthFacet(xmlSchemaFacet $facet, xmlCharP $value, xmlSchemaVal $val, unsigned long * $length --> int32) is native(XML2) is symbol('xmlSchemaValidateLengthFacet') {*};
+    method ValidatePredefined(xmlCharP $value, xmlSchemaValPtr * $val --> int32) is native(XML2) is symbol('xmlSchemaValidatePredefinedType') {*};
 }
 
 class xmlSchemaTypeLink is repr('CStruct') {
@@ -276,21 +276,21 @@ class xmlSchemaTypeLink is repr('CStruct') {
 }
 
 class xmlSchemaVal is repr('CPointer') {
-    sub xmlSchemaNewNOTATIONValue(xmlCharP $name, xmlCharP $ns --> xmlSchemaVal) is native(LIB) is export {*};
-    sub xmlSchemaNewQNameValue(xmlCharP $namespaceName, xmlCharP $localName --> xmlSchemaVal) is native(LIB) is export {*};
-    sub xmlSchemaNewStringValue(xmlSchemaValType $type, xmlCharP $value --> xmlSchemaVal) is native(LIB) is export {*};
+    sub xmlSchemaNewNOTATIONValue(xmlCharP $name, xmlCharP $ns --> xmlSchemaVal) is native(XML2) is export {*};
+    sub xmlSchemaNewQNameValue(xmlCharP $namespaceName, xmlCharP $localName --> xmlSchemaVal) is native(XML2) is export {*};
+    sub xmlSchemaNewStringValue(xmlSchemaValType $type, xmlCharP $value --> xmlSchemaVal) is native(XML2) is export {*};
 
-    method CompareValues(xmlSchemaVal $y --> int32) is native(LIB) is symbol('xmlSchemaCompareValues') {*};
-    method CompareValuesWhtsp(xmlSchemaWhitespaceValueType $xws, xmlSchemaVal $y, xmlSchemaWhitespaceValueType $yws --> int32) is native(LIB) is symbol('xmlSchemaCompareValuesWhtsp') {*};
-    method CopyValue( --> xmlSchemaVal) is native(LIB) is symbol('xmlSchemaCopyValue') {*};
-    method FreeValue() is native(LIB) is symbol('xmlSchemaFreeValue') {*};
-    method GetCanonValue(const xmlChar ** $retValue --> int32) is native(LIB) is symbol('xmlSchemaGetCanonValue') {*};
-    method GetCanonValueWhtsp(const xmlChar ** $retValue, xmlSchemaWhitespaceValueType $ws --> int32) is native(LIB) is symbol('xmlSchemaGetCanonValueWhtsp') {*};
-    method GetValType( --> xmlSchemaValType) is native(LIB) is symbol('xmlSchemaGetValType') {*};
-    method ValueAppend(xmlSchemaVal $cur --> int32) is native(LIB) is symbol('xmlSchemaValueAppend') {*};
-    method ValueGetAsBoolean( --> int32) is native(LIB) is symbol('xmlSchemaValueGetAsBoolean') {*};
-    method ValueGetAsString( --> xmlCharP) is native(LIB) is symbol('xmlSchemaValueGetAsString') {*};
-    method ValueGetNext( --> xmlSchemaVal) is native(LIB) is symbol('xmlSchemaValueGetNext') {*};
+    method CompareValues(xmlSchemaVal $y --> int32) is native(XML2) is symbol('xmlSchemaCompareValues') {*};
+    method CompareValuesWhtsp(xmlSchemaWhitespaceValueType $xws, xmlSchemaVal $y, xmlSchemaWhitespaceValueType $yws --> int32) is native(XML2) is symbol('xmlSchemaCompareValuesWhtsp') {*};
+    method CopyValue( --> xmlSchemaVal) is native(XML2) is symbol('xmlSchemaCopyValue') {*};
+    method FreeValue() is native(XML2) is symbol('xmlSchemaFreeValue') {*};
+    method GetCanonValue(const xmlChar ** $retValue --> int32) is native(XML2) is symbol('xmlSchemaGetCanonValue') {*};
+    method GetCanonValueWhtsp(const xmlChar ** $retValue, xmlSchemaWhitespaceValueType $ws --> int32) is native(XML2) is symbol('xmlSchemaGetCanonValueWhtsp') {*};
+    method GetValType( --> xmlSchemaValType) is native(XML2) is symbol('xmlSchemaGetValType') {*};
+    method ValueAppend(xmlSchemaVal $cur --> int32) is native(XML2) is symbol('xmlSchemaValueAppend') {*};
+    method ValueGetAsBoolean( --> int32) is native(XML2) is symbol('xmlSchemaValueGetAsBoolean') {*};
+    method ValueGetAsString( --> xmlCharP) is native(XML2) is symbol('xmlSchemaValueGetAsString') {*};
+    method ValueGetNext( --> xmlSchemaVal) is native(XML2) is symbol('xmlSchemaValueGetNext') {*};
 }
 
 class xmlSchemaWildcard is repr('CStruct') {
@@ -305,7 +305,7 @@ class xmlSchemaWildcard is repr('CStruct') {
     has xmlSchemaWildcardNs $.nsSet; # The list of allowed namespaces
     has xmlSchemaWildcardNs $.negNsSet; # The negated namespace
     has int32 $.flags;
-    method Free() is native(LIB) is symbol('xmlSchemaFreeWildcard') {*};
+    method Free() is native(XML2) is symbol('xmlSchemaFreeWildcard') {*};
 }
 
 class xmlSchemaWildcardNs is repr('CStruct') {

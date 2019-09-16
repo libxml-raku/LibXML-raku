@@ -5,37 +5,37 @@ use v6;
 unit module LibXML::Native::Gen::list;
 # lists interfaces:
 #    this module implement the list support used in various place in the library. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 class xmlLink is repr('CPointer') {
-    method GetData( --> Pointer) is native(LIB) is symbol('xmlLinkGetData') {*};
+    method GetData( --> Pointer) is native(XML2) is symbol('xmlLinkGetData') {*};
 }
 
 class xmlList is repr('CPointer') {
-    sub xmlListCreate(xmlListDeallocator $deallocator, xmlListDataCompare $compare --> xmlList) is native(LIB) is export {*};
-    sub xmlListDup(const xmlList $old --> xmlList) is native(LIB) is export {*};
+    sub xmlListCreate(xmlListDeallocator $deallocator, xmlListDataCompare $compare --> xmlList) is native(XML2) is export {*};
+    sub xmlListDup(const xmlList $old --> xmlList) is native(XML2) is export {*};
 
-    method Append(Pointer $data --> int32) is native(LIB) is symbol('xmlListAppend') {*};
-    method Clear() is native(LIB) is symbol('xmlListClear') {*};
-    method Copy(const xmlList $old --> int32) is native(LIB) is symbol('xmlListCopy') {*};
-    method Delete() is native(LIB) is symbol('xmlListDelete') {*};
-    method Empty( --> int32) is native(LIB) is symbol('xmlListEmpty') {*};
-    method End( --> xmlLink) is native(LIB) is symbol('xmlListEnd') {*};
-    method Front( --> xmlLink) is native(LIB) is symbol('xmlListFront') {*};
-    method Insert(Pointer $data --> int32) is native(LIB) is symbol('xmlListInsert') {*};
-    method Merge(xmlList $l2) is native(LIB) is symbol('xmlListMerge') {*};
-    method PopBack() is native(LIB) is symbol('xmlListPopBack') {*};
-    method PopFront() is native(LIB) is symbol('xmlListPopFront') {*};
-    method PushBack(Pointer $data --> int32) is native(LIB) is symbol('xmlListPushBack') {*};
-    method PushFront(Pointer $data --> int32) is native(LIB) is symbol('xmlListPushFront') {*};
-    method RemoveAll(Pointer $data --> int32) is native(LIB) is symbol('xmlListRemoveAll') {*};
-    method RemoveFirst(Pointer $data --> int32) is native(LIB) is symbol('xmlListRemoveFirst') {*};
-    method RemoveLast(Pointer $data --> int32) is native(LIB) is symbol('xmlListRemoveLast') {*};
-    method Reverse() is native(LIB) is symbol('xmlListReverse') {*};
-    method ReverseSearch(Pointer $data --> Pointer) is native(LIB) is symbol('xmlListReverseSearch') {*};
-    method ReverseWalk(xmlListWalker $walker, Pointer $user) is native(LIB) is symbol('xmlListReverseWalk') {*};
-    method Search(Pointer $data --> Pointer) is native(LIB) is symbol('xmlListSearch') {*};
-    method Size( --> int32) is native(LIB) is symbol('xmlListSize') {*};
-    method Sort() is native(LIB) is symbol('xmlListSort') {*};
-    method Walk(xmlListWalker $walker, Pointer $user) is native(LIB) is symbol('xmlListWalk') {*};
+    method Append(Pointer $data --> int32) is native(XML2) is symbol('xmlListAppend') {*};
+    method Clear() is native(XML2) is symbol('xmlListClear') {*};
+    method Copy(const xmlList $old --> int32) is native(XML2) is symbol('xmlListCopy') {*};
+    method Delete() is native(XML2) is symbol('xmlListDelete') {*};
+    method Empty( --> int32) is native(XML2) is symbol('xmlListEmpty') {*};
+    method End( --> xmlLink) is native(XML2) is symbol('xmlListEnd') {*};
+    method Front( --> xmlLink) is native(XML2) is symbol('xmlListFront') {*};
+    method Insert(Pointer $data --> int32) is native(XML2) is symbol('xmlListInsert') {*};
+    method Merge(xmlList $l2) is native(XML2) is symbol('xmlListMerge') {*};
+    method PopBack() is native(XML2) is symbol('xmlListPopBack') {*};
+    method PopFront() is native(XML2) is symbol('xmlListPopFront') {*};
+    method PushBack(Pointer $data --> int32) is native(XML2) is symbol('xmlListPushBack') {*};
+    method PushFront(Pointer $data --> int32) is native(XML2) is symbol('xmlListPushFront') {*};
+    method RemoveAll(Pointer $data --> int32) is native(XML2) is symbol('xmlListRemoveAll') {*};
+    method RemoveFirst(Pointer $data --> int32) is native(XML2) is symbol('xmlListRemoveFirst') {*};
+    method RemoveLast(Pointer $data --> int32) is native(XML2) is symbol('xmlListRemoveLast') {*};
+    method Reverse() is native(XML2) is symbol('xmlListReverse') {*};
+    method ReverseSearch(Pointer $data --> Pointer) is native(XML2) is symbol('xmlListReverseSearch') {*};
+    method ReverseWalk(xmlListWalker $walker, Pointer $user) is native(XML2) is symbol('xmlListReverseWalk') {*};
+    method Search(Pointer $data --> Pointer) is native(XML2) is symbol('xmlListSearch') {*};
+    method Size( --> int32) is native(XML2) is symbol('xmlListSize') {*};
+    method Sort() is native(XML2) is symbol('xmlListSort') {*};
+    method Walk(xmlListWalker $walker, Pointer $user) is native(XML2) is symbol('xmlListWalk') {*};
 }

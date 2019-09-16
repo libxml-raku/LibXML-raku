@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::parser;
 # the core parser module:
 #    Interfaces, constants and types related to the XML parser 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum xmlFeature is export (
     XML_WITH_AUTOMATA => 23,
@@ -42,7 +42,7 @@ enum xmlFeature is export (
     XML_WITH_XPATH => 16,
     XML_WITH_XPTR => 17,
     XML_WITH_ZLIB => 31,
-)
+);
 
 enum xmlParserInputState is export (
     XML_PARSER_ATTRIBUTE_VALUE => 12,
@@ -63,7 +63,7 @@ enum xmlParserInputState is export (
     XML_PARSER_START => 0,
     XML_PARSER_START_TAG => 6,
     XML_PARSER_SYSTEM_LITERAL => 13,
-)
+);
 
 enum xmlParserMode is export (
     XML_PARSE_DOM => 1,
@@ -72,7 +72,7 @@ enum xmlParserMode is export (
     XML_PARSE_READER => 5,
     XML_PARSE_SAX => 2,
     XML_PARSE_UNKNOWN => 0,
-)
+);
 
 enum xmlParserOption is export (
     XML_PARSE_BIG_LINES => 4194304,
@@ -98,7 +98,7 @@ enum xmlParserOption is export (
     XML_PARSE_RECOVER => 1,
     XML_PARSE_SAX1 => 512,
     XML_PARSE_XINCLUDE => 1024,
-)
+);
 
 class xmlParserNodeInfo is repr('CStruct') {
     has const xmlNode $.node; # Position & line # that text that created the node begins & ends on
@@ -112,8 +112,8 @@ class xmlParserNodeInfoSeq is repr('CStruct') {
     has ulong $.maximum;
     has ulong $.length;
     has xmlParserNodeInfo * $.buffer;
-    method Clear() is native(LIB) is symbol('xmlClearNodeInfoSeq') {*};
-    method Init() is native(LIB) is symbol('xmlInitNodeInfoSeq') {*};
+    method Clear() is native(XML2) is symbol('xmlClearNodeInfoSeq') {*};
+    method Init() is native(XML2) is symbol('xmlInitNodeInfoSeq') {*};
 }
 
 class xmlSAXHandlerV1 is repr('CStruct') {
@@ -147,15 +147,15 @@ class xmlSAXHandlerV1 is repr('CStruct') {
     has uint32 $.initialized;
 }
 
-sub xmlCleanupParser() is native(LIB) is export {*};
-sub xmlGetExternalEntityLoader( --> xmlExternalEntityLoader) is native(LIB) is export {*};
-sub xmlGetFeaturesList(Pointer[int32] $len, const char ** $result --> int32) is native(LIB) is export {*};
-sub xmlHasFeature(xmlFeature $feature --> int32) is native(LIB) is export {*};
-sub xmlInitParser() is native(LIB) is export {*};
-sub xmlKeepBlanksDefault(int32 $val --> int32) is native(LIB) is export {*};
-sub xmlLineNumbersDefault(int32 $val --> int32) is native(LIB) is export {*};
-sub xmlParserFindNodeInfo(const xmlParserCtxt $ctx, const xmlNode $node --> const xmlParserNodeInfo *) is native(LIB) is export {*};
-sub xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq $seq, const xmlNode $node --> ulong) is native(LIB) is export {*};
-sub xmlPedanticParserDefault(int32 $val --> int32) is native(LIB) is export {*};
-sub xmlSetExternalEntityLoader(xmlExternalEntityLoader $f) is native(LIB) is export {*};
-sub xmlSubstituteEntitiesDefault(int32 $val --> int32) is native(LIB) is export {*};
+sub xmlCleanupParser() is native(XML2) is export {*};
+sub xmlGetExternalEntityLoader( --> xmlExternalEntityLoader) is native(XML2) is export {*};
+sub xmlGetFeaturesList(Pointer[int32] $len, const char ** $result --> int32) is native(XML2) is export {*};
+sub xmlHasFeature(xmlFeature $feature --> int32) is native(XML2) is export {*};
+sub xmlInitParser() is native(XML2) is export {*};
+sub xmlKeepBlanksDefault(int32 $val --> int32) is native(XML2) is export {*};
+sub xmlLineNumbersDefault(int32 $val --> int32) is native(XML2) is export {*};
+sub xmlParserFindNodeInfo(const xmlParserCtxt $ctx, const xmlNode $node --> const xmlParserNodeInfo *) is native(XML2) is export {*};
+sub xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq $seq, const xmlNode $node --> ulong) is native(XML2) is export {*};
+sub xmlPedanticParserDefault(int32 $val --> int32) is native(XML2) is export {*};
+sub xmlSetExternalEntityLoader(xmlExternalEntityLoader $f) is native(XML2) is export {*};
+sub xmlSubstituteEntitiesDefault(int32 $val --> int32) is native(XML2) is export {*};

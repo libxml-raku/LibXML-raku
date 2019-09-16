@@ -5,7 +5,7 @@ use v6;
 unit module LibXML::Native::Gen::encoding;
 # interface for the encoding conversion functions:
 #    interface for the encoding conversion functions needed for XML basic encoding and iconv() support.  Related specs are rfc2044        (UTF-8 and UTF-16) F. Yergeau Alis Technologies [ISO-10646]    UTF-8 and UTF-16 in Annexes [ISO-8859-1]   ISO Latin-1 characters codes. [UNICODE]      The Unicode Consortium, "The Unicode Standard -- Worldwide Character Encoding -- Version 1.0", Addison- Wesley, Volume 1, 1991, Volume 2, 1992.  UTF-8 is described in Unicode Technical Report #4. [US-ASCII]     Coded Character Set--7-bit American Standard Code for Information Interchange, ANSI X3.4-1986. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 enum xmlCharEncoding is export (
     XML_CHAR_ENCODING_2022_JP => 19,
@@ -32,7 +32,7 @@ enum xmlCharEncoding is export (
     XML_CHAR_ENCODING_UTF16BE => 3,
     XML_CHAR_ENCODING_UTF16LE => 2,
     XML_CHAR_ENCODING_UTF8 => 1,
-)
+);
 
 class uconv_t is repr('CStruct') {
     has UConverter * $.uconv; # for conversion between an encoding and UTF-16
@@ -51,26 +51,26 @@ class xmlCharEncodingHandler is repr('CStruct') {
     has uconv_t * $.uconv_in;
     has uconv_t * $.uconv_out;
 
-    sub xmlFindCharEncodingHandler(Str $name --> xmlCharEncodingHandler) is native(LIB) is export {*};
-    sub xmlGetCharEncodingHandler(xmlCharEncoding $enc --> xmlCharEncodingHandler) is native(LIB) is export {*};
-    sub xmlNewCharEncodingHandler(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandler) is native(LIB) is export {*};
+    sub xmlFindCharEncodingHandler(Str $name --> xmlCharEncodingHandler) is native(XML2) is export {*};
+    sub xmlGetCharEncodingHandler(xmlCharEncoding $enc --> xmlCharEncodingHandler) is native(XML2) is export {*};
+    sub xmlNewCharEncodingHandler(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandler) is native(XML2) is export {*};
 
-    method AllocOutputBuffer( --> xmlOutputBuffer) is native(LIB) is symbol('xmlAllocOutputBuffer') {*};
-    method Register() is native(LIB) is symbol('xmlRegisterCharEncodingHandler') {*};
+    method AllocOutputBuffer( --> xmlOutputBuffer) is native(XML2) is symbol('xmlAllocOutputBuffer') {*};
+    method Register() is native(XML2) is symbol('xmlRegisterCharEncodingHandler') {*};
 }
 
-sub UTF8Toisolat1(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(LIB) is export {*};
-sub isolat1ToUTF8(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(LIB) is export {*};
-sub xmlAddEncodingAlias(Str $name, Str $alias --> int32) is native(LIB) is export {*};
-sub xmlCharEncCloseFunc(xmlCharEncodingHandler * $handler --> int32) is native(LIB) is export {*};
-sub xmlCharEncFirstLine(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(LIB) is export {*};
-sub xmlCharEncInFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(LIB) is export {*};
-sub xmlCharEncOutFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(LIB) is export {*};
-sub xmlCleanupCharEncodingHandlers() is native(LIB) is export {*};
-sub xmlCleanupEncodingAliases() is native(LIB) is export {*};
-sub xmlDelEncodingAlias(Str $alias --> int32) is native(LIB) is export {*};
-sub xmlDetectCharEncoding(const unsigned char * $in, int32 $len --> xmlCharEncoding) is native(LIB) is export {*};
-sub xmlGetCharEncodingName(xmlCharEncoding $enc --> Str) is native(LIB) is export {*};
-sub xmlGetEncodingAlias(Str $alias --> Str) is native(LIB) is export {*};
-sub xmlInitCharEncodingHandlers() is native(LIB) is export {*};
-sub xmlParseCharEncoding(Str $name --> xmlCharEncoding) is native(LIB) is export {*};
+sub UTF8Toisolat1(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*};
+sub isolat1ToUTF8(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*};
+sub xmlAddEncodingAlias(Str $name, Str $alias --> int32) is native(XML2) is export {*};
+sub xmlCharEncCloseFunc(xmlCharEncodingHandler * $handler --> int32) is native(XML2) is export {*};
+sub xmlCharEncFirstLine(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*};
+sub xmlCharEncInFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*};
+sub xmlCharEncOutFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*};
+sub xmlCleanupCharEncodingHandlers() is native(XML2) is export {*};
+sub xmlCleanupEncodingAliases() is native(XML2) is export {*};
+sub xmlDelEncodingAlias(Str $alias --> int32) is native(XML2) is export {*};
+sub xmlDetectCharEncoding(const unsigned char * $in, int32 $len --> xmlCharEncoding) is native(XML2) is export {*};
+sub xmlGetCharEncodingName(xmlCharEncoding $enc --> Str) is native(XML2) is export {*};
+sub xmlGetEncodingAlias(Str $alias --> Str) is native(XML2) is export {*};
+sub xmlInitCharEncodingHandlers() is native(XML2) is export {*};
+sub xmlParseCharEncoding(Str $name --> xmlCharEncoding) is native(XML2) is export {*};

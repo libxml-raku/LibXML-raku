@@ -5,16 +5,16 @@ use v6;
 unit module LibXML::Native::Gen::HTMLtree;
 # specific APIs to process HTML tree, especially serialization:
 #    this module implements a few function needed to process tree in an HTML specific way. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub htmlDocDump(FILE * $f, xmlDoc $cur --> int32) is native(LIB) is export {*};
-sub htmlGetMetaEncoding(htmlDoc $doc --> xmlCharP) is native(LIB) is export {*};
-sub htmlIsBooleanAttr(xmlCharP $name --> int32) is native(LIB) is export {*};
-sub htmlNewDoc(xmlCharP $URI, xmlCharP $ExternalID --> htmlDoc) is native(LIB) is export {*};
-sub htmlNewDocNoDtD(xmlCharP $URI, xmlCharP $ExternalID --> htmlDoc) is native(LIB) is export {*};
-sub htmlNodeDumpFile(FILE * $out, xmlDoc $doc, xmlNode $cur) is native(LIB) is export {*};
-sub htmlNodeDumpFileFormat(FILE * $out, xmlDoc $doc, xmlNode $cur, Str $encoding, int32 $format --> int32) is native(LIB) is export {*};
-sub htmlSaveFile(Str $filename, xmlDoc $cur --> int32) is native(LIB) is export {*};
-sub htmlSaveFileEnc(Str $filename, xmlDoc $cur, Str $encoding --> int32) is native(LIB) is export {*};
-sub htmlSaveFileFormat(Str $filename, xmlDoc $cur, Str $encoding, int32 $format --> int32) is native(LIB) is export {*};
-sub htmlSetMetaEncoding(htmlDoc $doc, xmlCharP $encoding --> int32) is native(LIB) is export {*};
+sub htmlDocDump(FILE * $f, xmlDoc $cur --> int32) is native(XML2) is export {*};
+sub htmlGetMetaEncoding(htmlDoc $doc --> xmlCharP) is native(XML2) is export {*};
+sub htmlIsBooleanAttr(xmlCharP $name --> int32) is native(XML2) is export {*};
+sub htmlNewDoc(xmlCharP $URI, xmlCharP $ExternalID --> htmlDoc) is native(XML2) is export {*};
+sub htmlNewDocNoDtD(xmlCharP $URI, xmlCharP $ExternalID --> htmlDoc) is native(XML2) is export {*};
+sub htmlNodeDumpFile(FILE * $out, xmlDoc $doc, xmlNode $cur) is native(XML2) is export {*};
+sub htmlNodeDumpFileFormat(FILE * $out, xmlDoc $doc, xmlNode $cur, Str $encoding, int32 $format --> int32) is native(XML2) is export {*};
+sub htmlSaveFile(Str $filename, xmlDoc $cur --> int32) is native(XML2) is export {*};
+sub htmlSaveFileEnc(Str $filename, xmlDoc $cur, Str $encoding --> int32) is native(XML2) is export {*};
+sub htmlSaveFileFormat(Str $filename, xmlDoc $cur, Str $encoding, int32 $format --> int32) is native(XML2) is export {*};
+sub htmlSetMetaEncoding(htmlDoc $doc, xmlCharP $encoding --> int32) is native(XML2) is export {*};

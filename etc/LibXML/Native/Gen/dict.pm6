@@ -5,22 +5,22 @@ use v6;
 unit module LibXML::Native::Gen::dict;
 # string dictionary:
 #    dictionary of reusable strings, just used to avoid allocation and freeing operations. 
-use LibXML::Native::Defs :LIB, :xmlCharP;
+use LibXML::Native::Defs :$lib, :xmlCharP;
 
 class xmlDict is repr('CPointer') {
-    sub xmlDictCreate( --> xmlDict) is native(LIB) is export {*};
+    sub xmlDictCreate( --> xmlDict) is native(XML2) is export {*};
 
-    method CreateSub( --> xmlDict) is native(LIB) is symbol('xmlDictCreateSub') {*};
-    method Exists(xmlCharP $name, int32 $len --> xmlCharP) is native(LIB) is symbol('xmlDictExists') {*};
-    method Free() is native(LIB) is symbol('xmlDictFree') {*};
-    method GetUsage( --> size_t) is native(LIB) is symbol('xmlDictGetUsage') {*};
-    method Lookup(xmlCharP $name, int32 $len --> xmlCharP) is native(LIB) is symbol('xmlDictLookup') {*};
-    method Owns(xmlCharP $str --> int32) is native(LIB) is symbol('xmlDictOwns') {*};
-    method QLookup(xmlCharP $prefix, xmlCharP $name --> xmlCharP) is native(LIB) is symbol('xmlDictQLookup') {*};
-    method Reference( --> int32) is native(LIB) is symbol('xmlDictReference') {*};
-    method SetLimit(size_t $limit --> size_t) is native(LIB) is symbol('xmlDictSetLimit') {*};
-    method Size( --> int32) is native(LIB) is symbol('xmlDictSize') {*};
+    method CreateSub( --> xmlDict) is native(XML2) is symbol('xmlDictCreateSub') {*};
+    method Exists(xmlCharP $name, int32 $len --> xmlCharP) is native(XML2) is symbol('xmlDictExists') {*};
+    method Free() is native(XML2) is symbol('xmlDictFree') {*};
+    method GetUsage( --> size_t) is native(XML2) is symbol('xmlDictGetUsage') {*};
+    method Lookup(xmlCharP $name, int32 $len --> xmlCharP) is native(XML2) is symbol('xmlDictLookup') {*};
+    method Owns(xmlCharP $str --> int32) is native(XML2) is symbol('xmlDictOwns') {*};
+    method QLookup(xmlCharP $prefix, xmlCharP $name --> xmlCharP) is native(XML2) is symbol('xmlDictQLookup') {*};
+    method Reference( --> int32) is native(XML2) is symbol('xmlDictReference') {*};
+    method SetLimit(size_t $limit --> size_t) is native(XML2) is symbol('xmlDictSetLimit') {*};
+    method Size( --> int32) is native(XML2) is symbol('xmlDictSize') {*};
 }
 
-sub xmlDictCleanup() is native(LIB) is export {*};
-sub xmlInitializeDict( --> int32) is native(LIB) is export {*};
+sub xmlDictCleanup() is native(XML2) is export {*};
+sub xmlInitializeDict( --> int32) is native(XML2) is export {*};
