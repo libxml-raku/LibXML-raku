@@ -7,7 +7,7 @@ use LibXML::Enums;
 
 # silence tests
 my $errors;
-LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, $arg { $errors++ }
+LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, |c { $errors++ }
 
 my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>

@@ -3,7 +3,7 @@ use v6;
 unit class LibXML::RelaxNG;
 
 use LibXML::Document;
-use LibXML::ErrorHandler;
+use LibXML::ErrorHandler :&structured-error-cb;
 use LibXML::Native;
 use LibXML::Native::RelaxNG;
 use LibXML::Parser::Context;
@@ -33,12 +33,8 @@ my class Parser::Context {
         $!native .= new: :$doc;
     }
 
-    sub structured-error-cb(xmlRelaxNGParserCtxt $ctx, xmlError:D $err) {
-        $*XML-CONTEXT.structured-error($err);
-    }
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
-
     }
 
     submethod DESTROY {
@@ -65,9 +61,6 @@ my class ValidContext {
         $!native .= new: :$schema;
     }
 
-    sub structured-error-cb(xmlRelaxNGValidCtxt $ctx, xmlError:D $err) {
-        $*XML-CONTEXT.structured-error($err);
-    }
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
     }

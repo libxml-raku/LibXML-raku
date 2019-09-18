@@ -3,6 +3,7 @@ use LibXML::Node;
 unit class LibXML::Dtd
     is LibXML::Node;
 
+use LibXML::ErrorHandler :&structured-error-cb;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use NativeCall;
@@ -17,9 +18,6 @@ class ValidContext {
         $!native .= new;
     }
 
-    sub structured-error-cb(xmlValidCtxt $ctx, xmlError:D $err) {
-        $*XML-CONTEXT.structured-error($err);
-    }
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
     }

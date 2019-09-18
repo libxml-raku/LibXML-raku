@@ -1,269 +1,267 @@
-class LibXML::Parser {
+unit class LibXML::Parser;
 
-    use LibXML::Config;
-    use LibXML::Native;
-    use LibXML::Enums;
-    use LibXML::Document;
-    use LibXML::PushParser;
-    use LibXML::Parser::Context;
-    use Method::Also;
+use LibXML::Config;
+use LibXML::Native;
+use LibXML::Enums;
+use LibXML::Document;
+use LibXML::PushParser;
+use LibXML::Parser::Context;
+use Method::Also;
 
-    constant config = LibXML::Config;
+constant config = LibXML::Config;
 
-    has Bool $.html is rw = False;
-    has Bool $.line-numbers is rw = False;
-    has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD +| XML_PARSE_NOENT;
-    has Str $.URI is rw;
-    has $.sax-handler is rw;
-    has xmlEncodingStr $.enc is rw;
-    has $.input-callbacks is rw = config.input-callbacks;
-    multi method input-callbacks is rw { $!input-callbacks }
-    multi method input-callbacks($!input-callbacks) {}
+has Bool $.html is rw = False;
+has Bool $.line-numbers is rw = False;
+has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD +| XML_PARSE_NOENT;
+has Str $.URI is rw;
+has $.sax-handler is rw;
+has xmlEncodingStr $.enc is rw;
+has $.input-callbacks is rw = config.input-callbacks;
+multi method input-callbacks is rw { $!input-callbacks }
+multi method input-callbacks($!input-callbacks) {}
 
-    use LibXML::_Options;
-    constant %Opts = %( flat %LibXML::Parser::Context::Opts,
-                        (:URI, :html, :line-numbers,
-                         :sax-handler, :input-callbacks, :enc,)
-                      );
-    also does LibXML::_Options[%Opts];
+use LibXML::_Options;
+constant %Opts = %( flat %LibXML::Parser::Context::Opts,
+                    (:URI, :html, :line-numbers,
+                     :sax-handler, :input-callbacks, :enc,)
+                  );
+also does LibXML::_Options[%Opts];
 
-    # Perl 5 compat
-    multi method recover is rw {
-        Proxy.new(
-            FETCH => { 
-                my $recover = $.get-flag($!flags, 'recover');
-                $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
-            },
-            STORE => -> $, UInt() $v {
-                $.set-flag($!flags, 'recover', $v >= 1);
-                $.set-flag($!flags, 'suppress-errors', $v >= 2);
-            }
-        );
-    }
-    multi method recover($v) { $.recover = $v }
-
-    method get-flags(:$html, *%opts) {
-        my UInt $flags = $!flags;
-        $.set-flag($flags, 'load-ext-dtd', False)
-            if $html;
-        $.set-flags($flags, |%opts);
-
-        $.set-flag($flags, 'dtd', False)
-            unless $html || $flags +& XML_PARSE_DTDLOAD;
-
-        $flags;
-    }
-
-    method !make-handler(xmlParserCtxt :$native, *%opts) {
-        my UInt $flags = self.get-flags(|%opts);
-        LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
-    }
-
-    method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
-        my LibXML::Document:D $doc .= new: :$ctx, :$native;
-        $doc.URI = $_ with $URI;
-        self.processXIncludes($doc, :$ctx)
-            if $.expand-xinclude;
-
-        with $!sax-handler {
-            .publish($doc);
+# Perl 5 compat
+multi method recover is rw {
+    Proxy.new(
+        FETCH => { 
+            my $recover = $.get-flag($!flags, 'recover');
+            $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
+        },
+        STORE => -> $, UInt() $v {
+            $.set-flag($!flags, 'recover', $v >= 1);
+            $.set-flag($!flags, 'suppress-errors', $v >= 2);
         }
-        else {
-            $doc;
-        }
+    );
+}
+multi method recover($v) { $.recover = $v }
+
+method get-flags(:$html, *%opts) {
+    my UInt $flags = $!flags;
+    $.set-flag($flags, 'load-ext-dtd', False)
+        if $html;
+    $.set-flags($flags, |%opts);
+
+    $.set-flag($flags, 'dtd', False)
+        unless $html || $flags +& XML_PARSE_DTDLOAD;
+
+    $flags;
+}
+
+method !make-handler(xmlParserCtxt :$native, *%opts) {
+    my UInt $flags = self.get-flags(|%opts);
+    LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
+}
+
+method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
+    my LibXML::Document:D $doc .= new: :$ctx, :$native;
+    $doc.URI = $_ with $URI;
+    self.processXIncludes($doc, :$ctx)
+        if $.expand-xinclude;
+
+    with $!sax-handler {
+        .publish($doc);
     }
-
-    method processXIncludes (
-        LibXML::Document $_,
-        LibXML::Parser::Context:D :$ctx = self!make-handler(:native(xmlParserCtxt.new)),
-        *%opts --> Int)
-    is also<process-xincludes> {
-        my xmlDoc $doc = .native;
-        my $flags = self.get-flags(|%opts);
-        $ctx.try: { $doc.XIncludeProcessFlags($flags) }
+    else {
+        $doc;
     }
+}
 
-    proto method parse(|c) is also<load> {
-        with self {return {*}} else { self.new.parse(|c) }
-    }
+method processXIncludes (
+    LibXML::Document $_,
+    LibXML::Parser::Context:D :$ctx = self!make-handler(:native(xmlParserCtxt.new)),
+    *%opts --> Int)
+is also<process-xincludes> {
+    my xmlDoc $doc = .native;
+    my $flags = self.get-flags(|%opts);
+    $ctx.try: { $doc.XIncludeProcessFlags($flags) }
+}
 
-    multi method parse(Str:D() :$string!,
-                       Bool() :$html = $!html,
-                       Str() :$URI = $!URI,
-                       xmlEncodingStr :$enc = $!enc,
-                       *%opts 
-                      ) {
+proto method parse(|c) is also<load> {
+    with self {return {*}} else { self.new.parse(|c) }
+}
 
-        my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
+multi method parse(Str:D() :$string!,
+                   Bool() :$html = $!html,
+                   Str() :$URI = $!URI,
+                   xmlEncodingStr :$enc = $!enc,
+                   *%opts 
+                  ) {
 
-        $ctx.try: {
-            my xmlParserCtxt:D $native = $html
-            ?? htmlMemoryParserCtxt.new: :$string
-            !! xmlMemoryParserCtxt.new: :$string;
+    my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
-            $native.input.filename = $_ with $URI;
-            $ctx.set-native: $native;
-            $native.ParseDocument;
-        };
-        self!publish: :$ctx;
-    }
-
-    multi method parse(Blob:D :$buf!,
-                       Bool() :$html = $!html,
-                       Str() :$URI = $!URI,
-                       xmlEncodingStr :$enc = $!enc,
-                       *%opts,
-                      ) {
-
+    $ctx.try: {
         my xmlParserCtxt:D $native = $html
-           ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
-           !! xmlMemoryParserCtxt.new(:$buf);
+        ?? htmlMemoryParserCtxt.new: :$string
+        !! xmlMemoryParserCtxt.new: :$string;
 
         $native.input.filename = $_ with $URI;
+        $ctx.set-native: $native;
+        $native.ParseDocument;
+    };
+    self!publish: :$ctx;
+}
 
-        my LibXML::Parser::Context $ctx = self!make-handler: :$native, :$html, |%opts;
-        $ctx.try: { $native.ParseDocument };
-        self!publish: :$ctx;
+multi method parse(Blob:D :$buf!,
+                   Bool() :$html = $!html,
+                   Str() :$URI = $!URI,
+                   xmlEncodingStr :$enc = $!enc,
+                   *%opts,
+                  ) {
+
+    my xmlParserCtxt:D $native = $html
+       ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
+       !! xmlMemoryParserCtxt.new(:$buf);
+
+    $native.input.filename = $_ with $URI;
+
+    my LibXML::Parser::Context $ctx = self!make-handler: :$native, :$html, |%opts;
+    $ctx.try: { $native.ParseDocument };
+    self!publish: :$ctx;
+}
+
+multi method parse(Str() :$file!,
+                   Bool() :$html = $!html,
+                   xmlEncodingStr :$enc = $!enc,
+                   Str :$URI = $!URI,
+                   *%opts,
+                  ) {
+    my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
+
+    $ctx.try: {
+        my xmlParserCtxt $native = $html
+           ?? htmlFileParserCtxt.new(:$file, :$enc)
+           !! xmlFileParserCtxt.new(:$file);
+        die "unable to load file: $file"
+            without $native;
+        $ctx.set-native: $native;
+        $native.ParseDocument;
+    };
+
+    self!publish: :$URI, :$ctx;
+}
+
+multi method parse(UInt :$fd!,
+                   Str :$URI = $!URI,
+                   Bool() :$html = $!html,
+                   xmlEncodingStr :$enc = $!enc,
+                   *%opts,
+                  ) {
+
+    my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
+    my UInt $flags = self.get-flags(|%opts, :$html);
+    my xmlDoc $doc;
+
+    $ctx.try: {
+        my xmlParserCtxt $native = $html
+           ?? htmlParserCtxt.new
+           !! xmlParserCtxt.new;
+        $ctx.set-native: $native;
+        $doc = $native.ReadFd($fd, $URI, $enc, $flags);
+    };
+
+    self!publish: :$ctx, :native($doc);
+}
+
+multi method parse(IO::Handle :$io!,
+                   Str :$URI = $io.path.path,
+                   |c) {
+    my UInt:D $fd = $io.native-descriptor;
+    self.parse( :$fd, :$URI, |c);
+}
+
+multi method parse(IO() :io($path)!, |c) {
+    my IO::Handle $io = $path.open(:bin, :r);
+    $.parse(:$io, |c);
+}
+
+multi method parse(Str() :location($file)!, |c) {
+    $.parse(:$file, |c);
+}
+
+# parse from a Miscellaneous source
+multi method parse(Any:D $src, |c) is default {
+    my Pair $in = do with $src {
+        when UInt       { :fd($_) }
+        when IO::Handle
+        |    IO::Path   { :io($_) }
+        when Blob       { :buf($_) }
+        when Str  { m:i:s/^ '<'/ ?? :string($_) !! :file($_) }
+        default { fail "Unrecognised parser input: {.perl}"; }
     }
+    $.parse( |$in, |c );
+}
 
-    multi method parse(Str() :$file!,
-                       Bool() :$html = $!html,
-                       xmlEncodingStr :$enc = $!enc,
-                       Str :$URI = $!URI,
-                       *%opts,
-                      ) {
-        my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
-
-        $ctx.try: {
-            my xmlParserCtxt $native = $html
-               ?? htmlFileParserCtxt.new(:$file, :$enc)
-               !! xmlFileParserCtxt.new(:$file);
-            die "unable to load file: $file"
-                without $native;
-            $ctx.set-native: $native;
-            $native.ParseDocument;
-        };
-
-        self!publish: :$URI, :$ctx;
+has LibXML::PushParser $!push-parser;
+method init-push { $!push-parser = Nil }
+multi method push(Str() $chunk) {
+    with $!push-parser {
+        .push($chunk);
     }
-
-    multi method parse(UInt :$fd!,
-                       Str :$URI = $!URI,
-                       Bool() :$html = $!html,
-                       xmlEncodingStr :$enc = $!enc,
-                       *%opts,
-                      ) {
-
-        my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
-        my UInt $flags = self.get-flags(|%opts, :$html);
-        my xmlDoc $doc;
-
-        $ctx.try: {
-            my xmlParserCtxt $native = $html
-               ?? htmlParserCtxt.new
-               !! xmlParserCtxt.new;
-            $ctx.set-native: $native;
-            $doc = $native.ReadFd($fd, $URI, $enc, $flags);
-        };
-
-        self!publish: :$ctx, :native($doc);
+    else {
+        $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
     }
+}
+multi method push(@chunks) is default { self.push($_) for @chunks }
+method parse-chunk($chunk?, :$terminate, |c) {
+    $.push($_) with $chunk;
+    $.finish-push(|c)
+        if $terminate;
+}
+method finish-push (
+    Str :$URI = $!URI,
+    Bool :$recover = $.recover,
+)
+{
+    with $!push-parser {
+        my $doc := .finish-push(:$URI, :$recover, :$!sax-handler);
+        $_ = Nil;
+        $doc;
+    }
+    else {
+        die "no active push parser";
+    }
+}
 
-    multi method parse(IO::Handle :$io!,
-                       Str :$URI = $io.path.path,
-                       |c) {
-        my UInt:D $fd = $io.native-descriptor;
-        self.parse( :$fd, :$URI, |c);
+method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
+    use LibXML::DocumentFragment;
+    my LibXML::DocumentFragment $frag .= new: :$doc;
+    my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
+    with $!sax-handler {
+        .publish($frag);
     }
+    else {
+        $frag;
+    }
+}
 
-    multi method parse(IO() :io($path)!, |c) {
-        my IO::Handle $io = $path.open(:bin, :r);
-        $.parse(:$io, |c);
-    }
+# cheat's implementation of Perl 5's .generate function
+# re-serializes, rather than rerunning SAX actions on the DOM
+method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
+    # document DOM with the SAX handler
+    my $string = $doc.Str;
+    $.parse( :$string, |c );
+}
 
-    multi method parse(Str() :location($file)!, |c) {
-        $.parse(:$file, |c);
-    }
+method load-catalog(Str:D $filename) {
+    xmlLoadCatalog($filename);
+}
 
-    # parse from a Miscellaneous source
-    multi method parse(Any:D $src, |c) is default {
-        my Pair $in = do with $src {
-            when UInt       { :fd($_) }
-            when IO::Handle
-            |    IO::Path   { :io($_) }
-            when Blob       { :buf($_) }
-            when Str  { m:i:s/^ '<'/ ?? :string($_) !! :file($_) }
-            default { fail "Unrecognised parser input: {.perl}"; }
-        }
-        $.parse( |$in, |c );
-    }
+submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($) = 0, :URI($), :sax-handler($), :build-sax-handler($), :input-callbacks($), *%opts) {
+    self.load-catalog($_) with $catalog;
+    $!flags = self.get-flags(|%opts);
+}
 
-    has LibXML::PushParser $!push-parser;
-    method init-push { $!push-parser = Nil }
-    multi method push(Str() $chunk) {
-        with $!push-parser {
-            .push($chunk);
-        }
-        else {
-            $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
-        }
-    }
-    multi method push(@chunks) is default { self.push($_) for @chunks }
-    method parse-chunk($chunk?, :$terminate, |c) {
-        $.push($_) with $chunk;
-        $.finish-push(|c)
-            if $terminate;
-    }
-    method finish-push (
-        Str :$URI = $!URI,
-        Bool :$recover = $.recover,
-    )
-    {
-        with $!push-parser {
-            my $doc := .finish-push(:$URI, :$recover, :$!sax-handler);
-            $_ = Nil;
-            $doc;
-        }
-        else {
-            die "no active push parser";
-        }
-    }
-
-    method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
-        use LibXML::DocumentFragment;
-        my LibXML::DocumentFragment $frag .= new: :$doc;
-        my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
-        with $!sax-handler {
-            .publish($frag);
-        }
-        else {
-            $frag;
-        }
-    }
-
-    # cheat's implementation of Perl 5's .generate function
-    # re-serializes, rather than rerunning SAX actions on the DOM
-    method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
-        # document DOM with the SAX handler
-        my $string = $doc.Str;
-        $.parse( :$string, |c );
-    }
-
-    method load-catalog(Str:D $filename) {
-        xmlLoadCatalog($filename);
-    }
-
-    submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($) = 0, :URI($), :sax-handler($), :build-sax-handler($), :input-callbacks($), *%opts) {
-        self.load-catalog($_) with $catalog;
-        $!flags = self.get-flags(|%opts);
-    }
-
-    method FALLBACK($key, |c) is rw {
-        $.option-exists($key)
-            ?? $.option($key, |c)
-            !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
-    }
-
+method FALLBACK($key, |c) is rw {
+    $.option-exists($key)
+        ?? $.option($key, |c)
+        !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );
 }
 
 =begin pod

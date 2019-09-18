@@ -5,7 +5,7 @@ class LibXML::XPath::Context {
     use LibXML::Item;
     use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
-    use LibXML::ErrorHandler;
+    use LibXML::ErrorHandler :&structured-error-cb;
     use LibXML::Types :QName;
     use LibXML::Node::List;
     use LibXML::Node::Set;
@@ -16,14 +16,10 @@ class LibXML::XPath::Context {
     use Method::Also;
 
     has LibXML::Node $!context-node;
-    has Exception @!callback-errors;
     has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error> .= new;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
-    sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) {
-        $*XML-CONTEXT.structured-error($err);
-    }
     submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc) {
         self.setContextNode($_) with $node // $doc;
         with $!native {

@@ -14,7 +14,7 @@ ok($doc, ' TODO : Add test name');
 my $errors;
 
 my LibXML::XPath::Context $xc .= new(:$doc); use NativeCall;
-LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, $arg { $errors++ }
+LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, |c { $errors++ }
 $xc.registerNs('foo','urn:foo');
 # low level test
 use LibXML::Native;

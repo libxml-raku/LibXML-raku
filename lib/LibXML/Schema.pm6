@@ -4,7 +4,7 @@ unit class LibXML::Schema;
 
 use LibXML::Document;
 use LibXML::Element;
-use LibXML::ErrorHandler;
+use LibXML::ErrorHandler :&structured-error-cb;
 use LibXML::Native;
 use LibXML::Native::Schema;
 use LibXML::Parser::Context;
@@ -32,10 +32,6 @@ my class Parser::Context {
     multi submethod BUILD(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .native;
         $!native .= new: :$doc;
-    }
-
-    sub structured-error-cb(xmlSchemaParserCtxt $ctx, xmlError:D $err) {
-        $*XML-CONTEXT.structured-error($err);
     }
 
     submethod TWEAK {
@@ -66,9 +62,6 @@ my class ValidContext {
         $!native .= new: :$schema;
     }
 
-    sub structured-error-cb(xmlSchemaValidCtxt $ctx, xmlError:D $err) {
-        $*XML-CONTEXT.structured-error($err);
-    }
     submethod TWEAK {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
     }

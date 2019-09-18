@@ -27,6 +27,12 @@ class X::LibXML::XPath::AdHoc is X::LibXML {
     has Exception $.error handles<message>;
 }
 
+class X::LibXML::IO::AdHoc is X::LibXML {
+    method domain-num {XML_FROM_IO}
+    method level {XML_ERR_ERROR}
+    has Exception $.error handles<message>;
+}
+
 class X::LibXML::Parser is X::LibXML {
 
     has Str $.file;
@@ -63,6 +69,21 @@ class LibXML::ErrorHandler {
     has Bool $.suppress-errors;
     has $.sax-handler;
 
+    sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
+        CATCH { default { warn "error handling structured error: $_" } }
+        $*XML-CONTEXT.structured-error($err);
+    }
+
+    sub generic-error-cb(Str $fmt, |args) is export(:generic-error-cb) {
+        CATCH { default { warn "error handling generic error: $_" } }
+        $*XML-CONTEXT.generic-error($fmt, |args);
+    }
+
+    sub generic-warning-cb(Str $fmt, |args) is export(:generic-warning-cb) {
+        CATCH { default { warn "error handling generic error: $_" } }
+        $*XML-CONTEXT.generic-warning($fmt, |args);
+    }
+
     method !sax-error-cb-structured(xmlError:D $err) {
         with $!sax-handler -> $sax {
             $_($err.ctxt, $err) with $sax.serror-cb;
@@ -81,16 +102,17 @@ class LibXML::ErrorHandler {
         }
     }
 
-    method generic-error(Str $fmt, Pointer $arg) {
+    method generic-error(Str $fmt, *@args) {
         CATCH { default { warn "error handling failure: $_" } }
-        my $msg = $fmt.subst('%s', nativecast(Str, $arg));
+warn $fmt;
+        my $msg = $fmt.subst('%s', {nativecast(Str, @args.shift)}, :g);
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
         self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
     }
 
-    method generic-warning(Str $fmt, Pointer $arg) {
+    method generic-warning(Str $fmt, *@args) {
         CATCH { default { warn "error handling failure: $_" } }
-        my $msg = $fmt.subst('%s', nativecast(Str, $arg));
+        my $msg = $fmt.subst('%s', {nativecast(Str, @args.shift)}, :g);
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_WARNING), :$msg );
         self!sax-error-cb-unstructured(XML_ERR_WARNING, $msg);
     }

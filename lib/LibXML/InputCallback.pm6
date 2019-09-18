@@ -2,6 +2,8 @@ use v6;
 
 unit class LibXML::InputCallback;
 
+use LibXML::Native;
+
 my class CallbackGroup {
     has &.match is required;
     has &.open  is required;
@@ -13,8 +15,14 @@ my class CallbackGroup {
 my class Context {
     use NativeCall;
     use LibXML::Native::Defs :CLIB;
+    use LibXML::ErrorHandler;
 
     has CallbackGroup $.cb is required;
+    has LibXML::ErrorHandler $.errors handles<flush-errors> .= new;
+
+    method !catch(Exception $error) {
+        $!errors.callback-error: X::LibXML::IO::AdHoc.new: :$error; 
+    }
 
     my class Handle {
         has Pointer $.addr;
@@ -31,8 +39,8 @@ my class Context {
     sub memcpy(CArray[uint8], CArray[uint8], size_t --> CArray[uint8]) is native(CLIB) {*}
 
     method match {
-        -> Str:D $file --> Int {
-            CATCH { default { warn $_; return False; } }
+        sub (Str:D $file --> Int) {
+            CATCH { default { self!catch($_); return 0; } }
             my $rv := + $!cb.match.($file).so;
             note "$_: match $file --> $rv" with $!cb.trace;
             $rv;
@@ -40,8 +48,8 @@ my class Context {
     }
 
     method open {
-        -> Str:D $file --> Pointer {
-            CATCH { default { warn $_; return Pointer; } }
+        sub (Str:D $file --> Pointer) {
+            CATCH { default { self!catch($_); return Pointer; } }
             my $fh = $!cb.open.($file);
             with $fh {
                 my Handle $handle .= new: :$fh;
@@ -57,8 +65,8 @@ my class Context {
     }
 
     method read {
-        -> Pointer $addr, CArray $out-arr, UInt $bytes --> UInt {
-            CATCH { default { warn $_; return Pointer; } }
+        sub (Pointer $addr, CArray $out-arr, UInt $bytes --> UInt) {
+            CATCH { default { self!catch($_); return 0; } }
 
             my Handle $handle = %!handles{+$addr}
                 // die "read on unknown handle";
@@ -91,8 +99,8 @@ my class Context {
     }
 
     method close {
-        -> Pointer:D $addr --> Int {
-            CATCH { default { warn $_; return -1 } }
+        sub (Pointer:D $addr --> Int) {
+            CATCH { default { self!catch($_); return -1 } }
             note "$_\[{+$addr}\]: close --> 0" with $!cb.trace;
             my Handle $handle = %!handles{+$addr}
                 // die (+$addr).fmt("read on unopened input callback context: 0x%X");
@@ -116,6 +124,9 @@ multi method TWEAK( List :callbacks($_)! ) {
 multi method TWEAK is default {
 }
 
+multi method register-callbacks( @ (&match, &open, &read, &close = sub ($) {}), |c) {
+    $.register-callbacks( :&match, :&open, :&read, :&close, |c);
+}
 multi method register-callbacks( &match, &open, &read, &close = sub ($) {}, |c) {
     $.register-callbacks( :&match, :&open, :&read, :&close, |c);
 }
@@ -125,6 +136,9 @@ multi method register-callbacks(:&close = sub ($) {}, *%opts) is default {
 }
 
 
+multi method unregister-callbacks( @ (&match, &open, &read, &close), |c) {
+    $.unregister-callbacks( :&match, :&open, :&read, :&close, |c);
+}
 multi method unregister-callbacks( &match, &open, &read, &close, |c) {
     $.unregister-callbacks( :&match, :&open, :&read, :&close, |c);
 }
@@ -147,6 +161,26 @@ method prepend(LibXML::InputCallback $icb) {
 
 method make-contexts {
     @!callbacks.map: -> $cb { Context.new: :$cb }
+}
+
+method activate {
+    # just to make sure we've initialised
+    xmlRegisterDefaultInputCallbacks();
+
+    my @input-contexts = @.make-contexts();
+
+    for @input-contexts {
+        die "unable to register input callbacks"
+            if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
+    }
+    @input-contexts;
+}
+
+method deactivate {
+    for @!callbacks {
+        warn "unable to remove input callbacks"
+            if xmlPopInputCallbacks() < 0;
+    }
 }
 
 =begin pod
