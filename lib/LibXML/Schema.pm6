@@ -34,10 +34,6 @@ my class Parser::Context {
         $!native .= new: :$doc;
     }
 
-    submethod TWEAK {
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-    }
-
     submethod DESTROY {
         $!buf = Nil;
         .Free with $!native;
@@ -45,6 +41,7 @@ my class Parser::Context {
 
     method parse {
         my $*XML-CONTEXT = self;
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
         my $rv := $!native.Parse;
         self.flush-errors;
         $rv;
@@ -62,10 +59,6 @@ my class ValidContext {
         $!native .= new: :$schema;
     }
 
-    submethod TWEAK {
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-    }
-
     submethod DESTROY {
         .Free with $!native;
     }
@@ -73,6 +66,7 @@ my class ValidContext {
     multi method validate(LibXML::Document:D $_, Bool() :$check) {
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .native;
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
         my $rv := $!native.ValidateDoc($doc);
 	$rv := $!errors.is-valid
             if $check;

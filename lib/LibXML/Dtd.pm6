@@ -18,10 +18,6 @@ class ValidContext {
         $!native .= new;
     }
 
-    submethod TWEAK {
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-    }
-
     submethod DESTROY {
         .Free with $!native;
     }
@@ -31,6 +27,7 @@ class ValidContext {
         my xmlDtd   $dtd = .native with $dtd-obj;
 
         my $*XML-CONTEXT = self;
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
         my $rv := $!native.validate(:$doc, :$dtd);
 
 	$rv := $!errors.is-valid

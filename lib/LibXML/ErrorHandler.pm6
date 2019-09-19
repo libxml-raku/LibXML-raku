@@ -80,7 +80,7 @@ class LibXML::ErrorHandler {
     }
 
     sub generic-warning-cb(Str $fmt, |args) is export(:generic-warning-cb) {
-        CATCH { default { warn "error handling generic error: $_" } }
+        CATCH { default { warn "error handling generic warning: $_" } }
         $*XML-CONTEXT.generic-warning($fmt, |args);
     }
 

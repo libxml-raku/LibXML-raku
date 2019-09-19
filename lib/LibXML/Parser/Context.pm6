@@ -52,7 +52,6 @@ method set-native(xmlParserCtxt $native) {
     with $native {
         .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
         .linenumbers = +?$!line-numbers;
-        .SetStructuredErrorFunc: &structured-error-cb; 
         $!native = $_;
         $!native.sax = .native with $!sax-handler;
     }
@@ -77,6 +76,7 @@ method try(&action, Bool :$recover is copy, Bool :$check-valid) {
 
     $recover //= $*XML-CONTEXT.recover;
 
+    $*XML-CONTEXT.native.SetStructuredErrorFunc: &structured-error-cb;
     my @input-contexts = .activate()
         with $*XML-CONTEXT.input-callbacks;
 

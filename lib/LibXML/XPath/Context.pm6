@@ -22,9 +22,6 @@ class LibXML::XPath::Context {
 
     submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc) {
         self.setContextNode($_) with $node // $doc;
-        with $!native {
-            .SetStructuredErrorFunc: &structured-error-cb;
-        }
     }
 
     submethod DESTROY {
@@ -39,6 +36,7 @@ class LibXML::XPath::Context {
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
         my $*XML-CONTEXT = self;
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
         my xmlNodeSet $node-set := $.native.findnodes( native-expr($xpath-expr), $node);
         self.flush-errors;
         $node-set.copy;
@@ -63,6 +61,7 @@ class LibXML::XPath::Context {
     multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my anyNode $node = .native with $ref-node;
         my $*XML-CONTEXT = self;
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
         self!value: $!native.find( native-expr($xpath-expr), $node, :$bool), :$literal;
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
