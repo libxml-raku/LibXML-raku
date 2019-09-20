@@ -5,7 +5,7 @@ class LibXML::XPath::Context {
     use LibXML::Item;
     use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
-    use LibXML::ErrorHandler :&structured-error-cb;
+    use LibXML::ErrorHandler;
     use LibXML::Types :QName;
     use LibXML::Node::List;
     use LibXML::Node::Set;
@@ -16,7 +16,7 @@ class LibXML::XPath::Context {
     use Method::Also;
 
     has LibXML::Node $!context-node;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error> .= new;
+    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error callback-error> .= new;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
@@ -33,9 +33,14 @@ class LibXML::XPath::Context {
     multi sub native-expr(LibXML::XPath::Expression:D $_) { .native }
     multi sub native-expr(Str() $_) is default { $_ }
 
+    sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:structured-error-cb) {
+        CATCH { default { warn "error handling structured error: $_" } }
+        $*XPATH-CONTEXT.structured-error($err);
+    }
+
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
-        my $*XML-CONTEXT = self;
+        my $*XPATH-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
         my xmlNodeSet $node-set := $.native.findnodes( native-expr($xpath-expr), $node);
         self.flush-errors;
@@ -50,8 +55,7 @@ class LibXML::XPath::Context {
         iterate-set(LibXML::Item, self!find($expr, $ref));
     }
 
-    method !value(xmlXPathObject $_, Bool :$literal) {
-        self.flush-errors;
+    sub get-value(xmlXPathObject $_, Bool :$literal) {
         do with $_ -> $native {
             my LibXML::XPath::Object $object .= new: :$native;
             $object.value: :$literal;
@@ -60,9 +64,11 @@ class LibXML::XPath::Context {
 
     multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my anyNode $node = .native with $ref-node;
-        my $*XML-CONTEXT = self;
+        my $*XPATH-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
-        self!value: $!native.find( native-expr($xpath-expr), $node, :$bool), :$literal;
+        my $xo := $!native.find( native-expr($xpath-expr), $node, :$bool);
+        self.flush-errors;
+        get-value($xo, :$literal);
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
@@ -167,7 +173,7 @@ class LibXML::XPath::Context {
 
     has %!pool{UInt}; # Keep objects alive, while they are on the stack
     my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
-    method !keep(xmlNodeSet:D $native, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
+    method !stash(xmlNodeSet:D $native, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
         my UInt $ctxt-addr = 0;
         with $ctxt {
             # scope to a particular parser/eval context
@@ -181,7 +187,7 @@ class LibXML::XPath::Context {
     }
     multi method park(NodeObj:D $node, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
         # return a copied, or newly created native node-set
-        self!keep: do given $node {
+        self!stash: do given $node {
             when LibXML::Node::Set  { .native.copy }
             when LibXML::Node::List { xmlNodeSet.new: node => .native, :list;}
             when LibXML::Node       { xmlNodeSet.new: node => .native;}
@@ -195,7 +201,7 @@ class LibXML::XPath::Context {
         my LibXML::Node:D @nodes = .List;
         my xmlNodeSet $set .= new;
         $set.push(.native) for @nodes;
-        self!keep: $set, :$ctxt;
+        self!stash: $set, :$ctxt;
     }
     # anything else (Bool, Numeric, Str)
     multi method park($_) is default { fail "unexpected return value: {.perl}"; }
@@ -208,11 +214,11 @@ class LibXML::XPath::Context {
         $!native.RegisterFuncNS(
             $name, $url,
             -> xmlXPathParserContext $ctxt, Int $n {
-                CATCH { default { $!errors.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                CATCH { default { $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @params;
-                @params.unshift: self!value($ctxt.valuePop) for 0 ..^ $n;
+                @params.unshift: get-value($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c);
-                my xmlXPathObject:D $out := xmlXPathObject.coerce: $.park($ret, :$ctxt);
+                my xmlXPathObject:D $out := xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret, :$ctxt);
                 $ctxt.valuePush($_) for $out;
             }
         );
@@ -221,9 +227,9 @@ class LibXML::XPath::Context {
     method registerVarLookupFunc(&func, |c) {
         $!native.RegisterVariableLookup(
             -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
-                CATCH { default { $!errors.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                CATCH { default { $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my $ret = &func($name, $url, |c);
-                xmlXPathObject.coerce: $.park($ret);
+                xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret);
             },
             Pointer,
         );

@@ -2,8 +2,9 @@
     - Error handling improvements for LibXSLT:
       -- catch input handler exceptions
       -- alllow for multiple '%s' arguments in generic errors
+    - [LibXML::XPATH::Context] fixed object GC #22. Added $*XPATH-CONTEXT
 0.0.8 2019-09-17
-    - [LibXML::Parser::Context] fixed memory leak #21. Added $*XML-CONTEXT
+    - [LibXML::Parser::Context] fixed object GC #21. Added $*XML-CONTEXT
       dynamic variable.
 0.0.7 2019-09-13
     - [LibXML::SAX::Handler::SAX2]
