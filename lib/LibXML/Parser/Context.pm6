@@ -11,7 +11,7 @@ has uint32 $.flags is rw = 0;
 has Bool $.line-numbers;
 has $.input-callbacks;
 has $.sax-handler;
-has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors is-valid> .= new: :$!sax-handler;
+has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors is-valid> .= new: :$!sax-handler;
 
 our constant %Opts = %(
     :clean-namespaces(XML_PARSE_NSCLEAN),

@@ -310,7 +310,7 @@ method serialize-html(Bool :$format = True) {
     }
 }
 
-method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc), |c --> Str) {
+method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc), |c --> Str) {
     my Str $rv;
 
     with self.native -> xmlDoc:D $doc {
@@ -323,7 +323,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$HTML = $.native.isa(htmlDoc
             .Unlink;
         }
 
-        $rv := $HTML
+        $rv := $html
             ?? self.serialize-html(|c)
             !! callwith(|c);
 
@@ -405,7 +405,7 @@ LibXML::Document - LibXML DOM Document Class
   my Bool $is-compressed = $doc.input-compressed;
   my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
   $doc.compression = $zip-level;
-  my Str $html-tidy = $dom.Str(:$format, :$HTML);
+  my Str $html-tidy = $dom.Str(:$format, :$html);
   my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
   my Str $xml-tidy = $doc.serialize(:$format);
   my Int $state = $doc.write: :$file, :$format;

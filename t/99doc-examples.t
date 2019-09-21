@@ -114,7 +114,7 @@ subtest 'LibXML::Document' => {
     like $docstring, /'<?xml '/;
     # tested in 03doc.t
     ## $doc.save: :$io;
-    $str = $doc.Str: :HTML;
+    $str = $doc.Str: :html;
     like $str, /'<!DOCTYPE doc>'/;
     $str = $doc.serialize-html();
     like $str, /'<!DOCTYPE doc>'/;

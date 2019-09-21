@@ -11,7 +11,7 @@ has xmlRelaxNG $.native;
 
 my class Parser::Context {
     has xmlRelaxNGParserCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
     has Blob $!buf;
 
     multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {

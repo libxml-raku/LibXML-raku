@@ -55,7 +55,7 @@ class LibXML::XPath::Context {
         iterate-set(LibXML::Item, self!find($expr, $ref));
     }
 
-    sub get-value(xmlXPathObject $_, Bool :$literal) {
+    sub get-value(xmlXPathObject $_, Bool :$literal) is export(:get-value) {
         do with $_ -> $native {
             my LibXML::XPath::Object $object .= new: :$native;
             $object.value: :$literal;
@@ -210,6 +210,7 @@ class LibXML::XPath::Context {
         self.registerFunctionNS($name, Str, &func, |c);
     }
 
+    # Perl 5 compat
     method registerFunctionNS(QName:D $name, Str $url, &func, |c) {
         $!native.RegisterFuncNS(
             $name, $url,
@@ -217,18 +218,23 @@ class LibXML::XPath::Context {
                 CATCH { default { $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @params;
                 @params.unshift: get-value($ctxt.valuePop) for 0 ..^ $n;
-                my $ret = &func(|@params, |c);
+                my $ret = &func(|@params, |c) // '';
                 my xmlXPathObject:D $out := xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret, :$ctxt);
                 $ctxt.valuePush($_) for $out;
             }
         );
     }
 
+    # same argument ordering as LibXSLT.register-function()
+    method register-function(Str $url, QName:D $name, &func, |c) {
+        $.registerFunctionNS($name, $url, &func, |c)
+    }
+
     method registerVarLookupFunc(&func, |c) {
         $!native.RegisterVariableLookup(
             -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
                 CATCH { default { $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
-                my $ret = &func($name, $url, |c);
+                my $ret = &func($name, $url, |c) // '';
                 xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret);
             },
             Pointer,

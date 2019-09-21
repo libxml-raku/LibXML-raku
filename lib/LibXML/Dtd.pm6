@@ -11,7 +11,7 @@ my subset DocNode of LibXML::Node where {!.defined || .native ~~ xmlDoc};
 
 class ValidContext {
     has xmlValidCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
 
     multi submethod BUILD( xmlValidCtxt:D :$!native! ) { }
     multi submethod BUILD {

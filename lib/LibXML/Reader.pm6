@@ -29,7 +29,7 @@ class LibXML::Reader {
     >;
     has xmlEncodingStr $!enc;
     method enc { $!enc }
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
     has Blob $!buf;
     my subset RelaxNG where {!.defined || $_ ~~ LibXML::RelaxNG|Str};
     my subset Schema  where {!.defined || $_ ~~ LibXML::Schema|Str};

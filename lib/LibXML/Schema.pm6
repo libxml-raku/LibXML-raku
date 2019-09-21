@@ -12,7 +12,7 @@ has xmlSchema $.native;
 
 my class Parser::Context {
     has xmlSchemaParserCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
     has Blob $!buf;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {

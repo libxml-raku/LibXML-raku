@@ -49,7 +49,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     multi method AT-POS(UInt:D $pos) is default {
         self!box: $!native.nodeTab[$pos];
     }
-    method add(LibXML::Item:D $node) {
+    method add(LibXML::Item:D $node) is also<push> {
         @!store.push: $_ unless $!lazy;
         .{$node.tagName}.push: $node with $!hstore;
         $!native.push: $node.native.ItemNode;

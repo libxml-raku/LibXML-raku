@@ -10,6 +10,7 @@ use LibXML::Schema;
 
 unless LibXML.have-reader {
     skip-rest "LibXML Reader not supported in this libxml2 build";
+    exit;
 }
 
 pass "loaded LibXML::Reader";

@@ -3,6 +3,12 @@ unit role LibXML::_StringyNode;
 method nodeValue { ... }
 method content {...}
 
+multi method new(Str:D $content, *%o) {
+    self.new(:$content, |%o);
+}
+
+multi method new(|c) is default { nextsame }
+
 method data is rw { $.nodeValue }
 
 # DOM Boot-leather

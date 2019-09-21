@@ -4,7 +4,7 @@ class LibXML::XPath::Expression {
     use LibXML::Native;
     use LibXML::ErrorHandler;
     has xmlXPathCompExpr $!native;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors> .= new;
+    has LibXML::ErrorHandler $!errors handles<structured-error generic-error callback-error flush-errors> .= new;
     method native { $!native }
 
     multi submethod TWEAK(Str:D :$expr!) {
