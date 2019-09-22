@@ -1,8 +1,16 @@
-0.0.9 2019-09-xx
+0.0.9 2019-09-23
     - Error handling improvements for LibXSLT:
       -- catch input handler exceptions
       -- alllow for multiple '%s' arguments in generic errors
     - [LibXML::XPATH::Context] fixed object GC #22. Added $*XPATH-CONTEXT
+    - Ported XML::XPath tests to xt/xpath/. Added methods for improved
+      compatibility with  XML::XPath and XML modules:
+      -- [LibXML::Element] add .attribs() [alias for .attributes()]
+      -- [LibXML::Node]
+         --- added .nodes() method [alias for .childNodes()]
+         --- added .gist() method
+      -- [LibXML::Node::Set] added .is-equiv() method
+      -- [LibXML::Text] add .text() [alias for data]
 0.0.8 2019-09-17
     - [LibXML::Parser::Context] fixed object GC #21. Added $*XML-CONTEXT
       dynamic variable.

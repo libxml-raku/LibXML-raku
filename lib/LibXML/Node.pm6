@@ -173,7 +173,7 @@ class LibXML::Node does LibXML::Item {
         self;
     }
     method Hash handles <keys pairs kv> { $.childNodes.Hash }
-    method childNodes is also<getChildnodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
+    method childNodes is also<getChildnodes nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
         iterate-list(self, LibXML::Node, $!native.first-child(KeepBlanks));
     }
     method nonBlankChildNodes {
@@ -305,7 +305,7 @@ class LibXML::Node does LibXML::Item {
     multi method Str(:$C14N! where .so, |c) {
         self!c14n-str(|c);
     }
-    multi method Str(|c) is default {
+    multi method Str(|c) is also<gist> is default {
         my $options = output-options(|c);
         $!native.Str(:$options);
     }

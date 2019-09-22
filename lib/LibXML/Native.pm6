@@ -1242,6 +1242,7 @@ class xmlNodeSet is export {
     method push(itemNode) is symbol('domPushNodeSet') is native(BIND-XML2) {*}
     method pop(--> itemNode) is symbol('domPopNodeSet') is native(BIND-XML2) {*}
     sub domCreateNodeSetFromList(itemNode, int32 --> xmlNodeSet) is native(BIND-XML2) {*}
+    method hasSameNodes(xmlNodeSet --> int32) is symbol('xmlXPathHasSameNodes') is native(XML2) {*}
 
     multi method new(itemNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {
         domCreateNodeSetFromList($node, +$keep-blanks);

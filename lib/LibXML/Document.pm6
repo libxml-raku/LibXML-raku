@@ -410,7 +410,7 @@ LibXML::Document - LibXML DOM Document Class
   my Str $xml-tidy = $doc.serialize(:$format);
   my Int $state = $doc.write: :$file, :$format;
   $state = $doc.save: :io($fh), :$format;
-  my Str $html = $doc.Str(:HTML);
+  my Str $html = $doc.Str(:html);
   $html = $doc.serialize-html();
   try { $dom.validate(); }
   if $dom.is-valid() { ... }
@@ -681,11 +681,11 @@ The format parameter has the same behaviour as in Str().
 
 
 =begin item
-Str: :HTML
+Str: :html
 
-  my Str $html = $document.Str: :HTML;
+  my Str $html = $document.Str: :html;
 
-I<<<<<< .Str: :HTML >>>>>> serializes the tree to a byte string in the document encoding as HTML. With this
+I<<<<<< .Str: :html >>>>>> serializes the tree to a byte string in the document encoding as HTML. With this
 method indenting is automatic and managed by libxml2 internally.
 =end item
 
@@ -695,7 +695,7 @@ serialize-html
 
   my Str $html = $document.serialize-html();
 
-An alias for Str: :HTML.
+An alias for Str: :html.
 =end item
 
 

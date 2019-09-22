@@ -26,12 +26,12 @@ SYNOPSIS
     my Bool $is-compressed = $doc.input-compressed;
     my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
     $doc.compression = $zip-level;
-    my Str $html-tidy = $dom.Str(:$format, :$HTML);
+    my Str $html-tidy = $dom.Str(:$format, :$html);
     my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
     my Str $xml-tidy = $doc.serialize(:$format);
     my Int $state = $doc.write: :$file, :$format;
     $state = $doc.save: :io($fh), :$format;
-    my Str $html = $doc.Str(:HTML);
+    my Str $html = $doc.Str(:html);
     $html = $doc.serialize-html();
     try { $dom.validate(); }
     if $dom.is-valid() { ... }
@@ -223,17 +223,17 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     The format parameter has the same behaviour as in Str().
 
-  * Str: :HTML
+  * Str: :html
 
-        my Str $html = $document.Str: :HTML;
+        my Str $html = $document.Str: :html;
 
-    *.Str: :HTML * serializes the tree to a byte string in the document encoding as HTML. With this method indenting is automatic and managed by libxml2 internally.
+    *.Str: :html * serializes the tree to a byte string in the document encoding as HTML. With this method indenting is automatic and managed by libxml2 internally.
 
   * serialize-html
 
         my Str $html = $document.serialize-html();
 
-    An alias for Str: :HTML.
+    An alias for Str: :html.
 
   * is-valid
 

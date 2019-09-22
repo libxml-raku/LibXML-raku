@@ -61,6 +61,9 @@ test : all
 loudtest : all
 	@prove -e"perl6 -I ." -v t
 
+xtest : all
+	@prove -e"perl6 -I ." -r t xt
+
 clean :
 	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%
 

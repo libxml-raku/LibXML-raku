@@ -84,7 +84,7 @@ method !set-attributes(@atts) {
 }
 
 # hashy attribute containers
-method attributes is rw is also<attr> {
+method attributes is rw is also<attribs> {
     Proxy.new(
         FETCH => {
             require LibXML::Attr::Map;
