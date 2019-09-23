@@ -25,6 +25,7 @@ class LibXML::SAX::Builder {
     }
 
     sub handle-error(xmlParserCtxt $ctx, Exception $err, :$ret) {
+        CATCH { default { warn "error handling SAX error: $_" } }
         with $ctx {
             .ParserError($err.message ~ "\n");
         }

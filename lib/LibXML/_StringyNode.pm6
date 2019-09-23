@@ -3,7 +3,7 @@ unit role LibXML::_StringyNode;
 method nodeValue { ... }
 method content {...}
 
-multi method new(Str:D $content, *%o) {
+multi method new(Str:D() $content, *%o) {
     self.new(:$content, |%o);
 }
 

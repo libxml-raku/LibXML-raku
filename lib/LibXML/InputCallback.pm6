@@ -21,6 +21,7 @@ my class Context {
     has LibXML::ErrorHandler $.errors handles<flush-errors> .= new;
 
     method !catch(Exception $error) {
+        CATCH { default { warn "error handling callback error: $_" } }
         $!errors.callback-error: X::LibXML::IO::AdHoc.new: :$error; 
     }
 

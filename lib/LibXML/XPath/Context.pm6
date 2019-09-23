@@ -210,12 +210,17 @@ class LibXML::XPath::Context {
         self.registerFunctionNS($name, Str, &func, |c);
     }
 
+    sub xpath-callback-error(Exception $error) {
+        CATCH { default { warn "error handling callback error: $_" } }
+        $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :$error;
+    }
+
     # Perl 5 compat
     method registerFunctionNS(QName:D $name, Str $url, &func, |c) {
         $!native.RegisterFuncNS(
             $name, $url,
             -> xmlXPathParserContext $ctxt, Int $n {
-                CATCH { default { $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                CATCH { default { xpath-callback-error($_); } }
                 my @params;
                 @params.unshift: get-value($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c) // '';
@@ -233,7 +238,7 @@ class LibXML::XPath::Context {
     method registerVarLookupFunc(&func, |c) {
         $!native.RegisterVariableLookup(
             -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
-                CATCH { default { $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                CATCH { default { xpath-callback-error($_); } }
                 my $ret = &func($name, $url, |c) // '';
                 xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret);
             },
