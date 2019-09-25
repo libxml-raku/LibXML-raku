@@ -27,7 +27,7 @@ my class Context {
 
     my class Handle {
         has Pointer $.addr;
-        method addr { with self { $!addr } else { 0 } }
+        method addr { do with self { $!addr } // Pointer }
         has $.fh is rw;
         has Blob $.buf is rw;
         sub malloc(size_t --> Pointer) is native(CLIB) {*}
@@ -70,7 +70,7 @@ my class Context {
             CATCH { default { self!catch($_); return 0; } }
 
             my Handle $handle = %!handles{+$addr}
-                // die "read on unknown handle";
+                // die "read on unopen handle";
 
             given $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf {
                 my UInt:D $n-read := do with $io-buf {.bytes} else {0};
@@ -104,7 +104,7 @@ my class Context {
             CATCH { default { self!catch($_); return -1 } }
             note "$_\[{+$addr}\]: close --> 0" with $!cb.trace;
             my Handle $handle = %!handles{+$addr}
-                // die (+$addr).fmt("read on unopened input callback context: 0x%X");
+                // die (+$addr).fmt("close on unopened input callback context: 0x%X");
             $!cb.close.($handle.fh);
             %!handles{+$addr}:delete;
 
@@ -371,7 +371,6 @@ minimal MyScheme::Handler stub object.
   $parser.input-callbacks = $input-callbacks;
   
   # $some-xml-file will be parsed using our callbacks
-  my LibXML $parser .= new;
   $parser.parse: :file('myscheme:stub.xml')
 
 =head1 COPYRIGHT

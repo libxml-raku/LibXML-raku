@@ -6,9 +6,9 @@
     - Ported XML::XPath tests to xt/xpath/. Added methods for improved
       compatibility with  XML::XPath and XML modules:
       -- [LibXML::Element] add .attribs() [alias for .attributes()]
-      -- [LibXML::Node]
-         --- added .nodes() method [alias for .childNodes()]
-         --- added .gist() method
+      -- [LibXML::Node] added:
+         --- .nodes() method [alias for .childNodes()]
+         --- .gist() method [alias for .Str()]
       -- [LibXML::Node::Set] added .is-equiv() method
       -- [LibXML::Text] add .text() [alias for data]
 0.0.8 2019-09-17

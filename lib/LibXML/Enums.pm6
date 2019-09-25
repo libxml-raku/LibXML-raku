@@ -1,5 +1,5 @@
 use v6;
-unit class LibXML::Enums;
+unit module LibXML::Enums;
 
 enum xmlElementType is export (
    XML_ATTRIBUTE_DECL => 16,

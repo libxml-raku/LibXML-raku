@@ -15,22 +15,22 @@ class X::LibXML is Exception {
         "Schematron validity",
     );
 
-    has UInt $.level;
-    has UInt $.domain-num;
+    has UInt $.level = XML_ERR_ERROR;
+    has UInt $.domain-num = XML_FROM_PARSER;
     method domain returns Str { @ErrorDomains[$!domain-num // 0] }
     has X::LibXML $.prev is rw;
 }
 
-class X::LibXML::XPath::AdHoc is X::LibXML {
-    method domain-num {XML_FROM_XPATH}
-    method level {XML_ERR_ERROR}
+class X::LibXML::AdHoc is X::LibXML {
     has Exception $.error handles<message>;
 }
 
-class X::LibXML::IO::AdHoc is X::LibXML {
+class X::LibXML::XPath::AdHoc is X::LibXML::AdHoc {
+    method domain-num {XML_FROM_XPATH}
+}
+
+class X::LibXML::IO::AdHoc is X::LibXML::AdHoc {
     method domain-num {XML_FROM_IO}
-    method level {XML_ERR_ERROR}
-    has Exception $.error handles<message>;
 }
 
 class X::LibXML::Parser is X::LibXML {
@@ -140,8 +140,12 @@ class LibXML::ErrorHandler {
         self!sax-error-cb-unstructured($level, $msg);
     }
 
-    method callback-error(X::LibXML $_) {
+    multi method callback-error(X::LibXML $_) {
         @!errors.push: $_;
+    }
+
+    multi method callback-error(Exception $error) is default {
+        @!errors.push: X::LibXML::AdHoc.new(:$error);
     }
 
     method is-valid(|c) {
