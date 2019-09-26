@@ -138,12 +138,8 @@ class LibXML::ErrorHandler {
         self!sax-error-cb-unstructured($level, $msg);
     }
 
-    multi method callback-error(X::LibXML $_) {
+    method callback-error(X::LibXML $_) {
         @!errors.push: $_;
-    }
-
-    multi method callback-error(Exception $error) is default {
-        @!errors.push: X::LibXML::AdHoc.new(:$error);
     }
 
     method is-valid(|c) {
