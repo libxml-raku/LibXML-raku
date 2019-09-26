@@ -219,10 +219,9 @@ my $final_source = q:to<EOF>;
 EOF
 
 {
-    my %opts = %( :!validation, :!load-ext-dtd );
     # TEST
-    my LibXML::Reader $got .= new: :string($final_source), |%opts;
-    my LibXML::Reader $expected .= new: :string($xml_source), |%opts;
+    my LibXML::Reader $got .= new: :string($final_source);
+    my LibXML::Reader $expected .= new: :string($xml_source);
 
     Test::XML::Ordered::is-xml-ordered( :$got, :$expected, :diag-message<foo> );
 }

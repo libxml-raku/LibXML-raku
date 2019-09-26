@@ -154,8 +154,6 @@ EOF
 
 {
     my $parser = LibXML.new();
-    $parser.validation = False;
-    $parser.load-ext-dtd = False; # This should make libxml not try to get the DTD
 
     my $xml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://localhost/does_not_exist.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml"><head><title>foo</title></head><body><p>bar</p></body></html>';
