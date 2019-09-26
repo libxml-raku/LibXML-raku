@@ -41,10 +41,6 @@ class X::LibXML::Parser is X::LibXML {
     has UInt $.code;
     has Str $.msg;
 
-    method messages {
-        (do with $.prev { .messages } else { '' }) ~ $!msg;
-    }
-
     method message {
         my @meta;
         @meta.push: $_ with $.domain;
@@ -55,10 +51,12 @@ class X::LibXML::Parser is X::LibXML {
             @meta.push: 'warning';
         }
 
-        my $message = chomp(@meta.join(' ') ~ ' : ' ~ $.messages.join);
-        $!line
-            ?? join(':', ($!file//''), $!line, ' ' ~ $message)
-            !! $message;
+        my $prev = do with $.prev { .message ~ "\n" } // '';
+        my $where = ($!line
+                     ?? join(':', ($!file//''), $!line,  ' ')
+                     !! '');
+        my $message = chomp(@meta.join(' ') ~ ' : ' ~ $!msg);
+        $prev ~ $where ~ $message;
     }
 }
 
@@ -177,11 +175,10 @@ class LibXML::ErrorHandler {
                 @errs .= grep({ .level >= XML_ERR_ERROR })
             }
 
-            @errs[$_].prev = @errs[$_-1] for 1 ..^ +@errs;
-
             if @errs {
                 my X::LibXML $fatal = @errs.first: { .level >= XML_ERR_ERROR };
-                my X::LibXML $err = $fatal // @errs[0];
+                my X::LibXML $err = @errs.tail;
+                @errs[$_].prev = @errs[$_-1] for 1 ..^ +@errs;
 
                 if !$fatal.defined || $recover {
                     warn $err; 
