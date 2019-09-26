@@ -477,7 +477,7 @@ subtest 'LibXML::Parser' => {
     test-option($_, 'recover', True, :default(False))
         for $parser, $reader;
 
-    test-option($_, 'expand-entities', False, :default(True))
+    test-option($_, 'expand-entities', False, :default(False))
         for $parser, $reader;
 
     test-option($_, 'complete-attributes', True, :default(False))

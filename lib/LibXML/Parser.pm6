@@ -12,7 +12,7 @@ constant config = LibXML::Config;
 
 has Bool $.html is rw = False;
 has Bool $.line-numbers is rw = False;
-has UInt $.flags is rw = XML_PARSE_NODICT +| XML_PARSE_DTDLOAD +| XML_PARSE_NOENT;
+has UInt $.flags is rw = XML_PARSE_NODICT;
 has Str $.URI is rw;
 has $.sax-handler is rw;
 has xmlEncodingStr $.enc is rw;
@@ -47,9 +47,6 @@ method get-flags(:$html, *%opts) {
     $.set-flag($flags, 'load-ext-dtd', False)
         if $html;
     $.set-flags($flags, |%opts);
-
-    $.set-flag($flags, 'dtd', False)
-        unless $html || $flags +& XML_PARSE_DTDLOAD;
 
     $flags;
 }
@@ -731,6 +728,17 @@ Unless specified otherwise, the default for boolean valued options is False.
 The available options are:
 
 =begin item1
+dtd
+
+/parser, html, reader/ (Introduced with the Perl 6 port)
+
+This enables dtd loading and validation, as well as entity expansion. It should only be used a secure enviroment that has trusted inputs.
+
+This is a bundled option. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.network = True; $parser.expand-entities = True`.
+
+=end item1
+
+=begin item1
 URI
 
 /parser, html, reader/
@@ -738,15 +746,6 @@ URI
 In case of parsing strings or file handles, LibXML doesn't know about the base
 uri of the document. To make relative references such as XIncludes work, one
 has to set a base URI, that is then used for the parsed document.
-
-=end item1
-
-=begin item1
-dtd
-
-/parser, html, reader/
-
-(Introduced with the Perl 6 port) This is a bundled option to enable DTD validation and processing. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.complete-attributes = True; $parser.expand-entities = True`.
 
 =end item1
 
@@ -801,7 +800,7 @@ expand-entities
 
 /parser, reader/
 
-substitute entities; default is True
+substitute entities; default is False
 
 Note that although this flag disables entity substitution, it does not prevent
 the parser from loading external entities; when substitution of an external
@@ -820,7 +819,7 @@ load-ext-dtd
 /parser, reader/
 
 load the external DTD subset while parsing. Unless
-specified, LibXML sets this option to True.
+specified, LibXML sets this option to False.
 
 This flag is also required for DTD Validation, to provide complete attribute,
 and to expand entities, regardless if the document has an internal subset. Thus
@@ -918,10 +917,10 @@ network
 
 /parser, html, reader/
 
-Enable network access; default True
+Enable network access; default False
 
-If set to False, all attempts to fetch non-local resources (such as DTD or
-external entities) will fail (unless custom callbacks are defined).
+All attempts to fetch non-local resources (such as DTD or
+external entities) will fail unless set to True (or custom callbacks are defined).
 
 It may be necessary to use the flag C<<<<<< recover >>>>>> for processing documents requiring such resources while networking is off. 
 

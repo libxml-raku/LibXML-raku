@@ -334,17 +334,19 @@ Unless specified otherwise, the default for boolean valued options is False.
 
 The available options are:
 
+  * dtd
+
+    /parser, html, reader/ (Introduced with the Perl 6 port)
+
+    This enables dtd loading and validation, as well as entity expansion. It should only be used a secure enviroment that has trusted inputs.
+
+    This is a bundled option. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.network = True; $parser.expand-entities = True`.
+
   * URI
 
     /parser, html, reader/
 
     In case of parsing strings or file handles, LibXML doesn't know about the base uri of the document. To make relative references such as XIncludes work, one has to set a base URI, that is then used for the parsed document.
-
-  * dtd
-
-    /parser, html, reader/
-
-    (Introduced with the Perl 6 port) This is a bundled option to enable DTD validation and processing. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.complete-attributes = True; $parser.expand-entities = True`.
 
   * line-numbers
 
@@ -376,7 +378,7 @@ The available options are:
 
     /parser, reader/
 
-    substitute entities; default is True
+    substitute entities; default is False
 
     Note that although this flag disables entity substitution, it does not prevent the parser from loading external entities; when substitution of an external entity is disabled, the entity will be represented in the document tree by an XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing the external resource; Although this nesting is visible from the DOM it is transparent to XPath data model, so it is possible to match nodes in an unexpanded entity by the same XPath expression as if the entity were expanded. See also [LibXML::Config](LibXML::Config).external-entity-loader. 
 
@@ -384,7 +386,7 @@ The available options are:
 
     /parser, reader/
 
-    load the external DTD subset while parsing. Unless specified, LibXML sets this option to True.
+    load the external DTD subset while parsing. Unless specified, LibXML sets this option to False.
 
     This flag is also required for DTD Validation, to provide complete attribute, and to expand entities, regardless if the document has an internal subset. Thus switching off external DTD loading, will disable entity expansion, validation, and complete attributes on internal subsets as well.
 
@@ -448,9 +450,9 @@ The available options are:
 
     /parser, html, reader/
 
-    Enable network access; default True
+    Enable network access; default False
 
-    If set to False, all attempts to fetch non-local resources (such as DTD or external entities) will fail (unless custom callbacks are defined).
+    All attempts to fetch non-local resources (such as DTD or external entities) will fail unless set to True (or custom callbacks are defined).
 
     It may be necessary to use the flag `recover ` for processing documents requiring such resources while networking is off. 
 

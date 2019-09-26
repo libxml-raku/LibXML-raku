@@ -253,6 +253,7 @@ my $input-callbacks = LibXML::InputCallback.new: :callbacks{
 {
     # tests if global callbacks are working
     my $parser = LibXML.new: :$input-callbacks;
+    $parser.dtd = True;
     # TEST
     ok($parser, '$parser was init');
 

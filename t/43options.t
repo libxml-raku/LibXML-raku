@@ -41,9 +41,8 @@ no_network
 {
   my $p = LibXML.new();
   for @all -> $opt {
-    my $expected = ? ($opt ~~ 'load_ext_dtd'|'expand_entities');
     # TEST*$all
-    is(? $p.get-option($opt), $expected, "Testing option $opt");
+    is(? $p.get-option($opt), False, "Testing option $opt");
   }
   # TEST
   ok(! $p.option-exists('foo'), ' TODO : Add test name');
@@ -81,9 +80,9 @@ no_network
   is( $p.get-option('recover'), 2, ' TODO : Add test name' );
 
   # TEST
-  is-deeply( $p.expand_entities(), True, ' TODO : Add test name' );
+  is-deeply( $p.expand_entities(), False, ' TODO : Add test name' );
   # TEST
-  is-deeply( $p.load_ext_dtd(), True, ' TODO : Add test name' );
+  is-deeply( $p.load_ext_dtd(), False, ' TODO : Add test name' );
   $p.load_ext_dtd(0);
   # TEST
   is-deeply( $p.load_ext_dtd(), False, ' TODO : Add test name' );

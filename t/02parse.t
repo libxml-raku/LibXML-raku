@@ -262,6 +262,7 @@ throws-like
     @cn = $doc.documentElement.childNodes;
     is( +@cn, 3, "3 child nodes" );
 
+    temp $parser.dtd = True;
     $doc = $parser.parse: :file( "example/complex/complex2.xml" );
     @cn = $doc.documentElement.childNodes;
     is( +@cn, 1, "1 child node" );
@@ -871,7 +872,7 @@ EOXML
            $doc2    = $parser.parse: :string( $xmldoc );
         };
 
-        $parser.validation = True;
+        $parser.validation = False;
         $parser.load-ext-dtd = False;
         my $doc3;
         lives-ok {
@@ -880,6 +881,7 @@ EOXML
 
         isa-ok( $doc3, 'LibXML::Document');
 
+        $parser.validation = True;
         $parser.load-ext-dtd = True;
         dies-ok {
            $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );

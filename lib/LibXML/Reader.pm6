@@ -95,7 +95,7 @@ class LibXML::Reader {
         self!setup: :!errors;
     }
     method !init-flags(%opts) {
-        self.set-flags($!flags, :expand-entities, |%opts);
+        self.set-flags($!flags, |%opts);
     }
     multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes,
                           Str :$URI, RelaxNG :$!RelaxNG, Schema :$!Schema,
