@@ -89,7 +89,7 @@ LibXML provides an OO interface to the libxml2 parser functions.
         my LibXML $parser .= new();
         my LibXML $parser .= new: :$opt1, :$opt2, ...;
 
-    Create a new XML and HTML parser instance. Each parser instance holds default values for various parser options. Optionally, one can pass options to override default. Unless specified otherwise, the options `load-ext-dtd `, and `expand-entities ` are set to True. See [Parser Options ](Parser Options ) for a list of libxml2 parser's options. 
+    Create a new XML and HTML parser instance. Each parser instance holds default values for various parser options. Optionally, one can pass options to override default.
 
 DOM Parser
 ----------
@@ -338,7 +338,7 @@ The available options are:
 
     /parser, html, reader/ (Introduced with the Perl 6 port)
 
-    This enables dtd loading and validation, as well as entity expansion. It should only be used a secure enviroment that has trusted inputs.
+    This enables dtd loading and validation, as well as entity expansion. It should only be set in a secure enviroment that has trusted inputs.
 
     This is a bundled option. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.network = True; $parser.expand-entities = True`.
 

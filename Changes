@@ -1,5 +1,5 @@
 0.1.0 2019-09-27
-    - [LibXML::Parser] More secure default parser options.
+    - [LibXML::Parser] More secure default parser options. #23
       -- The parser defaults `network` and `expand-entities` have been changed from
          True to False.  This is partially in reponse to an equivalent ticket for
          the Perl 5 XML::LibXML module https://rt.cpan.org/Public/Bug/Display.html?id=118032

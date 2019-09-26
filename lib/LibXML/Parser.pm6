@@ -359,7 +359,6 @@ new
 Create a new XML and HTML parser instance. Each parser instance holds default
 values for various parser options. Optionally, one can pass options to override
 default.
-Unless specified otherwise, the options C<<<<<< load-ext-dtd >>>>>>, and C<<<<<< expand-entities >>>>>> are set to True. See L<<<<<< Parser Options >>>>>> for a list of libxml2 parser's options. 
 
 =end item1
 
@@ -732,7 +731,7 @@ dtd
 
 /parser, html, reader/ (Introduced with the Perl 6 port)
 
-This enables dtd loading and validation, as well as entity expansion. It should only be used a secure enviroment that has trusted inputs.
+This enables dtd loading and validation, as well as entity expansion. It should only be set in a secure enviroment that has trusted inputs.
 
 This is a bundled option. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.network = True; $parser.expand-entities = True`.
 
