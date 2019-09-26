@@ -368,6 +368,7 @@ minimal MyScheme::Handler stub object.
                                       &read-uri, &close-uri );
   
   # Register the callback group at a parser instance
+  my LibXML $parser .= new;
   $parser.input-callbacks = $input-callbacks;
   
   # $some-xml-file will be parsed using our callbacks

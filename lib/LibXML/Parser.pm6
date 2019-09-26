@@ -315,15 +315,6 @@ LibXML::Parser - Parsing XML Data with LibXML
   $parser.process-xincludes( $doc );
   $parser.processXIncludes( $doc );
   
-  # Old-style parser interfaces
-  			       
-  $doc = $parser.parse: :file( $xmlfilename );
-  $doc = $parser.parse: :io( $io-fh );
-  $doc = $parser.parse: :string( $xml);
-  $doc = $parser.parse: :file( $htmlfile), :html, |%opts;
-  $doc = $parser.parse: :io($fh), |%opts;
-  $doc = $parser.parse: :html, :string($htmlstring), |%opts;
-  
   # Push parser
   			    
   $parser.parse-chunk($string, :$terminate);
@@ -656,10 +647,10 @@ the following example shows:
   temp LibXML.skip-dtd = True;
   tmep LibXML.tag-expansion = False;
 
-If skip-xml-declaration is defined and not False, the XML declaration is omitted
+If skip-xml-declaration is True, the XML declaration is omitted
 during serialization.
 
-If skip-dtd is defined and not False, an existing DTD would not be serialized with
+If skip-dtd is defined is True, an existing DTD would not be serialized with
 the document.
 
 If tag-expansion is True empty tags are displayed as open
@@ -712,10 +703,6 @@ Sets multiple parsing options at once.
 
 =end item1
 
-IMPORTANT NOTE: This documentation reflects the parser flags available in
-libxml2 2.7.3. Some options have no effect if an older version of libxml2 is
-used. 
-
 Each of the flags listed below is labeled
 
 =begin item1
@@ -755,6 +742,15 @@ has to set a base URI, that is then used for the parsed document.
 =end item1
 
 =begin item1
+dtd
+
+/parser, html, reader/
+
+(Introduced with the Perl 6 port) This is a bundled option to enable DTD validation and processing. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.complete-attributes = True; $parser.expand-entities = True`.
+
+=end item1
+
+=begin item1
 line-numbers
 
 /parser/
@@ -765,8 +761,7 @@ element). The line numbers are also used for reporting positions of validation
 errors. 
 
 IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
-65535 will be returned as 65535. Unfortunately, this is a long and sad story,
-please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
+65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
 
 =end item1
 
@@ -1025,8 +1020,7 @@ Loads the XML catalog file $catalog-file.
 LibXML throws exceptions during parsing, validation or XPath processing (and
 some other occasions). These errors can be caught by using `try` or `CATCH` blocks.
 
-LibXML throws errors as they occur. This is a very common misunderstanding in
-the use of LibXML. If the eval is omitted, LibXML will always halt your script
+LibXML throws errors as they occur. If the `try` is omitted, LibXML will always halt your script
 by throwing an exception.
 
 =head1 COPYRIGHT

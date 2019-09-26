@@ -48,15 +48,6 @@ SYNOPSIS
     $parser.process-xincludes( $doc );
     $parser.processXIncludes( $doc );
 
-    # Old-style parser interfaces
-			           
-    $doc = $parser.parse: :file( $xmlfilename );
-    $doc = $parser.parse: :io( $io-fh );
-    $doc = $parser.parse: :string( $xml);
-    $doc = $parser.parse: :file( $htmlfile), :html, |%opts;
-    $doc = $parser.parse: :io($fh), |%opts;
-    $doc = $parser.parse: :html, :string($htmlstring), |%opts;
-
     # Push parser
 			        
     $parser.parse-chunk($string, :$terminate);
@@ -288,9 +279,9 @@ Because LibXML does these flags not itself, one has to define them locally as th
     temp LibXML.skip-dtd = True;
     tmep LibXML.tag-expansion = False;
 
-If skip-xml-declaration is defined and not False, the XML declaration is omitted during serialization.
+If skip-xml-declaration is True, the XML declaration is omitted during serialization.
 
-If skip-dtd is defined and not False, an existing DTD would not be serialized with the document.
+If skip-dtd is defined is True, an existing DTD would not be serialized with the document.
 
 If tag-expansion is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo * will be rendered as *&lt;foo&gt;&lt;/foo&gt; * rather than *&lt;foo/&gt; *.
 
@@ -325,8 +316,6 @@ Handling of libxml2 parser options has been unified and improved in LibXML 1.70.
 
     Sets multiple parsing options at once.
 
-IMPORTANT NOTE: This documentation reflects the parser flags available in libxml2 2.7.3. Some options have no effect if an older version of libxml2 is used. 
-
 Each of the flags listed below is labeled
 
   * /parser/
@@ -351,13 +340,19 @@ The available options are:
 
     In case of parsing strings or file handles, LibXML doesn't know about the base uri of the document. To make relative references such as XIncludes work, one has to set a base URI, that is then used for the parsed document.
 
+  * dtd
+
+    /parser, html, reader/
+
+    (Introduced with the Perl 6 port) This is a bundled option to enable DTD validation and processing. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.complete-attributes = True; $parser.expand-entities = True`.
+
   * line-numbers
 
     /parser/
 
     If this option is activated, libxml2 will store the line number of each element node in the parsed document. The line number can be obtained using the `line-number() ` method of the `LibXML::Node ` class (for non-element nodes this may report the line number of the containing element). The line numbers are also used for reporting positions of validation errors. 
 
-    IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Unfortunately, this is a long and sad story, please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533 ](http://bugzilla.gnome.org/show_bug.cgi?id=325533 ) for more details. 
+    IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533 ](http://bugzilla.gnome.org/show_bug.cgi?id=325533 ) for more details. 
 
   * enc
 
@@ -518,7 +513,7 @@ ERROR REPORTING
 
 LibXML throws exceptions during parsing, validation or XPath processing (and some other occasions). These errors can be caught by using `try` or `CATCH` blocks.
 
-LibXML throws errors as they occur. This is a very common misunderstanding in the use of LibXML. If the eval is omitted, LibXML will always halt your script by throwing an exception.
+LibXML throws errors as they occur. If the `try` is omitted, LibXML will always halt your script by throwing an exception.
 
 COPYRIGHT
 =========
