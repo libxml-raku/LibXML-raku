@@ -80,8 +80,9 @@ use LibXML::Native::DOM::Node;
 use LibXML::Native::Defs :XML2, :BIND-XML2, :CLIB, :Opaque, :xmlCharP;
 
 sub xmlParserVersion is export { cglobal(XML2, 'xmlParserVersion', Str); }
-sub xml6_gbl_have_threads(-->int32) is native(BIND-XML2) is export {*}
-sub xml6_gbl_have_compression(-->int32) is native(BIND-XML2) is export {*}
+sub xml6_config_have_threads(-->int32) is native(BIND-XML2) is export {*}
+sub xml6_config_have_compression(-->int32) is native(BIND-XML2) is export {*}
+sub xml6_config_version(--> Str) is native(BIND-XML2) is export {*};
 
 # type defs
 constant xmlCharEncodingHandler = Pointer; # stub

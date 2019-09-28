@@ -1,3 +1,6 @@
+0.1.1 2019-10-xx
+    - [LibXML][LibXML;:Config] add .config-version method. Version of libxml2
+      that the library was configured against (and bindings were built against).
 0.1.0 2019-09-27
     - [LibXML::Parser] More secure default parser options. #23
       -- The parser defaults `network` and `expand-entities` have been changed from

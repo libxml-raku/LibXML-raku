@@ -7,8 +7,9 @@ method version {
     state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
 }
 
-method have-threads { ? xml6_gbl_have_threads(); }
-method have-compression { ? xml6_gbl_have_compression(); }
+method have-threads { ? xml6_config_have_threads(); }
+method have-compression { ? xml6_config_have_compression(); }
+method config-version { Version.new: xml6_config_version(); }
 
 method have-reader {
     require LibXML::Reader;

@@ -631,7 +631,7 @@ serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the 
 
 =item1 * tag-expansion
 
-of that three functions only setTagCompression is available for all
+of that three functions only `tag-expansion` is available for all
 serialization functions.
 
 Because LibXML does these flags not itself, one has to define them locally as

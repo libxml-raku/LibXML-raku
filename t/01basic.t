@@ -16,7 +16,11 @@ my $version = $p.version;
 
 ok $version, 'LibXML.version is trueish';
 
-diag "Running libxml2 version: " ~ $version;
+diag "Running libxml2 version: $version (module {LibXML.^ver})";
+with LibXML.config-version {
+    diag "***NOTE was configured against libxml2 version $_ ***"
+        unless $_ == LibXML.version
+}
 
 ok($version >= Min-LibXML-Version, "LibXML version is suppported")
     or diag "sorry this version of libxml is not supported ($version < {Min-LibXML-Version})";

@@ -21,7 +21,7 @@ use LibXML::XPath::Context;
 unit class LibXML:ver<0.1.0>
     is LibXML::Parser;
 
-method config handles <version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
+method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
     LibXML::Config;
 }
 
