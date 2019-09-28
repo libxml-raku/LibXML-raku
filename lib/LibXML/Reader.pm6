@@ -235,7 +235,7 @@ class LibXML::Reader {
     }
 
     method have-reader {
-        ? xml6_gbl_have_libxml_reader();
+        ? xml6_config_have_libxml_reader();
     }
 
     method FALLBACK($key, |c) is rw {

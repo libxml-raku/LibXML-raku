@@ -7,7 +7,7 @@ use LibXML::Native::Schema;
 use LibXML::Types :QName;
 use LibXML::Native::Defs :XML2, :BIND-XML2, :Opaque, :xmlCharP;
 
-sub xml6_gbl_have_libxml_reader(--> int32) is native(BIND-XML2) is export {*}
+sub xml6_config_have_libxml_reader(--> int32) is native(BIND-XML2) is export {*}
 
 class xmlTextReader is repr('CPointer') is export {
 
