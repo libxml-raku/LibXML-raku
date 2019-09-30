@@ -13,7 +13,7 @@
 #include <string.h>
 #include <assert.h>
 
-#define warn(string) {fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, (string));}
+#define warn(string) {fprintf(stderr, __FILE__ "%d: %s\n", __LINE__, (string));}
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
@@ -1105,13 +1105,30 @@ DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = NULL;
-    int any_name;
+    int node_type = 0;
 
     if ( self != NULL && name != NULL ) {
-        any_name = xmlStrcmp( name, (unsigned char*) "*" ) == 0;
+        if (xmlStrcmp( name, (unsigned char*) "*" ) == 0) {
+            node_type = XML_ELEMENT_NODE;
+        }
+        else if (*name == '#') {
+            // See domGetNodeName()
+            if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
+                node_type = XML_TEXT_NODE;
+            }
+            else if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
+                node_type = XML_COMMENT_NODE;
+            }
+            else if (xmlStrcmp( name, (unsigned char*) "#cdata-section" ) == 0) {
+                node_type = XML_CDATA_SECTION_NODE;
+            }
+            else {
+                fprintf(stderr, __FILE__ "%d: unable to select nodes with local-name '%s'\n", __LINE__, name);
+            }
+        }
         cld = self->children;
         while ( cld != NULL ) {
-            if ( ((any_name && cld->type == XML_ELEMENT_NODE)
+            if ( ((node_type && cld->type == node_type)
                   || xmlStrcmp( name, cld->name ) == 0 )) {
                 if ( rv == NULL ) {
                     rv = xmlXPathNodeSetCreate( cld ) ;

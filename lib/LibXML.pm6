@@ -37,9 +37,8 @@ LibXML - Perl 6 bindings to the libxml2 native library
 
 =head1 SYNOPSIS
 
-  use LibXML;
   use LibXML::Document;
-  my LibXML::Document $doc =  LibXML.parse: :string('<Hello/>');
+  my LibXML::Document $doc .=  parse: :string('<Hello/>');
   $doc.root.nodeValue = 'World!';
   say $doc.Str;
   # <?xml version="1.0" encoding="UTF-8"?>

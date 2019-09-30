@@ -316,8 +316,8 @@ class LibXML::Node does LibXML::Item {
     }
 
     multi method AT-KEY(Str:D $xpath) is default {
-        $xpath.starts-with('#')
-            ?? self.childNodes.Hash.AT-KEY($xpath)   # DOM style name, e.g. '#text', '#comment'
+        $xpath.starts-with('#')  # '#text', '#comment', etc
+            ?? iterate-set(LibXML::Node, $.native.getChildrenByLocalName($xpath))
             !! $.xpath-context.AT-KEY($xpath);
     }
 
