@@ -213,7 +213,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         isa-ok( $children, "LibXML::Node::List", ' TODO : Add test name' );
         is $children.first, 'bar';
-        is $children.last, '<![CDATA[&foo bar]]>';
+        is $children.tail, '<![CDATA[&foo bar]]>';
     }
 
 

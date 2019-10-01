@@ -4,7 +4,7 @@ use Test;
 # this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
-plan 571;
+plan 577;
 use LibXML;
 use LibXML::Native;
 use LibXML::Namespace;
@@ -459,14 +459,21 @@ use LibXML::SAX;
         $i++
     }
 
-    $doc = $generator.parse: :string(q{<foo bar="baz"/>});
+    $doc = $generator.parse: :string(q{<foo bar="x" baz="y" />});
     my LibXML::Node:D $root = $doc.documentElement;
     # attributes as a tied hash
     my $attrs := $root.attributes;
-    is(+$attrs , 1, "1 attribute");
+    is(+$attrs , 2, "2 attributes");
     # attributes via an iterator
     my LibXML::Attr @props = $root.properties;
-    is(+@props , 1, "1 property");
+    is(+@props , 2, "2 properties");
+    my $props = $root.properties;
+    is $props[0], @props[0];
+    is $props[1], @props[1];
+    is $props.head, @props[0];
+    is $props.tail, @props[1];
+    is $attrs<bar>, @props[0];
+    is $attrs<baz>, @props[1];
 
     # DATA CONSISTENCE
     # find out if namespaces are there

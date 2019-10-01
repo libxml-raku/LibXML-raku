@@ -2,7 +2,7 @@ class LibXML::Node::List does Iterable does Iterator {
     use LibXML::Native;
     use LibXML::Node;
 
-    has Bool $.keep-blanks;
+    has Bool:D $.keep-blanks = False;
     has $.doc is required;
     has anyNode $.native is required handles <string-value>;
     has anyNode $!cur;
@@ -11,16 +11,17 @@ class LibXML::Node::List does Iterable does Iterator {
     has LibXML::Node @!store;
     has Hash $!hstore;
     has Bool $!lazy = True;
-    has LibXML::Node $.first;
-    has LibXML::Node $.parent;
-    method parent handles <last> { ($!parent //= $!first.parent) // fail "parent not found"; }
+    has LibXML::Node $.parent is required;
+    has LibXML::Node $!first;
+
     submethod TWEAK {
+        $!native //= $!parent.native.first-child(+$!keep-blanks);
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
         $!idx = 0;
     }
 
-    method Array handles<elems List list values map grep Numeric> {
+    method Array handles<elems List list values map grep Numeric tail> {
         if $!lazy-- {
             $!idx = 0;
             $!cur = $!native;
@@ -28,6 +29,8 @@ class LibXML::Node::List does Iterable does Iterator {
         }
         @!store;
     }
+    method first { $!first }
+
     # allow lazy incremental iteration
     method AT-POS(UInt() $pos) {
         when $pos == $!idx {
@@ -55,6 +58,7 @@ class LibXML::Node::List does Iterable does Iterator {
             %h;
         }
     }
+
     method push(LibXML::Node:D $node) {
         $.parent.appendChild($node);
         @!store.push($node) unless $!lazy;

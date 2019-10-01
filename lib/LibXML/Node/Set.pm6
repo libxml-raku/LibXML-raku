@@ -79,7 +79,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
     }
     method first { self.AT-POS(0) }
-    method last  { my $n := $!native.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
+    method tail  { my $n := $!native.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
     method string-value { do with $.first { .string-value } // Str}
     multi method to-literal( :list($)! where .so ) { self.map({ .string-value }) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }

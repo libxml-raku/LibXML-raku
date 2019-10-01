@@ -155,7 +155,7 @@ class LibXML::Node does LibXML::Item {
     method line-number   { $!native.GetLineNo }
     method prefix        { do with $!native.ns {.prefix} // Str }
 
-    sub iterate-list($parent, $of, anyNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
+    sub iterate-list($parent, $of, anyNode $native?, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.
         (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks, :$parent;
     }
@@ -175,10 +175,10 @@ class LibXML::Node does LibXML::Item {
     }
     method Hash handles <keys pairs kv> { $.childNodes.Hash }
     method childNodes is also<getChildnodes nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
-        iterate-list(self, LibXML::Node, $!native.first-child(KeepBlanks));
+        iterate-list(self, LibXML::Node);
     }
     method nonBlankChildNodes {
-        iterate-list(self, LibXML::Node, $!native.first-child(SkipBlanks), :!keep-blanks);
+        iterate-list(self, LibXML::Node, :!keep-blanks);
     }
     has $!xpath-context;
     method xpath-context handles<find findnodes findvalue exists registerNs> {
