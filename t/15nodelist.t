@@ -1,8 +1,9 @@
 use v6;
 use Test;
-plan 28;
+plan 30;
 
 use LibXML;
+use LibXML::Enums;
 
 # TEST
 ok(1, ' TODO : Add test name');
@@ -17,6 +18,8 @@ ok($dom, ' TODO : Add test name');
     # TEST
 	# 0 is #text
 	is($nodelist[1].nodeName, 'BBB', 'item is 0-indexed');
+        is $nodelist.head.nodeType, +XML_TEXT_NODE;
+        is $nodelist.tail.nodeType, +XML_TEXT_NODE;
 }
 
 my @nodelist = $dom.findnodes('//BBB');

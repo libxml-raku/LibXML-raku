@@ -271,7 +271,7 @@ LibXML provides some functions to serialize nodes and documents. The serializati
 
   * * tag-expansion
 
-of that three functions only setTagCompression is available for all serialization functions.
+of that three functions only `tag-expansion` is available for all serialization functions.
 
 Because LibXML does these flags not itself, one has to define them locally as the following example shows:
 

@@ -141,16 +141,6 @@ class LibXML::Native::xmlValidState
 
 Each xmlValidState represent the validation state associated to the set of nodes currently open from the document root to the current element.
 
-### method compose
-
-```perl6
-method compose(
-    Mu $package
-) returns Mu
-```
-
-override standard Attribute method for generating accessors
-
 class LibXML::Native::xmlParserInput
 ------------------------------------
 

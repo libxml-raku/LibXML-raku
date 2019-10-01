@@ -203,7 +203,7 @@ class xmlValidState is repr(Opaque) is export {}
 multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
 
     my role PointerSetter[&setter] {
-        #| override standard Attribute method for generating accessors
+        # override standard Attribute method for generating accessors
         method compose(Mu $package) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
             my &accessor = sub (\obj) is rw {

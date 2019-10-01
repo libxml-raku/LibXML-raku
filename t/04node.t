@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 177;
+plan 179;
 
 use LibXML;
 use LibXML::Enums;
@@ -212,6 +212,8 @@ my $doc    = $parser.parse: :string( $xmlstring );
         ok( defined($children), ' TODO : Add test name' );
         # TEST
         isa-ok( $children, "LibXML::Node::List", ' TODO : Add test name' );
+        is $children.first, 'bar';
+        is $children.last, '<![CDATA[&foo bar]]>';
     }
 
 

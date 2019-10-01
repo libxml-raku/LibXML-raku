@@ -33,7 +33,7 @@ class LibXML::Node does LibXML::Item {
     BEGIN {
         # wrap methods that return raw nodes; simple navigation; no arguments
         for <
-             firstChild firstNonBlankChild
+             firstNonBlankChild
              next nextSibling nextNonBlankSibling
              prev previousSibling previousNonBlankSibling
         > {
@@ -74,10 +74,13 @@ class LibXML::Node does LibXML::Item {
     method ownerElement is also<getOwnerElement parent parentNode> {
         LibXML::Node.box: $!native.parent;
     }
-    method last is also<lastChild> {
+    method first is also<firstChild getFirstChild> {
+        LibXML::Node.box: self.native.firstChild;
+    }
+    method last is also<lastChild getLastChild> {
         LibXML::Node.box: self.native.last;
     }
-    method appendChild(LibXML::Node:D $new) is also<addChild> {
+    method appendChild(LibXML::Node:D $new) is also<add addChild> {
         $new.keep: $!native.appendChild($new.native);
     }
     method replaceChild(LibXML::Node $new, LibXML::Node $node) {
@@ -151,8 +154,6 @@ class LibXML::Node does LibXML::Item {
     method localname     { $!native.name.subst(/^.*':'/,'') }
     method line-number   { $!native.GetLineNo }
     method prefix        { do with $!native.ns {.prefix} // Str }
-    method getFirstChild { $.firstChild }
-    method getLastChild  { $.lastChild }
 
     sub iterate-list($parent, $of, anyNode $native, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.

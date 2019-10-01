@@ -191,7 +191,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my LibXML::Element @nodes = $node.getChildrenByLocalName($localname);
         my LibXML::Node::Set $nodes = $node.getChildrenByLocalName($localname);
 
-    The function gives direct access to all child elements of the current node with a given local name. It makes things a lot easier if one needs to handle big data sets. A special `localname ` '*' can be used to match any local name.
+    The function gives direct access to all child elements of the current node with a given local name. It makes things a lot easier if one needs to handle big data sets. A special `localname ` '*' can be used to match any local name. The special names `#text`, `#comment` and `#cdata-section` can be used to match Text, Comment or CDATA nodes.
 
   * getElementsByTagName
 

@@ -11,9 +11,9 @@ class LibXML::Node::List does Iterable does Iterator {
     has LibXML::Node @!store;
     has Hash $!hstore;
     has Bool $!lazy = True;
-    has LibXML::Node $!first; # just to keep the list alive
+    has LibXML::Node $.first;
     has LibXML::Node $.parent;
-    method parent { $!parent // $!first.parent // fail "parent not found"; }
+    method parent handles <last> { ($!parent //= $!first.parent) // fail "parent not found"; }
     submethod TWEAK {
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
