@@ -331,10 +331,13 @@ This example demonstrates C<<<<<< registerNs() >>>>>> method. It finds all parag
 
 =head2 Custom XPath functions
 
-This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a function filtering nodes based on a Perl regular
-expression:
+This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a function filtering nodes based on a Perl regular expression:
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
+        $nodes.grep: {.textContent ~~ / <$regex> /};
+    };
+    # -OR-
+    sub grep-nodes(Array() $nodes, Str $regex) {
         $nodes.grep: {.textContent ~~ / <$regex> /};
     };
 
@@ -374,11 +377,11 @@ This example demonstrates C<<<<<< registerVarLookup() >>>>>> method. We use XPat
 =begin item1
 new
 
-  my $xpc = LibXML::XPath::Context.new();
+  my LibXML::XPath::Context $xpc .= new();
 
 Creates a new LibXML::XPath::Context object without a context node.
 
-  my $xpc = LibXML::XPath::Context.new($node);
+  my LibXML::XPath::Context $xpc .= new: :$node;
 
 Creates a new LibXML::XPath::Context object with the context node set to C<<<<<< $node >>>>>>.
 
@@ -429,7 +432,7 @@ Any additional arguments are curried and passed to the callback function. For ex
 
 matches the signature:
 
-sub my-callback(Str $name, Str $uri, 'Xxxx', :%vars!) {
+sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) {
     ...
 }
 

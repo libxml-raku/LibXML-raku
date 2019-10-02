@@ -80,6 +80,10 @@ This example demonstrates `registerFunction() ` method by defining a function fi
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
         $nodes.grep: {.textContent ~~ / <$regex> /};
     };
+    # -OR-
+    sub grep-nodes(Array() $nodes, Str $regex) {
+        $nodes.grep: {.textContent ~~ / <$regex> /};
+    };
 
     my LibXML::Document $doc .= parse: "example/article.xml";
     $node = $doc.root;
@@ -115,11 +119,11 @@ METHODS
 
   * new
 
-        my $xpc = LibXML::XPath::Context.new();
+        my LibXML::XPath::Context $xpc .= new();
 
     Creates a new LibXML::XPath::Context object without a context node.
 
-        my $xpc = LibXML::XPath::Context.new($node);
+        my LibXML::XPath::Context $xpc .= new: :$node;
 
     Creates a new LibXML::XPath::Context object with the context node set to `$node `.
 
@@ -155,7 +159,7 @@ METHODS
 
     matches the signature:
 
-    sub my-callback(Str $name, Str $uri, 'Xxxx', :%vars!) { ... }
+    sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) { ... }
 
   * registerFunctionNS
 
