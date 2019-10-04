@@ -100,13 +100,13 @@ The X:LibXML::Parser exception class is a tiny frontend to *libxml2 *'s structur
 
   * domain
 
-        if $@!.domain == XML_FROM_PARSER {...}
+        if $!.domain == XML_FROM_PARSER {...}
 
     Returns the domain which raised the error as a number
 
   * domain-name
 
-        if $@!.domain-name eq 'parser' {...}
+        if $!.domain-name eq 'parser' {...}
 
     Returns string containing information about what part of the library raised the error. Can be one of: "parser", "tree", "namespace", "validity", "HTML parser", "memory", "output", "I/O", "ftp", "http", "XInclude", "XPath", "xpointer", "regexp", "Schemas datatype", "Schemas parser", "Schemas validity", "Relax-NG parser", "Relax-NG validity", "Catalog", "C14N", "XSLT", "validity".
 

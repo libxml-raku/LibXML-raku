@@ -2,6 +2,11 @@
     - [LibXML][LibXML;:Config] add .config-version method; version of libxml2
       that the library was configured against (and bindings were built against)
     - [LibXML::Node::Set][LibXML::Node::List] - add .first() and .tail() methods
+    - [LibXML::Native][LibXML::ErrorHandler]
+      -- add xml6_gbl_message_func() as a native varargs wrapper for formatted strings
+      -- remove LibXML::Native.GenericErrorFunc() method
+      -- replace with LibXML::ErrorHandler.SetGenericErrorFunc(). Perform proper
+         varargs processing using xml6_gbl_message_func()
 0.1.0 2019-09-27
     - [LibXML::Parser] More secure default parser options. #23
       -- The parser defaults `network` and `expand-entities` have been changed from

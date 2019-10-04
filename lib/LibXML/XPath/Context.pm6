@@ -16,7 +16,7 @@ class LibXML::XPath::Context {
     use Method::Also;
 
     has LibXML::Node $!context-node;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error callback-error> .= new;
+    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error callback-error GenericErrorFunc> .= new;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 

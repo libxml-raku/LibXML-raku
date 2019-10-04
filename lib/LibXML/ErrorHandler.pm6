@@ -1,6 +1,7 @@
 use v6;
 use NativeCall;
 use LibXML::Native;
+use LibXML::Native::Defs :XML2;
 use LibXML::Enums;
 
 class X::LibXML is Exception {
@@ -67,26 +68,14 @@ class LibXML::ErrorHandler {
     has Bool $.suppress-errors;
     has $.sax-handler;
 
+    sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {
+        CATCH { default { warn "error handling XML generic error: $_" } }
+        $*XML-CONTEXT.generic-error($fmt, |args);
+    }
+
     sub structured-error-cb($ctx, xmlError $err) is export(:structured-error-cb) {
-        CATCH { default { warn "error handling structured error: $_" } }
+        CATCH { default { warn "error handling XML structured error: $_" } }
         $*XML-CONTEXT.structured-error($err);
-    }
-
-    proto sub generic-error-cb(|) is export(:generic-error-cb) {*}
-
-    multi sub generic-error-cb(Str:D $fmt, |args) {
-        CATCH { default { warn "error handling generic error: $_" } }
-        $*XML-CONTEXT.generic-error($fmt, |args);
-    }
-
-    multi sub generic-error-cb($ctx, Str:D $fmt, |args) {
-        CATCH { default { warn "error handling XSLT generic error: $_" } }
-        $*XML-CONTEXT.generic-error($fmt, |args);
-    }
-
-    sub generic-warning-cb(Str $fmt, |args) is export(:generic-warning-cb) {
-        CATCH { default { warn "error handling generic warning: $_" } }
-        $*XML-CONTEXT.generic-warning($fmt, |args);
     }
 
     method !sax-error-cb-structured(xmlError:D $err) {
@@ -109,16 +98,9 @@ class LibXML::ErrorHandler {
 
     method generic-error(Str $fmt, *@args) {
         CATCH { default { warn "error handling failure: $_" } }
-        my $msg = $fmt.subst('%s', {nativecast(Str, @args.shift)}, :g);
+        my $msg = sprintf($fmt, |@args);
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
         self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
-    }
-
-    method generic-warning(Str $fmt, *@args) {
-        CATCH { default { warn "error handling failure: $_" } }
-        my $msg = $fmt.subst('%s', {nativecast(Str, @args.shift)}, :g);
-        @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_WARNING), :$msg );
-        self!sax-error-cb-unstructured(XML_ERR_WARNING, $msg);
     }
 
     method structured-error(xmlError $_) {
@@ -186,6 +168,24 @@ class LibXML::ErrorHandler {
         }
     }
 
+    our sub cast-var-args(Str $fmt, CArray $argv) {
+        constant %Type = %( :f(num64), :d(int32), :s(Str) );
+        my int $n = 0;
+        $fmt.comb.map({ nativecast( %Type{$_}, $argv[$n++] )});
+    }
+
+    sub set-generic-error-handler( &func (Str $fmt, Str $argt, CArray[Pointer] $argv), Pointer ) is native(XML2) is symbol('xmlSetGenericErrorFunc') {*}
+
+    method SetGenericErrorFunc(&handler) {
+        set-generic-error-handler(
+            -> Str $msg, Str $fmt, CArray[Pointer] $argv {
+                CATCH { default { warn $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                my @args = cast-var-args($fmt, $argv);
+                &handler($msg, @args);
+            },
+            xml6_gbl_message_func
+        );
+    }
 }
 
 =begin pod
@@ -335,7 +335,7 @@ See C<<<<<< $@-&gt;column() >>>>>> above.
 =begin item1
 domain
 
-  if $@!.domain == XML_FROM_PARSER {...}
+  if $!.domain == XML_FROM_PARSER {...}
 
 Returns the domain which raised the error as a number
 
@@ -344,7 +344,7 @@ Returns the domain which raised the error as a number
 =begin item1
 domain-name
 
-  if $@!.domain-name eq 'parser' {...}
+  if $!.domain-name eq 'parser' {...}
 
 Returns string containing information about what part of the library raised the
 error. Can be one of: "parser", "tree", "namespace", "validity", "HTML parser",

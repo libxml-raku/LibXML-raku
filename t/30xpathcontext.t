@@ -4,6 +4,7 @@ plan 84;
 use LibXML;
 use LibXML::XPath::Context;
 use LibXML::XPath::Expression;
+use LibXML::ErrorHandler;
 
 my $errors;
 
@@ -72,9 +73,7 @@ XML
 # test registerNs()
 my $compiled = LibXML::XPath::Expression.parse('/xxx:foo');
 my $xc = LibXML::XPath::Context.new: :doc($doc1);
-LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, |c {
-     $errors++;
-}
+LibXML::ErrorHandler.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++; });
 $xc.registerNs('xxx', 'http://example.com/foobar');
 # TEST
 

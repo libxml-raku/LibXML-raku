@@ -4,6 +4,7 @@ plan 32;
 use LibXML;
 use LibXML::Document;
 use LibXML::XPath::Context;
+use LibXML::ErrorHandler;
 
 my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>
@@ -14,10 +15,9 @@ ok($doc, ' TODO : Add test name');
 my $errors;
 
 my LibXML::XPath::Context $xc .= new(:$doc); use NativeCall;
-LibXML::Native.GenericErrorFunc = -> $ctx, $fmt, |c { $errors++ }
+LibXML::ErrorHandler.SetGenericErrorFunc(-> $fmt, |c { $errors++ });
 $xc.registerNs('foo','urn:foo');
 # low level test
-use LibXML::Native;
 $xc.registerFunctionNS('copy','urn:foo', -> $v { $v }  );
 
 # copy string, real, integer, nodelist

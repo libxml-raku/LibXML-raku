@@ -725,7 +725,6 @@ class xmlXPathContext is repr('CStruct') is export {
     method RegisterFuncLookup( &func4 (xmlXPathContext, xmlCharP $name, xmlCharP $ns-uri --> xmlXPathFunction), Pointer) is native(XML2) is symbol('xmlXPathRegisterFuncLookup') {*};
     method FunctionLookupNS(xmlCharP $name, xmlCharP $ns_uri --> xmlXPathFunction) is native(XML2) is symbol('xmlXPathFunctionLookupNS') {*};
     method SetStructuredErrorFunc( &error-func (xmlXPathContext $, xmlError $)) is native(BIND-XML2) is symbol('domSetXPathCtxtErrorHandler') {*};
-    method SetGenericErrorFunc( &error-func (xmlXPathContext $, Str $fmt, Pointer, Pointer, Pointer)) is symbol('xmlSetGenericErrorFunc') is native(XML2) {*};
 }
 
 #| An XPath parser context. It contains pure parsing informations,
@@ -1429,7 +1428,6 @@ class xmlParserCtxt is export {
     method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(XML2) is symbol('xmlCtxtReadFile') {*};
     method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native(XML2) is symbol('xmlCtxtReadFd') {*};
     method UseOptions(int32 --> int32) is native(XML2) is symbol('xmlCtxtUseOptions') { * }
-    method SetGenericErrorFunc( &error-func (xmlParserCtxt $, Str $fmt, Pointer, Pointer, Pointer)) is symbol('xmlSetGenericErrorFunc') is native(XML2) {*};
     method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native(XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method GetLastError(--> xmlError) is native(XML2) is symbol('xmlCtxtGetLastError') is native('xml2') {*}
     method ParserError(Str $msg) is native(XML2) is symbol('xmlParserError') {*}
@@ -1623,16 +1621,6 @@ method ExternalEntityLoader is rw {
 }
 
 sub xml6_gbl_message_func is export { cglobal(BIND-XML2, 'xml6_gbl_message_func', Pointer) }
-
-method GenericErrorFunc is rw {
-    sub xmlSetGenericErrorFunc( Pointer, &handler (Pointer, xmlCharP, Pointer, Pointer, Pointer) ) is native(XML2) is export {*}
-    Proxy.new(
-        FETCH => { nativecast( :(Pointer, xmlCharP, Pointer, Pointer, Pointer), cglobal(XML2, 'xmlGenericError', Pointer) ) },
-        STORE => sub ($, &handler) {
-             xmlSetGenericErrorFunc(Pointer, &handler)
-        }
-    );
-}
 
 =begin pod
 
