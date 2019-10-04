@@ -24,7 +24,6 @@ use LibXML;
         $count++;
         $err = $err.prev();
     }
-    $*ERR.say: '';
 
     # TEST
     ok ((!$err), "Reached the end of the chain.");
