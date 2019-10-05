@@ -64,8 +64,8 @@ class X::LibXML::Parser is X::LibXML {
 class LibXML::ErrorHandler {
     has X::LibXML @!errors;
     has Bool $.recover is rw;
-    has Bool $.suppress-warnings;
-    has Bool $.suppress-errors;
+    has Bool $.suppress-warnings is rw;
+    has Bool $.suppress-errors is rw;
     has $.sax-handler;
 
     sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {
@@ -171,6 +171,7 @@ class LibXML::ErrorHandler {
     class MsgArg is repr('CUnion') is export(:MsgArg) {
         has num64  $.f;
         has uint32 $.d;
+        has long   $.l;
         has Str    $.s;
     }
 

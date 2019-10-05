@@ -9,6 +9,7 @@ DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {
 
 union MsgArg {
     int    i;
+    long   l;
     double d;
     char*  s;
     void*  p;
@@ -39,6 +40,12 @@ DLLEXPORT void xml6_gbl_message_func(
                     break;
                 case 'f':              /* float */
                     argv[argc++].d = va_arg(ap, double);
+                    break;
+                case 'l':
+                    c = *fmtp++;
+                    c == 'd'
+                        ? argv[argc++].l = va_arg(ap, long)
+                        : fprintf(stderr, "ignoring '%%%lc' printf directive\n", c);
                     break;
                 case '%':
                     fmtp++;
