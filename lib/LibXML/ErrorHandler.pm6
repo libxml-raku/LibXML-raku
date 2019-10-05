@@ -168,17 +168,23 @@ class LibXML::ErrorHandler {
         }
     }
 
-    our sub cast-var-args(Str $fmt, CArray $argv) {
-        constant %Type = %( :f(num64), :d(int32), :s(Str) );
-        my int $n = 0;
-        $fmt.comb.map({ nativecast( %Type{$_}, $argv[$n++] )});
+    class MsgArg is repr('CUnion') is export(:MsgArg) {
+        has num64  $.f;
+        has uint32 $.d;
+        has Str    $.s;
     }
 
-    sub set-generic-error-handler( &func (Str $fmt, Str $argt, CArray[Pointer] $argv), Pointer ) is native(XML2) is symbol('xmlSetGenericErrorFunc') {*}
+    our sub cast-var-args(Str $fmt, Pointer[MsgArg] $argv) {
+        constant %Type = %( :f(num64), :d(int32), :s(Str) );
+        my int $n = 0;
+        $fmt.comb.map({ $argv[$n++]."$_"() });
+    }
+
+    sub set-generic-error-handler( &func (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer ) is native(XML2) is symbol('xmlSetGenericErrorFunc') {*}
 
     method SetGenericErrorFunc(&handler) {
         set-generic-error-handler(
-            -> Str $msg, Str $fmt, CArray[Pointer] $argv {
+            -> Str $msg, Str $fmt, Pointer[MsgArg] $argv {
                 CATCH { default { warn $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @args = cast-var-args($fmt, $argv);
                 &handler($msg, @args);

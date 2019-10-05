@@ -7,7 +7,7 @@ DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {
     xmlSaveNoEmptyTags = flag;
 }
 
-union Data {
+union MsgArg {
     int    i;
     double d;
     char*  s;
@@ -19,7 +19,7 @@ DLLEXPORT void xml6_gbl_message_func(
     char *fmt, ...) {
     xml6_gbl_MessageCallback callback = (xml6_gbl_MessageCallback) ctx;
     char* fmtp = fmt;
-    union Data argv[11];
+    union MsgArg argv[11];
     char argt[12];
 
     int argc = 0;
@@ -29,7 +29,7 @@ DLLEXPORT void xml6_gbl_message_func(
         if (*fmtp++ == '%') {
             char c = *fmtp++;
             argt[argc] = c;
-            memset(&(argv[argc]), 0, sizeof(union Data));
+            memset(&(argv[argc]), 0, sizeof(union MsgArg));
             switch (c) {
                 case 's':              /* string */
                     argv[argc++].s = va_arg(ap, char *);
