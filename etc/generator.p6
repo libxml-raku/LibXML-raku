@@ -43,7 +43,7 @@ class Gen {
         submethod TWEAK(:$type) { $!type .= new: :of($_) with $type }
     }
 
-    multi sub abbrev($name where /^(xml|<[A..Z]><[a..z]>*)/, $base where /^($($0))[$|<!before [<[a..z]>]>]/) {
+    multi sub abbrev($name where /^(xml|xslt|<[A..Z]><[a..z]>*)/, $base where /^($($0))[$|<!before [<[a..z]>]>]/) {
         my $n = $0.chars;
         abbrev($name.substr($n,*), $base.substr($n, *));
     }
