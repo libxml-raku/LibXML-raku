@@ -90,3 +90,14 @@ multi method option(Str:D $key) is rw {
 multi method option(Str:D $key, Bool() $val) {
     $.set-option($key, $val);
 }
+
+method options {
+    my %opts;
+    with self {
+        for %OPTS.keys.sort -> $k {
+            %opts{$k} = $_
+                with .get-option($k);
+        }
+    }
+    %opts;
+}

@@ -16,11 +16,12 @@ class LibXML::XPath::Context {
     use Method::Also;
 
     has LibXML::Node $!context-node;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error callback-error GenericErrorFunc> .= new;
+    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error callback-error GenericErrorFunc suppress-warnings suppress-errors>;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
-    submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc) {
+    submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc, |c) {
+        $!errors .= new: |c;
         self.setContextNode($_) with $node // $doc;
     }
 
