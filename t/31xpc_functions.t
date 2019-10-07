@@ -14,7 +14,7 @@ ok($doc, ' TODO : Add test name');
 
 my $errors;
 
-my LibXML::XPath::Context $xc .= new(:$doc); use NativeCall;
+my LibXML::XPath::Context $xc .= new(:$doc);
 LibXML::ErrorHandler.SetGenericErrorFunc(-> $fmt, |c { $errors++ });
 $xc.registerNs('foo','urn:foo');
 # low level test
@@ -39,7 +39,7 @@ ok($xc.findnodes('foo:copy(//*)[2]').pop.isSameNode($foo), ' TODO : Add test nam
 
 # too many arguments
 
-throws-like { $xc.findvalue('foo:copy(1,xyz)') }, X::LibXML::XPath::AdHoc, :message("Too many positionals passed; expected 1 argument but got 2"), ' TODO : Add test name';
+throws-like { $xc.findvalue('foo:copy(1,xyz)'); }, X::LibXML, :message(/"Too many positionals passed; expected 1 argument but got 2"/), ' TODO : Add test name';
 
 # without a namespace
 $xc.registerFunction('dummy', sub { 'DUMMY' });
