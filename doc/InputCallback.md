@@ -9,11 +9,11 @@ SYNOPSIS
     use LibXML::InputCallback;
     my LibXML::InputCallback $icb .= new;
     $icb.register-callbacks(
-              match => -> Str $file --> Bool { -e $file },
-              open  => -> Str $file --> Any:D { $file.IO.open(:r); },
-              read  => -> Any:D $fh, UInt $n --> Blob { $fh.read($n); },
-              close => -> $fh { $fh.close },
-          );
+        match => -> Str $file --> Bool { -e $file },
+        open  => -> Str $file --> IO::Handle { $file.IO.open(:r); },
+        read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
+        close => -> IO::Handle:D $fh { $fh.close },
+    );
 
 DESCRIPTION
 ===========

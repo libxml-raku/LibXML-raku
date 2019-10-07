@@ -166,13 +166,13 @@ method make-contexts {
 
 method activate {
     # just to make sure we've initialised
-    xmlRegisterDefaultInputCallbacks();
+    xmlInputCallbacks::RegisterDefault();
 
     my @input-contexts = @.make-contexts();
 
     for @input-contexts {
         die "unable to register input callbacks"
-            if xmlRegisterInputCallbacks(.match, .open, .read, .close) < 0;
+            if xmlInputCallbacks::Register(.match, .open, .read, .close) < 0;
     }
     @input-contexts;
 }
@@ -180,7 +180,7 @@ method activate {
 method deactivate {
     for @!callbacks {
         warn "unable to remove input callbacks"
-            if xmlPopInputCallbacks() < 0;
+            if xmlInputCallbacks::Pop() < 0;
     }
 }
 
@@ -196,11 +196,11 @@ LibXML::InputCallback - LibXML Class for Input Callbacks
   use LibXML::InputCallback;
   my LibXML::InputCallback $icb .= new;
   $icb.register-callbacks(
-            match => -> Str $file --> Bool { -e $file },
-            open  => -> Str $file --> Any:D { $file.IO.open(:r); },
-            read  => -> Any:D $fh, UInt $n --> Blob { $fh.read($n); },
-            close => -> $fh { $fh.close },
-        );
+      match => -> Str $file --> Bool { -e $file },
+      open  => -> Str $file --> IO::Handle { $file.IO.open(:r); },
+      read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
+      close => -> IO::Handle:D $fh { $fh.close },
+  );
 
 
 =head1 DESCRIPTION

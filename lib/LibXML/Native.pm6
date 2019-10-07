@@ -84,14 +84,6 @@ sub xml6_config_have_threads(-->int32) is native(BIND-XML2) is export {*}
 sub xml6_config_have_compression(-->int32) is native(BIND-XML2) is export {*}
 sub xml6_config_version(--> Str) is native(BIND-XML2) is export {*};
 
-# type defs
-constant xmlCharEncodingHandler = Pointer; # stub
-
-# subsets
-sub xmlParseCharEncoding(Str --> int32) is export is native(XML2) {*}
-sub xmlFindCharEncodingHandler(Str --> xmlCharEncodingHandler) is export is native(XML2) {*}
-my subset xmlEncodingStr of Str is export where {!.defined || xmlFindCharEncodingHandler($_).defined}
-
 # forward declarations
 class anyNode        is repr('CStruct') is export {...}
 class itemNode       is repr('CStruct') is export {...}
@@ -137,6 +129,16 @@ class xmlBuf is repr(Opaque) is export {
     method Free is symbol('xmlBufFree') is native(XML2) { * }
     method new(--> xmlBuf:D) { New() }
 }
+
+# type defs
+class xmlCharEncodingHandler is repr(Opaque) is export {
+    our sub Find(Str --> xmlCharEncodingHandler) is native(XML2) is symbol('xmlFindCharEncodingHandler') {*}
+}
+
+# subsets
+sub xmlParseCharEncoding(Str --> int32) is export is native(XML2) {*}
+my subset xmlEncodingStr of Str is export where {!.defined || xmlCharEncodingHandler::Find($_).defined}
+
 
 #| List structure used when there is an enumeration in DTDs.
 class xmlEnumeration is repr(Opaque) is export {}
@@ -503,7 +505,6 @@ class xmlSAXHandler is repr('CStruct') is export {
 
     method ParseDTD(Str, Str --> xmlDtd) is native(XML2) is symbol('xmlSAXParseDTD') {*}
 
-
 }
 
 #| An XML Error instance.
@@ -522,6 +523,7 @@ class xmlError is export {
     has xmlParserCtxt     $.ctxt; # the parser context if available
     has anyNode           $.node; # the node in the tree
 
+    our sub Last(--> xmlError) is native(XML2) is symbol('xmlGetLastError') {*}; 
     method Reset() is native(XML2) is symbol('xmlResetError') {*};
 }
 
@@ -1560,22 +1562,22 @@ class htmlMemoryParserCtxt is htmlParserCtxt is repr('CStruct') is export {
     }
 }
 
-sub xmlGetLastError(--> xmlError) is export is native(XML2) { * }
-
 multi method GetLastError(xmlParserCtxt:D $ctx) { $ctx.GetLastError() // $.GetLastError()  }
-multi method GetLastError { xmlGetLastError()  }
+multi method GetLastError { xmlError::Last()  }
 
 ## Input callbacks
 
-sub xmlPopInputCallbacks(--> int32) is native(XML2) is export {*}
-sub xmlRegisterDefaultInputCallbacks is native(XML2) is export {*}
-sub xmlRegisterInputCallbacks(
-    &match (Str --> int32),
-    &open (Str --> Pointer),
-    &read (Pointer, CArray[uint8], int32 --> int32),
-    &close (Pointer --> int32)
---> int32) is native(XML2) is export {*}
-sub xmlCleanupInputCallbacks is native(XML2) is export {*}
+module xmlInputCallbacks is export {
+    our sub Pop(--> int32) is native(XML2) is symbol('xmlPopInputCallbacks') {*}
+    our sub RegisterDefault() is native(XML2) is symbol('xmlRegisterDefaultInputCallbacks') {*}
+    our sub Register(
+        &match (Str --> int32),
+        &open (Str --> Pointer),
+        &read (Pointer, CArray[uint8], int32 --> int32),
+        &close (Pointer --> int32)
+         --> int32) is native(XML2) is symbol('xmlRegisterInputCallbacks') {*}
+    our sub Cleanup() is native(XML2) is symbol('xmlCleanupInputCallbacks') {*}
+}
 
 sub xmlLoadCatalog(Str --> int32) is native(XML2) is export {*}
 

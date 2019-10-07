@@ -193,6 +193,19 @@ class LibXML::ErrorHandler {
             xml6_gbl_message_func
         );
     }
+
+    sub set-generic-warning-handler( &func (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer ) is native(XML2) is symbol('xmlSetGenericWarningFunc') {*}
+
+    method SetGenericWarningFunc(&handler) {
+        set-generic-warning-handler(
+            -> Str $msg, Str $fmt, Pointer[MsgArg] $argv {
+                CATCH { default { warn $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                my @args = cast-var-args($fmt, $argv);
+                &handler($msg, @args);
+            },
+            xml6_gbl_message_func
+        );
+    }
 }
 
 =begin pod
