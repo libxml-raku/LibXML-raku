@@ -112,8 +112,8 @@ class xmlParserNodeInfoSeq is repr('CStruct') {
     has ulong $.maximum;
     has ulong $.length;
     has xmlParserNodeInfo * $.buffer;
-    method Clear() is native(XML2) is symbol('xmlClearNodeInfoSeq') {*};
-    method Init() is native(XML2) is symbol('xmlInitNodeInfoSeq') {*};
+    method Clear() is native(XML2) is symbol('xmlClearNodeInfoSeq') {*}
+    method Init() is native(XML2) is symbol('xmlInitNodeInfoSeq') {*}
 }
 
 class xmlSAXHandlerV1 is repr('CStruct') {
@@ -147,15 +147,15 @@ class xmlSAXHandlerV1 is repr('CStruct') {
     has uint32 $.initialized;
 }
 
-sub xmlCleanupParser() is native(XML2) is export {*};
-sub xmlGetExternalEntityLoader( --> xmlExternalEntityLoader) is native(XML2) is export {*};
-sub xmlGetFeaturesList(Pointer[int32] $len, const char ** $result --> int32) is native(XML2) is export {*};
-sub xmlHasFeature(xmlFeature $feature --> int32) is native(XML2) is export {*};
-sub xmlInitParser() is native(XML2) is export {*};
-sub xmlKeepBlanksDefault(int32 $val --> int32) is native(XML2) is export {*};
-sub xmlLineNumbersDefault(int32 $val --> int32) is native(XML2) is export {*};
-sub xmlParserFindNodeInfo(const xmlParserCtxt $ctx, const xmlNode $node --> const xmlParserNodeInfo *) is native(XML2) is export {*};
-sub xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq $seq, const xmlNode $node --> ulong) is native(XML2) is export {*};
-sub xmlPedanticParserDefault(int32 $val --> int32) is native(XML2) is export {*};
-sub xmlSetExternalEntityLoader(xmlExternalEntityLoader $f) is native(XML2) is export {*};
-sub xmlSubstituteEntitiesDefault(int32 $val --> int32) is native(XML2) is export {*};
+our sub xmlCleanupParser() is native(XML2) is export {*}
+our sub Get( --> xmlExternalEntityLoader) is native(XML2) is symbol('xmlGetExternalEntityLoader') {*}
+our sub xmlGetFeaturesList(Pointer[int32] $len, const char ** $result --> int32) is native(XML2) is export {*}
+our sub xmlHasFeature(xmlFeature $feature --> int32) is native(XML2) is export {*}
+our sub xmlInitParser() is native(XML2) is export {*}
+our sub xmlKeepBlanksDefault(int32 $val --> int32) is native(XML2) is export {*}
+our sub xmlLineNumbersDefault(int32 $val --> int32) is native(XML2) is export {*}
+our sub xmlParserFindNodeInfo(const xmlParserCtxt $ctx, const xmlNode $node --> const xmlParserNodeInfo *) is native(XML2) is export {*}
+our sub xmlParserFindNodeInfoIndex(const xmlParserNodeInfoSeq $seq, const xmlNode $node --> ulong) is native(XML2) is export {*}
+our sub xmlPedanticParserDefault(int32 $val --> int32) is native(XML2) is export {*}
+our sub xmlSetExternalEntityLoader(xmlExternalEntityLoader $f) is native(XML2) is export {*}
+our sub xmlSubstituteEntitiesDefault(int32 $val --> int32) is native(XML2) is export {*}

@@ -13,9 +13,9 @@ enum xmlModuleOption is export (
 );
 
 class xmlModule is repr('CPointer') {
-    sub xmlModuleOpen(Str $name, int32 $options --> xmlModule) is native(XML2) is export {*};
+    our sub Open(Str $name, int32 $options --> xmlModule) is native(XML2) is symbol('xmlModuleOpen') {*}
 
-    method Close( --> int32) is native(XML2) is symbol('xmlModuleClose') {*};
-    method Free( --> int32) is native(XML2) is symbol('xmlModuleFree') {*};
-    method Symbol(Str $name, void ** $symbol --> int32) is native(XML2) is symbol('xmlModuleSymbol') {*};
+    method Close( --> int32) is native(XML2) is symbol('xmlModuleClose') {*}
+    method Free( --> int32) is native(XML2) is symbol('xmlModuleFree') {*}
+    method Symbol(Str $name, void ** $symbol --> int32) is native(XML2) is symbol('xmlModuleSymbol') {*}
 }

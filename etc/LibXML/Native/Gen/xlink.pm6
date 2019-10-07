@@ -32,10 +32,10 @@ class xlinkHandler is repr('CStruct') {
     has xlinkExtendedLinkFunk $.extended;
     has xlinkExtendedLinkSetFunk $.set;
 
-    sub xlinkGetDefaultHandler( --> xlinkHandler) is native(XML2) is export {*};
+    our sub xlinkGetDefault( --> xlinkHandler) is native(XML2) is symbol('xlinkGetDefaultHandler') {*}
 
-    method xlinkSetDefault() is native(XML2) is symbol('xlinkSetDefaultHandler') {*};
+    method xlinkSetDefault() is native(XML2) is symbol('xlinkSetDefaultHandler') {*}
 }
 
-sub xlinkGetDefaultDetect( --> xlinkNodeDetectFunc) is native(XML2) is export {*};
-sub xlinkSetDefaultDetect(xlinkNodeDetectFunc $func) is native(XML2) is export {*};
+our sub xlinkGetDefaultDetect( --> xlinkNodeDetectFunc) is native(XML2) is export {*}
+our sub xlinkSetDefaultDetect(xlinkNodeDetectFunc $func) is native(XML2) is export {*}

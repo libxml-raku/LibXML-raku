@@ -17,45 +17,45 @@ enum xmlExpNodeType is export (
 );
 
 class xmlExpCtxt is repr('CPointer') {
-    sub xmlExpNewCtxt(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(XML2) is export {*};
+    our sub New(int32 $maxNodes, xmlDict $dict --> xmlExpCtxt) is native(XML2) is symbol('xmlExpNewCtxt') {*}
 
-    method NbCons( --> int32) is native(XML2) is symbol('xmlExpCtxtNbCons') {*};
-    method NbNodes( --> int32) is native(XML2) is symbol('xmlExpCtxtNbNodes') {*};
-    method ExpDerive(xmlExpNode $exp, xmlExpNode $sub --> xmlExpNode) is native(XML2) is symbol('xmlExpExpDerive') {*};
-    method Free(xmlExpNode $exp) is native(XML2) is symbol('xmlExpFree') {*};
-    method Free() is native(XML2) is symbol('xmlExpFreeCtxt') {*};
-    method GetLanguage(xmlExpNode $exp, const xmlChar ** $langList, int32 $len --> int32) is native(XML2) is symbol('xmlExpGetLanguage') {*};
-    method GetStart(xmlExpNode $exp, const xmlChar ** $tokList, int32 $len --> int32) is native(XML2) is symbol('xmlExpGetStart') {*};
-    method NewAtom(xmlCharP $name, int32 $len --> xmlExpNode) is native(XML2) is symbol('xmlExpNewAtom') {*};
-    method NewOr(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(XML2) is symbol('xmlExpNewOr') {*};
-    method NewRange(xmlExpNode $subset, int32 $min, int32 $max --> xmlExpNode) is native(XML2) is symbol('xmlExpNewRange') {*};
-    method NewSeq(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(XML2) is symbol('xmlExpNewSeq') {*};
-    method Parse(Str $expr --> xmlExpNode) is native(XML2) is symbol('xmlExpParse') {*};
-    method StringDerive(xmlExpNode $exp, xmlCharP $str, int32 $len --> xmlExpNode) is native(XML2) is symbol('xmlExpStringDerive') {*};
-    method Subsume(xmlExpNode $exp, xmlExpNode $sub --> int32) is native(XML2) is symbol('xmlExpSubsume') {*};
+    method NbCons( --> int32) is native(XML2) is symbol('xmlExpCtxtNbCons') {*}
+    method NbNodes( --> int32) is native(XML2) is symbol('xmlExpCtxtNbNodes') {*}
+    method ExpDerive(xmlExpNode $exp, xmlExpNode $sub --> xmlExpNode) is native(XML2) is symbol('xmlExpExpDerive') {*}
+    method Free(xmlExpNode $exp) is native(XML2) is symbol('xmlExpFree') {*}
+    method Free() is native(XML2) is symbol('xmlExpFreeCtxt') {*}
+    method GetLanguage(xmlExpNode $exp, const xmlChar ** $langList, int32 $len --> int32) is native(XML2) is symbol('xmlExpGetLanguage') {*}
+    method GetStart(xmlExpNode $exp, const xmlChar ** $tokList, int32 $len --> int32) is native(XML2) is symbol('xmlExpGetStart') {*}
+    method NewAtom(xmlCharP $name, int32 $len --> xmlExpNode) is native(XML2) is symbol('xmlExpNewAtom') {*}
+    method NewOr(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(XML2) is symbol('xmlExpNewOr') {*}
+    method NewRange(xmlExpNode $subset, int32 $min, int32 $max --> xmlExpNode) is native(XML2) is symbol('xmlExpNewRange') {*}
+    method NewSeq(xmlExpNode $left, xmlExpNode $right --> xmlExpNode) is native(XML2) is symbol('xmlExpNewSeq') {*}
+    method Parse(Str $expr --> xmlExpNode) is native(XML2) is symbol('xmlExpParse') {*}
+    method StringDerive(xmlExpNode $exp, xmlCharP $str, int32 $len --> xmlExpNode) is native(XML2) is symbol('xmlExpStringDerive') {*}
+    method Subsume(xmlExpNode $exp, xmlExpNode $sub --> int32) is native(XML2) is symbol('xmlExpSubsume') {*}
 }
 
 class xmlExpNode is repr('CPointer') {
-    method IsNillable( --> int32) is native(XML2) is symbol('xmlExpIsNillable') {*};
-    method MaxToken( --> int32) is native(XML2) is symbol('xmlExpMaxToken') {*};
-    method Ref() is native(XML2) is symbol('xmlExpRef') {*};
+    method IsNillable( --> int32) is native(XML2) is symbol('xmlExpIsNillable') {*}
+    method MaxToken( --> int32) is native(XML2) is symbol('xmlExpMaxToken') {*}
+    method Ref() is native(XML2) is symbol('xmlExpRef') {*}
 }
 
 class xmlRegExecCtxt is repr('CPointer') {
-    method ErrInfo(const xmlChar ** $string, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(XML2) is symbol('xmlRegExecErrInfo') {*};
-    method NextValues(Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(XML2) is symbol('xmlRegExecNextValues') {*};
-    method PushString(xmlCharP $value, Pointer $data --> int32) is native(XML2) is symbol('xmlRegExecPushString') {*};
-    method PushString2(xmlCharP $value, xmlCharP $value2, Pointer $data --> int32) is native(XML2) is symbol('xmlRegExecPushString2') {*};
-    method Free() is native(XML2) is symbol('xmlRegFreeExecCtxt') {*};
+    method ErrInfo(const xmlChar ** $string, Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(XML2) is symbol('xmlRegExecErrInfo') {*}
+    method NextValues(Pointer[int32] $nbval, Pointer[int32] $nbneg, xmlChar ** $values, Pointer[int32] $terminal --> int32) is native(XML2) is symbol('xmlRegExecNextValues') {*}
+    method PushString(xmlCharP $value, Pointer $data --> int32) is native(XML2) is symbol('xmlRegExecPushString') {*}
+    method PushString2(xmlCharP $value, xmlCharP $value2, Pointer $data --> int32) is native(XML2) is symbol('xmlRegExecPushString2') {*}
+    method Free() is native(XML2) is symbol('xmlRegFreeExecCtxt') {*}
 }
 
 class xmlRegexp is repr('CPointer') {
-    sub xmlRegexpCompile(xmlCharP $regexp --> xmlRegexp) is native(XML2) is export {*};
+    our sub Compile(xmlCharP $regexp --> xmlRegexp) is native(XML2) is symbol('xmlRegexpCompile') {*}
 
-    method RegFree() is native(XML2) is symbol('xmlRegFreeRegexp') {*};
-    method RegNewExecCtxt(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(XML2) is symbol('xmlRegNewExecCtxt') {*};
-    method Exec(xmlCharP $content --> int32) is native(XML2) is symbol('xmlRegexpExec') {*};
-    method IsDeterminist( --> int32) is native(XML2) is symbol('xmlRegexpIsDeterminist') {*};
+    method RegFree() is native(XML2) is symbol('xmlRegFreeRegexp') {*}
+    method RegNewExecCtxt(xmlRegExecCallbacks $callback, Pointer $data --> xmlRegExecCtxt) is native(XML2) is symbol('xmlRegNewExecCtxt') {*}
+    method Exec(xmlCharP $content --> int32) is native(XML2) is symbol('xmlRegexpExec') {*}
+    method IsDeterminist( --> int32) is native(XML2) is symbol('xmlRegexpIsDeterminist') {*}
 }
 
-sub xmlRegexpPrint(FILE * $output, xmlRegexp $regexp) is native(XML2) is export {*};
+our sub xmlRegexpPrint(FILE * $output, xmlRegexp $regexp) is native(XML2) is export {*}

@@ -24,12 +24,12 @@ class xmlChSRange is repr('CStruct') {
     has unsigned short $.high;
 }
 
-sub xmlCharInRange(uint32 $val, const xmlChRangeGroup * $rptr --> int32) is native(XML2) is export {*};
-sub xmlIsBaseChar(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsBlank(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsChar(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsCombining(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsDigit(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsExtender(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsIdeographic(uint32 $ch --> int32) is native(XML2) is export {*};
-sub xmlIsPubidChar(uint32 $ch --> int32) is native(XML2) is export {*};
+our sub xmlCharInRange(uint32 $val, const xmlChRangeGroup * $rptr --> int32) is native(XML2) is export {*}
+our sub xmlIsBaseChar(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsBlank(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsChar(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsCombining(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsDigit(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsExtender(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsIdeographic(uint32 $ch --> int32) is native(XML2) is export {*}
+our sub xmlIsPubidChar(uint32 $ch --> int32) is native(XML2) is export {*}

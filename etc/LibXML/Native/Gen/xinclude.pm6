@@ -8,7 +8,7 @@ unit module LibXML::Native::Gen::xinclude;
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
 class xmlXIncludeCtxt is repr('CPointer') {
-    method FreeContext() is native(XML2) is symbol('xmlXIncludeFreeContext') {*};
-    method ProcessNode(xmlNode $node --> int32) is native(XML2) is symbol('xmlXIncludeProcessNode') {*};
-    method SetFlags(int32 $flags --> int32) is native(XML2) is symbol('xmlXIncludeSetFlags') {*};
+    method FreeContext() is native(XML2) is symbol('xmlXIncludeFreeContext') {*}
+    method ProcessNode(xmlNode $node --> int32) is native(XML2) is symbol('xmlXIncludeProcessNode') {*}
+    method SetFlags(int32 $flags --> int32) is native(XML2) is symbol('xmlXIncludeSetFlags') {*}
 }

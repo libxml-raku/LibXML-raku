@@ -17,12 +17,12 @@ enum xmlEntityType is export (
 );
 
 class xmlEntitiesTable is repr('CPointer') {
-    sub xmlCreateEntitiesTable( --> xmlEntitiesTable) is native(XML2) is export {*};
+    our sub Create( --> xmlEntitiesTable) is native(XML2) is symbol('xmlCreateEntitiesTable') {*}
 
-    method Copy( --> xmlEntitiesTable) is native(XML2) is symbol('xmlCopyEntitiesTable') {*};
-    method Free() is native(XML2) is symbol('xmlFreeEntitiesTable') {*};
+    method Copy( --> xmlEntitiesTable) is native(XML2) is symbol('xmlCopyEntitiesTable') {*}
+    method Free() is native(XML2) is symbol('xmlFreeEntitiesTable') {*}
 }
 
-sub xmlCleanupPredefinedEntities() is native(XML2) is export {*};
-sub xmlEncodeSpecialChars(const xmlDoc * $doc, xmlCharP $input --> xmlCharP) is native(XML2) is export {*};
-sub xmlInitializePredefinedEntities() is native(XML2) is export {*};
+our sub xmlCleanupPredefinedEntities() is native(XML2) is export {*}
+our sub xmlEncodeSpecialChars(const xmlDoc * $doc, xmlCharP $input --> xmlCharP) is native(XML2) is export {*}
+our sub xmlInitializePredefinedEntities() is native(XML2) is export {*}

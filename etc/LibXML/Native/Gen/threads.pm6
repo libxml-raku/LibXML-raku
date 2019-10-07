@@ -8,25 +8,25 @@ unit module LibXML::Native::Gen::threads;
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
 class xmlMutex is repr('CPointer') {
-    sub xmlNewMutex( --> xmlMutex) is native(XML2) is export {*};
+    our sub New( --> xmlMutex) is native(XML2) is symbol('xmlNewMutex') {*}
 
-    method Free() is native(XML2) is symbol('xmlFreeMutex') {*};
-    method Lock() is native(XML2) is symbol('xmlMutexLock') {*};
-    method Unlock() is native(XML2) is symbol('xmlMutexUnlock') {*};
+    method Free() is native(XML2) is symbol('xmlFreeMutex') {*}
+    method Lock() is native(XML2) is symbol('xmlMutexLock') {*}
+    method Unlock() is native(XML2) is symbol('xmlMutexUnlock') {*}
 }
 
 class xmlRMutex is repr('CPointer') {
-    sub xmlNewRMutex( --> xmlRMutex) is native(XML2) is export {*};
+    our sub New( --> xmlRMutex) is native(XML2) is symbol('xmlNewRMutex') {*}
 
-    method Free() is native(XML2) is symbol('xmlFreeRMutex') {*};
-    method Lock() is native(XML2) is symbol('xmlRMutexLock') {*};
-    method Unlock() is native(XML2) is symbol('xmlRMutexUnlock') {*};
+    method Free() is native(XML2) is symbol('xmlFreeRMutex') {*}
+    method Lock() is native(XML2) is symbol('xmlRMutexLock') {*}
+    method Unlock() is native(XML2) is symbol('xmlRMutexUnlock') {*}
 }
 
-sub xmlCleanupThreads() is native(XML2) is export {*};
-sub xmlDllMain(Pointer $hinstDLL, ulong $fdwReason, Pointer $lpvReserved --> int32) is native(XML2) is export {*};
-sub xmlGetThreadId( --> int32) is native(XML2) is export {*};
-sub xmlInitThreads() is native(XML2) is export {*};
-sub xmlIsMainThread( --> int32) is native(XML2) is export {*};
-sub xmlLockLibrary() is native(XML2) is export {*};
-sub xmlUnlockLibrary() is native(XML2) is export {*};
+our sub xmlCleanupThreads() is native(XML2) is export {*}
+our sub xmlDllMain(Pointer $hinstDLL, ulong $fdwReason, Pointer $lpvReserved --> int32) is native(XML2) is export {*}
+our sub xmlGetThreadId( --> int32) is native(XML2) is export {*}
+our sub xmlInitThreads() is native(XML2) is export {*}
+our sub xmlIsMainThread( --> int32) is native(XML2) is export {*}
+our sub xmlLockLibrary() is native(XML2) is export {*}
+our sub xmlUnlockLibrary() is native(XML2) is export {*}

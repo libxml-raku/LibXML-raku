@@ -7,27 +7,27 @@ unit module LibXML::Native::Gen::xmlIO;
 #    interface for the I/O interfaces used by the parser 
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub xmlCheckFilename(Str $path --> int32) is native(XML2) is export {*};
-sub xmlCleanupInputCallbacks() is native(XML2) is export {*};
-sub xmlCleanupOutputCallbacks() is native(XML2) is export {*};
-sub xmlFileClose(Pointer $context --> int32) is native(XML2) is export {*};
-sub xmlFileMatch(Str $filename --> int32) is native(XML2) is export {*};
-sub xmlFileOpen(Str $filename --> Pointer) is native(XML2) is export {*};
-sub xmlFileRead(Pointer $context, Str $buffer, int32 $len --> int32) is native(XML2) is export {*};
-sub xmlIOFTPClose(Pointer $context --> int32) is native(XML2) is export {*};
-sub xmlIOFTPMatch(Str $filename --> int32) is native(XML2) is export {*};
-sub xmlIOFTPOpen(Str $filename --> Pointer) is native(XML2) is export {*};
-sub xmlIOFTPRead(Pointer $context, Str $buffer, int32 $len --> int32) is native(XML2) is export {*};
-sub xmlIOHTTPClose(Pointer $context --> int32) is native(XML2) is export {*};
-sub xmlIOHTTPMatch(Str $filename --> int32) is native(XML2) is export {*};
-sub xmlIOHTTPOpen(Str $filename --> Pointer) is native(XML2) is export {*};
-sub xmlIOHTTPOpenW(Str $post_uri, int32 $compression --> Pointer) is native(XML2) is export {*};
-sub xmlIOHTTPRead(Pointer $context, Str $buffer, int32 $len --> int32) is native(XML2) is export {*};
-sub xmlNormalizeWindowsPath(xmlCharP $path --> xmlCharP) is native(XML2) is export {*};
-sub xmlParserGetDirectory(Str $filename --> Str) is native(XML2) is export {*};
-sub xmlPopInputCallbacks( --> int32) is native(XML2) is export {*};
-sub xmlRegisterDefaultInputCallbacks() is native(XML2) is export {*};
-sub xmlRegisterDefaultOutputCallbacks() is native(XML2) is export {*};
-sub xmlRegisterHTTPPostCallbacks() is native(XML2) is export {*};
-sub xmlRegisterInputCallbacks(xmlInputMatchCallback $matchFunc, xmlInputOpenCallback $openFunc, xmlInputReadCallback $readFunc, xmlInputCloseCallback $closeFunc --> int32) is native(XML2) is export {*};
-sub xmlRegisterOutputCallbacks(xmlOutputMatchCallback $matchFunc, xmlOutputOpenCallback $openFunc, xmlOutputWriteCallback $writeFunc, xmlOutputCloseCallback $closeFunc --> int32) is native(XML2) is export {*};
+our sub xmlCheckFilename(Str $path --> int32) is native(XML2) is export {*}
+our sub xmlCleanupInputCallbacks() is native(XML2) is export {*}
+our sub xmlCleanupOutputCallbacks() is native(XML2) is export {*}
+our sub xmlFileClose(Pointer $context --> int32) is native(XML2) is export {*}
+our sub xmlFileMatch(Str $filename --> int32) is native(XML2) is export {*}
+our sub xmlFileOpen(Str $filename --> Pointer) is native(XML2) is export {*}
+our sub xmlFileRead(Pointer $context, Str $buffer, int32 $len --> int32) is native(XML2) is export {*}
+our sub xmlIOFTPClose(Pointer $context --> int32) is native(XML2) is export {*}
+our sub xmlIOFTPMatch(Str $filename --> int32) is native(XML2) is export {*}
+our sub xmlIOFTPOpen(Str $filename --> Pointer) is native(XML2) is export {*}
+our sub xmlIOFTPRead(Pointer $context, Str $buffer, int32 $len --> int32) is native(XML2) is export {*}
+our sub xmlIOHTTPClose(Pointer $context --> int32) is native(XML2) is export {*}
+our sub xmlIOHTTPMatch(Str $filename --> int32) is native(XML2) is export {*}
+our sub xmlIOHTTPOpen(Str $filename --> Pointer) is native(XML2) is export {*}
+our sub xmlIOHTTPOpenW(Str $post_uri, int32 $compression --> Pointer) is native(XML2) is export {*}
+our sub xmlIOHTTPRead(Pointer $context, Str $buffer, int32 $len --> int32) is native(XML2) is export {*}
+our sub xmlNormalizeWindowsPath(xmlCharP $path --> xmlCharP) is native(XML2) is export {*}
+our sub xmlParserGetDirectory(Str $filename --> Str) is native(XML2) is export {*}
+our sub xmlPopInputCallbacks( --> int32) is native(XML2) is export {*}
+our sub xmlRegisterDefaultInputCallbacks() is native(XML2) is export {*}
+our sub xmlRegisterDefaultOutputCallbacks() is native(XML2) is export {*}
+our sub xmlRegisterHTTPPostCallbacks() is native(XML2) is export {*}
+our sub xmlRegisterInputCallbacks(xmlInputMatchCallback $matchFunc, xmlInputOpenCallback $openFunc, xmlInputReadCallback $readFunc, xmlInputCloseCallback $closeFunc --> int32) is native(XML2) is export {*}
+our sub xmlRegisterOutputCallbacks(xmlOutputMatchCallback $matchFunc, xmlOutputOpenCallback $openFunc, xmlOutputWriteCallback $writeFunc, xmlOutputCloseCallback $closeFunc --> int32) is native(XML2) is export {*}

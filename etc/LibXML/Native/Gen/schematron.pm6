@@ -18,20 +18,20 @@ enum xmlSchematronValidOptions is export (
 );
 
 class xmlSchematron is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlSchematronFree') {*};
-    method NewValidCtxt(int32 $options --> xmlSchematronValidCtxt) is native(XML2) is symbol('xmlSchematronNewValidCtxt') {*};
+    method Free() is native(XML2) is symbol('xmlSchematronFree') {*}
+    method NewValidCtxt(int32 $options --> xmlSchematronValidCtxt) is native(XML2) is symbol('xmlSchematronNewValidCtxt') {*}
 }
 
 class xmlSchematronParserCtxt is repr('CPointer') {
-    sub xmlSchematronNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchematronParserCtxt) is native(XML2) is export {*};
-    sub xmlSchematronNewParserCtxt(Str $URL --> xmlSchematronParserCtxt) is native(XML2) is export {*};
+    our sub NewMem(Str $buffer, int32 $size --> xmlSchematronParserCtxt) is native(XML2) is symbol('xmlSchematronNewMemParserCtxt') {*}
+    our sub New(Str $URL --> xmlSchematronParserCtxt) is native(XML2) is symbol('xmlSchematronNewParserCtxt') {*}
 
-    method Free() is native(XML2) is symbol('xmlSchematronFreeParserCtxt') {*};
-    method Parse( --> xmlSchematron) is native(XML2) is symbol('xmlSchematronParse') {*};
+    method Free() is native(XML2) is symbol('xmlSchematronFreeParserCtxt') {*}
+    method Parse( --> xmlSchematron) is native(XML2) is symbol('xmlSchematronParse') {*}
 }
 
 class xmlSchematronValidCtxt is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlSchematronFreeValidCtxt') {*};
-    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlSchematronSetValidStructuredErrors') {*};
-    method ValidateDoc(xmlDoc $instance --> int32) is native(XML2) is symbol('xmlSchematronValidateDoc') {*};
+    method Free() is native(XML2) is symbol('xmlSchematronFreeValidCtxt') {*}
+    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlSchematronSetValidStructuredErrors') {*}
+    method ValidateDoc(xmlDoc $instance --> int32) is native(XML2) is symbol('xmlSchematronValidateDoc') {*}
 }

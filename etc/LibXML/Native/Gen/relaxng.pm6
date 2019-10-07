@@ -57,35 +57,35 @@ enum xmlRelaxNGValidErr is export (
 );
 
 class xmlRelaxNG is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlRelaxNGFree') {*};
-    method NewValidCtxt( --> xmlRelaxNGValidCtxt) is native(XML2) is symbol('xmlRelaxNGNewValidCtxt') {*};
+    method Free() is native(XML2) is symbol('xmlRelaxNGFree') {*}
+    method NewValidCtxt( --> xmlRelaxNGValidCtxt) is native(XML2) is symbol('xmlRelaxNGNewValidCtxt') {*}
 }
 
 class xmlRelaxNGParserCtxt is repr('CPointer') {
-    sub xmlRelaxNGNewMemParserCtxt(Str $buffer, int32 $size --> xmlRelaxNGParserCtxt) is native(XML2) is export {*};
-    sub xmlRelaxNGNewParserCtxt(Str $URL --> xmlRelaxNGParserCtxt) is native(XML2) is export {*};
+    our sub NewMem(Str $buffer, int32 $size --> xmlRelaxNGParserCtxt) is native(XML2) is symbol('xmlRelaxNGNewMemParserCtxt') {*}
+    our sub New(Str $URL --> xmlRelaxNGParserCtxt) is native(XML2) is symbol('xmlRelaxNGNewParserCtxt') {*}
 
-    method Free() is native(XML2) is symbol('xmlRelaxNGFreeParserCtxt') {*};
-    method GetParserErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlRelaxNGGetParserErrors') {*};
-    method Parse( --> xmlRelaxNG) is native(XML2) is symbol('xmlRelaxNGParse') {*};
-    method SetParserErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetParserErrors') {*};
-    method SetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetParserStructuredErrors') {*};
-    method ParserSetFlag(int32 $flags --> int32) is native(XML2) is symbol('xmlRelaxParserSetFlag') {*};
+    method Free() is native(XML2) is symbol('xmlRelaxNGFreeParserCtxt') {*}
+    method GetParserErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlRelaxNGGetParserErrors') {*}
+    method Parse( --> xmlRelaxNG) is native(XML2) is symbol('xmlRelaxNGParse') {*}
+    method SetParserErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetParserErrors') {*}
+    method SetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetParserStructuredErrors') {*}
+    method ParserSetFlag(int32 $flags --> int32) is native(XML2) is symbol('xmlRelaxParserSetFlag') {*}
 }
 
 class xmlRelaxNGValidCtxt is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlRelaxNGFreeValidCtxt') {*};
-    method GetValidErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlRelaxNGGetValidErrors') {*};
-    method SetValidErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetValidErrors') {*};
-    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetValidStructuredErrors') {*};
-    method ValidateDoc(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlRelaxNGValidateDoc') {*};
-    method ValidateFullElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlRelaxNGValidateFullElement') {*};
-    method ValidatePopElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlRelaxNGValidatePopElement') {*};
-    method ValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(XML2) is symbol('xmlRelaxNGValidatePushCData') {*};
-    method ValidatePushElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlRelaxNGValidatePushElement') {*};
+    method Free() is native(XML2) is symbol('xmlRelaxNGFreeValidCtxt') {*}
+    method GetValidErrors(xmlRelaxNGValidityErrorFunc * $err, xmlRelaxNGValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlRelaxNGGetValidErrors') {*}
+    method SetValidErrors(xmlRelaxNGValidityErrorFunc $err, xmlRelaxNGValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetValidErrors') {*}
+    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlRelaxNGSetValidStructuredErrors') {*}
+    method ValidateDoc(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlRelaxNGValidateDoc') {*}
+    method ValidateFullElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlRelaxNGValidateFullElement') {*}
+    method ValidatePopElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlRelaxNGValidatePopElement') {*}
+    method ValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(XML2) is symbol('xmlRelaxNGValidatePushCData') {*}
+    method ValidatePushElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlRelaxNGValidatePushElement') {*}
 }
 
-sub xmlRelaxNGCleanupTypes() is native(XML2) is export {*};
-sub xmlRelaxNGDump(FILE * $output, xmlRelaxNG $schema) is native(XML2) is export {*};
-sub xmlRelaxNGDumpTree(FILE * $output, xmlRelaxNG $schema) is native(XML2) is export {*};
-sub xmlRelaxNGInitTypes( --> int32) is native(XML2) is export {*};
+our sub xmlRelaxNGCleanupTypes() is native(XML2) is export {*}
+our sub xmlRelaxNGDump(FILE * $output, xmlRelaxNG $schema) is native(XML2) is export {*}
+our sub xmlRelaxNGDumpTree(FILE * $output, xmlRelaxNG $schema) is native(XML2) is export {*}
+our sub xmlRelaxNGInitTypes( --> int32) is native(XML2) is export {*}

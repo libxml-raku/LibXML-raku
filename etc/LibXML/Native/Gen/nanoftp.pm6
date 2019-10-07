@@ -7,25 +7,25 @@ unit module LibXML::Native::Gen::nanoftp;
 #    minimal FTP implementation allowing to fetch resources like external subset. 
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub xmlNanoFTPCheckResponse(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPCleanup() is native(XML2) is export {*};
-sub xmlNanoFTPClose(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPCloseConnection(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPConnect(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPConnectTo(Str $server, int32 $port --> Pointer) is native(XML2) is export {*};
-sub xmlNanoFTPCwd(Pointer $ctx, Str $directory --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPDele(Pointer $ctx, Str $file --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPFreeCtxt(Pointer $ctx) is native(XML2) is export {*};
-sub xmlNanoFTPGet(Pointer $ctx, ftpDataCallback $callback, Pointer $userData, Str $filename --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPGetConnection(Pointer $ctx --> SOCKET) is native(XML2) is export {*};
-sub xmlNanoFTPGetResponse(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPGetSocket(Pointer $ctx, Str $filename --> SOCKET) is native(XML2) is export {*};
-sub xmlNanoFTPInit() is native(XML2) is export {*};
-sub xmlNanoFTPList(Pointer $ctx, ftpListCallback $callback, Pointer $userData, Str $filename --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPNewCtxt(Str $URL --> Pointer) is native(XML2) is export {*};
-sub xmlNanoFTPOpen(Str $URL --> Pointer) is native(XML2) is export {*};
-sub xmlNanoFTPProxy(Str $host, int32 $port, Str $user, Str $passwd, int32 $type) is native(XML2) is export {*};
-sub xmlNanoFTPQuit(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPRead(Pointer $ctx, Pointer $dest, int32 $len --> int32) is native(XML2) is export {*};
-sub xmlNanoFTPScanProxy(Str $URL) is native(XML2) is export {*};
-sub xmlNanoFTPUpdateURL(Pointer $ctx, Str $URL --> int32) is native(XML2) is export {*};
+our sub xmlNanoFTPCheckResponse(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPCleanup() is native(XML2) is export {*}
+our sub xmlNanoFTPClose(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPCloseConnection(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPConnect(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPConnectTo(Str $server, int32 $port --> Pointer) is native(XML2) is export {*}
+our sub xmlNanoFTPCwd(Pointer $ctx, Str $directory --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPDele(Pointer $ctx, Str $file --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPFreeCtxt(Pointer $ctx) is native(XML2) is export {*}
+our sub xmlNanoFTPGet(Pointer $ctx, ftpDataCallback $callback, Pointer $userData, Str $filename --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPGetConnection(Pointer $ctx --> SOCKET) is native(XML2) is export {*}
+our sub xmlNanoFTPGetResponse(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPGetSocket(Pointer $ctx, Str $filename --> SOCKET) is native(XML2) is export {*}
+our sub xmlNanoFTPInit() is native(XML2) is export {*}
+our sub xmlNanoFTPList(Pointer $ctx, ftpListCallback $callback, Pointer $userData, Str $filename --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPNewCtxt(Str $URL --> Pointer) is native(XML2) is export {*}
+our sub xmlNanoFTPOpen(Str $URL --> Pointer) is native(XML2) is export {*}
+our sub xmlNanoFTPProxy(Str $host, int32 $port, Str $user, Str $passwd, int32 $type) is native(XML2) is export {*}
+our sub xmlNanoFTPQuit(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPRead(Pointer $ctx, Pointer $dest, int32 $len --> int32) is native(XML2) is export {*}
+our sub xmlNanoFTPScanProxy(Str $URL) is native(XML2) is export {*}
+our sub xmlNanoFTPUpdateURL(Pointer $ctx, Str $URL --> int32) is native(XML2) is export {*}

@@ -7,13 +7,13 @@ unit module LibXML::Native::Gen::DOCBparser;
 #    interface for a DocBook SGML non-verifying parser This code is DEPRECATED, and should not be used anymore. 
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub docbCreateFileParserCtxt(Str $filename, Str $encoding --> docbParserCtxt) is native(XML2) is export {*};
-sub docbCreatePushParserCtxt(docbSAXHandler $sax, Pointer $user_data, Str $chunk, int32 $size, Str $filename, xmlCharEncoding $enc --> docbParserCtxt) is native(XML2) is export {*};
-sub docbEncodeEntities(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen, int32 $quoteChar --> int32) is native(XML2) is export {*};
-sub docbFreeParserCtxt(docbParserCtxt $ctxt) is native(XML2) is export {*};
-sub docbParseChunk(docbParserCtxt $ctxt, Str $chunk, int32 $size, int32 $terminate --> int32) is native(XML2) is export {*};
-sub docbParseDoc(xmlCharP $cur, Str $encoding --> docbDoc) is native(XML2) is export {*};
-sub docbParseDocument(docbParserCtxt $ctxt --> int32) is native(XML2) is export {*};
-sub docbParseFile(Str $filename, Str $encoding --> docbDoc) is native(XML2) is export {*};
-sub docbSAXParseDoc(xmlCharP $cur, Str $encoding, docbSAXHandler $sax, Pointer $userData --> docbDoc) is native(XML2) is export {*};
-sub docbSAXParseFile(Str $filename, Str $encoding, docbSAXHandler $sax, Pointer $userData --> docbDoc) is native(XML2) is export {*};
+our sub docbCreateFile(Str $filename, Str $encoding --> docbParserCtxt) is native(XML2) is symbol('docbCreateFileParserCtxt') {*}
+our sub docbCreatePush(docbSAXHandler $sax, Pointer $user_data, Str $chunk, int32 $size, Str $filename, xmlCharEncoding $enc --> docbParserCtxt) is native(XML2) is symbol('docbCreatePushParserCtxt') {*}
+our sub docbEncodeEntities(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen, int32 $quoteChar --> int32) is native(XML2) is export {*}
+our sub docbFreeParserCtxt(docbParserCtxt $ctxt) is native(XML2) is export {*}
+our sub docbParseChunk(docbParserCtxt $ctxt, Str $chunk, int32 $size, int32 $terminate --> int32) is native(XML2) is export {*}
+our sub docbParseDoc(xmlCharP $cur, Str $encoding --> docbDoc) is native(XML2) is export {*}
+our sub docbParseDocument(docbParserCtxt $ctxt --> int32) is native(XML2) is export {*}
+our sub docbParseFile(Str $filename, Str $encoding --> docbDoc) is native(XML2) is export {*}
+our sub docbSAXParseDoc(xmlCharP $cur, Str $encoding, docbSAXHandler $sax, Pointer $userData --> docbDoc) is native(XML2) is export {*}
+our sub docbSAXParseFile(Str $filename, Str $encoding, docbSAXHandler $sax, Pointer $userData --> docbDoc) is native(XML2) is export {*}

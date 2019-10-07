@@ -7,36 +7,36 @@ unit module LibXML::Native::Gen::SAX;
 #    DEPRECATED set of SAX version 1 interfaces used to build the DOM tree. 
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub attribute(Pointer $ctx, xmlCharP $fullname, xmlCharP $value) is native(XML2) is export {*};
-sub attributeDecl(Pointer $ctx, xmlCharP $elem, xmlCharP $fullname, int32 $type, int32 $def, xmlCharP $defaultValue, xmlEnumeration $tree) is native(XML2) is export {*};
-sub cdataBlock(Pointer $ctx, xmlCharP $value, int32 $len) is native(XML2) is export {*};
-sub characters(Pointer $ctx, xmlCharP $ch, int32 $len) is native(XML2) is export {*};
-sub checkNamespace(Pointer $ctx, xmlCharP $namespace --> int32) is native(XML2) is export {*};
-sub comment(Pointer $ctx, xmlCharP $value) is native(XML2) is export {*};
-sub elementDecl(Pointer $ctx, xmlCharP $name, int32 $type, xmlElementContent $content) is native(XML2) is export {*};
-sub endDocument(Pointer $ctx) is native(XML2) is export {*};
-sub endElement(Pointer $ctx, xmlCharP $name) is native(XML2) is export {*};
-sub entityDecl(Pointer $ctx, xmlCharP $name, int32 $type, xmlCharP $publicId, xmlCharP $systemId, xmlCharP $content) is native(XML2) is export {*};
-sub externalSubset(Pointer $ctx, xmlCharP $name, xmlCharP $ExternalID, xmlCharP $SystemID) is native(XML2) is export {*};
-sub getColumnNumber(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub getLineNumber(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub getPublicId(Pointer $ctx --> xmlCharP) is native(XML2) is export {*};
-sub getSystemId(Pointer $ctx --> xmlCharP) is native(XML2) is export {*};
-sub globalNamespace(Pointer $ctx, xmlCharP $href, xmlCharP $prefix) is native(XML2) is export {*};
-sub hasExternalSubset(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub hasInternalSubset(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub ignorableWhitespace(Pointer $ctx, xmlCharP $ch, int32 $len) is native(XML2) is export {*};
-sub initdocbDefaultSAXHandler(xmlSAXHandlerV1 * $hdlr) is native(XML2) is export {*};
-sub inithtmlDefaultSAXHandler(xmlSAXHandlerV1 * $hdlr) is native(XML2) is export {*};
-sub initxmlDefaultSAXHandler(xmlSAXHandlerV1 * $hdlr, int32 $warning) is native(XML2) is export {*};
-sub internalSubset(Pointer $ctx, xmlCharP $name, xmlCharP $ExternalID, xmlCharP $SystemID) is native(XML2) is export {*};
-sub isStandalone(Pointer $ctx --> int32) is native(XML2) is export {*};
-sub namespaceDecl(Pointer $ctx, xmlCharP $href, xmlCharP $prefix) is native(XML2) is export {*};
-sub notationDecl(Pointer $ctx, xmlCharP $name, xmlCharP $publicId, xmlCharP $systemId) is native(XML2) is export {*};
-sub processingInstruction(Pointer $ctx, xmlCharP $target, xmlCharP $data) is native(XML2) is export {*};
-sub reference(Pointer $ctx, xmlCharP $name) is native(XML2) is export {*};
-sub setDocumentLocator(Pointer $ctx, xmlSAXLocator $loc) is native(XML2) is export {*};
-sub setNamespace(Pointer $ctx, xmlCharP $name) is native(XML2) is export {*};
-sub startDocument(Pointer $ctx) is native(XML2) is export {*};
-sub startElement(Pointer $ctx, xmlCharP $fullname, const xmlChar ** $atts) is native(XML2) is export {*};
-sub unparsedEntityDecl(Pointer $ctx, xmlCharP $name, xmlCharP $publicId, xmlCharP $systemId, xmlCharP $notationName) is native(XML2) is export {*};
+our sub attribute(Pointer $ctx, xmlCharP $fullname, xmlCharP $value) is native(XML2) is export {*}
+our sub attributeDecl(Pointer $ctx, xmlCharP $elem, xmlCharP $fullname, int32 $type, int32 $def, xmlCharP $defaultValue, xmlEnumeration $tree) is native(XML2) is export {*}
+our sub cdataBlock(Pointer $ctx, xmlCharP $value, int32 $len) is native(XML2) is export {*}
+our sub characters(Pointer $ctx, xmlCharP $ch, int32 $len) is native(XML2) is export {*}
+our sub checkNamespace(Pointer $ctx, xmlCharP $namespace --> int32) is native(XML2) is export {*}
+our sub comment(Pointer $ctx, xmlCharP $value) is native(XML2) is export {*}
+our sub elementDecl(Pointer $ctx, xmlCharP $name, int32 $type, xmlElementContent $content) is native(XML2) is export {*}
+our sub endDocument(Pointer $ctx) is native(XML2) is export {*}
+our sub endElement(Pointer $ctx, xmlCharP $name) is native(XML2) is export {*}
+our sub entityDecl(Pointer $ctx, xmlCharP $name, int32 $type, xmlCharP $publicId, xmlCharP $systemId, xmlCharP $content) is native(XML2) is export {*}
+our sub externalSubset(Pointer $ctx, xmlCharP $name, xmlCharP $ExternalID, xmlCharP $SystemID) is native(XML2) is export {*}
+our sub getColumnNumber(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub getLineNumber(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub getPublicId(Pointer $ctx --> xmlCharP) is native(XML2) is export {*}
+our sub getSystemId(Pointer $ctx --> xmlCharP) is native(XML2) is export {*}
+our sub globalNamespace(Pointer $ctx, xmlCharP $href, xmlCharP $prefix) is native(XML2) is export {*}
+our sub hasExternalSubset(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub hasInternalSubset(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub ignorableWhitespace(Pointer $ctx, xmlCharP $ch, int32 $len) is native(XML2) is export {*}
+our sub initdocbDefaultSAXHandler(xmlSAXHandlerV1 * $hdlr) is native(XML2) is export {*}
+our sub inithtmlDefaultSAXHandler(xmlSAXHandlerV1 * $hdlr) is native(XML2) is export {*}
+our sub initxmlDefaultSAXHandler(xmlSAXHandlerV1 * $hdlr, int32 $warning) is native(XML2) is export {*}
+our sub internalSubset(Pointer $ctx, xmlCharP $name, xmlCharP $ExternalID, xmlCharP $SystemID) is native(XML2) is export {*}
+our sub isStandalone(Pointer $ctx --> int32) is native(XML2) is export {*}
+our sub namespaceDecl(Pointer $ctx, xmlCharP $href, xmlCharP $prefix) is native(XML2) is export {*}
+our sub notationDecl(Pointer $ctx, xmlCharP $name, xmlCharP $publicId, xmlCharP $systemId) is native(XML2) is export {*}
+our sub processingInstruction(Pointer $ctx, xmlCharP $target, xmlCharP $data) is native(XML2) is export {*}
+our sub reference(Pointer $ctx, xmlCharP $name) is native(XML2) is export {*}
+our sub setDocumentLocator(Pointer $ctx, xmlSAXLocator $loc) is native(XML2) is export {*}
+our sub setNamespace(Pointer $ctx, xmlCharP $name) is native(XML2) is export {*}
+our sub startDocument(Pointer $ctx) is native(XML2) is export {*}
+our sub startElement(Pointer $ctx, xmlCharP $fullname, const xmlChar ** $atts) is native(XML2) is export {*}
+our sub unparsedEntityDecl(Pointer $ctx, xmlCharP $name, xmlCharP $publicId, xmlCharP $systemId, xmlCharP $notationName) is native(XML2) is export {*}

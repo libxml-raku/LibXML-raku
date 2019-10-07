@@ -15,29 +15,29 @@ class xmlShellCtxt is repr('CStruct') {
     has int32 $.loaded;
     has FILE * $.output;
     has xmlShellReadlineFunc $.input;
-    method Base(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellBase') {*};
-    method Cat(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellCat') {*};
-    method Dir(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellDir') {*};
-    method Du(Str $arg, xmlNode $tree, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellDu') {*};
-    method List(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellList') {*};
-    method Load(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellLoad') {*};
-    method Pwd(Str $buffer, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellPwd') {*};
-    method Save(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellSave') {*};
-    method Validate(Str $dtd, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellValidate') {*};
-    method Write(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellWrite') {*};
+    method Base(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellBase') {*}
+    method Cat(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellCat') {*}
+    method Dir(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellDir') {*}
+    method Du(Str $arg, xmlNode $tree, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellDu') {*}
+    method List(Str $arg, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellList') {*}
+    method Load(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellLoad') {*}
+    method Pwd(Str $buffer, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellPwd') {*}
+    method Save(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellSave') {*}
+    method Validate(Str $dtd, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellValidate') {*}
+    method Write(Str $filename, xmlNode $node, xmlNode $node2 --> int32) is native(XML2) is symbol('xmlShellWrite') {*}
 }
 
-sub xmlBoolToText(int32 $boolval --> Str) is native(XML2) is export {*};
-sub xmlDebugCheckDocument(FILE * $output, xmlDoc $doc --> int32) is native(XML2) is export {*};
-sub xmlDebugDumpAttr(FILE * $output, xmlAttr $attr, int32 $depth) is native(XML2) is export {*};
-sub xmlDebugDumpAttrList(FILE * $output, xmlAttr $attr, int32 $depth) is native(XML2) is export {*};
-sub xmlDebugDumpDTD(FILE * $output, xmlDtd $dtd) is native(XML2) is export {*};
-sub xmlDebugDumpDocument(FILE * $output, xmlDoc $doc) is native(XML2) is export {*};
-sub xmlDebugDumpDocumentHead(FILE * $output, xmlDoc $doc) is native(XML2) is export {*};
-sub xmlDebugDumpEntities(FILE * $output, xmlDoc $doc) is native(XML2) is export {*};
-sub xmlDebugDumpNode(FILE * $output, xmlNode $node, int32 $depth) is native(XML2) is export {*};
-sub xmlDebugDumpNodeList(FILE * $output, xmlNode $node, int32 $depth) is native(XML2) is export {*};
-sub xmlDebugDumpOneNode(FILE * $output, xmlNode $node, int32 $depth) is native(XML2) is export {*};
-sub xmlDebugDumpString(FILE * $output, xmlCharP $str) is native(XML2) is export {*};
-sub xmlLsOneNode(FILE * $output, xmlNode $node) is native(XML2) is export {*};
-sub xmlShellPrintXPathError(int32 $errorType, Str $arg) is native(XML2) is export {*};
+our sub xmlBoolToText(int32 $boolval --> Str) is native(XML2) is export {*}
+our sub xmlDebugCheckDocument(FILE * $output, xmlDoc $doc --> int32) is native(XML2) is export {*}
+our sub xmlDebugDumpAttr(FILE * $output, xmlAttr $attr, int32 $depth) is native(XML2) is export {*}
+our sub xmlDebugDumpAttrList(FILE * $output, xmlAttr $attr, int32 $depth) is native(XML2) is export {*}
+our sub xmlDebugDumpDTD(FILE * $output, xmlDtd $dtd) is native(XML2) is export {*}
+our sub xmlDebugDumpDocument(FILE * $output, xmlDoc $doc) is native(XML2) is export {*}
+our sub xmlDebugDumpDocumentHead(FILE * $output, xmlDoc $doc) is native(XML2) is export {*}
+our sub xmlDebugDumpEntities(FILE * $output, xmlDoc $doc) is native(XML2) is export {*}
+our sub xmlDebugDumpNode(FILE * $output, xmlNode $node, int32 $depth) is native(XML2) is export {*}
+our sub xmlDebugDumpNodeList(FILE * $output, xmlNode $node, int32 $depth) is native(XML2) is export {*}
+our sub xmlDebugDumpOneNode(FILE * $output, xmlNode $node, int32 $depth) is native(XML2) is export {*}
+our sub xmlDebugDumpString(FILE * $output, xmlCharP $str) is native(XML2) is export {*}
+our sub xmlLsOneNode(FILE * $output, xmlNode $node) is native(XML2) is export {*}
+our sub xmlShellPrintXPathError(int32 $errorType, Str $arg) is native(XML2) is export {*}

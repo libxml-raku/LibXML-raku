@@ -11,10 +11,10 @@ class xmlLocationSet is repr('CStruct') {
     has int32 $.locNr; # number of locations in the set
     has int32 $.locMax; # size of the array as allocated
     has xmlXPathObjectPtr * $.locTab; # array of locations
-    method XPtrFree() is native(XML2) is symbol('xmlXPtrFreeLocationSet') {*};
-    method XPtrLocationSetAdd(xmlXPathObject $val) is native(XML2) is symbol('xmlXPtrLocationSetAdd') {*};
-    method XPtrLocationSetDel(xmlXPathObject $val) is native(XML2) is symbol('xmlXPtrLocationSetDel') {*};
-    method XPtrLocationSetMerge(xmlLocationSet $val2 --> xmlLocationSet) is native(XML2) is symbol('xmlXPtrLocationSetMerge') {*};
-    method XPtrLocationSetRemove(int32 $val) is native(XML2) is symbol('xmlXPtrLocationSetRemove') {*};
-    method XPtrWrap( --> xmlXPathObject) is native(XML2) is symbol('xmlXPtrWrapLocationSet') {*};
+    method XPtrFree() is native(XML2) is symbol('xmlXPtrFreeLocationSet') {*}
+    method XPtrLocationSetAdd(xmlXPathObject $val) is native(XML2) is symbol('xmlXPtrLocationSetAdd') {*}
+    method XPtrLocationSetDel(xmlXPathObject $val) is native(XML2) is symbol('xmlXPtrLocationSetDel') {*}
+    method XPtrLocationSetMerge(xmlLocationSet $val2 --> xmlLocationSet) is native(XML2) is symbol('xmlXPtrLocationSetMerge') {*}
+    method XPtrLocationSetRemove(int32 $val) is native(XML2) is symbol('xmlXPtrLocationSetRemove') {*}
+    method XPtrWrap( --> xmlXPathObject) is native(XML2) is symbol('xmlXPtrWrapLocationSet') {*}
 }

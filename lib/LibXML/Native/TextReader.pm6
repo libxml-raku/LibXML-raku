@@ -11,12 +11,11 @@ sub xml6_config_have_libxml_reader(--> int32) is native(BIND-XML2) is export {*}
 
 class xmlTextReader is repr('CPointer') is export {
 
-    sub xmlNewTextReader(xmlParserInputBuffer, Str $uri --> xmlTextReader) is native(XML2) {*}
-    sub xmlNewTextReaderFilename(Str --> xmlTextReader) is native(XML2) {*}
-    sub xmlReaderForMemory(Blob, int32, Str, Str, int32 --> xmlTextReader) is native(XML2) {*}
-    sub xmlReaderWalker(xmlDoc --> xmlTextReader) is native(XML2) {*}
-
-    sub xmlReaderForFd(int32, Str, Str, int32 --> xmlTextReader) is native(XML2) {*}
+    our sub NewBuf(xmlParserInputBuffer, Str $uri --> xmlTextReader) is native(XML2) is symbol('xmlNewTextReader') {*}
+    our sub NewFile(Str --> xmlTextReader) is native(XML2) is symbol('xmlNewTextReaderFilename') {*}
+    our sub NewMemory(Blob, int32, Str, Str, int32 --> xmlTextReader) is native(XML2) is symbol('xmlReaderForMemory') {*}
+    our sub NewDoc(xmlDoc --> xmlTextReader) is native(XML2) is symbol('xmlReaderWalker') {*}
+    our sub NewFd(int32, Str, Str, int32 --> xmlTextReader) is native(XML2) is symbol('xmlReaderForFd') {*}
 
     method attributeCount(--> int32) is native(XML2) is symbol('xmlTextReaderAttributeCount') {*}
     method baseURI(--> xmlCharP) is native(XML2) is symbol('xmlTextReaderConstBaseUri') {*}
@@ -80,13 +79,13 @@ class xmlTextReader is repr('CPointer') is export {
     method Free is symbol('xmlFreeTextReader') is native(XML2) {*}
 
     multi method new(Blob :$buf!, UInt :$len = $buf.bytes, xmlEncodingStr :$enc, Str :$URI, UInt :$flags = 0) {
-        xmlReaderForMemory($buf, $len, $URI, $enc, $flags);
+        NewMemory($buf, $len, $URI, $enc, $flags);
     }
     multi method new(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, UInt :$flags = 0) {
-        xmlReaderForFd( $fd, $URI, $enc, $flags);
+        NewFd( $fd, $URI, $enc, $flags);
     }
     multi method new(xmlDoc:D :$doc!) {
-        xmlReaderWalker( $doc);
+        NewDoc( $doc);
     }
 
     multi method new(|c) is default { fail c.perl }

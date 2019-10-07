@@ -51,26 +51,26 @@ class xmlCharEncodingHandler is repr('CStruct') {
     has uconv_t * $.uconv_in;
     has uconv_t * $.uconv_out;
 
-    sub xmlFindCharEncodingHandler(Str $name --> xmlCharEncodingHandler) is native(XML2) is export {*};
-    sub xmlGetCharEncodingHandler(xmlCharEncoding $enc --> xmlCharEncodingHandler) is native(XML2) is export {*};
-    sub xmlNewCharEncodingHandler(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandler) is native(XML2) is export {*};
+    our sub Find(Str $name --> xmlCharEncodingHandler) is native(XML2) is symbol('xmlFindCharEncodingHandler') {*}
+    our sub Get(xmlCharEncoding $enc --> xmlCharEncodingHandler) is native(XML2) is symbol('xmlGetCharEncodingHandler') {*}
+    our sub New(Str $name, xmlCharEncodingInputFunc $input, xmlCharEncodingOutputFunc $output --> xmlCharEncodingHandler) is native(XML2) is symbol('xmlNewCharEncodingHandler') {*}
 
-    method AllocOutputBuffer( --> xmlOutputBuffer) is native(XML2) is symbol('xmlAllocOutputBuffer') {*};
-    method Register() is native(XML2) is symbol('xmlRegisterCharEncodingHandler') {*};
+    method AllocOutputBuffer( --> xmlOutputBuffer) is native(XML2) is symbol('xmlAllocOutputBuffer') {*}
+    method Register() is native(XML2) is symbol('xmlRegisterCharEncodingHandler') {*}
 }
 
-sub UTF8Toisolat1(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*};
-sub isolat1ToUTF8(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*};
-sub xmlAddEncodingAlias(Str $name, Str $alias --> int32) is native(XML2) is export {*};
-sub xmlCharEncCloseFunc(xmlCharEncodingHandler * $handler --> int32) is native(XML2) is export {*};
-sub xmlCharEncFirstLine(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*};
-sub xmlCharEncInFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*};
-sub xmlCharEncOutFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*};
-sub xmlCleanupCharEncodingHandlers() is native(XML2) is export {*};
-sub xmlCleanupEncodingAliases() is native(XML2) is export {*};
-sub xmlDelEncodingAlias(Str $alias --> int32) is native(XML2) is export {*};
-sub xmlDetectCharEncoding(const unsigned char * $in, int32 $len --> xmlCharEncoding) is native(XML2) is export {*};
-sub xmlGetCharEncodingName(xmlCharEncoding $enc --> Str) is native(XML2) is export {*};
-sub xmlGetEncodingAlias(Str $alias --> Str) is native(XML2) is export {*};
-sub xmlInitCharEncodingHandlers() is native(XML2) is export {*};
-sub xmlParseCharEncoding(Str $name --> xmlCharEncoding) is native(XML2) is export {*};
+our sub UTF8Toisolat1(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*}
+our sub isolat1ToUTF8(unsigned char * $out, Pointer[int32] $outlen, const unsigned char * $in, Pointer[int32] $inlen --> int32) is native(XML2) is export {*}
+our sub xmlAddEncodingAlias(Str $name, Str $alias --> int32) is native(XML2) is export {*}
+our sub xmlCharEncCloseFunc(xmlCharEncodingHandler * $handler --> int32) is native(XML2) is export {*}
+our sub xmlCharEncFirstLine(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*}
+our sub xmlCharEncInFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*}
+our sub xmlCharEncOutFunc(xmlCharEncodingHandler * $handler, xmlBuffer $out, xmlBuffer $in --> int32) is native(XML2) is export {*}
+our sub xmlCleanupCharEncodingHandlers() is native(XML2) is export {*}
+our sub xmlCleanupEncodingAliases() is native(XML2) is export {*}
+our sub xmlDelEncodingAlias(Str $alias --> int32) is native(XML2) is export {*}
+our sub Detect(const unsigned char * $in, int32 $len --> xmlCharEncoding) is native(XML2) is symbol('xmlDetectCharEncoding') {*}
+our sub xmlGetCharEncodingName(xmlCharEncoding $enc --> Str) is native(XML2) is export {*}
+our sub xmlGetEncodingAlias(Str $alias --> Str) is native(XML2) is export {*}
+our sub xmlInitCharEncodingHandlers() is native(XML2) is export {*}
+our sub Parse(Str $name --> xmlCharEncoding) is native(XML2) is symbol('xmlParseCharEncoding') {*}

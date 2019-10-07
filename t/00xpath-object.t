@@ -20,18 +20,18 @@ is-approx $xo.select, 42.1;
 
 $xo .= coerce(Inf);
 is $xo.type, +XPATH_NUMBER;
-is xmlXPathIsInf($xo.float), 1;
+is xmlXPathObject::IsInf($xo.float), 1;
 is-deeply $xo.select, Inf;
 
 $xo .= coerce(-Inf);
 is $xo.type, +XPATH_NUMBER;
-my int32 $is-inf = xmlXPathIsInf($xo.float);
+my int32 $is-inf = xmlXPathObject::IsInf($xo.float);
 is $is-inf, -1;
 is-deeply $xo.select, -Inf;
 
 $xo .= coerce(NaN);
 is $xo.type, +XPATH_NUMBER;
-ok xmlXPathIsNaN($xo.float);
+ok xmlXPathObject::IsNaN($xo.float);
 is-deeply $xo.select, NaN;
 
 $xo .= coerce(True);

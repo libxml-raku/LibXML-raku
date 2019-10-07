@@ -19,14 +19,14 @@ enum xmlSaveOption is export (
 );
 
 class xmlSaveCtxt is repr('CPointer') {
-    sub xmlSaveToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is export {*};
-    sub xmlSaveToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is export {*};
-    sub xmlSaveToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is export {*};
+    our sub ToFd(int32 $fd, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is symbol('xmlSaveToFd') {*}
+    our sub ToFilename(Str $filename, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is symbol('xmlSaveToFilename') {*}
+    our sub ToIO(xmlOutputWriteCallback $iowrite, xmlOutputCloseCallback $ioclose, Pointer $ioctx, Str $encoding, int32 $options --> xmlSaveCtxt) is native(XML2) is symbol('xmlSaveToIO') {*}
 
-    method Close( --> int32) is native(XML2) is symbol('xmlSaveClose') {*};
-    method Doc(xmlDoc $doc --> long) is native(XML2) is symbol('xmlSaveDoc') {*};
-    method Flush( --> int32) is native(XML2) is symbol('xmlSaveFlush') {*};
-    method SetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(XML2) is symbol('xmlSaveSetAttrEscape') {*};
-    method SetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(XML2) is symbol('xmlSaveSetEscape') {*};
-    method Tree(xmlNode $node --> long) is native(XML2) is symbol('xmlSaveTree') {*};
+    method Close( --> int32) is native(XML2) is symbol('xmlSaveClose') {*}
+    method Doc(xmlDoc $doc --> long) is native(XML2) is symbol('xmlSaveDoc') {*}
+    method Flush( --> int32) is native(XML2) is symbol('xmlSaveFlush') {*}
+    method SetAttrEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(XML2) is symbol('xmlSaveSetAttrEscape') {*}
+    method SetEscape(xmlCharEncodingOutputFunc $escape --> int32) is native(XML2) is symbol('xmlSaveSetEscape') {*}
+    method Tree(xmlNode $node --> long) is native(XML2) is symbol('xmlSaveTree') {*}
 }

@@ -21,41 +21,41 @@ enum xmlCatalogPrefer is export (
 );
 
 class xmlCatalog is repr('CPointer') {
-    sub xmlLoadACatalog(Str $filename --> xmlCatalog) is native(XML2) is export {*};
-    sub xmlLoadSGMLSuperCatalog(Str $filename --> xmlCatalog) is native(XML2) is export {*};
-    sub xmlNewCatalog(int32 $sgml --> xmlCatalog) is native(XML2) is export {*};
+    our sub LoadA(Str $filename --> xmlCatalog) is native(XML2) is symbol('xmlLoadACatalog') {*}
+    our sub LoadSGMLSuper(Str $filename --> xmlCatalog) is native(XML2) is symbol('xmlLoadSGMLSuperCatalog') {*}
+    our sub New(int32 $sgml --> xmlCatalog) is native(XML2) is symbol('xmlNewCatalog') {*}
 
-    method ACatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(XML2) is symbol('xmlACatalogAdd') {*};
-    method ACatalogDump(FILE * $out) is native(XML2) is symbol('xmlACatalogDump') {*};
-    method ACatalogRemove(xmlCharP $value --> int32) is native(XML2) is symbol('xmlACatalogRemove') {*};
-    method ACatalogResolve(xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolve') {*};
-    method ACatalogResolvePublic(xmlCharP $pubID --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolvePublic') {*};
-    method ACatalogResolveSystem(xmlCharP $sysID --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolveSystem') {*};
-    method ACatalogResolveURI(xmlCharP $URI --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolveURI') {*};
-    method IsEmpty( --> int32) is native(XML2) is symbol('xmlCatalogIsEmpty') {*};
-    method ConvertSGML( --> int32) is native(XML2) is symbol('xmlConvertSGMLCatalog') {*};
-    method Free() is native(XML2) is symbol('xmlFreeCatalog') {*};
+    method ACatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(XML2) is symbol('xmlACatalogAdd') {*}
+    method ACatalogDump(FILE * $out) is native(XML2) is symbol('xmlACatalogDump') {*}
+    method ACatalogRemove(xmlCharP $value --> int32) is native(XML2) is symbol('xmlACatalogRemove') {*}
+    method ACatalogResolve(xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolve') {*}
+    method ACatalogResolvePublic(xmlCharP $pubID --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolvePublic') {*}
+    method ACatalogResolveSystem(xmlCharP $sysID --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolveSystem') {*}
+    method ACatalogResolveURI(xmlCharP $URI --> xmlCharP) is native(XML2) is symbol('xmlACatalogResolveURI') {*}
+    method IsEmpty( --> int32) is native(XML2) is symbol('xmlCatalogIsEmpty') {*}
+    method ConvertSGML( --> int32) is native(XML2) is symbol('xmlConvertSGMLCatalog') {*}
+    method Free() is native(XML2) is symbol('xmlFreeCatalog') {*}
 }
 
-sub xmlCatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(XML2) is export {*};
-sub xmlCatalogAddLocal(Pointer $catalogs, xmlCharP $URL --> Pointer) is native(XML2) is export {*};
-sub xmlCatalogCleanup() is native(XML2) is export {*};
-sub xmlCatalogConvert( --> int32) is native(XML2) is export {*};
-sub xmlCatalogDump(FILE * $out) is native(XML2) is export {*};
-sub xmlCatalogFreeLocal(Pointer $catalogs) is native(XML2) is export {*};
-sub xmlCatalogGetDefaults( --> xmlCatalogAllow) is native(XML2) is export {*};
-sub xmlCatalogGetPublic(xmlCharP $pubID --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogGetSystem(xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogLocalResolve(Pointer $catalogs, xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogLocalResolveURI(Pointer $catalogs, xmlCharP $URI --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogRemove(xmlCharP $value --> int32) is native(XML2) is export {*};
-sub xmlCatalogResolve(xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogResolvePublic(xmlCharP $pubID --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogResolveSystem(xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogResolveURI(xmlCharP $URI --> xmlCharP) is native(XML2) is export {*};
-sub xmlCatalogSetDebug(int32 $level --> int32) is native(XML2) is export {*};
-sub xmlCatalogSetDefaultPrefer(xmlCatalogPrefer $prefer --> xmlCatalogPrefer) is native(XML2) is export {*};
-sub xmlCatalogSetDefaults(xmlCatalogAllow $allow) is native(XML2) is export {*};
-sub xmlInitializeCatalog() is native(XML2) is export {*};
-sub xmlLoadCatalog(Str $filename --> int32) is native(XML2) is export {*};
-sub xmlLoadCatalogs(Str $pathss) is native(XML2) is export {*};
+our sub xmlCatalogAdd(xmlCharP $type, xmlCharP $orig, xmlCharP $replace --> int32) is native(XML2) is export {*}
+our sub xmlCatalogAddLocal(Pointer $catalogs, xmlCharP $URL --> Pointer) is native(XML2) is export {*}
+our sub xmlCatalogCleanup() is native(XML2) is export {*}
+our sub xmlCatalogConvert( --> int32) is native(XML2) is export {*}
+our sub xmlCatalogDump(FILE * $out) is native(XML2) is export {*}
+our sub xmlCatalogFreeLocal(Pointer $catalogs) is native(XML2) is export {*}
+our sub GetDefaults( --> xmlCatalogAllow) is native(XML2) is symbol('xmlCatalogGetDefaults') {*}
+our sub xmlCatalogGetPublic(xmlCharP $pubID --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogGetSystem(xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogLocalResolve(Pointer $catalogs, xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogLocalResolveURI(Pointer $catalogs, xmlCharP $URI --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogRemove(xmlCharP $value --> int32) is native(XML2) is export {*}
+our sub xmlCatalogResolve(xmlCharP $pubID, xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogResolvePublic(xmlCharP $pubID --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogResolveSystem(xmlCharP $sysID --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogResolveURI(xmlCharP $URI --> xmlCharP) is native(XML2) is export {*}
+our sub xmlCatalogSetDebug(int32 $level --> int32) is native(XML2) is export {*}
+our sub SetDefault(xmlCatalogPrefer $prefer --> xmlCatalogPrefer) is native(XML2) is symbol('xmlCatalogSetDefaultPrefer') {*}
+our sub xmlCatalogSetDefaults(xmlCatalogAllow $allow) is native(XML2) is export {*}
+our sub xmlInitializeCatalog() is native(XML2) is export {*}
+our sub xmlLoadCatalog(Str $filename --> int32) is native(XML2) is export {*}
+our sub xmlLoadCatalogs(Str $pathss) is native(XML2) is export {*}

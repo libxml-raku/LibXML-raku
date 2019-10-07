@@ -67,7 +67,7 @@ method external-entity-loader is rw {
                     }
                     my Str $string := externalEntityLoader($url, $id);
                     my xmlParserInputBuffer $buf .= new: :$string;
-                    xmlNewIOInputStream($ctxt, $buf, XML_CHAR_ENCODING_NONE);
+                    $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
                 });
         }
     );

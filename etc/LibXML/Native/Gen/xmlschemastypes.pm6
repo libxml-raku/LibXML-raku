@@ -14,7 +14,7 @@ enum xmlSchemaWhitespaceValueType is export (
     XML_SCHEMA_WHITESPACE_UNKNOWN => 0,
 );
 
-sub xmlSchemaCleanupTypes() is native(XML2) is export {*};
-sub xmlSchemaCollapseString(xmlCharP $value --> xmlCharP) is native(XML2) is export {*};
-sub xmlSchemaInitTypes() is native(XML2) is export {*};
-sub xmlSchemaWhiteSpaceReplace(xmlCharP $value --> xmlCharP) is native(XML2) is export {*};
+our sub xmlSchemaCleanupTypes() is native(XML2) is export {*}
+our sub xmlSchemaCollapseString(xmlCharP $value --> xmlCharP) is native(XML2) is export {*}
+our sub xmlSchemaInitTypes() is native(XML2) is export {*}
+our sub xmlSchemaWhiteSpaceReplace(xmlCharP $value --> xmlCharP) is native(XML2) is export {*}

@@ -62,41 +62,41 @@ class xmlSchema is repr('CStruct') {
     has int32 $.counter; # used to give ononymous components unique names
     has xmlHashTable $.idcDef; # All identity-constraint defs.
     has Pointer $.volatiles; # Obsolete
-    method Free() is native(XML2) is symbol('xmlSchemaFree') {*};
-    method NewValidCtxt( --> xmlSchemaValidCtxt) is native(XML2) is symbol('xmlSchemaNewValidCtxt') {*};
+    method Free() is native(XML2) is symbol('xmlSchemaFree') {*}
+    method NewValidCtxt( --> xmlSchemaValidCtxt) is native(XML2) is symbol('xmlSchemaNewValidCtxt') {*}
 }
 
 class xmlSchemaParserCtxt is repr('CPointer') {
-    sub xmlSchemaNewMemParserCtxt(Str $buffer, int32 $size --> xmlSchemaParserCtxt) is native(XML2) is export {*};
-    sub xmlSchemaNewParserCtxt(Str $URL --> xmlSchemaParserCtxt) is native(XML2) is export {*};
+    our sub NewMem(Str $buffer, int32 $size --> xmlSchemaParserCtxt) is native(XML2) is symbol('xmlSchemaNewMemParserCtxt') {*}
+    our sub New(Str $URL --> xmlSchemaParserCtxt) is native(XML2) is symbol('xmlSchemaNewParserCtxt') {*}
 
-    method Free() is native(XML2) is symbol('xmlSchemaFreeParserCtxt') {*};
-    method GetParserErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlSchemaGetParserErrors') {*};
-    method Parse( --> xmlSchema) is native(XML2) is symbol('xmlSchemaParse') {*};
-    method SetParserErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetParserErrors') {*};
-    method SetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetParserStructuredErrors') {*};
+    method Free() is native(XML2) is symbol('xmlSchemaFreeParserCtxt') {*}
+    method GetParserErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlSchemaGetParserErrors') {*}
+    method Parse( --> xmlSchema) is native(XML2) is symbol('xmlSchemaParse') {*}
+    method SetParserErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetParserErrors') {*}
+    method SetParserStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetParserStructuredErrors') {*}
 }
 
 class xmlSchemaSAXPlugStruct is repr('CPointer') {
 }
 
 class xmlSchemaValidCtxt is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlSchemaFreeValidCtxt') {*};
-    method GetValidErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlSchemaGetValidErrors') {*};
-    method IsValid( --> int32) is native(XML2) is symbol('xmlSchemaIsValid') {*};
-    method SAXPlug(xmlSAXHandlerPtr * $sax, void ** $user_data --> xmlSchemaSAXPlug) is native(XML2) is symbol('xmlSchemaSAXPlug') {*};
-    method SetValidErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetValidErrors') {*};
-    method SetValidOptions(int32 $options --> int32) is native(XML2) is symbol('xmlSchemaSetValidOptions') {*};
-    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetValidStructuredErrors') {*};
-    method GetOptions( --> int32) is native(XML2) is symbol('xmlSchemaValidCtxtGetOptions') {*};
-    method GetParserCtxt( --> xmlParserCtxt) is native(XML2) is symbol('xmlSchemaValidCtxtGetParserCtxt') {*};
-    method ValidateDoc(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlSchemaValidateDoc') {*};
-    method ValidateFile(Str $filename, int32 $options --> int32) is native(XML2) is symbol('xmlSchemaValidateFile') {*};
-    method ValidateOneElement(xmlNode $elem --> int32) is native(XML2) is symbol('xmlSchemaValidateOneElement') {*};
-    method ValidateSetFilename(Str $filename) is native(XML2) is symbol('xmlSchemaValidateSetFilename') {*};
-    method ValidateSetLocator(xmlSchemaValidityLocatorFunc $f, Pointer $ctxt) is native(XML2) is symbol('xmlSchemaValidateSetLocator') {*};
-    method ValidateStream(xmlParserInputBuffer $input, xmlCharEncoding $enc, xmlSAXHandler $sax, Pointer $user_data --> int32) is native(XML2) is symbol('xmlSchemaValidateStream') {*};
+    method Free() is native(XML2) is symbol('xmlSchemaFreeValidCtxt') {*}
+    method GetValidErrors(xmlSchemaValidityErrorFunc * $err, xmlSchemaValidityWarningFunc * $warn, void ** $ctx --> int32) is native(XML2) is symbol('xmlSchemaGetValidErrors') {*}
+    method IsValid( --> int32) is native(XML2) is symbol('xmlSchemaIsValid') {*}
+    method SAXPlug(xmlSAXHandlerPtr * $sax, void ** $user_data --> xmlSchemaSAXPlug) is native(XML2) is symbol('xmlSchemaSAXPlug') {*}
+    method SetValidErrors(xmlSchemaValidityErrorFunc $err, xmlSchemaValidityWarningFunc $warn, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetValidErrors') {*}
+    method SetValidOptions(int32 $options --> int32) is native(XML2) is symbol('xmlSchemaSetValidOptions') {*}
+    method SetValidStructuredErrors(xmlStructuredErrorFunc $serror, Pointer $ctx) is native(XML2) is symbol('xmlSchemaSetValidStructuredErrors') {*}
+    method GetOptions( --> int32) is native(XML2) is symbol('xmlSchemaValidCtxtGetOptions') {*}
+    method GetParserCtxt( --> xmlParserCtxt) is native(XML2) is symbol('xmlSchemaValidCtxtGetParserCtxt') {*}
+    method ValidateDoc(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlSchemaValidateDoc') {*}
+    method ValidateFile(Str $filename, int32 $options --> int32) is native(XML2) is symbol('xmlSchemaValidateFile') {*}
+    method ValidateOneElement(xmlNode $elem --> int32) is native(XML2) is symbol('xmlSchemaValidateOneElement') {*}
+    method ValidateSetFilename(Str $filename) is native(XML2) is symbol('xmlSchemaValidateSetFilename') {*}
+    method ValidateSetLocator(xmlSchemaValidityLocatorFunc $f, Pointer $ctxt) is native(XML2) is symbol('xmlSchemaValidateSetLocator') {*}
+    method ValidateStream(xmlParserInputBuffer $input, xmlCharEncoding $enc, xmlSAXHandler $sax, Pointer $user_data --> int32) is native(XML2) is symbol('xmlSchemaValidateStream') {*}
 }
 
-sub xmlSchemaDump(FILE * $output, xmlSchema $schema) is native(XML2) is export {*};
-sub xmlSchemaSAXUnplug(xmlSchemaSAXPlug $plug --> int32) is native(XML2) is export {*};
+our sub xmlSchemaDump(FILE * $output, xmlSchema $schema) is native(XML2) is export {*}
+our sub xmlSchemaSAXUnplug(xmlSchemaSAXPlug $plug --> int32) is native(XML2) is export {*}

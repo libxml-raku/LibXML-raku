@@ -800,19 +800,19 @@ class xmlError is repr('CStruct') {
     has Pointer $.ctxt; # the parser context if available
     has Pointer $.node; # the node in the tree
 
-    sub xmlCtxtGetLastError(Pointer $ctx --> xmlError) is native(XML2) is export {*};
-    sub xmlGetLastError( --> xmlError) is native(XML2) is export {*};
+    our sub CtxtGetLast(Pointer $ctx --> xmlError) is native(XML2) is symbol('xmlCtxtGetLastError') {*}
+    our sub GetLast( --> xmlError) is native(XML2) is symbol('xmlGetLastError') {*}
 
-    method Copy(xmlError $to --> int32) is native(XML2) is symbol('xmlCopyError') {*};
-    method Reset() is native(XML2) is symbol('xmlResetError') {*};
+    method Copy(xmlError $to --> int32) is native(XML2) is symbol('xmlCopyError') {*}
+    method Reset() is native(XML2) is symbol('xmlResetError') {*}
 }
 
-sub initGenericErrorDefaultFunc(xmlGenericErrorFunc * $handler) is native(XML2) is export {*};
-sub xmlCtxtResetLastError(Pointer $ctx) is native(XML2) is export {*};
-sub xmlParserError(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*};
-sub xmlParserValidityError(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*};
-sub xmlParserValidityWarning(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*};
-sub xmlParserWarning(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*};
-sub xmlResetLastError() is native(XML2) is export {*};
-sub xmlSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(XML2) is export {*};
-sub xmlSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(XML2) is export {*};
+our sub initGenericErrorDefaultFunc(xmlGenericErrorFunc * $handler) is native(XML2) is export {*}
+our sub xmlCtxtResetLastError(Pointer $ctx) is native(XML2) is export {*}
+our sub xmlParserError(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*}
+our sub xmlParserValidityError(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*}
+our sub xmlParserValidityWarning(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*}
+our sub xmlParserWarning(Pointer $ctx, Str $msg, ... $...) is native(XML2) is export {*}
+our sub xmlResetLastError() is native(XML2) is export {*}
+our sub xmlSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(XML2) is export {*}
+our sub xmlSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(XML2) is export {*}

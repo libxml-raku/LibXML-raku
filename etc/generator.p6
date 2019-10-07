@@ -67,18 +67,15 @@ class Gen {
             my $ret-type = .type with $!return;
             my $ret-str = do with $ret-type { " --> " ~ $_ } // '';
             my $info = $!info ?? " # " ~ $!info.trim !! '';
+            my $type = $method ?? @args.shift.type !! $!return.type;
 
-            if $method {
-                my $type = @args.shift.type;
-                my $name = abbrev($!name, $type);
-                my $arg-str = @args.map(&arg-str).join: ', ';
-                my $sym = $name ne $!name ?? " is symbol('$!name')" !! '';
-                "method $name\({$arg-str}{$ret-str}\) is native\($!lib\)$sym \{*\};$info";
-            }
-            else {
-                my $arg-str = @args.map(&arg-str).join: ', ';
-                "sub $!name\({$arg-str}{$ret-str}\) is native\($!lib\) is export \{*\};$info";
-            }
+            my $short-name = do with $type { abbrev($!name, $_) } else { $!name };
+            my $arg-str = @args.map(&arg-str).join: ', ';
+            $short-name = $!name if !$method && $!name.chars - $short-name.chars <= 4;
+            my $sym = $short-name eq $!name ?? ($method ?? '' !! " is export") !! " is symbol('$!name')";
+
+            my $decl = $method ?? 'method' !! 'our sub';
+            "$decl $short-name\({$arg-str}{$ret-str}\) is native\($!lib\)$sym \{*\}$info";
         }
     }
 

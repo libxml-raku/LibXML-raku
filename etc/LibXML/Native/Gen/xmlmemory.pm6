@@ -7,23 +7,23 @@ unit module LibXML::Native::Gen::xmlmemory;
 #    provides interfaces for the memory allocator, including debugging capabilities. 
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
-sub xmlCleanupMemory() is native(XML2) is export {*};
-sub xmlGcMemGet(xmlFreeFunc * $freeFunc, xmlMallocFunc * $mallocFunc, xmlMallocFunc * $mallocAtomicFunc, xmlReallocFunc * $reallocFunc, xmlStrdupFunc * $strdupFunc --> int32) is native(XML2) is export {*};
-sub xmlGcMemSetup(xmlFreeFunc $freeFunc, xmlMallocFunc $mallocFunc, xmlMallocFunc $mallocAtomicFunc, xmlReallocFunc $reallocFunc, xmlStrdupFunc $strdupFunc --> int32) is native(XML2) is export {*};
-sub xmlInitMemory( --> int32) is native(XML2) is export {*};
-sub xmlMallocAtomicLoc(size_t $size, Str $file, int32 $line --> Pointer) is native(XML2) is export {*};
-sub xmlMallocLoc(size_t $size, Str $file, int32 $line --> Pointer) is native(XML2) is export {*};
-sub xmlMemBlocks( --> int32) is native(XML2) is export {*};
-sub xmlMemDisplay(FILE * $fp) is native(XML2) is export {*};
-sub xmlMemDisplayLast(FILE * $fp, long $nbBytes) is native(XML2) is export {*};
-sub xmlMemFree(Pointer $ptr) is native(XML2) is export {*};
-sub xmlMemGet(xmlFreeFunc * $freeFunc, xmlMallocFunc * $mallocFunc, xmlReallocFunc * $reallocFunc, xmlStrdupFunc * $strdupFunc --> int32) is native(XML2) is export {*};
-sub xmlMemMalloc(size_t $size --> Pointer) is native(XML2) is export {*};
-sub xmlMemRealloc(Pointer $ptr, size_t $size --> Pointer) is native(XML2) is export {*};
-sub xmlMemSetup(xmlFreeFunc $freeFunc, xmlMallocFunc $mallocFunc, xmlReallocFunc $reallocFunc, xmlStrdupFunc $strdupFunc --> int32) is native(XML2) is export {*};
-sub xmlMemShow(FILE * $fp, int32 $nr) is native(XML2) is export {*};
-sub xmlMemStrdupLoc(Str $str, Str $file, int32 $line --> Str) is native(XML2) is export {*};
-sub xmlMemUsed( --> int32) is native(XML2) is export {*};
-sub xmlMemoryDump() is native(XML2) is export {*};
-sub xmlMemoryStrdup(Str $str --> Str) is native(XML2) is export {*};
-sub xmlReallocLoc(Pointer $ptr, size_t $size, Str $file, int32 $line --> Pointer) is native(XML2) is export {*};
+our sub xmlCleanupMemory() is native(XML2) is export {*}
+our sub xmlGcMemGet(xmlFreeFunc * $freeFunc, xmlMallocFunc * $mallocFunc, xmlMallocFunc * $mallocAtomicFunc, xmlReallocFunc * $reallocFunc, xmlStrdupFunc * $strdupFunc --> int32) is native(XML2) is export {*}
+our sub xmlGcMemSetup(xmlFreeFunc $freeFunc, xmlMallocFunc $mallocFunc, xmlMallocFunc $mallocAtomicFunc, xmlReallocFunc $reallocFunc, xmlStrdupFunc $strdupFunc --> int32) is native(XML2) is export {*}
+our sub xmlInitMemory( --> int32) is native(XML2) is export {*}
+our sub xmlMallocAtomicLoc(size_t $size, Str $file, int32 $line --> Pointer) is native(XML2) is export {*}
+our sub xmlMallocLoc(size_t $size, Str $file, int32 $line --> Pointer) is native(XML2) is export {*}
+our sub xmlMemBlocks( --> int32) is native(XML2) is export {*}
+our sub xmlMemDisplay(FILE * $fp) is native(XML2) is export {*}
+our sub xmlMemDisplayLast(FILE * $fp, long $nbBytes) is native(XML2) is export {*}
+our sub xmlMemFree(Pointer $ptr) is native(XML2) is export {*}
+our sub xmlMemGet(xmlFreeFunc * $freeFunc, xmlMallocFunc * $mallocFunc, xmlReallocFunc * $reallocFunc, xmlStrdupFunc * $strdupFunc --> int32) is native(XML2) is export {*}
+our sub xmlMemMalloc(size_t $size --> Pointer) is native(XML2) is export {*}
+our sub xmlMemRealloc(Pointer $ptr, size_t $size --> Pointer) is native(XML2) is export {*}
+our sub xmlMemSetup(xmlFreeFunc $freeFunc, xmlMallocFunc $mallocFunc, xmlReallocFunc $reallocFunc, xmlStrdupFunc $strdupFunc --> int32) is native(XML2) is export {*}
+our sub xmlMemShow(FILE * $fp, int32 $nr) is native(XML2) is export {*}
+our sub xmlMemStrdupLoc(Str $str, Str $file, int32 $line --> Str) is native(XML2) is export {*}
+our sub xmlMemUsed( --> int32) is native(XML2) is export {*}
+our sub xmlMemoryDump() is native(XML2) is export {*}
+our sub xmlMemoryStrdup(Str $str --> Str) is native(XML2) is export {*}
+our sub xmlReallocLoc(Pointer $ptr, size_t $size, Str $file, int32 $line --> Pointer) is native(XML2) is export {*}

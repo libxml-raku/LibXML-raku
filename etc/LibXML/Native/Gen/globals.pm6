@@ -42,33 +42,33 @@ class xmlGlobalState is repr('CStruct') {
     has xmlOutputBufferCreateFilenameFunc $.xmlOutputBufferCreateFilenameValue;
     has Pointer $.xmlStructuredErrorContext;
 
-    sub xmlGetGlobalState( --> xmlGlobalState) is native(XML2) is export {*};
+    our sub Get( --> xmlGlobalState) is native(XML2) is symbol('xmlGetGlobalState') {*}
 
-    method Initialize() is native(XML2) is symbol('xmlInitializeGlobalState') {*};
+    method Initialize() is native(XML2) is symbol('xmlInitializeGlobalState') {*}
 }
 
-sub xmlCleanupGlobals() is native(XML2) is export {*};
-sub xmlDeregisterNodeDefault(xmlDeregisterNodeFunc $func --> xmlDeregisterNodeFunc) is native(XML2) is export {*};
-sub xmlInitGlobals() is native(XML2) is export {*};
-sub xmlOutputBufferCreateFilenameDefault(xmlOutputBufferCreateFilenameFunc $func --> xmlOutputBufferCreateFilenameFunc) is native(XML2) is export {*};
-sub xmlParserInputBufferCreateFilenameDefault(xmlParserInputBufferCreateFilenameFunc $func --> xmlParserInputBufferCreateFilenameFunc) is native(XML2) is export {*};
-sub xmlRegisterNodeDefault(xmlRegisterNodeFunc $func --> xmlRegisterNodeFunc) is native(XML2) is export {*};
-sub xmlThrDefBufferAllocScheme(xmlBufferAllocationScheme $v --> xmlBufferAllocationScheme) is native(XML2) is export {*};
-sub xmlThrDefDefaultBufferSize(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefDeregisterNodeDefault(xmlDeregisterNodeFunc $func --> xmlDeregisterNodeFunc) is native(XML2) is export {*};
-sub xmlThrDefDoValidityCheckingDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefGetWarningsDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefIndentTreeOutput(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefKeepBlanksDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefLineNumbersDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefLoadExtDtdDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefOutputBufferCreateFilenameDefault(xmlOutputBufferCreateFilenameFunc $func --> xmlOutputBufferCreateFilenameFunc) is native(XML2) is export {*};
-sub xmlThrDefParserDebugEntities(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefParserInputBufferCreateFilenameDefault(xmlParserInputBufferCreateFilenameFunc $func --> xmlParserInputBufferCreateFilenameFunc) is native(XML2) is export {*};
-sub xmlThrDefPedanticParserDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefRegisterNodeDefault(xmlRegisterNodeFunc $func --> xmlRegisterNodeFunc) is native(XML2) is export {*};
-sub xmlThrDefSaveNoEmptyTags(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(XML2) is export {*};
-sub xmlThrDefSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(XML2) is export {*};
-sub xmlThrDefSubstituteEntitiesDefaultValue(int32 $v --> int32) is native(XML2) is export {*};
-sub xmlThrDefTreeIndentString(Str $v --> Str) is native(XML2) is export {*};
+our sub xmlCleanupGlobals() is native(XML2) is export {*}
+our sub Default(xmlDeregisterNodeFunc $func --> xmlDeregisterNodeFunc) is native(XML2) is symbol('xmlDeregisterNodeDefault') {*}
+our sub xmlInitGlobals() is native(XML2) is export {*}
+our sub Default(xmlOutputBufferCreateFilenameFunc $func --> xmlOutputBufferCreateFilenameFunc) is native(XML2) is symbol('xmlOutputBufferCreateFilenameDefault') {*}
+our sub Default(xmlParserInputBufferCreateFilenameFunc $func --> xmlParserInputBufferCreateFilenameFunc) is native(XML2) is symbol('xmlParserInputBufferCreateFilenameDefault') {*}
+our sub Default(xmlRegisterNodeFunc $func --> xmlRegisterNodeFunc) is native(XML2) is symbol('xmlRegisterNodeDefault') {*}
+our sub ThrDefBufferAlloc(xmlBufferAllocationScheme $v --> xmlBufferAllocationScheme) is native(XML2) is symbol('xmlThrDefBufferAllocScheme') {*}
+our sub xmlThrDefDefaultBufferSize(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefDeregisterNodeDefault(xmlDeregisterNodeFunc $func --> xmlDeregisterNodeFunc) is native(XML2) is export {*}
+our sub xmlThrDefDoValidityCheckingDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefGetWarningsDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefIndentTreeOutput(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefKeepBlanksDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefLineNumbersDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefLoadExtDtdDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefOutputBufferCreateFilenameDefault(xmlOutputBufferCreateFilenameFunc $func --> xmlOutputBufferCreateFilenameFunc) is native(XML2) is export {*}
+our sub xmlThrDefParserDebugEntities(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefParserInputBufferCreateFilenameDefault(xmlParserInputBufferCreateFilenameFunc $func --> xmlParserInputBufferCreateFilenameFunc) is native(XML2) is export {*}
+our sub xmlThrDefPedanticParserDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefRegisterNodeDefault(xmlRegisterNodeFunc $func --> xmlRegisterNodeFunc) is native(XML2) is export {*}
+our sub xmlThrDefSaveNoEmptyTags(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefSetGenericErrorFunc(Pointer $ctx, xmlGenericErrorFunc $handler) is native(XML2) is export {*}
+our sub xmlThrDefSetStructuredErrorFunc(Pointer $ctx, xmlStructuredErrorFunc $handler) is native(XML2) is export {*}
+our sub xmlThrDefSubstituteEntitiesDefaultValue(int32 $v --> int32) is native(XML2) is export {*}
+our sub xmlThrDefTreeIndentString(Str $v --> Str) is native(XML2) is export {*}

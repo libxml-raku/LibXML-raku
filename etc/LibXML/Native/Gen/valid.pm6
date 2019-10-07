@@ -8,26 +8,26 @@ unit module LibXML::Native::Gen::valid;
 use LibXML::Native::Defs :$lib, :xmlCharP;
 
 class xmlAttributeTable is repr('CPointer') {
-    method Copy( --> xmlAttributeTable) is native(XML2) is symbol('xmlCopyAttributeTable') {*};
-    method Free() is native(XML2) is symbol('xmlFreeAttributeTable') {*};
+    method Copy( --> xmlAttributeTable) is native(XML2) is symbol('xmlCopyAttributeTable') {*}
+    method Free() is native(XML2) is symbol('xmlFreeAttributeTable') {*}
 }
 
 class xmlElementTable is repr('CPointer') {
-    method Copy( --> xmlElementTable) is native(XML2) is symbol('xmlCopyElementTable') {*};
-    method Free() is native(XML2) is symbol('xmlFreeElementTable') {*};
+    method Copy( --> xmlElementTable) is native(XML2) is symbol('xmlCopyElementTable') {*}
+    method Free() is native(XML2) is symbol('xmlFreeElementTable') {*}
 }
 
 class xmlIDTable is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlFreeIDTable') {*};
+    method Free() is native(XML2) is symbol('xmlFreeIDTable') {*}
 }
 
 class xmlNotationTable is repr('CPointer') {
-    method Copy( --> xmlNotationTable) is native(XML2) is symbol('xmlCopyNotationTable') {*};
-    method Free() is native(XML2) is symbol('xmlFreeNotationTable') {*};
+    method Copy( --> xmlNotationTable) is native(XML2) is symbol('xmlCopyNotationTable') {*}
+    method Free() is native(XML2) is symbol('xmlFreeNotationTable') {*}
 }
 
 class xmlRefTable is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlFreeRefTable') {*};
+    method Free() is native(XML2) is symbol('xmlFreeRefTable') {*}
 }
 
 class xmlValidCtxt is repr('CStruct') {
@@ -50,43 +50,43 @@ class xmlValidCtxt is repr('CStruct') {
     has Pointer $.am;
     has Pointer $.state;
 
-    sub xmlNewValidCtxt( --> xmlValidCtxt) is native(XML2) is export {*};
+    our sub New( --> xmlValidCtxt) is native(XML2) is symbol('xmlNewValidCtxt') {*}
 
-    method AddAttributeDecl(xmlDtd $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumeration $tree --> xmlAttribute) is native(XML2) is symbol('xmlAddAttributeDecl') {*};
-    method AddElementDecl(xmlDtd $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContent $content --> xmlElement) is native(XML2) is symbol('xmlAddElementDecl') {*};
-    method AddID(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlID) is native(XML2) is symbol('xmlAddID') {*};
-    method AddNotationDecl(xmlDtd $dtd, xmlCharP $name, xmlCharP $PublicID, xmlCharP $SystemID --> xmlNotation) is native(XML2) is symbol('xmlAddNotationDecl') {*};
-    method AddRef(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlRef) is native(XML2) is symbol('xmlAddRef') {*};
-    method Free() is native(XML2) is symbol('xmlFreeValidCtxt') {*};
-    method BuildContentModel(xmlElement $elem --> int32) is native(XML2) is symbol('xmlValidBuildContentModel') {*};
-    method NormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(XML2) is symbol('xmlValidCtxtNormalizeAttributeValue') {*};
-    method ValidateAttributeDecl(xmlDoc $doc, xmlAttribute $attr --> int32) is native(XML2) is symbol('xmlValidateAttributeDecl') {*};
-    method ValidateDocument(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateDocument') {*};
-    method ValidateDocumentFinal(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateDocumentFinal') {*};
-    method ValidateDtd(xmlDoc $doc, xmlDtd $dtd --> int32) is native(XML2) is symbol('xmlValidateDtd') {*};
-    method ValidateDtdFinal(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateDtdFinal') {*};
-    method ValidateElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlValidateElement') {*};
-    method ValidateElementDecl(xmlDoc $doc, xmlElement $elem --> int32) is native(XML2) is symbol('xmlValidateElementDecl') {*};
-    method ValidateNotationDecl(xmlDoc $doc, xmlNotation $nota --> int32) is native(XML2) is symbol('xmlValidateNotationDecl') {*};
-    method ValidateNotationUse(xmlDoc $doc, xmlCharP $notationName --> int32) is native(XML2) is symbol('xmlValidateNotationUse') {*};
-    method ValidateOneAttribute(xmlDoc $doc, xmlNode $elem, xmlAttr $attr, xmlCharP $value --> int32) is native(XML2) is symbol('xmlValidateOneAttribute') {*};
-    method ValidateOneElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlValidateOneElement') {*};
-    method ValidateOneNamespace(xmlDoc $doc, xmlNode $elem, xmlCharP $prefix, xmlNs $ns, xmlCharP $value --> int32) is native(XML2) is symbol('xmlValidateOneNamespace') {*};
-    method ValidatePopElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(XML2) is symbol('xmlValidatePopElement') {*};
-    method ValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(XML2) is symbol('xmlValidatePushCData') {*};
-    method ValidatePushElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(XML2) is symbol('xmlValidatePushElement') {*};
-    method ValidateRoot(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateRoot') {*};
+    method AddAttributeDecl(xmlDtd $dtd, xmlCharP $elem, xmlCharP $name, xmlCharP $ns, xmlAttributeType $type, xmlAttributeDefault $def, xmlCharP $defaultValue, xmlEnumeration $tree --> xmlAttribute) is native(XML2) is symbol('xmlAddAttributeDecl') {*}
+    method AddElementDecl(xmlDtd $dtd, xmlCharP $name, xmlElementTypeVal $type, xmlElementContent $content --> xmlElement) is native(XML2) is symbol('xmlAddElementDecl') {*}
+    method AddID(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlID) is native(XML2) is symbol('xmlAddID') {*}
+    method AddNotationDecl(xmlDtd $dtd, xmlCharP $name, xmlCharP $PublicID, xmlCharP $SystemID --> xmlNotation) is native(XML2) is symbol('xmlAddNotationDecl') {*}
+    method AddRef(xmlDoc $doc, xmlCharP $value, xmlAttr $attr --> xmlRef) is native(XML2) is symbol('xmlAddRef') {*}
+    method Free() is native(XML2) is symbol('xmlFreeValidCtxt') {*}
+    method BuildContentModel(xmlElement $elem --> int32) is native(XML2) is symbol('xmlValidBuildContentModel') {*}
+    method NormalizeAttributeValue(xmlDoc $doc, xmlNode $elem, xmlCharP $name, xmlCharP $value --> xmlCharP) is native(XML2) is symbol('xmlValidCtxtNormalizeAttributeValue') {*}
+    method ValidateAttributeDecl(xmlDoc $doc, xmlAttribute $attr --> int32) is native(XML2) is symbol('xmlValidateAttributeDecl') {*}
+    method ValidateDocument(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateDocument') {*}
+    method ValidateDocumentFinal(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateDocumentFinal') {*}
+    method ValidateDtd(xmlDoc $doc, xmlDtd $dtd --> int32) is native(XML2) is symbol('xmlValidateDtd') {*}
+    method ValidateDtdFinal(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateDtdFinal') {*}
+    method ValidateElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlValidateElement') {*}
+    method ValidateElementDecl(xmlDoc $doc, xmlElement $elem --> int32) is native(XML2) is symbol('xmlValidateElementDecl') {*}
+    method ValidateNotationDecl(xmlDoc $doc, xmlNotation $nota --> int32) is native(XML2) is symbol('xmlValidateNotationDecl') {*}
+    method ValidateNotationUse(xmlDoc $doc, xmlCharP $notationName --> int32) is native(XML2) is symbol('xmlValidateNotationUse') {*}
+    method ValidateOneAttribute(xmlDoc $doc, xmlNode $elem, xmlAttr $attr, xmlCharP $value --> int32) is native(XML2) is symbol('xmlValidateOneAttribute') {*}
+    method ValidateOneElement(xmlDoc $doc, xmlNode $elem --> int32) is native(XML2) is symbol('xmlValidateOneElement') {*}
+    method ValidateOneNamespace(xmlDoc $doc, xmlNode $elem, xmlCharP $prefix, xmlNs $ns, xmlCharP $value --> int32) is native(XML2) is symbol('xmlValidateOneNamespace') {*}
+    method ValidatePopElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(XML2) is symbol('xmlValidatePopElement') {*}
+    method ValidatePushCData(xmlCharP $data, int32 $len --> int32) is native(XML2) is symbol('xmlValidatePushCData') {*}
+    method ValidatePushElement(xmlDoc $doc, xmlNode $elem, xmlCharP $qname --> int32) is native(XML2) is symbol('xmlValidatePushElement') {*}
+    method ValidateRoot(xmlDoc $doc --> int32) is native(XML2) is symbol('xmlValidateRoot') {*}
 }
 
 class xmlValidState is repr('CPointer') {
 }
 
-sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContent $content, int32 $englob) is native(XML2) is export {*};
-sub xmlSprintfElementContent(Str $buf, xmlElementContent $content, int32 $englob) is native(XML2) is export {*};
-sub xmlValidGetPotentialChildren(xmlElementContent * $ctree, const xmlChar ** $names, Pointer[int32] $len, int32 $max --> int32) is native(XML2) is export {*};
-sub xmlValidGetValidElements(xmlNode * $prev, xmlNode * $next, const xmlChar ** $names, int32 $max --> int32) is native(XML2) is export {*};
-sub xmlValidateAttributeValue(xmlAttributeType $type, xmlCharP $value --> int32) is native(XML2) is export {*};
-sub xmlValidateNameValue(xmlCharP $value --> int32) is native(XML2) is export {*};
-sub xmlValidateNamesValue(xmlCharP $value --> int32) is native(XML2) is export {*};
-sub xmlValidateNmtokenValue(xmlCharP $value --> int32) is native(XML2) is export {*};
-sub xmlValidateNmtokensValue(xmlCharP $value --> int32) is native(XML2) is export {*};
+our sub xmlSnprintfElementContent(Str $buf, int32 $size, xmlElementContent $content, int32 $englob) is native(XML2) is export {*}
+our sub xmlSprintfElementContent(Str $buf, xmlElementContent $content, int32 $englob) is native(XML2) is export {*}
+our sub xmlValidGetPotentialChildren(xmlElementContent * $ctree, const xmlChar ** $names, Pointer[int32] $len, int32 $max --> int32) is native(XML2) is export {*}
+our sub xmlValidGetValidElements(xmlNode * $prev, xmlNode * $next, const xmlChar ** $names, int32 $max --> int32) is native(XML2) is export {*}
+our sub xmlValidateAttributeValue(xmlAttributeType $type, xmlCharP $value --> int32) is native(XML2) is export {*}
+our sub xmlValidateNameValue(xmlCharP $value --> int32) is native(XML2) is export {*}
+our sub xmlValidateNamesValue(xmlCharP $value --> int32) is native(XML2) is export {*}
+our sub xmlValidateNmtokenValue(xmlCharP $value --> int32) is native(XML2) is export {*}
+our sub xmlValidateNmtokensValue(xmlCharP $value --> int32) is native(XML2) is export {*}

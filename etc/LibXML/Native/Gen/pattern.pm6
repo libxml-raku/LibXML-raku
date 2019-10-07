@@ -15,23 +15,23 @@ enum xmlPatternFlags is export (
 );
 
 class xmlPattern is repr('CPointer') {
-    sub xmlPatterncompile(xmlCharP $pattern, xmlDict * $dict, int32 $flags, const xmlChar ** $namespaces --> xmlPattern) is native(XML2) is export {*};
+    our sub xmlPatterncompile(xmlCharP $pattern, xmlDict * $dict, int32 $flags, const xmlChar ** $namespaces --> xmlPattern) is native(XML2) is export {*}
 
-    method Free() is native(XML2) is symbol('xmlFreePattern') {*};
-    method FreePatternList() is native(XML2) is symbol('xmlFreePatternList') {*};
-    method FromRoot( --> int32) is native(XML2) is symbol('xmlPatternFromRoot') {*};
-    method GetStreamCtxt( --> xmlStreamCtxt) is native(XML2) is symbol('xmlPatternGetStreamCtxt') {*};
-    method Match(xmlNode $node --> int32) is native(XML2) is symbol('xmlPatternMatch') {*};
-    method MaxDepth( --> int32) is native(XML2) is symbol('xmlPatternMaxDepth') {*};
-    method MinDepth( --> int32) is native(XML2) is symbol('xmlPatternMinDepth') {*};
-    method Streamable( --> int32) is native(XML2) is symbol('xmlPatternStreamable') {*};
+    method Free() is native(XML2) is symbol('xmlFreePattern') {*}
+    method FreePatternList() is native(XML2) is symbol('xmlFreePatternList') {*}
+    method FromRoot( --> int32) is native(XML2) is symbol('xmlPatternFromRoot') {*}
+    method GetStreamCtxt( --> xmlStreamCtxt) is native(XML2) is symbol('xmlPatternGetStreamCtxt') {*}
+    method Match(xmlNode $node --> int32) is native(XML2) is symbol('xmlPatternMatch') {*}
+    method MaxDepth( --> int32) is native(XML2) is symbol('xmlPatternMaxDepth') {*}
+    method MinDepth( --> int32) is native(XML2) is symbol('xmlPatternMinDepth') {*}
+    method Streamable( --> int32) is native(XML2) is symbol('xmlPatternStreamable') {*}
 }
 
 class xmlStreamCtxt is repr('CPointer') {
-    method Free() is native(XML2) is symbol('xmlFreeStreamCtxt') {*};
-    method Pop( --> int32) is native(XML2) is symbol('xmlStreamPop') {*};
-    method Push(xmlCharP $name, xmlCharP $ns --> int32) is native(XML2) is symbol('xmlStreamPush') {*};
-    method PushAttr(xmlCharP $name, xmlCharP $ns --> int32) is native(XML2) is symbol('xmlStreamPushAttr') {*};
-    method PushNode(xmlCharP $name, xmlCharP $ns, int32 $nodeType --> int32) is native(XML2) is symbol('xmlStreamPushNode') {*};
-    method WantsAnyNode( --> int32) is native(XML2) is symbol('xmlStreamWantsAnyNode') {*};
+    method Free() is native(XML2) is symbol('xmlFreeStreamCtxt') {*}
+    method Pop( --> int32) is native(XML2) is symbol('xmlStreamPop') {*}
+    method Push(xmlCharP $name, xmlCharP $ns --> int32) is native(XML2) is symbol('xmlStreamPush') {*}
+    method PushAttr(xmlCharP $name, xmlCharP $ns --> int32) is native(XML2) is symbol('xmlStreamPushAttr') {*}
+    method PushNode(xmlCharP $name, xmlCharP $ns, int32 $nodeType --> int32) is native(XML2) is symbol('xmlStreamPushNode') {*}
+    method WantsAnyNode( --> int32) is native(XML2) is symbol('xmlStreamWantsAnyNode') {*}
 }
