@@ -257,17 +257,18 @@ class LibXML::Node does LibXML::Item {
         $options;
     }
 
-    method !c14n-str(Bool() :$comments,
-                     Bool() :$exclusive = False,
-                     Version :$v = v1.0,
-                     XPathExpr :$xpath is copy,
-                     :$selector = self,
-                     :@prefix,
-                     UInt :$mode = $v >= v1.1
-                          ?? XML_C14N_1_1
-                          !! ($exclusive ?? XML_C14N_EXCLUSIVE_1_0 !! XML_C14N_1_0),
-                     --> Str
-                    ) {
+    method canonicalize(
+        Bool() :$comments,
+        Bool() :$exclusive = False,
+        Version :$v = v1.0,
+        XPathExpr :$xpath is copy,
+        :$selector = self,
+        :@prefix,
+        UInt :$mode = $v >= v1.1
+             ?? XML_C14N_1_1
+             !! ($exclusive ?? XML_C14N_EXCLUSIVE_1_0 !! XML_C14N_1_0),
+        --> Str
+    ) {
         my Str $rv;
         my CArray[Str] $prefix .= new: |@prefix, Str;
 
@@ -304,7 +305,7 @@ class LibXML::Node does LibXML::Item {
 
     proto method Str(|) is also<serialize> handles <Int Num> {*}
     multi method Str(:$C14N! where .so, |c) {
-        self!c14n-str(|c);
+        self.canonicalize(|c);
     }
     multi method Str(|c) is also<gist> is default {
         my $options = output-options(|c);

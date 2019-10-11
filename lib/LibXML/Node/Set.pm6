@@ -84,7 +84,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     multi method to-literal( :list($)! where .so ) { self.map({ .string-value }) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
     method Bool { self.defined && self.elems }
-    method Str handles <Int Num trim chomp> { $.to-literal }
+    method Str is also<gist> handles <Int Num trim chomp> { $.Array.map(*.Str).join }
     method is-equiv(LibXML::Node::Set:D $_) { ? $!native.hasSameNodes(.native) }
     method iterator {
         $!idx = 0;

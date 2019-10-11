@@ -1,6 +1,7 @@
 class LibXML::Node::List does Iterable does Iterator {
     use LibXML::Native;
     use LibXML::Node;
+    use Method::Also;
 
     has Bool:D $.keep-blanks = False;
     has $.doc is required;
@@ -89,7 +90,7 @@ class LibXML::Node::List does Iterable does Iterator {
     }
     multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-    method Str  { $.to-literal }
+    method Str is also<gist> { $.Array.map(*.Str).join }
     method iterator {
         $!cur = $!native;
         self;

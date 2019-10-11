@@ -1,3 +1,10 @@
+0.1.2 2019-10-xx
+    - [LibXML::DocumentFragment] make .parse() method consistant with LibXML::Document
+      -- allow .parse() as a class-level method.
+      -- return a document fragment (not an integer status)
+      -- replace :repair option with :recover
+    - [LibXML::Node::Set][LibXML::Node::List] modify .Str() method to return a
+      concatonation of nodes. This can be reparsed as a document fragment
 0.1.1 2019-10-06
     - [LibXML][LibXML;:Config] add .config-version method; this is the version of
       libxml2 that the module was configured and built against.
