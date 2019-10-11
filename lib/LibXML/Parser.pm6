@@ -229,7 +229,7 @@ method finish-push (
 method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     use LibXML::DocumentFragment;
     my LibXML::DocumentFragment $frag .= new: :$doc;
-    my UInt $ret = $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
+    $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
     with $!sax-handler {
         .publish($frag);
     }

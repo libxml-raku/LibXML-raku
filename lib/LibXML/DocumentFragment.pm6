@@ -33,24 +33,26 @@ multi method parse(
     Bool :balanced($)! where .so,
     xmlSAXHandler :$sax,
     Pointer :$user-data,
-    Bool() :$repair = False,
+    Bool() :$recover = False,
     Bool() :$keep-blanks = config.keep-blanks-default ) {
 
     my Pointer[xmlNode] $nodes .= new;
     my $stat;
+    my $obj = self;
+    $_ .= new without $obj;
     # may return a linked list of nodes
     LibXML::Parser::Context.try: {
         temp LibXML::Native.KeepBlanksDefault = $keep-blanks;
-        $stat := (self.native.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
-            $sax, $user-data, 0, $string, $nodes, +$repair
+        $stat := ($obj.native.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
+            $sax, $user-data, 0, $string, $nodes, +$recover
         );
         die "balanced parse failed with status $stat"
-            if $stat && !$repair;
-    }
+            if $stat && !$recover;
+    }, :$recover;
 
-    $.native.AddChildList($_) with $nodes.deref;
+    $obj.native.AddChildList($_) with $nodes.deref;
 
-    $stat;
+    $obj;
 }
 
 method Str(|c) is also<serialize serialise> {
