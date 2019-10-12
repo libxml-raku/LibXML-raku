@@ -251,8 +251,8 @@ subtest 'XML::LibXML::Element' => {
     my LibXML::Node @as = $node<a>;  # equivalent to: $node.findnodes<a>;
     is $node<@ns:att>.Str, "my-val";
     is $node[0].Str, '<a>XXX</a>';
-    is-deeply $node[0]<#text>.Str, 'XXX';
-    is-deeply $node.keys.sort, <#text @ns:att a b kid>;
+    is-deeply $node[0]<text()>.Str, 'XXX';
+    is-deeply $node.keys.sort, <@ns:att a b kid text()>;
     is-deeply $node.attributes.keys.sort, ("ns:att", );
     is-deeply $node.childNodes.keys, (0, 1, 2, 3);
     my $bs = $node<b>:delete;

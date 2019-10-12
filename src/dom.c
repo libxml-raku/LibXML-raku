@@ -603,7 +603,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
  * the local name. otherwise only the local name is returned.
  **/
 DLLEXPORT xmlChar*
-domGetNodeName(xmlNodePtr node) {
+domGetNodeName(xmlNodePtr node, int xpath_key) {
     const xmlChar* prefix = NULL;
     const xmlChar* name   = NULL;
     xmlChar* rv           = NULL;
@@ -626,31 +626,35 @@ domGetNodeName(xmlNodePtr node) {
         break;
 
     case XML_COMMENT_NODE :
-        name = (const xmlChar*) "#comment";
+        name = (const xmlChar*) (xpath_key ? "comment()" : "#comment");
         break;
 
     case XML_CDATA_SECTION_NODE :
-        name = (const xmlChar*) "#cdata-section";
+        name = (const xmlChar*) (xpath_key ? "text()" : "#cdata-section");
         break;
 
     case XML_TEXT_NODE :
-        name = (const xmlChar*) "#text";
+        name = (const xmlChar*) (xpath_key ? "text()" : "#text");
         break;
 
 
     case XML_DOCUMENT_NODE :
     case XML_HTML_DOCUMENT_NODE :
     case XML_DOCB_DOCUMENT_NODE :
-        name = (const xmlChar*) "#document";
+        name = (const xmlChar*) (xpath_key ? "document()" : "#document");
         break;
 
     case XML_DOCUMENT_FRAG_NODE :
-        name = (const xmlChar*) "#document-fragment";
+        name = (const xmlChar*) (xpath_key ? "document()" : "#document-fragment");
         break;
 
+    case XML_PI_NODE :
+        if (xpath_key) {
+            name = (const xmlChar*) "processing-instruction()";
+            break;
+        }
     case XML_ELEMENT_NODE :
     case XML_ATTRIBUTE_NODE :
-    case XML_PI_NODE :
         if ( node->ns != NULL ) {
             prefix = node->ns->prefix;
         }
@@ -677,7 +681,15 @@ domGetNodeName(xmlNodePtr node) {
         rv = xmlStrdup( name );
     }
 
-    return rv;
+    if (xpath_key && node->type == XML_ATTRIBUTE_NODE) {
+        // prepend '@'
+        xmlChar* at_key = xmlStrdup( "@" );
+        at_key = xmlStrcat(at_key, rv);
+        xmlFree(rv);
+        rv = at_key;
+    } 
+
+   return rv;
 }
 
 DLLEXPORT void
@@ -1146,8 +1158,13 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
 
 static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
     int rv;
-    xmlChar* name = domGetNodeName(self);
+    xmlChar* name = domGetNodeName(self, 0);
     rv = xmlStrcmp( name, pname );
+    if (rv) {
+        xmlFree(name);
+        name = domGetNodeName(self, 1);
+        rv = xmlStrcmp( name, pname );
+    }
     xmlFree(name);
     return rv;
 }

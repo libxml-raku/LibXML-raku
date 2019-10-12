@@ -98,7 +98,7 @@ method attributes is rw is also<attribs> {
 
 method Hash { # handles: keys, pairs, kv -- see LibXML::Node
     my %h := callsame;
-    %h{'@' ~ .tagName } = $_ for self.findnodes('@*');
+    %h{.xpath-key } = $_ for self.findnodes('@*');
     %h;
 }
 multi method AT-KEY('@*') is rw { self.attributes }
@@ -145,7 +145,6 @@ my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBU
 method appendChild(LibXML::Node:D $n) is also<addChild> {
     $n ~~ AttrNode:D ?? $.setAttributeNode($n) !! nextsame
 };
-my $n;
 method !set-attr(QName $name, Str:D $value) {
     $.native.setAttribute($name, $value);
 }
@@ -217,7 +216,7 @@ LibXML::Element - LibXML Class for Element Nodes
   @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
   @nodes = $node.getChildrenByLocalName($localname);
   @nodes = $node.getElementsByTagName($tagname);
-  @nodes = $node{$tagname}; # xpath node selection
+  @nodes = $node{$xpath-expression}; # xpath node selection
   @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
   @nodes = $node.getElementsByLocalName($localname);
   $node.appendWellBalancedChunk( $chunk );
@@ -228,11 +227,11 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.setNamespaceDeclURI( $nsPrefix, $newURI );
   $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
-  # Associative interface
+  # Associative/XPath interface
   my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
   my $b-value  = $elem<@b>.Str;    # value of 'b' attribute
   my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
-  my $text-content = $elem<#text>;
+  my $text-content = $elem<text()>;
   say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
   say $_ for $elem.attributes.keys;  # att-1 .. att-n
   say $_ for $elem.childNodes.keys;  # 0, 1, ...

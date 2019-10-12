@@ -150,7 +150,8 @@ method cloneNode(Bool:D $deep) {
     self.copy(:$deep);
 }
 
-method getNodeName { self.domGetNodeName }
+method getNodeName  { self.domGetNodeName(0) }
+method xpath-key { self.domGetNodeName(1) }
 method setNodeName(QName $_) { self.domSetNodeName($_) }
 
 method getNodeValue { self.domGetNodeValue }

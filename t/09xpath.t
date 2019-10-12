@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 54;
+plan 55;
 
 use LibXML;
 use LibXML::XPath::Expression;
@@ -10,6 +10,7 @@ my $xmlstring = q:to<EOSTR>;
     <bar>
         test 1
     </bar>
+    <!-- test -->    
     <bar>
         test 2
     </bar>
@@ -40,6 +41,8 @@ EOSTR
             is( +@nodes, 2, "Two nodes for /foo/bar - try No. $idx" );
         }
 
+        my $comments = $doc.findnodes('/foo/comment()');
+        is $comments, '<!-- test -->';
         # TEST
         ok( $doc.isSameNode(@nodes[0].ownerDocument),
             'Same owner as previous one',
@@ -55,7 +58,7 @@ EOSTR
         ok( $p.isSameNode( $doc.documentElement ), 'Same as document elem' );
         @nodes = $p.childNodes;
         # TEST
-        is( +@nodes, 6, 'Found child nodes' );
+        is( +@nodes, 8, 'Found child nodes' );
     }
 
     {

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 41;
+plan 47;
 
 use LibXML;
 
@@ -14,7 +14,7 @@ my $file    = "example/dromeds.xml";
 my $parser = LibXML.new();
 my $dom    = $parser.parse: :$file;
 
-if ( defined $dom ) {
+if defined $dom {
     # get the root document
     my $elem   = $dom.getDocumentElement();
 
@@ -69,9 +69,9 @@ if ( defined $dom ) {
 
     {
         my %species = $elem.findnodes( 'species/@name' ).Hash;
-        is-deeply %species.keys.sort, ("name",);
-        is %species<name>[0].Str, "Camel";
-        is %species<name>[1].Str, "Llama";
+        is-deeply %species.keys.sort, ("@name",);
+        is %species<@name>[0].Str, "Camel";
+        is %species<@name>[1].Str, "Llama";
     }
 
     my $telem = $dom.createElement('test');
@@ -85,14 +85,14 @@ if ( defined $dom ) {
 
 ok( $dom, ' TODO : Add test name' );
 
-# test to make sure that multiple array findnodes() returns
-# don't segfault perl; it'll happen after the second one if it does
-for (0..3) {
+for 0..3 {
     my $doc = LibXML.parse: :string(
 '<?xml version="1.0" encoding="UTF-8"?>
 <?xsl-stylesheet type="text/xsl" href="a.xsl"?>
 <a />');
     my @nds = $doc.findnodes("processing-instruction('xsl-stylesheet')");
+    is @nds[0].xpath-key, 'processing-instruction()';
+
 }
 
 my $doc = $parser.parse: :string(q:to<EOT>);
@@ -160,18 +160,6 @@ for @badxpath -> $xp {
 
 
 {
-    # as reported by jian lou:
-    # 1. getElementByTagName("myTag") is not working is
-    # "myTag" is a node directly under root. Same problem
-    # for findNodes("//myTag")
-    # 2. When I add new nodes into DOM tree by
-    # appendChild(). Then try to find them by
-    # getElementByTagName("newNodeTag"), the newly created
-    # nodes are not returned. ...
-    #
-    # this seems not to be a problem by LibXML itself, but newer versions
-    # of libxml2 (newer is 2.4.27 or later)
-    #
     my $doc = LibXML.createDocument();
     my $root= $doc.createElement( "A" );
     $doc.setDocumentElement($root);
@@ -192,9 +180,9 @@ for @badxpath -> $xp {
     ok( @list[0].isSameNode( $b ), ' TODO : Add test name' );
 
 
-    # @list = $doc.getElementsByTagName( "A" );
-    # ok( @list );
-    # ok( $list[0].isSameNode( $root ) );
+    @list = $doc.getElementsByTagName( "A" );
+    ok( @list );
+    ok( @list[0].isSameNode( $root ) );
 
     @list = $root.getElementsByTagName( 'B' );
     # TEST
@@ -230,8 +218,6 @@ for @badxpath -> $xp {
 }
 
 {
-    # findnode remove problem
-
     my $xmlstr = "<a><b><c>1</c><c>2</c></b></a>";
 
     my $doc       = $parser.parse: :string( $xmlstr );

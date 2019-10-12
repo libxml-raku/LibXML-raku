@@ -71,9 +71,9 @@ SYNOPSIS
     say $node.values.map(*.Str).join(':');  # <A/>:<C/>
     $node.pop;  # remove last child
 
-    # Associative interface (ready-only)
+    # Associative/XPath interface (ready-only)
     for %kids<a> { ... }; # all '<a>..</a>' kids
-    for %kids<#text> { ... }; # text nodes
+    for %kids<text()> { ... }; # text nodes
 
 DESCRIPTION
 ===========

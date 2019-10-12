@@ -129,7 +129,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
         {
             my %kids = $node.childNodes.Hash;
-            is-deeply %kids.keys.sort, ("#cdata-section", "#comment", "#text", "bar", "foobar");
+            is-deeply %kids.keys.sort, ("bar", "comment()", "foobar", "text()");
             is %kids<foobar>[0].Str, "<foobar/>";
         }
 

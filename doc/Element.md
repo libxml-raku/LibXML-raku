@@ -30,7 +30,7 @@ SYNOPSIS
     @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
     @nodes = $node.getChildrenByLocalName($localname);
     @nodes = $node.getElementsByTagName($tagname);
-    @nodes = $node{$tagname}; # xpath node selection
+    @nodes = $node{$xpath-expression}; # xpath node selection
     @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
     @nodes = $node.getElementsByLocalName($localname);
     $node.appendWellBalancedChunk( $chunk );
@@ -41,11 +41,11 @@ SYNOPSIS
     $node.setNamespaceDeclURI( $nsPrefix, $newURI );
     $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
-    # Associative interface
+    # Associative/XPath interface
     my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
     my $b-value  = $elem<@b>.Str;    # value of 'b' attribute
     my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
-    my $text-content = $elem<#text>;
+    my $text-content = $elem<text()>;
     say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
     say $_ for $elem.attributes.keys;  # att-1 .. att-n
     say $_ for $elem.childNodes.keys;  # 0, 1, ...

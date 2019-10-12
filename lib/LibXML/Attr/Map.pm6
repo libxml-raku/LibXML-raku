@@ -57,7 +57,7 @@ class LibXML::Attr::Map does Associative {
     }
 
     method getNamedItemNS(Str $uri, NCName:D $name) {
-        my $query = "attribute::*[local-name()='$name']";
+        my $query = "\@*[local-name()='$name']";
         $query ~= "[namespace-uri()='$_']" with $uri;
         LibXML::Attr.box: self.domXPathSelectStr($query);
     }

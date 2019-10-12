@@ -39,7 +39,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $!hstore //= do {
             my LibXML::Node::Set %h = ();
             for self.Array {
-                (%h{.tagName} //= LibXML::Node::Set.new).add: $_;
+                (%h{.xpath-key} //= LibXML::Node::Set.new).add: $_;
             }
             %h;
         }
@@ -51,7 +51,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     }
     method add(LibXML::Item:D $node) is also<push> {
         @!store.push: $_ unless $!lazy;
-        .{$node.tagName}.push: $node with $!hstore;
+        .{$node.xpath-key}.push: $node with $!hstore;
         $!native.push: $node.native.ItemNode;
         $node;
     }
@@ -63,7 +63,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     method pop {
         my $node := $!native.pop;
         if $node.defined {
-            .{$node.tagName}.pop with $!hstore;
+            .{$node.xpath-key}.pop with $!hstore;
         }
         $!lazy ?? self!box($node) !! @!store.pop;
     }
@@ -71,7 +71,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         my UInt $idx := $!native.delete($node.native.ItemNode);
         if $idx >= 0 {
             @!store.slice($idx, 1) unless $!lazy;
-            .{$node.tagName}.delete with $!hstore;
+            .{$node.xpath-key}.delete with $!hstore;
             $node;
         }
         else {

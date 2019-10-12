@@ -28,6 +28,7 @@ class LibXML::Node does LibXML::Item {
         setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
         type
         unique-key lock unlock
+        xpath-key
     >;
 
     BEGIN {
@@ -318,15 +319,13 @@ class LibXML::Node does LibXML::Item {
     }
 
     multi method AT-KEY(Str:D $xpath) is default {
-        $xpath.starts-with('#')  # '#text', '#comment', etc
-            ?? iterate-set(LibXML::Node, $.native.getChildrenByLocalName($xpath))
-            !! $.xpath-context.AT-KEY($xpath);
+        $.xpath-context.AT-KEY($xpath);
     }
 
     method DELETE-KEY(Str:D $xpath) {
-        my $ejected = $.xpath-context.AT-KEY($xpath);
-        .unlink for $ejected.list;
-        $ejected;
+        my $unlinked = $.xpath-context.AT-KEY($xpath);
+        .unlink for $unlinked.list;
+        $unlinked;
     }
 }
 
@@ -404,9 +403,9 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   say $node.values.map(*.Str).join(':');  # <A/>:<C/>
   $node.pop;  # remove last child
 
-  # Associative interface (ready-only)
+  # Associative/XPath interface (ready-only)
   for %kids<a> { ... }; # all '<a>..</a>' kids
-  for %kids<#text> { ... }; # text nodes
+  for %kids<text()> { ... }; # text nodes
 
 =head1 DESCRIPTION
 

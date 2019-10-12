@@ -1,10 +1,21 @@
-0.1.2 2019-10-xx
+0.1.3 2019-10-13
+    - [LibXML::Node][LibXML::Node::Set][LibXML::Node::List]
+      -- add .xpath-key() method; returns a key that can be used to
+        refetch the node in an xpath expression. e.g.
+        'comment-node()' for comment nodes.
+      -- use .xpath-key() to compute Hash keys. This leads to a
+         more natural round-trip, but does change some fixed keys.
+         E.g. $elem<#text> is now $elem<text()>
+    
+0.1.2 2019-10-12
     - [LibXML::DocumentFragment] make .parse() method consistant with LibXML::Document
       -- allow .parse() as a class-level method.
-      -- return a document fragment (not an integer status)
-      -- replace :repair option with :recover
+      -- return the document fragment (not an integer status)
+      -- rename :repair option to :recover
     - [LibXML::Node::Set][LibXML::Node::List] modify .Str() method to return a
       concatonation of nodes. This can be reparsed as a document fragment
+    - [LibXML::Node] add .cononicalize() method for c14n serialization (borrowed
+      from libxml-ruby bindings)
 0.1.1 2019-10-06
     - [LibXML][LibXML;:Config] add .config-version method; this is the version of
       libxml2 that the module was configured and built against.

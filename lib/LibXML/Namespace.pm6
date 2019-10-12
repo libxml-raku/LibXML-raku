@@ -40,6 +40,7 @@ method URI is also<declaredURI getValue string-value value>
 method localname(--> NCName) is also<declaredPrefix>
                     { $!native.prefix }
 method unique-key   { join('|', $!native.prefix//'', $!native.href//''); }
+method xpath-key { 'namespace()' }
 method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }
 

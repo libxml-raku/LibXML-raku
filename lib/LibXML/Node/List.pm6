@@ -54,7 +54,7 @@ class LibXML::Node::List does Iterable does Iterator {
             my $set-class := (require ::('LibXML::Node::Set'));
             my %h = ();
             for self.Array {
-                (%h{.tagName} //= $set-class.new).add: $_;
+                (%h{.xpath-key} //= $set-class.new).add: $_;
             }
             %h;
         }
@@ -63,13 +63,13 @@ class LibXML::Node::List does Iterable does Iterator {
     method push(LibXML::Node:D $node) {
         $.parent.appendChild($node);
         @!store.push($node) unless $!lazy;
-        .{$node.tagName}.push: $node with $!hstore;
+        .{$node.xpath-key}.push: $node with $!hstore;
         $node;
     } 
     method pop {
         do with self.Array.tail -> LibXML::Node $node {
             @!store.pop;
-            .{$node.tagName}.pop with $!hstore;
+            .{$node.xpath-key}.pop with $!hstore;
             $node.unbindNode;
         } // LibXML::Node;
     }

@@ -119,7 +119,7 @@ domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 /* A.1 DOM specified section */
 
 DLLEXPORT xmlChar*
-domGetNodeName( xmlNodePtr node );
+domGetNodeName( xmlNodePtr node, int xpath_key );
 
 DLLEXPORT void
 domSetNodeName(xmlNodePtr self , xmlChar *string);
