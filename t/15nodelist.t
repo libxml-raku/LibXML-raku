@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 30;
+plan 31;
 
 use LibXML;
 use LibXML::Enums;
@@ -30,6 +30,7 @@ is(+@nodelist, 5, ' TODO : Add test name');
 my $nodelist = $dom.findnodes('//BBB');
 # TEST
 is($nodelist.size, 5, ' TODO : Add test name');
+is($nodelist.Str, '<BBB>OK</BBB><BBB/><BBB/><BBB/><BBB>NOT OK</BBB>', ' TODO : Add test name');
 
 # TEST
 is($nodelist.string-value, "OK", ' TODO : Add test name'); # first node in set

@@ -57,8 +57,8 @@ is( $doc.Str(), $xml, ' TODO : Add test name' );
 # TEST:$el=2;
 for $doc.findnodes('/root/*') -> $el {
   # TEST*$el
-  ok ($el.hasChildNodes, ' TODO : Add test name');
+  ok($el.hasChildNodes, ' TODO : Add test name');
   # TEST*$el
-  ok ($el.firstChild.nodeType == XML_ENTITY_REF_NODE, ' TODO : Add test name');
+  is($el.firstChild.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name');
 }
 

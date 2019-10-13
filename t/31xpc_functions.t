@@ -32,7 +32,7 @@ is($xc.findvalue('foo:copy(7)'), 7, ' TODO : Add test name');
 # TEST
 
 is($xc.find('foo:copy(//*)').size(), 3, ' TODO : Add test name');
-my ($foo)=$xc.findnodes('(//*)[2]');
+my ($foo) = $xc.findnodes('(//*)[2]');
 # TEST
 
 ok($xc.findnodes('foo:copy(//*)[2]').pop.isSameNode($foo), ' TODO : Add test name');

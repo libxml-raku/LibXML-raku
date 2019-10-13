@@ -681,12 +681,23 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
         rv = xmlStrdup( name );
     }
 
-    if (xpath_key && node->type == XML_ATTRIBUTE_NODE) {
-        // prepend '@'
-        xmlChar* at_key = xmlStrdup( "@" );
-        at_key = xmlStrcat(at_key, rv);
-        xmlFree(rv);
-        rv = at_key;
+    if (xpath_key) {
+        if (node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
+            // convert HTML to lowercase. make case insensitive
+            xmlChar *p;
+            for (p = rv; *p; p++) {
+                if (*p >= 'A' && *p <= 'Z') {
+                    *p += 'a' - 'A';
+                }
+            }
+        }
+        if (node->type == XML_ATTRIBUTE_NODE) {
+            // prepend '@'
+            xmlChar* at_key = xmlStrdup( "@" );
+            at_key = xmlStrcat(at_key, rv);
+            xmlFree(rv);
+            rv = at_key;
+        }
     } 
 
    return rv;

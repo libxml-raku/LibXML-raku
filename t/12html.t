@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML;
 
-plan 44;
+plan 46;
 
 use LibXML;
 use LibXML::Native;
@@ -70,6 +70,10 @@ quietly {
 # ok( not $@ );
 # TEST
 ok( $htmldoc, ' TODO : Add test name' );
+my $body = $htmldoc<html/body>[0];
+$body.addNewChild(Str, 'InPut');
+is $body.lastChild.tagName, 'InPut';
+is-deeply $body.keys.sort, ('a', 'input', 'p', 'text()');
 
 # parse_html_string with encoding
 # encodings
@@ -224,8 +228,6 @@ skip "iso-8859-2 nyi", 2;
 }
 
 {
-  # 44715
-
     my $html = q:to<EOF>;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -257,7 +259,6 @@ EOF
 
 {
 
-    # 70878
     # HTML_PARSE_NODEFDTD
 
     default {

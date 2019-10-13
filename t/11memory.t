@@ -22,9 +22,9 @@ if $skip {
     exit(0);
 }
 
-diag "Note: Raw Perl 5 port in progress - should maybe use Telemetry?";
+#todo: use Telemetry?
 
-constant TIMES_THROUGH = %*ENV<MEMORY_TIMES> || 100_000;
+constant TIMES_THROUGH = %*ENV<MEMORY_TIMES> || 1_000;
 
 diag "running tests {TIMES_THROUGH} times";
 
@@ -244,8 +244,8 @@ dromeds.xml
             my $str = $xml;
             my $doc = LibXML.parse: :string( $str );
             for ( 1..TIMES_THROUGH ) {
-                 processMessage($xml, '/dromedaries/species' );
-#                my @nodes = $doc.findnodes("/foo/bar/foo");
+                processMessage($xml, '/dromedaries/species' );
+                my @nodes = $doc.findnodes("/foo/bar/foo");
             }
             # TEST
             ok(1, 'after processMessage');

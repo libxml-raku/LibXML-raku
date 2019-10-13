@@ -118,7 +118,7 @@ EOX
     # TEST
     is( $c14n_res, '<d></d>', 'xpath 2' );
     ($rootnode, ) = $doc.findnodes("//*[local-name()='d']");
-      $c14n_res = $rootnode.Str( :C14N );
+    $c14n_res = $rootnode.Str( :C14N );
     # TEST
     is( $c14n_res, '<d xmlns="http://foo/test#"><e></e></d>', ' TODO : Add test name' );
     $rootnode = $doc.documentElement.firstChild;

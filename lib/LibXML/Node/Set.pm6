@@ -35,7 +35,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
         @!store;
     }
-    method Hash handles <AT-KEY> {
+    method Hash handles <AT-KEY keys> {
         $!hstore //= do {
             my LibXML::Node::Set %h = ();
             for self.Array {

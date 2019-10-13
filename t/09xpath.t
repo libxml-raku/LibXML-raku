@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 55;
+plan 56;
 
 use LibXML;
 use LibXML::XPath::Expression;
@@ -43,6 +43,7 @@ EOSTR
 
         my $comments = $doc.findnodes('/foo/comment()');
         is $comments, '<!-- test -->';
+        is $comments[0].xpath-key, 'comment()';
         # TEST
         ok( $doc.isSameNode(@nodes[0].ownerDocument),
             'Same owner as previous one',

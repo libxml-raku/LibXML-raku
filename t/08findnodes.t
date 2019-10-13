@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 47;
+plan 51;
 
 use LibXML;
 
@@ -27,6 +27,8 @@ if defined $dom {
     my @slist = $node.findnodes( "humps" );
     # TEST
     is( +@slist, 1, ' TODO : Add test name' );
+    @slist = $node.findnodes( "HUMPS" );
+    is( +@slist, 0, 'case sensitivity');
 
     # find a single node
     @list   = $elem.findnodes( "species[\@name='Llama']" );
@@ -75,7 +77,10 @@ if defined $dom {
     }
 
     my $telem = $dom.createElement('test');
-    $telem.appendWellBalancedChunk('<b>c</b>');
+    $telem.appendWellBalancedChunk('<B>c</B>');
+    is $telem.keys, ("B",);
+    is $telem<B>, '<B>c</B>';
+    ok ! $telem<b>;
 
     finddoc($dom);
     # TEST
