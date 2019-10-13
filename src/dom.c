@@ -683,11 +683,12 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
 
     if (xpath_key) {
         if (node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
-            // convert HTML to lowercase. make case insensitive
-            xmlChar *p;
-            for (p = rv; *p; p++) {
-                if (*p >= 'A' && *p <= 'Z') {
-                    *p += 'a' - 'A';
+            // convert HTML names to lowercase. make case insensitive
+            int i = prefix == NULL ? 0 : xmlStrlen(prefix);
+
+            for (;rv[i]; i++) {
+                if (rv[i] >= 'A' && rv[i] <= 'Z') {
+                    rv[i] += 'a' - 'A';
                 }
             }
         }

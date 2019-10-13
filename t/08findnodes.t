@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 51;
+plan 53;
 
 use LibXML;
 
@@ -118,6 +118,10 @@ my @b = $root.findnodes('//b:bar');
 # TEST
 
 is(+@b, 1, ' TODO : Add test name');
+
+dies-ok {@b = $root.findnodes('//B:bar')};
+@b = $root.findnodes('//b:BAR');
+is(+@b, 0, ' TODO : Add test name');
 
 my @none = $root.findnodes('//b:foo');
 @none.push($_) for $root.findnodes('//foo');
