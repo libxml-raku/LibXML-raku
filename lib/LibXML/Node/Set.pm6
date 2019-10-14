@@ -150,12 +150,10 @@ Positional interface into the node-set
 AT-KEY
 
     my LibXML::Node::Set $a-nodes = $node-set<a>;
-    my LibXML::Text @text-nodes = $node-set<#text>;
+    my LibXML::Node::Set $b-atts = $node-set<@b>;
+    my LibXML::Text @text-nodes = $node-set<text()>;
 
-This is an associative inteface to node-sets. Each element is a subset
-consisting of the elements with that tag-name, or of a particular DOM class,
-where class can be '#text' (text nodes), '#comment' (comment nodes),
-or '#cdata' (CData sections).
+    This is an associative interface to node-sets for subetting by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 =end item
 
 =begin item

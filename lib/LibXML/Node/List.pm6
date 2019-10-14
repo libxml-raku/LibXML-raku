@@ -129,7 +129,7 @@ LibXML::Node::List - LibXML Class for Sibling Node Lists
   for $node-list -> LibXML::Node $item { ... }
   for 0 ..^ $node-set.elems { my $item = $node-set[$_]; ... }
 
-  my LibXML::Node::Set %nodes-by-tag-name = $node-list.Hash;
+  my LibXML::Node::Set %nodes-by-xpath-name = $node-list.Hash;
   ...
 
 =head2 DESCRIPTION
