@@ -5,7 +5,7 @@ class LibXML::Node::List does Iterable does Iterator {
 
     has Bool:D $.keep-blanks = False;
     has $.doc is required;
-    has anyNode $.native is required handles <string-value>;
+    has anyNode $!native handles <string-value>;
     has anyNode $!cur;
     has $.of is required;
     has int $.idx = 0;
@@ -15,8 +15,10 @@ class LibXML::Node::List does Iterable does Iterator {
     has LibXML::Node $.parent is required;
     has LibXML::Node $!first;
 
-    submethod TWEAK {
-        $!native //= $!parent.native.first-child(+$!keep-blanks);
+    submethod TWEAK(:$properties) {
+        $!native = $properties
+             ?? $!parent.native.properties
+             !! $!parent.native.first-child(+$!keep-blanks);
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
         $!idx = 0;

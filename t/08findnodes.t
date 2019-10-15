@@ -70,8 +70,8 @@ if defined $dom {
     }
 
     {
-        my %species = $elem.findnodes( 'species/@name' ).Hash;
-        is-deeply %species.keys.sort, ("@name",);
+        my %species = $elem.findnodes( 'species' ).Hash;
+        is-deeply %species.keys.sort, ("@name", "disposition", "humps", "text()");
         is %species<@name>[0].Str, "Camel";
         is %species<@name>[1].Str, "Llama";
     }

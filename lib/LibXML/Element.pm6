@@ -84,7 +84,7 @@ method !set-attributes(@atts) {
 }
 
 # hashy attribute containers
-method attributes is rw is also<attribs> {
+method attributes is rw is also<attribs attr> {
     Proxy.new(
         FETCH => {
             require LibXML::Attr::Map;
@@ -98,7 +98,7 @@ method attributes is rw is also<attribs> {
 
 method Hash { # handles: keys, pairs, kv -- see LibXML::Node
     my %h := callsame;
-    %h{.xpath-key } = $_ for self.findnodes('@*');
+    %h{.xpath-key } = $_ for self.properties;
     %h;
 }
 multi method AT-KEY('@*') is rw { self.attributes }
@@ -122,13 +122,12 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
 }
 # attributes as an ordered list
 method properties {
-    iterate-list(self, LibXML::Attr, $.native.properties);
+    iterate-list(self, LibXML::Attr, :properties);
 }
 
 method appendWellBalancedChunk(Str:D $string) {
     require LibXML::DocumentFragment;
-    my $frag = LibXML::DocumentFragment.new;
-    $frag.parse: :balanced, :$string;
+    my $frag = LibXML::DocumentFragment.parse: :balanced, :$string;
     self.appendChild( $frag );
 }
 
