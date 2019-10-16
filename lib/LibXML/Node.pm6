@@ -138,7 +138,7 @@ class LibXML::Node does LibXML::Item {
     method nodeType { $!native.type }
 
     method getName { self.getNodeName }
-    method nodeName is rw is also<name tagName tag> {
+    method nodeName is rw is also<name tagName> {
         Proxy.new(
             FETCH => sub ($) { self.getNodeName },
             STORE => sub ($, QName $_) { self.setNodeName($_) },
@@ -156,9 +156,9 @@ class LibXML::Node does LibXML::Item {
     method line-number   { $!native.GetLineNo }
     method prefix        { do with $!native.ns {.prefix} // Str }
 
-    sub iterate-list($parent, $of, :$doc = $of.doc, Bool :$keep-blanks = True, Bool :$properties = False) is export(:iterate-list) {
+    sub iterate-list($parent, $of, anyNode $native?, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
         # follow a chain of .next links.
-        (require ::('LibXML::Node::List')).new: :$of, :$doc, :$keep-blanks, :$parent, :$properties;
+        (require ::('LibXML::Node::List')).new: :$of, :$native, :$doc, :$keep-blanks, :$parent;
     }
 
     sub iterate-set($of, xmlNodeSet $native) is export(:iterate-set) {
@@ -169,14 +169,14 @@ class LibXML::Node does LibXML::Item {
     method string-value is also<textContent to-literal> {
         $!native.string-value;
     }
-    method unlink is also<unlinkNode unbindNode remove> {
+    method unlink is also<unlinkNode unbindNode> {
         $!native.Unlink;
         $!doc = LibXML::Node;
         self;
     }
     method Hash handles <keys pairs kv> { $.childNodes.Hash }
-    method childNodes is also<getChildnodes children nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
-        iterate-list(self, LibXML::Node, );
+    method childNodes is also<getChildnodes nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
+        iterate-list(self, LibXML::Node);
     }
     method nonBlankChildNodes {
         iterate-list(self, LibXML::Node, :!keep-blanks);

@@ -1,5 +1,4 @@
 class LibXML::Node::Set does Iterable does Iterator does Positional {
-    use LibXML::Enums;
     use LibXML::Native;
     use LibXML::Item :box-class;
     use Method::Also;
@@ -40,14 +39,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $!hstore //= do {
             my LibXML::Node::Set %h = ();
             for self.Array {
-                for .childNodes {
-                    (%h{.xpath-key} //= LibXML::Node::Set.new).add: $_;
-                }
-                if .nodeType == XML_ELEMENT_NODE {
-                    for .properties {
-                        (%h{.xpath-key} //= LibXML::Node::Set.new).add: $_;
-                    }
-                }
+                (%h{.xpath-key} //= LibXML::Node::Set.new).add: $_;
             }
             %h;
         }
@@ -161,7 +153,7 @@ AT-KEY
     my LibXML::Node::Set $b-atts = $node-set<@b>;
     my LibXML::Text @text-nodes = $node-set<text()>;
 
-This is an associative interface to node-sets for subetting by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
+    This is an associative interface to node-sets for subetting by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 =end item
 
 =begin item
