@@ -47,13 +47,16 @@ class LibXML::XPath::Context {
         self.flush-errors;
         $node-set.copy;
     }
-    proto method findnodes($, $?) is also<AT-KEY> {*}
-    multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        iterate-set(LibXML::Item, self!find($expr, $ref));
+    proto method findnodes($, $?, :deref($)) {*}
+    multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bool :$deref) {
+        iterate-set(LibXML::Item, self!find($expr, $ref), :$deref);
     }
-    multi method findnodes(Str:D $_, LibXML::Node $ref?) is default {
+    multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) is default {
         my $expr = LibXML::XPath::Expression.new: :expr($_);
-        iterate-set(LibXML::Item, self!find($expr, $ref));
+        iterate-set(LibXML::Item, self!find($expr, $ref), :$deref);
+    }
+    method AT-KEY($_, Bool :$deref = True) {
+        self.findnodes($_, :$deref);
     }
 
     sub get-value(xmlXPathObject $_, Bool :$literal) is export(:get-value) {

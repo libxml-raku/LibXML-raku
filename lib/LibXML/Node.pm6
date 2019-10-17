@@ -161,9 +161,9 @@ class LibXML::Node does LibXML::Item {
         (require ::('LibXML::Node::List')).new: :$of, :$properties, :$doc, :$keep-blanks, :$parent;
     }
 
-    sub iterate-set($of, xmlNodeSet $native) is export(:iterate-set) {
+    sub iterate-set($of, xmlNodeSet $native, Bool :$deref) is export(:iterate-set) {
         # iterate through a set of nodes
-        (require ::('LibXML::Node::Set')).new( :$native, :$of )
+        (require ::('LibXML::Node::Set')).new( :$native, :$of, :$deref )
     }
 
     method string-value is also<textContent to-literal> {
@@ -760,12 +760,19 @@ Note, that $refNode has to be passed explicitly even if it is undef.
 findnodes
 
   my LibXML::Node @nodes = $node.findnodes( $xpath-expression );
-  my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression );
+  my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression, :deref );
 
 I<<<<<< findnodes >>>>>> evaluates the xpath expression (XPath 1.0) on the current node and returns the
 resulting node set as an array. In scalar context, returns an L<<<<<< LibXML::NodeList >>>>>> object.
 
-The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 
+The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object.
+
+The `:deref` option has an effect on associatve indexing:
+
+    my $humps = $node.findnodes("dromedaries/species")<species/humps>;
+    my $humps = $node.findnodes("dromedaries/species", :deref)<humps>;
+
+It indexes element child nodes and attributes. This option is used by the `AT-KEY` method (see below).
 
 I<<<<<< NOTE ON NAMESPACES AND XPATH >>>>>>:
 
@@ -799,6 +806,21 @@ the context node is in the scope of the declaration), C<<<<<< LibXML >>>>>> allo
   $node.find('/x:html');
 
 See also LibXML::XPathContext.findnodes.
+
+=end item1
+
+=begin item1
+AT-KEY, keys
+
+  say $node.AT-KEY("species");
+  #-OR-
+  say $node<species>;
+
+  say $node<species>.keys; # (disposition text() @name humps)
+  say $node<species/humps>;
+  say $node<species><humps>;
+
+This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`.                                                   
 
 =end item1
 

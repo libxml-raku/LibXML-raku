@@ -1,4 +1,5 @@
 class LibXML::Node::Set does Iterable does Iterator does Positional {
+    use LibXML::Enums;
     use LibXML::Native;
     use LibXML::Item :box-class;
     use Method::Also;
@@ -9,6 +10,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     has @!store;
     has Hash $!hstore;
     has Bool $!lazy = True;
+    has Bool $.deref;
 
     submethod TWEAK {
         $!native //= xmlNodeSet.new;
@@ -35,11 +37,22 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
         @!store;
     }
+    sub deref(%h, $nodes is raw) {
+        for $nodes {
+            (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_
+        }
+    }
     method Hash handles <AT-KEY keys> {
         $!hstore //= do {
             my LibXML::Node::Set %h = ();
             for self.Array {
-                (%h{.xpath-key} //= LibXML::Node::Set.new).add: $_;
+                if $!deref && .nodeType == XML_ELEMENT_NODE {
+                    deref(%h, .childNodes);
+                    deref(%h, .properties);
+                }
+                else {
+                    (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_;
+                }
             }
             %h;
         }

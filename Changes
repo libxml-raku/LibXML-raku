@@ -1,3 +1,8 @@
+0.1.5 2019-10-18
+    - Added $node.findnodes :deref option. Use it in the call from
+      the .AT-KEY() method. This changes:
+          '$node<species><species/humps>' to a more natural:
+          '$node<species><humps>'
 0.1.4 2019-10-14
     - [src/dom.c] return HTML xpath keys as lowercase; make them case-insensitive.
 0.1.3 2019-10-13

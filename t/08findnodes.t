@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 53;
+plan 56;
 
 use LibXML;
 
@@ -72,6 +72,13 @@ if defined $dom {
     {
         my %species = $elem.findnodes( 'species/@name' ).Hash;
         is-deeply %species.keys.sort, ("@name",);
+        is %species<@name>[0].Str, "Camel";
+        is %species<@name>[1].Str, "Llama";
+    }
+
+    {
+        my %species = $elem<species>.Hash;
+        is-deeply %species.keys.sort, ("@name", "disposition", "humps", "text()");
         is %species<@name>[0].Str, "Camel";
         is %species<@name>[1].Str, "Llama";
     }

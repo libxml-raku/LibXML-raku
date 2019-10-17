@@ -289,11 +289,18 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
   * findnodes
 
         my LibXML::Node @nodes = $node.findnodes( $xpath-expression );
-        my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression );
+        my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression, :deref );
 
     *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In scalar context, returns an [LibXML::NodeList ](LibXML::NodeList ) object.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object.
+
+    The `:deref` option has an effect on associatve indexing:
+
+        my $humps = $node.findnodes("dromedaries/species")<species/humps>;
+        my $humps = $node.findnodes("dromedaries/species", :deref)<humps>;
+
+    It indexes element child nodes and attributes. This option is used by the `AT-KEY` method (see below).
 
     *NOTE ON NAMESPACES AND XPATH *:
 
@@ -314,6 +321,18 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         $node.find('/x:html');
 
     See also LibXML::XPathContext.findnodes.
+
+  * AT-KEY, keys
+
+        say $node.AT-KEY("species");
+        #-OR-
+        say $node<species>;
+
+        say $node<species>.keys; # (disposition text() @name humps)
+        say $node<species/humps>;
+        say $node<species><humps>;
+
+    This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`. 
 
   * find
 
