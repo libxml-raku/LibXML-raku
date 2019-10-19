@@ -80,7 +80,7 @@ class LibXML::ErrorHandler {
 
     method !sax-error-cb-structured(xmlError:D $err) {
         with $!sax-handler -> $sax {
-            $_($err.ctxt, $err) with $sax.serror-cb;
+            .($err.ctxt, $err) with $sax.serror-cb;
         }
     }
 
@@ -92,7 +92,7 @@ class LibXML::ErrorHandler {
                 when XML_ERR_ERROR   { $sax.error-cb }
                 when XML_ERR_WARNING { $sax.warning-cb }
             }
-            $_(xmlParserCtxt, $msg.chomp) with &cb;
+            .(xmlParserCtxt, $msg.chomp) with &cb;
         }
     }
 
@@ -175,8 +175,8 @@ class LibXML::ErrorHandler {
         has Str    $.s;
     }
 
-    our sub cast-var-args(Str $fmt, Pointer[MsgArg] $argv) {
-        constant %Type = %( :f(num64), :d(int32), :s(Str) );
+    our sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) {
+        constant %Type = %( :f(num64), :d(int32), :s(Str), :l(long) );
         my int $n = 0;
         $fmt.comb.map({ $argv[$n++]."$_"() });
     }
@@ -187,7 +187,7 @@ class LibXML::ErrorHandler {
         set-generic-error-handler(
             -> Str $msg, Str $fmt, Pointer[MsgArg] $argv {
                 CATCH { default { warn $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
-                my @args = cast-var-args($fmt, $argv);
+                my @args = unmarshal-varargs($fmt, $argv);
                 &handler($msg, @args);
             },
             xml6_gbl_message_func

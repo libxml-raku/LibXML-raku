@@ -5,7 +5,7 @@ class LibXML::Node::List does Iterable does Iterator {
 
     has Bool:D $.keep-blanks = False;
     has $.doc is required;
-    has anyNode $.native handles <string-value>;
+    has anyNode $!native handles <string-value>;
     has LibXML::Node $!first;
     has anyNode $!cur;
     has $.of is required;

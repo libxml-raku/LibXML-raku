@@ -124,14 +124,15 @@ LibXML::Node::Set - LibXML Class for XPath Node Collections
   my LibXML::Node::Set $node-set;
 
   $node-set = $elem.childNodes;
-  $node-set = $elem.findnodes($xpath);
-  $node-set .= new;
+  $node-set = $elem.findnodes($xpath, :$deref);
+  $node-set = $elem{$xpath}
+  $node-set .= new: $deref;
   $node-set.add: $elem;
 
   my LibXML::Item @items = $node-set;
   for $node-set -> LibXML::Item $item { ... }
 
-  my LibXML::Node::Set %nodes-by-tag-name = $node-set.Hash;
+  my LibXML::Node::Set %nodes-by-name = $node-set.Hash;
   ...
 
 =head1 DESCRIPTION
