@@ -302,13 +302,13 @@ level
 Returns an integer value describing how consequent is the error. LibXMNL::Enums
 defines the following enumerations: 
 
-=item2 * XML_ERR_NONE = 0
+  =item XML_ERR_NONE = 0
 
-=item2 * XML_ERR_WARNING = 1 : A simple warning.
+  =item XML_ERR_WARNING = 1 : A simple warning.
 
-=item2 * XML_ERR_ERROR = 2 : A recoverable error.
+  =item XML_ERR_ERROR = 2 : A recoverable error.
 
-=item2 * XML_ERR_FATAL = 3 : A fatal error.
+  =item XML_ERR_FATAL = 3 : A fatal error.
 
 =end item1
 

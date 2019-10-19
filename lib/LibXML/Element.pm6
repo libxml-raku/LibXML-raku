@@ -114,7 +114,7 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
                 // fail "unknown namespace prefix $_";
         }
         Proxy.new(
-            FETCH => { $.xpath-context.AT-KEY($att-path) },
+            FETCH => { $.xpath-context.findnodes($att-path) },
             STORE => sub ($, Str() $val) {
                 self.setAttributeNS($href, $name, $val);
             }
@@ -387,9 +387,11 @@ Proves an associative interface to a node's attributes.
 
 Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
- See also:
- =item2 the C<properties> method, which returns an L<LibXML::Attr> attributes iterator.
- =item2 the C<namespaces> method, which returns an L<LibXML::Namespace> namespaces iterator.
+See also:
+
+  =item the C<properties> method, which returns an L<LibXML::Attr> attributes iterator.
+
+  =item the C<namespaces> method, which returns an L<LibXML::Namespace> namespaces iterator.
 
 =end item1
 

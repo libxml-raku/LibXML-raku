@@ -72,13 +72,13 @@ The X:LibXML::Parser exception class is a tiny frontend to *libxml2 *'s structur
 
     Returns an integer value describing how consequent is the error. LibXMNL::Enums defines the following enumerations: 
 
-        * * XML_ERR_NONE = 0
+      * XML_ERR_NONE = 0
 
-        * * XML_ERR_WARNING = 1 : A simple warning.
+      * XML_ERR_WARNING = 1 : A simple warning.
 
-        * * XML_ERR_ERROR = 2 : A recoverable error.
+      * XML_ERR_ERROR = 2 : A recoverable error.
 
-        * * XML_ERR_FATAL = 3 : A fatal error.
+      * XML_ERR_FATAL = 3 : A fatal error.
 
   * file
 

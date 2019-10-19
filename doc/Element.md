@@ -148,11 +148,11 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
 
-        See also:
+    See also:
 
-        * the `properties` method, which returns an [LibXML::Attr](LibXML::Attr) attributes iterator.
+      * the `properties` method, which returns an [LibXML::Attr](LibXML::Attr) attributes iterator.
 
-        * the `namespaces` method, which returns an [LibXML::Namespace](LibXML::Namespace) namespaces iterator.
+      * the `namespaces` method, which returns an [LibXML::Namespace](LibXML::Namespace) namespaces iterator.
 
   * properties
 

@@ -40,10 +40,8 @@ sub box-class(UInt $_) is export(:box-class) {
     }
 }
 
-my subset DocNode of LibXML::Item where {!.defined || .type == XML_DOCUMENT_NODE}
-
 method box(LibXML::Native::DOM::Node $struct,
-           DocNode :$doc = $.doc, # reusable document object
+           :$doc = $.doc, # reusable document object
           ) {
     do with $struct {
         my $class := box-class(.type);
@@ -56,7 +54,7 @@ method box(LibXML::Native::DOM::Node $struct,
 method unbox { $.native }
 
 method keep(LibXML::Native::DOM::Node $rv,
-            DocNode :$doc = $.doc, # reusable document object
+            :$doc = $.doc, # reusable document object
             --> LibXML::Item) {
     do with $rv {
         do with self -> $obj {

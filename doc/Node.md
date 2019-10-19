@@ -310,15 +310,15 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     There are several possible ways to deal with namespaces in XPath: 
 
-        * * The recommended way is to use the [LibXML::XPathContext ](LibXML::XPathContext ) module to define an explicit context for XPath evaluation, in which a document independent prefix-to-namespace mapping can be defined. For example: 
+      * The recommended way is to use the [LibXML::XPathContext ](LibXML::XPathContext ) module to define an explicit context for XPath evaluation, in which a document independent prefix-to-namespace mapping can be defined. For example: 
 
-        my $xpc = LibXML::XPathContext.new;
-        $xpc.registerNs('x', 'http://www.w3.org/1999/xhtml');
-        $xpc.find('/x:html', $node);
+            my $xpc = LibXML::XPathContext.new;
+            $xpc.registerNs('x', 'http://www.w3.org/1999/xhtml');
+            $xpc.find('/x:html', $node);
 
-        * * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML ` allows you to use the prefix in the XPath expression, e.g.: 
+      * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML ` allows you to use the prefix in the XPath expression, e.g.: 
 
-        $node.find('/x:html');
+            $node.find('/x:html');
 
     See also LibXML::XPathContext.findnodes.
 
