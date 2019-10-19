@@ -56,7 +56,7 @@ class LibXML::Node::List does Iterable does Iterator {
             my $set-class := (require ::('LibXML::Node::Set'));
             my %h = ();
             for self.Array {
-                (%h{.xpath-key} //= $set-class.new).add: $_;
+                (%h{.xpath-key} //= $set-class.new: :deref).add: $_;
             }
             %h;
         }

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 37;
+plan 40;
 
 # bootstrapping tests for the DOM
 
@@ -83,6 +83,9 @@ is $elem.findvalue('name(@*)'), 'foo';
 is-deeply %atts.keys.sort, ('foo', "x:aaa", "x:bbb", "x:ccc"), 'attribute keys';
 $elem.appendTextChild('p', "some text");
 is-deeply $elem.keys.sort, ('@foo', "@x:aaa", "@x:bbb", "@x:ccc", "p"), 'element keys';
+is-deeply $elem.Hash.keys.sort, ('@foo', "@x:aaa", "@x:bbb", "@x:ccc", "p"), 'element keys';
+is $elem.Hash<@foo>, 'bar';
+is $elem<p>, "<p>some text</p>";
 
 lives-ok  {$elem<@x:aaa> = 'BBB' };
 is $elem<@x:aaa>,'BBB';
