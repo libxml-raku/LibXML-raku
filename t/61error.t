@@ -1,7 +1,7 @@
 use v6;
 use Test;
 use LibXML;
-use LibXML::ErrorHandler;
+use LibXML::ErrorHandling;
 
 plan 3;
 
@@ -17,7 +17,7 @@ try {
 
 my $err = $!;
 # TEST
-isa-ok($err,  X::LibXML::Parser, 'Exception is of type parser error.');
+isa-ok($err, X::LibXML::Parser, 'Exception is of type parser error.');
 # TEST
 is($err.domain(), 'parser', 'Error is in the parser domain');
 # TEST

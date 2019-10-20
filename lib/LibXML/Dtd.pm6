@@ -3,15 +3,19 @@ use LibXML::Node;
 unit class LibXML::Dtd
     is LibXML::Node;
 
-use LibXML::ErrorHandler :&structured-error-cb;
+use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Native;
 use LibXML::Parser::Context;
+use Method::Also;
 use NativeCall;
 my subset DocNode of LibXML::Node where {!.defined || .native ~~ xmlDoc};
 
-class ValidContext {
+class ValidContext
+    does LibXML::ErrorHandling {
     has xmlValidCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
+    # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
 
     multi submethod BUILD( xmlValidCtxt:D :$!native! ) { }
     multi submethod BUILD {
@@ -30,7 +34,7 @@ class ValidContext {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
         my $rv := $!native.validate(:$doc, :$dtd);
 
-	$rv := $!errors.is-valid
+	$rv := self.validity-check
             if $check;
         self.flush-errors;
 

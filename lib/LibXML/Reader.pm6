@@ -5,11 +5,13 @@ class X::LibXML::Reader::OpFail is Exception {
     method message { "XML Read $!op operation failed" }
 }
 
-class LibXML::Reader {
+use LibXML::ErrorHandling;
+
+class LibXML::Reader
+    does LibXML::ErrorHandling {
 
     use NativeCall;
     use LibXML::Enums;
-    use LibXML::ErrorHandler;
     use LibXML::Native;
     use LibXML::Native::TextReader;
     use LibXML::Types :QName;
@@ -29,12 +31,12 @@ class LibXML::Reader {
     >;
     has xmlEncodingStr $!enc;
     method enc { $!enc }
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
     has Blob $!buf;
     my subset RelaxNG where {!.defined || $_ ~~ LibXML::RelaxNG|Str};
     my subset Schema  where {!.defined || $_ ~~ LibXML::Schema|Str};
     has RelaxNG $!RelaxNG;
     has Schema  $!Schema;
+    has $.sax-handler is rw;
 
     # Perl 5 compat
     also does LibXML::_Options[%LibXML::Parser::Context::Opts];
@@ -46,7 +48,6 @@ class LibXML::Reader {
                 $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
             },
             STORE => -> $, UInt() $v {
-                $!errors.recover = $v >= 1;
                 $.set-flag($!flags, 'recover', $v >= 1);
                 $.set-flag($!flags, 'suppress-errors', $v >= 2);
             }

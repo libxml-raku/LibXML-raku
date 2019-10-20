@@ -1,11 +1,13 @@
 use v6;
-class LibXML::XPath::Context {
+use LibXML::ErrorHandling;
+class LibXML::XPath::Context
+    does LibXML::ErrorHandling {
 
     use LibXML::Native;
     use LibXML::Item;
     use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
-    use LibXML::ErrorHandler;
+    use LibXML::ErrorHandling;
     use LibXML::Types :QName;
     use LibXML::Node::List;
     use LibXML::Node::Set;
@@ -14,14 +16,15 @@ class LibXML::XPath::Context {
     use LibXML::XPath::Object :XPathRange;
     use NativeCall;
     use Method::Also;
+    # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
 
     has LibXML::Node $!context-node;
-    has LibXML::ErrorHandler $!errors handles<structured-error flush-errors generic-error callback-error GenericErrorFunc suppress-warnings suppress-errors>;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
     submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc, |c) {
-        $!errors .= new: |c;
         self.setContextNode($_) with $node // $doc;
     }
 

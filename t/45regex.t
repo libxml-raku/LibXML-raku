@@ -1,6 +1,6 @@
 use Test;
 use LibXML::RegExp;
-use LibXML::ErrorHandler;
+use LibXML::ErrorHandling;
 
 plan 14;
 
@@ -45,7 +45,7 @@ plan 14;
 
 # silence this test
 my $errors;
-LibXML::ErrorHandler.SetGenericErrorFunc(-> $fmt, |c { $errors++ });
+LibXML::ErrorHandling.SetGenericErrorFunc(-> $fmt, |c { $errors++ });
 
 {
     my $bad_regex = '[0-9]{5}(-[0-9]{4}?';

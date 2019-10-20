@@ -4,11 +4,10 @@ plan 35;
 use LibXML;
 use LibXML::XPath::Context;
 use LibXML::Enums;
-use LibXML::ErrorHandler;
 
 # silence tests
 my $errors;
-LibXML::ErrorHandler.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++ });
+LibXML::XPath::Context.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++ });
 
 my $doc = LibXML.parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>

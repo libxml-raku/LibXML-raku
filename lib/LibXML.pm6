@@ -18,7 +18,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.1.5>
+unit class LibXML:ver<0.1.6>
     is LibXML::Parser;
 
 method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -86,7 +86,7 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::Attr::Map](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr/Map.md) - LibXML DOM attribute map class
 
-=item [LibXML::Node::List](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - Sibling Node Lists
+=item [LibXML::Node::List](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/List.md) - Sibling Node Lists
 
 =item [LibXML::Node::Set](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - XPath Node Sets
 
@@ -118,7 +118,7 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
 
-=item [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
+=item [LibXML::ErrorHandling](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandling.md) - LibXML class for Error handling
 
 =item [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
@@ -149,7 +149,7 @@ Xliff.
 
 =head1 VERSION
 
-0.1.5
+0.1.6
 
 =head1 COPYRIGHT
 

@@ -55,7 +55,7 @@ DLLEXPORT void xml6_gbl_message_func(
                             argv[argc++].f = va_arg(ap, double);
                             break;
                         default:
-                            fprintf(stderr, "ignoring '%%l%c' printf directive\n", c);
+                            fprintf(stderr, "ignoring '%%l%c' in format string\n", c);
                     }
                     break;
                 case '%':

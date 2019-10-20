@@ -61,12 +61,8 @@ class X::LibXML::Parser is X::LibXML {
     }
 }
 
-class LibXML::ErrorHandler {
+role LibXML::ErrorHandling {
     has X::LibXML @!errors;
-    has Bool $.recover is rw;
-    has Bool $.suppress-warnings is rw;
-    has Bool $.suppress-errors is rw;
-    has $.sax-handler;
 
     sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {
         CATCH { default { warn "error handling XML generic error: $_" } }
@@ -79,14 +75,14 @@ class LibXML::ErrorHandler {
     }
 
     method !sax-error-cb-structured(xmlError:D $err) {
-        with $!sax-handler -> $sax {
+        with self.sax-handler -> $sax {
             .($err.ctxt, $err) with $sax.serror-cb;
         }
     }
 
     method !sax-error-cb-unstructured(UInt:D $level, Str $msg) {
         # unstructured error handler
-        with $!sax-handler -> $sax {
+        with self.sax-handler -> $sax {
             my &cb = do given $level {
                 when XML_ERR_FATAL   { $sax.fatalError-cb // $sax.error-cb }
                 when XML_ERR_ERROR   { $sax.error-cb }
@@ -124,7 +120,7 @@ class LibXML::ErrorHandler {
         @!errors.push: $_;
     }
 
-    method is-valid(|c) {
+    method validity-check(|c) {
         my Bool $valid = True;
         if @!errors {
             my X::LibXML @errs;
@@ -146,10 +142,10 @@ class LibXML::ErrorHandler {
             my X::LibXML @errs = @!errors;
             @!errors = ();
 
-            if $!suppress-errors {
+            if self.suppress-errors {
                 @errs .= grep({ .level > XML_ERR_ERROR })
             }
-            elsif $!suppress-warnings {
+            elsif self.suppress-warnings {
                 @errs .= grep({ .level >= XML_ERR_ERROR })
             }
 
@@ -168,15 +164,15 @@ class LibXML::ErrorHandler {
         }
     }
 
-    class MsgArg is repr('CUnion') is export(:MsgArg) {
+    my class MsgArg is repr('CUnion') is export(:MsgArg) {
         has num64  $.f;
         has uint32 $.d;
         has long   $.l;
         has Str    $.s;
     }
 
-    our sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) {
-        constant %Type = %( :f(num64), :d(int32), :s(Str), :l(long) );
+    my sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) {
+        my constant %Type = %( :f(num64), :d(int32), :s(Str), :l(long) );
         my int $n = 0;
         $fmt.comb.map({ $argv[$n++]."$_"() });
     }
@@ -198,7 +194,7 @@ class LibXML::ErrorHandler {
 =begin pod
 =head1 NAME
 
-LibXML::ErrorHandler - Structured Errors
+LibXML::ErrorHandling - libxml exceptions and error handling
 
 =head1 SYNOPSIS
 
@@ -224,7 +220,7 @@ LibXML::ErrorHandler - Structured Errors
 
 =head1 DESCRIPTION
 
-The X:LibXML::Parser exception class is a tiny frontend to I<<<<<< libxml2 >>>>>>'s structured error support. If LibXML is compiled with structured error
+The X:LibXML::Parser exception class interfaces to I<<<<<< libxml2 >>>>>>'s structured error support. If LibXML is compiled with structured error
 support, all errors reported by libxml2 are transformed to X::LibXML::Parser
 exception objects. These objects automatically serialize to the corresponding error
 messages when printed or used in a string operation, but as objects, can also

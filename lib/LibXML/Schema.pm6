@@ -4,15 +4,20 @@ unit class LibXML::Schema;
 
 use LibXML::Document;
 use LibXML::Element;
-use LibXML::ErrorHandler :&structured-error-cb;
+use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Native;
 use LibXML::Native::Schema;
 use LibXML::Parser::Context;
+use Method::Also;
+
 has xmlSchema $.native;
 
-my class Parser::Context {
+my class Parser::Context
+    does LibXML::ErrorHandling {
     has xmlSchemaParserCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
+   # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
     has Blob $!buf;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
@@ -49,9 +54,12 @@ my class Parser::Context {
 
 }
 
-my class ValidContext {
+my class ValidContext
+    does LibXML::ErrorHandling {
     has xmlSchemaValidCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
 
     multi submethod BUILD( xmlSchemaValidCtxt:D :$!native! ) { }
     multi submethod BUILD( LibXML::Schema:D :schema($_)! ) {
@@ -68,7 +76,7 @@ my class ValidContext {
         my xmlDoc:D $doc = .native;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
         my $rv := $!native.ValidateDoc($doc);
-	$rv := $!errors.is-valid
+	$rv := self.validity-check
             if $check;
         self.flush-errors;
         $rv;
@@ -77,7 +85,7 @@ my class ValidContext {
     multi method validate(LibXML::Element:D $_, Bool() :$check) is default {
         my xmlNode:D $node = .native;
         my $rv := $!native.ValidateElement($node);
-	$rv := $!errors.is-valid
+	$rv := self.is-valid
             if $check;
         self.flush-errors;
         $rv;

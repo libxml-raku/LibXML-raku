@@ -21,7 +21,7 @@ class LibXML::SAX::Handler {
     # Error Handling:
     # ---------------
     # Assume we already have a master error handler in place
-    # (such as LibXML::ErrorHandler) to delegate these calls to.
+    # (such as LibXML::ErrorHandling) to delegate these calls to.
     multi method set-sax-callback('serror', &!serror-cb) {}
     multi method set-sax-callback('warning', &!warning-cb) {}
     multi method set-sax-callback('error', &!error-cb) {}

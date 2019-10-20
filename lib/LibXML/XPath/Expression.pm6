@@ -1,11 +1,16 @@
 use v6;
-class LibXML::XPath::Expression {
+use LibXML::ErrorHandling;
+class LibXML::XPath::Expression
+    does LibXML::ErrorHandling {
 
     use LibXML::Native;
-    use LibXML::ErrorHandler;
+    use Method::Also;
+
     has xmlXPathCompExpr $!native;
-    has LibXML::ErrorHandler $!errors handles<structured-error generic-error callback-error flush-errors> .= new;
     method native { $!native }
+    # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
 
     multi submethod TWEAK(Str:D :$expr!) {
         my $*XML-CONTEXT = self;

@@ -74,7 +74,7 @@ realclean : clean
 	@rm -f Makefile doc/*.md doc/*/*.md
 
 doc : README.md doc/Attr.md doc/Attr/Map.md doc/CDATA.md doc/Comment.md doc/Document.md doc/DocumentFragment.md\
-      doc/Dtd.md doc/Element.md doc/ErrorHandler.md doc/InputCallback.md doc/Item.md doc/Namespace.md doc/Native.md\
+      doc/Dtd.md doc/Element.md doc/ErrorHandling.md doc/InputCallback.md doc/Item.md doc/Namespace.md doc/Native.md\
       doc/Node.md doc/Node/List.md doc/Node/Set.md doc/PI.md doc/RelaxNG.md doc/Text.md doc/Pattern.md\
       doc/Parser.md doc/PushParser.md doc/RegExp.md doc/Reader.md doc/Schema.md doc/XPath/Context.md doc/XPath/Expression.md
 
@@ -109,8 +109,8 @@ doc/Dtd.md : lib/LibXML/Dtd.pm6
 doc/Element.md : lib/LibXML/Element.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/Element.pm6 > doc/Element.md
 
-doc/ErrorHandler.md : lib/LibXML/ErrorHandler.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/ErrorHandler.pm6 > doc/ErrorHandler.md
+doc/ErrorHandling.md : lib/LibXML/ErrorHandling.pm6
+	perl6 -I . --doc=Markdown lib/LibXML/ErrorHandling.pm6 > doc/ErrorHandling.md
 
 doc/InputCallback.md : lib/LibXML/InputCallback.pm6
 	perl6 -I . --doc=Markdown lib/LibXML/InputCallback.pm6 > doc/InputCallback.md

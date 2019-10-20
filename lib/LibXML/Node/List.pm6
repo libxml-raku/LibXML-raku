@@ -141,8 +141,11 @@ This class is used for traversing child nodes or attribute lists.
 Unlike node-sets, the list is tied to the DOM and can be used to update
 nodes.
 
-  $node-set[3] = LibXML::TextNode.new :content("Replacement Text");
+  # replace 4th child
+  $node-list[3] = LibXML::TextNode.new :content("Replacement Text");
+  # remove last child
   my $deleted-node = $node-set.pop;
+  # append a new child element
   $node-set.push: LibXML::Element.new(:name<NewElem>);
 
 Currently, the only tied methods are `push`, `pop` and `ASSIGN-POS`.

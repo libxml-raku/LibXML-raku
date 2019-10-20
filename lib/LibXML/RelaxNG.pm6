@@ -3,16 +3,21 @@ use v6;
 unit class LibXML::RelaxNG;
 
 use LibXML::Document;
-use LibXML::ErrorHandler :&structured-error-cb;
+use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Native;
 use LibXML::Native::RelaxNG;
 use LibXML::Parser::Context;
+use Method::Also;
+
 has xmlRelaxNG $.native;
 
-my class Parser::Context {
+my class Parser::Context
+    does LibXML::ErrorHandling {
     has xmlRelaxNGParserCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors> .= new;
     has Blob $!buf;
+    # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
 
     multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {
     }
@@ -48,9 +53,12 @@ my class Parser::Context {
 
 }
 
-my class ValidContext {
+my class ValidContext
+    does LibXML::ErrorHandling {
     has xmlRelaxNGValidCtxt $!native;
-    has LibXML::ErrorHandler $!errors handles<generic-error structured-error flush-errors> .= new;
+    # for the LibXML::ErrorHandling role
+    has $.sax-handler;
+    method recover is also<suppress-errors suppress-warnings> { False }
 
     multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!native! ) { }
     multi submethod BUILD( LibXML::RelaxNG:D :schema($_)! ) {
@@ -67,7 +75,7 @@ my class ValidContext {
         my xmlDoc:D $doc = .native;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
         my $rv := $!native.ValidateDoc($doc);
-	$rv := $!errors.is-valid
+	$rv := self.validity-check
             if $check;
         self.flush-errors;
         $rv;

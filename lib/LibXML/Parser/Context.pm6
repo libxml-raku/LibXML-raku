@@ -1,17 +1,17 @@
 unit class LibXML::Parser::Context;
 
 use NativeCall;
-use LibXML::Native;
 use LibXML::Enums;
-use LibXML::ErrorHandler :&structured-error-cb;
+use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::Native;
 use LibXML::_Options;
 
 has xmlParserCtxt $!native handles <wellFormed valid>;
-has uint32 $.flags is rw = 0;
+has uint32 $.flags = 0;
+method flags is rw {with self { $!flags } else { 0 } }
 has Bool $.line-numbers;
 has $.input-callbacks;
 has $.sax-handler;
-has LibXML::ErrorHandler $!errors handles<generic-error structured-error callback-error flush-errors is-valid GenericErrorFunc> .= new: :$!sax-handler;
 
 our constant %Opts = %(
     :clean-namespaces(XML_PARSE_NSCLEAN),
@@ -42,6 +42,7 @@ our constant %Opts = %(
 );
 
 also does LibXML::_Options[%Opts];
+also does LibXML::ErrorHandling;
 
 method native { $!native }
 
@@ -68,7 +69,7 @@ submethod DESTROY {
     }
 }
 
-method try(&action, Bool :$recover is copy, Bool :$check-valid) {
+method try(&action, Bool :$recover is copy, Bool :$suppress-errors = $.suppress-errors, Bool :$suppress-warnings = $.suppress-warnings, Bool :$check-valid) {
 
     my $*XML-CONTEXT = self;
     $_ = .new: :native(xmlParserCtxt.new)
@@ -88,7 +89,7 @@ method try(&action, Bool :$recover is copy, Bool :$check-valid) {
 
     .flush-errors for @input-contexts;
     $rv := $*XML-CONTEXT.is-valid if $check-valid;
-    $*XML-CONTEXT.flush-errors: :$recover;
+    $*XML-CONTEXT.flush-errors: :$suppress-errors, :$suppress-warnings, :$recover;
 
     $rv;
 }

@@ -1,7 +1,7 @@
 NAME
 ====
 
-LibXML::ErrorHandler - Structured Errors
+LibXML::ErrorHandling - libxml exceptions and error handling
 
 SYNOPSIS
 ========
@@ -27,7 +27,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-The X:LibXML::Parser exception class is a tiny frontend to *libxml2 *'s structured error support. If LibXML is compiled with structured error support, all errors reported by libxml2 are transformed to X::LibXML::Parser exception objects. These objects automatically serialize to the corresponding error messages when printed or used in a string operation, but as objects, can also be used to get a detailed and structured information about the error that occurred. 
+The X:LibXML::Parser exception class interfaces to *libxml2 *'s structured error support. If LibXML is compiled with structured error support, all errors reported by libxml2 are transformed to X::LibXML::Parser exception objects. These objects automatically serialize to the corresponding error messages when printed or used in a string operation, but as objects, can also be used to get a detailed and structured information about the error that occurred. 
 
   * message
 

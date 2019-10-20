@@ -57,7 +57,7 @@ Container/Mapping classes
 
   * [LibXML::Attr::Map](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr/Map.md) - LibXML DOM attribute map class
 
-  * [LibXML::Node::List](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - Sibling Node Lists
+  * [LibXML::Node::List](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/List.md) - Sibling Node Lists
 
   * [LibXML::Node::Set](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - XPath Node Sets
 
@@ -93,7 +93,7 @@ Other
 
   * [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
 
-  * [LibXML::ErrorHandler](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandler.md) - LibXML class for Error handling
+  * [LibXML::ErrorHandling](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandling.md) - LibXML class for Error handling
 
   * [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
@@ -121,7 +121,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.1.4
+0.1.6
 
 COPYRIGHT
 =========
