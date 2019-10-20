@@ -16,8 +16,8 @@ my class Parser::Context
     has xmlRelaxNGParserCtxt $!native;
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
-    has $.sax-handler;
-    method recover is also<suppress-errors suppress-warnings> { False }
+    has $.sax-handler is rw;
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
 
     multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {
     }

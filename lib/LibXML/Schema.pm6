@@ -15,10 +15,10 @@ has xmlSchema $.native;
 my class Parser::Context
     does LibXML::ErrorHandling {
     has xmlSchemaParserCtxt $!native;
-   # for the LibXML::ErrorHandling role
-    has $.sax-handler;
-    method recover is also<suppress-errors suppress-warnings> { False }
     has Blob $!buf;
+   # for the LibXML::ErrorHandling role
+    has $.sax-handler is rw;
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
     }

@@ -171,7 +171,7 @@ role LibXML::ErrorHandling {
         has Str    $.s;
     }
 
-    my sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) {
+    my sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) is export(:unmarshal-varargs) {
         my constant %Type = %( :f(num64), :d(int32), :s(Str), :l(long) );
         my int $n = 0;
         $fmt.comb.map({ $argv[$n++]."$_"() });

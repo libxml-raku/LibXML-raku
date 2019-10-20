@@ -124,7 +124,7 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =head1 PREREQUISITES
 
-This module requires the libxml library to be installed. Please follow the instructions below based on your platform:
+This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
 =head2 Debian Linux
 

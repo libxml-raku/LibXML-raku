@@ -69,7 +69,7 @@ submethod DESTROY {
     }
 }
 
-method try(&action, Bool :$recover is copy, Bool :$suppress-errors = $.suppress-errors, Bool :$suppress-warnings = $.suppress-warnings, Bool :$check-valid) {
+method try(&action, Bool :$recover is copy, Bool :$check-valid) {
 
     my $*XML-CONTEXT = self;
     $_ = .new: :native(xmlParserCtxt.new)
@@ -89,7 +89,7 @@ method try(&action, Bool :$recover is copy, Bool :$suppress-errors = $.suppress-
 
     .flush-errors for @input-contexts;
     $rv := $*XML-CONTEXT.is-valid if $check-valid;
-    $*XML-CONTEXT.flush-errors: :$suppress-errors, :$suppress-warnings, :$recover;
+    $*XML-CONTEXT.flush-errors: :$recover;
 
     $rv;
 }

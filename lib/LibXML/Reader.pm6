@@ -38,9 +38,9 @@ class LibXML::Reader
     has Schema  $!Schema;
     has $.sax-handler is rw;
 
-    # Perl 5 compat
     also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 
+    # Perl 5 compat
     multi method recover is rw {
         Proxy.new(
             FETCH => { 

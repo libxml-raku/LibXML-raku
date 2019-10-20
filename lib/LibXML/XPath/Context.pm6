@@ -17,9 +17,8 @@ class LibXML::XPath::Context
     use NativeCall;
     use Method::Also;
     # for the LibXML::ErrorHandling role
-    has $.sax-handler;
-    method recover is also<suppress-errors suppress-warnings> { False }
-
+    has $.sax-handler is rw;
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
     has LibXML::Node $!context-node;
     has xmlXPathContext $!native .= new;
     method native { $!native }
