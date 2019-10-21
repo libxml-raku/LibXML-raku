@@ -28,31 +28,43 @@ method native { callsame() // xmlDocFrag }
 method keep(|c) { LibXML::Node.box(|c) }
 my constant config = LibXML::Config;
 
+class ParserContext is LibXML::Parser::Context {
+    has LibXML::DocumentFragment $.doc-frag is required;
+    has Int $.stat is rw;
+    has Str $.string;
+    has Pointer $.user-data;
+    has Pointer[xmlNode] $.nodes is rw .= new();
+}
+
 multi method parse(
     Str() :$string!,
     Bool :balanced($)! where .so,
-    xmlSAXHandler :$sax,
     Pointer :$user-data,
-    Bool() :$recover = False,
-    Bool() :$keep-blanks = config.keep-blanks-default ) {
+    |c) {
 
-    my Pointer[xmlNode] $nodes .= new;
-    my $stat;
-    my $obj = self;
-    $_ .= new without $obj;
-    # may return a linked list of nodes
-    LibXML::Parser::Context.try: {
-        temp LibXML::Native.KeepBlanksDefault = $keep-blanks;
-        $stat := ($obj.native.doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
-            $sax, $user-data, 0, $string, $nodes, +$recover
+    my $doc-frag = self;
+    $_ .= new(|c) without $doc-frag;
+    my $flags = 
+
+    my ParserContext $ctx .= new: :$string, :$doc-frag, :$user-data, |c;
+
+    $ctx.try: {
+        # simple closures tend to leak on native callbacks. use dynamic variables
+        my $ctx := $*XML-CONTEXT;
+        my xmlSAXHandler $sax = .native with $ctx.sax-handler;
+        my $doc = $ctx.doc-frag.native.doc;
+        my Pointer $user-data = $ctx.user-data;
+        temp LibXML::Native.KeepBlanksDefault = $ctx.keep-blanks;
+
+        $ctx.stat = ($doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
+            ($sax // xmlSAXHandler), ($ctx.user-data // Pointer), 0, $ctx.string, $ctx.nodes, +$ctx.recover
         );
-        die "balanced parse failed with status $stat"
-            if $stat && !$recover;
-    }, :$recover;
+        die "balanced parse failed with status {$ctx.stat}"
+            if $ctx.stat && !$ctx.recover;
+    };
 
-    $obj.native.AddChildList($_) with $nodes.deref;
-
-    $obj;
+    $doc-frag.native.AddChildList($_) with $ctx.nodes.deref;
+    $doc-frag;
 }
 
 method Str(|c) is also<serialize serialise> {
@@ -71,7 +83,9 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
   use LibXML::DocumentFragment;
   my LibXML::Document $doc .= new;
   my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
-  say $frag.Str # '<foo/><bar/>'
+  say $frag.Str; # '<foo/><bar/>';
+  $frag.parse: :balanced, :string('<baz/>');
+  say $frag.Str; # '<foo/><bar/><baz>';
   my LibXML::DocumentFragment $frag2 = $doc.createDocumentFragment;
   $frag2.appendChild: $doc.createElement('foo');
   $frag2.appendChild: $doc.createElement('bar');
@@ -82,6 +96,26 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
 This class is a helper class as described in the DOM Level 2 Specification. It
 is implemented as a node without name. All adding, inserting or replacing
 functions are aware of document fragments.
+
+=head1 METHODS
+
+The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
+
+=begin item
+new
+
+  my LibXML::Dcoument $doc; # owner document for the fragment;
+  my LibXML::DocumentFragment $frag .= new: :$doc, *%parser-options;
+
+Creates a new empty document fragment to which nodes can be added; typically by
+calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
+
+parse
+
+  my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>'), :recover, :suppress-warnings, :suppress-errors, *%parser-options;
+                                                                                 Performs a parse of the given XML fragment and appends the resulting nodes to the fragment. The `parse()` method may be called multiple times on a document fragment object to append nodes.
+
+=end item
 
 =head1 COPYRIGHT
 

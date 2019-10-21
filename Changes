@@ -1,8 +1,11 @@
 0.1.6 2019-10-21
-    - Downgrade class LibXML::ErrorHandler to role LibXML::ErrorHandling.
+    - Replace class LibXML::ErrorHandler with role LibXML::ErrorHandling.
       This fixes #24; context and error handler object having distinct
-      $!suppress-errors and $!suppress-warnings attributes, but not
+      $!suppress-errors and $!suppress-warnings settings, but not
       propagating these or keping them in sync.
+    - [LibXML::DocumentFragment]. Add subclass ParserContext. Use it
+      to bundle various parameters. Tidier and hopefully fixes some memory
+      leaks from closures in native callbacks
 0.1.5 2019-10-18
     - Added $node.findnodes :deref option. Use it in the call from
       the .AT-KEY() method. This changes:

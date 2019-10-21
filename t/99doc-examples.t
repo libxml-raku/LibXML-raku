@@ -163,11 +163,17 @@ subtest 'LibXML::Document' => {
 };
 
 subtest 'LibXML::DocumentFragment' => {
-    plan 1;
+    plan 3;
     use LibXML::Document;
     use LibXML::DocumentFragment;
+
+    my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
+    is $frag, '<foo/><bar/>';
+    $frag.parse: :balanced, :string('<baz/>');
+    is $frag.Str, '<foo/><bar/><baz/>';
+
     my LibXML::Document $dom .= new;
-    my LibXML::DocumentFragment $frag = $dom.createDocumentFragment;
+    $frag = $dom.createDocumentFragment;
     $frag.appendChild: $dom.createElement('foo');
     $frag.appendChild: $dom.createElement('bar');
     is $frag.Str, '<foo/><bar/>';

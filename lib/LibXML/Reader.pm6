@@ -11,6 +11,7 @@ class LibXML::Reader
     does LibXML::ErrorHandling {
 
     use NativeCall;
+    use LibXML::Config;
     use LibXML::Enums;
     use LibXML::Native;
     use LibXML::Native::TextReader;
@@ -37,6 +38,7 @@ class LibXML::Reader
     has RelaxNG $!RelaxNG;
     has Schema  $!Schema;
     has $.sax-handler is rw;
+    has UInt $.flags is rw = LibXML::Config.default-parser-flags();
 
     also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 
@@ -79,7 +81,6 @@ class LibXML::Reader
 
     }
 
-    has UInt $.flags is rw = 0;
     has LibXML::Document $!document;
     method document {
         $!document //= LibXML::Document.new: :native($_)

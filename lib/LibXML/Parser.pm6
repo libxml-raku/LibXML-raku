@@ -12,7 +12,7 @@ constant config = LibXML::Config;
 
 has Bool $.html is rw = False;
 has Bool $.line-numbers is rw = False;
-has UInt $.flags is rw = XML_PARSE_NODICT;
+has UInt $.flags is rw = config.default-parser-flags();
 has Str $.URI is rw;
 has $.sax-handler is rw;
 has xmlEncodingStr $.enc is rw;

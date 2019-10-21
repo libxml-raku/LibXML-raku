@@ -100,7 +100,7 @@ Other
 PREREQUISITES
 =============
 
-This module requires the libxml library to be installed. Please follow the instructions below based on your platform:
+This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
 Debian Linux
 ------------

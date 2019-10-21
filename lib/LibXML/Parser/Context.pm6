@@ -1,14 +1,15 @@
 unit class LibXML::Parser::Context;
 
 use NativeCall;
+use LibXML::Config;
 use LibXML::Enums;
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Native;
 use LibXML::_Options;
 
 has xmlParserCtxt $!native handles <wellFormed valid>;
-has uint32 $.flags = 0;
-method flags is rw {with self { $!flags } else { 0 } }
+has uint32 $.flags = LibXML::Config.default-parser-flags;
+method flags is rw {with self { $!flags } else { LibXML::Config.default-parser-flags } }
 has Bool $.line-numbers;
 has $.input-callbacks;
 has $.sax-handler;
@@ -58,8 +59,9 @@ method set-native(xmlParserCtxt $native) {
     }
 }
 
-submethod TWEAK(xmlParserCtxt :$native) {
+submethod TWEAK(xmlParserCtxt :$native, *%opts) {
     self.set-native($_) with $native;
+    self.set-flags($!flags, :lax, |%opts);
 }
 
 submethod DESTROY {
@@ -69,13 +71,11 @@ submethod DESTROY {
     }
 }
 
-method try(&action, Bool :$recover is copy, Bool :$check-valid) {
+method try(&action, Bool :$recover = $.recover, Bool :$check-valid) {
 
     my $*XML-CONTEXT = self;
     $_ = .new: :native(xmlParserCtxt.new)
         without $*XML-CONTEXT;
-
-    $recover //= $*XML-CONTEXT.recover;
 
     $*XML-CONTEXT.native.SetStructuredErrorFunc: &structured-error-cb;
     my @input-contexts = .activate()

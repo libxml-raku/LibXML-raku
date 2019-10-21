@@ -1,5 +1,6 @@
 unit class LibXML::Config;
 
+use LibXML::Enums;
 use LibXML::Native;
 use LibXML::InputCallback;
 
@@ -22,24 +23,34 @@ method have-schemas {
     }
 }
 
+our $inputCallbacks;
+
+# -- Output options --
+
 our $skipXMLDeclaration;
 our $skipDTD;
-our $inputCallbacks;
+
+method skip-xml-declaration is rw { flag-proxy($skipXMLDeclaration) }
+method skip-dtd is rw { flag-proxy($skipDTD) }
+
+method tag-expansion is rw {
+    LibXML::Native.TagExpansion;
+}
+
+# -- Parsing options --
 
 sub flag-proxy($flag is rw) is rw {
     Proxy.new( FETCH => sub ($) { $flag.so },
                STORE => sub ($, $_) { $flag = .so } ); 
 }
 
-method skip-xml-declaration is rw { flag-proxy($skipXMLDeclaration) }
-method skip-dtd is rw { flag-proxy($skipDTD) }
-
 method keep-blanks-default is rw {
     LibXML::Native.KeepBlanksDefault;
 }
 
-method tag-expansion is rw {
-    LibXML::Native.TagExpansion;
+method default-parser-flags {
+    XML_PARSE_NODICT
+        + ($.keep-blanks-default() ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
 state &externalEntityLoader;
