@@ -6,18 +6,18 @@ unit class LibXML::Document
     is LibXML::Node
     does LibXML::_DOMNode;
 
-use LibXML::Native;
-use LibXML::Enums;
-use LibXML::Config;
-use LibXML::Element;
-use LibXML::ElementDecl;
 use LibXML::Attr;
 use LibXML::AttrDecl;
+use LibXML::Config;
 use LibXML::Dtd;
+use LibXML::Element;
+use LibXML::ElementDecl;
 use LibXML::EntityRef;
+use LibXML::Enums;
+use LibXML::Native;
+use LibXML::Parser::Context;
 use LibXML::PI;
 use LibXML::Types :QName, :NCName;
-use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
 
@@ -139,16 +139,15 @@ multi method createAttribute(NameVal $_!, |c) {
 }
 
 multi method createAttribute(QName:D $name,
-                             Str $value = '',
-                             Str:D :$href!,
-                            ) {
-    LibXML::Attr.box: $.native.createAttributeNS($href, $name, $value);
-}
-
-multi method createAttribute(QName:D $name,
-                             Str $value = '',
-                            ) {
-    LibXML::Attr.box: $.native.createAttribute($name, $value);
+                       Str $value = '',
+                       Str :$href,
+                      ) {
+    with $href {
+        $.createAttributeNS($_, $name, $value);
+    }
+    else {
+        LibXML::Attr.box: $.native.createAttribute($name, $value);
+    }
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
