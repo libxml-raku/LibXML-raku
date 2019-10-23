@@ -57,69 +57,68 @@ XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar foo="&gt;&foo;"/>',
                        );
 
 my @badWFStrings = (
-"",                                        # totally empty document
-XML_DECL,                                  # only XML Declaration
-"<!--ouch-->",                             # comment only is like an empty document
-'<!DOCTYPE ouch [<!ENTITY foo "bar">]>',   # no good either ...
-'<ouch>',                                  # single tag (tag mismatch)
-'<ouch/>foo',                              # trailing junk
-'foo<ouch/>',                              # leading junk
-'<ouch foo=bar/>',                         # bad attribute
-'<ouch foo="bar/>',                        # bad attribute
-'<ouch>&</ouch>"=',                          # bad char
-'<ouch>&#0x20;</ouch>',                    # bad char
-##"<foob\x[e4]r/>".encode("latin-1"),        # bad encoding
-'<ouch>&foo;</ouch>',                      # undefind entity
-'<ouch>&gt</ouch>',                        # unterminated entity
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar &foo;="ouch"/>',          # bad placed entity
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar=&quot;foo&quot;">]><foobar &foo;/>', # even worse
-'<ouch><!---></ouch>',                     # bad comment
-## valgrind warnings + sefaults - issue #18: '<ouch><!-----></ouch>'
-'<ouch>todo issue#18<!---></ouch>',                   # bad either... (is this conform with the spec????)
-                    );
+    "",                                        # totally empty document
+    XML_DECL,                                  # only XML Declaration
+    "<!--ouch-->",                             # comment only is like an empty document
+    '<!DOCTYPE ouch [<!ENTITY foo "bar">]>',   # no good either ...
+    '<ouch>',                                  # single tag (tag mismatch)
+    '<ouch/>foo',                              # trailing junk
+    'foo<ouch/>',                              # leading junk
+    '<ouch foo=bar/>',                         # bad attribute
+    '<ouch foo="bar/>',                        # bad attribute
+    '<ouch>&</ouch>"=',                        # bad char
+    '<ouch>&#0x20;</ouch>',                    # bad char
+    '<ouch>&foo;</ouch>',                      # undefind entity
+    '<ouch>&gt</ouch>',                        # unterminated entity
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar &foo;="ouch"/>',          # bad placed entity
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar=&quot;foo&quot;">]><foobar &foo;/>', # even worse
+    '<ouch><!---></ouch>',                     # bad comment
+    # see issue #18
+    (LibXML.version >= v2.09.10 ?? '<ouch><!-----></ouch>' !! '<ouch><!---></ouch>'),
+);
 
 
-    my %goodPushWF = (
-single1 => ['<foobar/>'],
-single2 => ['<foobar>','</foobar>'],
-single3 => [ XML_DECL, "<foobar>", "</foobar>" ],
-single4 => ["<foo", "bar/>"],
-single5 => ["<", "foo","bar", "/>"],
-single6 => ['<?xml version="1.0" encoding="UTF-8"?>',"\n<foobar/>"],
-single7 => ['<?xml',' version="1.0" ','encoding="UTF-8"?>',"\n<foobar/>"],
-single8 => ['<foobar', ' foo=', '"bar"', '/>'],
-single9 => ['<?xml',' versio','n="1.0" ','encodi','ng="U','TF8"?>',"\n<foobar/>"],
-multiple1 => [ '<foobar>','<foo/>','</foobar> ', ],
-multiple2 => [ '<foobar','><fo','o','/><','/foobar> ', ],
-multiple3 => [ '<foobar>','<![CDATA[<>&"\']]>','</foobar>'],
-multiple4 => [ '<foobar>','<![CDATA[', '<>&', ']]>', '</foobar>' ],
-multiple5 => [ '<foobar>','<!','[CDA','TA[', '<>&', ']]>', '</foobar>' ],
-multiple6 => ['<foobar>','&lt;&gt;&amp;&quot;&apos;','</foobar>'],
-multiple6 => ['<foobar>','&lt',';&','gt;&a','mp;','&quot;&ap','os;','</foobar>'],
-multiple7 => [ '<foobar>', '&#x20;&#160;','</foobar>' ],
-multiple8 => [ '<foobar>', '&#x','20;&#1','60;','</foobar>' ],
-multiple9 => [ '<foobar>','moo','moo','</foobar> ', ],
-multiple10 => [ '<foobar>','moo','</foobar> ', ],
-comment1  => [ '<!--comment-->','<foobar/>' ],
-comment2  => [ '<foobar/>','<!--comment-->' ],
-comment3  => [ '<!--','comment','-->','<foobar/>' ],
-comment4  => [ '<!--','-->','<foobar/>' ],
-comment5  => [ '<foobar>fo','o<!---','-><','/foobar>' ],
-attr1     => [ '<foobar',' foo="bar"/>'],
-attr2     => [ '<foobar',' foo','="','bar','"/>'],
-attr3     => [ '<foobar',' fo','o="b','ar"/>'],
-#prefix1   => [ '<bar:foobar/>' ],
-#prefix2   => [ '<bar',':','foobar/>' ],
-#prefix3   => [ '<ba','r:fo','obar/>' ],
-ns1       => [ '<foobar xmlns:bar="xml://foo"/>' ],
-ns2       => [ '<foobar ','xmlns:bar="xml://foo"','/>' ],
-ns3       => [ '<foo','bar x','mlns:b','ar="foo"/>' ],
-ns4       => [ '<bar:foobar xmlns:bar="xml://foo"/>' ],
-ns5       => [ '<bar:foo','bar xm','lns:bar="fo','o"/>' ],
-ns6       => [ '<bar:fooba','r xm','lns:ba','r="foo"','><bar',':foo/','></bar'~':foobar>'],
-dtd1      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>','<foobar>&f','oo;</foobar>',],
-dtd2      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>','<foobar>&f','oo;&gt;</foobar>',],
-                    );
+my %goodPushWF = (
+    single1 => ['<foobar/>'],
+    single2 => ['<foobar>','</foobar>'],
+    single3 => [ XML_DECL, "<foobar>", "</foobar>" ],
+    single4 => ["<foo", "bar/>"],
+    single5 => ["<", "foo","bar", "/>"],
+    single6 => ['<?xml version="1.0" encoding="UTF-8"?>',"\n<foobar/>"],
+    single7 => ['<?xml',' version="1.0" ','encoding="UTF-8"?>',"\n<foobar/>"],
+    single8 => ['<foobar', ' foo=', '"bar"', '/>'],
+    single9 => ['<?xml',' versio','n="1.0" ','encodi','ng="U','TF8"?>',"\n<foobar/>"],
+    multiple1 => [ '<foobar>','<foo/>','</foobar> ', ],
+    multiple2 => [ '<foobar','><fo','o','/><','/foobar> ', ],
+    multiple3 => [ '<foobar>','<![CDATA[<>&"\']]>','</foobar>'],
+    multiple4 => [ '<foobar>','<![CDATA[', '<>&', ']]>', '</foobar>' ],
+    multiple5 => [ '<foobar>','<!','[CDA','TA[', '<>&', ']]>', '</foobar>' ],
+    multiple6 => ['<foobar>','&lt;&gt;&amp;&quot;&apos;','</foobar>'],
+    multiple6 => ['<foobar>','&lt',';&','gt;&a','mp;','&quot;&ap','os;','</foobar>'],
+    multiple7 => [ '<foobar>', '&#x20;&#160;','</foobar>' ],
+    multiple8 => [ '<foobar>', '&#x','20;&#1','60;','</foobar>' ],
+    multiple9 => [ '<foobar>','moo','moo','</foobar> ', ],
+    multiple10 => [ '<foobar>','moo','</foobar> ', ],
+    comment1  => [ '<!--comment-->','<foobar/>' ],
+    comment2  => [ '<foobar/>','<!--comment-->' ],
+    comment3  => [ '<!--','comment','-->','<foobar/>' ],
+    comment4  => [ '<!--','-->','<foobar/>' ],
+    comment5  => [ '<foobar>fo','o<!---','-><','/foobar>' ],
+    attr1     => [ '<foobar',' foo="bar"/>'],
+    attr2     => [ '<foobar',' foo','="','bar','"/>'],
+    attr3     => [ '<foobar',' fo','o="b','ar"/>'],
+    #prefix1   => [ '<bar:foobar/>' ],
+    #prefix2   => [ '<bar',':','foobar/>' ],
+    #prefix3   => [ '<ba','r:fo','obar/>' ],
+    ns1       => [ '<foobar xmlns:bar="xml://foo"/>' ],
+    ns2       => [ '<foobar ','xmlns:bar="xml://foo"','/>' ],
+    ns3       => [ '<foo','bar x','mlns:b','ar="foo"/>' ],
+    ns4       => [ '<bar:foobar xmlns:bar="xml://foo"/>' ],
+    ns5       => [ '<bar:foo','bar xm','lns:bar="fo','o"/>' ],
+    ns6       => [ '<bar:fooba','r xm','lns:ba','r="foo"','><bar',':foo/','></bar'~':foobar>'],
+    dtd1      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>','<foobar>&f','oo;</foobar>',],
+    dtd2      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>','<foobar>&f','oo;&gt;</foobar>',],
+);
 
 my $goodfile = "example/dromeds.xml";
 my $badfile1 = "example/bad.xml";
