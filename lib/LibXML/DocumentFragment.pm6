@@ -104,7 +104,7 @@ The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inher
 =begin item
 new
 
-  my LibXML::Dcoument $doc; # owner document for the fragment;
+  my LibXML::Document $doc; # owner document for the fragment;
   my LibXML::DocumentFragment $frag .= new: :$doc, *%parser-options;
 
 Creates a new empty document fragment to which nodes can be added; typically by
@@ -113,7 +113,8 @@ calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for 
 parse
 
   my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>'), :recover, :suppress-warnings, :suppress-errors, *%parser-options;
-                                                                                 Performs a parse of the given XML fragment and appends the resulting nodes to the fragment. The `parse()` method may be called multiple times on a document fragment object to append nodes.
+
+Performs a parse of the given XML fragment and appends the resulting nodes to the fragment. The `parse()` method may be called multiple times on a document fragment object to append nodes.
 
 =end item
 
