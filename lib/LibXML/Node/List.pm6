@@ -51,7 +51,7 @@ class LibXML::Node::List does Iterable does Iterator {
             self.Array.AT-POS($pos);
         }
     }
-    method Hash {
+    method Hash handles <AT-KEY> {
         $!hstore //= do {
             my $set-class := (require ::('LibXML::Node::Set'));
             my %h = ();
@@ -111,6 +111,15 @@ class LibXML::Node::List does Iterable does Iterator {
         require LibXML::Node::Set;
         my xmlNodeSet:D $native = $!native.list-to-nodeset($!keep-blanks);
         LibXML::Node::Set.new: :$native;
+    }
+    method can($_) { $.of.can($_) || nextsame }
+    method FALLBACK($method, |c) {
+        if $.first.can($method) {
+            $.first."$method"(|c)
+        }
+        else {
+            die X::Method::NotFound.new( :$method, :typename(self.^name) );
+        }
     }
 }
 

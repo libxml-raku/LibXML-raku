@@ -18,7 +18,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.1.6>
+unit class LibXML:ver<0.1.7>
     is LibXML::Parser;
 
 method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -43,6 +43,7 @@ LibXML - Perl 6 bindings to the libxml2 native library
   say $doc.Str;
   # <?xml version="1.0" encoding="UTF-8"?>
   # <Hello>World!</Hello>
+  say $doc<Hello>
 
   my Version $library-version = LibXML.version;
   my Version $module-version = LibXML.^ver;
@@ -149,7 +150,7 @@ Xliff.
 
 =head1 VERSION
 
-0.1.6
+0.1.7
 
 =head1 COPYRIGHT
 

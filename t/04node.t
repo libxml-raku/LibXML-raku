@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 179;
+plan 182;
 
 use LibXML;
 use LibXML::Enums;
@@ -213,6 +213,9 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         isa-ok( $children, "LibXML::Node::List", ' TODO : Add test name' );
         is $children.first, 'bar';
+        is $children.xpath-key, 'text()';
+        is-deeply $children.Hash.keys.sort, ('bar', 'comment()', 'foobar', 'text()');
+        is $children<comment()>, '<!--foo-->';
         is $children.tail, '<![CDATA[&foo bar]]>';
     }
 

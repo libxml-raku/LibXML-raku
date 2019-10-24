@@ -14,6 +14,7 @@ SYNOPSIS
     say $doc.Str;
     # <?xml version="1.0" encoding="UTF-8"?>
     # <Hello>World!</Hello>
+    say $doc<Hello>
 
     my Version $library-version = LibXML.version;
     my Version $module-version = LibXML.^ver;
@@ -121,7 +122,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.1.6
+0.1.7
 
 COPYRIGHT
 =========

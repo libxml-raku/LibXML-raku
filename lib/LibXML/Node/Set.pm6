@@ -21,7 +21,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     }
     method !box(itemNode $elem) {
         do with $elem {
-            my $class = box-class(.type);
+            my $class := box-class(.type);
             die "unexpected node of type {$class.WHAT.perl} in node-set"
                unless $class ~~ $!of;
 
@@ -109,6 +109,15 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
         else {
             IterationEnd;
+        }
+    }
+    method can($_) { $.of.can($_) || nextsame }
+    method FALLBACK($method, |c) {
+        if $.first.can($method) {
+            $.first."$method"(|c)
+        }
+        else {
+            die X::Method::NotFound.new( :$method, :typename(self.^name) );
         }
     }
 }

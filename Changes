@@ -1,8 +1,9 @@
+0.1.7 2019-10-xx
+    - [LibXML::Node::List] add AT-KEY method
+    - [LibXML::Node::List][LibXML::Node::Set] Add FALLBACK that dispatches
+      method calls to the first item in the set/list.
 0.1.6 2019-10-21
-    - Replace class LibXML::ErrorHandler with role LibXML::ErrorHandling.
-      This fixes #24; context and error handler object having distinct
-      $!suppress-errors and $!suppress-warnings settings, but not
-      propagating these or keping them in sync.
+    - Replace class LibXML::ErrorHandler with role LibXML::ErrorHandling. Fixes #24.
     - [LibXML::DocumentFragment]. Add subclass ParserContext. Use it
       to bundle various parameters. Tidier and hopefully fixes some memory
       leaks from closures in native callbacks

@@ -109,7 +109,9 @@ new
 
 Creates a new empty document fragment to which nodes can be added; typically by
 calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
+=end item
 
+=begin item
 parse
 
   my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>'), :recover, :suppress-warnings, :suppress-errors, *%parser-options;
