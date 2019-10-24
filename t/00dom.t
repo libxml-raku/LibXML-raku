@@ -86,7 +86,7 @@ is-deeply $elem.keys.sort, ('@foo', "@x:aaa", "@x:bbb", "@x:ccc", "p"), 'element
 is-deeply $elem.Hash.keys.sort, ('@foo', "@x:aaa", "@x:bbb", "@x:ccc", "p"), 'element keys';
 is $elem.Hash<@foo>, 'bar';
 is $elem<p>, "<p>some text</p>";
-is $elem<p>.tag, 'p';
+is $elem<p>[0].tag, 'p';
 
 lives-ok  {$elem<@x:aaa> = 'BBB' };
 is $elem<@x:aaa>,'BBB';

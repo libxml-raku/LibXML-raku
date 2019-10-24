@@ -111,15 +111,6 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
             IterationEnd;
         }
     }
-    method can($_) { $.of.can($_) || nextsame }
-    method FALLBACK($method, |c) {
-        if $.first.can($method) {
-            $.first."$method"(|c)
-        }
-        else {
-            die X::Method::NotFound.new( :$method, :typename(self.^name) );
-        }
-    }
 }
 
 =begin pod

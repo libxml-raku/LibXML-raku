@@ -213,7 +213,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
         # TEST
         isa-ok( $children, "LibXML::Node::List", ' TODO : Add test name' );
         is $children.first, 'bar';
-        is $children.xpath-key, 'text()';
+        is $children[0].xpath-key, 'text()';
         is-deeply $children.Hash.keys.sort, ('bar', 'comment()', 'foobar', 'text()');
         is $children<comment()>, '<!--foo-->';
         is $children.tail, '<![CDATA[&foo bar]]>';

@@ -112,15 +112,6 @@ class LibXML::Node::List does Iterable does Iterator {
         my xmlNodeSet:D $native = $!native.list-to-nodeset($!keep-blanks);
         LibXML::Node::Set.new: :$native;
     }
-    method can($_) { $.of.can($_) || nextsame }
-    method FALLBACK($method, |c) {
-        if $.first.can($method) {
-            $.first."$method"(|c)
-        }
-        else {
-            die X::Method::NotFound.new( :$method, :typename(self.^name) );
-        }
-    }
 }
 
 =begin pod
