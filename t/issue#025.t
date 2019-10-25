@@ -1,6 +1,7 @@
 use v6;
 use LibXML;
 use Test;
+plan 2;
 
 my $html = q:to/HTML/;
 <!DOCTYPE html>
