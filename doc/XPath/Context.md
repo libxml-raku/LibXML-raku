@@ -29,7 +29,7 @@ SYNOPSIS
     use LibXML::XPathContext;
     use LibXML::Node;
     my LibXML::XPath::Context $xpc .= new();
-    $xpc .= new(:$node);
+    $xpc .= new(:$node, :suppress-warnings, :suppress-errors);
     $xpc.registerNs($prefix, $namespace-uri);
     $xpc.unregisterNs($prefix);
     my Str $uri = $xpc.lookupNs($prefix);
@@ -250,6 +250,17 @@ METHODS
         $xpc.setContextSize = $size;
 
     Set or get the current context size. By default, this value is -1 (and evaluating XPath function `last() ` in the initial context raises an XPath error), but can be set to any non-negative value. This usually only serves to cheat the XPath engine to return the given value when `last() ` XPath function is called. If context size is set to 0, position is automatically also set to 0. If context size is positive, position is automatically set to 1. Setting context size to -1 restores the default behavior.
+
+  * set-options, suppress-warnings, suppress-errors
+
+        my LibXML::XPath::Context $ctx .= new: :suppress-warnings;
+        $ctx.suppress-errors = True;
+
+    XPath Contexts have some Boolean error handling options:
+
+      * `suppress-warnings` - Don't report warnings
+
+      * `suppress-errors` - Don't report or handle errors
 
 COPYRIGHT
 =========

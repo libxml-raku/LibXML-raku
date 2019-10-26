@@ -61,7 +61,7 @@ class LibXML::XPath::Context {
         self.findnodes($_, :$deref);
     }
 
-    sub get-value(xmlXPathObject $_, Bool :$literal) is export(:get-value) {
+    method !get-value(xmlXPathObject $_, Bool :$literal) {
         do with $_ -> $native {
             my LibXML::XPath::Object $object .= new: :$native;
             $object.value: :$literal;
@@ -75,7 +75,7 @@ class LibXML::XPath::Context {
         my $xo := $!native.find( $xpath-expr.native, $node, :$bool);
         temp self.recover //= $xo.defined;
         self.flush-errors;
-        get-value($xo, :$literal);
+        self!get-value($xo, :$literal);
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
@@ -229,7 +229,7 @@ class LibXML::XPath::Context {
             -> xmlXPathParserContext $ctxt, Int $n {
                 CATCH { default { xpath-callback-error($_); } }
                 my @params;
-                @params.unshift: get-value($ctxt.valuePop) for 0 ..^ $n;
+                @params.unshift: self!get-value($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c) // '';
                 my xmlXPathObject:D $out := xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret, :$ctxt);
                 $ctxt.valuePush($_) for $out;
@@ -288,7 +288,7 @@ LibXML::XPathContext - XPath Evaluation
   use LibXML::XPathContext;
   use LibXML::Node;
   my LibXML::XPath::Context $xpc .= new();
-  $xpc .= new(:$node);
+  $xpc .= new(:$node, :suppress-warnings, :suppress-errors);
   $xpc.registerNs($prefix, $namespace-uri);
   $xpc.unregisterNs($prefix);
   my Str $uri = $xpc.lookupNs($prefix);
@@ -595,6 +595,19 @@ automatically set to 1. Setting context size to -1 restores the default
 behavior.
 
 =end item1
+
+=begin item
+set-options, suppress-warnings, suppress-errors
+
+   my LibXML::XPath::Context $ctx .= new: :suppress-warnings;
+   $ctx.suppress-errors = True;
+
+XPath Contexts have some Boolean error handling options:
+
+  =item C<suppress-warnings> - Don't report warnings
+  =item C<suppress-errors> - Don't report or handle errors
+
+=end item
 
 =head1 COPYRIGHT
 

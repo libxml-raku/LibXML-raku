@@ -14,6 +14,8 @@ my $file    = "example/dromeds.xml";
 my $parser = LibXML.new();
 my $dom    = $parser.parse: :$file;
 
+LibXML::ErrorHandling.SetGenericErrorFunc(-> $fmt, |c { });
+
 if defined $dom {
     # get the root document
     my $elem   = $dom.getDocumentElement();
