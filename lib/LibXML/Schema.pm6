@@ -5,6 +5,7 @@ unit class LibXML::Schema;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Options;
 use LibXML::Native;
 use LibXML::Native::Schema;
 use LibXML::Parser::Context;
@@ -12,13 +13,14 @@ use Method::Also;
 
 has xmlSchema $.native;
 
-my class Parser::Context
-    does LibXML::ErrorHandling {
+my class Parser::Context {
     has xmlSchemaParserCtxt $!native;
     has Blob $!buf;
-   # for the LibXML::ErrorHandling role
+    # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
 
     multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
     }
@@ -54,12 +56,14 @@ my class Parser::Context
 
 }
 
-my class ValidContext
-    does LibXML::ErrorHandling {
+my class ValidContext {
     has xmlSchemaValidCtxt $!native;
     # for the LibXML::ErrorHandling role
     has $.sax-handler;
     method recover is also<suppress-errors suppress-warnings> { False }
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :sax-handler, :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
 
     multi submethod BUILD( xmlSchemaValidCtxt:D :$!native! ) { }
     multi submethod BUILD( LibXML::Schema:D :schema($_)! ) {

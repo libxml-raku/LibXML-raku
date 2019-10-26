@@ -366,6 +366,12 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     For XPath expressions that do not return node-set, the method returns true if the returned value is a non-zero number or a non-empty string.
 
+  * xpath-context
+
+    Gets the [LibXML::XPath::Context](LibXML::XPath::Context) object that is used for xpath queries (including `find()`, `findvalue()`, `exists()` and some `AT-KEY` queries.
+
+        $node.xpath-context.set-options: :suppress-warnings, :suppress-errors;
+
   * childNodes (handles: elems List values map grep push pop)
 
         my LibXML::Node @kids = $node.childNodes();

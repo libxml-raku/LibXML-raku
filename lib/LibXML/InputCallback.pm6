@@ -3,6 +3,7 @@ use v6;
 unit class LibXML::InputCallback;
 
 use LibXML::ErrorHandling;
+use LibXML::_Options;
 use LibXML::Native;
 
 my class CallbackGroup {
@@ -13,8 +14,7 @@ my class CallbackGroup {
     has Str $.trace;
 }
 
-my class Context
-    does LibXML::ErrorHandling {
+my class Context {
     use NativeCall;
     use LibXML::Native::Defs :CLIB;
     use Method::Also;
@@ -23,6 +23,8 @@ my class Context
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :sax-handler, :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
 
     method !catch(Exception $error) {
         CATCH { default { warn "error handling callback error: $_" } }

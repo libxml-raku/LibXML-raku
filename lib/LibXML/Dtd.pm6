@@ -4,18 +4,20 @@ unit class LibXML::Dtd
     is LibXML::Node;
 
 use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Options;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
 my subset DocNode of LibXML::Node where {!.defined || .native ~~ xmlDoc};
 
-class ValidContext
-    does LibXML::ErrorHandling {
+class ValidContext {
     has xmlValidCtxt $!native;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
 
     multi submethod BUILD( xmlValidCtxt:D :$!native! ) { }
     multi submethod BUILD {

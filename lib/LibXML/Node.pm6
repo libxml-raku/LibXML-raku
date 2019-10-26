@@ -880,6 +880,15 @@ the returned value is a non-zero number or a non-empty string.
 =end item1
 
 =begin item1
+xpath-context
+
+Gets the L<LibXML::XPath::Context> object that is used for xpath queries (including `find()`, `findvalue()`, `exists()` and some `AT-KEY` queries.
+
+    $node.xpath-context.set-options: :suppress-warnings, :suppress-errors;
+
+=end item1
+
+=begin item1
 childNodes (handles: elems List values map grep push pop)
 
   my LibXML::Node @kids = $node.childNodes();

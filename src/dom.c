@@ -694,7 +694,7 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
         }
         if (node->type == XML_ATTRIBUTE_NODE) {
             // prepend '@'
-            xmlChar* at_key = xmlStrdup( "@" );
+            xmlChar* at_key = xmlStrdup( (xmlChar*) "@" );
             at_key = xmlStrcat(at_key, rv);
             xmlFree(rv);
             rv = at_key;

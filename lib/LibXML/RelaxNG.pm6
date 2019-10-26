@@ -4,6 +4,7 @@ unit class LibXML::RelaxNG;
 
 use LibXML::Document;
 use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Options;
 use LibXML::Native;
 use LibXML::Native::RelaxNG;
 use LibXML::Parser::Context;
@@ -11,13 +12,14 @@ use Method::Also;
 
 has xmlRelaxNG $.native;
 
-my class Parser::Context
-    does LibXML::ErrorHandling {
+my class Parser::Context {
     has xmlRelaxNGParserCtxt $!native;
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
 
     multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {
     }
@@ -53,12 +55,13 @@ my class Parser::Context
 
 }
 
-my class ValidContext
-    does LibXML::ErrorHandling {
+my class ValidContext {
     has xmlRelaxNGValidCtxt $!native;
     # for the LibXML::ErrorHandling role
     has $.sax-handler;
-    method recover is also<suppress-errors suppress-warnings> { False }
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
 
     multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!native! ) { }
     multi submethod BUILD( LibXML::RelaxNG:D :schema($_)! ) {

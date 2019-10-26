@@ -1,13 +1,11 @@
 use v6;
 use LibXML::ErrorHandling;
-class LibXML::XPath::Context
-    does LibXML::ErrorHandling {
+class LibXML::XPath::Context {
 
     use LibXML::Native;
     use LibXML::Item;
     use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
-    use LibXML::ErrorHandling;
     use LibXML::Types :QName;
     use LibXML::Node::List;
     use LibXML::Node::Set;
@@ -16,14 +14,19 @@ class LibXML::XPath::Context
     use LibXML::XPath::Object :XPathRange;
     use NativeCall;
     use Method::Also;
-    # for the LibXML::ErrorHandling role
-    has $.sax-handler is rw;
-    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
     has LibXML::Node $!context-node;
     has xmlXPathContext $!native .= new;
     method native { $!native }
 
-    submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc, |c) {
+    # for the LibXML::ErrorHandling role
+    use LibXML::ErrorHandling;
+    use LibXML::_Options;
+    has $.sax-handler is rw;
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+    also does LibXML::ErrorHandling;
+
+    submethod TWEAK(LibXML::Node :$node, LibXML::Document :$doc,|c) {
         self.setContextNode($_) with $node // $doc;
     }
 
@@ -32,9 +35,6 @@ class LibXML::XPath::Context
     }
 
     my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
-    proto sub native-expr(XPathExpr) {*}
-    multi sub native-expr(LibXML::XPath::Expression:D $_) { .native }
-    multi sub native-expr(Str() $_) is default { $_ }
 
     sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:structured-error-cb) {
         CATCH { default { warn "error handling structured error: $_" } }
@@ -45,7 +45,7 @@ class LibXML::XPath::Context
         my anyNode $node = .native with $ref;
         my $*XPATH-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my xmlNodeSet $node-set := $.native.findnodes( native-expr($xpath-expr), $node);
+        my xmlNodeSet $node-set := $.native.findnodes( $xpath-expr.native, $node);
         self.flush-errors;
         $node-set.copy;
     }
@@ -72,7 +72,8 @@ class LibXML::XPath::Context
         my anyNode $node = .native with $ref-node;
         my $*XPATH-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my $xo := $!native.find( native-expr($xpath-expr), $node, :$bool);
+        my $xo := $!native.find( $xpath-expr.native, $node, :$bool);
+        temp self.recover //= $xo.defined;
         self.flush-errors;
         get-value($xo, :$literal);
     }
@@ -201,7 +202,7 @@ class LibXML::XPath::Context
         }, :$ctxt
     }
     multi method park(XPathRange:D $_) { $_ }
-    subset Listy where List|Seq|Slip;
+    subset Listy where List|Seq;
     multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
         # create a node-set for a list of nodes
         my LibXML::Node:D @nodes = .List;
