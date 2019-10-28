@@ -61,7 +61,7 @@ class LibXML::XPath::Context {
         self.findnodes($_, :$deref);
     }
 
-    method !get-value(xmlXPathObject $_, Bool :$literal) {
+    sub get-value(xmlXPathObject $_, Bool :$literal) is export(:get-value) {
         do with $_ -> $native {
             my LibXML::XPath::Object $object .= new: :$native;
             $object.value: :$literal;
@@ -75,7 +75,7 @@ class LibXML::XPath::Context {
         my $xo := $!native.find( $xpath-expr.native, $node, :$bool);
         temp self.recover //= $xo.defined;
         self.flush-errors;
-        self!get-value($xo, :$literal);
+        get-value($xo, :$literal);
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
         $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
@@ -229,7 +229,7 @@ class LibXML::XPath::Context {
             -> xmlXPathParserContext $ctxt, Int $n {
                 CATCH { default { xpath-callback-error($_); } }
                 my @params;
-                @params.unshift: self!get-value($ctxt.valuePop) for 0 ..^ $n;
+                @params.unshift: get-value($ctxt.valuePop) for 0 ..^ $n;
                 my $ret = &func(|@params, |c) // '';
                 my xmlXPathObject:D $out := xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret, :$ctxt);
                 $ctxt.valuePush($_) for $out;
