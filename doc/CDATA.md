@@ -41,11 +41,6 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-cut
-===
-
-
-
 LICENSE
 =======
 

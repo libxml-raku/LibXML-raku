@@ -64,9 +64,6 @@ because I<<<<<< libxml2 >>>>>> treats the different text node types slightly dif
 
 2006-2009, Petr Pajas.
 
-=cut
-
-
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under

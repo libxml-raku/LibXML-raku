@@ -47,7 +47,7 @@ class LibXML::Node does LibXML::Item {
         # two node arguments
         for <insertBefore insertAfter> {
             $?CLASS.^add_method(
-                $_, method (LibXML::Node:D $node, LibXML::Node $ref) {
+                $_, method (LibXML::Node:D $node, LibXML::Node $ref?) {
                     $node.keep: $!native."$_"($node.native, do with $ref {.native} // anyNode);
                 });
         }
@@ -404,8 +404,9 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $node.pop;  # remove last child
 
   # Associative/XPath interface (ready-only)
-  for %kids<a> { ... }; # all '<a>..</a>' kids
-  for %kids<text()> { ... }; # text nodes
+  say $node.keys; # A B text() ..
+  for $node<A> { ... }; # all '<A>..</A>' child nodes
+  for $node<text()> { ... }; # text nodes
 
 =head1 DESCRIPTION
 
@@ -732,13 +733,6 @@ This function differs from the DOM L2 specification, in the case, if the new
 node is not part of the document, the node will be imported first,
 automatically.
 
-$refNode has to be passed to the function even if it is undefined:
-
-
-
-  $node.insertBefore( $newNode, undef ); # the same as $node.appendChild( $newNode );
-   $node.insertBefore( $newNode ); # wrong
-
 Note, that the reference node has to be a direct child of the node the function
 is called on. Also, $newChild is not allowed to be an ancestor of the new
 parent node.
@@ -751,8 +745,6 @@ insertAfter
   $node.insertAfter( $newNode, $refNode );
 
 The method inserts C<<<<<< $newNode >>>>>> after C<<<<<< $refNode >>>>>>. If C<<<<<< $refNode >>>>>> is undefined, the newNode will be set as the new last child of the parent node.
-
-Note, that $refNode has to be passed explicitly even if it is undef.
 
 =end item1
 

@@ -72,8 +72,9 @@ SYNOPSIS
     $node.pop;  # remove last child
 
     # Associative/XPath interface (ready-only)
-    for %kids<a> { ... }; # all '<a>..</a>' kids
-    for %kids<text()> { ... }; # text nodes
+    say $node.keys; # A B text() ..
+    for $node<A> { ... }; # all '<A>..</A>' child nodes
+    for $node<text()> { ... }; # text nodes
 
 DESCRIPTION
 ===========
@@ -271,11 +272,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     The method inserts `$newNode ` before `$refNode `. If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first, automatically.
 
-    $refNode has to be passed to the function even if it is undefined:
-
-        $node.insertBefore( $newNode, undef ); # the same as $node.appendChild( $newNode );
-         $node.insertBefore( $newNode ); # wrong
-
     Note, that the reference node has to be a direct child of the node the function is called on. Also, $newChild is not allowed to be an ancestor of the new parent node.
 
   * insertAfter
@@ -283,8 +279,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         $node.insertAfter( $newNode, $refNode );
 
     The method inserts `$newNode ` after `$refNode `. If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node.
-
-    Note, that $refNode has to be passed explicitly even if it is undef.
 
   * findnodes
 

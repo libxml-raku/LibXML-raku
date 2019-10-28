@@ -39,6 +39,7 @@ METHODS
                                         );
          my $doc = LibXML.load: :file("test.xml");
          $doc.validate($dtd);
+         $doc.is-valid($dtd);
 
   * parse
 
