@@ -1,6 +1,6 @@
 class LibXML::SAX::Builder {
     use LibXML::Native;
-    use LibXML::Native::Defs :CLIB;
+    use LibXML::Native::Defs :$CLIB;
     use NativeCall;
 
     use LibXML::Node;
@@ -41,7 +41,7 @@ class LibXML::SAX::Builder {
                 sub (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     # ensure null termination
-                    sub memcpy(Blob $dest, CArray $chars, size_t $n) is native(CLIB) {*};
+                    sub memcpy(Blob $dest, CArray $chars, size_t $n) is native($CLIB) {*};
                     my buf8 $char-buf .= new;
                     $char-buf[$len-1] = 0
                         if $len > 0;

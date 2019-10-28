@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
 use LibXML::Native;
-use LibXML::Native::Defs :XML2;
+use LibXML::Native::Defs :$XML2;
 use LibXML::Enums;
 
 class X::LibXML is Exception {
@@ -177,7 +177,7 @@ role LibXML::ErrorHandling {
         $fmt.comb.map({ $argv[$n++]."$_"() });
     }
 
-    sub set-generic-error-handler( &func (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer ) is native(XML2) is symbol('xmlSetGenericErrorFunc') {*}
+    sub set-generic-error-handler( &func (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer ) is native($XML2) is symbol('xmlSetGenericErrorFunc') {*}
 
     method SetGenericErrorFunc(&handler) {
         set-generic-error-handler(

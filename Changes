@@ -1,13 +1,14 @@
-0.1.7 2019-10-xx
+0.1.7 2019-10-29
     - [LibXML::Node::List] add AT-KEY method
-    - [LibXML::XPath::Context]
-      -- recover queries when a result is returned, die otherwise. Matches
-         behavious of Perl 5 module.
-      -- add :suppress-warnings and :suppress-errors
+    - [LibXML::XPath::Context] recover queries when a result is returned;
+      die otherwise. Matches behavious of Perl 5 module.
+    - [LibXML::Native::Defs] changed constants to variables: XML2, BIND-XML2, CLIB
+      Just to make it easier to override them if needed:
+      use LibXML::Native::Defs :$XML2; $XML2 = "/someother-path/file.so"
 0.1.6 2019-10-21
     - Replace class LibXML::ErrorHandler with role LibXML::ErrorHandling. Fixes #24.
-    - [LibXML::DocumentFragment]. Add subclass ParserContext. Use it
-      to bundle various parameters. Tidier and hopefully fixes some memory
+    - [LibXML::DocumentFragment]. Add subclass ParserContext. Use it to
+      bundle various parameters. Tidier and hopefully fixes some memory
       leaks from closures in native callbacks
 0.1.5 2019-10-18
     - Added $node.findnodes :deref option. Use it in the call from

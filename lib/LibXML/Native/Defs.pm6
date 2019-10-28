@@ -1,8 +1,8 @@
 unit module LibXML::Native::Defs;
 
-constant XML2 is export(:XML2) = 'xml2';
-constant BIND-XML2 is export(:BIND-XML2) = %?RESOURCES<libraries/xml6>;
-constant CLIB is export(:CLIB) = Rakudo::Internals.IS-WIN ?? 'msvcrt' !! Str;
+our $XML2 is export(:XML2) = 'xml2';
+our $BIND-XML2 is export(:BIND-XML2) = %?RESOURCES<libraries/xml6>;
+our $CLIB is export(:CLIB) = Rakudo::Internals.IS-WIN ?? 'msvcrt' !! Str;
 
 constant Opaque is export(:Opaque) = 'CPointer';
 constant xmlCharP is export(:xmlCharP) = Str;
