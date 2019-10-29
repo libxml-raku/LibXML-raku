@@ -7,8 +7,9 @@ SYNOPSIS
 ========
 
     use LibXML::Node;
-
     my LibXML::Node $node;
+
+    # -- Basic Properties -- #
     my Str $name = $node.nodeName;
     $node.nodeName = $newName;
     my Bool $same = $node.isSame( $other-node );
@@ -16,6 +17,12 @@ SYNOPSIS
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
     my UInt $type = $node.nodeType;
+    $uri = $node.baseURI();
+    $node.baseURI = $uri;
+    $node.nodePath();
+    my UInt $lineno = $node.line-number();
+
+    # -- DOM Manipulation -- #
     $node.unbindNode();
     my LibXML::Node $child = $node.removeChild( $node );
     $oldNode = $node.replaceChild( $newNode, $oldNode );
@@ -25,6 +32,11 @@ SYNOPSIS
     $node = $parent.addNewChild( $nsURI, $name );
     $node.addSibling($newNode);
     $newnode = $node.cloneNode( :deep );
+    $node.insertBefore( $newNode, $refNode );
+    $node.insertAfter( $newNode, $refNode );
+    $node.removeChildNodes();
+
+    # -- Navigation -- #
     $parent = $node.parentNode;
     my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
@@ -36,34 +48,35 @@ SYNOPSIS
     my LibXML::Document $doc = $node.ownerDocument;
     $doc = $node.getOwner;
     $node.ownerDocument = $doc;
-    $node.insertBefore( $newNode, $refNode );
-    $node.insertAfter( $newNode, $refNode );
+    my LibXML::Node @kids = $node.childNodes();
+    @kids = $node.nonBlankChildNodes();
+
+    # -- XPath/Searching -- #
     my LibXML::Node @found = $node.findnodes( $xpath-expression );
     my LibXML::Node::Set $result = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );
-    my LibXML::Node @kids = $node.childNodes();
-    @kids = $node.nonBlankChildNodes();
+    my LibXML::Node $item = $node.first( $xpath-expression );
+    $item = $node.last( $xpath-expression );
+
+    # -- Serialization -- #
     my Str $xml = $node.Str(:format, :$enc);
     my Str $xml-c14 = $node.Str: :C14N;
     $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
     $xml-c14 = $node.Str: :C14N, :v1_1;
     $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression), :exclusive;
     $xml = $doc.serialize(:format); 
+
+    # -- Namespaces -- #
+    my LibXML::Namespace @ns = $node.getNamespaces;
     my Str $localname = $node.localname;
     my Str $prefix = $node.prefix;
     my Str $uri = $node.namespaceURI();
     $uri = $node.lookupNamespaceURI( $prefix );
     $prefix = $node.lookupNamespacePrefix( $URI );
     $node.normalize;
-    my LibXML::Namespace @ns = $node.getNamespaces;
-    $node.removeChildNodes();
-    $uri = $node.baseURI();
-    $node.baseURI = $uri;
-    $node.nodePath();
-    my UInt $lineno = $node.line-number();
 
-    # Positional interface (on child nodes)
+    # -- Positional interface -- #
     $node.push: LibXML::Element.new: :name<A>;
     $node.push: LibXML::Element.new: :name<B>;
     say $node[1].Str; # <B/>
@@ -71,7 +84,7 @@ SYNOPSIS
     say $node.values.map(*.Str).join(':');  # <A/>:<C/>
     $node.pop;  # remove last child
 
-    # Associative/XPath interface (ready-only)
+    # -- Associative/XPath interface -- #
     say $node.keys; # A B text() ..
     for $node<A> { ... }; # all '<A>..</A>' child nodes
     for $node<text()> { ... }; # text nodes

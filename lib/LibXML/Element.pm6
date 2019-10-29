@@ -196,6 +196,8 @@ LibXML::Element - LibXML Class for Element Nodes
   # see the LibXML::Node documentation for other methods
 
   my LibXML::Element $node .= new( $name );
+
+  # -- Attributes -- #
   $node.setAttribute( $aname, $avalue );
   $node.setAttributeNS( $nsURI, $aname, $avalue );
   $avalue = $node.getAttribute( $aname );
@@ -204,13 +206,15 @@ LibXML::Element - LibXML Class for Element Nodes
   $attrnode = $node{'@'~$aname}; # xpath attribute selection
   $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
   my Bool $has-atts = $node.hasAttributes();
-  my LibXML::Node::Set $attrs = $node.attributes();
+  my LibXML::Attr::Map $attrs = $node.attributes();
   $attrs = $node<attributes::>; # xpath
   my LibXML::Attr @props = $node.properties();
   $node.removeAttribute( $aname );
   $node.removeAttributeNS( $nsURI, $aname );
   $boolean = $node.hasAttribute( $aname );
   $boolean = $node.hasAttributeNS( $nsURI, $aname );
+
+  # -- Navigation -- #
   my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
   @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
   @nodes = $node.getChildrenByLocalName($localname);
@@ -218,6 +222,8 @@ LibXML::Element - LibXML Class for Element Nodes
   @nodes = $node{$xpath-expression}; # xpath node selection
   @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
   @nodes = $node.getElementsByLocalName($localname);
+
+  #-- DOM Manipulation -- #
   $node.appendWellBalancedChunk( $chunk );
   $node.appendText( $PCDATA );
   $node.appendTextNode( $PCDATA );
@@ -226,7 +232,7 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.setNamespaceDeclURI( $nsPrefix, $newURI );
   $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
-  # Associative/XPath interface
+  # -- Associative/XPath interface -- #
   my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
   my $b-value  = $elem<@b>.Str;    # value of 'b' attribute
   my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;

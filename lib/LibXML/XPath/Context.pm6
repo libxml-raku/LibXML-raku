@@ -332,6 +332,8 @@ LibXML::XPathContext - XPath Evaluation
   my Any $object = $xpc.find($xpath );
   $object = $xpc.find($xpath, $ref-node );
   my $value = $xpc.findvalue($xpath );
+  $node = $xpc.first($xpath);
+  $node = $xpc.last($xpath);
   $value = $xpc.findvalue($xpath, $ref-node );
   my Bool $found = $xpc.exists( $xpath, $ref-node );
   $xpc.contextNode = $node;
