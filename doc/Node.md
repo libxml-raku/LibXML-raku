@@ -332,7 +332,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $result = $node.find( $xpath );
 
-    *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [LibXML::Number ](LibXML::Number ) object being returned. Other expressions might return an [Bool ](Bool ) object, Numeric, or a [Str ](Str ) object. Each of those objects uses Perl's overload feature to "do the right thing" in different contexts.
+    *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric ](Numeric ) object being returned. Other expressions might return an [Bool ](Bool ) object, or a [Str ](Str ) object. Each of those objects uses Perl's overload feature to "do the right thing" in different contexts.
 
     The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
 
@@ -351,6 +351,21 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     See also [LibXML::XPathContext ](LibXML::XPathContext ).findvalue.
 
     The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+
+  * first
+
+        my $child = $node.first;          # first child
+        my $child = $node.first, :!blank; # first non-blank child
+        my $descendant = $node.first($xpath-expr);
+
+    This node returns the first matching child node, or descendant node th at matches an optional XPath expression.
+
+  * last
+
+        my $child = $node.last;          # first child
+        my $descendant = $node.last($xpath-expr);
+
+    This node returns the last matching child node, or descendant node th at matches an optional XPath expression.
 
   * exists
 

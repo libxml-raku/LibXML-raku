@@ -75,12 +75,16 @@ class LibXML::Node does LibXML::Item {
     method ownerElement is also<getOwnerElement parent parentNode> {
         LibXML::Node.box: $!native.parent;
     }
-    method first is also<firstChild getFirstChild> {
-        LibXML::Node.box: self.native.firstChild;
+    multi method first(Bool :$blank = True) is also<firstChild getFirstChild> {
+        given self.native {
+            LibXML::Node.box($blank ?? .firstChild !! .firstNonBlankChild);
+        }
     }
-    method last is also<lastChild getLastChild> {
+    multi method first($expr, |c) { $.xpath-context.first($expr, |c) }
+    multi method last is also<lastChild getLastChild> {
         LibXML::Node.box: self.native.last;
     }
+    multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
     method appendChild(LibXML::Node:D $new) is also<add addChild> {
         $new.keep: $!native.appendChild($new.native);
     }
@@ -827,7 +831,7 @@ find
 
 I<<<<<< find >>>>>> evaluates the XPath 1.0 expression using the current node as the context of the
 expression, and returns the result depending on what type of result the XPath
-expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< LibXML::Number >>>>>> object being returned. Other expressions might return an L<<<<<< Bool >>>>>> object, Numeric, or a L<<<<<< Str >>>>>> object. Each of those objects uses Perl's overload feature to "do
+expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< Numeric >>>>>> object being returned. Other expressions might return an L<<<<<< Bool >>>>>> object, or a L<<<<<< Str >>>>>> object. Each of those objects uses Perl's overload feature to "do
 the right thing" in different contexts.
 
 The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 
@@ -855,6 +859,27 @@ select="some_xpath"/>.
 See also L<<<<<< LibXML::XPathContext >>>>>>.findvalue.
 
 The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 
+
+=end item1
+
+=begin item1
+first
+
+    my $child = $node.first;          # first child
+    my $child = $node.first, :!blank; # first non-blank child
+    my $descendant = $node.first($xpath-expr);
+
+This node returns the first matching child node, or descendant node th at matches an optional XPath expression.
+
+=end item1
+
+=begin item1
+last
+
+    my $child = $node.last;          # first child
+    my $descendant = $node.last($xpath-expr);
+
+This node returns the last matching child node, or descendant node th at matches an optional XPath expression.
 
 =end item1
 

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 41;
+plan 50;
 
 # bootstrapping tests for the DOM
 
@@ -8,6 +8,7 @@ use LibXML;
 use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Native;
+use LibXML::Node;
 
 my $string = "<a>    <b/> </a>";
 my $tstr= "<a><b/></a>\n";
@@ -15,14 +16,26 @@ my $sDoc   = '<C/><D/>';
 my $sChunk = '<A/><B/>';
 
 my LibXML $parser .= new;
-$parser.keep-blanks = False;
+$parser.keep-blanks = True;
 $parser.config.skip-xml-declaration = True;
 my LibXML::Document $doc = $parser.parse: :$string;
-is $doc.Str, $tstr;
+isnt $doc.Str, $tstr, 'blanks kept';
 is-deeply $doc.doc, $doc, 'doc self-root';
 
+my $a = $doc.first;
+is $a.tag, 'a';
+is $a.first, '    ';
+is $a.first(:!blank), '<b/>';
+is $a.first('node()'), '    ';
+is $a.first('b'), '<b/>';
+is-deeply $a.first('XX'), LibXML::Node;
+
+is $a.last('node()'), ' ';
+is $a.last('b'), '<b/>';
+is-deeply $a.last('XX'), LibXML::Node;
+
 $doc .= parse: :$string, :!keep-blanks;
-is $doc.Str,  $tstr;
+is $doc.Str,  $tstr, 'blanks discarded';
 
 my LibXML::DocumentFragment:D $frag = $parser.parse-balanced: :string($sDoc);
 my LibXML::DocumentFragment:D $chk = $parser.parse-balanced: :string($sChunk);

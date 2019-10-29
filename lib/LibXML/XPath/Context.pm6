@@ -3,7 +3,7 @@ use LibXML::ErrorHandling;
 class LibXML::XPath::Context {
 
     use LibXML::Native;
-    use LibXML::Item;
+    use LibXML::Item :box-class;
     use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Document;
     use LibXML::Types :QName;
@@ -56,6 +56,33 @@ class LibXML::XPath::Context {
     multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) is default {
         my $expr = LibXML::XPath::Expression.new: :expr($_);
         iterate-set(LibXML::Item, self!find($expr, $ref), :$deref);
+    }
+    sub box(itemNode $elem) {
+        do with $elem {
+            box-class(.type).box(.delegate);
+        } // LibXML::Node;
+    }
+
+    multi method first(Str:D $expr, LibXML::Node $ref?) {
+        $.first(LibXML::XPath::Expression.new(:$expr), $ref);
+    }
+    multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
+        my xmlNodeSet $nodes := self!find($expr, $ref);
+        my itemNode $node = $nodes.nodeTab[0] if $nodes.nodeNr;
+        my $rv := box($node);
+        $nodes.Free;
+        $rv;
+    }
+    multi method last(Str:D $expr, LibXML::Node $ref?) {
+        $.last(LibXML::XPath::Expression.new(:$expr), $ref);
+    }
+    multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
+        my xmlNodeSet $nodes := self!find($expr, $ref);
+        my $n = $nodes.nodeNr;
+        my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
+        my $rv := box($node);
+        $nodes.Free;
+        $rv;
     }
     method AT-KEY($_, Bool :$deref = True) {
         self.findnodes($_, :$deref);

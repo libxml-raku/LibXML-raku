@@ -1,5 +1,5 @@
 use Test;
-plan 84;
+plan 88;
 
 use LibXML;
 use LibXML::XPath::Context;
@@ -8,11 +8,12 @@ use LibXML::XPath::Expression;
 my $errors;
 
 my $doc = LibXML.parse: :string(q:to<XML>);
-<foo><bar a="b"></bar></foo>
+<foo><bar a="b"></bar><baz/></foo>
 XML
 
 # test findnodes() in list context
 my $xpath = '/*';
+my $xpath2 = '/*/*';
 # TEST:$exp=2;
 for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
     my @nodes = LibXML::XPath::Context.new(:$doc).findnodes($exp);
@@ -38,6 +39,13 @@ for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
   ok(!defined($nl.pop), ' TODO : Add test name');
 }
 
+# test  first(), last()
+# TEST:$exp=2;
+for ($xpath~'/*', LibXML::XPath::Expression.parse($xpath~'/*')) -> $exp {
+  my $ctx = LibXML::XPath::Context.new(:$doc);
+  is $ctx.first($exp).nodeName, 'bar';
+  is $ctx.last($exp).nodeName, 'baz';
+}
 
 # test findvalue()
 # TEST

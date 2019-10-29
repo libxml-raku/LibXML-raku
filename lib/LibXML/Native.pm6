@@ -1240,6 +1240,7 @@ class xmlNodeSet is export {
 
     method Reference is native($BIND-XML2) is symbol('domReferenceNodeSet') {*}
     method Unreference is native($BIND-XML2) is symbol('domUnreferenceNodeSet') {*}
+    method Free is native($XML2) is symbol('xmlXPathFreeNodeSet') {*}
     method delete(itemNode --> int32) is symbol('domDeleteNodeSetItem') is native($BIND-XML2) {*}
     method copy(--> xmlNodeSet) is symbol('domCopyNodeSet') is native($BIND-XML2) {*}
     method push(itemNode) is symbol('domPushNodeSet') is native($BIND-XML2) {*}
