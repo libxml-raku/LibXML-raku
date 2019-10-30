@@ -33,10 +33,12 @@ SYNOPSIS
     my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
     @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
     @nodes = $node.getChildrenByLocalName($localname);
-    @nodes = $node.getElementsByTagName($tagname);
-    @nodes = $node{$xpath-expression}; # xpath node selection
-    @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
-    @nodes = $node.getElementsByLocalName($localname);
+    @nodes = $node.children; # all child nodes
+    @nodes = $node.children(:!blank); # non-blank child nodes
+    my LibXML::Element @elems = $node.getElementsByTagName($tagname);
+    @elems = $node.getElementsByTagNameNS($nsURI,$localname);
+    @elems = $node.getElementsByLocalName($localname);
+    @elems = $node.elements; # all child elements
 
     #-- DOM Manipulation -- #
     $node.appendWellBalancedChunk( $chunk );
@@ -48,8 +50,9 @@ SYNOPSIS
     $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
     # -- Associative/XPath interface -- #
-    my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
-    my $b-value  = $elem<@b>.Str;    # value of 'b' attribute
+    @nodes = $node{$xpath-expression}; # xpath node selection
+    my LibXML::Node @as = $elem<a>;    # equivalent to: $elem.findnodes<a>;
+    my $b-value  = $elem<@b>.Str;      # value of 'b' attribute
     my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
     my $text-content = $elem<text()>;
     say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
@@ -221,6 +224,10 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     This function is not found in the DOM specification. It is a mix of getElementsByTagName and getElementsByTagNameNS. It will fetch all tags matching the given local-name. This allows one to select tags with the same local name across namespace borders.
 
     In SCALAR context this function returns an [LibXML::NodeList ](LibXML::NodeList ) object.
+
+  * elements
+
+    An alias for `.getElementsByLocalName('*')`
 
   * appendWellBalancedChunk
 

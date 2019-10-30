@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 50;
+plan 52;
 
 # bootstrapping tests for the DOM
 
@@ -32,6 +32,7 @@ is-deeply $a.first('XX'), LibXML::Node;
 
 is $a.last('node()'), ' ';
 is $a.last('b'), '<b/>';
+is $a.elements, '<b/>', 'elements()';
 is-deeply $a.last('XX'), LibXML::Node;
 
 $doc .= parse: :$string, :!keep-blanks;
@@ -42,7 +43,8 @@ my LibXML::DocumentFragment:D $chk = $parser.parse-balanced: :string($sChunk);
 
 lives-ok {$frag.appendChild( $chk )}, 'appendChild lives';
 
-is( $frag.Str, '<C/><D/><A/><B/>', 'Parse/serialize fragment "<C/><D/><A/><B/>"');
+is( $frag.Str, '<C/><D/><A/><B/>', 'Parse/serialize fragment');
+is $frag.elements.Str, '<C/><D/><A/><B/>', 'Fragment elements';
 
 # create a document from scratch
 $doc .= new;

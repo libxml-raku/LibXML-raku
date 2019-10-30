@@ -160,9 +160,9 @@ class LibXML::Node does LibXML::Item {
     method line-number   { $!native.GetLineNo }
     method prefix        { do with $!native.ns {.prefix} // Str }
 
-    sub iterate-list($parent, $of, Bool :$properties, :$doc = $of.doc, Bool :$keep-blanks = True) is export(:iterate-list) {
+    sub iterate-list($parent, $of, Bool :$properties, :$doc = $of.doc, Bool :$blank = True) is export(:iterate-list) {
         # follow a chain of .next links.
-        (require ::('LibXML::Node::List')).new: :$of, :$properties, :$doc, :$keep-blanks, :$parent;
+        (require ::('LibXML::Node::List')).new: :$of, :$properties, :$doc, :$blank, :$parent;
     }
 
     sub iterate-set($of, xmlNodeSet $native, Bool :$deref) is export(:iterate-set) {
@@ -170,7 +170,7 @@ class LibXML::Node does LibXML::Item {
         (require ::('LibXML::Node::Set')).new( :$native, :$of, :$deref )
     }
 
-    method string-value is also<textContent to-literal> {
+    method string-value is also<text textContent to-literal> {
         $!native.string-value;
     }
     method unlink is also<unlinkNode unbindNode remove> {
@@ -178,12 +178,12 @@ class LibXML::Node does LibXML::Item {
         $!doc = LibXML::Node;
         self;
     }
-    method Hash handles <keys pairs kv> { $.childNodes.Hash }
-    method childNodes is also<getChildnodes children nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
-        iterate-list(self, LibXML::Node);
+    method Hash(|c) handles <keys pairs kv> { $.childNodes(|c).Hash }
+    method childNodes(Bool :$blank = True) is also<getChildnodes children nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
+        iterate-list(self, LibXML::Node, :$blank);
     }
     method nonBlankChildNodes {
-        iterate-list(self, LibXML::Node, :!keep-blanks);
+        iterate-list(self, LibXML::Node, :!blank);
     }
     has $!xpath-context;
     method xpath-context handles<find findnodes findvalue exists registerNs> {

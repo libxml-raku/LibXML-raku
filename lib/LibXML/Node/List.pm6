@@ -3,7 +3,7 @@ class LibXML::Node::List does Iterable does Iterator {
     use LibXML::Node;
     use Method::Also;
 
-    has Bool:D $.keep-blanks = False;
+    has Bool:D $.blank = False;
     has $.doc is required;
     has anyNode $!native handles <string-value>;
     has LibXML::Node $!first;
@@ -17,7 +17,7 @@ class LibXML::Node::List does Iterable does Iterator {
 
     submethod TWEAK(:$properties) {
         $!native = do given $!parent.native {
-            $properties ?? .properties !! .first-child(+$!keep-blanks);
+            $properties ?? .properties !! .first-child(+$!blank);
         }
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
@@ -43,7 +43,7 @@ class LibXML::Node::List does Iterable does Iterator {
         when $pos == $!idx+1 {
             # next element
             $!idx++;
-            $_ = .next-node($!keep-blanks) with $!cur;
+            $_ = .next-node($!blank) with $!cur;
             $!of.box: $!cur, :$!doc;
         }
         default {
@@ -100,7 +100,7 @@ class LibXML::Node::List does Iterable does Iterator {
     method pull-one {
         with $!cur -> $this {
             $!idx++;
-            $!cur = $this.next-node($!keep-blanks);
+            $!cur = $this.next-node($!blank);
             $!of.box: $this, :$!doc
         }
         else {
@@ -109,7 +109,7 @@ class LibXML::Node::List does Iterable does Iterator {
     }
     method to-node-set {
         require LibXML::Node::Set;
-        my xmlNodeSet:D $native = $!native.list-to-nodeset($!keep-blanks);
+        my xmlNodeSet:D $native = $!native.list-to-nodeset($!blank);
         LibXML::Node::Set.new: :$native;
     }
 }

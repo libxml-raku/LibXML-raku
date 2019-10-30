@@ -22,4 +22,6 @@ method getChildrenByTagName(Str:D $name) {
 method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
     iterate-set(LibXML::_DOMNode, $.native.getChildrenByTagNameNS($uri, $name));
 }
-
+method elements {
+    iterate-set(LibXML::_DOMNode, $.native.getChildrenByLocalName('*'));
+}
