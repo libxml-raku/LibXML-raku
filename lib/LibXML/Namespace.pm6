@@ -8,6 +8,7 @@ use NativeCall;
 use Method::Also;
 use LibXML::Native::Defs :XML_XMLNS_NS;
 has xmlNs $!native handles <type href Str>;
+method native { $!native }
 
 method box(xmlNs $ns!) {
     do with $ns {
@@ -44,7 +45,7 @@ method URI is also<declaredURI getValue string-value value>
 method localname(--> NCName) is also<declaredPrefix>
                     { $!native.prefix }
 method unique-key   { $!native.UniqueKey }
-method isSameNode(LibXML::Item $_) { self.unique-key eq .unique-key }
+method isSame(LibXML::Item $_) is also<isSameNode> { self.unique-key eq .unique-key }
 method xpath-key { 'namespace()' }
 method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }

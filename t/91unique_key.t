@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 31;
+plan 35;
 
 use LibXML;
 use LibXML::Document;
@@ -42,6 +42,10 @@ my $foo_default_ns = LibXML::Namespace.new('foo.com');
 my $foo_ns = LibXML::Namespace.new('foo.com','foo');
 my $bar_default_ns = LibXML::Namespace.new('bar.com');
 my $bar_ns = LibXML::Namespace.new('bar.com','bar');
+ok $foo_ns.isSameNode($foo_ns);
+nok $foo_ns.isSameNode($bar_ns);
+nok $foo_ns.isSameNode($doc);
+nok $doc.isSameNode($foo_ns);
 
 # TEST
 is(
@@ -49,6 +53,7 @@ is(
     LibXML::Namespace.new('foo.com').unique-key,
     'default foo ns key matches itself'
 );
+
 
 # TEST
 isnt(

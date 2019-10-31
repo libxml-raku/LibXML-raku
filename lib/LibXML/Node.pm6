@@ -68,7 +68,7 @@ class LibXML::Node does LibXML::Item {
         die $_ with $!;
         $rv;
     }
-    method isSame(LibXML::Node:D $other) is also<isSameNode> {
+    method isSame(LibXML::Item $other) is also<isSameNode> {
         $!native.isSameNode($other.native);
     }
     method isEqual(|c) is DEPRECATED<isSameNode> { $.isSameNode(|c) }

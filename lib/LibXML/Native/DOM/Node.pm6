@@ -208,9 +208,10 @@ method normalize { self.domNormalize }
 
 method unique-key { self.domUniqueKey }
 
-method isSameNode(Node $oNode) {
+multi method isSameNode(Node $oNode) {
     ? self.domIsSameNode($oNode);
 }
+multi method isSameNode($) is default { False }
 
 sub oops($node, Bool $ok is rw, @path, Str:D $msg) {
     my $where = '[' ~ @path.join(',') ~ '] ' ~ $node.domName ~ '(' ~ $node.type ~ ')';
