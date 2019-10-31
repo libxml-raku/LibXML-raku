@@ -14,7 +14,7 @@ DLLEXPORT xmlChar* xml6_ref_get_fail(void*);
 DLLEXPORT int xml6_ref_lock(void*);
 DLLEXPORT int xml6_ref_unlock(void*);
 
-#define fail(self, msg) { self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return NULL;}
-#define fail_i(self, msg) {self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return -1;}
+#define xml6_fail(self, msg) { self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return NULL;}
+#define xml6_fail_i(self, msg) {self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return -1;}
 
 #endif /* __XML6_REF_H */

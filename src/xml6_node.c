@@ -53,7 +53,7 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
     if (node && node->prev) {
         // Unexpected, if we're using the DOM properly. The node should
         // either be unlinked, or parented to a unique xmlDoc/xmlDocFrag.
-        fail(self, "root node has multiple elements");
+        xml6_fail(self, "root node has multiple elements");
     }
 
     return node;
@@ -152,7 +152,7 @@ DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments,  xmlC14N
     int stat;
 
     if ( self->doc == NULL ) {
-        fail(self, "Node passed to toStringC14N must be part of a document");
+        xml6_fail(self, "Node passed to toStringC14N must be part of a document");
     }
 
     stat = xmlC14NDocDumpMemory( self->doc,
@@ -165,7 +165,7 @@ DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments,  xmlC14N
     if (stat < 0) {
         char msg[80];
         sprintf(msg, "C14N serialization returned error status: %d", stat);
-        fail(self, msg);
+        xml6_fail(self, msg);
     }
 
     return rv;

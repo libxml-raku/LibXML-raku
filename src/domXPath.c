@@ -452,7 +452,7 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
         xmlDocPtr doc = node ? node->doc : NULL;
         if (ctxt->doc != doc) {
             if (ctxt->doc != NULL)
-                fail(node, "changing XPath Context documents is not supported");
+                xml6_fail(node, "changing XPath Context documents is not supported");
 
             ctxt->doc = doc;
 

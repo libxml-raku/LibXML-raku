@@ -76,13 +76,13 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.parent;
     }
     multi method first(Bool :$blank = True) is also<firstChild getFirstChild> {
-        given self.native {
+        given $!native {
             LibXML::Node.box($blank ?? .firstChild !! .firstNonBlankChild);
         }
     }
     multi method first($expr, |c) { $.xpath-context.first($expr, |c) }
     multi method last is also<lastChild getLastChild> {
-        LibXML::Node.box: self.native.last;
+        LibXML::Node.box: $!native.last;
     }
     multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
     method appendChild(LibXML::Node:D $new) is also<add addChild> {

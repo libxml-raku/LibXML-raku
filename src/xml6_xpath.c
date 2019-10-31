@@ -23,7 +23,7 @@ DLLEXPORT xmlNodePtr
 xml6_xpath_ctxt_set_node(xmlXPathContextPtr ctxt, xmlNodePtr node) {
     if (node != NULL) {
         if (ctxt->doc != node->doc)
-            fail(node, "changing XPathContext between documents is not supported");
+            xml6_fail(node, "changing XPathContext between documents is not supported");
     }
     else {
         node = (xmlNodePtr) ctxt->doc;

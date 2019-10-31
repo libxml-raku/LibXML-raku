@@ -1,9 +1,9 @@
 #include "xml6.h"
 #include "xml6_input.h"
+#include <assert.h>
 
 DLLEXPORT void xml6_input_set_filename(xmlParserInputPtr self, char *url) {
-    if (self == NULL) xml6_fail("can't assign filename to NULL parser-input struct");
-
+    assert(self != NULL);
     if (self->filename) xmlFree((xmlChar*)self->filename);
     self->filename = (char*) xmlStrdup((const xmlChar *) url);
 }
@@ -12,8 +12,8 @@ DLLEXPORT int xml6_input_buffer_push_str(xmlParserInputBufferPtr buffer, const x
     xmlChar* new_string = NULL;
     int len;
 
-    if (buffer == NULL) return xml6_warn("can't push to NULL parser input buffer");
-    if (str == NULL) return xml6_warn("can't push NULL string to parser input buffer");
+    assert(buffer != NULL);
+    assert(str != NULL);
 
     new_string = xmlStrdup(str);
     len = xmlStrlen(new_string);
