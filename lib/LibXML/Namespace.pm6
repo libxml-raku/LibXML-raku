@@ -31,6 +31,10 @@ multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
     $!native .= new: :$URI, :$prefix, :$node;
 }
 
+submethod DESTROY {
+    .Free with $!native;
+}
+
 method nodeType { $!native.type }
 method nodeName is also<name> {
     'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
@@ -39,14 +43,11 @@ method URI is also<declaredURI getValue string-value value>
                     { $!native.href }
 method localname(--> NCName) is also<declaredPrefix>
                     { $!native.prefix }
-method unique-key   { join('|', $!native.prefix//'', $!native.href//''); }
+method unique-key   { $!native.UniqueKey }
+method isSameNode(LibXML::Item $_) { self.unique-key eq .unique-key }
 method xpath-key { 'namespace()' }
 method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }
-
-submethod DESTROY {
-    .Free with $!native;
-}
 
 =begin pod
 =head1 NAME

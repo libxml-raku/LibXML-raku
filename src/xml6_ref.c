@@ -57,7 +57,7 @@ xml6_ref_add(void** self_ptr) {
 
         if (self->magic != XML6_REF_MAGIC) {
             char msg[80];
-            sprintf(msg, "%p is not owned by us, or is corrupted", (long) self);
+            sprintf(msg, "%p is not owned by us, or is corrupted", self);
             xml6_warn(msg);
         }
         else {
@@ -74,14 +74,14 @@ xml6_ref_remove(void** self_ptr, const char* what, void* where) {
     int released = 0;
 
     if (*self_ptr == NULL) {
-        sprintf(msg, "%s %p was not referenced", what, (long) where);
+        sprintf(msg, "%s %p was not referenced", what, where);
         xml6_warn(msg);
         released = 1;
     }
     else {
         xml6RefPtr self = (xml6RefPtr) *self_ptr;
         if (self->magic != XML6_REF_MAGIC) {
-            sprintf(msg, "%s %p is not owned by us, or is corrupted", what, (long) where);
+            sprintf(msg, "%s %p is not owned by us, or is corrupted", what, where);
             xml6_warn(msg);
         }
         else {
@@ -89,13 +89,13 @@ xml6_ref_remove(void** self_ptr, const char* what, void* where) {
             if (mutex != NULL) xmlMutexLock(mutex);
 
             if (self->ref_count <= 0 || self->ref_count >= 65536) {
-                sprintf(msg, "%s %p has unexpected ref_count value: %ld", what, (long) where, (long) self->ref_count);
+                sprintf(msg, "%s %p has unexpected ref_count value: %ld", what, where, self->ref_count);
                 xml6_warn(msg);
             }
             else {
                 if (self->ref_count == 1) {
                     if (self->fail != NULL) {
-                        snprintf(msg, sizeof(msg), "uncaught failure on %s %p destruction: %s", what, (long) where, self->fail);
+                        snprintf(msg, sizeof(msg), "uncaught failure on %s %p destruction: %s", what, where, self->fail);
                         xml6_warn(msg);
                         xmlFree(self->fail);
                     }

@@ -310,6 +310,7 @@ class xmlNs is export is repr('CStruct') {
     method Free is native($XML2) is symbol('xmlFreeNs') {*}
     method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_ns_copy') {*}
     method copy { $.Copy }
+    method UniqueKey(--> xmlCharP) is native($BIND-XML2) is symbol('xml6_ns_unique_key') {*}
     method Str {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';
@@ -810,6 +811,8 @@ class anyNode is export does LibXML::Native::DOM::Node {
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domNormalize(--> int32) is native($BIND-XML2) {*}
+    method domUniqueKey(--> xmlCharP) is native($BIND-XML2) {*}
+    method domIsSameNode(anyNode --> int32) is native($BIND-XML2) {*}
 
     method xml6_node_to_str(int32 $opts --> Str) is native($BIND-XML2) {*}
     method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> Str) is native($BIND-XML2) {*}

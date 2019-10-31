@@ -37,6 +37,8 @@ method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
 method domAddNewChild { ... }
 method domNormalize { ... }
+method domUniqueKey { ... }
+method domIsSameNode { ... }
 method domXPathSelectStr { ...}
 enum <SkipBlanks KeepBlanks>;
 
@@ -204,10 +206,10 @@ method addNewChild(Str $uri, QName $name) {
 
 method normalize { self.domNormalize }
 
-method unique-key { ((+nativecast(Pointer, $_) with self) // 0).fmt: "%x"  }
+method unique-key { self.domUniqueKey }
 
 method isSameNode(Node $oNode) {
-    self.unique-key eq $oNode.unique-key;
+    ? self.domIsSameNode($oNode);
 }
 
 sub oops($node, Bool $ok is rw, @path, Str:D $msg) {

@@ -242,7 +242,6 @@ DLLEXPORT xmlNodePtr domPopNodeSet(xmlNodeSetPtr self) {
 DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
     xmlNodeSetPtr rv = xmlXPathNodeSetCreate(NULL);
     int i;
-    xmlNodePtr prev = NULL;
 
     assert(rv != NULL);
 
@@ -332,7 +331,7 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
 
                 if (twig != last_twig) {
                     char key[20];
-                    sprintf(key, "%ld", (long) cur);
+                    sprintf(key, "%p", cur);
 
                     if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
                         xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);

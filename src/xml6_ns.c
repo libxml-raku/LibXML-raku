@@ -6,7 +6,10 @@
 
 DLLEXPORT xmlNsPtr xml6_ns_copy(xmlNsPtr self) {
     xmlNsPtr new = (xmlNsPtr) xmlMalloc(sizeof(xmlNs));
+
+    assert(self != NULL);
     assert(new != NULL);
+
     memset(new, 0, sizeof(xmlNs));
     new->type = self->type;
 
@@ -15,4 +18,15 @@ DLLEXPORT xmlNsPtr xml6_ns_copy(xmlNsPtr self) {
     if (self->prefix != NULL)
         new->prefix = xmlStrdup(self->prefix);
     return new;
+}
+
+DLLEXPORT xmlChar* xml6_ns_unique_key(xmlNsPtr self) {
+    xmlChar *rv = NULL;
+
+    assert(self != NULL);
+
+    rv = xmlStrdup(self->prefix);
+    xmlStrcat(rv, (const xmlChar *) "|");
+    xmlStrcat(rv, self->href);
+    return rv;
 }

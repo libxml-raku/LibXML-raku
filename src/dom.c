@@ -1980,3 +1980,13 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
 DLLEXPORT xmlChar* domFailure(xmlNodePtr self) {
     return xml6_ref_get_fail(self->_private);
 }
+
+DLLEXPORT xmlChar* domUniqueKey(void* self) {
+    char key[20];
+    sprintf(key, "%p", self);
+    return xmlStrdup((xmlChar*)key);
+}
+
+DLLEXPORT int domIsSameNode(void* self, void* other) {
+    return self == other;
+}

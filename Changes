@@ -3,6 +3,8 @@
       -- $node.first($xpath) and $node.last($xpath) multi-methods
       -- $node.elements() and .text() methods
       -- $.children(:!blank) option
+    - [dom.c] add domUniqueKey(), domIsSameNode()
+    - [xml6_ns.c] add xml6_ns_unique_key()
 0.1.7 2019-10-29
     - [LibXML::Node::List] add AT-KEY method
     - [LibXML::XPath::Context] recover queries when a result is returned;
