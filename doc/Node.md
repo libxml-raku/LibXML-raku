@@ -371,14 +371,14 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my $child = $node.first, :!blank; # first non-blank child
         my $descendant = $node.first($xpath-expr);
 
-    This node returns the first matching child node, or descendant node th at matches an optional XPath expression.
+    This node returns the first child node, or descendant node that matches an optional XPath expression.
 
   * last
 
-        my $child = $node.last;          # first child
+        my $child = $node.last;          # last child
         my $descendant = $node.last($xpath-expr);
 
-    This node returns the last matching child node, or descendant node th at matches an optional XPath expression.
+    This node returns the last child, or descendant node that matches an optional XPath expression.
 
   * exists
 

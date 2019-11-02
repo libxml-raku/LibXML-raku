@@ -90,7 +90,7 @@ LibXML::Attr::Map - LibXML Class for Mapped Attributes
   say $node.Str; # <foo att1="AAA" att3="CCC"/>
 
   # -- DOM Interface --
-  $atts.setNamedItem('style', 'fontweight: bold');
+  $atts.setNamedItem('style', 'font-weight: bold');
   my LibXML::Attr $style = $atts.getNamedItem('style');
   $atts.removeNamedItem('style');
 

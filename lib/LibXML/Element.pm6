@@ -238,7 +238,7 @@ LibXML::Element - LibXML Class for Element Nodes
   @nodes = $node{$xpath-expression}; # xpath node selection
   my LibXML::Node @as = $elem<a>;    # equivalent to: $elem.findnodes<a>;
   my $b-value  = $elem<@b>.Str;      # value of 'b' attribute
-  my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+  my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
   my $text-content = $elem<text()>;
   say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
   say $_ for $elem.attributes.keys;  # att-1 .. att-n

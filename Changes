@@ -1,8 +1,10 @@
-0.1.8 2019-11-xx
-    - [LibXML::Node][LibXML::XPath::Context] More methods and options:
+0.1.8 2019-11-03
+    - [LibXML::Node][LibXML::XPath::Context] Added:
       -- $node.first($xpath) and $node.last($xpath) multi-methods
       -- $node.elements() and .text() methods
       -- $.children(:!blank) option
+    - [LibXML::Item] $.isSameNode() method now allows comparisons between
+      nodes and namespaces (always False for defined values)
     - [dom.c] add domUniqueKey(), domIsSameNode()
     - [xml6_ns.c] add xml6_ns_unique_key()
 0.1.7 2019-10-29
