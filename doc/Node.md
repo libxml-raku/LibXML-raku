@@ -51,13 +51,18 @@ SYNOPSIS
     my LibXML::Node @kids = $node.childNodes();
     @kids = $node.nonBlankChildNodes();
 
-    # -- XPath/Searching -- #
+    # -- Searching -- #
+    #    * XPath *
     my LibXML::Node @found = $node.findnodes( $xpath-expression );
-    my LibXML::Node::Set $result = $node.find( $xpath-expression );
+    my LibXML::Node::Set $results = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );
     my LibXML::Node $item = $node.first( $xpath-expression );
     $item = $node.last( $xpath-expression );
+    #    * CSS selectors *
+    $node.query-handler = CSS::Selector::To::XPath.new; # setup a query handler
+    $item = $node.querySelector($css-selector); # first match
+    $results = $node.querySelectorAll($css-selector); # all matches
 
     # -- Serialization -- #
     my Str $xml = $node.Str(:format, :$enc);
@@ -328,6 +333,18 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
             $node.find('/x:html');
 
     See also LibXML::XPathContext.findnodes.
+
+  * query-handler, querySelector, querySelectorAll
+
+    These methods provide pluggable support for CSS (or other 3rd party) Query Selectors. See https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE. For example, to use the [CSS::Selector::To::XPath](CSS::Selector::To::XPath) (module available separately).
+
+        use CSS::Selector::To::XPath;
+        $doc.query-handler = CSS::Selector::To::XPath.new;
+        my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
+        my $results = $doc.querySelectorAll($result-query);
+        my $first-result = $doc.querySelector($result-query);
+
+    See [LibXML::XPath::Context](LibXML::XPath::Context) for more details.
 
   * AT-KEY, keys
 

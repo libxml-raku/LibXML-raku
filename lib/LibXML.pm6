@@ -18,7 +18,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.1.8>
+unit class LibXML:ver<0.1.9>
     is LibXML::Parser;
 
 method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -136,7 +136,13 @@ This module requires the libxml2 library to be installed. Please follow the inst
   brew update
   brew install libxml2
 
-=head1 CONTRIBUTERS
+=head1 ACKNOWLEDGEMENTS
+
+This Raku module:
+
+   =item is based on the Perl 5 XML::LibXML module; in particular, the test suite, and selected XS and C code.
+   =item derives SelectorQuery() and SelectorQueryAll() methods from the Perl 5 XML::LibXML::QuerySelector module.
+   =item also draws on an earlier attempt at a Perl 6 (nee Raku) port (XML::LibXML).
 
 With thanks to:
 Christian Glahn,
@@ -144,13 +150,14 @@ Ilya Martynov,
 Matt Sergeant,
 Petr Pajas,
 Shlomi Fish,
+Toby Inkster,
 Tobias Leich,
 Xliff.
 
 
 =head1 VERSION
 
-0.1.8
+0.1.9
 
 =head1 COPYRIGHT
 

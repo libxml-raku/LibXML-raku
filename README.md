@@ -114,15 +114,23 @@ Mac OS X
     brew update
     brew install libxml2
 
-CONTRIBUTERS
-============
+ACKNOWLEDGEMENTS
+================
 
-With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Tobias Leich, Xliff.
+This Raku module:
+
+  * is based on the Perl 5 XML::LibXML module; in particular, the test suite, and selected XS and C code.
+
+  * derives SelectorQuery() and SelectorQueryAll() methods from the Perl 5 XML::LibXML::QuerySelector module.
+
+  * also draws on an earlier attempt at a Perl 6 (nee Raku) port (XML::LibXML).
+
+With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Toby Inkster, Tobias Leich, Xliff.
 
 VERSION
 =======
 
-0.1.8
+0.1.9
 
 COPYRIGHT
 =========

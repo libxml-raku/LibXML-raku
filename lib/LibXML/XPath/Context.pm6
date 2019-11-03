@@ -2,18 +2,21 @@ use v6;
 use LibXML::ErrorHandling;
 class LibXML::XPath::Context {
 
-    use LibXML::Native;
-    use LibXML::Item :box-class;
-    use LibXML::Node :iterate-set, :NameVal;
+    use LibXML::Config;
     use LibXML::Document;
-    use LibXML::Types :QName;
+    use LibXML::Item :box-class;
+    use LibXML::Native;
+    use LibXML::Namespace;
+    use LibXML::Node :iterate-set, :NameVal;
     use LibXML::Node::List;
     use LibXML::Node::Set;
-    use LibXML::Namespace;
+    use LibXML::Types :QName;
     use LibXML::XPath::Expression;
     use LibXML::XPath::Object :XPathRange;
     use NativeCall;
     use Method::Also;
+
+    has $.query-handler is rw = $LibXML::Config::QueryHandler;
     has LibXML::Node $!context-node;
     has xmlXPathContext $!native .= new;
     method native { $!native }
@@ -302,6 +305,14 @@ class LibXML::XPath::Context {
 
     method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
     method unregisterFunctionNS(QName:D $name, Str $url) { $!native.RegisterFuncNS($name, $url, Pointer) }
+
+    method querySelector(Str() $query, |c) {
+        self.first: $!query-handler.selector-to-xpath($query);
+    }
+
+    method querySelectorAll(Str() $query, |c) {
+        self.find: $!query-handler.selector-to-xpath($query);
+    }
 
 }
 
@@ -622,6 +633,44 @@ return the given value when C<<<<<< last() >>>>>> XPath function is called. If c
 automatically also set to 0. If context size is positive, position is
 automatically set to 1. Setting context size to -1 restores the default
 behavior.
+
+=end item1
+
+=begin item1
+query-handler, querySelector, querySelectorAll
+
+These methods provide pluggable support for CSS Selectors, as described
+in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
+
+The query handler is a third-party class or object with a method `$.selector-to-xpath(Str $selector --> Str) {...}` that maps CSS (or other) selectors to XPath querys.
+
+The handler may be configured globally:
+
+    # set up a global query selector. use the CSS::Selector::To::XPath module
+    use CSS::Selector::To::XPath;
+    use LibXML::Config;
+    LibXML::Config.query-handler = CSS::Selector::To::XPath.new;
+
+    # run queries
+    my LibXML::Document $doc .= new: string => q:to<\_(ツ)_/>;
+      <table id="score">
+        <thead>
+          <tr>  <th>Test</th>     <th>Result</th> </tr>
+        <thead>
+        <tbody>
+          <tr>  <td>A</td>        <td>87%</td>     </tr>
+          <tr>  <td>B</td>        <td>78%</td>     </tr>
+          <tr>  <td>C</td>        <td>81%</td>     </tr>
+        </tbody>
+        <tfoot>
+          <tr>  <th>Average</th>  <td>82%</td>     </tr>
+        </tfoot>
+      </table>
+    \_(ツ)_/
+
+    my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
+    my @abc-results = $document.querySelectorAll($result-query);
+    my $a-result = $document.querySelector($result-query);
 
 =end item1
 

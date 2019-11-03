@@ -1,3 +1,6 @@
+0.1.9 2019-11-xx
+    - [LibXML::XPath::Context] Implement querySelector() and querySelectorAll()
+      methods.
 0.1.8 2019-11-03
     - [LibXML::Node][LibXML::XPath::Context] Added:
       -- $node.first($xpath) and $node.last($xpath) multi-methods

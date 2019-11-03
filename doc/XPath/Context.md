@@ -253,6 +253,40 @@ METHODS
 
     Set or get the current context size. By default, this value is -1 (and evaluating XPath function `last() ` in the initial context raises an XPath error), but can be set to any non-negative value. This usually only serves to cheat the XPath engine to return the given value when `last() ` XPath function is called. If context size is set to 0, position is automatically also set to 0. If context size is positive, position is automatically set to 1. Setting context size to -1 restores the default behavior.
 
+  * query-handler, querySelector, querySelectorAll
+
+    These methods provide pluggable support for CSS Selectors, as described in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
+
+    The query handler is a third-party class or object with a method `$.selector-to-xpath(Str $selector --> Str) {...}` that maps CSS (or other) selectors to XPath querys.
+
+    The handler may be configured globally:
+
+        # set up a global query selector. use the CSS::Selector::To::XPath module
+        use CSS::Selector::To::XPath;
+        use LibXML::Config;
+        LibXML::Config.query-handler = CSS::Selector::To::XPath.new;
+
+        # run queries
+        my LibXML::Document $doc .= new: string => q:to<\_(ツ)_/>;
+          <table id="score">
+            <thead>
+              <tr>  <th>Test</th>     <th>Result</th> </tr>
+            <thead>
+            <tbody>
+              <tr>  <td>A</td>        <td>87%</td>     </tr>
+              <tr>  <td>B</td>        <td>78%</td>     </tr>
+              <tr>  <td>C</td>        <td>81%</td>     </tr>
+            </tbody>
+            <tfoot>
+              <tr>  <th>Average</th>  <td>82%</td>     </tr>
+            </tfoot>
+          </table>
+        \_(ツ)_/
+
+        my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
+        my @abc-results = $document.querySelectorAll($result-query);
+        my $a-result = $document.querySelector($result-query);
+
   * set-options, suppress-warnings, suppress-errors
 
         my LibXML::XPath::Context $ctx .= new: :suppress-warnings;

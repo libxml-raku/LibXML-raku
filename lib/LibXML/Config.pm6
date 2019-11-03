@@ -93,6 +93,23 @@ method input-callbacks is rw {
     );
 }
 
+# -- Query Handler --
+
+our $queryHandler = class NoQueryHandler {
+    method to-xpath($) {
+        fail "queryHandler has not been configured";
+    }
+}
+
+method query-handler is rw {
+    Proxy.new(
+        FETCH => sub ($) { $queryHandler },
+        STORE => sub ($, LibXML::InputCallback $query-handler) {
+            $queryHandler = $query-handler;
+        }
+    );
+}
+
 =begin pod
 =head1 NAME
 
