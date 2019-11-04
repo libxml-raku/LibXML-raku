@@ -232,6 +232,8 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.cloneNode($deep), :doc(LibXML::Node);
     }
 
+    method ast(Bool :$blank = False) { self.nodeName => [self.childNodes(:$blank).map(*.ast)] }
+
     multi method save(IO::Handle :$io!, Bool :$format = False) {
         $io.write: self.Blob(:$format);
     }

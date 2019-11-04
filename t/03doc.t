@@ -343,7 +343,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         # TEST
         is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
         # TEST
-        is($pi.nodeName, "foo", 'PI nodeName');
+        is($pi.nodeName, "?foo", 'PI nodeName');
         # TEST
         is($pi.string-value, "bar", 'PI string-value');
         # TEST
@@ -357,7 +357,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         # TEST
         is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
         # TEST
-        is($pi.nodeName, "foo", 'PI nodeName');
+        is($pi.nodeName, "?foo", 'PI nodeName');
         my $data = $pi.content;
         # undef or "" depending on libxml2 version
         # TEST

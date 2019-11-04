@@ -630,13 +630,12 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
         break;
 
     case XML_CDATA_SECTION_NODE :
-        name = (const xmlChar*) (xpath_key ? "text()" : "#cdata-section");
+        name = (const xmlChar*) (xpath_key ? "text()" : "#cdata");
         break;
 
     case XML_TEXT_NODE :
         name = (const xmlChar*) (xpath_key ? "text()" : "#text");
         break;
-
 
     case XML_DOCUMENT_NODE :
     case XML_HTML_DOCUMENT_NODE :
@@ -692,14 +691,22 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
                 }
             }
         }
-        if (node->type == XML_ATTRIBUTE_NODE) {
+        else if (node->type == XML_ATTRIBUTE_NODE) {
             // prepend '@'
-            xmlChar* at_key = xmlStrdup( (xmlChar*) "@" );
-            at_key = xmlStrcat(at_key, rv);
+            xmlChar* name = xmlStrdup( (xmlChar*) "@" );
+            name = xmlStrcat(name, rv);
             xmlFree(rv);
-            rv = at_key;
+            rv = name;
         }
-    } 
+    }
+    else if (node->type == XML_PI_NODE) {
+            // prepend '?' to processing instructions
+            xmlChar* name = xmlStrdup( (xmlChar*) "?" );
+            name = xmlStrcat(name, rv);
+            xmlFree(rv);
+            rv = name;
+        }
+
 
    return rv;
 }
@@ -711,6 +718,11 @@ domSetNodeName(xmlNodePtr self , xmlChar *string) {
 
     if (self == NULL || string == NULL || *string == 0)
         return;
+
+    if (self->type == XML_PI_NODE && *string == '?') {
+        // skip leading '?'
+        string++;
+    }
 
     if( ( self->type == XML_ELEMENT_NODE
           || self->type == XML_ATTRIBUTE_NODE
@@ -1128,32 +1140,53 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
 DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
-    xmlNodePtr cld = NULL;
+    xmlNodePtr cld = self->children;
     int node_type = 0;
 
     if ( self != NULL && name != NULL ) {
-        if (xmlStrcmp( name, (unsigned char*) "*" ) == 0) {
-            node_type = XML_ELEMENT_NODE;
+        switch (*name) {
+            case '*' : {     // -- Element wildcard
+                name = NULL;
+                node_type = XML_ELEMENT_NODE;
+                break;
+            }
+            case '?' : {     // -- Named PI node
+                name++; // skip leading '?'
+                if (*name == '*') name = NULL; // "?*" wildcard
+                node_type = XML_PI_NODE;
+                break;
+            }
+            case '@' : {     // -- Named Attribute
+                name++; // skip leading '@'
+                if (*name == '*') name = NULL; // "@*" wildcard
+                node_type = XML_ATTRIBUTE_NODE;
+                cld = (xmlNodePtr) self->properties; // scan attributes instead of children
+                break;
+            }
+            case '#' : {     // -- Text
+                if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
+                    node_type = XML_TEXT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
+                    node_type = XML_COMMENT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#cdata" ) == 0) {
+                    node_type = XML_CDATA_SECTION_NODE;
+                }
+                else {
+                    fprintf(stderr, __FILE__ "%d: unable to select nodes with local-name '%s'\n", __LINE__, name);
+                }
+                name = NULL;
+                break;
+            }
+            default : {      // -- Named element
+                node_type = XML_ELEMENT_NODE;
+                break;
+            }
         }
-        else if (*name == '#') {
-            // See domGetNodeName()
-            if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
-                node_type = XML_TEXT_NODE;
-            }
-            else if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
-                node_type = XML_COMMENT_NODE;
-            }
-            else if (xmlStrcmp( name, (unsigned char*) "#cdata-section" ) == 0) {
-                node_type = XML_CDATA_SECTION_NODE;
-            }
-            else {
-                fprintf(stderr, __FILE__ "%d: unable to select nodes with local-name '%s'\n", __LINE__, name);
-            }
-        }
-        cld = self->children;
         while ( cld != NULL ) {
-            if ( ((node_type && cld->type == node_type)
-                  || xmlStrcmp( name, cld->name ) == 0 )) {
+            if ( cld->type == node_type
+              && (name == NULL || xmlStrcmp( name, cld->name ) == 0 )) {
                 if ( rv == NULL ) {
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }

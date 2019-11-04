@@ -96,6 +96,14 @@ method attributes is rw is also<attribs attr> {
     );
 }
 
+method ast(Bool :$blank = False) {
+    my @content;
+    @content.push(.ast) for self.namespaces;
+    @content.push(.ast) for self.properties;
+    @content.push: .ast(:$blank) for self.children(:$blank);
+    self.tagName => @content;
+}
+
 method Hash { # handles: keys, pairs, kv -- see LibXML::Node
     my %h := callsame;
     %h{.xpath-key } = $_ for self.properties;
@@ -461,8 +469,12 @@ getChildrenByLocalName
 
 The function gives direct access to all child elements of the current node with
 a given local name. It makes things a lot easier if one needs to handle big
-data sets. A special C<<<<<< localname >>>>>> '*' can be used to match any local name. The special names C<#text>, C<#comment> and C<#cdata-section> can be used to match Text, Comment or CDATA nodes.
+data sets. Note:
 
+  =item A special C<<<<<< localname >>>>>> '*' can be used to match all ements.
+  =item C<@*> can be used to fetch attributes as a node-set
+  =item C<?*> (all), or C<?name> can be used to fetch processing instructions
+  =item The special names C<#text>, C<#comment> and C<#cdata> can be used to match Text, Comment or CDATA nodes.
 
 =end item1
 

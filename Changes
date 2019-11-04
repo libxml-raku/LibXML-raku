@@ -1,6 +1,11 @@
 0.1.9 2019-11-xx
     - [LibXML::XPath::Context] Implement querySelector() and querySelectorAll()
-      methods.
+      methods. Can be delegated CSS::Selector::To::XPath (or similar)
+    - [LibXML::PI] nodeName() method now prepends '?'
+    - [LibXML::CData] - nodeName shortened from '#cdata-section' to '#cdata'
+    - [LibXML::Node]
+      -- getElementsByTag name can now select '?pi-name', '?*', '@*' 
+      -- added .ast() method
 0.1.8 2019-11-03
     - [LibXML::Node][LibXML::XPath::Context] Added:
       -- $node.first($xpath) and $node.last($xpath) multi-methods

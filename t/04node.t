@@ -11,7 +11,7 @@
 
 use v6;
 use Test;
-plan 182;
+plan 192;
 
 use LibXML;
 use LibXML::Enums;
@@ -106,19 +106,17 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
             # TEST
             is( +$attributes, 1, ' TODO : Add test name' );
-            my $attr = $attributes<foo>;
-
-            # TEST
-
-            is( $attr, 'foobar', ' TODO : Add test name' );
-            # TEST
-            is( $attr.nodeType, +XML_ATTRIBUTE_NODE, ' TODO : Add test name' );
-            # TEST
-            is( $attr.nodeName, "foo", ' TODO : Add test name' );
-            # TEST
-            is( $attr.nodeValue, "foobar", ' TODO : Add test name' );
-            # TEST
-            is-deeply( $attr.hasChildNodes, False, 'hasChildNodes');
+            for $attributes<foo>, $xc.getChildrenByLocalName('@foo')[0] -> $attr {
+                is( $attr, 'foobar', ' TODO : Add test name' );
+                # TEST
+                is( $attr.nodeType, +XML_ATTRIBUTE_NODE, ' TODO : Add test name' );
+                # TEST
+                is( $attr.nodeName, "foo", ' TODO : Add test name' );
+                # TEST
+                is( $attr.nodeValue, "foobar", ' TODO : Add test name' );
+                # TEST
+                is-deeply( $attr.hasChildNodes, False, 'hasChildNodes');
+                }
         }
 
         {
@@ -647,13 +645,18 @@ EOF
         ok($r, ' TODO : Add test name');
         my @nonblank = $r.nonBlankChildNodes;
         # TEST*$count
-        is(join(',',@nonblank.map(*.nodeName)), 'a,b,#comment,#cdata-section,foo,c,#text', ' TODO : Add test name' );
+        is(join(',',@nonblank.map(*.nodeName)), 'a,b,#comment,#cdata,?foo,c,#text', ' TODO : Add test name' );
         # TEST*$count
         is($r.firstChild.nodeName, '#text', ' TODO : Add test name');
+        is $r.getChildrenByTagName('?foo').map(*.nodeName).join, '?foo';  
+        is $r.getChildrenByLocalName('?foo').map(*.nodeName).join, '?foo';  
+        is $r.getChildrenByLocalName('?*').map(*.nodeName).join, '?foo';  
+        is $r.getChildrenByLocalName('#comment').map(*.nodeName).join, '#comment';  
+        is $r.getChildrenByTagName('#comment').map(*.nodeName).join, '#comment';  
 
         my @all = $r.childNodes;
         # TEST*$count
-        is(join(',', @all.map(*.nodeName)), '#text,a,#text,b,#text,#cdata-section,#text,#comment,#text,#cdata-section,#text,foo,#text,c,#text', ' TODO : Add test name' );
+        is(join(',', @all.map(*.nodeName)), '#text,a,#text,b,#text,#cdata,#text,#comment,#text,#cdata,#text,?foo,#text,c,#text', ' TODO : Add test name' );
 
         my $f = $r.firstNonBlankChild;
         my $p;

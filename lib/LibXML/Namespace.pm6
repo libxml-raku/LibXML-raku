@@ -37,10 +37,10 @@ submethod DESTROY {
 }
 
 method nodeType { $!native.type }
-method nodeName is also<name> {
+method nodeName is also<name tag> {
     'xmlns' ~ ($_ ?? ':' ~ $_ !! '' given $.localname);
 }
-method URI is also<declaredURI getValue string-value value>
+method URI is also<declaredURI getValue string-value value nodeValue>
                     { $!native.href }
 method localname(--> NCName) is also<declaredPrefix>
                     { $!native.prefix }
@@ -49,6 +49,7 @@ method isSame(LibXML::Item $_) is also<isSameNode> { self.unique-key eq .unique-
 method xpath-key { 'namespace()' }
 method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }
+method ast { self.nodeName => self.nodeValue }
 
 =begin pod
 =head1 NAME

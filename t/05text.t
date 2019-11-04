@@ -276,7 +276,7 @@ my $doc = LibXML::Document.new();
     # TEST
     is( $node.string-value(), "test", ' TODO : Add test name' );
     # TEST
-    is( $node.nodeName(), "#cdata-section", ' TODO : Add test name' );
+    is( $node.nodeName(), "#cdata", ' TODO : Add test name' );
 }
 
 {
