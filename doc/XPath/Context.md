@@ -257,7 +257,7 @@ METHODS
 
     These methods provide pluggable support for CSS Selectors, as described in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
 
-    The query handler is a third-party class or object with a method `$.selector-to-xpath(Str $selector --> Str) {...}` that maps CSS (or other) selectors to XPath querys.
+    The query handler is a third-party class or object that implements a method `$.query-to-xpath(Str $selector --> Str) {...}`, that typically maps CSS selectors to XPath querys.
 
     The handler may be configured globally:
 

@@ -306,12 +306,12 @@ class LibXML::XPath::Context {
     method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
     method unregisterFunctionNS(QName:D $name, Str $url) { $!native.RegisterFuncNS($name, $url, Pointer) }
 
-    method querySelector(Str() $query, |c) {
-        self.first: $!query-handler.selector-to-xpath($query);
+    method querySelector(Str() $selector, |c) {
+        self.first: $!query-handler.query-to-xpath($selector);
     }
 
-    method querySelectorAll(Str() $query, |c) {
-        self.find: $!query-handler.selector-to-xpath($query);
+    method querySelectorAll(Str() $selector, |c) {
+        self.find: $!query-handler.query-to-xpath($selector);
     }
 
 }
@@ -642,7 +642,7 @@ query-handler, querySelector, querySelectorAll
 These methods provide pluggable support for CSS Selectors, as described
 in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
 
-The query handler is a third-party class or object with a method `$.selector-to-xpath(Str $selector --> Str) {...}` that maps CSS (or other) selectors to XPath querys.
+The query handler is a third-party class or object that implements a method `$.query-to-xpath(Str $selector --> Str) {...}`, that typically maps CSS selectors to XPath querys.
 
 The handler may be configured globally:
 

@@ -7,7 +7,7 @@ use LibXML::Node::Set;
 
 class dummySelectorHandler {
     # one hard-coded rule adapted from the CSS::Selector::To::XPath test suite
-    method selector-to-xpath('li.bar') {"//li[contains(concat(' ', normalize-space(@class), ' '), ' bar ')]"}
+    method query-to-xpath('li.bar') {"//li[contains(concat(' ', normalize-space(@class), ' '), ' bar ')]"}
 }
 
 my LibXML::Document $doc = LibXML.parse: :string(q:to<\_(ツ)_/>);
