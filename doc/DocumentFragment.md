@@ -13,10 +13,12 @@ SYNOPSIS
     say $frag.Str; # '<foo/><bar/>';
     $frag.parse: :balanced, :string('<baz/>');
     say $frag.Str; # '<foo/><bar/><baz>';
-    my LibXML::DocumentFragment $frag2 = $doc.createDocumentFragment;
-    $frag2.appendChild: $doc.createElement('foo');
-    $frag2.appendChild: $doc.createElement('bar');
-    say $frag2.Str # '<foo/><bar/>'
+
+    $frag = $doc.createDocumentFragment;
+    $frag.appendChild: $doc.createElement('foo');
+    $frag.appendChild: $doc.createElement('bar');
+    $frag.parse: :balanced, :string('<baz/>');
+    say $frag.Str # '<foo/><bar/><baz/>'
 
 DESCRIPTION
 ===========

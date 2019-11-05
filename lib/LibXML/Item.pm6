@@ -40,6 +40,43 @@ sub box-class(UInt $_) is export(:box-class) {
     }
 }
 
+proto sub ast-to-xml($) is export(:ast-to-xml) {*}
+
+multi sub ast-to-xml(Pair $_) {
+    my $name = .key;
+    my $value = .value;
+    warn "$name => {$value.perl}";
+    my UInt $node-type := itemNode::NodeType($name);     if $value ~~ Str {
+        when $name.starts-with('#') {
+            box-class($node-type).new: :content($value);
+        }
+        when $name.starts-with('?') {
+            $name .= substr(1);
+            box-class(XML_PI_NODE).new: :$name, :content($value);
+        }
+        when $name.starts-with('xmlns:') {
+            my $prefix = $name.substr(6);
+            box-class(XML_NAMESPACE_DECL).new: :$prefix, :URI($value)
+        }
+        default {
+            box-class(XML_ATTRIBUTE_NODE).new: :$name, :$value;
+        }
+    }
+    else {
+         my $node := box-class($node-type).new: :$name;
+         $node.add( ast-to-xml($_) ) for $value.List;
+         $node;
+    }
+}
+
+multi sub ast-to-xml(Positional $_) {
+    ast-to-xml('#frag' => $_);
+}
+
+multi sub ast-to-xml(Str:D $content) {
+    box-class(XML_TEXT_NODE).new: :$content;
+}
+
 method box(LibXML::Native::DOM::Node $struct,
            :$doc = $.doc, # reusable document object
           ) {
@@ -63,6 +100,15 @@ method keep(LibXML::Native::DOM::Node $rv,
             $obj;
         } // self.box: $_, :$doc;
     } // self.WHAT;
+}
+
+method to-ast {...}
+method from-ast {...}
+method ast(Bool :$blank = False) is rw {
+    Proxy.new(
+        FETCH => -> $ { self.to-ast(:$blank)  },
+        STORE => -> $, Pair $ast { self.from-ast($ast); },
+    );
 }
 
 =begin pod

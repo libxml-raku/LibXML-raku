@@ -1,4 +1,5 @@
 0.1.9 2019-11-xx
+    - [LibXML::Item] add ast-to-xml() - for quick construction of nodes from data
     - [LibXML::XPath::Context] Implement querySelector() and querySelectorAll()
       methods. Can be delegated CSS::Selector::To::XPath (or similar)
     - [LibXML::PI] nodeName() method now prepends '?'

@@ -1,23 +1,25 @@
 class LibXML::Node::List does Iterable does Iterator {
     use LibXML::Native;
-    use LibXML::Node;
+    use LibXML::Item;
     use Method::Also;
 
     has Bool:D $.blank = False;
     has $.doc is required;
-    has anyNode $!native handles <string-value>;
-    has LibXML::Node $!first;
-    has anyNode $!cur;
+    has $!native handles <string-value>;
+    has LibXML::Item $!first;
+    has $!cur;
     has $.of is required;
     has int $.idx = 0;
-    has LibXML::Node @!store;
+    has LibXML::Item @!store;
     has Hash $!hstore;
     has Bool $!lazy = True;
-    has LibXML::Node $.parent is required;
+    has LibXML::Item $.parent is required;
 
-    submethod TWEAK(:$properties) {
+    submethod TWEAK {
         $!native = do given $!parent.native {
-            $properties ?? .properties !! .first-child(+$!blank);
+            when $!of.isa("LibXML::Attr")      { .properties }
+            when $!of.isa("LibXML::Namespace") { .nsDef }
+            default { .first-child(+$!blank); }
         }
         $!first = $!of.box: $_ with $!native;
         $!cur = $!native;
@@ -62,29 +64,29 @@ class LibXML::Node::List does Iterable does Iterator {
         }
     }
 
-    method push(LibXML::Node:D $node) {
+    method push(LibXML::Item:D $node) {
         $.parent.appendChild($node);
         @!store.push($node) unless $!lazy;
         .{$node.xpath-key}.push: $node with $!hstore;
         $node;
     } 
     method pop {
-        do with self.Array.tail -> LibXML::Node $node {
+        do with self.Array.tail -> LibXML::Item $item {
             @!store.pop;
-            .{$node.xpath-key}.pop with $!hstore;
-            $node.unbindNode;
-        } // LibXML::Node;
+            .{$item.xpath-key}.pop with $!hstore;
+            $item.unbindNode;
+        } // $!of;
     }
-    method ASSIGN-POS(UInt() $pos, LibXML::Node:D $node) {
+    method ASSIGN-POS(UInt() $pos, LibXML::Item:D $item) {
         if $pos < $.elems {
             $!hstore = Nil; # invalidate Hash cache
-            $.parent.replaceChild($node, $.Array[$pos]);
-            $!cur = $node.native if $pos == $!idx;
-            @!store[$pos] = $node;
+            $.parent.replaceChild($item, $.Array[$pos]);
+            $!cur = $item.native if $pos == $!idx;
+            @!store[$pos] = $item;
         }
         elsif $pos == $.elems {
             # allow append of tail element
-            $.push($node);
+            $.push($item);
         }
         else {
             fail "array index out of bounds";
@@ -112,7 +114,7 @@ class LibXML::Node::List does Iterable does Iterator {
         my xmlNodeSet:D $native = $!native.list-to-nodeset($!blank);
         LibXML::Node::Set.new: :$native;
     }
-    method ast { self.Array.map(*.ast) }
+    method to-ast is also<ast> { self.Array.map(*.ast) }
 }
 
 =begin pod

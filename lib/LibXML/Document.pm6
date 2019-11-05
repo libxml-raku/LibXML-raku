@@ -14,6 +14,7 @@ use LibXML::Element;
 use LibXML::ElementDecl;
 use LibXML::EntityRef;
 use LibXML::Enums;
+use LibXML::Item :ast-to-xml;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use LibXML::PI;
@@ -131,6 +132,12 @@ method documentElement is rw is also<root> {
             self.setDocumentElement($elem);
         }
     );
+}
+
+method from-ast($_) {
+    my $node = ast-to-xml($_);
+    $node .= root if $node ~~ LibXML::Document;
+    self.setDocumentElement($node);
 }
 
 my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;

@@ -110,12 +110,6 @@ _domCanInsert( xmlNodePtr cur, xmlNodePtr ref );
 DLLEXPORT int
 domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 
-/**
- * part A:
- *
- * class Node
- **/
-
 /* A.1 DOM specified section */
 
 DLLEXPORT xmlChar*
@@ -171,12 +165,6 @@ DLLEXPORT void
 domReleaseNode( xmlNodePtr node );
 
 /**
- * part B:
- *
- * class Document
- **/
-
-/**
  * NAME domImportNode
  * TYPE function
  * SYNOPSIS
@@ -197,11 +185,8 @@ domReleaseNode( xmlNodePtr node );
 DLLEXPORT xmlNodePtr
 domImportNode( xmlDocPtr document, xmlNodePtr node, int move, int reconcileNS );
 
-/**
- * part C:
- *
- * class Element
- **/
+DLLEXPORT int
+domNodeType(xmlChar* name);
 
 DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name );

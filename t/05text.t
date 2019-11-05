@@ -296,7 +296,7 @@ my $doc = LibXML::Document.new();
     my $node = LibXML::Document.new();
 
     # TEST
-    is( $node.nodeName(), "#document", ' TODO : Add test name' );
+    is( $node.nodeName(), "#xml", ' TODO : Add test name' );
 }
 {
     # Document fragment node name test
@@ -304,6 +304,6 @@ my $doc = LibXML::Document.new();
     my $node = LibXML::DocumentFragment.new();
 
     # TEST
-    is( $node.nodeName(), "#document-fragment", ' TODO : Add test name' );
+    is( $node.nodeName(), "#fragment", ' TODO : Add test name' );
 }
 

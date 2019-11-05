@@ -310,6 +310,7 @@ class xmlNs is export is repr('CStruct') {
     method Free is native($XML2) is symbol('xmlFreeNs') {*}
     method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_ns_copy') {*}
     method copy { $.Copy }
+    method next-node($) { self.next }
     method UniqueKey(--> xmlCharP) is native($BIND-XML2) is symbol('xml6_ns_unique_key') {*}
     method Str {
         nextsame without self;
@@ -1230,6 +1231,7 @@ class itemNode is export {
         }
         nativecast($class, self);
     }
+    our sub NodeType(Str --> int32) is native($BIND-XML2) is symbol('domNodeType') {*}
 }
 
 #| A node-set (an unordered collection of nodes without duplicates)

@@ -38,26 +38,8 @@ multi method new(QName:D $name, *%o) {
 
 multi method new(|c) is default { nextsame }
 
-sub iterate-ns(LibXML::Namespace $of, $start, :$doc = $of.doc) {
-    # follow a chain of .next links.
-    my class NodeList does Iterable does Iterator {
-        has $.cur;
-        method iterator { self }
-        method pull-one {
-            my $this = $!cur;
-            $_ = .next with $!cur;
-            with $this -> $node {
-                $of.box: $node, :$doc
-            }
-            else {
-                IterationEnd;
-            }
-        }
-    }.new( :cur($start) );
-}
-
 method namespaces {
-    iterate-ns(LibXML::Namespace, $.native.nsDef, :$.doc);
+    iterate-list(self, LibXML::Namespace, :$.doc);
 }
 
 method !set-attributes(@atts) {
@@ -96,7 +78,7 @@ method attributes is rw is also<attribs attr> {
     );
 }
 
-method ast(Bool :$blank = False) {
+method to-ast(Bool :$blank = False) is rw {
     my @content;
     @content.push(.ast) for self.namespaces;
     @content.push(.ast) for self.properties;
@@ -130,7 +112,7 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
 }
 # attributes as an ordered list
 method properties {
-    iterate-list(self, LibXML::Attr, :properties);
+    iterate-list(self, LibXML::Attr);
 }
 
 method appendWellBalancedChunk(Str:D $string) {
@@ -238,7 +220,7 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.appendText( $PCDATA );
   $node.appendTextNode( $PCDATA );
   $node.appendTextChild( $childname , $PCDATA );
-  $node.setNamespace( $nsURI , $nsPrefix, $activate );
+  $node.setNamespace( $nsURI , $nsPrefix, :$activate );
   $node.setNamespaceDeclURI( $nsPrefix, $newURI );
   $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 

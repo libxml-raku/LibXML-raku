@@ -70,7 +70,13 @@ SYNOPSIS
     $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
     $xml-c14 = $node.Str: :C14N, :v1_1;
     $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression), :exclusive;
-    $xml = $doc.serialize(:format); 
+    $xml = $doc.serialize(:format);
+    # -- Data interchange --
+    use LibXML::Item :ast-to-xml;
+    my $node-data = $node.ast;
+    my LibXML::Node $node2 = ast-to-xml($node-data);
+    my $doc-data = $doc.ast;
+    my LibXML::Document $doc2 = ast-to-xml($doc-data);
 
     # -- Namespaces -- #
     my LibXML::Namespace @ns = $node.getNamespaces;
@@ -214,6 +220,14 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     *cloneNode * creates a copy of `$node `. When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True. 
 
     Note that the behavior of this function for $deep=0 has changed in 1.62 in order to be consistent with the DOM spec (in older versions attributes and namespace information was not copied for elements).
+
+  * ast
+
+    This method performs a deep data serialization of the node, and any associated child nodes, attributes and namespaces. The [LibXML::Item](LibXML::Item) ast-to-xml() function can then be used to create a deep copy of the node;
+
+        use LibXML::Item :ast-to-xml;
+        my $ast = $node.ast;
+        my LibXML::Node $node2 = ast-to-xml($ast);
 
   * parentNode
 

@@ -49,7 +49,8 @@ method isSame(LibXML::Item $_) is also<isSameNode> { self.unique-key eq .unique-
 method xpath-key { 'namespace()' }
 method getNamespaceURI { XML_XMLNS_NS }
 method prefix { 'xmlns' }
-method ast { self.nodeName => self.nodeValue }
+method to-ast { self.nodeName => self.nodeValue }
+method from-ast($) { fail ".from-ast() - nyi" }
 
 =begin pod
 =head1 NAME

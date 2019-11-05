@@ -1,5 +1,5 @@
 use v6;
-use LibXML::Item :box-class;
+use LibXML::Item :box-class, :ast-to-xml;
 
 class LibXML::Node does LibXML::Item {
     use Method::Also;
@@ -85,8 +85,12 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.last;
     }
     multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
-    method appendChild(LibXML::Node:D $new) is also<add addChild> {
+    proto method appendChild(LibXML::Item) is also<add addChild> {*}
+    multi method appendChild(LibXML::Node:D $new) {
         $new.keep: $!native.appendChild($new.native);
+    }
+    multi method appendChild(LibXML::Namespace:D $_) {
+        self.addNamespace(.href, .prefix);
     }
     method replaceChild(LibXML::Node $new, LibXML::Node $node) {
         $node.keep: $!native.replaceChild($new.native, $node.native),
@@ -232,11 +236,12 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.cloneNode($deep), :doc(LibXML::Node);
     }
 
-    method ast(Bool :$blank = False) is rw {
-        Proxy.new(
-            FETCH => -> $ { self.nodeName => [self.childNodes(:$blank).map(*.ast)] },
-            STORE => -> $, $ast { my LibXML::Node $new .= new: :$ast; self.replaceNode($new); },
-        );
+    method to-ast(Bool :$blank) {
+        self.nodeName => [self.childNodes(:$blank).map(*.ast)];
+    }
+    method from-ast(Pair $ast) {
+        my LibXML::Node $new = ast-to-xml($ast);
+        self.replaceNode($new);
     }
 
     multi method save(IO::Handle :$io!, Bool :$format = False) {
@@ -418,7 +423,13 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
   $xml-c14 = $node.Str: :C14N, :v1_1;
   $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression), :exclusive;
-  $xml = $doc.serialize(:format); 
+  $xml = $doc.serialize(:format);
+  # -- Data interchange --
+  use LibXML::Item :ast-to-xml;
+  my $node-data = $node.ast;
+  my LibXML::Node $node2 = ast-to-xml($node-data);
+  my $doc-data = $doc.ast;
+  my LibXML::Document $doc2 = ast-to-xml($doc-data);
 
   # -- Namespaces -- #
   my LibXML::Namespace @ns = $node.getNamespaces;
@@ -643,6 +654,17 @@ element, attributes are copied even if $deep is not True.
 Note that the behavior of this function for $deep=0 has changed in 1.62 in
 order to be consistent with the DOM spec (in older versions attributes and
 namespace information was not copied for elements).
+
+=end item1
+
+=begin item1
+ast
+
+This method performs a deep data serialization of the node, and any associated child nodes, attributes and namespaces. The L<LibXML::Item> X<ast-to-xml()> function can then be used to create a deep copy of the node;
+
+    use LibXML::Item :ast-to-xml;
+    my $ast = $node.ast;
+    my LibXML::Node $node2 = ast-to-xml($ast);
 
 =end item1
 

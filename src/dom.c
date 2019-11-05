@@ -638,13 +638,19 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
         break;
 
     case XML_DOCUMENT_NODE :
+        name = (const xmlChar*) (xpath_key ? "document()" : "#xml");
+        break;
+
     case XML_HTML_DOCUMENT_NODE :
+        name = (const xmlChar*) (xpath_key ? "document()" : "#html");
+        break;
+
     case XML_DOCB_DOCUMENT_NODE :
-        name = (const xmlChar*) (xpath_key ? "document()" : "#document");
+        name = (const xmlChar*) (xpath_key ? "document()" : "#docbook");
         break;
 
     case XML_DOCUMENT_FRAG_NODE :
-        name = (const xmlChar*) (xpath_key ? "document()" : "#document-fragment");
+        name = (const xmlChar*) (xpath_key ? "document()" : "#fragment");
         break;
 
     case XML_PI_NODE :
@@ -765,6 +771,9 @@ domAppendChild( xmlNodePtr self,
         return newChild;
     }
 
+    if (newChild->type == XML_ATTRIBUTE_NODE) {
+        return (xmlNodePtr)domSetAttributeNodeNS(self, (xmlAttrPtr) newChild );
+    }
     if ( !(domTestHierarchy(self, newChild)
            && domTestDocument(self, newChild))){
         xml6_fail(self, "appendChild: HIERARCHY_REQUEST_ERR");
@@ -1137,6 +1146,52 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     }
 }
 
+DLLEXPORT int
+domNodeType(xmlChar* name) {
+    int node_type = 0;
+
+    if (name != NULL) {
+        switch (*name) {
+            case '?' :
+                node_type = XML_PI_NODE;
+                break;
+            case '#': {
+                if (xmlStrcmp( name, (unsigned char*) "#xml" ) == 0) {
+                    node_type = XML_DOCUMENT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#html" ) == 0) {
+                    node_type = XML_HTML_DOCUMENT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#docbook" ) == 0) {
+                    node_type = XML_DOCUMENT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#fragment" ) == 0) {
+                    node_type = XML_DOCUMENT_FRAG_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
+                    node_type = XML_TEXT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
+                    node_type = XML_COMMENT_NODE;
+                }
+                else if (xmlStrcmp( name, (unsigned char*) "#cdata" ) == 0) {
+                    node_type = XML_CDATA_SECTION_NODE;
+                }
+                else {
+                    fprintf(stderr, __FILE__ "%d: unknown node generic name '%s'\n", __LINE__, name);
+                }
+                break;
+            }
+            default: {
+                node_type = XML_ELEMENT_NODE;
+                break;
+            }
+        }
+    }
+
+    return node_type;
+}
+
 DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
@@ -1144,6 +1199,7 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     int node_type = 0;
 
     if ( self != NULL && name != NULL ) {
+
         switch (*name) {
             case '*' : {     // -- Element wildcard
                 name = NULL;
@@ -1163,27 +1219,13 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
                 cld = (xmlNodePtr) self->properties; // scan attributes instead of children
                 break;
             }
-            case '#' : {     // -- Text
-                if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
-                    node_type = XML_TEXT_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
-                    node_type = XML_COMMENT_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#cdata" ) == 0) {
-                    node_type = XML_CDATA_SECTION_NODE;
-                }
-                else {
-                    fprintf(stderr, __FILE__ "%d: unable to select nodes with local-name '%s'\n", __LINE__, name);
-                }
-                name = NULL;
-                break;
-            }
-            default : {      // -- Named element
-                node_type = XML_ELEMENT_NODE;
+            default : {      // anything else
+                node_type = domNodeType(name);
+                if (*name == '#') name = NULL; // generic name
                 break;
             }
         }
+
         while ( cld != NULL ) {
             if ( cld->type == node_type
               && (name == NULL || xmlStrcmp( name, cld->name ) == 0 )) {
