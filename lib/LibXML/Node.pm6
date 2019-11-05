@@ -232,7 +232,12 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.cloneNode($deep), :doc(LibXML::Node);
     }
 
-    method ast(Bool :$blank = False) { self.nodeName => [self.childNodes(:$blank).map(*.ast)] }
+    method ast(Bool :$blank = False) is rw {
+        Proxy.new(
+            FETCH => -> $ { self.nodeName => [self.childNodes(:$blank).map(*.ast)] },
+            STORE => -> $, $ast { my LibXML::Node $new .= new: :$ast; self.replaceNode($new); },
+        );
+    }
 
     multi method save(IO::Handle :$io!, Bool :$format = False) {
         $io.write: self.Blob(:$format);
@@ -324,6 +329,11 @@ class LibXML::Node does LibXML::Item {
         $!native.Blob(:$enc, :$options);
     }
 
+    multi method AT-KEY(NCName:D $tag) {
+        # special case to handle default namespaces without a prefix.
+        # https://stackoverflow.com/questions/16717211/
+        iterate-set(LibXML::Node, $!native.getChildrenByLocalName($tag), :deref);
+    }
     multi method AT-KEY(Str:D $xpath) is default {
         $.xpath-context.AT-KEY($xpath);
     }

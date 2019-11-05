@@ -111,6 +111,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
             IterationEnd;
         }
     }
+    method ast { self.Array.map(*.ast) }
 }
 
 =begin pod

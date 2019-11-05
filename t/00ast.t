@@ -12,16 +12,18 @@ is-deeply $doc.ast, "#document"
                         ];
 
 $doc .= parse: :file<example/ns.xml>;
-is-deeply $doc.ast, "#document"
-                        => [
-                            :dromedaries[
-                                     :xmlns("urn:camels"),
-                                     "xmlns:mam" => "urn:mammals",
-                                     :species["Camelid"],
-                                     "mam:legs" => ["xmlns:a" => "urn:a",
-                                                    "xml:lang" => "en",
-                                                    :yyy("zzz"),
-                                                    "a:xxx" => "foo", "4"]
-                                 ]
-                        ];
+
+my $dromedaries = [
+    :xmlns("urn:camels"),
+    "xmlns:mam" => "urn:mammals",
+    :species["Camelid"],
+    "mam:legs" => ["xmlns:a" => "urn:a",
+                   "xml:lang" => "en",
+                   :yyy("zzz"),
+                   "a:xxx" => "foo", "4"]
+];
+
+is-deeply $doc<dromedaries><species>.ast, (:species['Camelid'], );
+is-deeply $doc.ast, "#document" => [ :$dromedaries ];
+
 done-testing;
