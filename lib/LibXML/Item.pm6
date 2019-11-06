@@ -45,7 +45,7 @@ my constant @ClassMap = do {
 sub box-class(UInt $_) is export(:box-class) {
     my Str $class-name := @ClassMap[$_] // 'LibXML::Item';
     my $class = ::($class-name);
-    $class  ~~ LibXML::Item
+    $class ~~ LibXML::Item
         ?? $class
         !! (require ::($class-name));
 }
