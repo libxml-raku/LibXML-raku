@@ -231,6 +231,8 @@ LibXML::Element - LibXML Class for Element Nodes
   say $_ for $elem.attributes.keys;  # att-1 .. att-n
   say $_ for $elem.childNodes.keys;  # 0, 1, ...
 
+  # -- Construction
+
 =head1 METHODS
 
 The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here. 

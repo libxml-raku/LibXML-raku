@@ -47,7 +47,7 @@ method native { self } # already native
 method firstChild { self.first-child(KeepBlanks); }
 method firstNonBlankChild { self.first-child(SkipBlanks); }
 
-method appendChild(Node $nNode) {
+method appendChild($nNode) {
     self.domAppendChild($nNode)
         // self.dom-error // Node;
 }

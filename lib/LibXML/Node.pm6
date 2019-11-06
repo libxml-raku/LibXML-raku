@@ -85,12 +85,14 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.last;
     }
     multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
-    proto method appendChild(LibXML::Item) is also<add addChild> {*}
-    multi method appendChild(LibXML::Node:D $new) {
-        $new.keep: $!native.appendChild($new.native);
-    }
-    multi method appendChild(LibXML::Namespace:D $_) {
-        self.addNamespace(.href, .prefix);
+    method appendChild(LibXML::Item:D $new) is also<add addChild> {
+        if $new.isa(LibXML::Namespace) {
+            self.setNamespace($new.href, $new.declaredPrefix, :!activate);
+            $new.keep: $!native.doc.SearchNsByHref($!native, $new.href);
+        }
+        else {
+            $new.keep: $!native.appendChild($new.native);
+        }
     }
     method replaceChild(LibXML::Node $new, LibXML::Node $node) {
         $node.keep: $!native.replaceChild($new.native, $node.native),
@@ -195,9 +197,6 @@ class LibXML::Node does LibXML::Item {
     }
 
     method addNamespace(Str $uri, NCName $prefix?) {
-        if $prefix {
-            .registerNs($prefix, $uri) with $!xpath-context;
-        }
         $.setNamespace($uri, $prefix, :!activate);
     }
     method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {

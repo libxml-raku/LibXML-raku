@@ -1315,26 +1315,6 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
     return rv;
 }
 
-DLLEXPORT xmlNsPtr
-domNewNs ( xmlNodePtr elem , xmlChar* prefix, xmlChar* href ) {
-    xmlNsPtr ns = NULL;
-
-    if (elem != NULL) {
-        ns = xmlSearchNs( elem->doc, elem, prefix );
-    }
-    /* prefix is not in use */
-    if (ns == NULL) {
-        ns = xmlNewNs( elem , href , prefix );
-    } else {
-        /* prefix is in use; if it has same URI, let it go, otherwise it's
-           an error */
-        if (!xmlStrEqual(href, ns->href)) {
-            ns = NULL;
-        }
-    }
-    return ns;
-}
-
 DLLEXPORT xmlAttrPtr
 domGetAttributeNode(xmlNodePtr node, const xmlChar* qname) {
     xmlChar*  prefix    = NULL;

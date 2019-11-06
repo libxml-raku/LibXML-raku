@@ -40,12 +40,12 @@ sub box-class(UInt $_) is export(:box-class) {
     }
 }
 
-proto sub ast-to-xml($) is export(:ast-to-xml) {*}
+proto sub ast-to-xml(|c) is export(:ast-to-xml) {*}
 
 multi sub ast-to-xml(Pair $_) {
     my $name = .key;
     my $value = .value;
-    warn "$name => {$value.perl}";
+
     my UInt $node-type := itemNode::NodeType($name);     if $value ~~ Str {
         when $name.starts-with('#') {
             box-class($node-type).new: :content($value);
@@ -75,6 +75,10 @@ multi sub ast-to-xml(Positional $_) {
 
 multi sub ast-to-xml(Str:D $content) {
     box-class(XML_TEXT_NODE).new: :$content;
+}
+
+multi sub ast-to-xml(*%p where .elems == 1) {
+    ast-to-xml(%p.pairs[0]);
 }
 
 method box(LibXML::Native::DOM::Node $struct,
@@ -138,6 +142,57 @@ itself contain namespaces and lacks parent or child nodes.
 Both nodes and namespaces support the following common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
 Please see L<LibXML::Node> and L<LibXML::Namespace>.
+
+=head1 FUNCTIONS AND METHODS
+
+=begin item1
+ast-to-xml()
+
+This function can be useful when it's getting a bit long-winded to create and manipulate data via
+the DOM API. For example:
+
+    use LibXML::Elemnt;
+    use LibXML::Item :&ast-to-xml;
+    my LibXML::Element $elem = ast-to-xml(
+        :dromedaries[
+                 "\n  ", # white-space
+                 '#comment' => ' Element Construction. ',
+                 "\n  ", :species[:name<Camel>, :humps["1 or 2"], :disposition["Cranky"]],
+                 "\n  ", :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
+                 "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
+         "\n",
+         ]);
+     say $elem;
+
+Produces:
+
+    <dromedaries>
+      <!-- Element Construction. -->
+      <species name="Camel"><humps>1 or 2</humps><disposition>Cranky</disposition></species>
+      <species name="Llama"><humps>1 (sort of)</humps><disposition>Aloof</disposition></species>
+      <species name="Alpaca"><humps>(see Llama)</humps><disposition>Friendly</disposition></species>
+    </dromedaries>
+
+All DOM nodes have an `.ast()` method that can be used to output an intermediate dump of data. In the above example `$elem.ast()` would reproduce thw original data that was used to construct the element.
+
+Possible terms that can be used are:
+
+  =begin table
+  *Term* | *Description*
+  name => [term, term, ...] | Construct an element and its child items
+  name => str-val | Construct an attribute
+  xmlns:prefix => str-val | Construct a namespace
+  ?name => str-val | Construct a processing instruction
+  str-val | Construct text node
+  #cdata' => str-val | Construct a CData node
+  #comment' => str-val | Construct a comment node
+  [elem, elem, ..] | Construct a document fragment
+  #xml  => [root-elem] | Construct an XML document
+  #html => [root-elem] | Construct an HTML document
+  =end table
+
+
+=end item1
 
 =head1 COPYRIGHT
 

@@ -14,8 +14,8 @@ is-deeply $elem.children[0].ast, 'Some text.';
 is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
 
 ## todo: round-trip
-##$elem = ast-to-xml($elem.ast);
-##is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
+$elem = ast-to-xml($elem.ast);
+is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
 
 my LibXML::Document $doc .= parse: :file<example/dromeds.xml>;
 is-deeply $doc.ast, "#xml"

@@ -75,7 +75,7 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item [LibXML::Dtd](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
 
-=item [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespaces (Inherits from LibXML::Item)
+=item [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Item.md))
 
 =item [LibXML::Node](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node.md) - LibXML DOM base node class
 

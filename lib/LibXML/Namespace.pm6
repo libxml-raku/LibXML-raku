@@ -16,6 +16,12 @@ method box(xmlNs $ns!) {
     } // self.WHAT;
 }
 
+method keep($_) {
+    .prefix ~~ $.declaredPrefix && .href ~~ $.href
+        ?? self
+        !! self.box($_);
+}
+
 # Perl 5 compat
 multi method new(Str:D $URI, NCName $prefix?, *%o) {
     self.new(:$URI, :$prefix, |%o);

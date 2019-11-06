@@ -25,6 +25,45 @@ Both nodes and namespaces support the following common methods: getNamespaceURI,
 
 Please see [LibXML::Node](LibXML::Node) and [LibXML::Namespace](LibXML::Namespace).
 
+FUNCTIONS AND METHODS
+=====================
+
+  * ast-to-xml()
+
+    This function can be useful when it's getting a bit long-winded to create and manipulate data via the DOM API. For example:
+
+        use LibXML::Elemnt;
+        use LibXML::Item :&ast-to-xml;
+        my LibXML::Element $elem = ast-to-xml(
+            :dromedaries[
+                     "\n  ", # white-space
+                     '#comment' => ' Element Construction. ',
+                     "\n  ", :species[:name<Camel>, :humps["1 or 2"], :disposition["Cranky"]],
+                     "\n  ", :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
+                     "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
+             "\n",
+             ]);
+         say $elem;
+
+    Produces:
+
+        <dromedaries>
+          <!-- Element Construction. -->
+          <species name="Camel"><humps>1 or 2</humps><disposition>Cranky</disposition></species>
+          <species name="Llama"><humps>1 (sort of)</humps><disposition>Aloof</disposition></species>
+          <species name="Alpaca"><humps>(see Llama)</humps><disposition>Friendly</disposition></species>
+        </dromedaries>
+
+    All DOM nodes have an `.ast()` method that can be used to output an intermediate dump of data. In the above example `$elem.ast()` would reproduce thw original data that was used to construct the element.
+
+    Possible terms that can be used are:
+
+    <table class="pod-table">
+    <tbody>
+    <tr> <td>*Term*</td> <td>*Description*</td> </tr> <tr> <td>name =&gt; [term, term, ...]</td> <td>Construct an element and its child items</td> </tr> <tr> <td>name =&gt; str-val</td> <td>Construct an attribute</td> </tr> <tr> <td>xmlns:prefix =&gt; str-val</td> <td>Construct a namespace</td> </tr> <tr> <td>?name =&gt; str-val</td> <td>Construct a processing instruction</td> </tr> <tr> <td>str-val</td> <td>Construct text node</td> </tr> <tr> <td>#cdata&#39; =&gt; str-val</td> <td>Construct a CData node</td> </tr> <tr> <td>#comment&#39; =&gt; str-val</td> <td>Construct a comment node</td> </tr> <tr> <td>[elem, elem, ..]</td> <td>Construct a document fragment</td> </tr> <tr> <td>#xml =&gt; [root-elem]</td> <td>Construct an XML document</td> </tr> <tr> <td>#html =&gt; [root-elem]</td> <td>Construct an HTML document</td> </tr>
+    </tbody>
+    </table>
+
 COPYRIGHT
 =========
 
