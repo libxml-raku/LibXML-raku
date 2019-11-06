@@ -222,14 +222,31 @@ LibXML::Element - LibXML Class for Element Nodes
   $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
   # -- Associative/XPath interface -- #
-  @nodes = $node{$xpath-expression}; # xpath node selection
-  my LibXML::Node @as = $elem<a>;    # equivalent to: $elem.findnodes<a>;
-  my $b-value  = $elem<@b>.Str;      # value of 'b' attribute
-  my LibXML::Node @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
+  @nodes = $node{$xpath-expression};  # xpath node selection
+  my LibXML::Element @as = $elem<a>;  # equiv: $elem.getChildrenByLocalName('a');
+  my $b-value  = $elem<@b>.Str;       # value of 'b' attribute
+  my LibXML::Element @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
   my $text-content = $elem<text()>;
   say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
-  say $_ for $elem.attributes.keys;  # att-1 .. att-n
-  say $_ for $elem.childNodes.keys;  # 0, 1, ...
+  say $_ for $elem.attributes.keys;   # att-1 .. att-n
+  say $_ for $elem.childNodes.keys;   # 0, 1, ...
+
+  # -- Construction -- #
+  use LibXML::Item :&ast-to-xml;
+  $elem = ast-to-xml('Test' => [
+                         'xmlns:mam' => 'urn:mammals', # namespace
+                         :foo<bar>,                    # attribute
+                         "\n  ",                       # whitespace
+                         '#comment' => 'demo',         # comment
+                         :baz[],                       # sub-element
+                         '#cdata' => 'a&b',            # CData section
+                         "Some text.\n",               # text content
+                     ]
+                    );
+  say $elem;
+  # <Test xmlns:mam="urn:mammals" foo="bar">
+  #   <!--demo--><baz/><![CDATA[a&b]]>Some text.
+  # </Test>
 
 =head1 METHODS
 

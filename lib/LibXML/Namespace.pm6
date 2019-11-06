@@ -17,9 +17,11 @@ method box(xmlNs $ns!) {
 }
 
 method keep($_) {
-    .prefix ~~ $.declaredPrefix && .href ~~ $.href
-        ?? self
-        !! self.box($_);
+    given .delegate {
+        .prefix ~~ $.declaredPrefix && .href ~~ $.href
+            ?? self
+            !! self.box($_);
+    }
 }
 
 # Perl 5 compat

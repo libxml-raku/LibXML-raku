@@ -771,8 +771,14 @@ domAppendChild( xmlNodePtr self,
         return newChild;
     }
 
-    if (newChild->type == XML_ATTRIBUTE_NODE) {
-        return (xmlNodePtr)domSetAttributeNodeNS(self, (xmlAttrPtr) newChild );
+    if (self->type == XML_ELEMENT_NODE) {
+        if (newChild->type == XML_ATTRIBUTE_NODE) {
+            return (xmlNodePtr)domSetAttributeNodeNS(self, (xmlAttrPtr) newChild );
+        }
+        if (newChild->type == XML_NAMESPACE_DECL) {
+            xmlNsPtr ns = (xmlNsPtr) newChild;
+            return (xmlNodePtr) xmlNewNs(self, ns->href, ns->prefix);
+        }
     }
     if ( !(domTestHierarchy(self, newChild)
            && domTestDocument(self, newChild))){

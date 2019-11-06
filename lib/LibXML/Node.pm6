@@ -85,14 +85,8 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.last;
     }
     multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
-    method appendChild(LibXML::Item:D $new) is also<add addChild> {
-        if $new.isa(LibXML::Namespace) {
-            self.setNamespace($new.href, $new.declaredPrefix, :!activate);
-            $new.keep: $!native.doc.SearchNsByHref($!native, $new.href);
-        }
-        else {
-            $new.keep: $!native.appendChild($new.native);
-        }
+    method add(LibXML::Item:D $new) is also<appendChild addChild> {
+        $new.keep: $!native.appendChild($new.native);
     }
     method replaceChild(LibXML::Node $new, LibXML::Node $node) {
         $node.keep: $!native.replaceChild($new.native, $node.native),
@@ -416,19 +410,17 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $item = $node.querySelector($css-selector); # first match
   $results = $node.querySelectorAll($css-selector); # all matches
 
-  # -- Serialization -- #
+  # -- String serialization -- #
   my Str $xml = $node.Str(:format, :$enc);
   my Str $xml-c14 = $node.Str: :C14N;
   $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
   $xml-c14 = $node.Str: :C14N, :v1_1;
   $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression), :exclusive;
   $xml = $doc.serialize(:format);
-  # -- Data interchange --
+  # -- Data  serialization -- #
   use LibXML::Item :ast-to-xml;
   my $node-data = $node.ast;
   my LibXML::Node $node2 = ast-to-xml($node-data);
-  my $doc-data = $doc.ast;
-  my LibXML::Document $doc2 = ast-to-xml($doc-data);
 
   # -- Namespaces -- #
   my LibXML::Namespace @ns = $node.getNamespaces;

@@ -2,6 +2,7 @@ use Test;
 use LibXML;
 use LibXML::Element;
 use LibXML::Document;
+use LibXML::DocumentFragment;
 use LibXML::Item :&ast-to-xml;
 
 my LibXML::Element $elem .= new('Test');
@@ -13,9 +14,11 @@ is-deeply $elem.namespaces[0].ast, 'xmlns:mam' => 'urn:mammals';
 is-deeply $elem.children[0].ast, 'Some text.';
 is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
 
-## todo: round-trip
 $elem = ast-to-xml($elem.ast);
 is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
+
+my LibXML::DocumentFragment:D $frag = ast-to-xml(['#comment' => ' testing ', :species["Camelid"], "xxx"]);
+is $frag, '<!-- testing --><species>Camelid</species>xxx';
 
 my LibXML::Document $doc .= parse: :file<example/dromeds.xml>;
 is-deeply $doc.ast, "#xml"
@@ -27,7 +30,7 @@ is-deeply $doc.ast, "#xml"
                                  ]
                         ];
 
-$doc .= parse: :file<example/ns.xml>;
+$doc = LibXML::Document.parse: :file<example/ns.xml>;
 
 my $dromedaries = [
     :xmlns("urn:camels"),
@@ -35,7 +38,7 @@ my $dromedaries = [
     :species["Camelid"],
     "mam:legs" => ["xmlns:a" => "urn:a",
                    "xml:lang" => "en",
-                   :yyy("zzz"),
+                   :yyy<zzz>,
                    "a:xxx" => "foo", "4"]
 ];
 

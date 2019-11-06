@@ -43,10 +43,11 @@ sub box-class(UInt $_) is export(:box-class) {
 proto sub ast-to-xml(|c) is export(:ast-to-xml) {*}
 
 multi sub ast-to-xml(Pair $_) {
-    my $name = .key;
-    my $value = .value;
+    my $name := .key;
+    my $value := .value;
 
-    my UInt $node-type := itemNode::NodeType($name);     if $value ~~ Str {
+    my UInt $node-type := itemNode::NodeType($name);
+    if $value ~~ Str {
         when $name.starts-with('#') {
             box-class($node-type).new: :content($value);
         }
@@ -70,7 +71,7 @@ multi sub ast-to-xml(Pair $_) {
 }
 
 multi sub ast-to-xml(Positional $_) {
-    ast-to-xml('#frag' => $_);
+    ast-to-xml('#fragment' => $_);
 }
 
 multi sub ast-to-xml(Str:D $content) {

@@ -82,6 +82,7 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
   use LibXML::Document;
   use LibXML::DocumentFragment;
   my LibXML::Document $doc .= new;
+
   my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
   say $frag.Str; # '<foo/><bar/>';
   $frag.parse: :balanced, :string('<baz/>');
@@ -92,6 +93,18 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
   $frag.appendChild: $doc.createElement('bar');
   $frag.parse: :balanced, :string('<baz/>');
   say $frag.Str # '<foo/><bar/><baz/>'
+
+  $frag = $some-elem.removeChildNodes();
+
+  use LibXML::Item :&ast-to-xml;
+  $frag = ast-to-xml([
+               '#comment' => 'demo',         # comment
+               "\n  ",                       # whitespace
+               :baz[],                       # element
+               '#cdata' => 'a&b',            # CData section
+                "Some text.\n",               # text content
+   ]);
+   say $frag; # <!--demo--><baz/><![CDATA[a&b]]>Some text.
 
 =head1 DESCRIPTION
 
