@@ -515,7 +515,7 @@ In SCALAR context this function returns an L<<<<<< LibXML::NodeList >>>>>> objec
 =begin item1
 elements
 
-An alias for `.getElementsByLocalName('*')`
+Equivalent to `.getElementsByLocalName('*')`
 
 =end item1
 

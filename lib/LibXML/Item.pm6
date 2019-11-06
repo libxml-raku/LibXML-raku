@@ -17,27 +17,37 @@ method URI {...}
 method type {...}
 method value {...}
 
-sub box-class(UInt $_) is export(:box-class) {
-    when XML_ATTRIBUTE_NODE     { require LibXML::Attr }
-    when XML_ATTRIBUTE_DECL     { require LibXML::AttrDecl }
-    when XML_CDATA_SECTION_NODE { require LibXML::CDATA }
-    when XML_COMMENT_NODE       { require LibXML::Comment }
-    when XML_DTD_NODE           { require LibXML::Dtd }
-    when XML_DOCUMENT_FRAG_NODE { require LibXML::DocumentFragment }
-    when XML_DOCUMENT_NODE
-       | XML_HTML_DOCUMENT_NODE { require LibXML::Document }
-    when XML_ELEMENT_NODE       { require LibXML::Element }
-    when XML_ELEMENT_DECL       { require LibXML::ElementDecl }
-    when XML_ENTITY_DECL        { require LibXML::Entity }
-    when XML_ENTITY_REF_NODE    { require LibXML::EntityRef }
-    when XML_NAMESPACE_DECL     { require LibXML::Namespace }
-    when XML_PI_NODE            { require LibXML::PI }
-    when XML_TEXT_NODE          { require LibXML::Text }
-
-    default {
-        warn "node content-type not yet handled: $_";
-        LibXML::Item;
+my constant @ClassMap = do {
+    my Str @map;
+    for (
+        'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
+        'LibXML::AttrDecl'         => XML_ATTRIBUTE_DECL,
+        'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
+        'LibXML::Comment'          => XML_COMMENT_NODE,
+        'LibXML::Dtd'              => XML_DTD_NODE,
+        'LibXML::DocumentFragment' => XML_DOCUMENT_FRAG_NODE,
+        'LibXML::Document'         => XML_DOCUMENT_NODE,
+        'LibXML::Document'         => XML_HTML_DOCUMENT_NODE,
+        'LibXML::Document'         => XML_DOCB_DOCUMENT_NODE,
+        'LibXML::Element'          => XML_ELEMENT_NODE,
+        'LibXML::ElementDecl'      => XML_ELEMENT_DECL,
+        'LibXML::Entity'           => XML_ENTITY_DECL,
+        'LibXML::EntityRef'        => XML_ENTITY_REF_NODE,
+        'LibXML::Namespace'        => XML_NAMESPACE_DECL,
+        'LibXML::PI'               => XML_PI_NODE,
+        'LibXML::Text'             => XML_TEXT_NODE,
+    ) {
+        @map[.value] = .key
     }
+    @map;
+}
+
+sub box-class(UInt $_) is export(:box-class) {
+    my Str $class-name := @ClassMap[$_] // 'LibXML::Item';
+    my $class = ::($class-name);
+    $class  ~~ LibXML::Item
+        ?? $class
+        !! (require ::($class-name));
 }
 
 proto sub ast-to-xml(|c) is export(:ast-to-xml) {*}

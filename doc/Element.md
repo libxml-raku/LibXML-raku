@@ -252,7 +252,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * elements
 
-    An alias for `.getElementsByLocalName('*')`
+    Equivalent to `.getElementsByLocalName('*')`
 
   * appendWellBalancedChunk
 

@@ -221,11 +221,11 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * ast
 
-    This method performs a deep data serialization of the node, and any associated child nodes, attributes and namespaces. The [LibXML::Item](LibXML::Item) ast-to-xml() function can then be used to create a deep copy of the node;
+    This method performs a deep data-serialization of the node. The [LibXML::Item](LibXML::Item) ast-to-xml() function can then be used to create a deep copy of the node;
 
         use LibXML::Item :ast-to-xml;
         my $ast = $node.ast;
-        my LibXML::Node $node2 = ast-to-xml($ast);
+        my LibXML::Node $copy = ast-to-xml($ast);
 
   * parentNode
 

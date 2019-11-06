@@ -30,7 +30,7 @@ is-deeply $doc.ast, "#xml"
                                  ]
                         ];
 
-$doc = LibXML::Document.parse: :file<example/ns.xml>;
+$doc .= parse: :file<example/ns.xml>;
 
 my $dromedaries = [
     :xmlns("urn:camels"),
