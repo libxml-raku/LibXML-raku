@@ -159,7 +159,7 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value) {
     }
     box-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
 }
-method getAttributeNode(Str $att-name --> LibXML::Node) {
+method getAttributeNode(Str $att-name --> LibXML::Node) is also<attribute> {
     box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {

@@ -339,7 +339,6 @@ subtest 'LibXML::Namespace' => {
     ok $ns.unique-key, 'unique_key sanity';
     my LibXML::Namespace $ns-again .= new(:$URI, :$prefix);
     my LibXML::Namespace $ns-different .= new(URI => $URI~'X', :$prefix);
-    todo "implment unique key?";
     is $ns.unique-key, $ns-again.unique-key, 'Unique key match';
     isnt $ns.unique-key, $ns-different.unique-key, 'Unique key non-match';
 

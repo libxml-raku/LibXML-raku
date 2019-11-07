@@ -155,14 +155,14 @@ class LibXML::XPath::Context {
         $!context-node;
     }
 
-    #| defining the context node
+    # defining the context node
     multi method setContextNode(LibXML::Node:D $!context-node) {
         $!native.SetNode($!context-node.native);
         die $_ with $!context-node.domFailure;
         $!context-node;
     }
 
-    #| undefining the context node
+    # undefining the context node
     multi method setContextNode(LibXML::Node:U $!context-node) is default {
         $!native.SetNode(anyNode);
         $!context-node;

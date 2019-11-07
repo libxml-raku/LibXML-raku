@@ -1,23 +1,3 @@
-### multi method setContextNode
-
-```perl6
-multi method setContextNode(
-    LibXML::Node:D $!context-node
-) returns Mu
-```
-
-defining the context node
-
-### multi method setContextNode
-
-```perl6
-multi method setContextNode(
-    LibXML::Node:U $!context-node
-) returns Mu
-```
-
-undefining the context node
-
 NAME
 ====
 

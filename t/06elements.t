@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-plan 191;
+plan 194;
 
 use LibXML;
 
@@ -41,6 +41,14 @@ my @badnames= ("1A", "<><", "&", "-:");
     is( $elem.getAttribute($attname1), $attvalue1, ' TODO : Add test name');
 
     my $attr = $elem.getAttributeNode($attname1);
+    # TEST
+    ok($attr, ' TODO : Add test name');
+    # TEST
+    is($attr.name, $attname1, ' TODO : Add test name');
+    # TEST
+    is($attr.value, $attvalue1, ' TODO : Add test name');
+
+    $attr = $elem.attribute($attname1);
     # TEST
     ok($attr, ' TODO : Add test name');
     # TEST
