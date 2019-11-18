@@ -76,8 +76,8 @@
   ],
   "source-url" : "https://github.com/p6-xml/LibXML-p6",
   "tags" : [
-    "xml", "html", "xpath"
+      "xml", "html", "xpath", "dom"
   ],
   "test-depends" : [ ],
-  "version" : "0.1.9"
+  "version" : "0.1.10"
 }

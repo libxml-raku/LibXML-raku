@@ -301,7 +301,7 @@ method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) {
 }
 method is-valid(|c) { $.validate(:check, |c); }
 
-method parser handles<parse> { require LibXML::Parser; }
+method parser handles<parse> { require ::('LibXML::Parser'); }
 
 method processXIncludes(|c) is also<process-xincludes> {
     self.parser.new.processXIncludes(self, |c);

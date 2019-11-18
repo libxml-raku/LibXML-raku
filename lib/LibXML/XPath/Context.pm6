@@ -44,21 +44,49 @@ class LibXML::XPath::Context {
         $*XPATH-CONTEXT.structured-error($err);
     }
 
-    method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
+    method !findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
         my $*XPATH-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
         my xmlNodeSet $node-set := $.native.findnodes( $xpath-expr.native, $node);
         self.flush-errors;
-        $node-set.copy;
+        $node-set;
     }
+    method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
+        my anyNode $node = .native with $ref-node;
+        my $*XPATH-CONTEXT = self;
+        $!native.SetStructuredErrorFunc: &structured-error-cb;
+        my xmlXPathObject $xo := $!native.find( $xpath-expr.native, $node, :$bool);
+        temp self.recover //= $xo.defined;
+        self.flush-errors;
+        do with $xo {
+            my $v := .value;
+            if $v ~~ xmlNodeSet {
+                if $literal {
+                    if $v.defined {
+                        given (0 ..^ $v.nodeNr).map({$v.nodeTab[$_].delegate.string-value}).join {
+                            $v.Free;
+                            $v := $_;
+                        }
+                    }
+                    else {
+                        $v := Str;
+                    }
+                } else {
+                    $v := iterate-set(LibXML::Item, $v);
+                }
+            }
+            $v;
+        } else { fail "No value"; }
+    }
+
     proto method findnodes($, $?, :deref($)) {*}
     multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bool :$deref) {
-        iterate-set(LibXML::Item, self!find($expr, $ref), :$deref);
+        iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
     }
     multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) is default {
         my $expr = LibXML::XPath::Expression.new: :expr($_);
-        iterate-set(LibXML::Item, self!find($expr, $ref), :$deref);
+        iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
     }
     sub box(itemNode $elem) {
         do with $elem {
@@ -70,7 +98,7 @@ class LibXML::XPath::Context {
         $.first(LibXML::XPath::Expression.new(:$expr), $ref);
     }
     multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        my xmlNodeSet $nodes := self!find($expr, $ref);
+        my xmlNodeSet $nodes := self!findnodes($expr, $ref);
         my itemNode $node = $nodes.nodeTab[0] if $nodes.nodeNr;
         my $rv := box($node);
         $nodes.Free;
@@ -80,7 +108,7 @@ class LibXML::XPath::Context {
         $.last(LibXML::XPath::Expression.new(:$expr), $ref);
     }
     multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        my xmlNodeSet $nodes := self!find($expr, $ref);
+        my xmlNodeSet $nodes := self!findnodes($expr, $ref);
         my $n = $nodes.nodeNr;
         my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
         my $rv := box($node);
@@ -98,17 +126,11 @@ class LibXML::XPath::Context {
         } // fail "No value";
     }
 
-    multi method find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
-        my anyNode $node = .native with $ref-node;
-        my $*XPATH-CONTEXT = self;
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my $xo := $!native.find( $xpath-expr.native, $node, :$bool);
-        temp self.recover //= $xo.defined;
-        self.flush-errors;
-        get-value($xo, :$literal);
+    multi method find(LibXML::XPath::Expression $expr, LibXML::Node $ref-node?, |c) is default {
+        self!find($expr, $ref-node, |c);
     }
     multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) is default {
-        $.find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
+        self!find(LibXML::XPath::Expression.parse($expr), $ref-node, |c);
     }
 
     multi method findvalue(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, |c) {
