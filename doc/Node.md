@@ -101,7 +101,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-LibXML::Node defines functions that are common to all Node Types. An LibXML::Node should never be created standalone, but as an instance of a high level class such as LibXML::Element or LibXML::Text. The class itself should provide only common functionality. In LibXML each node is part either of a document or a document-fragment. Because of this there is no node without a parent. This may causes confusion with "unbound" nodes.
+LibXML::Node defines functions that are common to all Node Types. An LibXML::Node should never be created standalone, but as an instance of a high level class such as LibXML::Element or LibXML::Text. The class itself should provide only common functionality. In LibXML each node is part either of a document or a document-fragment. Because of this there is no node without a parent.
 
 METHODS
 =======
@@ -317,7 +317,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In scalar context, returns an [LibXML::NodeList ](LibXML::NodeList ) object.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 
     The `:deref` option has an effect on associatve indexing:
 
@@ -345,6 +345,13 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
             $node.find('/x:html');
 
     See also LibXML::XPathContext.findnodes.
+
+  * first, last
+
+        my LibXML::Node $body = $doc.first('body');
+        my LibXML::Node $last-row = $body.last('descendant::tr');
+
+    The `first` and `last` methods are similar to `findnodes`, except they return a single node representing the first or last matching row. If no nodes were found, `LibXML::Node:U` is returned.
 
   * query-handler, querySelector, querySelectorAll
 
@@ -376,7 +383,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric ](Numeric ) object being returned. Other expressions might return an [Bool ](Bool ) object, or a [Str ](Str ) object. Each of those objects uses Perl's overload feature to "do the right thing" in different contexts.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 
     See also [LibXML::XPathContext ](LibXML::XPathContext ).find.
 
@@ -384,7 +391,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         print $node.findvalue( $xpath );
 
-    *findvalue * is exactly equivalent to:
+    *findvalue * is equivalent to:
 
         $node.find( $xpath ).to-literal;
 
@@ -392,7 +399,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     See also [LibXML::XPathContext ](LibXML::XPathContext ).findvalue.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 
   * first
 

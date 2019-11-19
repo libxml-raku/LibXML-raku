@@ -22,13 +22,12 @@ SYNOPSIS
     $xpc.unregisterFunction($name);
     my @nodes = $xpc.findnodes($xpath);
     @nodes = $xpc.findnodes($xpath, $ref-node );
+    $node = $xpc.first($xpath);
+    $node = $xpc.last($xpath);
     my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
     my Any $object = $xpc.find($xpath );
     $object = $xpc.find($xpath, $ref-node );
     my $value = $xpc.findvalue($xpath );
-    $node = $xpc.first($xpath);
-    $node = $xpc.last($xpath);
-    $value = $xpc.findvalue($xpath, $ref-node );
     my Bool $found = $xpc.exists( $xpath, $ref-node );
     $xpc.contextNode = $node;
     $node = $xpc.contextNode;
@@ -177,9 +176,16 @@ METHODS
 
         my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $context-node );
 
-    Performs the xpath statement on the current node and returns the result as an array. In scalar context, returns an [LibXML::NodeList ](LibXML::NodeList ) object. Optionally, a node may be passed as a second argument to set the context node for the query.
+    Performs the xpath statement on the current node and returns the result as an array. In item context, returns an [LibXML::Node::Set ](LibXML::Node::Set ) object. Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
+
+  * first, last
+
+        my LibXML::Node $body = $doc.first('body');
+        my LibXML::Node $last-row = $body.last('descendant::tr');
+
+    The `first` and `last` methods are similar to `findnodes`, except they return a single node representing the first or last matching row. If no nodes were found, `LibXML::Node:U` is returned.
 
   * find
 
@@ -189,7 +195,7 @@ METHODS
 
     Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52 ` results in a Numeric object being returned. Other expressions might return a Bool object, or a [LibXML::Literal ](LibXML::Literal ) object (a string). Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 
   * findvalue
 
@@ -203,15 +209,15 @@ METHODS
 
     That is, it returns the literal value of the results. This enables you to ensure that you get a string back from your search, allowing certain shortcuts. This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>. Optionally, a node may be passed in the second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPathExpression ](LibXML::XPathExpression ) object. 
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 
   * exists
 
         my Bool $found = $xpc.exists( $xpath-expression, $context-node );
 
-    This method behaves like *findnodes *, except that it only returns a Bool value (True if the expression matches a node, False otherwise) and may be faster than *findnodes *, because the XPath evaluation may stop early on the first match (this is true for libxml2 >= 2.6.27). 
+    This method behaves like *findnodes *, except that it only returns a Bool value (True if the expression matches a node, False otherwise) and may be faster than *findnodes *, because the XPath evaluation may stop early on the first match. 
 
-    For XPath expressions that do not return node-set, the method returns True if the returned value is a non-zero number or a non-empty string.
+    For XPath expressions that do not return node-sets, the method returns True if the returned value is a non-zero number or a non-empty string.
 
   * contextNode
 

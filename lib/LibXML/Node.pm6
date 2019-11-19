@@ -451,7 +451,7 @@ LibXML::Node should never be created standalone, but as an instance of a high
 level class such as LibXML::Element or LibXML::Text. The class itself should
 provide only common functionality. In LibXML each node is part either of a
 document or a document-fragment. Because of this there is no node without a
-parent. This may causes confusion with "unbound" nodes.
+parent.
 
 
 =head1 METHODS
@@ -804,7 +804,7 @@ findnodes
 I<<<<<< findnodes >>>>>> evaluates the xpath expression (XPath 1.0) on the current node and returns the
 resulting node set as an array. In scalar context, returns an L<<<<<< LibXML::NodeList >>>>>> object.
 
-The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object.
+The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
 
 The `:deref` option has an effect on associatve indexing:
 
@@ -853,6 +853,16 @@ See also LibXML::XPathContext.findnodes.
 =end item1
 
 =begin item1
+first, last
+
+    my LibXML::Node $body = $doc.first('body');
+    my LibXML::Node $last-row = $body.last('descendant::tr');
+
+The C<first> and C<last> methods are similar to C<findnodes>, except they return a single node representing the first or last matching row. If no nodes were found, C<LibXML::Node:U> is returned.
+
+=end item1
+
+=begin item1
 query-handler, querySelector, querySelectorAll
 
 These methods provide pluggable support for CSS (or other 3rd party) Query Selectors. See https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE. For example,
@@ -893,7 +903,7 @@ expression, and returns the result depending on what type of result the XPath
 expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< Numeric >>>>>> object being returned. Other expressions might return an L<<<<<< Bool >>>>>> object, or a L<<<<<< Str >>>>>> object. Each of those objects uses Perl's overload feature to "do
 the right thing" in different contexts.
 
-The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 
+The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
 
 See also L<<<<<< LibXML::XPathContext >>>>>>.find.
 
@@ -904,7 +914,7 @@ findvalue
 
   print $node.findvalue( $xpath );
 
-I<<<<<< findvalue >>>>>> is exactly equivalent to:
+I<<<<<< findvalue >>>>>> is equivalent to:
 
 
 
@@ -917,7 +927,7 @@ select="some_xpath"/>.
 
 See also L<<<<<< LibXML::XPathContext >>>>>>.findvalue.
 
-The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPathExpression >>>>>> object. 
+The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
 
 =end item1
 

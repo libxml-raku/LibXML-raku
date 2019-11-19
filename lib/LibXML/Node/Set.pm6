@@ -22,7 +22,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     method !box(itemNode $elem) {
         do with $elem {
             my $class := box-class(.type);
-            die "unexpected node of type {$class.WHAT.perl} in node-set"
+            die "unexpected node of type {$class.WHAT.perl} in {$!of.perl} node-set"
                unless $class ~~ $!of;
 
             $class.box: .delegate;
@@ -45,14 +45,16 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     method Hash handles <AT-KEY keys> {
         $!hstore //= do {
             my LibXML::Node::Set %h = ();
-            for self.Array {
-                if $!deref && .nodeType == XML_ELEMENT_NODE {
-                    deref(%h, .childNodes);
-                    deref(%h, .properties);
+            if $!deref {
+                for self.Array {
+                    if .nodeType == XML_ELEMENT_NODE {
+                        deref(%h, .childNodes);
+                        deref(%h, .properties);
+                    }
                 }
-                else {
-                    (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_;
-                }
+            }
+            else {
+                deref(%h, self.Array)
             }
             %h;
         }

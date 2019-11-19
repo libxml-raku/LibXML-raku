@@ -26,7 +26,7 @@ if defined $dom {
     is( +@list, 3, ' TODO : Add test name' );
     # a simple query starting somewhere ...
     my $node = @list[0];
-    my @slist = $node.findnodes( "humps" );
+    my @slist = $node.find( "humps" );
     # TEST
     is( +@slist, 1, ' TODO : Add test name' );
     @slist = $node.findnodes( "HUMPS" );
