@@ -99,7 +99,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $node.setAttributeNS( $nsURI, $aname, $avalue );
 
-    Namespace-aware version of `setAttribute `, where `$nsURI ` is a namespace URI, `$aname ` is a qualified name, and `$avalue ` is the value. The namespace URI may be null (empty or undefined) in order to create an attribute which has no namespace. 
+    Namespace-aware version of `setAttribute `, where `$nsURI ` is a namespace URI, `$aname ` is a qualified name, and `$avalue ` is the value. The namespace URI may be Str:U (undefined) in order to create an attribute which has no namespace.
 
     The current implementation differs from DOM in the following aspects 
 
@@ -334,9 +334,10 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     All elements and attributes (even those previously unbound from the document) for which the namespace declaration determines their namespace belong to the new namespace after the change. For example:
 
-        my $node = LibXML.load('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>').root;
-        $node.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
-        say $node.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
+        my LibXML::Element $elem = .root()
+            given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
+        $elem.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
+        say $elem.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
 
     If the new URI is undefined or empty, the nodes have no namespace and no prefix after the change. Namespace declarations once nulled in this way do not further appear in the serialized output (but do remain in the document for internal integrity of libxml2 data structures). 
 
@@ -352,7 +353,8 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     All elements and attributes (even those previously unbound from the document) for which the namespace declaration determines their namespace change their prefix to the new value. For example:
 
-        my $node = LibXML.load('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>').root;
+        my $node = .root()
+            given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
         $node.setNamespaceDeclPrefix( 'xxx', 'yyy' );
         say $node.Str; # <Doc xmlns:yyy="http://ns.com"><yyy:elem/></Doc>
 

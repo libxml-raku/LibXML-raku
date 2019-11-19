@@ -132,9 +132,9 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
 
 my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
 method !set-attr(QName $name, Str:D $value) {
-    $.native.setAttribute($name, $value);
+    ? $.native.setAttribute($name, $value);
 }
-multi method setAttribute(NameVal:D $_) {
+multi method setAttribute(NameVal:D $_ --> Bool) {
     self!set-attr(.key, .value);
 }
 multi method setAttribute(QName $name, Str:D $value) {
@@ -144,28 +144,28 @@ multi method setAttribute(*%atts) {
     self!set-attr(.key, .value)
         for %atts.pairs.sort;
 }
-method setAttributeNode(AttrNode:D $att) {
+method setAttributeNode(AttrNode:D $att --> AttrNode) {
     $att.keep: $.native.setAttributeNode($att.native);
 }
-method setAttributeNodeNS(AttrNode:D $att) {
+method setAttributeNodeNS(AttrNode:D $att --> AttrNode) {
     $att.keep: $.native.setAttributeNodeNS($att.native);
 }
-multi method setAttributeNS(Str $uri, NameVal:D $_) {
+multi method setAttributeNS(Str $uri, NameVal:D $_ --> AttrNode) {
     $.setAttributeNS($uri, .key, .value);
 }
-multi method setAttributeNS(Str $uri, QName $name, Str $value) {
+multi method setAttributeNS(Str $uri, QName $name, Str $value --> AttrNode) {
     if $name {
         self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
     }
     box-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
 }
-method getAttributeNode(Str $att-name --> LibXML::Node) is also<attribute> {
+method getAttributeNode(Str $att-name --> AttrNode) is also<attribute> {
     box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
 }
-method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Node) {
+method getAttributeNodeNS(Str $uri, Str $att-name --> AttrNode) {
     box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNodeNS($uri, $att-name);
 }
-method removeAttributeNode(AttrNode $att) {
+method removeAttributeNode(AttrNode $att --> AttrNode) {
     $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
 }
 
@@ -277,8 +277,8 @@ setAttributeNS
 
   $node.setAttributeNS( $nsURI, $aname, $avalue );
 
-Namespace-aware version of C<<<<<< setAttribute >>>>>>, where C<<<<<< $nsURI >>>>>> is a namespace URI, C<<<<<< $aname >>>>>> is a qualified name, and C<<<<<< $avalue >>>>>> is the value. The namespace URI may be null (empty or undefined) in order to
-create an attribute which has no namespace. 
+Namespace-aware version of C<<<<<< setAttribute >>>>>>, where C<<<<<< $nsURI >>>>>> is a namespace URI, C<<<<<< $aname >>>>>> is a qualified name, and C<<<<<< $avalue >>>>>> is the value. The namespace URI may be Str:U (undefined) in order to
+create an attribute which has no namespace.
 
 The current implementation differs from DOM in the following aspects 
 
@@ -651,9 +651,10 @@ All elements and attributes (even those previously unbound from the document)
 for which the namespace declaration determines their namespace belong to the
 new namespace after the change.  For example:
 
-  my $node = LibXML.load('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>').root;
-  $node.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
-  say $node.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
+  my LibXML::Element $elem = .root()
+      given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
+  $elem.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
+  say $elem.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
 
 If the new URI is undefined or empty, the nodes have no namespace and no prefix
 after the change. Namespace declarations once nulled in this way do not further
@@ -683,7 +684,8 @@ All elements and attributes (even those previously unbound from the document)
 for which the namespace declaration determines their namespace change their
 prefix to the new value. For example:
 
-  my $node = LibXML.load('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>').root;
+  my $node = .root()
+      given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
   $node.setNamespaceDeclPrefix( 'xxx', 'yyy' );
   say $node.Str; # <Doc xmlns:yyy="http://ns.com"><yyy:elem/></Doc>
 

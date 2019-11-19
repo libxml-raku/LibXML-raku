@@ -873,9 +873,9 @@ class anyNode is export does LibXML::Native::DOM::Node {
         }
     }
     # role refactor needed
-    method domSetNamespaceDeclPrefix { ... }
-    method domSetNamespaceDeclURI { ... }
-    method domGetNamespaceDeclURI { ... }
+    method domSetNamespaceDeclPrefix(|c) { ... }
+    method domSetNamespaceDeclURI(|c) { ... }
+    method domGetNamespaceDeclURI(|c) { ... }
     method ItemNode handles<delegate> { nativecast(itemNode, self) }
 }
 
