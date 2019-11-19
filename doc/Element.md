@@ -248,7 +248,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function is not found in the DOM specification. It is a mix of getElementsByTagName and getElementsByTagNameNS. It will fetch all tags matching the given local-name. This allows one to select tags with the same local name across namespace borders.
 
-    In SCALAR context this function returns an [LibXML::NodeList ](LibXML::NodeList ) object.
+    In item context this function returns an [LibXML::Node::Set ](LibXML::Node::Set ) object.
 
   * elements
 

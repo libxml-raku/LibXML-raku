@@ -493,9 +493,9 @@ variable is evaluated. The callback function has two required arguments: C<<<<<<
 
 The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
 Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned
-array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::NodeList >>>>>>.
+array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::Node::Set >>>>>>.
 
-Any additional arguments are curried and passed to the callback function. For example:
+Any additional arguments are captured and passed to the callback function. For example:
 
   $xpc.registerVarLookupFunc(&my-callback, 'Xxx', :%vars);
 
@@ -518,7 +518,7 @@ simple scalars or C<<<<<< LibXML::* >>>>>> objects depending on the XPath argume
 
 The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
 Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned
-array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::NodeList >>>>>>.
+array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::Node::Set >>>>>>.
 
 =end item1
 

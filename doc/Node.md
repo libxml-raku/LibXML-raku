@@ -315,7 +315,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my LibXML::Node @nodes = $node.findnodes( $xpath-expression );
         my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression, :deref );
 
-    *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In scalar context, returns an [LibXML::NodeList ](LibXML::NodeList ) object.
+    *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In item context, returns an [LibXML::Node::Set ](LibXML::Node::Set ) object.
 
     The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 

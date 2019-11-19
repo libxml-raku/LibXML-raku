@@ -508,7 +508,7 @@ getElementsByTagName and getElementsByTagNameNS. It will fetch all tags
 matching the given local-name. This allows one to select tags with the same
 local name across namespace borders.
 
-In SCALAR context this function returns an L<<<<<< LibXML::NodeList >>>>>> object.
+In item context this function returns an L<<<<<< LibXML::Node::Set >>>>>> object.
 
 =end item1
 

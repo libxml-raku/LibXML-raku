@@ -132,9 +132,9 @@ METHODS
 
     Registers variable lookup function `$prefix `. The registered function is executed by the XPath engine each time an XPath variable is evaluated. The callback function has two required arguments: `$data `, variable name, and variable ns-URI.
 
-    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](LibXML::Node ) objects can be used instead of an [LibXML::NodeList ](LibXML::NodeList ).
+    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](LibXML::Node ) objects can be used instead of an [LibXML::Node::Set ](LibXML::Node::Set ).
 
-    Any additional arguments are curried and passed to the callback function. For example:
+    Any additional arguments are captured and passed to the callback function. For example:
 
         $xpc.registerVarLookupFunc(&my-callback, 'Xxx', :%vars);
 
@@ -148,7 +148,7 @@ METHODS
 
     Registers an extension function `$name ` in `$uri ` namespace. The arguments of the callback function are either simple scalars or `LibXML::* ` objects depending on the XPath argument types.
 
-    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](LibXML::Node ) objects can be used instead of an [LibXML::NodeList ](LibXML::NodeList ).
+    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](LibXML::Node ) objects can be used instead of an [LibXML::Node::Set ](LibXML::Node::Set ).
 
   * unregisterFunctionNS
 
@@ -203,7 +203,7 @@ METHODS
 
         my Str $value = $xpc.findvalue($xpath, $context-node );
 
-    Is exactly equivalent to:
+    Is equivalent to:
 
         $xpc.find( $xpath, $context-node ).to-literal;
 

@@ -802,7 +802,7 @@ findnodes
   my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression, :deref );
 
 I<<<<<< findnodes >>>>>> evaluates the xpath expression (XPath 1.0) on the current node and returns the
-resulting node set as an array. In scalar context, returns an L<<<<<< LibXML::NodeList >>>>>> object.
+resulting node set as an array. In item context, returns an L<<<<<< LibXML::Node::Set >>>>>> object.
 
 The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
 
