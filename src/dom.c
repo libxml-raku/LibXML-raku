@@ -329,7 +329,7 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
     while ( cur ) {
         /* we must reconcile all nodes in the fragment */
         if (cur->type == XML_DTD_NODE) {
-            if (cur->doc) {
+            if (cur->doc && domGetExternalSubset(cur->doc) != (xmlDtdPtr)cur) {
                 domSetInternalSubset(cur->doc, (xmlDtdPtr) cur);
             }
         }
@@ -986,26 +986,43 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
         xml6_fail(self, "replaceNode: HIERARCHY_REQUEST_ERR");
     }
 
-    par  = self->parent;
-    prev = self->prev;
-    next = self->next;
+    if ( newNode->type == XML_DTD_NODE) {
+        xmlDocPtr doc = self->doc;
+        int replace_external = doc && self->type == XML_DTD_NODE && self == (xmlNodePtr)domGetExternalSubset(doc);
 
-    xmlUnlinkNode( self );
+        if (doc == NULL) xml6_fail(self, "replaceNode: DTD is not associated with a document");
 
-    if( prev == NULL && next == NULL ) {
-        /* self was the only child */
-        domAppendChild( par , newNode );
-    }
-    else {
-        if ( newNode->doc == self->doc ){
-            xmlUnlinkNode( newNode );
+        xmlUnlinkNode(self);
+
+        if (replace_external) {
+            domSetExternalSubset(doc, (xmlDtdPtr)newNode);
         }
         else {
-            domImportNode( self->doc, newNode, 1, 0 );
+            domSetInternalSubset(doc, (xmlDtdPtr)newNode);
         }
+    }
+    else {
+        par  = self->parent;
+        prev = self->prev;
+        next = self->next;
 
-        head = _domAddNodeToList( newNode, prev,  next, &tail );
-        _domAssimulate(head, tail);
+        xmlUnlinkNode( self );
+
+        if (prev == NULL && next == NULL ) {
+            /* self was the only child */
+            domAppendChild( par , newNode );
+        }
+        else {
+            if ( newNode->doc == self->doc ){
+                xmlUnlinkNode( newNode );
+            }
+            else {
+                domImportNode( self->doc, newNode, 1, 0 );
+            }
+
+            head = _domAddNodeToList( newNode, prev,  next, &tail );
+            _domAssimulate(head, tail);
+        }
     }
 
     return self;

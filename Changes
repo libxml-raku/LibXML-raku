@@ -1,5 +1,7 @@
-0.1.11 2019-11-xx
+0.1.11 2019-11-21
     - [LibXML::Node::Set] add .reverse() method
+    - [LibXML::Namespace] bug-fix to .unique-key() method
+    - [LibXML::Node] fix .replaceNode() to distingush internal vs external DTDs
 0.1.10 2019-11-20
     - [LibXML::Find::Context] fix memory leaks in .find() and .findnodes(). Fix
       find() so it now iterates on node sets e.g.: for $e.find { ... }
