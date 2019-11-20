@@ -21,8 +21,7 @@ class SAXLocatorTester { ... }
 class SAXErrorTester { ... }
 class SAXErrorCallbackTester { ... }
 
-# TEST
-ok(1, 'Loaded');
+pass('Loaded');
 
 sub _create_simple_counter {
     Counter.new(
@@ -103,95 +102,75 @@ my $SAXNSTester_end_prefix_mapping_stacker = _create_urn_stacker();
 my $parser;
 {
     my SAXTester $sax .= new;
-    # TEST
     ok($sax, ' TODO : Add test name');
 
     my $str = "example/dromeds.xml".IO.slurp;
     my $doc = LibXML.parse: :string($str);
-    # TEST
     ok($doc, ' TODO : Add test name');
 
     my $generator = LibXML::SAX.new(sax-handler => $sax);
-    # TEST
     ok($generator, ' TODO : Add test name');
 
     $generator.reparse($doc); # startElement*10
 
-    # TEST
     $SAXTester_startElement_stacker.test(
         ['true' xx 10],
         'startElement was successful 10 times.',
     );
 
-    # TEST
     $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
-    # TEST
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
-    # TEST
     my $gen2 = LibXML::SAX.new;
     my $dom2 = $gen2.reparse($doc);
-    # TEST
     ok($dom2, ' TODO : Add test name');
 
-    # TEST
     is($dom2.Str, $str, ' TODO : Add test name');
     # warn($dom2.toString);
 
 ########### XML::SAX Replacement Tests ###########
     $parser = LibXML::SAX.new(sax-handler => $sax);
-    # TEST
     ok($parser, ' TODO : Add test name');
     $parser.parse: :file("example/dromeds.xml"); # startElement*10
 
-    # TEST
     $SAXTester_startElement_stacker.test(
         ['true' xx 10],
         'parse: file(): startElement was successful 10 times.',
     );
-    # TEST
     $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
-    # TEST
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
     $parser.parse: :string(q:to<EOT>); # startElement*1
 <?xml version='1.0' encoding="US-ASCII"?>
 <dromedaries one="1" />
 EOT
-    # TEST
     $SAXTester_startElement_stacker.test(
         ['true'],
         'parse: :string() : startElement was successful 1 times.',
     );
-    # TEST
     $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
-    # TEST
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 }
 
 {
     my $sax = SAXNSTester.new;
-    # TEST
     ok($sax, ' TODO : Add test name');
 
     $parser.sax-handler = $sax;
     $parser.parse: :file("example/ns.xml");
 
-    # TEST
     $SAXNSTester_startElement_stacker.test(
         [
             'true' xx 3
         ],
         'Three successful SAXNSTester elements.',
     );
-    # TEST
     $SAXNSTester_start_prefix_mapping_stacker.test(
         [
             'true' xx 3
         ],
         'Three successful SAXNSTester start_prefix_mapping.',
     );
-    # TEST
     $SAXNSTester_end_prefix_mapping_stacker.test(
         [
             'true' xx 3
@@ -209,7 +188,6 @@ EOT
         ] );
     } );
 
-    # TEST
     ok($sax, 'Created SAX handler with document locator');
 
     my $parser = LibXML::SAX.new(sax-handler => $sax);
@@ -235,7 +213,6 @@ EOT
         endDocument   => [ 6, 8  ],
     ];
 
-    # TEST
     is-deeply( @stack, $expecting, "Check locator positions" );
 }
 
@@ -248,7 +225,6 @@ EOT
     my @tests = (
         sub {
             LibXML::SAX.new(sax-handler => $sax).parse: :string( $xml );
-            # TEST
             $SAXNS2Tester_startElement_stacker.test(['true'], 'LibXML::SAX');
         },
     );
@@ -266,15 +242,12 @@ EOT
   try {
       LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
   };
-  # TEST*2
   ok($!, ' TODO : Add test name'); # We got an error
   ok $sax.errors, 'error handler called';
 
   $sax = SAXErrorCallbackTester.new;
   try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
-  # TEST
   ok($!, ' TODO : Add test name'); # We got an error
-  # TEST
   ok $sax.errors, 'error handler called';
 
 }
@@ -295,11 +268,9 @@ skip("todo: port remaining tests", 29);
   $parser.parse-chunk($chunk);
   $builder.endElement('foo');
   $parser.endDocument();
-  # TEST
   is($builder.publish().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
 }
 
-######## TEST error exceptions ##############
 {
 
   package MySAXHandler;
@@ -323,9 +294,7 @@ skip("todo: port remaining tests", 29);
         <Moin>Moin</Moin>
 </TVChannel>
 EOF
-  # TEST
   is(ref($@), 'MySAXException', ' TODO : Add test name');
-  # TEST
   is(ref($@) && $@.{Message}, "My exception", ' TODO : Add test name');
 }
 

@@ -22,8 +22,7 @@ INIT {
 
 use LibXML;
 
-# TEST
-ok(1, 'Loading');
+pass('Loading');
 
 my $p = LibXML.new();
 
@@ -46,25 +45,19 @@ my $domstr-utf8 = q{<?xml version="1.0" encoding="UTF-8"?>
 
     $dom_latin1.setDocumentElement( $elemlat1 );
 
-    # TEST
     is( $elemlat1.Str,
         "<$tstr_iso_latin1/>", ' TODO : Add test name');
-    # TEST
     is( $elemlat1.Str, "<$tstr_iso_latin1/>", ' TODO : Add test name');
 
     my $elemlat2   = $dom_latin1.createElement( "Öl" );
-    # TEST
     is( $elemlat2.Str, "<Öl/>", ' TODO : Add test name');
 
     $elemlat1.appendText( $tstr_iso_latin1 );
 
-    # TEST
     is( $elemlat1.string-value,
         $tstr_iso_latin1, ' TODO : Add test name');
-    # TEST
     is( $elemlat1.string-value(), $tstr_iso_latin1, ' TODO : Add test name');
 
-    # TEST
     is( $dom_latin1.Str(), $domstr-utf8, ' TODO : Add test name' );
 
 }
@@ -86,27 +79,21 @@ if %*ENV<TEST_LANGUAGES> ~~ 'all'|'EUC-JP' {
         my $elemjp = $dom_euc_jp.createElement( $tstr_euc_jp );
 
 
-        # TEST
 
         is( $elemjp.nodeName,
             $tstr_euc_jp, ' TODO : Add test name' );
-        # TEST
         is( $elemjp.Str,
             "<$tstr_euc_jp/>", ' TODO : Add test name');
-        # TEST
         is( $elemjp.Str(), "<$tstr_euc_jp/>", ' TODO : Add test name');
 
         $dom_euc_jp.setDocumentElement( $elemjp );
         $elemjp.appendText( $tstr_euc_jp );
 
-        # TEST
 
         is( $elemjp.string-value,
             $tstr_euc_jp, ' TODO : Add test name');
-        # TEST
         is( $elemjp.string-value(), $tstr_euc_jp, ' TODO : Add test name');
 
-        # TEST
 
         is( $dom_euc_jp.Str(), $domstr-utf8, ' TODO : Add test name' );
     }
@@ -128,30 +115,24 @@ if ( %*ENV<TEST_LANGUAGES> ~~ 'all'|'KOI8-R' ) {
         $dom_koi8 = LibXML::Document.new(:enc<KOI8-R>);
         $elemkoi8 = $dom_koi8.createElement( $tstr_koi8r );
 
-        # TEST
 
         is( $elemkoi8.nodeName,
             $tstr_koi8r, ' TODO : Add test name' );
 
-        # TEST
 
         is( $elemkoi8.Str,
             "<$tstr_koi8r/>", ' TODO : Add test name');
-        # TEST
         is( $elemkoi8.Str, "<$tstr_koi8r/>", ' TODO : Add test name');
 
         $elemkoi8.appendText( $tstr_koi8r );
 
-        # TEST
 
         is( $elemkoi8.string-value,
             $tstr_koi8r, ' TODO : Add test name');
-        # TEST
         is( $elemkoi8.string-value(),
             $tstr_koi8r, ' TODO : Add test name');
         $dom_koi8.setDocumentElement( $elemkoi8 );
 
-        # TEST
 
         is( $dom_koi8.Str(),
             $domstr-utf8, ' TODO : Add test name' );

@@ -138,32 +138,25 @@ my ($read1_non_global_counter, $read1_global_counter) =
     };
 
     my $parser = LibXML.new: :$input-callbacks;
-    # TEST
     ok($parser, 'Parser was initted.');
 
     $parser.expand-xinclude = True;
 
     my $dom = $parser.parse: :file("example/test.xml");
 
-    # TEST
     $read1_non_global_counter.test(2, 'read1 for expand_include called twice.');
-    # TEST
     # I think the second close gets called when the parser context is freed
     $close1_non_global_counter.test(1, 'close1 for expand_include called.');
-    # TEST
     $match1_non_global_counter.test(2, 'match1 for expand_include called twice.');
 
-    # TEST
     $open1_non_global_counter.test(2, 'expand_include open1 worked.');
 
-    # TEST
     ok($dom, 'DOM was returned.');
     # warn $dom.toString();
 
     my $root = $dom.getDocumentElement();
 
     my @nodes = $root.findnodes( 'xml/xsl' );
-    # TEST
     ok( +@nodes, 'Found nodes.' );
 }
 
@@ -173,9 +166,7 @@ my ($read1_non_global_counter, $read1_global_counter) =
     my $parser = LibXML.new();
     my $parser2 = LibXML.new();
 
-    # TEST
     ok($parser, '$parser was init.');
-    # TEST
     ok($parser2, '$parser2 was init.');
 
     my LibXML::InputCallback $input-callbacks .= new: :callbacks{
@@ -201,20 +192,13 @@ my ($read1_non_global_counter, $read1_global_counter) =
     my $dom1 = $parser.parse: :file( "example/test.xml");
     my $dom2 = $parser2.parse: :file("example/test.xml");
 
-    # TEST
     $read1_non_global_counter.test(2, 'read1 for $parser out of ($parser,$parser2)');
-    # TEST
     $close1_non_global_counter.test(1, 'close1 for $parser out of ($parser,$parser2)');
 
-    # TEST
     $match1_non_global_counter.test(2, 'match1 for $parser out of ($parser,$parser2)');
-    # TEST
     $open1_non_global_counter.test(2, 'expand_include for $parser out of ($parser,$parser2)');
-    # TEST
     $open2_counter.test(2, 'expand_include for $parser2 out of ($parser,$parser2)');
-    # TEST
     ok($dom1, '$dom1 was returned');
-    # TEST
     ok($dom2, '$dom2 was returned');
 
     my $val1  = ( $dom1.findnodes( "/x/xml/text()") )[0].string-value();
@@ -223,10 +207,8 @@ my ($read1_non_global_counter, $read1_global_counter) =
     $val1 .= trim;
     $val2 .= trim;
 
-    # TEST
 
     is( $val1, "test", ' TODO : Add test name' );
-    # TEST
     is( $val2, "test 4", ' TODO : Add test name' );
 }
 
@@ -239,7 +221,6 @@ my $str = 'complex.xml'.IO.slurp;
     my $parser2 = LibXML.new();
     $parser2.expand-xinclude = True;
     my $dom = $parser2.parse: :string($str);
-    # TEST
     ok($dom, '$dom was init.');
 }
 
@@ -254,22 +235,16 @@ my $input-callbacks = LibXML::InputCallback.new: :callbacks{
     # tests if global callbacks are working
     my $parser = LibXML.new: :$input-callbacks;
     $parser.dtd = True;
-    # TEST
     ok($parser, '$parser was init');
 
-    # TEST
     ok($parser.parse(:string($str)), 'parse: :string returns a true value.');
 
-    # TEST
     $open1_global_counter.test(3, 'open1 for global counter.');
 
-    # TEST
     $match1_global_counter.test(3, 'match1 for global callback.');
 
-    # TEST
     $close1_global_counter.test(3, 'close1 for global callback.');
 
-    # TEST
     $read1_global_counter.test(3, 'read1 for global counter.');
 }
 

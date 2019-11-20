@@ -1,5 +1,5 @@
 # test synopsis and code samples in POD Documentation
-
+use v6;
 use Test;
 
 plan 18;

@@ -1,3 +1,4 @@
+use v6;
 use Test;
 
 use LibXML;
@@ -18,7 +19,6 @@ my $invalidfile  = "test/schema/invaliddemo.xml";
 # 1 parse schema from a file
 {
     my $schema = LibXML::Schema.new( location => $file );
-    # TEST
     ok ( $schema.defined, 'Good LibXML::Schema was initialised' );
 
     dies-ok { $schema = LibXML::Schema.new( location => $badfile ); },  'Bad LibXML::Schema throws an exception.';
@@ -29,7 +29,6 @@ my $invalidfile  = "test/schema/invaliddemo.xml";
     my $string = slurp($file);
 
     my $schema = LibXML::Schema.new( string => $string );
-    # TEST
     ok ( $schema, 'Schema initialized from string.' );
 
     $string = slurp($badfile);
@@ -43,7 +42,6 @@ my $invalidfile  = "test/schema/invaliddemo.xml";
 
     is-deeply $schema.is-valid( $doc ), True, 'is-valid on valid doc';
     my $valid = $schema.validate( $doc );
-    # TEST
     is( $valid, 0, 'validate() returns 0 to indicate validity of valid file.' );
 
     $doc       = $xmlparser.parse: :file( $invalidfile );
@@ -87,7 +85,6 @@ EOF
     my $nodelist = $doc.findnodes('/shiporder/shipto');
     my $result = 1;
     lives-ok { $result = $schema.validate($nodelist[0]) }, 'validate() with element doesn\'t throw';
-    # TEST
     is( $result, 0, 'validate() with element returns 0' );
 }
 

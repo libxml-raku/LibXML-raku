@@ -1,3 +1,4 @@
+use v6;
 use LibXML::Dict;
 use Test;
 plan 12;

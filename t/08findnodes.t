@@ -22,31 +22,26 @@ if defined $dom {
 
     # first very simple path starting at root
     my @list   = $elem.findnodes( "species" );
-    # TEST
     is( +@list, 3, ' TODO : Add test name' );
     # a simple query starting somewhere ...
     my $node = @list[0];
     my @slist = $node.find( "humps" );
-    # TEST
     is( +@slist, 1, ' TODO : Add test name' );
     @slist = $node.findnodes( "HUMPS" );
     is( +@slist, 0, 'case sensitivity');
 
     # find a single node
     @list   = $elem.findnodes( "species[\@name='Llama']" );
-    # TEST
     is( +@list, 1, ' TODO : Add test name' );
 
     # find with not conditions
     @list   = $elem.findnodes( "species[\@name!='Llama']/disposition" );
-    # TEST
     is( +@list, 2, ' TODO : Add test name' );
 
 
     @list   = $elem.findnodes( 'species/@name' );
     # warn $elem.Str();
 
-    # TEST
 
     if @list {
         is(@list[0].gist, 'name="Camel"', 'Attribute selection' )
@@ -64,7 +59,6 @@ if defined $dom {
 
     my $x = LibXML::Text.new: :content(1234);
     with $x {
-        # TEST
         is( .getData(), "1234", 'getData' );
     }
     else {
@@ -92,10 +86,8 @@ if defined $dom {
     ok ! $telem<b>;
 
     finddoc($dom);
-    # TEST
-    ok(1, ' TODO : Add test name');
+    pass(' TODO : Add test name');
 }
-# TEST
 
 ok( $dom, ' TODO : Add test name' );
 
@@ -119,12 +111,10 @@ EOT
 
 my $root = $doc.getDocumentElement;
 my @a = $root.findnodes('//a:foo');
-# TEST
 
 is(+@a, 1, ' TODO : Add test name');
 
 my @b = $root.findnodes('//b:bar');
-# TEST
 
 is(+@b, 1, ' TODO : Add test name');
 
@@ -134,19 +124,16 @@ is(+@b, 0, ' TODO : Add test name');
 
 my @none = $root.findnodes('//b:foo');
 @none.push($_) for $root.findnodes('//foo');
-# TEST
 
 is(+@none, 0, ' TODO : Add test name');
 
 my @doc = $root.findnodes('document("example/test.xml")');
-# TEST
 
 ok(+@doc, ' TODO : Add test name');
 # warn($doc[0].Str);
 
 # this query should result an empty array!
 my @nodes = $root.findnodes( "/humpty/dumpty" );
-# TEST
 
 is( +@nodes, 0, 'Empty array' );
 
@@ -157,12 +144,10 @@ my $docstring = q{
  $root = $doc.documentElement;
 
 my @ns = $root.findnodes('namespace::*');
-# TEST
 
 is(+@ns, 2, 'Find namespace nodes' );
 
 # bad xpaths
-# TEST:$badxpath=4;
 my @badxpath = (
     'abc:::def',
     'foo///bar',
@@ -186,15 +171,11 @@ for @badxpath -> $xp {
     $root.appendChild( $b );
 
     my @list = $doc.findnodes( '//A' );
-    # TEST
     ok( @list, ' TODO : Add test name' );
-    # TEST
     ok( @list[0].isSameNode( $root ), ' TODO : Add test name' );
 
     @list = $doc.findnodes( '//B' );
-    # TEST
     ok( @list, ' TODO : Add test name' );
-    # TEST
     ok( @list[0].isSameNode( $b ), ' TODO : Add test name' );
 
 
@@ -203,9 +184,7 @@ for @badxpath -> $xp {
     ok( @list[0].isSameNode( $root ) );
 
     @list = $root.getElementsByTagName( 'B' );
-    # TEST
     ok( @list, ' TODO : Add test name' );
-    # TEST
     ok( @list[0].isSameNode( $b ), ' TODO : Add test name' );
 }
 
@@ -225,13 +204,11 @@ for @badxpath -> $xp {
     $b.appendChild( $c );
 
     my @list = $root.findnodes( "B" );
-    # TEST
     is( +@list, 2, ' TODO : Add test name' );
     for @list -> $node {
         my @subnodes = $node.findnodes( "C" );
         $node.unbindNode() if @subnodes;
-        # TEST*2
-        ok(1, ' TODO : Add test name');
+        pass(' TODO : Add test name');
     }
 }
 
@@ -241,11 +218,9 @@ for @badxpath -> $xp {
     my $doc       = $parser.parse: :string( $xmlstr );
     my $root      = $doc.documentElement;
     my ( $lastc ) = $root.findnodes( 'b/c[last()]' );
-    # TEST
     ok( $lastc, ' TODO : Add test name' );
 
     $root.removeChild( $lastc );
-    # TEST
     is( $root.Str(), $xmlstr, 'findnode/remove' );
 }
 

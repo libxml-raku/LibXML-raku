@@ -16,16 +16,13 @@ my $attname2  = "B";
 my $attvalue2 = "b";
 my $attname3  = "C";
 
-# TEST:$badnames=4;
 my @badnames= ("1A", "<><", "&", "-:");
 
 # 1. bound node
 {
     my $doc = LibXML::Document.new();
     my $elem = $doc.createElement( $foo );
-    # TEST
     ok($elem, ' TODO : Add test name');
-    # TEST
     is($elem.tagName, $foo, ' TODO : Add test name');
 
     {
@@ -35,57 +32,39 @@ my @badnames= ("1A", "<><", "&", "-:");
     }
 
     $elem.setAttribute( $attname1, $attvalue1 );
-    # TEST
     ok( $elem.hasAttribute($attname1), ' TODO : Add test name' );
-    # TEST
     is( $elem.getAttribute($attname1), $attvalue1, ' TODO : Add test name');
 
     my $attr = $elem.getAttributeNode($attname1);
-    # TEST
     ok($attr, ' TODO : Add test name');
-    # TEST
     is($attr.name, $attname1, ' TODO : Add test name');
-    # TEST
     is($attr.value, $attvalue1, ' TODO : Add test name');
 
     $attr = $elem.attribute($attname1);
-    # TEST
     ok($attr, ' TODO : Add test name');
-    # TEST
     is($attr.name, $attname1, ' TODO : Add test name');
-    # TEST
     is($attr.value, $attvalue1, ' TODO : Add test name');
 
     $elem.setAttribute( $attname1, $attvalue2 );
-    # TEST
     is($elem.getAttribute($attname1), $attvalue2, ' TODO : Add test name');
-    # TEST
     is($attr.value, $attvalue2, ' TODO : Add test name');
 
     my $attr2 = $doc.createAttribute($attname2, $attvalue1);
-    # TEST
     ok($attr2, ' TODO : Add test name');
 
     $elem.setAttributeNode($attr2);
-    # TEST
     ok($elem.hasAttribute($attname2), ' TODO : Add test name' );
-    # TEST
     is($elem.getAttribute($attname2),$attvalue1, ' TODO : Add test name');
 
     my $tattr = $elem.getAttributeNode($attname2);
-    # TEST
     ok($tattr.isSameNode($attr2), ' TODO : Add test name');
 
     $elem.setAttribute($attname2, "");
-    # TEST
     ok($elem.hasAttribute($attname2), ' TODO : Add test name' );
-    # TEST
     is($elem.getAttribute($attname2), "", ' TODO : Add test name');
 
     $elem.setAttribute($attname3, "");
-    # TEST
     ok($elem.hasAttribute($attname3), ' TODO : Add test name' );
-    # TEST
     is($elem.getAttribute($attname3), "", ' TODO : Add test name');
 
     {
@@ -99,69 +78,47 @@ my @badnames= ("1A", "<><", "&", "-:");
     # 1.1 Namespaced Attributes
 
     $elem.setAttributeNS( $nsURI, $prefix ~ ":" ~ $foo, $attvalue2 );
-    # TEST
     ok( $elem.hasAttributeNS( $nsURI, $foo ), ' TODO : Add test name' );
-    # TEST
     ok( ! $elem.hasAttribute( $foo ), ' TODO : Add test name' );
-    # TEST
     ok( $elem.hasAttribute( $prefix~":"~$foo ), ' TODO : Add test name' );
     # warn $elem.toString() , "\n";
     $tattr = $elem.getAttributeNodeNS( $nsURI, $foo );
-    # TEST
     ok($tattr, ' TODO : Add test name');
-    # TEST
     is($tattr.name, $foo, ' TODO : Add test name');
-    # TEST
     is($tattr.nodeName, $prefix~":"~$foo, ' TODO : Add test name');
-    # TEST
     is($tattr.value, $attvalue2, ' TODO : Add test name' );
 
     $elem.removeAttributeNode( $tattr );
-    # TEST
     ok( !$elem.hasAttributeNS($nsURI, $foo), ' TODO : Add test name' );
 
 
     # empty NS
     $elem.setAttributeNS( '', $foo, $attvalue2 );
-    # TEST
     ok( $elem.hasAttribute( $foo ), ' TODO : Add test name' );
     $tattr = $elem.getAttributeNode( $foo );
-    # TEST
     ok($tattr.defined, ' TODO : Add test name');
-    # TEST
     is($tattr.name, $foo, ' TODO : Add test name');
-    # TEST
     is($tattr.nodeName, $foo, ' TODO : Add test name');
-    # TEST
     ok(!$tattr.namespaceURI.defined, 'namespaceURI N/A is not defined');
-    # TEST
     is($tattr.value, $attvalue2, ' TODO : Add test name' );
 
-    # TEST
 
     ok($elem.hasAttribute($foo) == 1, ' TODO : Add test name');
-    # TEST
     ok($elem.hasAttributeNS(Str, $foo) == 1, ' TODO : Add test name');
-    # TEST
     ok($elem.hasAttributeNS('', $foo) == 1, ' TODO : Add test name');
 
     $elem.removeAttributeNode( $tattr );
-    # TEST
     ok( !$elem.hasAttributeNS('', $foo), ' TODO : Add test name' );
-    # TEST
     ok( !$elem.hasAttributeNS(Str, $foo), ' TODO : Add test name' );
 
     # node based functions
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
     my $nsAttr = $doc.createAttributeNS( $nsURI~".x", $prefix~":"~$foo, $bar);
-    # TEST
     ok( $nsAttr, ' TODO : Add test name' );
     $elem.setAttributeNodeNS($nsAttr);
-    # TEST
     ok( $elem.hasAttributeNS($nsURI~".x", $foo), ' TODO : Add test name' );
     $elem.removeAttributeNS( $nsURI~".x", $foo);
-    # TEST
     ok( !$elem.hasAttributeNS($nsURI~".x", $foo), ' TODO : Add test name' );
 
     # warn $elem.toString;
@@ -172,10 +129,8 @@ my @badnames= ("1A", "<><", "&", "-:");
     $elem.removeAttributeNS("",$attname1);
     # warn $elem.toString;
 
-    # TEST
 
     ok( ! $elem.hasAttribute($attname1), ' TODO : Add test name' );
-    # TEST
     ok( $elem.hasAttributeNS($nsURI,$attname1), ' TODO : Add test name' );
     # warn $elem.toString;
 
@@ -189,41 +144,28 @@ my @badnames= ("1A", "<><", "&", "-:");
 # 2. unbound node
 {
     my $elem = LibXML::Element.new: :name($foo);
-    # TEST
     ok($elem, ' TODO : Add test name');
-    # TEST
     is($elem.tagName, $foo, ' TODO : Add test name');
 
     $elem.setAttribute( $attname1, $attvalue1 );
-    # TEST
     ok( $elem.hasAttribute($attname1), ' TODO : Add test name' );
-    # TEST
     is( $elem.getAttribute($attname1), $attvalue1, ' TODO : Add test name');
 
     my $attr = $elem.getAttributeNode($attname1);
-    # TEST
     ok($attr, ' TODO : Add test name');
-    # TEST
     is($attr.name, $attname1, ' TODO : Add test name');
-    # TEST
     is($attr.value, $attvalue1, ' TODO : Add test name');
 
     $elem.setAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $attvalue2 );
-    # TEST
     ok( $elem.hasAttributeNS( $nsURI, $foo ), ' TODO : Add test name' );
     # warn $elem.toString() , "\n";
     my $tattr = $elem.getAttributeNodeNS( $nsURI, $foo );
-    # TEST
     ok($tattr, ' TODO : Add test name');
-    # TEST
     is($tattr.name, $foo, ' TODO : Add test name');
-    # TEST
     is($tattr.nodeName, $prefix~ ":" ~$foo, ' TODO : Add test name');
-    # TEST
     is($tattr.value, $attvalue2, ' TODO : Add test name' );
 
     $elem.removeAttributeNode( $tattr );
-    # TEST
     ok( !$elem.hasAttributeNS($nsURI, $foo), ' TODO : Add test name' );
     # warn $elem.toString() , "\n";
 }
@@ -232,21 +174,17 @@ my @badnames= ("1A", "<><", "&", "-:");
 # 3.1 Namespace switching
 {
     my $elem = LibXML::Element.new: :name($foo);
-    # TEST
     ok($elem, ' TODO : Add test name');
 
     my $doc = LibXML::Document.new();
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
     my $nsAttr = $doc.createAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $bar);
-    # TEST
     ok( $nsAttr, ' TODO : Add test name' );
 
     $elem.setAttributeNodeNS($nsAttr);
-    # TEST
     ok( $elem.hasAttributeNS($nsURI, $foo), ' TODO : Add test name' );
 
-    # TEST
     ok( ! defined($nsAttr.ownerDocument), ' TODO : Add test name');
     # warn $elem.toString() , "\n";
 }
@@ -262,16 +200,13 @@ my @badnames= ("1A", "<><", "&", "-:");
     $elem.setAttributeNS( "foo", "x:attr",  "test" );
     $elem.setAttributeNS( Str, "attr2",  "test" );
 
-    # TEST
 
     is( $elem.getAttributeNS( "foo", "attr" ), "test", ' TODO : Add test name' );
-    # TEST
     is( $elem.getAttributeNS( "", "attr2" ), "test", ' TODO : Add test name' );
 
     # warn $doc.toString;
     # actually this doesn't work correctly with libxml2 <= 2.4.23
     $elem.setAttributeNS( "foo", "attr2",  "bar" );
-    # TEST
     is( $elem.getAttributeNS( "foo", "attr2" ), "bar", ' TODO : Add test name' );
     # warn $doc.toString;
 }
@@ -294,19 +229,15 @@ my @badnames= ("1A", "<><", "&", "-:");
 
     # this is the correct behaviour for DOM. the nodes are still
     # referred
-    # TEST
     is( +@cn , 4, ' TODO : Add test name' );
 
     $e.normalize;
 
     @cn = $e.childNodes;
-    # TEST
     is( +@cn, 2, ' TODO : Add test name' );
 
-    # TEST
 
     ok(! defined($t2.parentNode), ' TODO : Add test name');
-    # TEST
     ok(! defined($t3.parentNode), ' TODO : Add test name');
 }
 
@@ -328,19 +259,15 @@ my @badnames= ("1A", "<><", "&", "-:");
 
     # this is the correct behaviour for DOM. the nodes are still
     # referred
-    # TEST
     is( +@cn, 4, ' TODO : Add test name' );
 
     $doc.normalize;
 
     @cn = $e.childNodes;
-    # TEST
     is( +@cn, 2, ' TODO : Add test name' );
 
-    # TEST
 
     ok(! defined($t2.parentNode), ' TODO : Add test name');
-    # TEST
     ok(! defined($t3.parentNode), ' TODO : Add test name');
 }
 
@@ -354,24 +281,18 @@ my @badnames= ("1A", "<><", "&", "-:");
     $doc.setDocumentElement( $elem );
 
     $elem.appendText( $plainstring );
-    # TEST
     is( $elem.string-value , $plainstring, ' TODO : Add test name' );
 
     $elem.appendText( $stdentstring );
-    # TEST
     is( $elem.string-value , $plainstring ~ $stdentstring, ' TODO : Add test name' );
 
     $elem.appendTextChild( "foo");
     $elem.appendTextChild( "foo" => "foo&bar" );
 
     my @cn = $elem.childNodes;
-    # TEST
     ok( @cn, ' TODO : Add test name' );
-    # TEST
     is( +@cn, 3, ' TODO : Add test name' );
-    # TEST
     ok( !@cn[1].hasChildNodes, ' TODO : Add test name');
-    # TEST
     ok( @cn[2].hasChildNodes, ' TODO : Add test name');
 }
 
@@ -390,89 +311,60 @@ EOF
     my $xml_nons = '<root foo="&quot;bar&ent;&quot;" xmlns:a="%s"/>'.sprintf($ns);
     my $xml_ns = '<root xmlns="%s" xmlns:a="%s" foo="&quot;bar&ent;&quot;"/>'.sprintf($ns, $ns);
 
-    # TEST:$xml=2;
     for ($xml_nons, $xml_ns) -> $xml {
         my $parser = LibXML.new;
         $parser.complete-attributes = False;
         $parser.expand-entities = False;
         my $doc = $parser.parse: :string($dtd ~ $xml);
 
-        # TEST*$xml
 
         ok ($doc, ' TODO : Add test name');
         my $root = $doc.getDocumentElement;
         {
             my $attr = $root.getAttributeNode('foo');
-            # TEST*$xml
             ok($attr, ' TODO : Add test name');
-            # TEST*$xml
             isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            # TEST*$xml
             ok($root.isSameNode($attr.ownerElement), ' TODO : Add test name');
-            # TEST*$xml
             is($attr.value, '"barENT"', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.serializeContent, '&quot;bar&ent;&quot;', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.gist, 'foo="&quot;bar&ent;&quot;"', ' TODO : Add test name');
         }
         {
             my $attr = $root.getAttributeNodeNS(Str,'foo');
-            # TEST*$xml
             ok($attr, ' TODO : Add test name');
-            # TEST*$xml
             isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            # TEST*$xml
             ok($root.isSameNode($attr.ownerElement), ' TODO : Add test name');
-            # TEST*$xml
             is($attr.value, '"barENT"', ' TODO : Add test name');
         }
         # fixed values are defined
-        # TEST*$xml
         is($root.getAttribute('fixed'),'foo', ' TODO : Add test name');
 
         SKIP:
         {
-            # TEST*$xml
             is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', 'ns_fixed is ns_foo')
         }
 
-        # TEST*$xml
         is($root.getAttribute('a:ns_fixed'),'ns_foo', ' TODO : Add test name');
 
-        # TEST*$xml
 
         is($root.hasAttribute('fixed'), False, ' TODO : Add test name');
-        # TEST*$xml
         is($root.hasAttributeNS($ns,'ns_fixed'), False, ' TODO : Add test name');
-        # TEST*$xml
         is($root.hasAttribute('a:ns_fixed'), False, ' TODO : Add test name');
 
 
         # but no attribute nodes correspond to them
-        # TEST*$xml
         ok(!defined($root.getAttributeNode('a:ns_fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNode('fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNode('name')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNode('baz')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS($ns,'foo')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS($ns,'fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS($ns,'ns_fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS(Str, 'fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS(Str, 'name')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS(Str, 'baz')), ' TODO : Add test name');
     }
 
-    # TEST:$xml=2;
     {
     my @names = ("nons", "ns");
     for ($xml_nons, $xml_ns) -> $xml {
@@ -481,79 +373,54 @@ EOF
         $parser.complete-attributes = True;
         $parser.expand-entities = True;
         my $doc = $parser.parse: :string($dtd ~ $xml);
-        # TEST*$xml
         ok($doc, "Could parse document $n");
         my $root = $doc.getDocumentElement;
         {
             my $attr = $root.getAttributeNode('foo');
-            # TEST*$xml
             ok($attr, "Attribute foo exists for $n");
-            # TEST*$xml
             isa-ok($attr, 'LibXML::Attr',
                 "Attribute is of type LibXML::Attr - $n");
-            # TEST*$xml
             ok($root.isSameNode($attr.ownerElement),
                 "attr owner element is root - $n");
-            # TEST*$xml
             is($attr.value, q{"barENT"},
                 "attr value is OK - $n");
-            # TEST*$xml
             is($attr.serializeContent,
                 '&quot;barENT&quot;',
                 "serializeContent - $n");
-            # TEST*$xml
             is($attr.gist, 'foo="&quot;barENT&quot;"',
                 "toString - $n");
         }
         # fixed values are defined
-        # TEST*$xml
         is($root.getAttribute('fixed'),'foo', ' TODO : Add test name');
-        # TEST*$xml
         is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', ' TODO : Add test name');
-        # TEST*$xml
         is($root.getAttribute('a:ns_fixed'),'ns_foo', ' TODO : Add test name');
 
         # and attribute nodes are created
         {
             my $attr = $root.getAttributeNode('fixed');
-            # TEST*$xml
             isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.value,'foo', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.gist, 'fixed="foo"', ' TODO : Add test name');
         }
         {
             my $attr = $root.getAttributeNode('a:ns_fixed');
-            # TEST*$xml
             isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.value,'ns_foo', ' TODO : Add test name');
         }
         {
             my $attr = $root.getAttributeNodeNS($ns,'ns_fixed');
-            # TEST*$xml
             isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.value,'ns_foo', ' TODO : Add test name');
-            # TEST*$xml
             is($attr.gist, 'a:ns_fixed="ns_foo"', ' TODO : Add test name');
         }
 
-        # TEST*$xml
 
         ok(!defined($root.getAttributeNode('ns_fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNode('name')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNode('baz')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS($ns,'foo')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS($ns,'fixed')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS(Str, 'name')), ' TODO : Add test name');
-        # TEST*$xml
         ok(!defined($root.getAttributeNodeNS(Str, 'baz')), ' TODO : Add test name');
     }
     }

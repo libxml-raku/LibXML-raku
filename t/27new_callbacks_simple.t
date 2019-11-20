@@ -11,9 +11,6 @@ use Counter;
 
 use LibXML;
 
-# --------------------------------------------------------------------- #
-# simple test
-# --------------------------------------------------------------------- #
 my $string = q:to<EOF>;
 <x xmlns:xinclude="http://www.w3.org/2001/XInclude"><xml>test<xinclude:include href="/example/test2.xml"/></xml></x>
 EOF
@@ -125,7 +122,6 @@ my $icb = LibXML::InputCallback.new: :callbacks{
     read => $read_file_counter.cb(),
     close => $close_file_counter.cb() };
 
-    # TEST
 ok($icb, ' TODO : Add test name');
 
 
@@ -134,21 +130,15 @@ $parser.expand-xinclude = True;
 $parser.input-callbacks = $icb;
 my $doc = $parser.parse: :$string;
 
-# TEST
 $match_file_counter.test(1, 'match_file matched once.');
 
-# TEST
 $open_file_counter.test(1, 'open_file called once.');
 
-# TEST
 $read_file_counter.test(2, 'read_file called twice.');
 
-# TEST
 $close_file_counter.test(1, 'close_file called once.');
 
-# TEST
 ok($doc, ' TODO : Add test name');
-# TEST
 
 is($doc.string-value(), "test..", ' TODO : Add test name');
 
@@ -158,27 +148,20 @@ my $icb2  = LibXML::InputCallback.new: :callbacks{
     read  => $read_hash_counter.cb(),
     close => $close_hash_counter.cb()};
 
-# TEST
 ok($icb2, ' TODO : Add test name');
 
 $parser.input-callbacks = $icb2;
 $doc = $parser.parse: :$string;
 
-# TEST
 $match_hash_counter.test(1, 'match_hash matched once.');
 
-# TEST
 $open_hash_counter.test(1, 'open_hash called once.');
 
-# TEST
 $read_hash_counter.test(6, 'read_hash called six times.');
 
-# TEST
 $close_hash_counter.test(1, 'close_hash called once.');
 
-# TEST
 ok($doc, ' TODO : Add test name');
 
-# TEST
 
 is($doc.string-value(), "testbar..", ' TODO : Add test name');

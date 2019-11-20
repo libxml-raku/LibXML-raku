@@ -1,20 +1,9 @@
-# This is a test for:
-# https://rt.cpan.org/Public/Bug/Display.html?id=69520
-
+use v6;
 =begin pod
 
 =head1 DESCRIPTION
 
-IDs of elements is lost when importing nodes from another document.
-When call method 'importNode' executed function 'xmlNodeCopy' from the
-library libxml2, which does not import IDs.
-Propose to replace the call "xmlNodeCopy" on "xmlDocNodeCopy" in the file
-"dom.c".
-
-=head1 THANKS.
-
-Yuriy Ustushenko .
-
+Ensure IDs of elements are not lost when importing nodes from another document.
 =end pod
 
 use Test;
@@ -30,20 +19,16 @@ use LibXML;
 EOT
 
     my $elem = $doc.getElementById('id1');
-    # TEST
     ok($elem, 'Orig doc has id1');
 
-    # TEST
     is($elem.textContent(), 'item1', 'Content of orig doc elem id1');
 
     my $doc2 = LibXML.createDocument( "1.0", "UTF-8" );
     $doc2.setDocumentElement( $doc2.importNode( $doc.documentElement() ) );
 
     my $elem2 = $doc2.getElementById('id1');
-    # TEST
     ok($elem2, 'Doc2 after importNode has id1');
 
-    # TEST
     is($elem2.textContent(), 'item1', 'Doc2 after importNode has id1');
 }
 

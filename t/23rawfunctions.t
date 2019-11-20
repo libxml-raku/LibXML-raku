@@ -14,5 +14,4 @@ lives-ok {
     my Str:D $v = $t2.nodeValue;
 };
 
-# TEST
-ok(1, 'End');
+pass('End');

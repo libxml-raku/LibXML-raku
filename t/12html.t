@@ -8,15 +8,13 @@ use LibXML;
 use LibXML::Native;
 use LibXML::Document;
 
-# TEST
-ok(1, ' TODO : Add test name');
+pass(' TODO : Add test name');
 
 my $html = "example/test.html";
 
 my $parser = LibXML.new();
 {
     my LibXML::Document::HTML $doc = $parser.parse: :html, :file($html);
-    # TEST
     ok($doc, ' TODO : Add test name');
     isa-ok($doc.native, htmlDoc, 'HTML, under the hood');
     cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
@@ -28,19 +26,16 @@ my $io = $html.IO.open(:r);
 my Str:D $string = $io.slurp;
 $io.seek(0, SeekFromBeginning );
 
-# TEST
 
 ok($string, ' TODO : Add test name');
 
 my $doc = $parser.parse: :html, :$string;
 
-# TEST
 
 ok($doc, ' TODO : Add test name');
 
 $doc = $parser.parse: :html, :$io;
 
-# TEST
 
 ok($doc, ' TODO : Add test name');
 
@@ -68,7 +63,6 @@ quietly {
 };
 
 # ok( not $@ );
-# TEST
 ok( $htmldoc, ' TODO : Add test name' );
 my $body = $htmldoc<html/body>[0];
 $body.addNewChild(Str, 'InPut');
@@ -88,18 +82,13 @@ is-deeply $body.keys.sort, ('a', 'input', 'p', 'text()');
 </html>
 EOHTML
 
-    # TEST
     ok($strhref, ' TODO : Add test name' );
     $htmldoc = $parser.parse: :html, :string( $strhref );
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $htmldoc = $parser.parse: :html, :string($strhref);
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     my $enc = 'iso-8859-2';
@@ -107,9 +96,7 @@ EOHTML
     my Blob $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
     
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement.defined, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     # w/ 'meta' charset
@@ -126,24 +113,17 @@ EOHTML
 EOHTML
 
     $htmldoc = $parser.parse: :html, :string( $strhref,);
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $htmldoc = $parser.parse: :html, :$buf, :$enc, :URI<foo>;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
-    # TEST
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
 }
 
@@ -156,35 +136,25 @@ EOHTML
     my $fh;
 
     $htmldoc = $parser.parse: :html, :file( $test_file );
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
 
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>, :URI<foo>;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
-    # TEST
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
 
     my $io = $test_file.IO;
     $htmldoc = $parser.parse: :html, :$io;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $io = $test_file.IO.open(:r);
     $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>, :URI<foo>;
     $io.close;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
 # iso-8859-2 encoding is NYI Rakudo.
@@ -197,9 +167,7 @@ skip "iso-8859-2 nyi", 2;
         $io = $test_file.IO.open( :r,  :enc<iso-8859-2>);
         $htmldoc = $parser.parse, :html, :$io, :enc<utf-8>;
         $io.close;
-        # TEST
         ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-        # TEST
         is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
     }
 =end TODO
@@ -213,16 +181,12 @@ skip "iso-8859-2 nyi", 2;
     my $fh;
 
     $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $io = $test_file.IO;
     $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>;
-    # TEST
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    # TEST
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
 }
@@ -252,7 +216,6 @@ EOF
     ok ($doc.defined, ' Parsing was successful.');
     my $root = $doc && $doc.documentElement;
     my $val = $root && $root.findvalue('//input[@id="foo"]/@value');
-    # TEST
     is($val, 'working', 'XPath');
 }
 
@@ -265,13 +228,11 @@ EOF
         my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
         my $p = LibXML.new;
         
-        # TEST
         like( $p.parse( :html, :string( $html),
                         :recover,
                         :!def-dtd,
                         :enc<UTF-8>).Str, /^'<html>'/, 'do not add a default DOCTYPE' );
 
-        # TEST
         like( $p.parse(:html, :string( $html),
                         :recover,
                         :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );

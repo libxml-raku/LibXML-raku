@@ -1,9 +1,9 @@
+use v6;
 use Test;
 plan 242;
 
 use LibXML;
 
-# TEST:$all=23
 my @all = qw<
   recover
   expand_entities
@@ -26,7 +26,6 @@ my @all = qw<
   oldsax
 >;
 
-# TEST:$old=8
 my %old = map { $_=> True }, qw<
 recover
 pedantic_parser
@@ -41,21 +40,14 @@ no_network
 {
   my $p = LibXML.new();
   for @all -> $opt {
-    # TEST*$all
     is(? $p.get-option($opt), False, "Testing option $opt");
   }
-  # TEST
   ok(! $p.option-exists('foo'), ' TODO : Add test name');
 
-  # TEST
   is-deeply( $p.keep-blanks(), True, ' TODO : Add test name' );
-  # TEST
   is-deeply( $p.set-option(no_blanks => 1), True, 'Get no_blanks');
-  # TEST
   ok( ! $p.keep-blanks(), 'Get keep-blanks' );
-  # TEST
   is-deeply( $p.keep-blanks(1), True, 'Set keep-blanks to True' );
-  # TEST
   ok( ! $p.get-option('no_blanks'), ' TODO : Add test name' );
 
   my $uri = 'http://foo/bar';
@@ -65,32 +57,21 @@ no_network
 
   ok( ! $p.recover_silently(), ' TODO : Add test name' );
   $p.set-option(recover => 1);
-  # TEST
   is-deeply( $p.recover_silently(), False, ' TODO : Add test name' );
   $p.set-option(recover => 2);
-  # TEST
   is-deeply( $p.recover_silently(), True, ' TODO : Add test name' );
-  # TEST
   is-deeply( $p.recover_silently(0), False, ' TODO : Add test name' );
-  # TEST
   is-deeply( $p.get-option('recover'), False, ' TODO : Add test name' );
-  # TEST
   is-deeply( $p.recover_silently(1), True, ' TODO : Add test name' );
-  # TEST
   is( $p.get-option('recover'), 2, ' TODO : Add test name' );
 
-  # TEST
   is-deeply( $p.expand_entities(), False, ' TODO : Add test name' );
-  # TEST
   is-deeply( $p.load_ext_dtd(), False, ' TODO : Add test name' );
   $p.load_ext_dtd(0);
-  # TEST
   is-deeply( $p.load_ext_dtd(), False, ' TODO : Add test name' );
   $p.expand_entities(0);
-  # TEST
   is-deeply( $p.expand_entities(), False, ' TODO : Add test name' );
   $p.expand_entities(1);
-  # TEST
   is-deeply( $p.expand_entities(), True, ' TODO : Add test name' );
 }
 
@@ -126,7 +107,6 @@ chomp($sys_line);
     );
     my $XML_DOC = $parser.load: string => $XML;
 
-    # TEST
     ok($XML_DOC.Str().contains($sys_line),
         "expand_entities is preserved after _clone()/etc."
     );
@@ -136,9 +116,7 @@ chomp($sys_line);
   my %opts = (map { $_ => True }, @all);
   my $p = LibXML.new: |%opts;
   for @all -> $opt {
-    # TEST*$all
     is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
-    # TEST*$old
     if (%old{$opt})
     {
         is-deeply(?$p."$opt"(), True, ' TODO : Add test name')
@@ -146,24 +124,15 @@ chomp($sys_line);
   }
 
   for @all -> $opt {
-    # TEST*$all
     ok($p.option-exists($opt), ' TODO : Add test name');
-    # TEST*$all
     is-deeply($p.set-option($opt,0), False, ' TODO : Add test name');
-    # TEST*$all
     is-deeply($p.get-option($opt), False, ' TODO : Add test name');
-    # TEST*$all
     is-deeply($p.set-option($opt,1), True, ' TODO : Add test name');
-    # TEST*$all
     is-deeply(? $p.get-option($opt), True, ' TODO : Add test name');
     if (%old{$opt}) {
-      # TEST*$old
       is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
-      # TEST*$old
       is-deeply($p."$opt"(0), False, ' TODO : Add test name');
-      # TEST*$old
       is-deeply($p."$opt"(), False, ' TODO : Add test name');
-      # TEST*$old
       is-deeply($p."$opt"(1), True, ' TODO : Add test name');
     }
 
@@ -174,9 +143,7 @@ chomp($sys_line);
   my %opts = (map { $_ => False }, @all);
   my $p = LibXML.new: |%opts;
   for @all -> $opt {
-    # TEST*$all
     is-deeply($p.get-option($opt), False, ' TODO : Add test name');
-    # TEST*$old
     if (%old{$opt})
     {
         is-deeply($p."$opt"(), False, ' TODO : Add test name');
@@ -188,9 +155,7 @@ chomp($sys_line);
      my %opts = (map { $_ => True }, @all);
     my $p = LibXML.new: |%opts;
     for @all -> $opt {
-        # TEST*$all
         is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
-        # TEST*$old
         if (%old{$opt})
         {
             is-deeply(?$p."$opt"(), True, ' TODO : Add test name');

@@ -35,8 +35,7 @@ use LibXML;
 
         my $peek = 0;
 
-        # TEST
-        ok(1, 'Start.');
+        pass('Start.');
 
         # BASELINE
         check_mem(1);
@@ -44,9 +43,7 @@ use LibXML;
         # MAKE DOC IN SUB
         {
             my $doc = make_doc();
-            # TEST
             ok($doc, 'Make doc in sub 1.');
-            # TEST
             ok($doc.Str.defined, 'Make doc in sub 1 - Str().');
         }
         check_mem();
@@ -55,10 +52,8 @@ use LibXML;
         # our problem, otherwise it's perl :/
         {
             my $doc = make_doc();
-            # TEST
             ok($doc, 'Make doc in sub 2 - doc.');
 
-            # TEST
             ok($doc.Str.defined, 'Make doc in sub 2 - Str()');
         }
         check_mem();
@@ -67,7 +62,6 @@ use LibXML;
             my $elem = LibXML::Element.new("foo");
             my $elem2= LibXML::Element.new("bar");
             $elem.appendChild($elem2);
-            # TEST
             ok( $elem.Str, 'appendChild.' );
         }
         check_mem();
@@ -76,9 +70,7 @@ use LibXML;
         {
             my $doc2 = LibXML::Document.new();
             make_doc_elem( $doc2 );
-            # TEST
             ok( $doc2, 'SetDocElem');
-            # TEST
             ok( $doc2.documentElement, 'SetDocElem documentElement.' );
         }
         check_mem();
@@ -91,8 +83,7 @@ use LibXML;
         for (1..TIMES_THROUGH) {
             my $parser = LibXML.new();
         }
-        # TEST
-        ok(1, 'Initialise multiple parsers.');
+        pass('Initialise multiple parsers.');
 
         check_mem();
         # multiple parses
@@ -100,8 +91,7 @@ use LibXML;
             my $parser = LibXML.new();
             my $dom = $parser.parse: :string("<sometag>foo</sometag>");
         }
-        # TEST
-        ok(1, 'multiple parses');
+        pass('multiple parses');
 
         check_mem();
 
@@ -114,8 +104,7 @@ use LibXML;
                 my $dom = $parser.parse: :string("<sometag>foo</somtag>"); # Thats meant to be an error, btw!
             };
         }
-        # TEST
-        ok(1, 'Multiple failures.');
+        pass('Multiple failures.');
 
         check_mem();
 
@@ -144,8 +133,7 @@ use LibXML;
             warn("Doc should be freed\n");
             # Devel::Peek::Dump($doc);
         }
-        # TEST
-        ok(1, 'customDocs');
+        pass('customDocs');
         check_mem();
 
         {
@@ -154,8 +142,7 @@ use LibXML;
                 make_doc2( $doc );
             }
         }
-        # TEST
-        ok(1, 'customDocs No. 2');
+        pass('customDocs No. 2');
         check_mem();
 
         # DTD string parsing
@@ -164,15 +151,13 @@ use LibXML;
         $dtdstr ~~ s:g/\r//;
         $dtdstr ~~ s/<[\r\n]>*$//;
 
-        # TEST
 
         ok($dtdstr, '$dtdstr');
 
         for ( 1..TIMES_THROUGH ) {
             my $dtd = LibXML::Dtd.parse: :string($dtdstr);
         }
-        # TEST
-        ok(1, 'after dtdstr');
+        pass('after dtdstr');
         check_mem();
 
         # DTD URI parsing
@@ -180,8 +165,7 @@ use LibXML;
         for ( 1..TIMES_THROUGH ) {
             my $dtd = LibXML::Dtd.new('ignore', 'example/test.dtd');
         }
-        # TEST
-        ok(1, 'DTD URI parsing.');
+        pass('DTD URI parsing.');
         check_mem();
 
         # Document validation
@@ -202,8 +186,7 @@ use LibXML;
                     }
                 };
             }
-            # TEST
-            ok(1, 'is_valid()');
+            pass('is_valid()');
             check_mem();
 
             print "# validate() \n";
@@ -214,8 +197,7 @@ use LibXML;
                     }
                 };
             }
-            # TEST
-            ok(1, 'validate()');
+            pass('validate()');
             check_mem();
 
         }
@@ -247,8 +229,7 @@ dromeds.xml
                 processMessage($xml, '/dromedaries/species' );
                 my @nodes = $doc.findnodes("/foo/bar/foo");
             }
-            # TEST
-            ok(1, 'after processMessage');
+            pass('after processMessage');
             check_mem();
 
         }
@@ -259,8 +240,7 @@ dromeds.xml
             for ( 1..TIMES_THROUGH ) {
                 my $nodes = $doc.find("/foo/bar/foo");
             }
-            # TEST
-            ok(1, '.find.');
+            pass('.find.');
             check_mem();
 
         }
@@ -301,8 +281,7 @@ dromeds.xml
                 my $name = $doc.documentElement.nodeName;
             }
             check_mem();
-            # TEST
-            ok(1, 'namespace tests.');
+            pass('namespace tests.');
         }
 
         {
@@ -331,7 +310,6 @@ dromeds.xml
 
                 check_mem();
             }
-            # TEST
             ok (1, 'SAX PARSER');
         }
 
@@ -363,7 +341,7 @@ dromeds.xml
                 check_mem();
             }
             # Cancelled TEST
-            ok(1, ' TODO : Add test name');
+            pass(' TODO : Add test name');
         }
             my %xmlBadStrings = (
                 "SIMPLE"      => ["<xml1>"],
@@ -383,8 +361,7 @@ dromeds.xml
 
                 check_mem();
             }
-            # TEST
-            ok(1, 'BAD PUSHED DATA');
+            pass('BAD PUSHED DATA');
         }
 
         {
@@ -414,8 +391,7 @@ dromeds.xml
 
                 check_mem();
             }
-            # TEST
-            ok(1, 'SAX PUSH PARSER');
+            pass('SAX PUSH PARSER');
 
             note('BAD PUSHED DATA');
 
@@ -436,8 +412,7 @@ dromeds.xml
 
                 check_mem();
             }
-            # TEST
-            ok(1, 'BAD PUSHED DATA');
+            pass('BAD PUSHED DATA');
         }
 }
 

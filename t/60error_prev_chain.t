@@ -1,10 +1,7 @@
-# This test script checks for:
-#
-# https://rt.cpan.org/Ticket/Display.html?id=56671 .
-#
-# It makes sure an error chain cannot be too long, because if it is it consumes
-# a lot of RAM.
+# This test script checks  an error chain cannot be too long, because if it is
+# it consumes a lot of RAM.
 
+use v6;
 use Test;
 use LibXML;
 
@@ -25,7 +22,6 @@ use LibXML;
         $err = $err.prev();
     }
 
-    # TEST
     ok ((!$err), "Reached the end of the chain.");
 }
 done-testing;

@@ -228,18 +228,13 @@ $icb.register-callbacks(
         $parser.input-callbacks = $icb;;
         my $doc = $parser.parse: :$string; # read_hash - 1,1,1,1,1
 
-        # TEST:$c=0;
         my $test_counters = sub {
-            # TEST:$c++;
             $read_hash_counter.test(6, "read_hash() count for multiple tests");
 
-            # TEST:$c++;
             $read_file_counter.test(2, 'read_file() called twice.');
 
-            # TEST:$c++;
             $close_file_counter.test(1, 'close_file() called once.');
 
-            # TEST:$c++;
             $open_file_stacker.test(
                 [
                     '/example/test2.xml',
@@ -247,7 +242,6 @@ $icb.register-callbacks(
                 'open_file() for URLs.',
             );
 
-            # TEST:$c++;
             $match_hash_stacker.test(
                 [
                     { verdict => 1, uri => '/libxml/test2.xml',},
@@ -255,7 +249,6 @@ $icb.register-callbacks(
                 'match_hash() for URLs.',
             );
 
-            # TEST:$c++;
             $read_xml_stacker.test(
                 [
                     buf8.new(qq{<foo><tmp/>barbar</foo>\n}.encode),
@@ -263,7 +256,6 @@ $icb.register-callbacks(
                 ],
                 'read_xml() for multiple callbacks',
             );
-            # TEST:$c++;
             $match_xml_stacker.test(
                 [
                     { verdict => 1, uri => '/xmldom/test2.xml', },
@@ -271,7 +263,6 @@ $icb.register-callbacks(
                 'match_xml() one.',
             );
 
-            # TEST:$c++;
             $match_file_stacker.test(
                 [
                     { verdict => 1, uri => '/example/test2.xml',},
@@ -279,39 +270,28 @@ $icb.register-callbacks(
                 'match_file() for multiple_tests',
             );
 
-            # TEST:$c++;
             $open_hash_counter.test(1, 'open_hash() : called 1 times');
-            # TEST:$c++;
             $open_xml_counter.test(1, 'open_xml() : parse: :string() successful.',);
-            # TEST:$c++;
             $close_xml_counter.test(1, "close_xml() called once.");
-            # TEST:$c++;
             $close_hash_counter.test(1, "close_hash() called once.");
         };
 
-        # TEST:$test_counters=$c;
 
-        # TEST*$test_counters
         $test_counters.();
 
         # This is a regression test for:
         # https://rt.cpan.org/Ticket/Display.html?id=51086
         my $doc2 = $parser.parse: :$string;
 
-        # TEST*$test_counters
         $test_counters.();
 
-        # TEST
         ok($doc, 'parse: :string() returns a doc.');
-        # TEST
         is($doc.string-value(),
            "\ntest\n..\nbar..\nbarbar\n",
            '.string-value()',
         );
 
-        # TEST
         ok($doc2, 'second parse: :string() returns a doc.');
-        # TEST
         is($doc2.string-value(),
            "\ntest\n..\nbar..\nbarbar\n",
            q{Second parse: :string()'s .string-value()},
@@ -342,17 +322,14 @@ EOF
         $parser.input-callbacks = $icb;
         my $doc = $parser.parse: :$string;
 
-        # TEST
         $read_hash_counter.test(12, "read_hash() count for multiple register_callbacks");
 
-        # TEST
         $open_file_stacker.test(
             [
             ],
             'open_file() for URLs.',
         );
 
-        # TEST
         $match_hash2_stacker.test(
             [
                 { verdict => 1, uri => '/example/test2.xml',},
@@ -361,20 +338,16 @@ EOF
             'match_hash2() input callbacks' ,
         );
 
-        # TEST
         $match_file_stacker.test(
             [
             ],
             'match_file() input callbacks' ,
         );
 
-        # TEST
         is($doc.string-value(), "\ntest\nbar..\nbar..\n",
             'string-value returns fine',);
 
-        # TEST
         $open_hash_counter.test(2, 'open_hash() : called 2 times');
-        # TEST
         $close_hash_counter.test(
             2, "close_hash() called twice on two xincludes."
         );
@@ -382,14 +355,11 @@ EOF
         $icb.unregister-callbacks( match => &hash2-stacker );
         $doc = $parser.parse: :$string;
 
-        # TEST
         $read_file_counter.test(4, 'read_file() called 4 times.');
 
 
-        # TEST
         $close_file_counter.test(2, 'close_file() called twice.');
 
-        # TEST
         $open_file_stacker.test(
             [
                 '/example/test2.xml',
@@ -398,14 +368,12 @@ EOF
             'open_file() for URLs.',
         );
 
-        # TEST
         $match_hash2_stacker.test(
             [
             ],
             'match_hash2() does not match after being unregistered.' ,
         );
 
-        # TEST
         $match_file_stacker.test(
             [
                 { verdict => 1, uri => '/example/test2.xml',},
@@ -415,7 +383,6 @@ EOF
         );
 
 
-        # TEST
         is($doc.string-value(),
            "\ntest\n..\n\n         \n   \n",
            'string-value() after unregister callbacks',
@@ -438,7 +405,6 @@ EOF
 
 
         my $icb = LibXML::InputCallback.new();
-        # TEST
         ok ($icb, 'LibXML::InputCallback was initialized (No. 2)');
 
         my $open_xml2 = -> $uri {
@@ -447,7 +413,6 @@ EOF
                 $parser.input-callbacks = $icb;
 
                 my $dom = $parser.parse: :string($string2);
-                # TEST
                 ok ($dom, 'parse: :string() inside open_xml2');
 
                 $dom;
@@ -473,16 +438,12 @@ EOF
 
         my $doc = $parser.parse: :$string;
 
-        # TEST
         $read_hash_counter.test(6, "read_hash() count for stuff.");
 
-        # TEST
         $read_file_counter.test(2, 'read_file() called twice.');
 
-        # TEST
         $close_file_counter.test(1, 'close_file() called once.');
 
-        # TEST
         $open_file_stacker.test(
             [
                 '/example/test2.xml',
@@ -490,7 +451,6 @@ EOF
             'open_file() for URLs.',
         );
 
-        # TEST
         $match_hash2_stacker.test(
             [
                 { verdict => 1, uri => '/example/test2.xml',},
@@ -498,7 +458,6 @@ EOF
             'match_hash2() input callbacks' ,
         );
 
-        # TEST
         $read_xml_stacker.test(
             [
                 buf8.new(qq{<x xmlns:xinclude="http://www.w3.org/2001/XInclude">\n<tmp/><xml>foo..<foo xml:base="/example/test2.xml">bar<xsl/>..</foo>bar</xml>\n</x>\n}.encode),
@@ -506,7 +465,6 @@ EOF
             ],
             'read_xml() No. 2',
         );
-        # TEST
         $match_xml_stacker.test(
             [
                 { verdict => 1, uri => '/xmldom/test2.xml', },
@@ -514,7 +472,6 @@ EOF
             'match_xml() No. 2.',
         );
 
-        # TEST
         $match_file_stacker.test(
             [
                 { verdict => 1, uri => '/example/test2.xml',},
@@ -522,16 +479,12 @@ EOF
             'match_file() for inner callback.',
         );
 
-        # TEST
         $open_hash_counter.test(1, 'open_hash() : called 1 times');
 
-        # TEST
         $close_xml_counter.test(1, "close_xml() called once.");
 
-        # TEST
         $close_hash_counter.test(1, "close_hash() called once.");
 
-        # TEST
         is($doc.string-value(), "\ntest\n..\n\nfoo..bar..bar\n\n",
             'string-value()',);
 }

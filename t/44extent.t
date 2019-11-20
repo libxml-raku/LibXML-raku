@@ -1,3 +1,4 @@
+use v6;
 use Test;
 use LibXML;
 use LibXML::Config;
@@ -34,14 +35,12 @@ $xml_out .= subst('&b;', 'file:///dev/null,', :g);
 
 my $doc = $parser.parse: :string($xml);
 
-# TEST
 is( $doc.Str(), $xml_out, ' TODO : Add test name' );
 
 my $xml_out2 = $xml; $xml_out2 .= subst(/'&'[a|b]';'/, '<!-- -->', :g);
 
 config.external-entity-loader = -> *@ { '<!-- -->' };
 $doc = $parser.parse: :string($xml);
-# TEST
 is( $doc.Str(), $xml_out2, ' TODO : Add test name' );
 
 config.external-entity-loader = -> *@ { '' }
@@ -51,14 +50,10 @@ $parser.set-options(
   recover => 2,
 );
 $doc = $parser.parse: :string($xml);
-# TEST
 is( $doc.Str(), $xml, ' TODO : Add test name' );
 
-# TEST:$el=2;
 for $doc.findnodes('/root/*') -> $el {
-  # TEST*$el
   ok($el.hasChildNodes, ' TODO : Add test name');
-  # TEST*$el
   is($el.firstChild.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name');
 }
 

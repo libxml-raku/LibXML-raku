@@ -1,7 +1,5 @@
-#!/usr/bin/perl
-# Bug #66642 for XML-LibXML: $err->column() incorrectly maxed out as 80
-# https://rt.cpan.org/Public/Bug/Display.html?id=66642 .
-
+use v6;
+# ensure .column() and other error fields are correct
 use Test;
 use LibXML;
 use LibXML::Enums;

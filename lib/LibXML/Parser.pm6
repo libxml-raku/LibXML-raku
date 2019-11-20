@@ -205,6 +205,12 @@ multi method push(Str() $chunk) {
         $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
     }
 }
+multi method parse(:$chunk!, |c) {
+   $.parse-chunk($chunk, |c);
+}
+multi method parse(:$terminate!, |c) {
+   $.parse-chunk(:$terminate, |c);
+}
 multi method push(@chunks) is default { self.push($_) for @chunks }
 method parse-chunk($chunk?, :$terminate, |c) {
     $.push($_) with $chunk;

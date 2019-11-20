@@ -1,9 +1,6 @@
 #!/usr/bin/perl
 
-# Fix the handling of XML::LibXML::InputCallbacks at load_xml().
-# - https://rt.cpan.org/Ticket/Display.html?id=58190
-# - The problem was that the input callbacks were not cloned in
-# _clone().
+# ensure operation of input callbacks with .load()
 
 use LibXML;
 use Test;
@@ -29,13 +26,10 @@ plan 3;
 
     $xml_parser.load: location => $TEST_FILENAME;
 
-    # TEST
     ok($got_open, 'load_xml() encountered the open InputCallback');
 
-    # TEST
     ok($got_read, 'load_xml() encountered the read InputCallback');
 
-    # TEST
     todo "not being called";
     ok($got_close, 'load_xml() encountered the close InputCallback');
 }

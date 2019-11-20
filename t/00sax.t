@@ -52,7 +52,6 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 # 2. Subclassed LibXML::SAX::Handler
 
 use LibXML::SAX::Handler;
-use LibXML::SAX::Builder :atts2Hash;
 
 class SaxHandler is LibXML::SAX::Handler {
     use LibXML::SAX::Builder :sax-cb;

@@ -1,7 +1,6 @@
-#!/usr/bin/perl
+use v6;
 
-# This code used to generate a memory error in valgrind/etc.
-# Testing it.
+# Try running this under valgrind (perl6-valigrind-m)
 
 use Test;
 use LibXML;
@@ -219,12 +218,10 @@ my $final_source = q:to<EOF>;
 EOF
 
 {
-    # TEST
     my LibXML::Reader $got .= new: :string($final_source);
     my LibXML::Reader $expected .= new: :string($xml_source);
 
     Test::XML::Ordered::is-xml-ordered( :$got, :$expected, :diag-message<foo> );
 }
 
-# TEST
-ok(1, "Finished");
+pass("Finished");

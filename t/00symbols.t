@@ -1,3 +1,4 @@
+use v6;
 use Test;
 
 use LibXML::Native::Defs :$XML2, :$BIND-XML2, :$CLIB;

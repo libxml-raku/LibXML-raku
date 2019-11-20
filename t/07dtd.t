@@ -14,13 +14,9 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
                                           $htmlPublic,
                                           $htmlSystem
                                         );
-    # TEST
     ok( $dtd.isSameNode(  $doc.externalSubset ), ' TODO : Add test name' );
-    # TEST
     is( $dtd.publicId, $htmlPublic, ' TODO : Add test name' );
-    # TEST
     is( $dtd.systemId, $htmlSystem, ' TODO : Add test name' );
-    # TEST
     is( $dtd.name, 'html', ' TODO : Add test name' );
 }
 
@@ -30,25 +26,18 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
                                           $htmlPublic,
                                           $htmlSystem
                                         );
-    # TEST
     ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
     $doc.setExternalSubset( $dtd );
-    # TEST
     ok(!defined($doc.internalSubset), ' TODO : Add test name' );
-    # TEST
     ok( $dtd.isSameNode( $doc.externalSubset ), ' TODO : Add test name' );
 
-    # TEST
 
     is( $dtd.getPublicId, $htmlPublic, ' TODO : Add test name' );
-    # TEST
     is( $dtd.getSystemId, $htmlSystem, ' TODO : Add test name' );
 
     $doc.setInternalSubset( $dtd );
-    # TEST
     ok(!defined($doc.externalSubset), ' TODO : Add test name' );
-    # TEST
     ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
     my $dtd2 = $doc.createDTD( "huhu",
@@ -57,24 +46,18 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
                               );
 
     $doc.setInternalSubset( $dtd2 );
-    # TEST
     ok( !defined($dtd.parentNode), ' TODO : Add test name' );
-    # TEST
     ok( $dtd2.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
 
     my $dtd3 = $doc.removeInternalSubset;
-    # TEST
     ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
-    # TEST
     ok( !defined($doc.internalSubset), ' TODO : Add test name' );
 
     $doc.setExternalSubset( $dtd2 );
 
     $dtd3 = $doc.removeExternalSubset;
-    # TEST
     ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
-    # TEST
     ok( !defined($doc.externalSubset), ' TODO : Add test name' );
 }
 
@@ -83,35 +66,25 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
     my $doc = $parser.parse: :file( "example/dtd.xml" );
 
-    # TEST
 
     ok($doc, ' TODO : Add test name');
 
     my $dtd = $doc.internalSubset;
-    # TEST
     is( $dtd.name, 'doc', ' TODO : Add test name' );
-    # TEST
     is( $dtd.publicId, Str, ' TODO : Add test name' );
-    # TEST
     is( $dtd.systemId, Str, ' TODO : Add test name' );
 
     my $entity = $doc.createEntityReference( "foo" );
-    # TEST
     ok($entity, ' TODO : Add test name');
-    # TEST
     is($entity.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name' );
 
-    # TEST
 
     ok( $entity.hasChildNodes, ' TODO : Add test name' );
-    # TEST
     # We don't have explicit EntityDecl or ElementDecl classes yet
     is( $entity.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
-    # TEST
     is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
 
     my $edcl = $entity.firstChild;
-    # TEST
     is( $edcl.previousSibling.nodeType, +XML_ELEMENT_DECL, ' TODO : Add test name' );
 
     {
@@ -120,7 +93,6 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
         $doc2.setDocumentElement( $e );
 
         my $dtd2 = $doc.internalSubset.cloneNode(:deep);
-        # TEST
         ok($dtd2, ' TODO : Add test name');
 
 #        $doc2.setInternalSubset( $dtd2 );
@@ -144,10 +116,8 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 </test>
 EOF
 
-    # TEST
     ok($doc.validate(), ' TODO : Add test name');
 
-    # TEST
     ok($doc.is-valid(), ' TODO : Add test name');
 
 }
@@ -162,13 +132,11 @@ EOF
         $doc = $parser.parse: :string($xml);
     }, ' TODO : Add test name';
 
-    # TEST
     ok($doc.defined, ' TODO : Add test name');
 }
 
 {
     my $bad = 'example/bad.dtd';
-    # TEST
     ok($bad.IO.f, ' TODO : Add test name' );
     dies-ok {
         LibXML::Dtd.parse("-//Foo//Test DTD 1.0//EN", $bad);
@@ -176,7 +144,6 @@ EOF
 
     my $dtd = $bad.IO.slurp;
 
-    # TEST
     ok( $dtd.chars > 5, ' TODO : Add test name' );
     dies-ok { LibXML::Dtd.parse: :string($dtd); }, 'Parse fails for bad.dtd';
 
@@ -187,7 +154,6 @@ EOF
         $parser.load-ext-dtd = False;
         $parser.validation = False;
         my $doc = $parser.parse: :string($xml);
-        # TEST
         ok( $doc, ' TODO : Add test name' );
     }
     {
@@ -214,9 +180,7 @@ EOF
 EOF
     my $dtd = $doc.internalSubset;
 
-    # TEST
     dies-ok { $dtd.hasAttributes }, 'hasAttributes N/A to DTD nodes';
-    # TEST
     dies-ok { $dtd.attributes }, 'attributes N/A to DTD nodes';
 }
 
@@ -229,7 +193,6 @@ sub test_remove_dtd($test_name, &remove_sub) {
 
     remove_sub($doc, $dtd);
 
-    # TEST*3
     ok( !$doc.internalSubset, "remove DTD via $test_name" );
 }
 
@@ -254,7 +217,6 @@ sub test_insert_dtd ($test_name, &insert_sub) {
 
     insert_sub($doc, $dtd);
 
-    # TEST*11
     ok( $doc.internalSubset.isSameNode($dtd), "insert DTD via $test_name" );
 }
 

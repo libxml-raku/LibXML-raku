@@ -5,15 +5,14 @@ use LibXML::Attr;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
+use LibXML::Parser;
 constant MAX_THREADS = 24;
 constant MAX_LOOP = 50;
 # use constant PLAN => 24;
 
-# TEST
-ok(1, 'Loaded');
+pass 'Loaded';
 
-my LibXML $p .= new();
-# TEST
+my LibXML::Parser $p = LibXML.new();
 ok($p.defined, 'Parser initted.');
 
 sub blat(&r, :$n = MAX_THREADS) {
@@ -46,7 +45,7 @@ EOF
 {
     my X::LibXML::Parser:D @err = blat { try { LibXML.parse: :string('foo'); } for 1..100; $! };
     is @err.elems, MAX_THREADS, 'parse errors';
-    ok(1, "XML error");
+    pass("XML error");
 }
 
 {
@@ -64,7 +63,6 @@ EOF
     is @roots.unique.elems, 1, 'document root reduction';
 }
 
-# TEST
 {
     my LibXML::Document:D @docs = blat {
         my $doc = LibXML::Document.new;
@@ -89,8 +87,7 @@ EOF
     is +@values, MAX_THREADS, 'att values';
     is @values.unique.elems, 1, 'att values reduction';
 }
-# TEST
-ok(1, "operating on different documents without lock");
+pass("operating on different documents without lock");
 
 # operating on the same document with a lock
 {
@@ -181,8 +178,7 @@ EOF
 	    die "no error" without $!;
         }
     }
-    # TEST
-    ok(1, "test RNG validation errors thread safe sanity");
+    pass("test RNG validation errors thread safe sanity");
 }
 
 my $xsdschema = q:to<EOF>;
@@ -202,118 +198,72 @@ EOF
 	    die "no error" without $!;
         }
     }
-    # TEST
-    ok(1, "test Schema validation errors thread safe sanity");
+    pass("test Schema validation errors thread safe sanity");
 }
 
 skip "port remaining tests";
 done-testing();
 =begin TODO
 
-my $bigfile = "docs/libxml.dbk";
-$xml = utf8_slurp($bigfile);
-# TEST
+my $bigfile = "etc/libxml2-api.xml";
+$xml = $bigfile.IO.slurp;
 ok($xml, 'bigfile was slurped fine.');
-sub use_dom
-{
-	my $d = shift;
-	my @nodes = $d.getElementsByTagName("title",1);
-	for(@nodes)
-	{
-		my $title = $_.toString;
-	}
-	die unless $nodes[0].toString eq '<title>LibXML</title>';
+sub use_dom($d) {
+    my @nodes = $d.getElementsByTagName("files");
+    for @nodes {
+	my $tag = .tag;
+    }
+    die unless @nodes[0].tag eq 'files';
 }
 
 {
-for(1..MAX_THREADS) {
-	threads.new(sub { my $dom = do { $p.parse_string($xml); }; use_dom($dom) for 1..5; 1; });
+    blat { my $dom = do { $p.parse: :string($xml) }; use_dom($dom) for (1..5); };
+    pass('Joined all threads.');
 }
-$_.join for(threads.list);
-# TEST
-ok(1, 'Joined all threads.');
-}
+
 
 {
-package MyHandler;
+    use LibXML::SAX::Handler::SAX2;
+    class MyHandler is LibXML::SAX::Handler::SAX2 {
 
-use parent 'XML::SAX::Base';
+    }
 
-sub AUTOLOAD
-{
-}
-}
+    use LibXML::SAX;
+    $p = LibXML::SAX.new(
+	sax-handler=>MyHandler.new(),
+    );
+    ok($p.defined, 'LibXML::SAX was initted.');
+    blat { $p.parse: :string($xml) for (1..5); 1; }
+    pass('After LibXML::SAX - join.');
 
-use LibXML::SAX;
-$p = LibXML::SAX.new(
-	Handler=>MyHandler.new(),
-);
-# TEST
-ok($p, 'LibXML::SAX was initted.');
+    $p = LibXML.new(
+	sax-handler => MyHandler.new(),
+    );
+    $p.parse: :chunk($xml);
+    $p.parse: :terminate;
 
-{
-for(1..MAX_THREADS)
-{
-	threads.new(sub { $p.parse_string($xml) for (1..5); 1; });
-}
-$_.join for threads.list;
+    blat {
+        $p = LibXML.new();
+        $p.parse: :chunk($xml);
+        use_dom($p.parse( :terminate));
+    }
+    pass('LibXML thread.');
 
-# TEST
-ok(1, 'After LibXML::SAX - join.');
-}
+    $p = LibXML.new();
+    # parse a big file using the same parser
+    blat {
+        my $fh = $bigfile.IO.open(:r);
+        $p.parse: :$fh;
+        $fh.close;
+    }
 
-$p = LibXML.new(
-	Handler=>MyHandler.new(),
-);
-$p.parse_chunk($xml);
-$p.parse_chunk("",1);
-
-{
-for(1..MAX_THREADS)
-{
-	threads.new(sub {
-$p = LibXML.new();
-$p.parse_chunk($xml);
-use_dom($p.parse_chunk("",1));
-1;
-});
-}
-$_.join for(threads.list);
-# TEST
-ok(1, 'LibXML thread.');
-}
-
-$p = LibXML.new();
-# parse a big file using the same parser
-{
-for(1..MAX_THREADS)
-{
-	threads.new(sub {
-open my $fh, '<', $bigfile
-    or die "Cannot open '$bigfile'!";
-my $doc = $p.parse_fh($fh);
-close $fh;
-2;
-});
-}
-my @results = $_.join for(threads.list);
-# TEST
-ok(1, 'threads.join after opening bigfile.');
+    pass('threads.join after opening bigfile.');
 }
 
 # create elements
 {
-my @n = map LibXML::Element.new('bar'.$_), 1..1000;
-for(1..MAX_THREADS)
-{
-	threads.new(sub {
-	push @n, map LibXML::Element.new('foo'.$_), 1..1000;
-1;
-});
-}
-$_.join for(threads.list);
-# TEST
-ok(1, 'create elements');
+    blat { my @n = map LibXML::Element.new('bar'.$_), 1..100 }
+    pass('create elements');
 }
 
 {
@@ -329,8 +279,7 @@ for(1..MAX_THREADS) {
 	       },$_);
 }
 $_.join for(threads.list);
-# TEST
-ok(1, "docfrag");
+pass("docfrag");
 }
 
 {
@@ -346,8 +295,7 @@ for(1..MAX_THREADS) {
 	       },$_);
 }
 $_.join for(threads.list);
-# TEST
-ok(1, "docfrag2");
+pass("docfrag2");
 }
 
 {
@@ -361,8 +309,7 @@ for(1..MAX_THREADS) {
 	       },$_);
 }
 $_.join for(threads.list);
-# TEST
-ok(1, "docfrag3");
+pass("docfrag3");
 }
 
 =end TODO

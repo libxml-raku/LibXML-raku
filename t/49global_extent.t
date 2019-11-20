@@ -1,3 +1,4 @@
+use v6;
 use Test;
 use LibXML;
 use LibXML::Config;
@@ -32,5 +33,4 @@ $xml_out ~~ s|'&b;'|ENTITY:file:///dev/null,|;
 
 my $doc = $parser.parse: :string($xml);
 
-# TEST
 is( $doc.Str, $xml_out );

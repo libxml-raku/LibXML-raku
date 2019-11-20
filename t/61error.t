@@ -16,9 +16,6 @@ try {
 };
 
 my $err = $!;
-# TEST
 isa-ok($err, X::LibXML::Parser, 'Exception is of type parser error.');
-# TEST
 is($err.domain(), 'parser', 'Error is in the parser domain');
-# TEST
 is($err.line(), 1, 'Error is on line 1.');

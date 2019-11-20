@@ -1,3 +1,4 @@
+use v6;
 use Test;
 plan 23;
 
@@ -11,10 +12,8 @@ my $parser = LibXML.new;
     my LibXML::Document:D $doc = $parser.parse: :string( "<a><b/> <c/> <!-- d --> </a>" );
 
     my $c14n_res = $doc.Str(:C14N);
-    # TEST
     is( $c14n_res, "<a><b></b> <c></c>  </a>", ' TODO : Add test name' );
     $c14n_res = $doc.Str(:C14N, :comments);
-    # TEST
     is( $c14n_res, "<a><b></b> <c></c> <!-- d --> </a>", ' TODO : Add test name' );
 }
 
@@ -22,10 +21,8 @@ my $parser = LibXML.new;
     my $doc = $parser.parse: :string( '<a><b/><![CDATA[ >e&f<]]><!-- d --> </a>' );
 
     my $c14n_res = $doc.Str(:C14N);
-    # TEST
     is( $c14n_res, '<a><b></b> &gt;e&amp;f&lt; </a>', ' TODO : Add test name' );
     $c14n_res = $doc.Str(:C14N,:comments);
-    # TEST
     is( $c14n_res, '<a><b></b> &gt;e&amp;f&lt;<!-- d --> </a>', ' TODO : Add test name' );
 }
 
@@ -34,7 +31,6 @@ my $parser = LibXML.new;
 
     my $c14n_res;
     $c14n_res = $doc.Str: :C14N;
-    # TEST
     is( $c14n_res, '<a a="foo"></a>', ' TODO : Add test name' );
 }
 
@@ -43,7 +39,6 @@ my $parser = LibXML.new;
 
     my $c14n_res;
     $c14n_res = $doc.Str: :C14N;
-    # TEST
     is( $c14n_res, '<b:a xmlns:b="http://foo"></b:a>', ' TODO : Add test name' );
 }
 
@@ -55,7 +50,6 @@ my $parser = LibXML.new;
 
     my $c14n_res;
     $c14n_res = $doc.Str: :C14N;
-    # TEST
     is( $c14n_res, '<b:a xmlns:a="xml://bar" xmlns:b="http://foo"></b:a>', ' TODO : Add test name' );
 
     # would be correct, but will not work.
@@ -70,7 +64,6 @@ my $parser = LibXML.new;
 
     my $c14n_res;
     $c14n_res = $doc.Str: :C14N;
-    # TEST
     is( $c14n_res, '<b:a xmlns:b="http://foo"><b:b></b:b></b:a>', ' TODO : Add test name' );
 }
 
@@ -79,7 +72,6 @@ my $parser = LibXML.new;
 
     my $c14n_res;
     $c14n_res = $doc.Str: :C14N;
-    # TEST
     is( $c14n_res, '<a xmlns="xml://foo"></a>', ' TODO : Add test name' );
 }
 
@@ -91,7 +83,6 @@ EOX
 
     my $c14n_res;
     $c14n_res = $doc.Str: :C14N;
-    # TEST
     is( $c14n_res, '<a><b></b></a>', ' TODO : Add test name' );
 }
 
@@ -103,7 +94,6 @@ EOX
 EOX
     my $c14n_res;
     $c14n_res = $doc.Str(:C14N, :xpath<//d> );
-    # TEST
     is( $c14n_res, '<d></d>', 'xpath 1' );
 }
 
@@ -115,15 +105,12 @@ EOX
     my $rootnode=$doc.documentElement;
       my $c14n_res;
     $c14n_res = $rootnode.Str( :C14N, :xpath("//*[local-name()='d']"));
-    # TEST
     is( $c14n_res, '<d></d>', 'xpath 2' );
     ($rootnode, ) = $doc.findnodes("//*[local-name()='d']");
     $c14n_res = $rootnode.Str( :C14N );
-    # TEST
     is( $c14n_res, '<d xmlns="http://foo/test#"><e></e></d>', ' TODO : Add test name' );
     $rootnode = $doc.documentElement.firstChild;
     $c14n_res = $rootnode.Str: :C14N;
-    # TEST
     is( $c14n_res, '<b xmlns="http://foo/test#"><c></c><d><e></e></d></b>', ' TODO : Add test name' );
 }
 
@@ -156,32 +143,26 @@ EOX
 
   {
     my $c14n_res = $doc1.Str(:C14N, :$xpath, :exclusive);
-    # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
     my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive);
-    # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
     my $c14n_res = $doc1.Str(:C14N, :$xpath, :exclusive, :prefix[]);
-    # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
     my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive, :prefix[]);
-    # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
     my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive, :prefix<n1 n3>);
-    # TEST
     is( $c14n_res, $result, ' TODO : Add test name');
   }
   {
     my $c14n_res = $doc2.Str(:C14N, :$xpath, :exclusive, :prefix<n0 n2>);
-    # TEST
     is( $c14n_res, $result_n0n2, ' TODO : Add test name');
   }
 
@@ -200,15 +181,11 @@ my $doc = LibXML.load: string=>$xml;
 my $selector = LibXML::XPath::Context.new(:$doc);
 $selector.registerNs('x' => "http://www.w3.org/2005/08/addressing");
 my $expect = '<wsa:MessageID xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="MessageID">urn:www.sve.man.ac.uk-54690551758351720271010843310</wsa:MessageID>';
-# TEST
 
 is( $doc.Str(:C14N, :exclusive, :xpath($xpath2), :prefix['soap'] ), $expect, ' TODO : Add test name' );
-# TEST
 
 is( $doc.Str(:C14N, :exclusive, :$xpath, :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
-# TEST
 
 is( $doc.Str(:C14N, :exclusive, :xpath($xpath2), :$selector, :prefix['soap'] ), $expect, ' TODO : Add test name' );
-# TEST
 
 }

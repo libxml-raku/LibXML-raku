@@ -26,7 +26,6 @@ for 1 .. 3 -> $time {
     my $parser = LibXML.new();
     my $doc = $parser.parse: :string($input);
     my @a = $doc.getChildnodes;
-    # TEST*3
     is(+@a, 1, "1 Child node - time $time");
 }
 
@@ -34,7 +33,6 @@ my $parser = LibXML.new();
 my $doc = $parser.parse: :string($input);
 for 1 .. 3 -> $time {
     my $e = $doc.getFirstChild;
-    # TEST*3
     isa-ok($e, 'LibXML::Element',
         "first child is an Element - time No. $time"
     );
@@ -42,14 +40,11 @@ for 1 .. 3 -> $time {
 
 for 1 .. 3 -> $time {
     my $e = $doc.getLastChild;
-    # TEST*3
     isa-ok($e,'LibXML::Element',
         "last child is an element - time No. $time"
     );
 }
 
-##
-# Test Ticket 7645
 {
     my $doc = LibXML::Document.new();
 
@@ -57,11 +52,9 @@ for 1 .. 3 -> $time {
     $node.setAttribute(contents => "\c[0xE4]");
     $doc.setDocumentElement($node);
 
-    # TEST
     is( $node.Str(), '<test contents="&#xE4;"/>', 'Node serialise works.' );
     $doc.encoding = 'utf-8';
     # Second output
-    # TEST
     is( $node.Str(),
         qq{<test contents="\c[0xE4]"/>},
         'UTF-8 node serialize',

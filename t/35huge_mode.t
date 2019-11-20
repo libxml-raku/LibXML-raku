@@ -1,3 +1,4 @@
+use v6;
 # Having 'XML_PARSE_HUGE' enabled can make an application vulnerable to
 # denial of service through entity expansion attacks.  This test script
 # confirms that huge document mode is disabled by default and that this

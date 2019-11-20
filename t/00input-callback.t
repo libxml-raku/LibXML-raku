@@ -40,7 +40,6 @@ ok !$context.handles, 'No longer have an open fh';
 check-seen();
 
 my $parser = LibXML.new: :$input-callbacks;
-# TEST
 
 $parser.expand-xinclude = True;
 

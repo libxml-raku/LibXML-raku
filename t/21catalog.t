@@ -22,5 +22,4 @@ my $doc = LibXML.new( catalog => "example/catalog.xml" ).parse: :string(q:to<EOF
 </article>
 EOF
 
-# TEST
 ok($doc, 'Doc was parsed with catalog');
