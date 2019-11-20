@@ -104,9 +104,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     method reverse {
         $!native.reverse;
         @!store .= reverse unless $!lazy;
-        with $!hstore {
-            $_ .= reverse for .values;
-        }
+        $!hstore = Nil;
         self;
     }
     method iterator {
@@ -252,9 +250,10 @@ Removes the last item from the set.
 =begin item
 reverse
 
+    # process nodes in ascending order
     for $node.find('ancestor-or-self::*').reverse { ... }
 
-Does an in-place reversal of the elements in the node-set
+Reverses the elements in the node-set
 =end item
 
 =head1 COPYRIGHT
