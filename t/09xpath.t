@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 56;
+plan 59;
 
 use LibXML;
 use LibXML::XPath::Expression;
@@ -83,8 +83,12 @@ EOSTR
         isa-ok( $result, "LibXML::Node::Set", ' TODO : Add test name' );
         # TEST
         skip("numeric on nodes");
-##        is( +$result, 2, ' TODO : Add test name' );
-
+        is( +$result, 2, ' TODO : Add test name' );
+        {
+            my $node = $doc.last("/foo/bar");
+            is $node.find('ancestor-or-self::*').map(*.nodePath).join(','), '/foo,/foo/bar[2]';
+            is $node.find('ancestor-or-self::*').reverse.map(*.nodePath).join(','), '/foo/bar[2],/foo';
+        }
         # TEST
 
         ok( $doc.isSameNode($result.pull-one.ownerDocument), ' TODO : Add test name' );

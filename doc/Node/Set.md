@@ -81,7 +81,7 @@ METHODS
         my LibXML::Node::Set $b-atts = $node-set<@b>;
         my LibXML::Text @text-nodes = $node-set<text()>;
 
-    This is an associative interface to node-sets for subetting by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
+    This is an associative interface to node-sets for sub-sets grouped by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 
   * add($node)
 
@@ -98,6 +98,12 @@ METHODS
         my LibXML::Item $node = $node-set.pop;
 
     Removes the last item from the set.
+
+  * reverse
+
+        for $node.find('ancestor-or-self::*').reverse { ... }
+
+    Does an in-place reversal of the elements in the node-set
 
 COPYRIGHT
 =========

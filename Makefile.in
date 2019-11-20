@@ -8,9 +8,9 @@ lib : resources/libraries/%LIB-NAME%
 debug :
 	%MAKE% "DBG=-Wall -g"  all
 
-resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O%  $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_nodeset%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%
+resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O%  $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
-        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_nodeset%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% \
+        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% \
         %LIB-LDFLAGS% 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
@@ -39,9 +39,6 @@ $(SRC)/xml6_input%O% : $(SRC)/xml6_input.c $(SRC)/xml6_input.h
 
 $(SRC)/xml6_node%O% : $(SRC)/xml6_node.c $(SRC)/xml6_node.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_node%O% $(SRC)/xml6_node.c %LIB-CFLAGS% $(DBG)
-
-$(SRC)/xml6_nodeset%O% : $(SRC)/xml6_nodeset.c $(SRC)/xml6_nodeset.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_nodeset%O% $(SRC)/xml6_nodeset.c %LIB-CFLAGS% $(DBG)
 
 $(SRC)/xml6_ns%O% : $(SRC)/xml6_ns.c $(SRC)/xml6_ns.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ns%O% $(SRC)/xml6_ns.c %LIB-CFLAGS% $(DBG)

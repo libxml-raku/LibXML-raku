@@ -51,7 +51,8 @@ DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item);
 
 DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr);
 
-DLLEXPORT xmlNodeSetPtr
-domXPathSelectCtxt( xmlXPathContextPtr ctxt, xmlXPathCompExprPtr comp, xmlNodePtr refNode);
+DLLEXPORT xmlNodeSetPtr domReverseNodeSet(xmlNodeSetPtr);
+
+DLLEXPORT xmlNodeSetPtr domXPathSelectCtxt(xmlXPathContextPtr, xmlXPathCompExprPtr, xmlNodePtr refNode);
 
 #endif

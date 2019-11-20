@@ -70,17 +70,17 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $!native.push: $node.native.ItemNode;
         $node;
     }
-    multi method delete(UInt $pos) is also<DELETE-POS> {
-        my $node = self.AT-POS($pos);
-        self.delete($_) with $node;
-        $node;
-    }
     method pop {
         my $node := $!native.pop;
         if $node.defined {
             .{$node.xpath-key}.pop with $!hstore;
         }
         $!lazy ?? self!box($node) !! @!store.pop;
+    }
+    multi method delete(UInt $pos) is also<DELETE-POS> {
+        my $node = self.AT-POS($pos);
+        self.delete($_) with $node;
+        $node;
     }
     multi method delete(LibXML::Item:D $node) {
         my UInt $idx := $!native.delete($node.native.ItemNode);
@@ -101,6 +101,14 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     method Bool { self.defined && self.elems }
     method Str is also<gist> handles <Int Num trim chomp> { $.Array.map(*.Str).join }
     method is-equiv(LibXML::Node::Set:D $_) { ? $!native.hasSameNodes(.native) }
+    method reverse {
+        $!native.reverse;
+        @!store .= reverse unless $!lazy;
+        with $!hstore {
+            $_ .= reverse for .values;
+        }
+        self;
+    }
     method iterator {
         $!idx = 0;
         self;
@@ -216,7 +224,7 @@ AT-KEY
     my LibXML::Node::Set $b-atts = $node-set<@b>;
     my LibXML::Text @text-nodes = $node-set<text()>;
 
-This is an associative interface to node-sets for subetting by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
+This is an associative interface to node-sets for sub-sets grouped by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 =end item
 
 =begin item
@@ -239,6 +247,14 @@ pop
     my LibXML::Item $node = $node-set.pop;
 
 Removes the last item from the set.
+=end item
+
+=begin item
+reverse
+
+    for $node.find('ancestor-or-self::*').reverse { ... }
+
+Does an in-place reversal of the elements in the node-set
 =end item
 
 =head1 COPYRIGHT

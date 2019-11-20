@@ -1,3 +1,5 @@
+0.1.11 2019-11-xx
+    - [LibXML::Node::Set] add .reverse() method
 0.1.10 2019-11-20
     - [LibXML::Find::Context] fix memory leaks in .find() and .findnodes(). Fix
       find() so it now iterates on node sets e.g.: for $e.find { ... }

@@ -20,7 +20,6 @@
 #include "xml6.h"
 #include "xml6_node.h"
 #include "xml6_ns.h"
-#include "xml6_nodeset.h"
 #include "xml6_ref.h"
 
 DLLEXPORT void
@@ -192,13 +191,37 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
     }
 }
 
+static xmlNodeSetPtr _domResizeNodeSet(xmlNodeSetPtr rv, int nodeMax) {
+    xmlNodePtr *temp;
+    int size;
+
+    if (nodeMax < 10)
+        nodeMax = 10;
+
+    size = nodeMax * sizeof(xmlNodePtr);
+
+    if (rv->nodeTab != NULL) {
+        temp = (xmlNodePtr *) xmlRealloc(rv->nodeTab, size);
+    }
+    else {
+        temp = (xmlNodePtr *) xmlMalloc(size);
+    }
+
+    assert(temp != NULL);
+
+    rv->nodeMax = nodeMax;
+    rv->nodeTab = temp;
+
+    return rv;
+}
+
 DLLEXPORT void
 domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr item) {
     assert(self != NULL);
     assert(item != NULL);
 
     if (self->nodeNr >= self->nodeMax) {
-        xml6_nodeset_resize(self, self->nodeMax * 2);
+        _domResizeNodeSet(self, self->nodeMax * 2);
     }
 
     self->nodeTab[self->nodeNr++] = _domNewItem(item);
@@ -212,7 +235,7 @@ domCreateNodeSetFromList(xmlNodePtr item, int keep_blanks) {
 
     while (item != NULL) {
         if (n >= rv->nodeMax) {
-            xml6_nodeset_resize(rv, rv->nodeMax * 2);
+            _domResizeNodeSet(rv, rv->nodeMax * 2);
         }
 
         rv->nodeTab[n++] = _domNewItem(item);
@@ -248,7 +271,7 @@ DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
     if (self != NULL) {
 
         if (self->nodeNr > rv->nodeMax) {
-            xml6_nodeset_resize(rv, self->nodeNr);
+            _domResizeNodeSet(rv, self->nodeNr);
         }
 
         for (i = 0; i < self->nodeNr; i++) {
@@ -256,6 +279,21 @@ DLLEXPORT xmlNodeSetPtr domCopyNodeSet(xmlNodeSetPtr self) {
             rv->nodeTab[i] = _domNewItem(item);
         }
         rv->nodeNr = self->nodeNr;
+    }
+
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr domReverseNodeSet(xmlNodeSetPtr rv) {
+    xmlNodePtr temp;
+    int i;
+    int mid = rv->nodeNr / 2;
+    int last = rv->nodeNr - 1;
+
+    for (i = 0; i < mid; i++) {
+        temp = rv->nodeTab[i];
+        rv->nodeTab[i] = rv->nodeTab[last - i];
+        rv->nodeTab[last - i] = temp;
     }
 
     return rv;
