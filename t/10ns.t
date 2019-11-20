@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 145;
+plan 146;
 
 use LibXML;
 use LibXML::Enums;
@@ -69,7 +69,7 @@ print "# 2.    multiple namespaces \n";
 
     my $namespaces = $elem.findnodes("namespace::*");
     my LibXML::Namespace:D $ns1 = $namespaces[0];
-    for :URI<http://kungfoo>, :localname<c>, :name<xmlns:c>, :prefix<xmlns>,  :declaredPrefix<c>, :type(+XML_NAMESPACE_DECL), :Str<xmlns:c="http://kungfoo"> {
+    for :URI<http://kungfoo>, :localname<c>, :name<xmlns:c>, :prefix<xmlns>,  :declaredPrefix<c>, :type(+XML_NAMESPACE_DECL), :Str<xmlns:c="http://kungfoo"> , :unique-key<c|http://kungfoo> {
         is-deeply $ns1."{.key}"(), .value, "namespace {.key} accessor";
     }
     is $elem.namespaces.pull-one.declaredPrefix, 'b', '$elem.namespaces.pull-one';

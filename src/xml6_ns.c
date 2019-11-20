@@ -25,8 +25,8 @@ DLLEXPORT xmlChar* xml6_ns_unique_key(xmlNsPtr self) {
 
     assert(self != NULL);
 
-    rv = xmlStrdup(self->prefix);
-    xmlStrcat(rv, (const xmlChar *) "|");
-    xmlStrcat(rv, self->href);
+    if (self->prefix != NULL) rv = xmlStrdup(self->prefix);
+    rv = xmlStrcat(rv, (const xmlChar *) "|");
+    if (self->href != NULL) rv = xmlStrcat(rv, self->href);
     return rv;
 }
