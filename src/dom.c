@@ -355,10 +355,6 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
  * the function returns the node inserted. if a fragment was inserted,
  * the first node of the list will returned
  *
- * i ran into a misconception here. there should be a normalization function
- * for the DOM, so sequences of text nodes can get replaced by a single
- * text node. as i see DOM Level 1 does not allow text node sequences, while
- * Level 2 and 3 do.
  **/
 static xmlNodePtr
 _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *ptail) {
@@ -377,6 +373,10 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
 
         if (leader && followup && p != followup->parent) {
             warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
+        }
+
+        if (cur->type == XML_DTD_NODE) {
+            xml6_warn("_domAddNodeToList(..) called on a DTD node");
         }
 
         if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
@@ -416,6 +416,26 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
     }
     *ptail = NULL;
     return NULL;
+}
+
+static xmlDtdPtr
+_domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
+    xmlDtdPtr ext_dtd = domGetExternalSubset(doc);
+    int replace_external = (old && old->type == XML_DTD_NODE ? (xmlDtdPtr)old : dtd) == ext_dtd;
+
+    if (doc == NULL) xml6_fail(dtd, "replaceNode: DTD is not associated with a document");
+    if (doc->type != XML_DOCUMENT_NODE && doc->type != XML_HTML_DOCUMENT_NODE && doc->type != XML_DOCB_DOCUMENT_NODE) {
+        xml6_fail((xmlNodePtr)dtd, "appendChild: HIERARCHY_REQUEST_ERR");
+    }
+    if (old) xmlUnlinkNode(old);
+
+    if (replace_external) {
+        domSetExternalSubset(doc, dtd);
+    }
+    else {
+        domSetInternalSubset(doc, dtd);
+    }
+    return dtd;
 }
 
 /**
@@ -771,6 +791,10 @@ domAppendChild( xmlNodePtr self,
         return newChild;
     }
 
+    if ( newChild->type == XML_DTD_NODE ) {
+        _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)newChild, NULL);
+        return newChild;
+    }
     if (self->type == XML_ELEMENT_NODE) {
         if (newChild->type == XML_ATTRIBUTE_NODE) {
             return (xmlNodePtr)domSetAttributeNodeNS(self, (xmlAttrPtr) newChild );
@@ -863,6 +887,10 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
         return domRemoveChild( self, old );
     }
 
+    if (new->type == XML_DTD_NODE) {
+        _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)new, old);
+        return old;
+    }
     if ( old == NULL ) {
         domAppendChild( self, new );
         return old;
@@ -929,6 +957,11 @@ domInsertBefore( xmlNodePtr self,
         return domAppendChild( self, newChild );
     }
 
+    if (newChild->type == XML_DTD_NODE) {
+        _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)newChild, NULL);
+        return newChild;
+    }
+
     if ( !(domTestHierarchy( self, newChild )
            && domTestDocument( self, newChild ))) {
         xml6_fail(self, "insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
@@ -987,19 +1020,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
     }
 
     if ( newNode->type == XML_DTD_NODE) {
-        xmlDocPtr doc = self->doc;
-        int replace_external = doc && self->type == XML_DTD_NODE && self == (xmlNodePtr)domGetExternalSubset(doc);
-
-        if (doc == NULL) xml6_fail(self, "replaceNode: DTD is not associated with a document");
-
-        xmlUnlinkNode(self);
-
-        if (replace_external) {
-            domSetExternalSubset(doc, (xmlDtdPtr)newNode);
-        }
-        else {
-            domSetInternalSubset(doc, (xmlDtdPtr)newNode);
-        }
+        _domSetDtd((xmlDocPtr)self->parent, (xmlDtdPtr)newNode, self);
     }
     else {
         par  = self->parent;
@@ -1081,12 +1102,12 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
             xmlFreeNode(copy);
         }
     }
+    else if (nNode->type == XML_DTD_NODE) {
+        _domSetDtd((xmlDocPtr)self->parent, (xmlDtdPtr)nNode, NULL);
+        rv = nNode;
+    }
     else {
         rv = xmlAddSibling( self, nNode );
-
-        if ( rv && nNode->type == XML_DTD_NODE ) {
-            domSetInternalSubset(self->doc, (xmlDtdPtr) nNode);
-        }
     }
     return rv;
 }
