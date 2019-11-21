@@ -188,28 +188,23 @@ multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str
 }
 
 method createDocumentFragment() {
-    require LibXML::DocumentFragment;
-    LibXML::DocumentFragment.new: :doc(self);
+    (require ::('LibXML::DocumentFragment')).new: :doc(self);
 }
 
 method createTextNode(Str $content) {
-    require LibXML::Text;
-    LibXML::Text.new: :doc(self), :$content;
+    (require ::('LibXML::Text')).new: :doc(self), :$content;
 }
 
 method createComment(Str $content) {
-    require LibXML::Comment;
-    LibXML::Comment.new: :doc(self), :$content;
+    (require ::('LibXML::Comment')).new: :doc(self), :$content;
 }
 
 method createCDATASection(Str $content) {
-    require LibXML::CDATA;
-    LibXML::CDATA.new: :doc(self), :$content;
+    (require ::('LibXML::CDATA')).new: :doc(self), :$content;
 }
 
 method createEntityReference(Str $name) {
-    require LibXML::EntityRef;
-    LibXML::EntityRef.new: :doc(self), :$name;
+    (require ::('LibXML::EntityRef')).new: :doc(self), :$name;
 }
 
 proto method createPI(|) is also<createProcessingInstruction> {*}

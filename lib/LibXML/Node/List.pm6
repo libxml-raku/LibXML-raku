@@ -110,9 +110,8 @@ class LibXML::Node::List does Iterable does Iterator {
         }
     }
     method to-node-set {
-        require LibXML::Node::Set;
         my xmlNodeSet:D $native = $!native.list-to-nodeset($!blank);
-        LibXML::Node::Set.new: :$native;
+        (require ::('LibXML::Node::Set')).new: :$native;
     }
     method to-ast is also<ast> { self.Array.map(*.ast) }
 }

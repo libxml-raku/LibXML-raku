@@ -69,8 +69,7 @@ method !set-attributes(@atts) {
 method attributes is rw is also<attribs attr> {
     Proxy.new(
         FETCH => {
-            require LibXML::Attr::Map;
-            LibXML::Attr::Map.new: :node(self)
+            (require ::('LibXML::Attr::Map')).new: :node(self)
         },
         STORE => sub ($, %atts) {
             self!set-attributes: %atts.pairs.sort;
@@ -116,8 +115,7 @@ method properties {
 }
 
 method appendWellBalancedChunk(Str:D $string) {
-    require LibXML::DocumentFragment;
-    my $frag = LibXML::DocumentFragment.parse: :balanced, :$string;
+    my $frag = (require ::('LibXML::DocumentFragment')).parse: :balanced, :$string;
     self.appendChild( $frag );
 }
 
