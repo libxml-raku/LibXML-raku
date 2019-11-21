@@ -51,9 +51,9 @@ method get-flags(:$html, *%opts) {
     $flags;
 }
 
-method !make-handler(xmlParserCtxt :$native, *%opts) {
+method !make-handler(xmlParserCtxt :$native, :$line-numbers=$!line-numbers, :$input-callbacks=$!input-callbacks, :$sax-handler=$.sax-handler, *%opts) {
     my UInt $flags = self.get-flags(|%opts);
-    LibXML::Parser::Context.new: :$native, :$flags, :$!line-numbers, :$!input-callbacks, :$.sax-handler;
+    LibXML::Parser::Context.new: :$native, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
 }
 
 method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
@@ -87,7 +87,6 @@ proto method parse(|c) is also<load> {
 multi method parse(Str:D() :$string!,
                    Bool() :$html = $!html,
                    Str() :$URI = $!URI,
-                   xmlEncodingStr :$enc = $!enc,
                    *%opts 
                   ) {
 
@@ -244,7 +243,7 @@ method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     }
 }
 
-# cheat's implementation of Perl 5's .generate function
+# cheat's implementation of Perl 5's .generate() function
 # re-serializes, rather than rerunning SAX actions on the DOM
 method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     # document DOM with the SAX handler
@@ -252,11 +251,9 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     $.parse( :$string, |c );
 }
 
-method load-catalog(Str:D $filename) {
-    xmlLoadCatalog($filename);
-}
+method load-catalog(Str:D $_) { config.load-catalog($_) }
 
-submethod TWEAK(Str :$catalog, :html($), :line-numbers($), :flags($) = 0, :URI($), :sax-handler($), :build-sax-handler($), :input-callbacks($), *%opts) {
+submethod TWEAK(Str :$catalog, *%opts) {
     self.load-catalog($_) with $catalog;
     $!flags = self.get-flags(|%opts);
 }

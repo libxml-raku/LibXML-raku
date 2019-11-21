@@ -12,6 +12,18 @@ method have-threads { ? xml6_config_have_threads(); }
 method have-compression { ? xml6_config_have_compression(); }
 method config-version { Version.new: xml6_config_version(); }
 
+our @catalogs;
+method load-catalog(Str:D $filename) {
+    my Int $stat = 0;
+    unless @catalogs.first($filename) {
+        $stat = xmlLoadCatalog($filename);
+        fail "unable to load XML catalog: $filename"
+            if $stat < 0;
+        @catalogs.push: $filename;
+    }
+    $stat > 0;
+}
+
 method have-reader {
     (require ::('LibXML::Reader')).have-reader
 }
@@ -26,8 +38,8 @@ our $inputCallbacks;
 
 # -- Output options --
 
-our $skipXMLDeclaration;
-our $skipDTD;
+our $skipXMLDeclaration = Bool;
+our $skipDTD = Bool;
 
 method skip-xml-declaration is rw { flag-proxy($skipXMLDeclaration) }
 method skip-dtd is rw { flag-proxy($skipDTD) }
