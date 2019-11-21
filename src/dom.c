@@ -423,7 +423,7 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
     xmlDtdPtr ext_dtd = domGetExternalSubset(doc);
     int replace_external = (old && old->type == XML_DTD_NODE ? (xmlDtdPtr)old : dtd) == ext_dtd;
 
-    if (doc == NULL) xml6_fail(dtd, "replaceNode: DTD is not associated with a document");
+    if (doc == NULL) xml6_fail(dtd, "DTD is not associated with a document");
     if (doc->type != XML_DOCUMENT_NODE && doc->type != XML_HTML_DOCUMENT_NODE && doc->type != XML_DOCB_DOCUMENT_NODE) {
         xml6_fail((xmlNodePtr)dtd, "appendChild: HIERARCHY_REQUEST_ERR");
     }

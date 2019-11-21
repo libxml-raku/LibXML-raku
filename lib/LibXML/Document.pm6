@@ -34,7 +34,7 @@ enum XmlStandalone is export(:XmlStandalone) (
 
 constant config = LibXML::Config;
 has LibXML::Parser::Context $.ctx handles <wellFormed valid>;
-has LibXML::Element $!documentElement;
+has LibXML::Element $!docElem;
 
 method native handles <encoding setCompression getCompression standalone URI> {
     callsame() // xmlDoc
@@ -61,9 +61,6 @@ submethod TWEAK(
     $struct.encoding = $_ with $enc;
     $struct.URI = $_ with $URI;
     $struct.setCompression($_) with $compression;
-    with $struct.getDocumentElement {
-        $!documentElement .= new: :native($_), :doc(self);
-    }
 }
 
 method version is rw {
@@ -117,11 +114,20 @@ method adoptNode(LibXML::Node:D $node)  {
     }
 }
 
-method getDocumentElement { $!documentElement //= LibXML::Element.box($.native.getDocumentElement)}
-method setDocumentElement(LibXML::Element $!documentElement) {
-    $!documentElement.setOwnerDocument(self);
-    self.native.setDocumentElement($!documentElement.native);
-    $!documentElement;
+method getDocumentElement {
+    with $.native.getDocumentElement {
+        $!docElem = LibXML::Element.box($_)
+             unless $!docElem.defined && $!docElem.native.isSameNode($_);
+    }
+    else {
+        $!docElem = LibXML::Element;
+    }
+    $!docElem;
+}
+method setDocumentElement(LibXML::Element $!docElem) {
+    $!docElem.setOwnerDocument(self);
+    self.native.setDocumentElement($!docElem.native);
+    $!docElem;
 }
 method documentElement is rw is also<root> {
     Proxy.new(
