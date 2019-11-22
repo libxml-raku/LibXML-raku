@@ -1,7 +1,11 @@
-0.1.11 2019-11-21
+0.1.12 2019-11-23
+    - [LibXML::_Options] fix options parsing, broken in 0.1.11
+0.1.11 2019-11-22
     - [LibXML::Node::Set] add .reverse() method
     - [LibXML::Namespace] bug-fix to .unique-key() method
-    - [LibXML::Node] fix .replaceNode() to distingush internal vs external DTDs
+    - [dom.c] fix handling of DTD nodes as arguments to domAppendChild(),
+      domReplaceChild(), domInsertBefore(), domReplaceNode() and domAddSibling()
+    - [LibXML::Parser][LibXML::_Options] tweak options processing
 0.1.10 2019-11-20
     - [LibXML::Find::Context] fix memory leaks in .find() and .findnodes(). Fix
       find() so it now iterates on node sets e.g.: for $e.find { ... }

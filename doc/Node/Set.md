@@ -101,9 +101,10 @@ METHODS
 
   * reverse
 
+        # process nodes in ascending order
         for $node.find('ancestor-or-self::*').reverse { ... }
 
-    Does an in-place reversal of the elements in the node-set
+    Reverses the elements in the node-set
 
 COPYRIGHT
 =========

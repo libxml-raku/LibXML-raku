@@ -61,21 +61,24 @@ method option-exists(Str:D $k is copy) {
     (%OPTS{$k} // %OPTS{neg($k)}).defined;
 }
 
-method get-option(Str:D $k) is default {
-    if self.can($k) {
-        self."$k"();
-    }
-    else {
-        $.get-flag($.flags, $k);
-    }
+method get-option(Str:D $k is copy) is default {
+    my $neg := ? $k.starts-with('no-');
+    $k .= substr(3) if $neg;
+    my $rv := self.can($k)
+        ?? self."$k"()
+        !! $.get-flag($.flags, $k);
+    $neg ?? ! $rv !! $rv;
 }
-multi method set-option(Str:D $k, $_) is default {
-    if self.can($k) {
-        self."$k"() = $_;
+multi method set-option(Str:D $k is copy, $v is copy) is default {
+    my $neg := ? $k.starts-with('no-');
+    if $neg {
+        $k .= substr(3);
+        $v := ! $v;
     }
-    else {
-        $.set-flag($.flags, $k, $_);
-    }
+    my $rv := self.can($k)
+       ?? (self."$k"() = $v)
+       !! $.set-flag($.flags, $k, $v);
+    $neg ?? ! $rv !! $rv;
 }
 multi method set-option(*%opt) { $.set-options(|%opt); }
 method set-options(*%opt) {

@@ -4,7 +4,7 @@
  * Perl itself.
  *
  * Copyright 2001-2003 AxKit.com Ltd., 2002-2006 Christian Glahn, 2006-2009 Petr Pajas
- * Ported from Perl 5 to 6 by David Warring
+ * Ported from Perl 5 to Raku by David Warring
  */
 
 #include "dom.h"

@@ -4,7 +4,7 @@ use Test;
 # this test checks the parsing capabilities of LibXML
 # it relies on the success of t/01basic.t
 
-plan 577;
+plan 578;
 use LibXML;
 use LibXML::Native;
 use LibXML::Namespace;
@@ -225,7 +225,6 @@ throws-like( { $parser.parse(:file($badfile1))},
     temp config.skip-xml-declaration = True;
     my $docA = $parser.parse: :$string;
     my $docB = $parser.parse: :file("example/test3.xml");
-    use LibXML::Document;
     is( $docA, $tstr, "xml string round trips as expected");
     is( $docB, $tstr, "test3.xml round trips as expected");
 }
@@ -356,7 +355,7 @@ my $badXInclude = q{
                             predocend3   => ["<A>", "<C>"],
                             predocend4   => ["<A>", "<C/>"],
                             postdocend1  => ["<A/>", "<C/>"],
-# use with libxml2 2.4.26:  postdocend2  => ["<A/>", "B"],    # libxml2 < 2.4.26 bug
+                            postdocend2  => ["<A/>", "B"],
                             postdocend3  => ["<A/>", "BB"],
                             badcdata     => ["<A> ","<!","[CDATA[B]","</A>"],
                             badending1   => ["<A> ","B","</C>"],
