@@ -336,7 +336,7 @@ The available options are:
 
   * dtd
 
-    /parser, html, reader/ (Introduced with the Perl 6 port)
+    /parser, html, reader/ (Introduced with the Raku port)
 
     This enables dtd loading and validation, as well as entity expansion. It should only be set in a secure enviroment that has trusted inputs.
 

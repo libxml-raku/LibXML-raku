@@ -68,7 +68,7 @@ Processing instruction nodes.
 
 The DOM methods are provided for compatibility with ported Perl 5 code.
 
-`data` provides a proxy to a rw string, which allows for idiomatic Perl 6 string manipulation and update.
+`data` provides a proxy to a rw string, which allows for idiomatic Raku string manipulation and update.
 
 
 =head1 METHODS

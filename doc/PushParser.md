@@ -15,7 +15,7 @@ SYNOPSIS
     $parser.push(@more-chunks);
     my $doc = $parser.finish-push;
 
-    # Perl 6 Interface
+    # Raku
     use LibXML::Document;
     use LibXML::PushParser;
     my LibXML::PushParser $push-parser .= new(

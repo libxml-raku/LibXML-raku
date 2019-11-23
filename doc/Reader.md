@@ -74,7 +74,7 @@ Source specification
 
   * IO::Handle :$io
 
-    Read XML a Perl 6 IO::Handle object.
+    Read XML as a Raku IO::Handle object.
 
   * UInt :$fd
 

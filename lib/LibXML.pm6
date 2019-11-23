@@ -33,7 +33,7 @@ method createDocument(|c) {
 
 =head1 NAME
 
-LibXML - Perl 6 bindings to the libxml2 native library
+LibXML - Raku bindings to the libxml2 native library
 
 =head1 SYNOPSIS
 

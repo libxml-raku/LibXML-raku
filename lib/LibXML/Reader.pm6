@@ -352,7 +352,7 @@ Read XML from a string.
 =begin item1
 IO::Handle :$io
 
-Read XML a Perl 6 IO::Handle object.
+Read XML as a Raku IO::Handle object.
 
 =end item1
 

@@ -1,4 +1,5 @@
 0.1.12 2019-11-23
+    - [doc][META6.json] Replace 'Perl 6' with 'Raku'
     - [LibXML::_Options] fix options parsing, broken in 0.1.11
 0.1.11 2019-11-22
     - [LibXML::Node::Set] add .reverse() method

@@ -8,7 +8,7 @@
     "Pod::To::Markdown"
   ],
   "depends" : [ "XML", "Method::Also", "File::Temp" ],
-  "description" : "Perl 6 bindings to the libxml2 native library",
+  "description" : "Raku bindings to the libxml2 native library",
   "license" : "Artistic-2.0",
   "name" : "LibXML",
   "perl" : "6",
@@ -74,7 +74,7 @@
   "resources" : [
     "libraries/xml6"
   ],
-  "source-url" : "https://github.com/p6-xml/LibXML-p6",
+  "source-url" : "https://github.com/p6-xml/LibXML-raku",
   "tags" : [
       "xml", "html", "xpath", "dom"
   ],

@@ -295,7 +295,7 @@ my LibXML::InputCallback.$input-callbacks . = new(
   $parser.input-callbacks = $input-callbacks;
   $parser.parse: :file( $some-xml-file );
 
-Note that this Perl 6 port does not currently support the old Perl 5 Global Callback mechanism.
+Note that this Raku port does not currently support the old Perl 5 Global Callback mechanism.
 
 =head1 INTERFACE DESCRIPTION
 
