@@ -229,7 +229,7 @@ class LibXML::Node does LibXML::Item {
         LibXML::Node.box: $!native.cloneNode($deep), :doc(LibXML::Node);
     }
 
-    method to-ast(Bool :$blank) {
+    method to-ast(Bool :$blank = True) {
         self.nodeName => [self.childNodes(:$blank).map(*.ast)];
     }
     method from-ast(Pair $ast) {

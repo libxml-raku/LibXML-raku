@@ -77,7 +77,7 @@ method attributes is rw is also<attribs attr> {
     );
 }
 
-method to-ast(Bool :$blank = False) is rw {
+method to-ast(Bool :$blank = True) is rw {
     my @content;
     @content.push(.ast) for self.namespaces;
     @content.push(.ast) for self.properties;
@@ -592,20 +592,20 @@ The following example may clarify this:
   my $e1 = $doc.createElement("bar");
   $e1.setNamespace("http://foobar.org", "foo")
 
-results
+results in:
 
 
 
   <foo:bar xmlns:foo="http://foobar.org"/>
 
-while
+while:
 
 
 
   my $e2 = $doc.createElement("bar");
   $e2.setNamespace("http://foobar.org", "foo", :!activate)
 
-results only
+results in:
 
 
 

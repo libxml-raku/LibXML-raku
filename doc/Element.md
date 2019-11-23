@@ -298,16 +298,16 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my $e1 = $doc.createElement("bar");
         $e1.setNamespace("http://foobar.org", "foo")
 
-    results
+    results in:
 
         <foo:bar xmlns:foo="http://foobar.org"/>
 
-    while
+    while:
 
         my $e2 = $doc.createElement("bar");
         $e2.setNamespace("http://foobar.org", "foo", :!activate)
 
-    results only
+    results in:
 
         <bar xmlns:foo="http://foobar.org"/>
 
