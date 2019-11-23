@@ -77,7 +77,7 @@ doc : README.md doc/Attr.md doc/Attr/Map.md doc/CDATA.md doc/Comment.md doc/Docu
 
 README.md : lib/LibXML.pm6
 	(\
-	    echo '[![Build Status](https://travis-ci.org/p6-xml/LibXML-p6.svg?branch=master)](https://travis-ci.org/p6-xml/LibXML-p6)'; \
+	    echo '[![Build Status](https://travis-ci.org/p6-xml/LibXML-raku.svg?branch=master)](https://travis-ci.org/p6-xml/LibXML-raku)'; \
             echo '';\
             perl6 -I . --doc=Markdown lib/LibXML.pm6\
         ) > README.md
