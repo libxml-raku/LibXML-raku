@@ -4,7 +4,7 @@ use Test;
 use LibXML;
 use LibXML::Schema;
 
-plan 10;
+plan 16;
 
 sub slurp(Str $_) { .IO.slurp }
 
@@ -14,7 +14,7 @@ my $file         = "test/schema/schema.xsd";
 my $badfile      = "test/schema/badschema.xsd";
 my $validfile    = "test/schema/demo.xml";
 my $invalidfile  = "test/schema/invaliddemo.xml";
-
+my $netfile      = "test/schema/net.xsd";
 
 # 1 parse schema from a file
 {
@@ -88,3 +88,45 @@ EOF
     is( $result, 0, 'validate() with element returns 0' );
 }
 
+# 5 check that :network works
+
+# avoid actual network access; trap at the lower input level
+my LibXML::InputCallback $input-callbacks .= new: :callbacks{
+    :match(sub ($f) {return $f.IO.e }),
+    :open(sub ($f)  {$f.IO.open(:r) }),
+    :read(sub ($fh, $n) {$fh.read($n)}),
+    :close(sub ($fh) {$fh.close}),
+};
+$input-callbacks.activate;
+
+{
+    my $schema = try { LibXML::Schema.new( location => $netfile ); };
+    like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from file location with external import throws an exception.' );
+    nok( defined($schema), 'Schema from file location with external import and !network is not loaded.' );
+}
+{
+    my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :!network ) };
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
+</xsd:schema>
+EOF
+    like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from buffer with external import throws an exception.' );
+    nok( defined($schema), 'Schema from buffer with external import and !network is not loaded.' );
+}
+
+{
+    my $schema = try { LibXML::Schema.new( location => $netfile, :network, :suppress-warnings ); };
+    ok ! $!.defined, "no exception";
+}
+{
+    my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :network, :suppress-warnings ) };
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
+</xsd:schema>
+EOF
+    ok ! $!.defined, "no exception";
+}
+
+$input-callbacks.deactivate;

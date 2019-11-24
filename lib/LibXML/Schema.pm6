@@ -18,25 +18,25 @@ my class Parser::Context {
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
-    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
-    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+    has Bool ($.recover, $.suppress-errors, $.suppress-warnings, $.network) is rw;
+    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings, :network)];
     also does LibXML::ErrorHandling;
 
-    multi submethod BUILD( xmlSchemaParserCtxt:D :$!native! ) {
+    multi submethod TWEAK( xmlSchemaParserCtxt:D :$!native! ) {
     }
-    multi submethod BUILD(Str:D :$url!) {
+    multi submethod TWEAK(Str:D :$url!) {
         $!native .= new: :$url;
     }
-    multi submethod BUILD(Str:D :location($url)!) {
-        self.BUILD: :$url;
+    multi submethod TWEAK(Str:D :location($url)!) {
+        self.TWEAK: :$url;
     }
-    multi submethod BUILD(Blob:D :$!buf!) {
+    multi submethod TWEAK(Blob:D :$!buf!) {
         $!native .= new: :$!buf;
     }
-    multi submethod BUILD(Str:D :$string!) {
-        self.BUILD: :buf($string.encode);
+    multi submethod TWEAK(Str:D :$string!) {
+        self.TWEAK: :buf($string.encode);
     }
-    multi submethod BUILD(LibXML::Document:D :doc($_)!) {
+    multi submethod TWEAK(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .native;
         $!native .= new: :$doc;
     }
@@ -49,7 +49,16 @@ my class Parser::Context {
     method parse {
         my $*XML-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
+
+        my $net-enabled = xmlExternalEntityLoader::network-enable(1)
+            if $!network;
+
         my $rv := $!native.Parse;
+
+        if $net-enabled {
+            xmlExternalEntityLoader::network-enable(0);
+         }
+
         self.flush-errors;
         $rv;
     }
@@ -65,8 +74,8 @@ my class ValidContext {
     also does LibXML::_Options[%( :sax-handler, :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
-    multi submethod BUILD( xmlSchemaValidCtxt:D :$!native! ) { }
-    multi submethod BUILD( LibXML::Schema:D :schema($_)! ) {
+    multi submethod TWEAK( xmlSchemaValidCtxt:D :$!native! ) { }
+    multi submethod TWEAK( LibXML::Schema:D :schema($_)! ) {
         my xmlSchema:D $schema = .native;
         $!native .= new: :$schema;
     }

@@ -1,7 +1,34 @@
 #include "xml6.h"
 #include "xml6_gbl.h"
+#include <libxml/parser.h>
+#include <libxml/xmlIO.h>
 #include <stdarg.h>
 #include <string.h>
+
+static xmlExternalEntityLoader default_ext_entity_loader = NULL;
+DLLEXPORT void xml6_gbl_init_external_entity_loader(void) {
+    default_ext_entity_loader = xmlGetExternalEntityLoader();
+    xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+}
+
+DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
+    int set = 0;
+    if (default_ext_entity_loader == NULL) {
+        xml6_warn("xml6_gbl_init_external_entity_loader() has not been called");
+        xml6_gbl_init_external_entity_loader();
+    }
+
+    if (net) {
+        set = xmlGetExternalEntityLoader() == xmlNoNetExternalEntityLoader;
+        if (set) xmlSetExternalEntityLoader(default_ext_entity_loader);
+    }
+    else {
+        set = xmlGetExternalEntityLoader() == default_ext_entity_loader;
+        if (set) xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+    }
+
+    return set;
+}
 
 DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {
     xmlSaveNoEmptyTags = flag;
@@ -28,7 +55,7 @@ DLLEXPORT void xml6_gbl_message_func(
     va_start(ap, fmt);
     // Consume variable arguments; marshal into argt[] and argv[].
     // Note: this is a limited parse of printf directives; it does just enough
-    // to handle those that are used by libxml2, i.e.: %s, %d, %f, %lf, %ld, %%
+    // to handle those that are emitted by libxml2, i.e.: %s, %d, %f, %lf, %ld, %%
     while (*fmtp && argc < 10) {
         if (*fmtp++ == '%') {
             char c = *fmtp++;

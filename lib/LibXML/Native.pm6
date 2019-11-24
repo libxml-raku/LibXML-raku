@@ -1591,6 +1591,7 @@ sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 ## xmlInitParser() should be called once at start-up
 sub xmlInitParser is native($XML2) is export {*}
 sub xml6_ref_init is native($BIND-XML2) {*}
+sub xml6_gbl_init_external_entity_loader() is native($BIND-XML2) {*}
 
 ## Globals aren't yet writable in Rakudo
 
@@ -1621,6 +1622,7 @@ module xmlExternalEntityLoader is export {
     our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
     our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($XML2) is symbol('xmlSetExternalEntityLoader') {*}
     our sub Get( --> Pointer ) is native($XML2) is symbol('xmlGetExternalEntityLoader') {*}
+    our sub network-enable(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
 }
 
 method ExternalEntityLoader is rw {
@@ -1635,6 +1637,7 @@ method ExternalEntityLoader is rw {
 INIT {
     xmlInitParser();
     xml6_ref_init();
+    xml6_gbl_init_external_entity_loader; # disables network external entityloading
 }
 sub xml6_gbl_message_func is export { cglobal($BIND-XML2, 'xml6_gbl_message_func', Pointer) }
 

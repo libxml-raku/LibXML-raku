@@ -1,3 +1,9 @@
+0.2.0 2019-1126
+    - [LibXML::Native][LibXML::Schema] Set the default external entity loader
+    to xmlNoNetExternalEntityLoader(). This has the impact of disabling
+    network access in LibXML::Schema.parse() by default, which is consistant
+    with LibXML::Parser.
+    - added :network option to allow network access during entity loading
 0.1.12 2019-11-23
     - [doc][META6.json] Replace 'Perl 6' with 'Raku'
     - [LibXML::_Options] fix options parsing, broken in 0.1.11
