@@ -68,13 +68,13 @@ state &externalEntityLoader;
 method external-entity-loader is rw {
     Proxy.new(
         FETCH => {
-            &externalEntityLoader // xmlGetExternalEntityLoader()
+            &externalEntityLoader // xmlExternalEntityLoader::Get()
         },
         STORE => -> $, &cb {
             &externalEntityLoader = &cb;
             my constant XML_CHAR_ENCODING_NONE = 0;
             my constant XML_ERR_ENTITY_PROCESSING = 104;
-            xmlSetExternalEntityLoader(
+            xmlExternalEntityLoader::Set(
                 sub (Str $url, Str $id, xmlParserCtxt $ctxt --> xmlParserInput) {
                     CATCH {
                         default {

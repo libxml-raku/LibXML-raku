@@ -92,6 +92,8 @@ Validation
 Other
 -----
 
+  * [LibXML::Config](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Config.md) - LibXML global configuration
+
   * [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
 
   * [LibXML::ErrorHandling](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandling.md) - LibXML class for Error handling

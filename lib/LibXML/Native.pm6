@@ -1591,10 +1591,6 @@ sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 ## xmlInitParser() should be called once at start-up
 sub xmlInitParser is native($XML2) is export {*}
 sub xml6_ref_init is native($BIND-XML2) {*}
-INIT {
-    xmlInitParser();
-    xml6_ref_init();
-}
 
 ## Globals aren't yet writable in Rakudo
 
@@ -1620,17 +1616,26 @@ method TagExpansion is rw {
     );
 }
 
+module xmlExternalEntityLoader is export {
+    our sub Default(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlDefaultExternalEntityLoader') {*}
+    our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
+    our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($XML2) is symbol('xmlSetExternalEntityLoader') {*}
+    our sub Get( --> Pointer ) is native($XML2) is symbol('xmlGetExternalEntityLoader') {*}
+}
+
 method ExternalEntityLoader is rw {
-    sub xmlSetExternalEntityLoader( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($XML2) is export {*}
-    sub xmlGetExternalEntityLoader( --> Pointer ) is native($XML2) is export {*}
     Proxy.new(
-        FETCH => { nativecast( :(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput), xmlGetExternalEntityLoader()) },
+        FETCH => { nativecast( :(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput), xmlEntityLoader::Get()) },
         STORE => sub ($, &loader) {
-             xmlSetExternalEntityLoader(&loader)
+             xmlExternalEntityLoader::Set(&loader)
         }
     );
 }
 
+INIT {
+    xmlInitParser();
+    xml6_ref_init();
+}
 sub xml6_gbl_message_func is export { cglobal($BIND-XML2, 'xml6_gbl_message_func', Pointer) }
 
 =begin pod

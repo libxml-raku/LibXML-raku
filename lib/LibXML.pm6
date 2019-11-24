@@ -117,6 +117,8 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =head2 Other
 
+=item [LibXML::Config](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Config.md) - LibXML global configuration
+
 =item [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
 
 =item [LibXML::ErrorHandling](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandling.md) - LibXML class for Error handling
