@@ -1,8 +1,9 @@
 use v6;
 use Test;
-plan 242;
+plan 330;
 
 use LibXML;
+use LibXML::InputCallback;
 
 my @all = qw<
   recover
@@ -16,7 +17,7 @@ my @all = qw<
   no_blanks
   expand_xinclude
   xinclude
-  no_network
+  network
   clean_namespaces
   no_cdata
   no_xinclude_nodes
@@ -25,17 +26,6 @@ my @all = qw<
   huge
   oldsax
 >;
-
-my %old = map { $_=> True }, qw<
-recover
-pedantic_parser
-load_ext_dtd
-complete_attributes
-expand_xinclude
-clean_namespaces
-no_network
->;
-
 
 {
   my $p = LibXML.new();
@@ -102,14 +92,37 @@ chomp($sys_line);
     my $parser = LibXML.new(
         expand_entities => 0,
         load_ext_dtd    => 0,
-        no_network      => 1,
         expand_xinclude => 0,
     );
     my $XML_DOC = $parser.load: string => $XML;
 
     ok($XML_DOC.Str().contains($sys_line),
         "expand_entities is preserved after _clone()/etc."
-    );
+      );
+
+    # now check network access
+    $XML ~~ s,'file://',http://example.com,;
+    # guard against actual network access attempts
+    my LibXML::InputCallback $input-callbacks .= new: :callbacks{
+        :match(sub ($f) {return $f.IO.e }),
+        :open(sub ($f)  {$f.IO.open(:r) }),
+        :read(sub ($fh, $n) {$fh.read($n)}),
+        :close(sub ($fh) {$fh.close}),
+    };
+    $input-callbacks.activate;
+
+    $parser = LibXML.new();
+    is-deeply $parser.network, False;
+    $parser.load_ext_dtd = True;
+    $parser.expand_entities = True;
+##    warn $parser.flags;
+    is-deeply $parser.network, False;
+    try { $parser.load: string => $XML };
+    like( $!, /'I/O error : Attempt to load network entity'/, 'Entity from network location throw error.' );
+    $parser.network = True;
+    try { $parser.load: string => $XML };
+    like( $!, /'I/O warning : failed to load HTTP resource'/, 'Entity from network location throw error.' );
+
 }
 
 {
@@ -117,10 +130,7 @@ chomp($sys_line);
   my $p = LibXML.new: |%opts;
   for @all -> $opt {
     is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
-    if (%old{$opt})
-    {
-        is-deeply(?$p."$opt"(), True, ' TODO : Add test name')
-    }
+    is-deeply(?$p."$opt"(), True, ' TODO : Add test name')
   }
 
   for @all -> $opt {
@@ -128,13 +138,12 @@ chomp($sys_line);
     is-deeply($p.set-option($opt,0), False, ' TODO : Add test name');
     is-deeply($p.get-option($opt), False, ' TODO : Add test name');
     is-deeply($p.set-option($opt,1), True, ' TODO : Add test name');
+    # accessors
     is-deeply(? $p.get-option($opt), True, ' TODO : Add test name');
-    if (%old{$opt}) {
-      is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
-      is-deeply($p."$opt"(0), False, ' TODO : Add test name');
-      is-deeply($p."$opt"(), False, ' TODO : Add test name');
-      is-deeply($p."$opt"(1), True, ' TODO : Add test name');
-    }
+    is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
+    is-deeply($p."$opt"(0), False, ' TODO : Add test name');
+    is-deeply($p."$opt"(), False, ' TODO : Add test name');
+    is-deeply($p."$opt"(1), True, ' TODO : Add test name');
 
   }
 }
@@ -144,10 +153,7 @@ chomp($sys_line);
   my $p = LibXML.new: |%opts;
   for @all -> $opt {
     is-deeply($p.get-option($opt), False, ' TODO : Add test name');
-    if (%old{$opt})
-    {
-        is-deeply($p."$opt"(), False, ' TODO : Add test name');
-    }
+    is-deeply($p."$opt"(), False, ' TODO : Add test name');
   }
 }
 
@@ -156,10 +162,7 @@ chomp($sys_line);
     my $p = LibXML.new: |%opts;
     for @all -> $opt {
         is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
-        if (%old{$opt})
-        {
-            is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
-        }
+        is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
     }
 }
 

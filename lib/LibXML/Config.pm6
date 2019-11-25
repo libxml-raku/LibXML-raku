@@ -60,8 +60,9 @@ method keep-blanks-default is rw {
 }
 
 method default-parser-flags {
-    XML_PARSE_NODICT
-        + ($.keep-blanks-default() ?? 0 !! XML_PARSE_NOBLANKS)
+    XML_PARSE_NONET
+    + XML_PARSE_NODICT
+    + ($.keep-blanks-default() ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
 state &externalEntityLoader;

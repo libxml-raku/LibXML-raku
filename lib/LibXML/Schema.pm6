@@ -50,13 +50,12 @@ my class Parser::Context {
         my $*XML-CONTEXT = self;
         $!native.SetStructuredErrorFunc: &structured-error-cb;
 
-        my $net-enabled = xmlExternalEntityLoader::network-enable(1)
-            if $!network;
+        my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
 
         my $rv := $!native.Parse;
 
-        if $net-enabled {
-            xmlExternalEntityLoader::network-enable(0);
+        if $ext-loader-changed {
+            xmlExternalEntityLoader::set-networked(+!$!network.so);
          }
 
         self.flush-errors;
@@ -153,8 +152,8 @@ validation. libxml2 only supports decimal types up to 24 digits
 =begin item1
 new
 
-  my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
-  my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
+  my LibXML::Schema $xmlschema  .= new( location => $filename_or_url, :network );
+  my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring, :network );
 
 The constructor of LibXML::Schema may get called with either one of two
 parameters. The parameter tells the class from which source it should generate
@@ -163,6 +162,11 @@ source.
 
 The location parameter allows one to parse a schema from the filesystem or a
 URL.
+
+The `:network` flag effects processing of `xsd:import` directives. By default
+this is disabled, unless a custom External Entity Loader has been installed
+via the `LibXML::Config.external-entity-loader` method. More detailed control
+can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the `LibXML::Config.input-callbacks` method.
 
 The string parameter will parse the schema from the given XML string.
 

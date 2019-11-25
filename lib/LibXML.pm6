@@ -18,7 +18,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.1.12>
+unit class LibXML:ver<0.2.0>
     is LibXML::Parser;
 
 method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -159,7 +159,7 @@ Xliff.
 
 =head1 VERSION
 
-0.1.12
+0.2.0
 
 =head1 COPYRIGHT
 

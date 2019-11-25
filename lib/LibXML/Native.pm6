@@ -1622,7 +1622,7 @@ module xmlExternalEntityLoader is export {
     our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
     our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($XML2) is symbol('xmlSetExternalEntityLoader') {*}
     our sub Get( --> Pointer ) is native($XML2) is symbol('xmlGetExternalEntityLoader') {*}
-    our sub network-enable(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
+    our sub set-networked(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
 }
 
 method ExternalEntityLoader is rw {

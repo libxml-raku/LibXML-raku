@@ -380,7 +380,7 @@ The available options are:
 
     substitute entities; default is False
 
-    Note that although this flag disables entity substitution, it does not prevent the parser from loading external entities; when substitution of an external entity is disabled, the entity will be represented in the document tree by an XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing the external resource; Although this nesting is visible from the DOM it is transparent to XPath data model, so it is possible to match nodes in an unexpanded entity by the same XPath expression as if the entity were expanded. See also [LibXML::Config](LibXML::Config).external-entity-loader. 
+    Note that although unsetting this flag disables entity substitution, it does not prevent the parser from loading external entities; when substitution of an external entity is disabled, the entity will be represented in the document tree by an XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing the external resource; Although this nesting is visible from the DOM it is transparent to XPath data model, so it is possible to match nodes in an unexpanded entity by the same XPath expression as if the entity were expanded. See also [LibXML::Config](LibXML::Config).external-entity-loader. 
 
   * load-ext-dtd
 
@@ -440,6 +440,12 @@ The available options are:
 
     Expands XInclude tags immediately while parsing the document. Note that the parser will use the URI resolvers installed via `LibXML::InputCallback ` to parse the included document (if any).
 
+    It's recommended to set `input-callbacks` to restrict access when `expand-xinclude` is enabled, otherwise it's trivial to inject arbitrary content from the file-system, as in:
+
+        <foo xmlns:xi="http://www.w3.org/2001/XInclude">
+            <xi:include parse="text" href="file:///etc/passwd"/>
+        </foo>
+
   * xinclude-nodes
 
     /parser, reader/
@@ -452,7 +458,7 @@ The available options are:
 
     Enable network access; default False
 
-    All attempts to fetch non-local resources (such as DTD or external entities) will fail unless set to True (or custom callbacks are defined).
+    All attempts to fetch non-local resources (such as DTD or external entities) will fail unless set to True (or custom input-callbacks are defined).
 
     It may be necessary to use the flag `recover ` for processing documents requiring such resources while networking is off. 
 

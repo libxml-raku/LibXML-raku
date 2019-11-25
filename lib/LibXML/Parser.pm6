@@ -804,7 +804,7 @@ expand-entities
 
 substitute entities; default is False
 
-Note that although this flag disables entity substitution, it does not prevent
+Note that although unsetting this flag disables entity substitution, it does not prevent
 the parser from loading external entities; when substitution of an external
 entity is disabled, the entity will be represented in the document tree by an
 XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing
@@ -903,6 +903,12 @@ Implement XInclude substitution; type Bool
 Expands XInclude tags immediately while parsing the document. Note that the
 parser will use the URI resolvers installed via C<<<<<< LibXML::InputCallback >>>>>> to parse the included document (if any).
 
+It's recommended to set `input-callbacks` to restrict access when `expand-xinclude` is enabled, otherwise it's trivial to inject arbitrary content from the file-system, as in:
+
+  <foo xmlns:xi="http://www.w3.org/2001/XInclude">
+      <xi:include parse="text" href="file:///etc/passwd"/>
+  </foo>
+
 =end item1
 
 =begin item1
@@ -922,7 +928,7 @@ network
 Enable network access; default False
 
 All attempts to fetch non-local resources (such as DTD or
-external entities) will fail unless set to True (or custom callbacks are defined).
+external entities) will fail unless set to True (or custom input-callbacks are defined).
 
 It may be necessary to use the flag C<<<<<< recover >>>>>> for processing documents requiring such resources while networking is off. 
 

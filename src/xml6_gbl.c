@@ -8,26 +8,25 @@
 static xmlExternalEntityLoader default_ext_entity_loader = NULL;
 DLLEXPORT void xml6_gbl_init_external_entity_loader(void) {
     default_ext_entity_loader = xmlGetExternalEntityLoader();
-    xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
-}
+ }
 
 DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
-    int set = 0;
+    int update = 0;
     if (default_ext_entity_loader == NULL) {
         xml6_warn("xml6_gbl_init_external_entity_loader() has not been called");
         xml6_gbl_init_external_entity_loader();
     }
 
     if (net) {
-        set = xmlGetExternalEntityLoader() == xmlNoNetExternalEntityLoader;
-        if (set) xmlSetExternalEntityLoader(default_ext_entity_loader);
+        update = xmlGetExternalEntityLoader() == xmlNoNetExternalEntityLoader;
+        if (update) xmlSetExternalEntityLoader(default_ext_entity_loader);
     }
     else {
-        set = xmlGetExternalEntityLoader() == default_ext_entity_loader;
-        if (set) xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
+        update = xmlGetExternalEntityLoader() == default_ext_entity_loader;
+        if (update) xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
     }
 
-    return set;
+    return update;
 }
 
 DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {

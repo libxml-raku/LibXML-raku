@@ -3,6 +3,7 @@ use Test;
 
 use LibXML;
 use LibXML::Schema;
+use LibXML::InputCallback;
 
 plan 16;
 
@@ -90,7 +91,7 @@ EOF
 
 # 5 check that :network works
 
-# avoid actual network access; trap at the lower input level
+#  guard against actual network access attempts
 my LibXML::InputCallback $input-callbacks .= new: :callbacks{
     :match(sub ($f) {return $f.IO.e }),
     :open(sub ($f)  {$f.IO.open(:r) }),
