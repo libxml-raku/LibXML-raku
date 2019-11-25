@@ -734,9 +734,11 @@ dtd
 
 /parser, html, reader/ (Introduced with the Raku port)
 
-This enables dtd loading and validation, as well as entity expansion. It should only be set in a secure enviroment that has trusted inputs.
+This enables local DTD loading and validation, as well as entity expansion.
 
-This is a bundled option. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.network = True; $parser.expand-entities = True`.
+This is a bundled option. Setting `$parser.dtd = True` is equivalent to setting: `$parser.load-ext-dtd = True; $parser.validation = True; $parser.expand-entities = True`.
+
+The `network` option or a custom entity-loader also needs to be set to allow loading of remote DTD files.
 
 =end item1
 
@@ -746,7 +748,7 @@ URI
 /parser, html, reader/
 
 In case of parsing strings or file handles, LibXML doesn't know about the base
-uri of the document. To make relative references such as XIncludes work, one
+URI of the document. To make relative references such as XIncludes work, one
 has to set a base URI, that is then used for the parsed document.
 
 =end item1
@@ -903,7 +905,7 @@ Implement XInclude substitution; type Bool
 Expands XInclude tags immediately while parsing the document. Note that the
 parser will use the URI resolvers installed via C<<<<<< LibXML::InputCallback >>>>>> to parse the included document (if any).
 
-It's recommended to set `input-callbacks` to restrict access when `expand-xinclude` is enabled, otherwise it's trivial to inject arbitrary content from the file-system, as in:
+It is recommended to use `input-callbacks` to restrict access when `expand-xinclude` is enabled on untrusted input files, otherwise it's trivial to inject arbitrary content from the file-system, as in:
 
   <foo xmlns:xi="http://www.w3.org/2001/XInclude">
       <xi:include parse="text" href="file:///etc/passwd"/>

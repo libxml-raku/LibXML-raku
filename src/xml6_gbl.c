@@ -8,7 +8,7 @@
 static xmlExternalEntityLoader default_ext_entity_loader = NULL;
 DLLEXPORT void xml6_gbl_init_external_entity_loader(void) {
     default_ext_entity_loader = xmlGetExternalEntityLoader();
- }
+}
 
 DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
     int update = 0;

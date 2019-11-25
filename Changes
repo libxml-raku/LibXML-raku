@@ -1,9 +1,9 @@
-0.2.0 2019-1126
+0.2.0 2019-11-26
     - [LibXML::Native][LibXML::Config] really disable network access this time.
       Started, but not completed properly in release 0.1.0.
     - [LibXML::Schema] Disable network loading of `xsd:import` statements by
-      default. These can be enabled via the :network flag. Further control
-    is then possible by setting up custom entity loaders and/or input callbacks.
+      default. These can be enabled via the :network flag. Further control is
+      then possible by setting up custom entity loaders and/or input callbacks.
 0.1.12 2019-11-23
     - [doc][META6.json] Replace 'Perl 6' with 'Raku'
     - [LibXML::_Options] fix options parsing, broken in 0.1.11
