@@ -225,7 +225,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
       * `?*` (all), or `?name` can be used to fetch processing instructions
 
-      * The special names `#text`, `#comment` and `#cdata` can be used to match Text, Comment or CDATA nodes.
+      * The special names `#text`, `#comment` and `#cdata-section` can be used to match Text, Comment or CDATA Section nodes.
 
   * getElementsByTagName
 

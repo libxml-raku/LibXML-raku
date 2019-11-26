@@ -468,7 +468,7 @@ data sets. Note:
   =item A special C<<<<<< localname >>>>>> '*' can be used to match all ements.
   =item C<@*> can be used to fetch attributes as a node-set
   =item C<?*> (all), or C<?name> can be used to fetch processing instructions
-  =item The special names C<#text>, C<#comment> and C<#cdata> can be used to match Text, Comment or CDATA nodes.
+  =item The special names C<#text>, C<#comment> and C<#cdata-section> can be used to match Text, Comment or CDATA Section nodes.
 
 =end item1
 

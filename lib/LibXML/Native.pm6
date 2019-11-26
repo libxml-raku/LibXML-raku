@@ -793,9 +793,11 @@ class anyNode is export does LibXML::Native::DOM::Node {
     method domReplaceChild(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
     method domInsertBefore(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
     method domInsertAfter(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
-    method domGetNodeName(int32 --> Str) is native($BIND-XML2) {*}
+    method domGetNodeName(--> Str) is native($BIND-XML2) {*}
     method domSetNodeName(Str) is native($BIND-XML2) {*}
     method domGetNodeValue(--> Str) is native($BIND-XML2) {*}
+    method domGetXPathKey(--> Str) is native($BIND-XML2) {*}
+    method domGetASTKey(--> Str) is native($BIND-XML2) {*}
     method domSetNodeValue(Str) is native($BIND-XML2) {*}
     method domRemoveChild(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domRemoveChildNodes(--> xmlDocFrag) is native($BIND-XML2) {*}

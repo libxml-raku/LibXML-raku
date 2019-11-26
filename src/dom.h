@@ -110,10 +110,14 @@ _domCanInsert( xmlNodePtr cur, xmlNodePtr ref );
 DLLEXPORT int
 domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 
-/* A.1 DOM specified section */
+DLLEXPORT xmlChar*
+domGetNodeName( xmlNodePtr node);
 
 DLLEXPORT xmlChar*
-domGetNodeName( xmlNodePtr node, int xpath_key );
+domGetXPathKey( xmlNodePtr node);
+
+DLLEXPORT xmlChar*
+domGetASTKey( xmlNodePtr node);
 
 DLLEXPORT void
 domSetNodeName(xmlNodePtr self , xmlChar *string);

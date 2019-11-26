@@ -614,16 +614,9 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
     return imported_node;
 }
 
-/**
- * Name: domName
- * Synopsis: string = domName( node );
- *
- * domName returns the full name for the current node.
- * If the node belongs to a namespace it returns the prefix and
- * the local name. otherwise only the local name is returned.
- **/
+// DOM compliant.
 DLLEXPORT xmlChar*
-domGetNodeName(xmlNodePtr node, int xpath_key) {
+domGetNodeName(xmlNodePtr node) {
     const xmlChar* prefix = NULL;
     const xmlChar* name   = NULL;
     xmlChar* rv           = NULL;
@@ -646,38 +639,28 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
         break;
 
     case XML_COMMENT_NODE :
-        name = (const xmlChar*) (xpath_key ? "comment()" : "#comment");
+        name = (const xmlChar*) "#comment";
         break;
 
     case XML_CDATA_SECTION_NODE :
-        name = (const xmlChar*) (xpath_key ? "text()" : "#cdata");
+        name = (const xmlChar*) "#cdata-section";
         break;
 
     case XML_TEXT_NODE :
-        name = (const xmlChar*) (xpath_key ? "text()" : "#text");
+        name = (const xmlChar*) "#text";
         break;
 
     case XML_DOCUMENT_NODE :
-        name = (const xmlChar*) (xpath_key ? "document()" : "#xml");
-        break;
-
     case XML_HTML_DOCUMENT_NODE :
-        name = (const xmlChar*) (xpath_key ? "document()" : "#html");
-        break;
-
     case XML_DOCB_DOCUMENT_NODE :
-        name = (const xmlChar*) (xpath_key ? "document()" : "#docbook");
+        name = (const xmlChar*) "#document";
         break;
 
     case XML_DOCUMENT_FRAG_NODE :
-        name = (const xmlChar*) (xpath_key ? "document()" : "#fragment");
+        name = (const xmlChar*) "#document-fragment";
         break;
 
     case XML_PI_NODE :
-        if (xpath_key) {
-            name = (const xmlChar*) "processing-instruction()";
-            break;
-        }
     case XML_ELEMENT_NODE :
     case XML_ATTRIBUTE_NODE :
         if ( node->ns != NULL ) {
@@ -706,35 +689,87 @@ domGetNodeName(xmlNodePtr node, int xpath_key) {
         rv = xmlStrdup( name );
     }
 
-    if (xpath_key) {
-        if (node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
-            // convert HTML names to lowercase. make case insensitive
-            int i = prefix == NULL ? 0 : xmlStrlen(prefix);
+   return rv;
+}
 
-            for (;rv[i]; i++) {
-                if (rv[i] >= 'A' && rv[i] <= 'Z') {
-                    rv[i] += 'a' - 'A';
+// Returns a name that can be used in an XPath filter expression
+DLLEXPORT xmlChar*
+domGetXPathKey(xmlNodePtr node) {
+    xmlChar* temp = NULL;
+    xmlChar* rv = NULL;
+    switch (node->type) {
+        case XML_COMMENT_NODE :
+            rv = xmlStrdup( (xmlChar*) "comment()");
+            break;
+        case XML_CDATA_SECTION_NODE :
+        case XML_TEXT_NODE :
+            rv = xmlStrdup( (xmlChar*) "text()");
+            break;
+        case XML_DOCUMENT_NODE :
+        case XML_HTML_DOCUMENT_NODE :
+        case XML_DOCB_DOCUMENT_NODE :
+        case XML_DOCUMENT_FRAG_NODE :
+            rv = xmlStrdup( (xmlChar*) "document()");
+            break;
+        case XML_PI_NODE :
+            rv = xmlStrdup( (xmlChar*) "processing-instruction()");
+            break;
+        default :
+            rv = domGetNodeName(node);
+            if (node->type == XML_ATTRIBUTE_NODE) {
+                temp = xmlStrdup( (xmlChar*) "@" );
+                temp = xmlStrcat(temp, rv);
+                xmlFree(rv);
+                rv = temp;
+            }
+            else if (node->type == XML_ELEMENT_NODE && node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
+            // convert HTML names to lowercase.
+                int i;
+                char *name = strchr(rv, (int)':');
+                if (name == NULL) name = (char*) rv;
+
+                for (;name[i]; i++) {
+                    if (name[i] >= 'A' && name[i] <= 'Z') {
+                        name[i] += 'a' - 'A';
+                    }
                 }
             }
-        }
-        else if (node->type == XML_ATTRIBUTE_NODE) {
-            // prepend '@'
-            xmlChar* name = xmlStrdup( (xmlChar*) "@" );
-            name = xmlStrcat(name, rv);
-            xmlFree(rv);
-            rv = name;
-        }
+        break;
     }
-    else if (node->type == XML_PI_NODE) {
-            // prepend '?' to processing instructions
-            xmlChar* name = xmlStrdup( (xmlChar*) "?" );
-            name = xmlStrcat(name, rv);
-            xmlFree(rv);
-            rv = name;
-        }
+    return rv;
+}
 
-
-   return rv;
+// Returns a name tailored for AST construction
+DLLEXPORT xmlChar*
+domGetASTKey(xmlNodePtr node) {
+    xmlChar* rv = NULL;
+    xmlChar* temp = NULL;
+    switch (node->type) {
+        case XML_DOCUMENT_NODE :
+            rv = xmlStrdup( (xmlChar*) "#xml");
+            break;
+        case XML_HTML_DOCUMENT_NODE :
+            rv = xmlStrdup( (xmlChar*) "#html");
+            break;
+        case XML_DOCB_DOCUMENT_NODE :
+            rv = xmlStrdup( (xmlChar*) "#docb");
+            break;
+        case XML_DOCUMENT_FRAG_NODE :
+            rv = xmlStrdup( (xmlChar*) "#fragment");
+            break;
+        case XML_CDATA_SECTION_NODE :
+            rv =  xmlStrdup( (xmlChar*) "#cdata");
+            break;
+        default :
+            rv = domGetNodeName(node);
+            if (node->type == XML_PI_NODE) {
+                temp = xmlStrdup( (xmlChar*) "?" );
+                temp = xmlStrcat(temp, rv);
+                xmlFree(rv);
+                rv = temp;
+            }
+    }
+    return rv;
 }
 
 DLLEXPORT void
@@ -1195,35 +1230,61 @@ domNodeType(xmlChar* name) {
     int node_type = 0;
 
     if (name != NULL) {
-        switch (*name) {
+        switch (name[0]) {
             case '?' :
                 node_type = XML_PI_NODE;
                 break;
             case '#': {
-                if (xmlStrcmp( name, (unsigned char*) "#xml" ) == 0) {
-                    node_type = XML_DOCUMENT_NODE;
+                switch (name[1]) {
+                    case 'c':
+                        if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
+                            node_type = XML_COMMENT_NODE;
+                        }
+                        else if (xmlStrcmp( name, (unsigned char*) "#cdata" ) == 0
+                                 || xmlStrcmp( name, (unsigned char*) "#cdata-section" ) == 0) {
+                            node_type = XML_CDATA_SECTION_NODE;
+                        }
+                        break;
+
+                    case 'd':
+                        if (xmlStrcmp( name, (unsigned char*) "#document" ) == 0) {
+                            node_type = XML_DOCUMENT_NODE;
+                        }
+                        else if (xmlStrcmp( name, (unsigned char*) "#document-fragment" ) == 0) {
+                            node_type = XML_DOCUMENT_FRAG_NODE;
+                        }
+                        else if (xmlStrcmp( name, (unsigned char*) "#docbook" ) == 0) {
+                            node_type = XML_DOCB_DOCUMENT_NODE;
+                        }
+                        break;
+
+                    case 'h':
+                        if (xmlStrcmp( name, (unsigned char*) "#html" ) == 0) {
+                            node_type = XML_HTML_DOCUMENT_NODE;
+                        }
+                        break;
+
+                    case 'f':
+                        if (xmlStrcmp( name, (unsigned char*) "#fragment" ) == 0) {
+                            node_type = XML_DOCUMENT_FRAG_NODE;
+                        }
+                        break;
+
+                    case 't':
+                        if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
+                            node_type = XML_TEXT_NODE;
+                        }
+                        break;
+
+                    case 'x':
+                        if (xmlStrcmp( name, (unsigned char*) "#xml" ) == 0) {
+                            node_type = XML_DOCUMENT_NODE;
+                        }
+                        break;
                 }
-                else if (xmlStrcmp( name, (unsigned char*) "#html" ) == 0) {
-                    node_type = XML_HTML_DOCUMENT_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#docbook" ) == 0) {
-                    node_type = XML_DOCUMENT_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#fragment" ) == 0) {
-                    node_type = XML_DOCUMENT_FRAG_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
-                    node_type = XML_TEXT_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
-                    node_type = XML_COMMENT_NODE;
-                }
-                else if (xmlStrcmp( name, (unsigned char*) "#cdata" ) == 0) {
-                    node_type = XML_CDATA_SECTION_NODE;
-                }
-                else {
-                    fprintf(stderr, __FILE__ "%d: unknown node generic name '%s'\n", __LINE__, name);
-                }
+                if (node_type == 0) {
+                            fprintf(stderr, __FILE__ "%d: unknown node generic name '%s'\n", __LINE__, name);
+                        }
                 break;
             }
             default: {
@@ -1289,11 +1350,11 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
 
 static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
     int rv;
-    xmlChar* name = domGetNodeName(self, 0);
+    xmlChar* name = domGetNodeName(self);
     rv = xmlStrcmp( name, pname );
     if (rv) {
         xmlFree(name);
-        name = domGetNodeName(self, 1);
+        name = domGetNodeName(self);
         rv = xmlStrcmp( name, pname );
     }
     xmlFree(name);

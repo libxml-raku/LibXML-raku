@@ -25,6 +25,8 @@ method domInsertBefore { ... }
 method domInsertAfter  { ... }
 method domGetNodeName { ... }
 method domSetNodeName { ... }
+method domGetXPathKey { ... }
+method domGetASTKey { ... }
 method domGetNodeValue { ... }
 method domSetNodeValue { ... }
 method domRemoveChild  { ... }
@@ -152,12 +154,15 @@ method cloneNode(Bool:D $deep) {
     self.copy(:$deep);
 }
 
-method getNodeName  { self.domGetNodeName(0) }
-method xpath-key { self.domGetNodeName(1) }
+method getNodeName  { self.domGetNodeName }
 method setNodeName(QName $_) { self.domSetNodeName($_) }
 
 method getNodeValue { self.domGetNodeValue }
 method setNodeValue(Str $_) { self.domSetNodeValue($_) }
+
+method unique-key { self.domUniqueKey }
+method xpath-key { self.domGetXPathKey }
+method ast-key { self.domGetASTKey }
 
 method hasAttributes returns Bool {
     ? (self.type != XML_ATTRIBUTE_NODE
@@ -205,8 +210,6 @@ method addNewChild(Str $uri, QName $name) {
 }
 
 method normalize { self.domNormalize }
-
-method unique-key { self.domUniqueKey }
 
 multi method isSameNode(Node $oNode) {
     ? self.domIsSameNode($oNode);

@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-plan 59;
+plan 65;
 
 use LibXML;
 use LibXML::Text;
@@ -223,7 +223,8 @@ my $doc = LibXML::Document.new();
     my $node = LibXML::CDATA.new: :content<test>;
 
     is( $node.string-value(), "test", ' TODO : Add test name' );
-    is( $node.nodeName(), "#cdata", ' TODO : Add test name' );
+    is( $node.nodeName(), "#cdata-section", ' TODO : Add test name' );
+    is( $node.ast-key(), "#cdata", ' TODO : Add test name' );
 }
 
 {
@@ -233,6 +234,7 @@ my $doc = LibXML::Document.new();
 
     is( $node.string-value(), "test", ' TODO : Add test name' );
     is( $node.nodeName(), "#comment", ' TODO : Add test name' );
+    is( $node.ast-key(), "#comment", ' TODO : Add test name' );
 }
 
 {
@@ -240,13 +242,17 @@ my $doc = LibXML::Document.new();
 
     my $node = LibXML::Document.new();
 
-    is( $node.nodeName(), "#xml", ' TODO : Add test name' );
+    is( $node.nodeName(), "#document", ' TODO : Add test name' );
+    is( $node.ast-key(), "#xml", ' TODO : Add test name' );
+    is( $node.xpath-key(), "document()", ' TODO : Add test name' );
 }
 {
     # Document fragment node name test
 
     my $node = LibXML::DocumentFragment.new();
 
-    is( $node.nodeName(), "#fragment", ' TODO : Add test name' );
+    is( $node.nodeName(), "#document-fragment", ' TODO : Add test name' );
+    is( $node.ast-key(), "#fragment", ' TODO : Add test name' );
+    is( $node.xpath-key(), "document()", ' TODO : Add test name' );
 }
 

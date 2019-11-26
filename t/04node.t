@@ -9,7 +9,7 @@
 
 use v6;
 use Test;
-plan 192;
+plan 194;
 
 use LibXML;
 use LibXML::Enums;
@@ -505,16 +505,18 @@ EOF
         my $r = $doc.getDocumentElement;
         ok($r, ' TODO : Add test name');
         my @nonblank = $r.nonBlankChildNodes;
-        is(join(',',@nonblank.map(*.nodeName)), 'a,b,#comment,#cdata,?foo,c,#text', ' TODO : Add test name' );
+        is(join(',',@nonblank.map(*.ast-key)), 'a,b,#comment,#cdata,?foo,c,#text', 'ast-key' );
+        is(join(',',@nonblank.map(*.xpath-key)), 'a,b,comment(),text(),processing-instruction(),c,text()', 'xpath-key' );
+        is(join(',',@nonblank.map(*.nodeName)), 'a,b,#comment,#cdata-section,foo,c,#text', 'nodeName' );
         is($r.firstChild.nodeName, '#text', ' TODO : Add test name');
-        is $r.getChildrenByTagName('?foo').map(*.nodeName).join, '?foo';  
-        is $r.getChildrenByLocalName('?foo').map(*.nodeName).join, '?foo';  
-        is $r.getChildrenByLocalName('?*').map(*.nodeName).join, '?foo';  
+        is $r.getChildrenByTagName('foo').map(*.nodeName).join, 'foo';  
+        is $r.getChildrenByLocalName('?foo').map(*.nodeName).join, 'foo';  
+        is $r.getChildrenByLocalName('?*').map(*.nodeName).join, 'foo';  
         is $r.getChildrenByLocalName('#comment').map(*.nodeName).join, '#comment';  
         is $r.getChildrenByTagName('#comment').map(*.nodeName).join, '#comment';  
 
         my @all = $r.childNodes;
-        is(join(',', @all.map(*.nodeName)), '#text,a,#text,b,#text,#cdata,#text,#comment,#text,#cdata,#text,?foo,#text,c,#text', ' TODO : Add test name' );
+        is(join(',', @all.map(*.ast-key)), '#text,a,#text,b,#text,#cdata,#text,#comment,#text,#cdata,#text,?foo,#text,c,#text', ' TODO : Add test name' );
 
         my $f = $r.firstNonBlankChild;
         my $p;

@@ -27,8 +27,8 @@ class LibXML::Node does LibXML::Item {
         nodePath
         setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
         type
-        unique-key lock unlock
-        xpath-key
+        lock unlock
+        unique-key ast-key xpath-key
     >;
 
     BEGIN {
@@ -230,7 +230,7 @@ class LibXML::Node does LibXML::Item {
     }
 
     method to-ast(Bool :$blank = True) {
-        self.nodeName => [self.childNodes(:$blank).map(*.ast)];
+        self.ast-key => [self.childNodes(:$blank).map(*.ast)];
     }
     method from-ast(Pair $ast) {
         my LibXML::Node $new = ast-to-xml($ast);

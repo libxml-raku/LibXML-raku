@@ -1,3 +1,11 @@
+0.2.1 2019-11-27
+    - [dom.c] Split-off domASTKey() and domXPathKey() functions from domNodeName().
+    - [LibXML::Node]
+      -- revert .nodeName(), 0.1.9 changes; restore to DOM compliant names:
+         #cdata => #data-section, #fragment' => #document-fragment,
+         #xml|#html|#docb => #document
+      -- instead, introduce new method .ast-key() which returns the above names:
+         (#cdata, #fragment, #xml, #html, #doc). Use this for AST construction.
 0.2.0 2019-11-26
     - [LibXML::Native][LibXML::Config] really disable network access this time.
       Started, but not completed properly in release 0.1.0.
