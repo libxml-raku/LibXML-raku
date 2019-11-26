@@ -18,8 +18,10 @@ is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'So
 $elem = ast-to-xml($elem.ast);
 is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
 
-my LibXML::DocumentFragment:D $frag = ast-to-xml(['#comment' => ' testing ', :species["Camelid"], "xxx"]);
-is $frag, '<!-- testing --><species>Camelid</species>xxx';
+my $frag-ast = ['#comment' => ' testing ', :species["Camelid"], "xxx", '&foo' => [], ];
+my LibXML::DocumentFragment:D $frag = ast-to-xml($frag-ast);
+is $frag, '<!-- testing --><species>Camelid</species>xxx&foo;';
+is-deeply $frag.ast, '#fragment' => $frag-ast;
 
 my LibXML::Document $doc .= parse: :file<example/dromeds.xml>;
 is-deeply $doc.ast, "#xml"

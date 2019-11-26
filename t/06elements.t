@@ -2,9 +2,11 @@
 
 use v6;
 use Test;
-plan 194;
+plan 199;
 
 use LibXML;
+use LibXML::Document;
+use LibXML::Enums;
 
 my $foo       = "foo";
 my $bar       = "bar";
@@ -424,4 +426,20 @@ EOF
         ok(!defined($root.getAttributeNodeNS(Str, 'baz')), ' TODO : Add test name');
     }
     }
+}
+
+# 7. Entity Reference construction
+{
+    use LibXML::EntityRef;
+    my $doc = LibXML::Document.new();
+    my $elem = $doc.createElement( $foo );
+    $elem.appendText('a');
+    my $ent-ref = LibXML::EntityRef.new(:$doc, :name<bar>);
+    is $ent-ref.type, +XML_ENTITY_REF_NODE;
+    is $ent-ref.nodeName, 'bar';
+    is $ent-ref.ast-key, '&bar';
+    is-deeply $ent-ref.xpath-key, Str; # /n/a to xpath
+    $elem.appendChild: $ent-ref;
+    $elem.appendText('b');
+    is $elem.Str, '<foo>a&bar;b</foo>';
 }

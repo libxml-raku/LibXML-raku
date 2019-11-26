@@ -714,6 +714,9 @@ domGetXPathKey(xmlNodePtr node) {
         case XML_PI_NODE :
             rv = xmlStrdup( (xmlChar*) "processing-instruction()");
             break;
+        case XML_ENTITY_REF_NODE :
+            /* not searchable via xpath */
+            break;
         default :
             rv = domGetNodeName(node);
             if (node->type == XML_ATTRIBUTE_NODE) {
@@ -736,6 +739,12 @@ domGetXPathKey(xmlNodePtr node) {
             }
         break;
     }
+    return rv;
+}
+
+static xmlChar* _domPrepend(xmlChar* str, const char* pfx) {
+    xmlChar* rv = xmlStrcat(xmlStrdup( (xmlChar*)pfx), str);
+    xmlFree(str);
     return rv;
 }
 
@@ -763,10 +772,10 @@ domGetASTKey(xmlNodePtr node) {
         default :
             rv = domGetNodeName(node);
             if (node->type == XML_PI_NODE) {
-                temp = xmlStrdup( (xmlChar*) "?" );
-                temp = xmlStrcat(temp, rv);
-                xmlFree(rv);
-                rv = temp;
+                rv = _domPrepend(rv, "?");
+            }
+            else if (node->type == XML_ENTITY_REF_NODE) {
+                rv = _domPrepend(rv, "&");
             }
     }
     return rv;
@@ -780,8 +789,9 @@ domSetNodeName(xmlNodePtr self , xmlChar *string) {
     if (self == NULL || string == NULL || *string == 0)
         return;
 
-    if (self->type == XML_PI_NODE && *string == '?') {
-        // skip leading '?'
+    if ((self->type == XML_PI_NODE && *string == '?')
+        || (self->type == XML_ENTITY_REF_NODE && *string == '&')) {
+        // skip leading '?' or '&'
         string++;
     }
 
@@ -1233,6 +1243,9 @@ domNodeType(xmlChar* name) {
         switch (name[0]) {
             case '?' :
                 node_type = XML_PI_NODE;
+                break;
+            case '&' :
+                node_type = XML_ENTITY_REF_NODE;
                 break;
             case '#': {
                 switch (name[1]) {

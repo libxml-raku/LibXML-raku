@@ -53,11 +53,11 @@ sub box-class(UInt $_) is export(:box-class) {
 proto sub ast-to-xml(|c) is export(:ast-to-xml) {*}
 
 multi sub ast-to-xml(Pair $_) {
-    my $name := .key;
+    my $name = .key;
     my $value := .value;
 
     my UInt $node-type := itemNode::NodeType($name);
-    if $value ~~ Str {
+    if $value ~~ Str:D {
         when $name.starts-with('#') {
             box-class($node-type).new: :content($value);
         }
@@ -70,13 +70,20 @@ multi sub ast-to-xml(Pair $_) {
             box-class(XML_NAMESPACE_DECL).new: :$prefix, :URI($value)
         }
         default {
+            $name .= substr(1) if $name.starts-with('@');
             box-class(XML_ATTRIBUTE_NODE).new: :$name, :$value;
         }
     }
     else {
-         my $node := box-class($node-type).new: :$name;
-         $node.add( ast-to-xml($_) ) for $value.List;
-         $node;
+        if $name.starts-with('&') {
+            $name .= substr(1);
+            $name .= chop() if $name.ends-with(';');
+        }
+        my $node := box-class($node-type).new: :$name;
+        for $value.List {
+            $node.add( ast-to-xml($_) ) if .defined;
+        }
+        $node;
     }
 }
 
@@ -87,6 +94,8 @@ multi sub ast-to-xml(Positional $_) {
 multi sub ast-to-xml(Str:D $content) {
     box-class(XML_TEXT_NODE).new: :$content;
 }
+
+multi sub ast-to-xml(LibXML::Item:D $_) { $_ }
 
 multi sub ast-to-xml(*%p where .elems == 1) {
     ast-to-xml(%p.pairs[0]);
@@ -192,14 +201,15 @@ Possible terms that can be used are:
   *Term* | *Description*
   name => [term, term, ...] | Construct an element and its child items
   name => str-val | Construct an attribute
-  xmlns:prefix => str-val | Construct a namespace
-  ?name => str-val | Construct a processing instruction
-  str-val | Construct text node
-  #cdata' => str-val | Construct a CData node
-  #comment' => str-val | Construct a comment node
+  'xmlns:prefix' => str-val | Construct a namespace
+  'text content' | Construct text node
+  '?name' => str-val | Construct a processing instruction
+  '#cdata' => str-val | Construct a CData node
+  '#comment' => str-val | Construct a comment node
   [elem, elem, ..] | Construct a document fragment
-  #xml  => [root-elem] | Construct an XML document
-  #html => [root-elem] | Construct an HTML document
+  '#xml'  => [root-elem] | Construct an XML document
+  '#html' => [root-elem] | Construct an HTML document
+  '&name' => [] | Construct an entity reference
   =end table
 
 
