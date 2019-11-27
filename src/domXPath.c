@@ -164,12 +164,13 @@ static xmlNodePtr _domNewItem(xmlNodePtr item) {
     return item;
 }
 
-static void _domReferenceItem(xmlNodePtr item) {
+static xmlNodePtr _domReferenceItem(xmlNodePtr item) {
     xmlNodePtr owner = _domItemOwner(item);
     if (owner != NULL) {
         assert(owner->type != XML_NAMESPACE_DECL);
         xml6_node_add_reference(owner);
     }
+    return item;
 }
 
 static xmlNodePtr _domUnreferenceItem(xmlNodePtr item) {
@@ -224,7 +225,7 @@ domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr item) {
         _domResizeNodeSet(self, self->nodeMax * 2);
     }
 
-    self->nodeTab[self->nodeNr++] = _domNewItem(item);
+    self->nodeTab[self->nodeNr++] = _domReferenceItem(_domNewItem(item));
 }
 
 DLLEXPORT xmlNodeSetPtr

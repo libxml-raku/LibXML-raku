@@ -1,12 +1,14 @@
+0.2.2 2019-11-xx
+    - [domXPath] fixed reference counting in domPushNodeSet()
 0.2.1 2019-11-27
     - [dom.c] Split-off domASTKey() and domXPathKey() functions from domNodeName().
     - [LibXML::Node]
       -- revert .nodeName(), 0.1.9 changes; restore to DOM compliant names:
          #cdata => #data-section, #fragment' => #document-fragment,
          #xml|#html|#docb => #document
-      -- instead, introduce new method .ast-key() which returns the above names:
+      -- instead, introduce new method .ast-key() which returns short-forms:
          (#cdata, #fragment, #xml, #html, #doc) for AST construction.
-      -- the from-ast() accepts all of the above (i.e.. #cdata, or #cdata-section;
+      -- from-ast() now accepts all of the above (i.e.. #cdata, or #cdata-section;
          #document or #xml, #fragment, or #document-fragment)
 0.2.0 2019-11-26
     - [LibXML::Native][LibXML::Config] really disable network access this time.
