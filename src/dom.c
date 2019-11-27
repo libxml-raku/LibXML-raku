@@ -692,6 +692,12 @@ domGetNodeName(xmlNodePtr node) {
    return rv;
 }
 
+static xmlChar* _domPrepend(xmlChar* str, const char* pfx) {
+    xmlChar* rv = xmlStrcat(xmlStrdup( (xmlChar*)pfx), str);
+    xmlFree(str);
+    return rv;
+}
+
 // Returns a name that can be used in an XPath filter expression
 DLLEXPORT xmlChar*
 domGetXPathKey(xmlNodePtr node) {
@@ -720,31 +726,24 @@ domGetXPathKey(xmlNodePtr node) {
         default :
             rv = domGetNodeName(node);
             if (node->type == XML_ATTRIBUTE_NODE) {
-                temp = xmlStrdup( (xmlChar*) "@" );
-                temp = xmlStrcat(temp, rv);
-                xmlFree(rv);
-                rv = temp;
+                rv = _domPrepend(rv, "@");
             }
-            else if (node->type == XML_ELEMENT_NODE && node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
-            // convert HTML names to lowercase.
-                int i;
-                char *name = strchr(rv, (int)':');
-                if (name == NULL) name = (char*) rv;
+            else if (node->type == XML_ELEMENT_NODE) {
+                if  (node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
+                    // convert HTML names to lowercase.
+                    int i;
+                    char *name = strchr(rv, (int)':');
+                    if (name == NULL) name = (char*) rv;
 
-                for (;name[i]; i++) {
-                    if (name[i] >= 'A' && name[i] <= 'Z') {
-                        name[i] += 'a' - 'A';
+                    for (;name[i]; i++) {
+                        if (name[i] >= 'A' && name[i] <= 'Z') {
+                            name[i] += 'a' - 'A';
+                        }
                     }
                 }
             }
         break;
     }
-    return rv;
-}
-
-static xmlChar* _domPrepend(xmlChar* str, const char* pfx) {
-    xmlChar* rv = xmlStrcat(xmlStrdup( (xmlChar*)pfx), str);
-    xmlFree(str);
     return rv;
 }
 
@@ -1296,8 +1295,8 @@ domNodeType(xmlChar* name) {
                         break;
                 }
                 if (node_type == 0) {
-                            fprintf(stderr, __FILE__ "%d: unknown node generic name '%s'\n", __LINE__, name);
-                        }
+                    fprintf(stderr, __FILE__ "%d: unknown node generic name '%s'\n", __LINE__, name);
+                }
                 break;
             }
             default: {
