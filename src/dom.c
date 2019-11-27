@@ -989,11 +989,8 @@ domInsertBefore( xmlNodePtr self,
     }
 
     if ( refChild != NULL ) {
-        if ( refChild->parent != self
-             || (  newChild->type == XML_DOCUMENT_FRAG_NODE
-                   && newChild->children == NULL ) ) {
-            xmlGenericError(xmlGenericErrorContext,"NOT_FOUND_ERR\n");
-            return NULL;
+        if ( refChild->parent != self ) {
+            xml6_fail(self, "insertBefore/insertAfter: NOT_FOUND_ERR");
         }
     }
 
