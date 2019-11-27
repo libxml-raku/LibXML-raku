@@ -17,7 +17,7 @@ DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
     assert(self->type != XML_NAMESPACE_DECL);
     if (self->_private == NULL) {
         /* unexpected; print some extra debugging */
-        fprintf(stderr, __FILE__ ":%d type=%d name='%s'\n", __LINE__, self->type, (self->name || "(null)"));
+        fprintf(stderr, __FILE__ ":%d %p type=%d name='%s'\n", __LINE__, self, self->type, (self->name? self->name : "(null)"));
     }
     return xml6_ref_remove( &(self->_private), "node", (void*) self);
 }

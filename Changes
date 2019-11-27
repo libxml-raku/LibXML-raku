@@ -1,5 +1,5 @@
 0.2.2 2019-11-xx
-    - [domXPath] fixed reference counting in domPushNodeSet()
+    - [domXPath] fixed reference counting in domPushNodeSet() #29
 0.2.1 2019-11-27
     - [dom.c] Split-off domASTKey() and domXPathKey() functions from domNodeName().
     - [LibXML::Node]
