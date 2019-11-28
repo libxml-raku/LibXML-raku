@@ -21,7 +21,7 @@ my constant @ClassMap = do {
     my Str @map;
     for (
         'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
-        'LibXML::AttrDecl'         => XML_ATTRIBUTE_DECL,
+        'LibXML::Dtd::Attr'        => XML_ATTRIBUTE_DECL,
         'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
         'LibXML::Comment'          => XML_COMMENT_NODE,
         'LibXML::Dtd'              => XML_DTD_NODE,
@@ -30,7 +30,7 @@ my constant @ClassMap = do {
         'LibXML::Document'         => XML_HTML_DOCUMENT_NODE,
         'LibXML::Document'         => XML_DOCB_DOCUMENT_NODE,
         'LibXML::Element'          => XML_ELEMENT_NODE,
-        'LibXML::ElementDecl'      => XML_ELEMENT_DECL,
+        'LibXML::Dtd::Element'     => XML_ELEMENT_DECL,
         'LibXML::Entity'           => XML_ENTITY_DECL,
         'LibXML::EntityRef'        => XML_ENTITY_REF_NODE,
         'LibXML::Namespace'        => XML_NAMESPACE_DECL,

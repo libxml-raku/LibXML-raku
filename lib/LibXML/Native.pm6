@@ -1154,21 +1154,26 @@ class xmlDtd is anyNode is export {
     }
 }
 
+class anyDtdNode is anyNode {
+    # All Nodes are immediate descendants of a Dtd
+    method parent(--> xmlDtd) { callsame }
+}
+
 #| An Attribute declaration in a DTD (type: XML_ATTRIBUTE_DECL).
-class xmlAttrDecl is repr('CStruct') is anyNode is export {
-    has xmlAttrDecl    $.nexth; # next in hash table
-    has int32          $.atype; # the attribute type
-    has int32            $.def; # default mode (enum xmlAttributeDefault)
-    has xmlCharP$.defaultValue; # or the default value
-    has xmlEnumeration  $.tree; # or the enumeration tree if any
-    has xmlCharP      $.prefix; # the namespace prefix if any
-    has xmlCharP        $.elem; # Element holding the attribute
+class xmlAttrDecl is repr('CStruct') is anyDtdNode is export {
+    has xmlAttrDecl     $.nexth; # next in hash table
+    has int32           $.atype; # the attribute type
+    has int32             $.def; # default mode (enum xmlAttributeDefault)
+    has xmlCharP $.defaultValue; # or the default value
+    has xmlEnumeration   $.tree; # or the enumeration tree if any
+    has xmlCharP       $.prefix; # the namespace prefix if any
+    has xmlCharP         $.elem; # Element holding the attribute
 
 }
 
 #| An unit of storage for an entity, contains the string, the value and
 #| the data needed for the linking in the hash table (type: XML_ENTITY_DECL).
-class xmlEntity is anyNode is export {
+class xmlEntity is anyDtdNode is export {
     has xmlCharP       $.orig; # content without ref substitution */
     has xmlCharP    $.content; # content or ndata if unparsed */
     has int32        $.length; # the content length */
@@ -1195,7 +1200,7 @@ class xmlEntity is anyNode is export {
 }
 
 #| An XML Element declaration from a DTD (type: XML_ELEMENT_DECL).
-class xmlElementDecl is repr('CStruct') is anyNode is export {
+class xmlElementDecl is repr('CStruct') is anyDtdNode is export {
     has int32                $.etype; # The type */
     has xmlElementContent  $.content; # the allowed element content */
     has xmlAttrDecl     $.attributes; # List of the declared attributes */

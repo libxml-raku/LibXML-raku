@@ -7,11 +7,9 @@ unit class LibXML::Document
     does LibXML::_DOMNode;
 
 use LibXML::Attr;
-use LibXML::AttrDecl;
 use LibXML::Config;
 use LibXML::Dtd;
 use LibXML::Element;
-use LibXML::ElementDecl;
 use LibXML::EntityRef;
 use LibXML::Enums;
 use LibXML::Item :ast-to-xml;

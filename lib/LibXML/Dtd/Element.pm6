@@ -1,6 +1,6 @@
 use LibXML::Node;
 
-unit class LibXML::ElementDecl
+unit class LibXML::Dtd::Element
     is LibXML::Node;
 
 use LibXML::Native;
