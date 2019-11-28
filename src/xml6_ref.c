@@ -89,7 +89,7 @@ xml6_ref_remove(void** self_ptr, const char* what, void* where) {
             if (mutex != NULL) xmlMutexLock(mutex);
 
             if (self->ref_count <= 0 || self->ref_count >= 65536) {
-                sprintf(msg, "%s %p has unexpected ref_count value: %ld", what, where, self->ref_count);
+                sprintf(msg, "%s %p has unexpected ref_count value: %d", what, where, self->ref_count);
                 xml6_warn(msg);
             }
             else {

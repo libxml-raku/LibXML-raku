@@ -701,8 +701,8 @@ static xmlChar* _domPrepend(xmlChar* str, const char* pfx) {
 // Returns a name that can be used in an XPath filter expression
 DLLEXPORT xmlChar*
 domGetXPathKey(xmlNodePtr node) {
-    xmlChar* temp = NULL;
     xmlChar* rv = NULL;
+
     switch (node->type) {
         case XML_COMMENT_NODE :
             rv = xmlStrdup( (xmlChar*) "comment()");
@@ -732,10 +732,10 @@ domGetXPathKey(xmlNodePtr node) {
                 if  (node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
                     // convert HTML names to lowercase.
                     int i;
-                    char *name = strchr(rv, (int)':');
+                    char *name = strchr((char*)rv, (int)':');
                     if (name == NULL) name = (char*) rv;
 
-                    for (;name[i]; i++) {
+                    for (i = 0; name[i]; i++) {
                         if (name[i] >= 'A' && name[i] <= 'Z') {
                             name[i] += 'a' - 'A';
                         }
@@ -751,7 +751,7 @@ domGetXPathKey(xmlNodePtr node) {
 DLLEXPORT xmlChar*
 domGetASTKey(xmlNodePtr node) {
     xmlChar* rv = NULL;
-    xmlChar* temp = NULL;
+
     switch (node->type) {
         case XML_DOCUMENT_NODE :
             rv = xmlStrdup( (xmlChar*) "#xml");
