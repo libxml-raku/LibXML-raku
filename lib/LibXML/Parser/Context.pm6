@@ -82,6 +82,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) {
         with $*XML-CONTEXT.input-callbacks;
 
     &*chdir(~$*CWD);
+
     my $rv := action();
 
     .deactivate

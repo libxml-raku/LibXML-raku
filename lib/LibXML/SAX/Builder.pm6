@@ -2,6 +2,7 @@ class LibXML::SAX::Builder {
     use LibXML::Native;
     use LibXML::Native::Defs :$CLIB;
     use NativeCall;
+    use LibXML::ErrorHandling;
 
     use LibXML::Node;
     use LibXML::Entity;
@@ -166,8 +167,8 @@ class LibXML::SAX::Builder {
         },
         'serror' =>
             -> $obj, &callb {
-                sub (xmlParserCtxt $ctx, xmlError $error) {
-                    callb($obj, $error, :$ctx);
+                sub (X::LibXML $error) {
+                    callb($obj, $error);
                 }
         },
     );

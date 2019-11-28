@@ -27,7 +27,10 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-The X:LibXML::Parser exception class interfaces to *libxml2 *'s structured error support. If LibXML is compiled with structured error support, all errors reported by libxml2 are transformed to X::LibXML::Parser exception objects. These objects automatically serialize to the corresponding error messages when printed or used in a string operation, but as objects, can also be used to get a detailed and structured information about the error that occurred. 
+The X:LibXML::Parser exception class interfaces to *libxml2 *'s structured error support. If LibXML is compiled with structured error support, all errors reported by libxml2 are transformed to X::LibXML::Parser exception objects. These objects automatically serialize to the corresponding error messages when printed or used in a string operation, but as objects, can also be used to get a detailed and structured information about the error that occurred.
+
+X:LibXML::Parser Methods
+========================
 
   * message
 
@@ -109,6 +112,31 @@ The X:LibXML::Parser exception class interfaces to *libxml2 *'s structured error
         if $!.domain-name eq 'parser' {...}
 
     Returns string containing information about what part of the library raised the error. Can be one of: "parser", "tree", "namespace", "validity", "HTML parser", "memory", "output", "I/O", "ftp", "http", "XInclude", "XPath", "xpointer", "regexp", "Schemas datatype", "Schemas parser", "Schemas validity", "Relax-NG parser", "Relax-NG validity", "Catalog", "C14N", "XSLT", "validity".
+
+Custom Error Handling
+=====================
+
+Parsers that perform the LibXML::ErrorHandler can install their own error-handling via a SAX Handler with error handling callbacks. `warning()`, `error()` or `errorFatal()` callbacks can be defined, or a `serror()` callback can be installed to handle `X::LibXML` exception objects.
+
+The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wish to disable this module's built-in error handling.
+
+    # Set up a custom SAX error handler
+    use LibXML::SAX::Handler;
+    class SaxHandler is LibXML::SAX::Handler {
+        use LibXML::SAX::Builder :sax-cb;
+        # handle just warnings
+        method warning(Str $message) is sax-cb {
+            warn $message;
+        }
+        # -OR-
+        # handle all exceptions
+        method serror(X::LibXML $error) is sax-cb {
+            note $error.nessage;
+        }
+    }
+    my SaxHandler $sax-handler .= new();
+    # for example, parse a string with custom error handling
+    my LibXML::Document $doc .= parse: :$string, :$sax-handler, :suppress-errors;
 
 COPYRIGHT
 =========
