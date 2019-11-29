@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 60;
+plan 63;
 
 use LibXML;
 use LibXML::XPath::Expression;
@@ -37,9 +37,9 @@ EOSTR
             is( +@nodes, 2, "Two nodes for /foo/bar - try No. $idx" );
         }
 
-        my $comments = $doc.findnodes('/foo/comment()');
-        is $comments, '<!-- test -->';
-        is $comments[0].xpath-key, 'comment()';
+        my $comment = $doc.first('/foo/comment()');
+        is $comment, '<!-- test -->';
+        is $comment.xpath-key, 'comment()';
         ok( $doc.isSameNode(@nodes[0].ownerDocument),
             'Same owner as previous one',
         );
@@ -116,7 +116,7 @@ EOSTR
         is( $doc.exists("''"), False, ' TODO : Add test name' );
         is( $doc.exists("'0'"), True, ' TODO : Add test name' );
 
-        my ($node) = $doc.findnodes("/foo/bar[1]" );
+        my $node = $doc.first("/foo/bar[1]" );
         ok( $node, ' TODO : Add test name' );
         ok ($node.exists("following-sibling::bar"), ' TODO : Add test name');
     }
@@ -138,11 +138,19 @@ EOSTR
         }
         pass(' TODO : Add test name');
     }
+    {
+        # define behaviour of findnodes(), first(), last() on numeric expressions
+        my $root = $doc.root;
+        isa-ok $root.findnodes('42'), LibXML::Node::Set;
+        is-deeply $root.first('42'), LibXML::Node;
+        is-deeply $root.last('42'), LibXML::Node;
+    }
 }
 
 
+
 {
-    # from #39178
+    # from Perl 5 #39178
     my $p = LibXML.new;
     my $doc = $p.parse: :file("example/utf-16-2.xml");
     ok($doc, ' TODO : Add test name');
@@ -152,7 +160,7 @@ EOSTR
 }
 
 {
-    # from #36576
+    # from Perl 5 #36576
     my $p = LibXML.new;
     my $doc = $p.parse: :html, :file("example/utf-16-1.html");
     ok($doc, ' TODO : Add test name');
@@ -163,7 +171,7 @@ EOSTR
 }
 
 {
-    # from #36576
+    # from Perl 5 #36576
     my $p = LibXML.new;
     my $doc = $p.parse: :html, :file("example/utf-16-2.html");
     ok($doc, ' TODO : Add test name');
@@ -173,7 +181,7 @@ EOSTR
 }
 
 {
-    # from #69096
+    # from Perl 5 #69096
     my $doc = LibXML::Document.createDocument();
     my $root = $doc.createElement('root');
     $doc.setDocumentElement($root);

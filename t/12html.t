@@ -64,7 +64,7 @@ quietly {
 
 # ok( not $@ );
 ok( $htmldoc, ' TODO : Add test name' );
-my $body = $htmldoc<html/body>[0];
+my $body = $htmldoc<html/body>.first;
 $body.addNewChild(Str, 'InPut');
 is $body.lastChild.tagName, 'InPut';
 is-deeply $body.keys.sort, ('a', 'input', 'p', 'text()');

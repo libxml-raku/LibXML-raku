@@ -182,7 +182,7 @@ my $match_xml_stacker = Stacker.new(
 my $read_xml_stacker = Stacker.new(
     gen-cb => -> &push-cb {
         -> $dom, $buflen {
-            my $tmp = .[0] with $dom.documentElement.findnodes('tmp');
+            my $tmp = $dom.documentElement.first('tmp');
             my $rv = $tmp ?? $dom.Blob !! buf8.new;
             .unbindNode with $tmp;
 

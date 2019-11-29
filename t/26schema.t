@@ -4,6 +4,7 @@ use Test;
 use LibXML;
 use LibXML::Schema;
 use LibXML::InputCallback;
+use LibXML::Element;
 
 plan 16;
 
@@ -83,9 +84,9 @@ EOF
 </xs:schema>
 EOF
 
-    my $nodelist = $doc.findnodes('/shiporder/shipto');
+    my LibXML::Element:D $node = $doc.first('/shiporder/shipto');
     my $result = 1;
-    lives-ok { $result = $schema.validate($nodelist[0]) }, 'validate() with element doesn\'t throw';
+    lives-ok { $result = $schema.validate($node) }, 'validate() with element doesn\'t throw';
     is( $result, 0, 'validate() with element returns 0' );
 }
 

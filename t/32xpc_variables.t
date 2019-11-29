@@ -43,7 +43,7 @@ is(%variables<f>.nodeName(), 'a', ' TODO : Add test name');
 is(%variables<f>.value(), 'b', ' TODO : Add test name');
 
 # $f: a single document node
-%variables<g> = LibXML::XPath::Context.new(:$doc).findnodes('/').pop;
+%variables<g> = LibXML::XPath::Context.new(:$doc).first('/');
 is(%variables<g>.nodeType(), +XML_DOCUMENT_NODE, ' TODO : Add test name');
 
 # test registerVarLookupFunc() and getVarLookupData()

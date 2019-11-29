@@ -201,8 +201,8 @@ my ($read1_non_global_counter, $read1_global_counter) =
     ok($dom1, '$dom1 was returned');
     ok($dom2, '$dom2 was returned');
 
-    my $val1  = ( $dom1.findnodes( "/x/xml/text()") )[0].string-value();
-    my $val2  = ( $dom2.findnodes( "/x/xml/text()") )[0].string-value();
+    my $val1  = ( $dom1.first( "/x/xml/text()") ).string-value();
+    my $val2  = ( $dom2.first( "/x/xml/text()") ).string-value();
 
     $val1 .= trim;
     $val2 .= trim;

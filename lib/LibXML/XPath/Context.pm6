@@ -90,31 +90,32 @@ class LibXML::XPath::Context {
         iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
     }
     sub box(itemNode $elem) {
-        do with $elem {
-            box-class(.type).box(.delegate);
-        } // LibXML::Node;
+        box-class(.type).box(.delegate)
+            with $elem;
     }
 
     multi method first(Str:D $expr, LibXML::Node $ref?) {
         $.first(LibXML::XPath::Expression.new(:$expr), $ref);
     }
     multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        my xmlNodeSet $nodes := self!findnodes($expr, $ref);
-        my itemNode $node = $nodes.nodeTab[0] if $nodes.nodeNr;
-        my $rv := box($node);
-        $nodes.Free;
-        $rv;
+        do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
+            my itemNode $node = $nodes.nodeTab[0] if $nodes.nodeNr;
+            my $rv := box($node);
+            $nodes.Free;
+            $rv;
+        } // LibXML::Node;
     }
     multi method last(Str:D $expr, LibXML::Node $ref?) {
         $.last(LibXML::XPath::Expression.new(:$expr), $ref);
     }
     multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-        my xmlNodeSet $nodes := self!findnodes($expr, $ref);
-        my $n = $nodes.nodeNr;
-        my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
-        my $rv := box($node);
-        $nodes.Free;
-        $rv;
+        do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
+            my $n = $nodes.nodeNr;
+            my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
+            my $rv := box($node);
+            $nodes.Free;
+            $rv;
+        } // LibXML::Node;
     }
     method AT-KEY($_, Bool :$deref = True) {
         self.findnodes($_, :$deref);

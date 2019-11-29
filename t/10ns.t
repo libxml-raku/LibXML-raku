@@ -7,6 +7,8 @@ use LibXML::Enums;
 use LibXML::Item;
 use LibXML::XPath::Context;
 use LibXML::Node::Set;
+use LibXML::Attr;
+use LibXML::Element;
 
 my $parser = LibXML.new();
 
@@ -430,14 +432,14 @@ print "# 10. xml namespace\n";
 print "# 11. empty namespace\n";
 {
     my $doc = LibXML.load: string => $xml1;
-    my $node = $doc.find('/a/b:c')[0];
+    my LibXML::Element $node = $doc.first('/a/b:c');
 
     ok($node.setNamespace(""), 'removing ns from elemenet');
     is-deeply($node.prefix, Str, 'ns prefix removed from element');
     is-deeply($node.namespaceURI, Str, 'ns removed from element');
     is($node.getName, 'c', 'ns removed from element name');
 
-    my $attr = $doc.find('/a/x/@b:href')[0];
+    my LibXML::Attr $attr = $doc.first('/a/x/@b:href');
 
     ok($attr.setNamespace("", ""), 'removing ns from attr');
     is-deeply($attr.prefix, Str, 'ns prefix removed from attr');

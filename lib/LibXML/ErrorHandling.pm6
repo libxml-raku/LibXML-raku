@@ -364,9 +364,7 @@ parser", "Relax-NG validity", "Catalog", "C14N", "XSLT", "validity".
 
 =head1 Custom Error Handling
 
-Parsers that perform the LibXML::ErrorHandler can install their own error-handling
-via a SAX Handler with error handling callbacks. `warning()`, `error()` or `errorFatal()` callbacks can be defined,
-or a `serror()` callback can be installed to handle `X::LibXML` exception objects.
+Parsers that perform the LibXML::ErrorHandler can install their own error-handling callbacks via SAX Handler. `warning()`, `error()` or `errorFatal()` callbacks can be defined for simple error handling or a `serror()` callback can be defined to handle everything as `X::LibXML` exception objects.
 
 The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wish to disable this module's built-in error handling.
 
@@ -386,7 +384,7 @@ The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wis
     }
     my SaxHandler $sax-handler .= new();
     # for example, parse a string with custom error handling
-    my LibXML::Document $doc .= parse: :$string, :$sax-handler, :suppress-errors;
+    my LibXML::Document $doc .= parse: :$string, :$sax-handler, :suppress-warnings;
 
 =head1 COPYRIGHT
 

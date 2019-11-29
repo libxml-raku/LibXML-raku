@@ -85,7 +85,7 @@ ok($xc.find('count(test-lock2())=count(//bar)'), ' TODO : Add test name');
 
 ok($xc.find('count(test-lock2()|//bar)=count(//bar)'), ' TODO : Add test name');
 
-ok($xc.findnodes('test-lock2()[2]').pop().isSameNode($xc.findnodes('//bar[2]')[0]), ' TODO : Add test name');
+ok($xc.first('test-lock2()[2]').isSameNode($xc.first('//bar[2]')), ' TODO : Add test name');
 
 $xc.registerFunction('test-lock3', sub { $xc.findnodes('test-lock2(//bar)') });
 

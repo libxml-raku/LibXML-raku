@@ -96,8 +96,8 @@ for 0..3 {
 '<?xml version="1.0" encoding="UTF-8"?>
 <?xsl-stylesheet type="text/xsl" href="a.xsl"?>
 <a />');
-    my @nds = $doc.findnodes("processing-instruction('xsl-stylesheet')");
-    is @nds[0].xpath-key, 'processing-instruction()';
+    my $pi = $doc.first("processing-instruction('xsl-stylesheet')");
+    is $pi.xpath-key, 'processing-instruction()';
 
 }
 

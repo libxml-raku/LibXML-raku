@@ -421,7 +421,7 @@ sub processMessage($msg, $xpath) {
 
       my $doc  = $parser.parse: :string($msg);
       my $elm  = $doc.getDocumentElement;
-      my $node = $doc.findnodes($xpath)[0];
+      my $node = $doc.first($xpath);
       my $text = $node.to-literal;
 #      undef $doc;   # comment this line to make memory leak much worse
 #      undef $parser;
