@@ -11,10 +11,10 @@ my $x = LibXML.parse(string => q:to/ENDXML/);
 ENDXML
 
 my $set;
-my $root = .[0] with $x.find('/.');
+my $root = $x.first('/.');
 isa-ok $root, LibXML::Document, 'found one node';
 
-my $doc = .[0] with $x.find('/..');
+my $doc = $x.first('/..');
 nok $doc.defined, 'nothing found';
 
 done-testing;

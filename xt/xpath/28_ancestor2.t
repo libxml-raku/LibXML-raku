@@ -25,7 +25,7 @@ install AxKit.</Footnote>
 ENDXML
 
 my $set;
-my $footnote = .[0] given $x.find('//Footnote');
+my $footnote = $x.first('//Footnote');
 isa-ok $footnote, LibXML::Element, 'found a node';
 
 

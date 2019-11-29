@@ -20,10 +20,10 @@ ENDXML
 #                '/root/daughter[@att>5]'   => '',
 #                '/root/daughter[@att<3]'   => '',
 #              );
-is $x.find('/root/daughter[@att<"4"]')[0].attribs<att> , 3;
-is $x.find('/root/daughter[@att<4]')[0].attribs<att> , 3;
-is $x.find('//daughter[@att<4]')[0].attribs<att> , 3;
-is $x.find('/root/daughter[@att>4]')[0].attribs<att> , 5;
+is $x.first('/root/daughter[@att<"4"]').attribs<att> , 3;
+is $x.first('/root/daughter[@att<4]').attribs<att> , 3;
+is $x.first('//daughter[@att<4]').attribs<att> , 3;
+is $x.first('/root/daughter[@att>4]').attribs<att> , 5;
 
 is $x.find('/root/daughter[@att>5]'), '';
 is $x.find('/root/daughter[@att<3]'), '';

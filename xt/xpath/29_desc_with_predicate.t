@@ -20,7 +20,6 @@ ENDXML
 my $set;
 $set = $x.find('/descendant::BBB[1]');
 isa-ok $set[0], LibXML::Element, 'found one node';
-
 is $set[0].nodes.elems, 1, 'one child';
 isa-ok $set[0].nodes[0], LibXML::Text, 'child is a text node';
 is $set[0].nodes[0].Str, 'OK', 'it is OK';
