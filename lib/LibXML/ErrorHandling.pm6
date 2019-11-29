@@ -120,7 +120,7 @@ role LibXML::ErrorHandling {
     method callback-error(X::LibXML $_) {
         @!errors.push: $_;
         self!sax-error-cb-structured($_);
-        self!sax-error-cb-unstructured(.level, .msg);
+        self!sax-error-cb-unstructured(.level, .message);
     }
 
     method validity-check(|c) {
