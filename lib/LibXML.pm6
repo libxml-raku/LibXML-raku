@@ -2,13 +2,15 @@ use v6;
 use LibXML::Parser;
 use LibXML::Config;
 
-# Preload stuff to avoid some Rakudo buglets
+# Preload stuff to avoid some Rakudo <= 2019.03 buglets
 use LibXML::Attr;
 use LibXML::Attr::Map;
 use LibXML::CDATA;
 use LibXML::Comment;
 use LibXML::Document;
 use LibXML::DocumentFragment;
+use LibXML::Dtd::Element;
+use LibXML::Dtd::Attr;
 use LibXML::Element;
 use LibXML::Entity;
 use LibXML::Text;

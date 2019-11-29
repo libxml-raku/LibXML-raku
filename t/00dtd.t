@@ -1,6 +1,7 @@
 use v6;
 use Test;
 plan 2;
+use LibXML;
 use LibXML::Dtd;
 use LibXML::Document;
 use LibXML::Enums;
