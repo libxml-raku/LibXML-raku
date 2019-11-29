@@ -3,7 +3,7 @@
     - [LibXML::ErrorHandling][LibXML::SAX::Builder]
       -- Changed the SAX `serror($err)` callback argument from an native `xmlError`
          structure to a `X::LibXML` exception object.
-      -- Fixed SAX Handler dispatch of Raku callback raised exceptions #30
+      -- Fixed SAX Handler dispatch of Raku callback raised exceptions #31
 0.2.1 2019-11-27
     - [dom.c] Split-off domASTKey() and domXPathKey() functions from domNodeName().
     - [LibXML::Node]

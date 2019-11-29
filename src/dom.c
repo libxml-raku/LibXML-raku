@@ -18,6 +18,10 @@
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
 
+static int _domIsDoc(xmlNodePtr node) {
+    return(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE || node->type == XML_DOCB_DOCUMENT_NODE);
+}
+
 DLLEXPORT void
 domClearPSVI(xmlNodePtr tree) {
     xmlAttrPtr prop;
@@ -33,7 +37,7 @@ domClearPSVI(xmlNodePtr tree) {
             domClearPSVIInList(prop->children);
             prop = prop->next;
         }
-    } else if (tree->type == XML_DOCUMENT_NODE) {
+    } else if (_domIsDoc(tree)) {
         ((xmlDocPtr) tree)->psvi = NULL;
     }
     if (tree->children != NULL)
@@ -457,7 +461,7 @@ domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
         return 0;
     }
 
-    if( refNode->type == XML_DOCUMENT_NODE ) {
+    if (_domIsDoc(refNode)) {
         return 1;
     }
 
@@ -507,7 +511,7 @@ domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode) {
 
 DLLEXPORT int
 domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
-    if ( cur->type == XML_DOCUMENT_NODE || cur->type == XML_HTML_DOCUMENT_NODE) {
+    if ( _domIsDoc(cur) ) {
         switch ( refNode->type ) {
         case XML_ATTRIBUTE_NODE:
         case XML_ELEMENT_NODE:
@@ -549,9 +553,7 @@ domNodeIsReferenced(xmlNodePtr self) {
             }
         }
     }
-    else if (self->type == XML_DOCUMENT_NODE
-             || self->type == XML_HTML_DOCUMENT_NODE
-             || self->type == XML_DOCB_DOCUMENT_NODE) {
+    else if (_domIsDoc(self)) {
         // scan document dtds
         xmlDocPtr doc = (xmlDocPtr) self;
         if (doc->intSubset != NULL
@@ -903,8 +905,18 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
         return NULL;
     }
     if ( self != old->parent ) {
-        /* not a child! */
-        return NULL;
+        int is_parent = 0; // not looking good...
+        if (_domIsDoc(self) && old->type == XML_DTD_NODE) {
+            // ...but there is the special case of doc/dtd relationship
+            xmlDocPtr doc = (xmlDocPtr) self;
+            xmlDtdPtr dtd = (xmlDtdPtr) old;
+            is_parent |= domGetInternalSubset(doc) == dtd;
+            is_parent |= domGetExternalSubset(doc) == dtd;
+        }
+        if (is_parent == 0) {
+            /* old is not a child */
+            return NULL;
+        }
     }
 
     xmlUnlinkNode( old );
@@ -1051,7 +1063,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
 
     if ( self->type == XML_ATTRIBUTE_NODE
          || newNode->type == XML_ATTRIBUTE_NODE
-         || newNode->type == XML_DOCUMENT_NODE
+         || _domIsDoc(newNode)
          || domIsParent( newNode, self ) ) {
         /* HIERARCHY_REQUEST_ERR
          * wrong node type
