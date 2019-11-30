@@ -428,10 +428,10 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
     int replace_external = (old && old->type == XML_DTD_NODE ? (xmlDtdPtr)old : dtd) == ext_dtd;
 
     if (doc == NULL) xml6_fail(dtd, "DTD is not associated with a document");
-    if (doc->type != XML_DOCUMENT_NODE && doc->type != XML_HTML_DOCUMENT_NODE && doc->type != XML_DOCB_DOCUMENT_NODE) {
+    if (_domIsDoc((xmlNodePtr)doc) == 0) {
         xml6_fail((xmlNodePtr)dtd, "appendChild: HIERARCHY_REQUEST_ERR");
     }
-    if (old) xmlUnlinkNode(old);
+    if (old && old != (xmlNodePtr) dtd) xmlUnlinkNode(old);
 
     if (replace_external) {
         domSetExternalSubset(doc, dtd);
@@ -945,42 +945,35 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
 
     if (new->type == XML_DTD_NODE) {
         _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)new, old);
-        return old;
     }
-    if ( old == NULL ) {
-        domAppendChild( self, new );
-        return old;
-    }
-
-    if ( !(domTestHierarchy(self, new)
-           && domTestDocument(self, new))){
-        xml6_fail(self, "replaceChild: HIERARCHY_REQUEST_ERR");
-    }
-
-    if ( new->doc == self->doc ) {
-        xmlUnlinkNode( new );
-    }
-    else {
-        domImportNode( self->doc, new, 1, 1 );
-    }
-
-    if( old == self->children && old == self->last ) {
-        domRemoveChild( self, old );
+    else if ( old == NULL ) {
         domAppendChild( self, new );
     }
-    else if ( new->type == XML_DOCUMENT_FRAG_NODE
-              && new->children == NULL && 0) {
-        /* want to replace with an empty fragment, then remove ... */
-        head = NULL;
-        domRemoveChild( self, old );
-    }
     else {
-        head = _domAddNodeToList(new, old->prev, old->next, &tail );
-        old->parent = old->next = old->prev = NULL;
-        if ( head ) {
-            _domAssimulate(head, tail);
+        if ( !(domTestHierarchy(self, new)
+               && domTestDocument(self, new))){
+            xml6_fail(self, "replaceChild: HIERARCHY_REQUEST_ERR");
         }
 
+        if ( new->doc == self->doc ) {
+            xmlUnlinkNode( new );
+        }
+        else {
+            domImportNode( self->doc, new, 1, 1 );
+        }
+
+        if( old == self->children && old == self->last ) {
+            domRemoveChild( self, old );
+            domAppendChild( self, new );
+        }
+        else {
+            head = _domAddNodeToList(new, old->prev, old->next, &tail );
+            old->parent = old->next = old->prev = NULL;
+            if ( head ) {
+                _domAssimulate(head, tail);
+            }
+
+        }
     }
 
     return old;
@@ -1063,6 +1056,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
 
     if ( self->type == XML_ATTRIBUTE_NODE
          || newNode->type == XML_ATTRIBUTE_NODE
+         || _domIsDoc(self)
          || _domIsDoc(newNode)
          || domIsParent( newNode, self ) ) {
         /* HIERARCHY_REQUEST_ERR
