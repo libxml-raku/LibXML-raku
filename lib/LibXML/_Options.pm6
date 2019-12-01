@@ -73,7 +73,7 @@ multi method set-option(Str:D $k is copy, $v is copy) is default {
     my $neg := ? $k.starts-with('no-');
     if $neg {
         $k .= substr(3);
-        $v := ! $v;
+        $v = ! $v;
     }
     my $rv := self.can($k)
        ?? (self."$k"() = $v)
