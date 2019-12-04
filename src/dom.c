@@ -730,20 +730,6 @@ domGetXPathKey(xmlNodePtr node) {
             if (node->type == XML_ATTRIBUTE_NODE) {
                 rv = _domPrepend(rv, "@");
             }
-            else if (node->type == XML_ELEMENT_NODE) {
-                if  (node->doc && node->doc->type == XML_HTML_DOCUMENT_NODE) {
-                    // convert HTML names to lowercase.
-                    int i;
-                    char *name = strchr((char*)rv, (int)':');
-                    if (name == NULL) name = (char*) rv;
-
-                    for (i = 0; name[i]; i++) {
-                        if (name[i] >= 'A' && name[i] <= 'Z') {
-                            name[i] += 'a' - 'A';
-                        }
-                    }
-                }
-            }
         break;
     }
     return rv;

@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML;
 
-plan 46;
+plan 55;
 
 use LibXML;
 use LibXML::Native;
@@ -67,7 +67,8 @@ ok( $htmldoc, ' TODO : Add test name' );
 my $body = $htmldoc<html/body>.first;
 $body.addNewChild(Str, 'InPut');
 is $body.lastChild.tagName, 'InPut';
-is-deeply $body.keys.sort, ('a', 'input', 'p', 'text()');
+is-deeply $body.keys.sort, ('InPut', 'a', 'p', 'text()');
+is +$body<InPut>, 1, "case sensitivity on assoc get";
 
 # parse_html_string with encoding
 # encodings
@@ -237,4 +238,42 @@ EOF
                         :recover,
                         :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
     }
+}
+
+{
+
+ #  Case sensitivity
+
+my $strhref = q:to<EOHTML>;
+
+<html>
+    <body>
+        <a href="http:/foo.bar/foobar.pl">foo</a>
+        <A href="http:/foo.bar/foobar.pl">bar</a>
+        <A HREF="http:/foo.bar/foobar.pl">BAZ</A>
+        <p>test
+        <P>test
+    </body>
+</html>
+EOHTML
+
+my $htmldoc;
+
+quietly {
+    $htmldoc = $parser.parse: :html, :string( $strhref );
+};
+
+my @as = $htmldoc.find('/html/body/a');
+my @hrefs = $htmldoc.find('/html/body/a/@href');
+
+is +@as, 3;
+is @as.map(*.xpath-key).join(','), 'a,a,a';
+is @as.map(*.tag).join(','), 'a,a,a';
+is @as.map(*.ast-key).join(','), 'a,a,a';
+
+is +@hrefs, 3;
+is @hrefs.map(*.xpath-key).join(','), '@href,@href,@href';
+is @hrefs.map(*.tag).join(','), 'href,href,href';
+is @hrefs.map(*.ast-key).join(','), 'href,href,href';
+
 }

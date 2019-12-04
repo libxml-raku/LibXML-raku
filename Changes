@@ -1,3 +1,9 @@
+0.2.3 2019-12-05
+    - [dom.c][LibXML::Node] take out case conversion from domXPathGetKey()
+      .xpath-key() to case handling semantics. tags are converted to
+      lowercase on :html parse., but reatain case when from the API.
+      XPath searches then need to match the case (see 12html.t).
+    - [LibXML::_Options] fix compilation on Rakudo 2018.07
 0.2.2 2019-11-29
     - [domXPath] fixed reference counting in domPushNodeSet() #29
     - [LibXML::ErrorHandling][LibXML::SAX::Builder]

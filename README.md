@@ -132,7 +132,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.2.2
+0.2.3
 
 COPYRIGHT
 =========

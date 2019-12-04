@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 63;
+plan 65;
 
 use LibXML;
 use LibXML::XPath::Expression;
@@ -139,8 +139,9 @@ EOSTR
         pass(' TODO : Add test name');
     }
     {
-        # define behaviour of findnodes(), first(), last() on numeric expressions
         my $root = $doc.root;
+        is $root.findvalue('42'), 42;
+        is $root.find('42'), 42;
         isa-ok $root.findnodes('42'), LibXML::Node::Set;
         is-deeply $root.first('42'), LibXML::Node;
         is-deeply $root.last('42'), LibXML::Node;
