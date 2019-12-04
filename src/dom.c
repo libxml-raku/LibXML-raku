@@ -1302,7 +1302,7 @@ DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = self->children;
-    int node_type = 0;
+    uint node_type = 0;
 
     if ( self != NULL && name != NULL ) {
 
@@ -1855,6 +1855,7 @@ domNormalize( xmlNodePtr node ) {
         break;
     case XML_ELEMENT_NODE:
         domNormalizeList( (xmlNodePtr) node->properties );
+        /* FALLTHRU */
     case XML_ATTRIBUTE_NODE:
     case XML_DOCUMENT_NODE:
         return( domNormalizeList( node->children ) );
