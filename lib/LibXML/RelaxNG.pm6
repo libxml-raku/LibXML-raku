@@ -107,6 +107,10 @@ method is-valid(LibXML::Document:D $doc) {
     self!valid-ctx.is-valid($doc);
 }
 
+multi method ACCEPTS(LibXML::RelaxNG:D: LibXML::Node:D $node) {
+    self.is-valid($node);
+}
+
 =begin pod
 =head1 NAME
 
@@ -173,9 +177,10 @@ a `try` block or in the scope of a `CATCH` block.
 =end item1
 
 =begin item1
-is-valid
+is-valid / ACCEPTCS
 
-  my Bool $valid = $rngschema.is-valid($doc);
+   my Bool $valid = $rngschema.is-valid($doc);
+   $valid = $doc ~~ $rngschema;
 
 Returns either True or False depending on whether the passed Document is valid or not.
 

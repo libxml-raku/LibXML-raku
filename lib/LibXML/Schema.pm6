@@ -121,6 +121,10 @@ method is-valid(LibXML::Node:D $node) {
     self!valid-ctx.validate($node, :check);
 }
 
+multi method ACCEPTS(LibXML::Schema:D: LibXML::Node:D $node) {
+    self.is-valid($node);
+}
+
 =begin pod
 =head1 NAME
 
@@ -188,9 +192,10 @@ evaluated.
 =end item1
 
 =begin item1
-is-valid
+is-valid / ACCEPTS
 
   my Bool $valid = $xmlschema.is-valid($doc);
+  $valid = $doc ~~ $xmlschema;
 
 Returns either True or False depending on whether the passed Document is valid or not.
 

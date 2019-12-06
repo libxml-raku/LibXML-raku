@@ -11,6 +11,7 @@ SYNOPSIS
     # test a match on an LibXML::Node $node
 
     if $pattern.matchesNode($node) { ... }
+    if $node ~~ $pattern;
 
     # or on an LibXML::Reader
 
@@ -43,7 +44,7 @@ Note that no predicates or attribute tests are allowed.
 
 Patterns are particularly useful for stream parsing provided via the `LibXML::Reader ` interface.
 
-  * new()
+  * new
 
         $pattern = LibXML::Pattern.new( pattern, :ns{ prefix => namespace_URI, ... } );
 
@@ -53,9 +54,10 @@ Patterns are particularly useful for stream parsing provided via the `LibXML::Re
 
         my LibXML::Pattern $pattern .= new( 'foo:a', :ns(foo => 'http://foo.bar') );
 
-  * matchesNode($node)
+  * matchesNode / ACCEPTS
 
         my Bool $matched = $pattern.matchesNode($node);
+        $matched = $node ~~ $pattern;
 
     Given an LibXML::Node object, returns Tru if the node is matched by the compiled pattern expression.
 

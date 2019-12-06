@@ -98,7 +98,7 @@ class LibXML::Node does LibXML::Item {
     method set-native(anyNode:D $new-struct) {
         given box-class($new-struct.type) -> $class {
             die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-            unless self ~~ $class;
+                unless self.isa($class);
         }
         .Reference with $new-struct;
         .Unreference with $!native;

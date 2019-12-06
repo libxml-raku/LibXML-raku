@@ -47,9 +47,10 @@ METHODS
 
     This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return True, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
 
-  * is-valid
+  * is-valid / ACCEPTCS
 
         my Bool $valid = $rngschema.is-valid($doc);
+        $valid = $doc ~~ $rngschema;
 
     Returns either True or False depending on whether the passed Document is valid or not.
 

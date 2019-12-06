@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 103;
+plan 104;
 
 use LibXML;
 use LibXML::Reader;
@@ -305,6 +305,14 @@ EOF
         }
     }
     is($matches,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,');
+
+    my $accepts='';
+    for $dom.findnodes('//node()|@*') -> $node {
+        if ($node ~~ $pattern) {
+	  $accepts ~= $node.nodePath ~ ',';
+        }
+    }
+    is($accepts,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,');
   }
 }
  

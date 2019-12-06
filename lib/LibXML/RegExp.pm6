@@ -34,12 +34,16 @@ method !try-bool(Str:D $op, |c) {
     $rv > 0;
 }
 
-method matches(Str:D $content) {
+method matches(Str:D() $content) {
     self!try-bool('Match', $content);
 }
 
 method isDeterministic {
     self!try-bool('IsDeterministic');
+}
+
+multi method ACCEPTS(LibXML::RegExp:D: Str:D $content) {
+    self.matches($content);
 }
 
 =begin pod
@@ -56,6 +60,7 @@ LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
   my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
   if $compiled-re.isDeterministic() { ... }
   if $compiled-re.matches($string) { ... }
+  if $string ~~ $compiled-re { ... }
 
   my LibXML::RegExp $compiled-re .= new( :$regexp );
   my Bool $matched = $compiled-re.matches($string);
@@ -67,7 +72,7 @@ This is a perl interface to libxml2's implementation of regular expressions,
 which are used e.g. for validation of XML Schema simple types (pattern facet).
 
 =begin item
-new()
+new
 
   my LibXML::RegExp $compiled-re .= new( :$regexp );
 
@@ -75,9 +80,10 @@ The constructor takes a string containing a regular expression and returns an ob
 =end item
 
 =begin item
-matches($string)
+matches / ACCEPTS
 
   my Bool $matched = $compiled-re.matches($string);
+  $matched = $string ~~ $compiled-re;
 
 Given a string value, returns True if the value is matched by the
 compiled regular expression.

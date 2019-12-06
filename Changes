@@ -1,3 +1,7 @@
+0.2.4 2019-12-xx
+    - [LibXML::{Pattern|Dtd|Schema|RelaxNg|RegExp}]
+      Added ACCEPTS() multi methods for more Rakuish matching, e.g.:
+          $node ~~ $pattern; $doc ~~ $dtd; "abc" ~~ $regexp
 0.2.3 2019-12-05
     - [dom.c][LibXML::Node] take out case conversion from domXPathGetKey()
       .xpath-key() to case handling semantics. tags are converted to

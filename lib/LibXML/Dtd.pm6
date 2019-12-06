@@ -97,6 +97,9 @@ method is-valid(LibXML::Node:D $node) {
     self!valid-ctx.validate($node, :check);
 }
 
+multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {
+    self.is-valid($node);
+}
 
 =begin pod
 =head1 NAME
