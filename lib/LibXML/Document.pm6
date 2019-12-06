@@ -12,7 +12,7 @@ use LibXML::Dtd;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
-use LibXML::Item :ast-to-xml;
+use LibXML::Item :ast-to-xml, :item-class;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use LibXML::PI;
@@ -186,23 +186,23 @@ multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str
 }
 
 method createDocumentFragment() {
-    (require ::('LibXML::DocumentFragment')).new: :doc(self);
+    item-class('LibXML::DocumentFragment').new: :doc(self);
 }
 
 method createTextNode(Str $content) {
-    (require ::('LibXML::Text')).new: :doc(self), :$content;
+    item-class('LibXML::Text').new: :doc(self), :$content;
 }
 
 method createComment(Str $content) {
-    (require ::('LibXML::Comment')).new: :doc(self), :$content;
+    item-class('LibXML::Comment').new: :doc(self), :$content;
 }
 
 method createCDATASection(Str $content) {
-    (require ::('LibXML::CDATA')).new: :doc(self), :$content;
+    item-class('LibXML::CDATA').new: :doc(self), :$content;
 }
 
 method createEntityReference(Str $name) {
-    (require ::('LibXML::EntityRef')).new: :doc(self), :$name;
+    item-class('LibXML::EntityRef').new: :doc(self), :$name;
 }
 
 proto method createPI(|) is also<createProcessingInstruction> {*}

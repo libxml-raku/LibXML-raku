@@ -42,12 +42,15 @@ my constant @ClassMap = do {
     @map;
 }
 
-sub box-class(UInt $_) is export(:box-class) {
-    my Str $class-name := @ClassMap[$_] // 'LibXML::Item';
+sub item-class($class-name) is export(:item-class) {
     my $class = ::($class-name);
     $class ~~ LibXML::Item
         ?? $class
         !! (require ::($class-name));
+}
+
+sub box-class(UInt $_) is export(:box-class) {
+    item-class(@ClassMap[$_] // 'LibXML::Item');
 }
 
 proto sub ast-to-xml(|c) is export(:ast-to-xml) {*}
@@ -63,15 +66,15 @@ multi sub ast-to-xml(Pair $_) {
         }
         when $name.starts-with('?') {
             $name .= substr(1);
-            box-class(XML_PI_NODE).new: :$name, :content($value);
+            item-class('LibXML::PI').new: :$name, :content($value);
         }
         when $name.starts-with('xmlns:') {
             my $prefix = $name.substr(6);
-            box-class(XML_NAMESPACE_DECL).new: :$prefix, :URI($value)
+            item-class('LibXML::Namespace').new: :$prefix, :URI($value)
         }
         default {
             $name .= substr(1) if $name.starts-with('@');
-            box-class(XML_ATTRIBUTE_NODE).new: :$name, :$value;
+            item-class('LibXML::Attr').new: :$name, :$value;
         }
     }
     else {
@@ -92,7 +95,7 @@ multi sub ast-to-xml(Positional $_) {
 }
 
 multi sub ast-to-xml(Str:D $content) {
-    box-class(XML_TEXT_NODE).new: :$content;
+    item-class('LibXML::Text').new: :$content;
 }
 
 multi sub ast-to-xml(LibXML::Item:D $_) { $_ }
