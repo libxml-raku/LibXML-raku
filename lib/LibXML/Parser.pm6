@@ -95,8 +95,8 @@ multi method parse(Str:D() :$string!,
 
     $ctx.try: {
         my xmlParserCtxt:D $native = $html
-        ?? htmlMemoryParserCtxt.new: :$string
-        !! xmlMemoryParserCtxt.new: :$string;
+            ?? htmlMemoryParserCtxt.new: :$string
+            !! xmlMemoryParserCtxt.new: :$string;
 
         $native.input.filename = $_ with $URI;
         $ctx.set-native: $native;

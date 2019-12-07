@@ -33,6 +33,7 @@ DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {
     xmlSaveNoEmptyTags = flag;
 }
 
+
 union MsgArg {
     double f;
     int    d;
@@ -98,4 +99,32 @@ DLLEXPORT void xml6_gbl_message_func(
 
     // invoke the error handling callback; pass arguments
     (*callback)(fmt, argt, argv);
+}
+
+struct _xml6HandlerSave {
+    void* serror_ctxt;
+    xmlStructuredErrorFunc serror_handler;
+    void* error_ctxt;
+    xmlGenericErrorFunc error_handler;
+};
+
+typedef struct _xml6HandlerSave xml6HandlerSave;
+typedef xml6HandlerSave *xml6HandlerSavePtr;
+
+DLLEXPORT void* xml6_gbl_save_error_handlers(void) {
+    xml6HandlerSavePtr save = (xml6HandlerSavePtr)xmlMalloc(sizeof(struct _xml6HandlerSave));
+    save->serror_ctxt = xmlStructuredErrorContext;
+    save->serror_handler = xmlStructuredError;
+    save->error_ctxt = xmlGenericErrorContext;
+    save->error_handler = xmlGenericError;
+    return (void*)save;
+}
+
+DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
+    xml6HandlerSavePtr save = (xml6HandlerSavePtr)ptr;
+    xmlStructuredErrorContext = save->serror_ctxt;
+    xmlStructuredError = save->serror_handler;
+    xmlGenericErrorContext = save->error_ctxt;
+    xmlGenericError = save->error_handler;
+    free(save);
 }

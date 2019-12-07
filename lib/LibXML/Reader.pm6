@@ -1,10 +1,5 @@
 use v6;
 
-class X::LibXML::Reader::OpFail is Exception {
-    has Str:D $.op is required;
-    method message { "XML Read $!op operation failed" }
-}
-
 use LibXML::ErrorHandling;
 
 class LibXML::Reader
@@ -65,7 +60,7 @@ class LibXML::Reader
 
     method !try-bool(Str:D $op, |c) {
         my $rv := self!try($op, |c);
-        fail X::LibXML::Reader::OpFail.new(:$op)
+        fail X::LibXML::OpFail.new(:what<Read>, :$op)
             if $rv < 0;
         $rv > 0;
     }
@@ -100,7 +95,8 @@ class LibXML::Reader
         self.set-flags($!flags, |%opts);
     }
     multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes,
-                          Str :$URI, RelaxNG :$!RelaxNG, Schema :$!Schema,
+                          Str :$URI,
+                          RelaxNG :$!RelaxNG, Schema :$!Schema,
                           :$!enc, *%opts) {
         self!init-flags(%opts);
         $!native .= new: :$!buf, :$len, :$!enc, :$URI, :$!flags;

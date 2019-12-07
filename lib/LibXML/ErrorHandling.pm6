@@ -34,6 +34,12 @@ class X::LibXML::IO::AdHoc is X::LibXML::AdHoc {
     method domain-num {XML_FROM_IO}
 }
 
+class X::LibXML::OpFail is Exception {
+    has Str:D $.what = 'Read';
+    has Str:D $.op is required;
+    method message { "XML $!what $!op operation failed" }
+}
+
 class X::LibXML::Parser is X::LibXML {
 
     has Str $.file;

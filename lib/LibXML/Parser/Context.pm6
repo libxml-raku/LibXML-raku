@@ -73,20 +73,26 @@ submethod DESTROY {
 
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) {
 
+    my $rv;
     my $*XML-CONTEXT = self;
     $_ = .new: :native(xmlParserCtxt.new)
         without $*XML-CONTEXT;
 
-    $*XML-CONTEXT.native.SetStructuredErrorFunc: &structured-error-cb;
     my @input-contexts = .activate()
         with $*XML-CONTEXT.input-callbacks;
 
-    &*chdir(~$*CWD);
+    given xml6_gbl_save_error_handlers() {
+        $*XML-CONTEXT.native.SetStructuredErrorFunc: &structured-error-cb;
 
-    my $rv := action();
+        &*chdir(~$*CWD);
 
-    .deactivate
-        with $*XML-CONTEXT.input-callbacks;
+        $rv := action();
+
+        .deactivate
+            with $*XML-CONTEXT.input-callbacks;
+
+        xml6_gbl_restore_error_handlers($_);
+    }
 
     .flush-errors for @input-contexts;
     $rv := $*XML-CONTEXT.is-valid if $check-valid;

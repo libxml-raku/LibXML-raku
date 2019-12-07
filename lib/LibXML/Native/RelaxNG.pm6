@@ -13,7 +13,8 @@ class xmlRelaxNGParserCtxt is repr(Opaque) is export {
     our sub NewMemory(Blob:D, int32 --> xmlRelaxNGParserCtxt) is native($XML2) is symbol('xmlRelaxNGNewMemParserCtxt') {*}
     our sub NewDoc(xmlDoc:D --> xmlRelaxNGParserCtxt) is native($XML2) is symbol('xmlRelaxNGNewDocParserCtxt') {*}
     method SetGenericErrorFunc( &err-func (xmlRelaxNGParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlRelaxNGParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native($XML2) is symbol('xmlRelaxNGSetParserErrors') {*}
-    method SetStructuredErrorFunc( &error-func (xmlRelaxNGParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlRelaxNGSetParserStructuredErrors') {*};
+    method SetParserErrorFunc( &error-func (xmlRelaxNGParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlRelaxNGSetParserStructuredErrors') {*};
+     method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Parse(-->xmlRelaxNG) is native($XML2) is symbol('xmlRelaxNGParse') {*}
     method Free is symbol('xmlRelaxNGFreeParserCtxt') is native($XML2) {*}
     multi method new(Str:D :$url) {

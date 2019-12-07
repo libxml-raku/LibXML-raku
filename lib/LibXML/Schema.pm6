@@ -48,11 +48,17 @@ my class Parser::Context {
 
     method parse {
         my $*XML-CONTEXT = self;
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
+        my $rv;
 
         my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
+        given xml6_gbl_save_error_handlers() {
+            $!native.SetStructuredErrorFunc: &structured-error-cb;
+            $!native.SetParserErrorFunc: &structured-error-cb;
 
-        my $rv := $!native.Parse;
+            $rv := $!native.Parse;
+
+            xml6_gbl_restore_error_handlers($_);
+        }
 
         if $ext-loader-changed {
             xmlExternalEntityLoader::set-networked(+!$!network.so);

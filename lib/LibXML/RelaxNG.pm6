@@ -47,8 +47,15 @@ my class Parser::Context {
 
     method parse {
         my $*XML-CONTEXT = self;
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my $rv := $!native.Parse;
+        my $rv;
+        given xml6_gbl_save_error_handlers() {
+            $!native.SetStructuredErrorFunc: &structured-error-cb;
+            $!native.SetParserErrorFunc: &structured-error-cb;
+
+            $rv := $!native.Parse;
+
+            xml6_gbl_restore_error_handlers($_);
+        }
         self.flush-errors;
         $rv;
     }

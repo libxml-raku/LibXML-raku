@@ -4,6 +4,7 @@ use LibXML::Enums;
 use LibXML::Native;
 use LibXML::Node;
 use NativeCall;
+use LibXML::ErrorHandling;
 
 enum Flags (
     PAT_FROM_ROOT => 1 +< 8,
@@ -16,7 +17,7 @@ has UInt $.flags;
 
 submethod TWEAK(Str:D :$regexp!) {
     $!native .= new(:$regexp)
-       // die "failed to compile regexp";
+       // die X::LibXML::OpFail.new(:what<RegExp>, :op<Compile>);
 }
 
 submethod DESTROY {
@@ -29,7 +30,7 @@ method compile(Str:D $regexp, |c) {
 
 method !try-bool(Str:D $op, |c) {
     my $rv := $!native."$op"(|c);
-    fail X::LibXML::Reader::OpFail.new(:$op)
+    fail X::LibXML::OpFail.new(:what<RegExp>, :$op)
         if $rv < 0;
     $rv > 0;
 }

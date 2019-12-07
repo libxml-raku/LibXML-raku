@@ -5,6 +5,7 @@ use LibXML::Native;
 use LibXML::Node;
 use LibXML::_Options;
 use NativeCall;
+use LibXML::ErrorHandling;
 
 enum Flags (
     PAT_FROM_ROOT => 1 +< 8,
@@ -29,7 +30,8 @@ has UInt $.flags;
 submethod TWEAK(Str:D :$pattern!, :%ns, *%opts) {
     self.set-flags($!flags, |%opts);
     my CArray[Str] $ns .= new: |(%ns.kv.sort), Str;
-    $!native .= new: :$pattern, :$!flags, :$ns;
+    $!native .= new(:$pattern, :$!flags, :$ns)
+        // die X::LibXML::OpFail.new(:what<Pattern>, :op<Compile>);
 }
 
 submethod DESTROY {
@@ -42,7 +44,7 @@ method compile(Str:D $pattern, |c) {
 
 method !try-bool(Str:D $op, |c) {
     my $rv := $!native."$op"(|c);
-    fail X::LibXML::Reader::OpFail.new(:$op)
+    fail X::LibXML::OpFail.new(:what<Pattern>, :$op)
         if $rv < 0;
     $rv > 0;
 }

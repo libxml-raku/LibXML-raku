@@ -13,7 +13,8 @@ class xmlSchemaParserCtxt is repr(Opaque) is export {
     our sub NewMemory(Blob:D, int32 --> xmlSchemaParserCtxt) is native($XML2) is symbol('xmlSchemaNewMemParserCtxt') {*}
     our sub NewDoc(xmlDoc:D --> xmlSchemaParserCtxt) is native($XML2) is symbol('xmlSchemaNewDocParserCtxt') {*}
     method SetGenericErrorFunc( &err-func (xmlSchemaParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlSchemaParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native($XML2) is symbol('xmlSchemaSetParserErrors') {*}
-    method SetStructuredErrorFunc( &error-func (xmlSchemaParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSchemaSetParserStructuredErrors') {*};
+    method SetParserErrorFunc( &error-func (xmlSchemaParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSchemaSetParserStructuredErrors') {*};
+    method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Parse(-->xmlSchema) is native($XML2) is symbol('xmlSchemaParse') {*}
     method Free is symbol('xmlSchemaFreeParserCtxt') is native($XML2) {*}
     multi method new(Str:D :$url) {

@@ -215,18 +215,18 @@ throws-like { $reader.finish; }, X::LibXML::Parser, :message(/'mystring.xml:5:'/
 
 {
   my $rng = "test/relaxng/demo.rng";
-  for $rng, LibXML::RelaxNG.new(location => $rng) -> $RNG {
+  for $rng, LibXML::RelaxNG.new(location => $rng) -> $RelaxNG {
     {
         my $reader = LibXML::Reader.new(
 	    location => "test/relaxng/demo.xml",
-	    RelaxNG => $RNG,
+	    :$RelaxNG,
         );
-        ok($reader.finish, "validate using "~($RNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
+        ok($reader.finish, "validate using "~($RelaxNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
     }
     {
         my $reader = LibXML::Reader.new(
 	    location => "test/relaxng/invaliddemo.xml",
-	    RelaxNG => $RNG,
+	    :$RelaxNG,
         );
         throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Relax-NG validity error'/);
     }
@@ -239,18 +239,18 @@ if !LibXML.have-schemas {
 }
 else {
     my $xsd = "test/schema/schema.xsd";
-    for $xsd, LibXML::Schema.new(location => $xsd) -> $XSD {
+    for $xsd, LibXML::Schema.new(location => $xsd) -> $Schema {
         {
             my $reader = LibXML::Reader.new(
 	        location => "test/schema/demo.xml",
-	        Schema => $XSD,
+	        :$Schema,
             );
-            ok($reader.finish, "validate using "~($XSD.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
+            ok($reader.finish, "validate using "~($Schema.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
         }
         {
             my $reader = LibXML::Reader.new(
 	        location => "test/schema/invaliddemo.xml",
-	        Schema => $XSD,
+	        :$Schema,
             );
             throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Schemas validity error'/);
         }
