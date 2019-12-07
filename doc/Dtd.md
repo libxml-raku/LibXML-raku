@@ -13,6 +13,9 @@ SYNOPSIS
     my Str $dtdName = $dtd.getName();
     my Str $publicId = $dtd.publicId();
     my Str $systemId = $dtd.systemId();
+    try { $dtd.validate($doc) };
+    my Bool $valid = $dtd.is-valid($doc);
+    if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
 DESCRIPTION
 ===========
@@ -39,7 +42,10 @@ METHODS
                                         );
          my $doc = LibXML.load: :file("test.xml");
          $doc.validate($dtd);
+
          $doc.is-valid($dtd);
+         #-OR-
+         $doc ~~ $dtd;
 
   * parse
 
@@ -71,9 +77,10 @@ METHODS
 
     This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](LibXML::Document ) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
 
-  * is-valid
+  * is-valid / ACCEPTS
 
         my Bool $valid = $dtd.is-valid($doc);
+        $valid = $doc ~~ $dtd;
 
     Returns either True or False depending on whether the passed Document is valid or not.
 

@@ -14,6 +14,7 @@ SYNOPSIS
     my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
     my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
     try { $xmlschema.validate( $doc ); };
+    if $doc ~~ $xmlschema { ... }
 
 DESCRIPTION
 ===========

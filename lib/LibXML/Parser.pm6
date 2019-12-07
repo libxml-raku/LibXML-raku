@@ -72,10 +72,11 @@ method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.na
 
 method processXIncludes (
     LibXML::Document $_,
-    LibXML::Parser::Context:D :$ctx = self!make-handler(:native(xmlParserCtxt.new)),
+    LibXML::Parser::Context :$ctx is copy,
     *%opts --> Int)
 is also<process-xincludes> {
     my xmlDoc $doc = .native;
+    $ctx //= self!make-handler(:native(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);
     $ctx.try: { $doc.XIncludeProcessFlags($flags) }
 }

@@ -117,6 +117,9 @@ LibXML::Dtd - LibXML DTD Handling
   my Str $dtdName = $dtd.getName();
   my Str $publicId = $dtd.publicId();
   my Str $systemId = $dtd.systemId();
+  try { $dtd.validate($doc) };
+  my Bool $valid = $dtd.is-valid($doc);
+  if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
 =head1 DESCRIPTION
 
@@ -148,7 +151,10 @@ pass to $doc.is-valid() or $doc.validate().
                                   );
    my $doc = LibXML.load: :file("test.xml");
    $doc.validate($dtd);
+
    $doc.is-valid($dtd);
+   #-OR-
+   $doc ~~ $dtd;
 =end item
 
 
@@ -203,9 +209,10 @@ evaluated.
 =end item1
 
 =begin item1
-is-valid
+is-valid / ACCEPTS
 
   my Bool $valid = $dtd.is-valid($doc);
+  $valid = $doc ~~ $dtd;
 
 Returns either True or False depending on whether the passed Document is valid or not.
 

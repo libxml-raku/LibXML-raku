@@ -16,6 +16,7 @@ SYNOPSIS
     my LibXML::RelaxNG $rngschema .= new( :$doc );
     try { $rngschema.validate( $doc ); };
     if  $rngschema.is-valid( $doc ) {...}
+    if $doc ~~ $rngschema { ... }
 
 DESCRIPTION
 ===========
