@@ -189,7 +189,7 @@ domReleaseNode( xmlNodePtr node );
 DLLEXPORT xmlNodePtr
 domImportNode( xmlDocPtr document, xmlNodePtr node, int move, int reconcileNS );
 
-DLLEXPORT int
+DLLEXPORT xmlElementType
 domNodeType(xmlChar* name);
 
 DLLEXPORT xmlNodeSetPtr

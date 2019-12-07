@@ -1223,9 +1223,9 @@ domSetNodeValue( xmlNodePtr n , xmlChar* val ){
     }
 }
 
-DLLEXPORT int
+DLLEXPORT xmlElementType
 domNodeType(xmlChar* name) {
-    int node_type = 0;
+    xmlElementType node_type = 0;
 
     if (name != NULL) {
         switch (name[0]) {
@@ -1302,7 +1302,7 @@ DLLEXPORT xmlNodeSetPtr
 domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = self->children;
-    uint node_type = 0;
+    xmlElementType node_type = 0;
 
     if ( self != NULL && name != NULL ) {
 

@@ -43,21 +43,27 @@ class LibXML::XPath::Context {
         CATCH { default { warn "error handling structured error: $_" } }
         $*XPATH-CONTEXT.structured-error($err);
     }
+    method !try(&action) {
+        my $rv;
+        given xml6_gbl_save_error_handlers() {
+            $!native.SetStructuredErrorFunc: &structured-error-cb;
+            my $*XPATH-CONTEXT = self;
+            $rv := &action();
+            xml6_gbl_restore_error_handlers($_);
+        }
+        $rv;
+    }
 
     method !findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
-        my $*XPATH-CONTEXT = self;
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my xmlNodeSet $node-set := $.native.findnodes( $xpath-expr.native, $node);
+         my xmlNodeSet $node-set = self!try: { $.native.findnodes( $xpath-expr.native, $node); }
         temp self.recover //= $node-set.defined;
         self.flush-errors;
         $node-set;
     }
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my anyNode $node = .native with $ref-node;
-        my $*XPATH-CONTEXT = self;
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my xmlXPathObject $xo := $!native.find( $xpath-expr.native, $node, :$bool);
+        my xmlXPathObject $xo := self!try: {$!native.find( $xpath-expr.native, $node, :$bool);}
         temp self.recover //= $xo.defined;
         self.flush-errors;
         do with $xo {

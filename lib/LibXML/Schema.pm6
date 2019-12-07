@@ -92,10 +92,14 @@ my class ValidContext {
     multi method validate(LibXML::Document:D $_, Bool() :$check) {
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .native;
+        my $rv;
+        given xml6_gbl_save_error_handlers() {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
-        my $rv := $!native.ValidateDoc($doc);
-	$rv := self.validity-check
-            if $check;
+            $rv := $!native.ValidateDoc($doc);
+	    $rv := self.validity-check
+                if $check;
+            xml6_gbl_restore_error_handlers($_)
+        }
         self.flush-errors;
         $rv;
     }

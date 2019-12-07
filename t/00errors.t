@@ -1,6 +1,10 @@
 use v6;
 use Test;
-plan 4;
+use LibXML::XPath::Context;
+
+my $errors;
+LibXML::XPath::Context.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++ });
+plan 5;
 {
     use LibXML::Pattern;
     my LibXML::Pattern $patt;
@@ -16,3 +20,5 @@ plan 4;
     lives-ok {$regexp.new(:regexp('a'))};
     throws-like { $regexp.new(:regexp('a[zz')) }, X::LibXML::OpFail, :message('XML RegExp Compile operation failed');
 }
+
+ok $errors, 'errors caught';
