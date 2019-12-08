@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 330;
+plan 332;
 
 use LibXML;
 use LibXML::InputCallback;
@@ -100,12 +100,13 @@ chomp($sys_line);
         "expand_entities is preserved after _clone()/etc."
       );
 
+    my Bool $net-access = False;
     # now check network access
     $XML ~~ s,'file://',http://example.com,;
     # guard against actual network access attempts
     my LibXML::InputCallback $input-callbacks .= new: :callbacks{
-        :match(sub ($f) {return $f.IO.e }),
-        :open(sub ($f)  {$f.IO.open(:r) }),
+        :match(sub ($f) {True }),
+        :open(sub ($_)  { (/^http[s?]':'/ ?? do { $net-access++; 'test/empty.txt' } !! $_).IO.open(:r); }),
         :read(sub ($fh, $n) {$fh.read($n)}),
         :close(sub ($fh) {$fh.close}),
     };
@@ -115,13 +116,14 @@ chomp($sys_line);
     is-deeply $parser.network, False;
     $parser.load_ext_dtd = True;
     $parser.expand_entities = True;
-##    warn $parser.flags;
     is-deeply $parser.network, False;
     try { $parser.load: string => $XML };
     like( $!, /'I/O error : Attempt to load network entity'/, 'Entity from network location throw error.' );
+    nok $net-access, 'no attempted network access';
     $parser.network = True;
     try { $parser.load: string => $XML };
-    like( $!, /'I/O warning : failed to load HTTP resource'/, 'Entity from network location throw error.' );
+    ok ! $!.defined, 'attempted network access';
+    ok $net-access, 'attempted network access';
 
 }
 

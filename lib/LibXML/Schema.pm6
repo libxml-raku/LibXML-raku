@@ -62,7 +62,7 @@ my class Parser::Context {
 
         if $ext-loader-changed {
             xmlExternalEntityLoader::set-networked(+!$!network.so);
-         }
+        }
 
         self.flush-errors;
         $rv;

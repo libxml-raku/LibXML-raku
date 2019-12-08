@@ -6,7 +6,7 @@ use LibXML::Schema;
 use LibXML::InputCallback;
 use LibXML::Element;
 
-plan 16;
+plan 18;
 
 sub slurp(Str $_) { .IO.slurp }
 
@@ -93,9 +93,10 @@ EOF
 # 5 check that :network works
 
 #  guard against actual network access attempts
+my Bool $net-access = False;
 my LibXML::InputCallback $input-callbacks .= new: :callbacks{
-    :match(sub ($f) {return $f.IO.e }),
-    :open(sub ($f)  {$f.IO.open(:r) }),
+    :match(sub ($f) {True}),
+    :open(sub ($_) { (/^http[s?]':'/ ?? do { $net-access++; 'test/empty.txt' }  !! $_).IO.open(:r); }),
     :read(sub ($fh, $n) {$fh.read($n)}),
     :close(sub ($fh) {$fh.close}),
 };
@@ -117,9 +118,11 @@ EOF
     nok( defined($schema), 'Schema from buffer with external import and !network is not loaded.' );
 }
 
+nok $net-access, 'no attempted network access';
+
 {
     my $schema = try { LibXML::Schema.new( location => $netfile, :network, :suppress-warnings ); };
-    ok ! $!.defined, "no exception";
+    like $!, /'Document is empty'/, 'location :network access';
 }
 {
     my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :network, :suppress-warnings ) };
@@ -128,7 +131,9 @@ EOF
   <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
 </xsd:schema>
 EOF
-    ok ! $!.defined, "no exception";
+    like $!, /'Document is empty'/, 'string :network access';
 }
+
+ok $net-access, 'attempted network access';
 
 $input-callbacks.deactivate;
