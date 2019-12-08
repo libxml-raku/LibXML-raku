@@ -51,21 +51,18 @@ class LibXML::XPath::Context {
             $rv := &action();
             xml6_gbl_restore_error_handlers($_);
         }
+        temp self.recover //= $rv.defined;
+        self.flush-errors;
         $rv;
     }
 
     method !findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
         my anyNode $node = .native with $ref;
-         my xmlNodeSet $node-set = self!try: { $.native.findnodes( $xpath-expr.native, $node); }
-        temp self.recover //= $node-set.defined;
-        self.flush-errors;
-        $node-set;
+        self!try: { $.native.findnodes( $xpath-expr.native, $node); }
     }
     method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
         my anyNode $node = .native with $ref-node;
         my xmlXPathObject $xo := self!try: {$!native.find( $xpath-expr.native, $node, :$bool);}
-        temp self.recover //= $xo.defined;
-        self.flush-errors;
         do with $xo {
             my $v := .value;
             if $v ~~ xmlNodeSet {
