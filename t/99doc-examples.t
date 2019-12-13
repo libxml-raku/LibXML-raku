@@ -554,7 +554,7 @@ subtest 'LibXML::RegExp' => {
 subtest 'LibXML::XPath::Expression' => {
     plan 1;
     use LibXML::XPath::Expression;
-    my LibXML::XPath::Expression:D $compiled-xpath .= parse('//foo[@bar="baz"][position()<4]');
+    my LibXML::XPath::Expression $compiled-xpath .= parse('//foo[@bar="baz"][position()<4]');
     pass;
 };
 

@@ -34,7 +34,7 @@ will result the following PI in the DOM:
 
     <?abc foo="bar" foobar="foobar"?>
 
-Which is how it is specified in the DOM specification. This three step interface creates temporary a node in perl space. This can be avoided while using the insertProcessingInstruction() method. Instead of the three calls described above, the call
+Which is how it is specified in the DOM specification. This three step interface creates a temporary Raku object. This can be avoided while using the insertProcessingInstruction() method. Instead of the three calls described above, the call
 
     $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
 
@@ -61,5 +61,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

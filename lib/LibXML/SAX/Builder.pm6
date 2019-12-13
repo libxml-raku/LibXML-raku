@@ -208,7 +208,7 @@ LibXML::SAX::Builder - Building DOM trees from SAX events.
 
 =head1 DESCRIPTION
 
-This module provides mappings from native SAX callbacks to Perl. It is
+This module provides mappings from native SAX callbacks to Raku. It is
 usually used in conjunction with a LibXML::SAX::Handler base-class.
 
 =head1 EXAMPLE
@@ -243,6 +243,6 @@ and attributes converted to uppercase.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

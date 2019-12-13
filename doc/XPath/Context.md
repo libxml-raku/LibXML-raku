@@ -39,7 +39,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-The LibXML::XPath::Context class provides an almost complete interface to libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to evaluate XPath expressions in the context of arbitrary node, context size, and context position, with a user-defined namespace-prefix mapping, custom XPath functions written in Perl, and even a custom XPath variable resolver. 
+The LibXML::XPath::Context class provides an almost complete interface to libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to evaluate XPath expressions in the context of arbitrary node, context size, and context position, with a user-defined namespace-prefix mapping, custom XPath functions written in Raku, and even a custom XPath variable resolver. 
 
 EXAMPLES
 ========
@@ -56,7 +56,7 @@ This example demonstrates `registerNs() ` method. It finds all paragraph nodes i
 Custom XPath functions
 ----------------------
 
-This example demonstrates `registerFunction() ` method by defining a function filtering nodes based on a Perl regular expression:
+This example demonstrates `registerFunction() ` method by defining a function filtering nodes based on a Raku regular expression:
 
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
         $nodes.grep: {.textContent ~~ / <$regex> /};
@@ -296,5 +296,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

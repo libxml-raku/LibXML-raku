@@ -198,6 +198,6 @@ resolvers, as in
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

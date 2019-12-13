@@ -27,7 +27,7 @@ SYNOPSIS
         # parser options ...
       );
     $dom = LibXML.parse(
-        io => $perl-file-handle,
+        io => $raku-file-handle,
         # parser options ...
       );
     # dispatch to above depending on type
@@ -96,7 +96,7 @@ DOM Parser
 
 One of the common parser interfaces of LibXML is the DOM parser. This parser reads XML data into a DOM like data structure, so each tag can get accessed and transformed.
 
-LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Perl filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](LibXML::Document ) object, which is a DOM object.
+LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](LibXML::Document ) object, which is a DOM object.
 
 All of the functions listed below will throw an exception if the document is invalid. To prevent this causing your program exiting, wrap the call in a try {} block
 
@@ -115,12 +115,12 @@ All of the functions listed below will throw an exception if the document is inv
             # parser options ...
           );
         $dom = LibXML.parse(
-            io => $perl-path-or-file-handle,
+            io => $raku-path-or-file-handle,
             :$html, :$URI, :$enc,
             # parser options ...
           );
         $dom = LibXML.parse(
-            buf => $perl-blob-or-buf,
+            buf => $raku-blob-or-buf,
             :$html, :$URI, :$enc,
             # parser options ...
           );
@@ -245,8 +245,6 @@ DOM based SAX Parser
 --------------------
 
 LibXML also provides a DOM based SAX parser. The SAX parser is defined in the module LibXML::SAX::Parser. As it is not a stream based parser, it parses documents into a DOM and traverses the DOM tree instead.
-
-The API of this parser is exactly the same as any other Perl SAX2 parser. See XML::SAX::Intro for details.
 
 Aside from the regular parsing methods, you can access the DOM tree traverser directly, using the reparse() method:
 
@@ -537,5 +535,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

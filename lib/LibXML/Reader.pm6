@@ -285,7 +285,7 @@ or
 
 =head1 DESCRIPTION
 
-This is a perl interface to libxml2's pull-parser implementation xmlTextReader I<<<<<< http://xmlsoft.org/html/libxml-xmlreader.html >>>>>>. Pull-parsers (such as StAX in
+This is a Raku interface to libxml2's pull-parser implementation xmlTextReader I<<<<<< http://xmlsoft.org/html/libxml-xmlreader.html >>>>>>. Pull-parsers (such as StAX in
 Java, or XmlReader in C#) use an iterator approach to parse XML documents. They
 are easier to program than event-based parser (SAX) and much more lightweight
 than tree-based parser (DOM), which load the complete tree into memory.
@@ -988,6 +988,6 @@ Heiko Klein, <H.Klein@gmx.net<gt> and Petr Pajas
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

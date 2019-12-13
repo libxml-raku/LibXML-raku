@@ -1,3 +1,6 @@
+0.2.5 2019-12-xx
+    - Changed LICENSE sections and file. Replace 'Perl' with 'Artistic'.
+    - Fixes for Rakudo 2018.10
 0.2.4 2019-12-08
     - [xml6_gbl.c]
       Add xml6_gbl_save_error_handlers() and xml6_gbl_restore_error_handlers().
@@ -15,7 +18,7 @@
 0.2.3 2019-12-05
     - [dom.c][LibXML::Node] take out case conversion from domXPathGetKey()
       .xpath-key() to case handling semantics. tags are converted to
-      lowercase on :html parse., but reatain case when from the API.
+      lowercase on :html parse., but retain case when from the API.
       XPath searches then need to match the case (see 12html.t).
     - [LibXML::_Options] fix compilation on Rakudo 2018.07
 0.2.2 2019-11-29

@@ -381,7 +381,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $result = $node.find( $xpath );
 
-    *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric ](Numeric ) object being returned. Other expressions might return an [Bool ](Bool ) object, or a [Str ](Str ) object. Each of those objects uses Perl's overload feature to "do the right thing" in different contexts.
+    *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric ](Numeric ) object being returned. Other expressions might return an [Bool ](Bool ) object, or a [Str ](Str ) object.
 
     The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](LibXML::XPath::Expression ) object.
 
@@ -545,7 +545,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $node.normalize;
 
-    This function normalizes adjacent text nodes. This function is not as strict as libxml2's xmlTextMerge() function, since it will not free a node that is still referenced by the Perl layer.
+    This function normalizes adjacent text nodes. This function is not as strict as libxml2's xmlTextMerge() function, since it will not free a node that is still referenced by Raku.
 
   * getNamespaces
 
@@ -559,7 +559,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $node.removeChildNodes();
 
-    This function is not specified for any DOM level: It removes all childnodes from a node in a single step. Other than the libxml2 function itself (xmlFreeNodeList), this function will not immediately remove the nodes from the memory. This saves one from getting memory violations, if there are nodes still referred to from the Perl level.
+    This function is not specified for any DOM level: It removes all childnodes from a node in a single step. Other than the libxml2 function itself (xmlFreeNodeList), this function will not immediately remove the nodes from the memory. This saves one from getting memory violations, if there are nodes still referred to from Raku.
 
   * baseURI ()
 
@@ -606,5 +606,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

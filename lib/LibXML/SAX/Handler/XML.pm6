@@ -3,7 +3,7 @@ use LibXML::SAX::Handler::SAX2;
 class LibXML::SAX::Handler::XML
     is LibXML::SAX::Handler::SAX2 {
 
-    # This class Builds a pure perl 'XML' document,
+    # This class Builds a Raku 'XML' document,
 
     use XML::CDATA;
     use XML::Comment;

@@ -20,7 +20,7 @@ DESCRIPTION
 
 You may get unexpected results if you are trying to load external documents during libxml2 parsing if the location of the resource is not a HTTP, FTP or relative location but a absolute path for example. To get around this limitation, you may add your own input handler to open, read and close particular types of locations or URI classes. Using this input callback handlers, you can handle your own custom URI schemes for example.
 
-The input callbacks are used whenever LibXML has to get something other than externally parsed entities from somewhere. They are implemented using a callback stack on the Perl layer in analogy to libxml2's native callback stack.
+The input callbacks are used whenever LibXML has to get something other than externally parsed entities from somewhere. They are implemented using a callback stack on the Raku layer in analogy to libxml2's native callback stack.
 
 The LibXML::InputCallback class transparently registers the input callbacks for the libxml2's parser processes.
 
@@ -29,7 +29,7 @@ How does LibXML::InputCallback work?
 
 The libxml2 library offers a callback implementation as global functions only. To work-around the troubles resulting in having only global callbacks - for example, if the same global callback stack is manipulated by different applications running together in a single Apache Web-server environment -, LibXML::InputCallback comes with a object-oriented interface.
 
-Using the function-oriented part the global callback stack of libxml2 can be manipulated. Those functions can be used as interface to the callbacks on the C- and XS Layer. At the object-oriented part, operations for working with the "pseudo-localized" callback stack are implemented. Currently, you can register and de-register callbacks on the Perl layer and initialize them on a per parser basis.
+Using the function-oriented part the global callback stack of libxml2 can be manipulated. Those functions can be used as interface to the callbacks on the C- and XS Layer. At the object-oriented part, operations for working with the "pseudo-localized" callback stack are implemented. Currently, you can register and de-register callbacks on the Raku layer and initialize them on a per parser basis.
 
 ### Callback Groups
 
@@ -45,7 +45,7 @@ While parsing the data stream, the libxml2 parser checks if a registered callbac
 
 ### Organisation of callback groups in LibXML::InputCallback
 
-Callback groups are implemented as a stack (Array), each entry holds a an array of the callbacks. For the libxml2 library, the LibXML::InputCallback callback implementation appears as one single callback group. The Perl implementations however allows one to manage different callback stacks on a per libxml2-parser basis.
+Callback groups are implemented as a stack (Array), each entry holds a an array of the callbacks. For the libxml2 library, the LibXML::InputCallback callback implementation appears as one single callback group. The Raku implementation however allows one to manage different callback stacks on a per libxml2-parser basis.
 
 Using LibXML::InputCallback
 ---------------------------
@@ -140,5 +140,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

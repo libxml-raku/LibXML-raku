@@ -173,7 +173,7 @@ deleteDataString($string, :g)
   $text.deleteDataString($remstring, :g);
 
 This method removes a chunk from the existing node data. Since the DOM spec is
-quite unhandy if you already know C<<<<<< which >>>>>> string to remove from a text node, this method allows more perlish code :)
+quite unhandy if you already know C<<<<<< which >>>>>> string to remove from a text node, this method allows more Rakuish code :)
 
 The functions takes two parameters: I<<<<<< $string >>>>>> and optional the I<<<<<< :g >>>>>> flag. If :g is not set, C<<<<<< deleteDataString >>>>>> will remove only the first occurrence of $string. If $all is I<<<<<< TRUE >>>>>>C<<<<<< deleteDataString >>>>>> will remove all occurrences of I<<<<<< $string >>>>>> from the node data.
 
@@ -231,6 +231,6 @@ complex variants it is recommended to use the code snippet above.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

@@ -77,7 +77,7 @@ LibXML::Pattern - LibXML::Pattern - interface to libxml2 XPath patterns
 
 
   use LibXML;
-  my $pattern = LibXML::Pattern.new('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
+  my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
   # test a match on an LibXML::Node $node
   
   if $pattern.matchesNode($node) { ... }
@@ -96,7 +96,7 @@ LibXML::Pattern - LibXML::Pattern - interface to libxml2 XPath patterns
 
 =head1 DESCRIPTION
 
-This is a perl interface to libxml2's pattern matching support I<<<<<< http://xmlsoft.org/html/libxml-pattern.html >>>>>>. This feature requires recent versions of libxml2.
+This is a Raku interface to libxml2's pattern matching support I<<<<<< http://xmlsoft.org/html/libxml-pattern.html >>>>>>. This feature requires recent versions of libxml2.
 
 Patterns are a small subset of XPath language, which is limited to
 (disjunctions of) location paths involving the child and descendant axes in
@@ -122,13 +122,14 @@ Note that no predicates or attribute tests are allowed.
 Patterns are particularly useful for stream parsing provided via the C<<<<<< LibXML::Reader >>>>>> interface.
 
 =begin item1
-new
+new / compile
 
-  $pattern = LibXML::Pattern.new( pattern, :ns{ prefix => namespace_URI, ... } );
+  my LibXML::Pattern $pattern .= compile( $expr, :ns{ prefix => namespace_URI, ... } );
+  my LibXML::Pattern $pattern2 .= new ( pattern => $expr, :ns{ prefix => namespace_URI, ... } );
 
-The constructor of a pattern takes a pattern expression (as described by the
+The constructors of a pattern takes a pattern expression (as described by the
 BNF grammar above) and an optional Hash mapping prefixes to namespace
-URIs. The method returns a compiled pattern object. 
+URIs. The methods return a compiled pattern object. 
 
 Note that if the document has a default namespace, it must still be given an
 prefix in order to be matched (as demanded by the XPath 1.0 specification). For
@@ -136,7 +137,7 @@ example, to match an element C<<<<<< &lt;a xmlns="http://foo.bar"&lt;/a&gt; >>>>
 
 
 
-  my LibXML::Pattern $pattern .= new( 'foo:a', :ns(foo => 'http://foo.bar') );
+  my LibXML::Pattern $pattern .= compile( 'foo:a', :ns(foo => 'http://foo.bar') );
 
 =end item1
 
@@ -146,7 +147,7 @@ matchesNode / ACCEPTS
   my Bool $matched = $pattern.matchesNode($node);
   $matched = $node ~~ $pattern;
 
-Given an LibXML::Node object, returns Tru if the node is matched by
+Given an LibXML::Node object, returns True if the node is matched by
 the compiled pattern expression.
 
 =end item1
@@ -167,6 +168,6 @@ L<<<<<< LibXML::Reader >>>>>> for other methods involving compiled patterns.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

@@ -20,7 +20,7 @@ $parser.keep-blanks = True;
 $parser.config.skip-xml-declaration = True;
 my LibXML::Document $doc = $parser.parse: :$string;
 isnt $doc.Str, $tstr, 'blanks kept';
-is-deeply $doc.doc, $doc, 'doc self-root';
+ok $doc.doc === $doc, 'doc self-root';
 
 my $a = $doc.first;
 is $a.tag, 'a';
@@ -48,9 +48,9 @@ is $frag.elements.Str, '<C/><D/><A/><B/>', 'Fragment elements';
 
 # create a document from scratch
 $doc .= new;
-my LibXML::Element:D $root .= new: :name<Test>;
+my LibXML::Element $root .= new: :name<Test>;
 $doc.documentElement = $root;
-my LibXML::Element:D $root2 = $doc.documentElement;
+my LibXML::Element $root2 = $doc.documentElement;
 ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';

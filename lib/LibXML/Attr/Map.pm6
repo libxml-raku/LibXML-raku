@@ -122,7 +122,7 @@ There are also some DOM (NamedNodeMap) compatible methods:
 =begin item1
 keys, pairs, kv, elems, values, list
 
-Similar to the equivalent L<Hash|https://docs.perl6.org/type/Hash> methods.
+Similar to the equivalent Raku Hash methods.
 
 =end item1
 
@@ -182,7 +182,7 @@ C<$map.removedNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod
 

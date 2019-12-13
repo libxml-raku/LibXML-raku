@@ -311,7 +311,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     # Document Manipulation
     # -> Document Elements
 
-    my LibXML::Document:D $doc .= new();
+    my LibXML::Document $doc .= new();
     my LibXML::Element $node = $doc.createElement( "foo" );
     $doc.documentElement = $node;
     my $tn = $doc.documentElement;
@@ -369,8 +369,8 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 {
     need LibXML::Document;
     # Document Storing
-    my LibXML:D $parser .= new;
-    my LibXML::Document:D $doc = $parser.parse: :string("<foo>bar</foo>");
+    my LibXML $parser .= new;
+    my LibXML::Document $doc = $parser.parse: :string("<foo>bar</foo>");
 
 
     is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );

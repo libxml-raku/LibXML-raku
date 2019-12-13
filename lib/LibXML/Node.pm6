@@ -900,8 +900,7 @@ find
 
 I<<<<<< find >>>>>> evaluates the XPath 1.0 expression using the current node as the context of the
 expression, and returns the result depending on what type of result the XPath
-expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< Numeric >>>>>> object being returned. Other expressions might return an L<<<<<< Bool >>>>>> object, or a L<<<<<< Str >>>>>> object. Each of those objects uses Perl's overload feature to "do
-the right thing" in different contexts.
+expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<< Numeric >>>>>> object being returned. Other expressions might return an L<<<<<< Bool >>>>>> object, or a L<<<<<< Str >>>>>> object.
 
 The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
 
@@ -1160,7 +1159,7 @@ normalize
 
 This function normalizes adjacent text nodes. This function is not as strict as
 libxml2's xmlTextMerge() function, since it will not free a node that is still
-referenced by the Perl layer.
+referenced by Raku.
 
 =end item1
 
@@ -1187,7 +1186,7 @@ This function is not specified for any DOM level: It removes all childnodes
 from a node in a single step. Other than the libxml2 function itself
 (xmlFreeNodeList), this function will not immediately remove the nodes from the
 memory. This saves one from getting memory violations, if there are nodes still
-referred to from the Perl level.
+referred to from Raku.
 
 =end item1
 
@@ -1260,6 +1259,6 @@ line-number() will always return 0.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

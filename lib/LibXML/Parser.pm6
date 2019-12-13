@@ -57,7 +57,7 @@ method !make-handler(xmlParserCtxt :$native, :$line-numbers=$!line-numbers, :$in
 }
 
 method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
-    my LibXML::Document:D $doc .= new: :$ctx, :$native;
+    my LibXML::Document $doc .= new: :$ctx, :$native;
     $doc.URI = $_ with $URI;
     self.processXIncludes($doc, :$ctx)
         if $.expand-xinclude;
@@ -295,7 +295,7 @@ LibXML::Parser - Parsing XML Data with LibXML
       # parser options ...
     );
   $dom = LibXML.parse(
-      io => $perl-file-handle,
+      io => $raku-file-handle,
       # parser options ...
     );
   # dispatch to above depending on type
@@ -374,7 +374,7 @@ reads XML data into a DOM like data structure, so each tag can get accessed and
 transformed.
 
 LibXML's DOM parser is not only capable to parse XML data, but also (strict)
-HTML files. There are three ways to parse documents - as a string, as a Perl
+HTML files. There are three ways to parse documents - as a string, as a Raku
 filehandle, or as a filename/URL. The return value from each is a L<<<<<< LibXML::Document >>>>>> object, which is a DOM object.
 
 All of the functions listed below will throw an exception if the document is
@@ -397,12 +397,12 @@ parse
       # parser options ...
     );
   $dom = LibXML.parse(
-      io => $perl-path-or-file-handle,
+      io => $raku-path-or-file-handle,
       :$html, :$URI, :$enc,
       # parser options ...
     );
   $dom = LibXML.parse(
-      buf => $perl-blob-or-buf,
+      buf => $raku-blob-or-buf,
       :$html, :$URI, :$enc,
       # parser options ...
     );
@@ -601,9 +601,6 @@ LibXML provides a direct SAX parser in the L<<<<<< LibXML::SAX >>>>>> module.
 LibXML also provides a DOM based SAX parser. The SAX parser is defined in the
 module LibXML::SAX::Parser. As it is not a stream based parser, it parses
 documents into a DOM and traverses the DOM tree instead.
-
-The API of this parser is exactly the same as any other Perl SAX2 parser. See
-XML::SAX::Intro for details.
 
 Aside from the regular parsing methods, you can access the DOM tree traverser
 directly, using the reparse() method:
@@ -1044,6 +1041,6 @@ by throwing an exception.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

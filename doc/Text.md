@@ -109,7 +109,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         $text.deleteDataString($remstring, :g);
 
-    This method removes a chunk from the existing node data. Since the DOM spec is quite unhandy if you already know `which ` string to remove from a text node, this method allows more perlish code :)
+    This method removes a chunk from the existing node data. Since the DOM spec is quite unhandy if you already know `which ` string to remove from a text node, this method allows more Rakuish code :)
 
     The functions takes two parameters: *$string * and optional the *:g * flag. If :g is not set, `deleteDataString ` will remove only the first occurrence of $string. If $all is *TRUE *`deleteDataString ` will remove all occurrences of *$string * from the node data.
 
@@ -153,5 +153,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

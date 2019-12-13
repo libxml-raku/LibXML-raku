@@ -102,7 +102,7 @@ my class ValidContext {
 }
 
 submethod TWEAK(|c) {
-    my Parser::Context:D $parser-ctx .= new: |c;
+    my Parser::Context $parser-ctx .= new: |c;
     $!native = $parser-ctx.parse;
 }
 
@@ -209,6 +209,6 @@ Returns either True or False depending on whether the passed Document is valid o
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

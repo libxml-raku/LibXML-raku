@@ -7,7 +7,7 @@ SYNOPSIS
 ========
 
     use LibXML::XPath::Expression;
-    my LibXML::XPath::Expression $compiled-xpath .= parse('//foo[@bar="baz"][position()<4]');
+    my LibXML::XPath::Expression $compiled-xpath .= compile('//foo[@bar="baz"][position()<4]');
 
     # interface from LibXML::Node
 
@@ -26,7 +26,7 @@ SYNOPSIS
 DESCRIPTION
 ===========
 
-This is a perl interface to libxml2's pre-compiled XPath expressions. Pre-compiling an XPath expression can give in some performance benefit if the same XPath query is evaluated many times. `LibXML::XPath::Expression ` objects can be passed to all `find... ` functions `LibXML ` that expect an XPath expression. 
+This is a Raku interface to libxml2's pre-compiled XPath expressions. Pre-compiling an XPath expression can give in some performance benefit if the same XPath query is evaluated many times. `LibXML::XPath::Expression ` objects can be passed to all `find... ` functions `LibXML ` that expect an XPath expression. 
 
   * new()
 
@@ -34,9 +34,9 @@ This is a perl interface to libxml2's pre-compiled XPath expressions. Pre-compil
 
     The constructor takes an XPath 1.0 expression as a string and returns an object representing the pre-compiled expressions (the actual data structure is internal to libxml2). 
 
-  * parse()
+  * compile()
 
-        LibXML::XPath::Expression $compiled  = .parse( $xpath-string );
+        LibXML::XPath::Expression $compiled  = .compile( $xpath-string );
 
     Alternative constructor.
 
@@ -52,5 +52,5 @@ COPYRIGHT
 LICENSE
 =======
 
-This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

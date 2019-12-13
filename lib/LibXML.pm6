@@ -20,7 +20,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.2.4>
+unit class LibXML:ver<0.2.5>
     is LibXML::Parser;
 
 method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
@@ -161,7 +161,7 @@ Xliff.
 
 =head1 VERSION
 
-0.2.4
+0.2.5
 
 =head1 COPYRIGHT
 
@@ -174,6 +174,6 @@ Xliff.
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

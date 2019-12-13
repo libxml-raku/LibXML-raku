@@ -58,6 +58,7 @@ LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
 
 
   use LibXML::RegExp;
+  my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
   my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
   if $compiled-re.isDeterministic() { ... }
   if $compiled-re.matches($string) { ... }
@@ -69,15 +70,16 @@ LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
 
 =head1 DESCRIPTION
 
-This is a perl interface to libxml2's implementation of regular expressions,
+This is a Raku interface to libxml2's implementation of regular expressions,
 which are used e.g. for validation of XML Schema simple types (pattern facet).
 
 =begin item
-new
+new / compile
 
+  my LibXML::RegExp $compiled-re .= compile( $regexp );
   my LibXML::RegExp $compiled-re .= new( :$regexp );
 
-The constructor takes a string containing a regular expression and returns an object that contains a compiled regexp.
+The constructors takes a string containing a regular expression and return an object that contains a compiled regexp.
 =end item
 
 =begin item
@@ -111,6 +113,6 @@ otherwise. (See the definition of determinism in the XML spec (L<<<<<< http://ww
 =head1 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod
