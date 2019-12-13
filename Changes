@@ -1,5 +1,7 @@
 0.2.5 2019-12-xx
-    - Changed LICENSE sections and file. Replace 'Perl' with 'Artistic'.
+    - Replaces references to Perl with Raku
+    - This includes LICENSE sections of 'Perl' with 'Artistic'. Replace
+      LICENSE file with a more recent version of the Artistic license.
     - Fixes for Rakudo 2018.10
 0.2.4 2019-12-08
     - [xml6_gbl.c]
