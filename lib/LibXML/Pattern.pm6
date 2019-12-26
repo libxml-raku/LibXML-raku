@@ -81,7 +81,7 @@ LibXML::Pattern - LibXML::Pattern - interface to libxml2 XPath patterns
   # test a match on an LibXML::Node $node
   
   if $pattern.matchesNode($node) { ... }
-  if $node ~~ $pattern;
+  if $node ~~ $pattern { ... }
   
   # or on an LibXML::Reader
   

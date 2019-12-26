@@ -381,6 +381,8 @@ method write(Str() :$file!, Bool :$format = False) {
     $n;
 }
 
+method save-as(Str() $file) { $.write: :$file }
+
 =begin pod
 =head1 NAME
 

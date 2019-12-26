@@ -11,7 +11,7 @@ SYNOPSIS
     # test a match on an LibXML::Node $node
 
     if $pattern.matchesNode($node) { ... }
-    if $node ~~ $pattern;
+    if $node ~~ $pattern { ... }
 
     # or on an LibXML::Reader
 

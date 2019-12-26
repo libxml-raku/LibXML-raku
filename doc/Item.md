@@ -3,25 +3,20 @@ NAME
 
 LibXML::Item - LibXML Nodes and Namespaces interface role
 
-SYNOPSIS
-========
+DESCRIPTON
+==========
+
+LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node based classes.
+
+These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
+
+Also note that the LibXML::Node `findnodes` method can sometimes return either LibXML::Node or LibXML::Namespace items, e.g.:
 
     use LibXML::Item;
     for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
        when LibXML::Namespace { say "namespace: " ~ .Str }
        when LibXML::Attr      { say "attribute: " ~ .Str }
     }
-
-DESCRIPTON
-==========
-
-LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node based classes.
-
-This is a containing role for XPath queries with may return either namespaces or other nodes.
-
-The LibXML::Namespace class is distinct from LibXML::Node classes. It cannot itself contain namespaces and lacks parent or child nodes.
-
-Both nodes and namespaces support the following common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
 Please see [LibXML::Node](LibXML::Node) and [LibXML::Namespace](LibXML::Namespace).
 
@@ -63,6 +58,24 @@ FUNCTIONS AND METHODS
     <tr> <td>*Term*</td> <td>*Description*</td> </tr> <tr> <td>name =&gt; [term, term, ...]</td> <td>Construct an element and its child items</td> </tr> <tr> <td>name =&gt; str-val</td> <td>Construct an attribute</td> </tr> <tr> <td>&#39;xmlns:prefix&#39; =&gt; str-val</td> <td>Construct a namespace</td> </tr> <tr> <td>&#39;text content&#39;</td> <td>Construct text node</td> </tr> <tr> <td>&#39;?name&#39; =&gt; str-val</td> <td>Construct a processing instruction</td> </tr> <tr> <td>&#39;#cdata&#39; =&gt; str-val</td> <td>Construct a CData node</td> </tr> <tr> <td>&#39;#comment&#39; =&gt; str-val</td> <td>Construct a comment node</td> </tr> <tr> <td>[elem, elem, ..]</td> <td>Construct a document fragment</td> </tr> <tr> <td>&#39;#xml&#39; =&gt; [root-elem]</td> <td>Construct an XML document</td> </tr> <tr> <td>&#39;#html&#39; =&gt; [root-elem]</td> <td>Construct an HTML document</td> </tr> <tr> <td>&#39;&amp;name&#39; =&gt; []</td> <td>Construct an entity reference</td> </tr>
     </tbody>
     </table>
+
+  * box
+
+    By convention native classes in the LibXML module are not directly exposed, but have a containing class that manages the native object and provides an API interface to it. The `box` method is used to stantiate the containing object, of an appropriate class. The class will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while the containing object is still alive.
+
+    For example to create an xmlElem native object then a LibXML::Element containing class.
+
+        use LibXML::Native;
+        use LibXML::Node;
+        use LibXML::Element;
+
+        my xmlElem $native .= new: :name<Foo>;
+        say $native.type; # 1 (element)
+        my LibXML::Element $elem = LibXML::Node.box($native);
+        $!native := Nil;
+        say $elem.Str; # <Foo/>
+
+    A containing object of the correct type (LibXML::Element) has been created for the native object.
 
 COPYRIGHT
 =========
