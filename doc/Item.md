@@ -61,7 +61,7 @@ FUNCTIONS AND METHODS
 
   * box
 
-    By convention native classes in the LibXML module are not directly exposed, but have a containing class that manages the native object and provides an API interface to it. The `box` method is used to stantiate the containing object, of an appropriate class. The class will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while the containing object is still alive.
+    By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
 
     For example to create an xmlElem native object then a LibXML::Element containing class.
 
@@ -76,6 +76,12 @@ FUNCTIONS AND METHODS
         say $elem.Str; # <Foo/>
 
     A containing object of the correct type (LibXML::Element) has been created for the native object.
+
+  * keep
+
+    Synopsis: $item.keep(xmlItem $rv);
+
+    Utility method that verifies that `$rv` is the same native struct as that help by `$item`.
 
 COPYRIGHT
 =========
