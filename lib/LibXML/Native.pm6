@@ -203,7 +203,7 @@ class xmlValidState is repr(Opaque) is export {}
 
 multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
 
-    my role PointerSetter[&setter] {
+    my role PointerSetterHOW[&setter] {
         # override standard Attribute method for generating accessors
         method compose(Mu $package) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
@@ -214,16 +214,16 @@ multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
                         setter(obj, $val);
                     });
             }
-            $package.^add_method( $name, &accessor );
+            try $package.^add_method( $name, &accessor );
         }
     }
 
-    $att does PointerSetter[&rw-ptr]
+    $att does PointerSetterHOW[&rw-ptr]
 }
 
 multi trait_mod:<is>(Attribute $att, :&rw-str!) {
 
-    my role StringSetter[&setter] {
+    my role StringSetterHOW[&setter] {
         method compose(Mu $package) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
             my &accessor = sub (\obj) is rw {
@@ -234,11 +234,11 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
                         setter(obj, $str);
                     });
             }
-            $package.^add_method( $name, &accessor );
+            try $package.^add_method( $name, &accessor );
         }
     }
 
-    $att does StringSetter[&rw-str]
+    $att does StringSetterHOW[&rw-str]
 }
 
 class xmlParserInputBuffer is repr('CStruct') is export {

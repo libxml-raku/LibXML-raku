@@ -1,4 +1,6 @@
-0.2.5 2019-12-xx
+0.2.7 2020-01-14
+    - [LibXML::Native] - Fixes to 'rw-ptr' and 'rw-str' for Rakudo 2019.11+ Blead
+0.2.6 2019-12-13
     - Replaces references to Perl with Raku
     - This includes LICENSE sections of 'Perl' with 'Artistic'. Replace
       LICENSE file with a more recent version of the Artistic license.
@@ -108,7 +110,6 @@
       -- use .xpath-key() to compute Hash keys. This leads to a
          more natural round-trip, but does change some fixed keys.
          E.g. $elem<#text> is now $elem<text()>
-    
 0.1.2 2019-10-12
     - [LibXML::DocumentFragment] make .parse() method consistant with LibXML::Document
       -- allow .parse() as a class-level method.
