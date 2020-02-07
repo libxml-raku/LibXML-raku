@@ -75,94 +75,94 @@ doc : README.md doc/Attr.md doc/Attr/Map.md doc/CDATA.md doc/Comment.md doc/Conf
       doc/Node.md doc/Node/List.md doc/Node/Set.md doc/PI.md doc/RelaxNG.md doc/Text.md doc/Pattern.md\
       doc/Parser.md doc/PushParser.md doc/RegExp.md doc/Reader.md doc/Schema.md doc/XPath/Context.md doc/XPath/Expression.md
 
-README.md : lib/LibXML.pm6
+README.md : lib/LibXML.rakumod
 	(\
 	    echo '[![Build Status](https://travis-ci.org/p6-xml/LibXML-raku.svg?branch=master)](https://travis-ci.org/p6-xml/LibXML-raku)'; \
             echo '';\
-            perl6 -I . --doc=Markdown lib/LibXML.pm6\
+            perl6 -I . --doc=Markdown lib/LibXML.rakumod\
         ) > README.md
 
-doc/Attr.md : lib/LibXML/Attr.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Attr.pm6 > doc/Attr.md
+doc/Attr.md : lib/LibXML/Attr.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Attr.rakumod > doc/Attr.md
 
-doc/Attr/Map.md : lib/LibXML/Attr/Map.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Attr/Map.pm6 > doc/Attr/Map.md
+doc/Attr/Map.md : lib/LibXML/Attr/Map.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Attr/Map.rakumod > doc/Attr/Map.md
 
-doc/Comment.md : lib/LibXML/Comment.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Comment.pm6 > doc/Comment.md
+doc/Comment.md : lib/LibXML/Comment.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Comment.rakumod > doc/Comment.md
 
-doc/Config.md : lib/LibXML/Config.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Config.pm6 > doc/Config.md
+doc/Config.md : lib/LibXML/Config.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Config.rakumod > doc/Config.md
 
-doc/CDATA.md : lib/LibXML/CDATA.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/CDATA.pm6 > doc/CDATA.md
+doc/CDATA.md : lib/LibXML/CDATA.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/CDATA.rakumod > doc/CDATA.md
 
-doc/Document.md : lib/LibXML/Document.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Document.pm6 > doc/Document.md
+doc/Document.md : lib/LibXML/Document.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Document.rakumod > doc/Document.md
 
-doc/DocumentFragment.md : lib/LibXML/DocumentFragment.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/DocumentFragment.pm6 > doc/DocumentFragment.md
+doc/DocumentFragment.md : lib/LibXML/DocumentFragment.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/DocumentFragment.rakumod > doc/DocumentFragment.md
 
-doc/Dtd.md : lib/LibXML/Dtd.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Dtd.pm6 > doc/Dtd.md
+doc/Dtd.md : lib/LibXML/Dtd.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Dtd.rakumod > doc/Dtd.md
 
-doc/Element.md : lib/LibXML/Element.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Element.pm6 > doc/Element.md
+doc/Element.md : lib/LibXML/Element.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Element.rakumod > doc/Element.md
 
-doc/ErrorHandling.md : lib/LibXML/ErrorHandling.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/ErrorHandling.pm6 > doc/ErrorHandling.md
+doc/ErrorHandling.md : lib/LibXML/ErrorHandling.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/ErrorHandling.rakumod > doc/ErrorHandling.md
 
-doc/InputCallback.md : lib/LibXML/InputCallback.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/InputCallback.pm6 > doc/InputCallback.md
+doc/InputCallback.md : lib/LibXML/InputCallback.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/InputCallback.rakumod > doc/InputCallback.md
 
-doc/Item.md : lib/LibXML/Item.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Item.pm6 > doc/Item.md
+doc/Item.md : lib/LibXML/Item.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Item.rakumod > doc/Item.md
 
-doc/Namespace.md : lib/LibXML/Namespace.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Namespace.pm6 > doc/Namespace.md
+doc/Namespace.md : lib/LibXML/Namespace.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Namespace.rakumod > doc/Namespace.md
 
-doc/Native.md : lib/LibXML/Native.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Native.pm6 > doc/Native.md
+doc/Native.md : lib/LibXML/Native.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Native.rakumod > doc/Native.md
 
-doc/Node.md : lib/LibXML/Node.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Node.pm6 > doc/Node.md
+doc/Node.md : lib/LibXML/Node.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Node.rakumod > doc/Node.md
 
-doc/Node/List.md : lib/LibXML/Node/List.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Node/List.pm6 > doc/Node/List.md
+doc/Node/List.md : lib/LibXML/Node/List.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Node/List.rakumod > doc/Node/List.md
 
-doc/Node/Set.md : lib/LibXML/Node/Set.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Node/Set.pm6 > doc/Node/Set.md
+doc/Node/Set.md : lib/LibXML/Node/Set.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Node/Set.rakumod > doc/Node/Set.md
 
-doc/PI.md : lib/LibXML/PI.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/PI.pm6 > doc/PI.md
+doc/PI.md : lib/LibXML/PI.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/PI.rakumod > doc/PI.md
 
-doc/Parser.md : lib/LibXML/Parser.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Parser.pm6 > doc/Parser.md
+doc/Parser.md : lib/LibXML/Parser.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Parser.rakumod > doc/Parser.md
 
-doc/PushParser.md : lib/LibXML/PushParser.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/PushParser.pm6 > doc/PushParser.md
+doc/PushParser.md : lib/LibXML/PushParser.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/PushParser.rakumod > doc/PushParser.md
 
-doc/Pattern.md : lib/LibXML/Pattern.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Pattern.pm6 > doc/Pattern.md
+doc/Pattern.md : lib/LibXML/Pattern.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Pattern.rakumod > doc/Pattern.md
 
-doc/RegExp.md : lib/LibXML/RegExp.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/RegExp.pm6 > doc/RegExp.md
+doc/RegExp.md : lib/LibXML/RegExp.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/RegExp.rakumod > doc/RegExp.md
 
-doc/Reader.md : lib/LibXML/Reader.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Reader.pm6 > doc/Reader.md
+doc/Reader.md : lib/LibXML/Reader.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Reader.rakumod > doc/Reader.md
 
-doc/Schema.md : lib/LibXML/Schema.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Schema.pm6 > doc/Schema.md
+doc/Schema.md : lib/LibXML/Schema.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Schema.rakumod > doc/Schema.md
 
-doc/RelaxNG.md : lib/LibXML/RelaxNG.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/RelaxNG.pm6 > doc/RelaxNG.md
+doc/RelaxNG.md : lib/LibXML/RelaxNG.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/RelaxNG.rakumod > doc/RelaxNG.md
 
-doc/Text.md : lib/LibXML/Text.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/Text.pm6 > doc/Text.md
+doc/Text.md : lib/LibXML/Text.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/Text.rakumod > doc/Text.md
 
-doc/XPath/Context.md : lib/LibXML/XPath/Context.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/XPath/Context.pm6 > doc/XPath/Context.md
+doc/XPath/Context.md : lib/LibXML/XPath/Context.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/XPath/Context.rakumod > doc/XPath/Context.md
 
-doc/XPath/Expression.md : lib/LibXML/XPath/Expression.pm6
-	perl6 -I . --doc=Markdown lib/LibXML/XPath/Expression.pm6 > doc/XPath/Expression.md
+doc/XPath/Expression.md : lib/LibXML/XPath/Expression.rakumod
+	perl6 -I . --doc=Markdown lib/LibXML/XPath/Expression.rakumod > doc/XPath/Expression.md
 

@@ -12,3 +12,6 @@ install:
   - zef --depsonly install .
   - zef install File::Temp
   - zef build .
+script:
+  - prove -ve "rakudo -I."
+  - zef install .
