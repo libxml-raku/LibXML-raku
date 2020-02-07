@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 56;
+plan 58;
 
 use LibXML;
 
@@ -29,6 +29,12 @@ if defined $dom {
     is( +@slist, 1, ' TODO : Add test name' );
     @slist = $node.findnodes( "HUMPS" );
     is( +@slist, 0, 'case sensitivity');
+
+    @slist = $node.findnodes('/dromedaries/species/humps');
+    is( +@slist, 3, 'absolute path on relative node' );
+
+    @slist = $node.findnodes('./humps');
+    is( +@slist, 1, 'self path on relative name' );
 
     # find a single node
     @list   = $elem.findnodes( "species[\@name='Llama']" );

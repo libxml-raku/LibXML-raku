@@ -1,3 +1,5 @@
+0.3.0 2020-02-08
+    - Rename module source files *.pm6 -> *.rakumod
 0.2.7 2020-01-14
     - [LibXML::Native] - Fixes to 'rw-ptr' and 'rw-str' for Rakudo 2019.11+ Blead
 0.2.6 2019-12-13
@@ -15,7 +17,7 @@
       -- Replace X::LibXML::Reader::OpFail with X::LibXML::OpFail. Fix usage
          in schema and relax-ng.
     - [LibXML::{Pattern|Dtd|Schema|RelaxNg|RegExp}]
-      Added ACCEPTS() multi methods for more Rakuish matching, e.g.:
+      -- Added ACCEPTS() multi methods for more Rakuish matching, e.g.:
           $node ~~ $pattern; $doc ~~ $dtd; "abc" ~~ $regexp
     - [t/26schema.t][t/43options.t] fix tests that were accessing the network #32
       (were failing when http/https was not available).
