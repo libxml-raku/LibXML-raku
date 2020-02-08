@@ -13,5 +13,5 @@ install:
   - zef install File::Temp
   - zef build .
 script:
-  - prove -ve "rakudo -I."
+  - prove -ve "perl6 -I."
   - zef install .
