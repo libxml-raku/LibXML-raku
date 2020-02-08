@@ -636,19 +636,15 @@ string, ready for output.
 
   $file.IO.spurt: $doc.Str;
 
-regardless of the actual encoding of the document. See the section on encodings
-in L<<<<<< LibXML >>>>>> for more details.
+regardless of the actual encoding of the document.
 
 The optional I<<<<<< $format >>>>>> parameter sets the indenting of the output. This parameter is expected to be an C<<<<<< integer >>>>>> value, that specifies that indentation should be used. The format parameter can
 have three different values if it is used:
 
-If $format is 0, than the document is dumped as it was originally parsed
+If $format is False, than the document is dumped as it was originally parsed
 
-If $format is 1, libxml2 will add ignorable white spaces, so the nodes content
+If $format is True, libxml2 will add ignorable white spaces, so the nodes content
 is easier to read. Existing text nodes will not be altered
-
-If $format is 2 (or higher), libxml2 will act as $format == 1 but it add a
-leading and a trailing line break to each text node.
 
 libxml2 uses a hard-coded indentation of 2 space characters per indentation
 level. This value can not be altered on run-time.
