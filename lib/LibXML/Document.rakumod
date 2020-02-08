@@ -669,7 +669,7 @@ serialize
 
   my Str $xml-formatted = $doc.serialize(:$format);
 
-An alias for toString(). This function was name added to be more consistent
+An alias for Str(). This function was name added to be more consistent
 with libxml2.
 =end item
 
@@ -677,7 +677,7 @@ with libxml2.
 =begin item
 write
 
-  my Int $state = $doc.write: :io($filename), :$format;
+  my Int $state = $doc.write: :$file, :$format;
 
 This function is similar to Str(), but it writes the document directly
 into a filesystem. This function is very useful, if one needs to store large
@@ -702,7 +702,7 @@ serialize-html
 
   my Str $html = $document.serialize-html();
 
-An alias for Str: :html.
+Equilavent to: .Str: :html.
 =end item
 
 
