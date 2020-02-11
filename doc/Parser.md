@@ -71,13 +71,13 @@ PARSING
 
 An XML document is read into a data structure such as a DOM tree by a piece of software, called a parser. LibXML currently provides four different parser interfaces:
 
-  * * A DOM Pull-Parser
+  * A DOM Pull-Parser
 
-  * * A DOM Push-Parser
+  * A DOM Push-Parser
 
-  * * A SAX Parser
+  * A SAX Parser
 
-  * * A DOM based SAX Parser.
+  * A DOM based SAX Parser.
 
 Creating a Parser Instance
 --------------------------
@@ -152,7 +152,7 @@ The functions described above are implemented to parse well formed documents. In
 
         my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
 
-    This function parses a well balanced XML string into a [LibXML::DocumentFragment ](LibXML::DocumentFragment ). The string argument contains the input XML string.
+    This function parses a well balanced XML string into a [LibXML::DocumentFragment ](LibXML::DocumentFragment ) object. The string argument contains the input XML string.
 
 By default LibXML does not process XInclude tags within an XML Document (see options section below). LibXML allows one to post-process a document to expand XInclude tags.
 
@@ -263,11 +263,11 @@ SERIALIZATION
 
 LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](LibXML::Node ) or the [LibXML::Document ](LibXML::Document ) documentation. LibXML checks three global flags that alter the serialization process:
 
-  * * skip-xml-declaration
+  * skip-xml-declaration
 
-  * * skip-dtd
+  * skip-dtd
 
-  * * tag-expansion
+  * tag-expansion
 
 of that three functions only `tag-expansion` is available for all serialization functions.
 
@@ -275,13 +275,13 @@ Because LibXML does these flags not itself, one has to define them locally as th
 
     temp LibXML.skip-xml-declaration = True;
     temp LibXML.skip-dtd = True;
-    tmep LibXML.tag-expansion = False;
+    temp LibXML.tag-expansion = False;
 
-If skip-xml-declaration is True, the XML declaration is omitted during serialization.
+If `skip-xml-declaration` is True, the XML declaration is omitted during serialization.
 
-If skip-dtd is defined is True, an existing DTD would not be serialized with the document.
+If `skip-dtd` is defined is True, an existing DTD would not be serialized with the document.
 
-If tag-expansion is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo * will be rendered as *&lt;foo&gt;&lt;/foo&gt; * rather than *&lt;foo/&gt; *.
+If `tag-expansion` is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo * will be rendered as *&lt;foo&gt;&lt;/foo&gt; * rather than *&lt;foo/&gt; *.
 
 PARSER OPTIONS
 ==============
@@ -424,7 +424,7 @@ The available options are:
 
     /parser, html, reader/
 
-    keep blank nodes; default true
+    keep blank nodes; default True
 
   * defdtd
 
@@ -478,7 +478,7 @@ The available options are:
 
     /parser, reader/
 
-    fixup XINCLUDE xml#base URIS; default True
+    fix-up XINCLUDE xml#base URIS; default True
 
   * huge
 

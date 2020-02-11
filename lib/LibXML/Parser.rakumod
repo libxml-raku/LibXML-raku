@@ -340,13 +340,13 @@ An XML document is read into a data structure such as a DOM tree by a piece of
 software, called a parser. LibXML currently provides four different parser
 interfaces:
 
-=item1 * A DOM Pull-Parser
+=item1 A DOM Pull-Parser
 
-=item1 * A DOM Push-Parser
+=item1 A DOM Push-Parser
 
-=item1 * A SAX Parser
+=item1 A SAX Parser
 
-=item1 * A DOM based SAX Parser.
+=item1 A DOM based SAX Parser.
 
 
 =head2 Creating a Parser Instance
@@ -458,7 +458,7 @@ parse-balanced
 
   my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
 
-This function parses a well balanced XML string into a L<<<<<< LibXML::DocumentFragment >>>>>>. The string argument contains the input XML string.
+This function parses a well balanced XML string into a L<<<<<< LibXML::DocumentFragment >>>>>> object. The string argument contains the input XML string.
 
 =end item1
 
@@ -626,11 +626,11 @@ parser look at the L<<<<<< LibXML::SAX >>>>>> man page
 LibXML provides some functions to serialize nodes and documents. The
 serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the L<<<<<< LibXML::Document >>>>>> documentation. LibXML checks three global flags that alter the serialization process:
 
-=item1 * skip-xml-declaration
+=item1 skip-xml-declaration
 
-=item1 * skip-dtd
+=item1 skip-dtd
 
-=item1 * tag-expansion
+=item1 tag-expansion
 
 of that three functions only `tag-expansion` is available for all
 serialization functions.
@@ -642,15 +642,15 @@ the following example shows:
 
   temp LibXML.skip-xml-declaration = True;
   temp LibXML.skip-dtd = True;
-  tmep LibXML.tag-expansion = False;
+  temp LibXML.tag-expansion = False;
 
-If skip-xml-declaration is True, the XML declaration is omitted
+If C<skip-xml-declaration> is True, the XML declaration is omitted
 during serialization.
 
-If skip-dtd is defined is True, an existing DTD would not be serialized with
+If C<skip-dtd> is defined is True, an existing DTD would not be serialized with
 the document.
 
-If tag-expansion is True empty tags are displayed as open
+If C<tag-expansion> is True empty tags are displayed as open
 and closing tags rather than the shortcut. For example the empty tag I<<<<<< foo >>>>>> will be rendered as I<<<<<< &lt;foo&gt;&lt;/foo&gt; >>>>>> rather than I<<<<<< &lt;foo/&gt; >>>>>>.
 
 
@@ -880,7 +880,7 @@ blanks
 
 /parser, html, reader/
 
-keep blank nodes; default true
+keep blank nodes; default True
 
 =end item1
 
@@ -957,7 +957,7 @@ base-fix
 
 /parser, reader/
 
-fixup XINCLUDE xml#base URIS; default True
+fix-up XINCLUDE xml#base URIS; default True
 
 =end item1
 

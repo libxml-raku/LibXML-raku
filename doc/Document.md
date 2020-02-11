@@ -192,9 +192,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     regardless of the actual encoding of the document.
 
-    The optional *$format * parameter sets the indenting of the output. This parameter is expected to be an `integer ` value, that specifies that indentation should be used. The format parameter can have three different values if it is used:
+    The optional *$format * flage sets the indenting of the output.
 
-    If $format is False, than the document is dumped as it was originally parsed
+    If $format is False, or ommitted, the document is dumped as it was originally parsed
 
     If $format is True, libxml2 will add ignorable white spaces, so the nodes content is easier to read. Existing text nodes will not be altered
 

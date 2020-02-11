@@ -14,4 +14,4 @@ install:
   - zef build .
 script:
   - prove -ve "perl6 -I."
-  - zef install .
+  - zef install --/test .
