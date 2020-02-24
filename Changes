@@ -1,3 +1,6 @@
+0.3.0 2020-02-xx
+    - Add $node.ACCEPTS() method for XPath matching, e.g.:
+      'self::foo' ~~ $node
 0.3.0 2020-02-08
     - Rename module source files *.pm6 -> *.rakumod
 0.2.7 2020-01-14

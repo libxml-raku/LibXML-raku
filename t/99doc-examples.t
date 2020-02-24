@@ -361,7 +361,6 @@ subtest 'LibXML::Node' => {
     $node.addChild($childNode);
     my Str $nsURI = 'http://ns.org';
     my Str $xpath-expression = '*';
-    my Str $enc = 'UTF-8';
     #-- setup
 
     my Str $newName = 'Bob';
@@ -413,6 +412,7 @@ subtest 'LibXML::Node' => {
     $xml-c14n = $node.Str: :C14N, :xpath($xpath-expression), :exclusive;
     $xml-c14n = $node.Str: :C14N, :v(v1.1);
     $xml = $doc.serialize(:format);
+    my Blob $buf = $node.Blob(:format, :enc<UTF-8>);
     my Str $localname = $node.localname;
     my Str $prefix = $node.prefix;
     my Str $uri = $node.namespaceURI();

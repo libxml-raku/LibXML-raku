@@ -57,20 +57,23 @@ SYNOPSIS
     my LibXML::Node::Set $results = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );
+    $found = $xpath-expression ~~ $node;
     my LibXML::Node $item = $node.first( $xpath-expression );
     $item = $node.last( $xpath-expression );
     #    * CSS selectors *
-    $node.query-handler = CSS::Selector::To::XPath.new; # setup a query handler
+    $node.query-handler = CSS::Selector::To::XPath.new; # setup a query selector handler
     $item = $node.querySelector($css-selector); # first match
     $results = $node.querySelectorAll($css-selector); # all matches
 
     # -- String serialization -- #
-    my Str $xml = $node.Str(:format, :$enc);
+    my Str $xml = $node.Str(:format);
     my Str $xml-c14 = $node.Str: :C14N;
     $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
     $xml-c14 = $node.Str: :C14N, :v1_1;
     $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression), :exclusive;
     $xml = $doc.serialize(:format);
+    # -- Binary serialization
+    my Blob $buf = $node.Blob(:format, :enc<UTF-8>);
     # -- Data  serialization -- #
     use LibXML::Item :ast-to-xml;
     my $node-data = $node.ast;

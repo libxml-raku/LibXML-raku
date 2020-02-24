@@ -1,12 +1,10 @@
 use v6;
 use Test;
-plan 58;
+plan 62;
 
 use LibXML;
-
-# to test if findnodes works.
-# i added findnodes to the node class, so a query can be started
-# everywhere.
+use LibXML::Element;
+use LibXML::Node;
 
 my $file    = "example/dromeds.xml";
 
@@ -18,17 +16,21 @@ LibXML::ErrorHandling.SetGenericErrorFunc(-> $fmt, |c { });
 
 if defined $dom {
     # get the root document
-    my $elem   = $dom.getDocumentElement();
+    my LibXML::Element $elem = $dom.getDocumentElement();
 
     # first very simple path starting at root
-    my @list   = $elem.findnodes( "species" );
+    my LibXML::Node @list = $elem.findnodes( "species" );
     is( +@list, 3, ' TODO : Add test name' );
     # a simple query starting somewhere ...
-    my $node = @list[0];
-    my @slist = $node.find( "humps" );
+    my LibXML::Node $node = @list[0];
+    my LibXML::Node @slist = $node.find( "humps" );
     is( +@slist, 1, ' TODO : Add test name' );
     @slist = $node.findnodes( "HUMPS" );
     is( +@slist, 0, 'case sensitivity');
+    ok $node.ACCEPTS('self::species');
+    ok 'self::species' ~~ $node, '.ACCEPTS()';
+    ok 'humps' ~~ $node, '.ACCEPTS()';
+    ok 'HUMPS' !~~ $node, '.ACCEPTS()';
 
     @slist = $node.findnodes('/dromedaries/species/humps');
     is( +@slist, 3, 'absolute path on relative node' );
