@@ -426,8 +426,8 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
   $xml-c14 = $node.Str: :C14N, :v1_1;
   $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression), :exclusive;
   $xml = $doc.serialize(:format);
-  # -- Binary serialization
-  my Blob $buf = $node.Blob(:format, :enc<UTF-8>);
+  # -- Binary serialization/encoding
+  my blob8 $buf = $node.Blob(:format, :enc<UTF-8>);
   # -- Data  serialization -- #
   use LibXML::Item :ast-to-xml;
   my $node-data = $node.ast;

@@ -14,7 +14,8 @@ SYNOPSIS
     say $doc.Str;
     # <?xml version="1.0" encoding="UTF-8"?>
     # <Hello>World!</Hello>
-    say $doc<Hello>
+    say $doc<Hello>;
+    # <Hello>World!</Hello>
 
     my Version $library-version = LibXML.version;
     my Version $module-version = LibXML.^ver;

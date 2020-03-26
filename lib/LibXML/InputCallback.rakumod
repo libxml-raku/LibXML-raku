@@ -202,8 +202,8 @@ LibXML::InputCallback - LibXML Class for Input Callbacks
   use LibXML::InputCallback;
   my LibXML::InputCallback $icb .= new;
   $icb.register-callbacks(
-      match => -> Str $file --> Bool { -e $file },
-      open  => -> Str $file --> IO::Handle { $file.IO.open(:r); },
+      match => -> Str $file --> Bool { $file.starts-with('file:') },
+      open  => -> Str $file --> IO::Handle { $file.substr(5).IO.open(:r); },
       read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
       close => -> IO::Handle:D $fh { $fh.close },
   );
@@ -236,7 +236,7 @@ LibXML::InputCallback comes with a object-oriented interface.
 
 Using the function-oriented part the global callback stack of libxml2 can be
 manipulated. Those functions can be used as interface to the callbacks on the
-C- and XS Layer. At the object-oriented part, operations for working with the
+C Layer. At the object-oriented part, operations for working with the
 "pseudo-localized" callback stack are implemented. Currently, you can register
 and de-register callbacks on the Raku layer and initialize them on a per parser
 basis.
@@ -244,7 +244,7 @@ basis.
 
 =head3 Callback Groups
 
-The libxml2 input callbacks come in groups. One group contains a URI matcher (I<<<<<< match >>>>>>), a data stream constructor (I<<<<<< open >>>>>>), a data stream reader (I<<<<<< read >>>>>>), and a data stream destructor (I<<<<<< close >>>>>>). The callbacks can be manipulated on a per group basis only.
+The libxml2 input callbacks come in groups. Each group contains a URI matcher (I<<<<<< match >>>>>>), a data stream constructor (I<<<<<< open >>>>>>), a data stream reader (I<<<<<< read >>>>>>), and a data stream destructor (I<<<<<< close >>>>>>). The callbacks can be manipulated on a per group basis only.
 
 
 =head3 The Parser Process
@@ -295,7 +295,7 @@ my LibXML::InputCallback.$input-callbacks . = new(
   $parser.input-callbacks = $input-callbacks;
   $parser.parse: :file( $some-xml-file );
 
-Note that this Raku port does not currently support the old Perl 5 Global Callback mechanism.
+Note that this Raku port does not currently support the old Perl Global Callback mechanism.
 
 =head1 INTERFACE DESCRIPTION
 
