@@ -1,6 +1,8 @@
 0.3.0 2020-02-xx
     - Add $node.ACCEPTS() method for XPath matching, e.g.:
       'self::foo' ~~ $node
+    - renamed github project p6-xml -> libxml-raku
+    - moved directory doc/ -> docs/
 0.3.0 2020-02-08
     - Rename module source files *.pm6 -> *.rakumod
 0.2.7 2020-01-14

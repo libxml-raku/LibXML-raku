@@ -1,5 +1,5 @@
 {
-  "auth": "github:p6-xml",
+  "auth": "cpan:WARRINGD",
   "authors": [
     "David Warring"
   ],
@@ -78,7 +78,7 @@
   "resources": [
     "libraries/xml6"
   ],
-  "source-url": "https://github.com/p6-xml/LibXML-raku",
+  "source-url": "https://github.com/libxml-raku/LibXML-raku",
   "tags": [
     "xml",
     "html",

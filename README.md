@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/p6-xml/LibXML-raku.svg?branch=master)](https://travis-ci.org/p6-xml/LibXML-raku)
+[![Build Status](https://travis-ci.org/libxml-raku/LibXML-raku.svg?branch=master)](https://travis-ci.org/libxml-xml/LibXML-raku)
 
 NAME
 ====
@@ -32,74 +32,74 @@ DOM Objects
 
 The nodes in the Document Object Model (DOM) are represented by the following classes (most of which "inherit" from [LibXML::Node ](LibXML::Node )):
 
-  * [LibXML::Document](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Document.md) - LibXML DOM attribute class
+  * [LibXML::Document](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Document.md) - LibXML DOM attribute class
 
-  * [LibXML::DocumentFragment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/DocumentFragment.md) - LibXML's DOM L2 Document Fragment implementation
+  * [LibXML::DocumentFragment](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/DocumentFragment.md) - LibXML's DOM L2 Document Fragment implementation
 
-  * [LibXML::Element](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Element.md) - LibXML class for element nodes
+  * [LibXML::Element](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Element.md) - LibXML class for element nodes
 
-  * [LibXML::Attr](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr.md) - LibXML attribute class
+  * [LibXML::Attr](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Attr.md) - LibXML attribute class
 
-  * [LibXML::CDATA](https://github.com/p6-xml/LibXML-p6/blob/master/doc/CDATA.md) - LibXML class for DOM CDATA sections
+  * [LibXML::CDATA](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/CDATA.md) - LibXML class for DOM CDATA sections
 
-  * [LibXML::Comment](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
+  * [LibXML::Comment](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Comment.md) - LibXML class for comment DOM nodes
 
-  * [LibXML::Dtd](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
+  * [LibXML::Dtd](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Dtd.md) - LibXML frontend for DTD validation
 
-  * [LibXML::Namespace](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Namespace.md) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Item.md))
+  * [LibXML::Namespace](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Namespace.md) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Item.md))
 
-  * [LibXML::Node](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node.md) - LibXML DOM base node class
+  * [LibXML::Node](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Node.md) - LibXML DOM base node class
 
-  * [LibXML::Text](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Text.md) - LibXML text node class
+  * [LibXML::Text](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Text.md) - LibXML text node class
 
-  * [LibXML::PI](https://github.com/p6-xml/LibXML-p6/blob/master/doc/PI.md) - LibXML DOM processing instruction nodes
+  * [LibXML::PI](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/PI.md) - LibXML DOM processing instruction nodes
 
 Container/Mapping classes
 -------------------------
 
-  * [LibXML::Attr::Map](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Attr/Map.md) - LibXML DOM attribute map class
+  * [LibXML::Attr::Map](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Attr/Map.md) - LibXML DOM attribute map class
 
-  * [LibXML::Node::List](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/List.md) - Sibling Node Lists
+  * [LibXML::Node::List](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Node/List.md) - Sibling Node Lists
 
-  * [LibXML::Node::Set](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Node/Set.md) - XPath Node Sets
+  * [LibXML::Node::Set](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Node/Set.md) - XPath Node Sets
 
 Parsing
 -------
 
-  * [LibXML::Parser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Parser bindings
+  * [LibXML::Parser](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Parser.md) - LibXML Parser bindings
 
-  * [LibXML::PushParser](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Parser.md) - LibXML Push Parser bindings
+  * [LibXML::PushParser](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Parser.md) - LibXML Push Parser bindings
 
-  * [LibXML::Reader](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Reader.md) - LibXML Reader (pull parser) bindings
+  * [LibXML::Reader](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Reader.md) - LibXML Reader (pull parser) bindings
 
 XPath and Searching
 -------------------
 
-  * [LibXML::XPath::Expression](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Compiled Expressions
+  * [LibXML::XPath::Expression](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/XPath/Context.md) - XPath Compiled Expressions
 
-  * [LibXML::XPath::Context](https://github.com/p6-xml/LibXML-p6/blob/master/doc/XPath/Context.md) - XPath Evaluation Contexts
+  * [LibXML::XPath::Context](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/XPath/Context.md) - XPath Evaluation Contexts
 
-  * [LibXML::Pattern](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Pattern.md) - LibXML Patterns
+  * [LibXML::Pattern](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Pattern.md) - LibXML Patterns
 
-  * [LibXML::RegExp](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
+  * [LibXML::RegExp](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/RegExp.md) - LibXML Regular Expression bindings
 
 Validation
 ----------
 
-  * [LibXML::Schema](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Schema.md) - LibXML schema validation class
+  * [LibXML::Schema](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Schema.md) - LibXML schema validation class
 
-  * [LibXML::RelaxNG](https://github.com/p6-xml/LibXML-p6/blob/master/doc/RelaxNG.md) - LibXML RelaxNG validation class
+  * [LibXML::RelaxNG](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/RelaxNG.md) - LibXML RelaxNG validation class
 
 Other
 -----
 
-  * [LibXML::Config](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Config.md) - LibXML global configuration
+  * [LibXML::Config](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Config.md) - LibXML global configuration
 
-  * [LibXML::Native](https://github.com/p6-xml/LibXML-p6/blob/master/doc/Native.md) - LibXML native interface
+  * [LibXML::Native](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/Native.md) - LibXML native interface
 
-  * [LibXML::ErrorHandling](https://github.com/p6-xml/LibXML-p6/blob/master/doc/ErrorHandling.md) - LibXML class for Error handling
+  * [LibXML::ErrorHandling](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/ErrorHandling.md) - LibXML class for Error handling
 
-  * [LibXML::InputCallback](https://github.com/p6-xml/LibXML-p6/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
+  * [LibXML::InputCallback](https://github.com/libxml-raku/LibXML-raku/blob/master/doc/InputCallback.md) - LibXML class for Input callback handling
 
 PREREQUISITES
 =============
