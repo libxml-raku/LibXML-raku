@@ -1,4 +1,4 @@
-0.3.0 2020-02-xx
+0.3.0 2020-04-29
     - Add $node.ACCEPTS() method for XPath matching, e.g.:
       'self::foo' ~~ $node
     - renamed github project p6-xml -> libxml-raku
