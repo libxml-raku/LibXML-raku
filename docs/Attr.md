@@ -27,7 +27,7 @@ This is the interface to handle Attributes like ordinary nodes. The naming of th
 METHODS
 =======
 
-The class inherits from [LibXML::Node ](LibXML::Node ). The documentation for Inherited methods is not listed here.
+The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ). The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
 

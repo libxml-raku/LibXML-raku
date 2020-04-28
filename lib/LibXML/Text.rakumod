@@ -175,7 +175,7 @@ deleteDataString($string, :g)
 This method removes a chunk from the existing node data. Since the DOM spec is
 quite unhandy if you already know C<<<<<< which >>>>>> string to remove from a text node, this method allows more Rakuish code :)
 
-The functions takes two parameters: I<<<<<< $string >>>>>> and optional the I<<<<<< :g >>>>>> flag. If :g is not set, C<<<<<< deleteDataString >>>>>> will remove only the first occurrence of $string. If $all is I<<<<<< TRUE >>>>>>C<<<<<< deleteDataString >>>>>> will remove all occurrences of I<<<<<< $string >>>>>> from the node data.
+The functions takes two parameters: I<<<<<< $string >>>>>> and optional the I<<<<<< :g >>>>>> flag. If :g is not set, C<<<<<< deleteDataString >>>>>> will remove only the first occurrence of $string. If $all is I<<<<<< True >>>>>>C<<<<<< deleteDataString >>>>>> will remove all occurrences of I<<<<<< $string >>>>>> from the node data.
 
 =end item1
 

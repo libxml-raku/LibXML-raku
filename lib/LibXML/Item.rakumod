@@ -145,11 +145,11 @@ LibXML::Item - LibXML Nodes and Namespaces interface role
 
 =head1 DESCRIPTON
 
-LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node based classes.
+LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> based classes.
 
 These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
-Also note that the LibXML::Node `findnodes` method can sometimes return either LibXML::Node or LibXML::Namespace items, e.g.:
+Also note that the L<LibXML::Node> `findnodes` method can sometimes return either L<LibXML::Node> or L<LibXML::Namespace> items, e.g.:
 
   use LibXML::Item;
   for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
@@ -219,7 +219,7 @@ that holds the object in a `$.native` attribute and provides an API interface fo
 a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object
 to ensure that the underlying native object is not destroyed while it is still alive.
 
-For example to create an xmlElem native object then a LibXML::Element containing class.
+For example to create an xmlElem native object then a L<LibXML::Element> containing class.
 
    use LibXML::Native;
    use LibXML::Node;

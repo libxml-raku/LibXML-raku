@@ -396,7 +396,7 @@ attributes
 
 Proves an associative interface to a node's attributes.
 
-Unlike the equivalent Perl 5 method, this method retrieves only LibXML::Attr nodes (not LibXML::Namespace).
+Unlike the equivalent Perl 5 method, this method retrieves only L<LibXML::Attr> (not L<LibXML::Namespace>) nodes.
 
 See also:
 

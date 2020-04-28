@@ -64,69 +64,69 @@ For further information, please check the following documentation:
 The nodes in the Document Object Model (DOM) are represented by the following
 classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
-=item [LibXML::Document](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Document.md) - LibXML DOM attribute class
+=item L<LibXML::Document> - LibXML DOM attribute class
 
-=item [LibXML::DocumentFragment](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/DocumentFragment.md) - LibXML's DOM L2 Document Fragment implementation
+=item L<LibXML::DocumentFragment> - LibXML's DOM L2 Document Fragment implementation
 
-=item [LibXML::Element](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Element.md) - LibXML class for element nodes
+=item L<LibXML::Element> - LibXML class for element nodes
 
-=item [LibXML::Attr](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Attr.md) - LibXML attribute class
+=item L<LibXML::Attr> - LibXML attribute class
 
-=item [LibXML::CDATA](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/CDATA.md) - LibXML class for DOM CDATA sections
+=item L<LibXML::CDATA> - LibXML class for DOM CDATA sections
 
-=item [LibXML::Comment](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Comment.md) - LibXML class for comment DOM nodes
+=item L<LibXML::Comment> - LibXML class for comment DOM nodes
 
-=item [LibXML::Dtd](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Dtd.md) - LibXML frontend for DTD validation
+=item L<LibXML::Dtd> - LibXML frontend for DTD validation
 
-=item [LibXML::Namespace](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Namespace.md) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Item.md))
+=item L<LibXML::Namespace> - LibXML DOM namespaces (Inherits from L<LibXML::Item>)
 
-=item [LibXML::Node](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Node.md) - LibXML DOM base node class
+=item L<LibXML::Node> - LibXML DOM base node class
 
-=item [LibXML::Text](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Text.md) - LibXML text node class
+=item L<LibXML::Text> - LibXML text node class
 
-=item [LibXML::PI](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/PI.md) - LibXML DOM processing instruction nodes
+=item L<LibXML::PI> - LibXML DOM processing instruction nodes
 
 =head2 Container/Mapping classes
 
-=item [LibXML::Attr::Map](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Attr/Map.md) - LibXML DOM attribute map class
+=item L<LibXML::Attr::Map> - LibXML DOM attribute map class
 
-=item [LibXML::Node::List](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Node/List.md) - Sibling Node Lists
+=item L<LibXML::Node::List> - Sibling Node Lists
 
-=item [LibXML::Node::Set](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Node/Set.md) - XPath Node Sets
+=item L<LibXML::Node::Set> - XPath Node Sets
 
 =head2 Parsing
 
-=item [LibXML::Parser](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Parser.md) - LibXML Parser bindings
+=item L<LibXML::Parser> - LibXML Parser bindings
 
-=item [LibXML::PushParser](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Parser.md) - LibXML Push Parser bindings
+=item L<LibXML::PushParser> - LibXML Push Parser bindings
 
-=item [LibXML::Reader](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Reader.md) - LibXML Reader (pull parser) bindings
+=item L<LibXML::Reader> - LibXML Reader (pull parser) bindings
 
 =head2 XPath and Searching
 
-=item [LibXML::XPath::Expression](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/XPath/Context.md) - XPath Compiled Expressions
+=item L<LibXML::XPath::Expression> - XPath Compiled Expressions
 
-=item [LibXML::XPath::Context](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/XPath/Context.md) - XPath Evaluation Contexts
+=item L<LibXML::XPath::Context> - XPath Evaluation Contexts
 
-=item [LibXML::Pattern](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Pattern.md) - LibXML Patterns
+=item L<LibXML::Pattern> - LibXML Patterns
 
-=item [LibXML::RegExp](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/RegExp.md) - LibXML Regular Expression bindings
+=item L<LibXML::RegExp> - LibXML Regular Expression bindings
 
 =head2 Validation
 
-=item [LibXML::Schema](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Schema.md) - LibXML schema validation class
+=item L<LibXML::Schema> - LibXML schema validation class
 
-=item [LibXML::RelaxNG](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/RelaxNG.md) - LibXML RelaxNG validation class
+=item L<LibXML::RelaxNG> - LibXML RelaxNG validation class
 
 =head2 Other
 
-=item [LibXML::Config](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Config.md) - LibXML global configuration
+=item L<LibXML::Config> - LibXML global configuration
 
-=item [LibXML::Native](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/Native.md) - LibXML native interface
+=item L<LibXML::Native> - LibXML native interface
 
-=item [LibXML::ErrorHandling](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/ErrorHandling.md) - LibXML class for Error handling
+=item L<LibXML::ErrorHandling> - LibXML class for Error handling
 
-=item [LibXML::InputCallback](https://github.com/libxml-raku/LibXML-raku/blob/master/docs/InputCallback.md) - LibXML class for Input callback handling
+=item L<LibXML::InputCallback> - LibXML class for Input callback handling
 
 =head1 PREREQUISITES
 

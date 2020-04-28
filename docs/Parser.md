@@ -96,7 +96,7 @@ DOM Parser
 
 One of the common parser interfaces of LibXML is the DOM parser. This parser reads XML data into a DOM like data structure, so each tag can get accessed and transformed.
 
-LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](LibXML::Document ) object, which is a DOM object.
+LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ) object, which is a DOM object.
 
 All of the functions listed below will throw an exception if the document is invalid. To prevent this causing your program exiting, wrap the call in a try {} block
 
@@ -152,7 +152,7 @@ The functions described above are implemented to parse well formed documents. In
 
         my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
 
-    This function parses a well balanced XML string into a [LibXML::DocumentFragment ](LibXML::DocumentFragment ) object. The string argument contains the input XML string.
+    This function parses a well balanced XML string into a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) object. The string argument contains the input XML string.
 
 By default LibXML does not process XInclude tags within an XML Document (see options section below). LibXML allows one to post-process a document to expand XInclude tags.
 
@@ -209,9 +209,9 @@ Push Parser
 
 LibXML provides a push parser interface. Rather than pulling the data from a given source the push parser waits for the data to be pushed into it.
 
-Please see [LibXML::PushParser](LibXML::PushParser) for more details.
+Please see [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser) for more details.
 
-For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a LibXML::Parser object.
+For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) object.
 
   * init-push
 
@@ -234,17 +234,15 @@ For Perl 5 compatibilty, the following methods are available to invoke a push-pa
 Pull Parser (Reader)
 --------------------
 
-LibXML also provides a pull-parser interface similar to the XmlReader interface in .NET. This interface is almost streaming, and is usually faster and simpler to use than SAX. See [LibXML::Reader ](LibXML::Reader ).
+LibXML also provides a pull-parser interface similar to the XmlReader interface in .NET. This interface is almost streaming, and is usually faster and simpler to use than SAX. See [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader ).
 
 Direct SAX Parser
 -----------------
 
-LibXML provides a direct SAX parser in the [LibXML::SAX ](LibXML::SAX ) module.
+LibXML provides a direct SAX parser in the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX ) module.
 
 DOM based SAX Parser
 --------------------
-
-LibXML also provides a DOM based SAX parser. The SAX parser is defined in the module LibXML::SAX::Parser. As it is not a stream based parser, it parses documents into a DOM and traverses the DOM tree instead.
 
 Aside from the regular parsing methods, you can access the DOM tree traverser directly, using the reparse() method:
 
@@ -256,12 +254,12 @@ This is useful for serializing DOM trees, for example that you might have done p
 
 *WARNING *
 
-This is NOT a streaming SAX parser. This parser reads the entire document into a DOM and serialises it. If you want a streaming SAX parser look at the [LibXML::SAX ](LibXML::SAX ) man page
+This is NOT a streaming SAX parser. This parser reads the entire document into a DOM and serialises it. If you want a streaming SAX parser look at the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX ) man page
 
 SERIALIZATION
 =============
 
-LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](LibXML::Node ) or the [LibXML::Document ](LibXML::Document ) documentation. LibXML checks three global flags that alter the serialization process:
+LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ) or the [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ) documentation. LibXML checks three global flags that alter the serialization process:
 
   * skip-xml-declaration
 
@@ -380,7 +378,7 @@ The available options are:
 
     substitute entities; default is False
 
-    Note that although unsetting this flag disables entity substitution, it does not prevent the parser from loading external entities; when substitution of an external entity is disabled, the entity will be represented in the document tree by an XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing the external resource; Although this nesting is visible from the DOM it is transparent to XPath data model, so it is possible to match nodes in an unexpanded entity by the same XPath expression as if the entity were expanded. See also [LibXML::Config](LibXML::Config).external-entity-loader. 
+    Note that although unsetting this flag disables entity substitution, it does not prevent the parser from loading external entities; when substitution of an external entity is disabled, the entity will be represented in the document tree by an XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing the external resource; Although this nesting is visible from the DOM it is transparent to XPath data model, so it is possible to match nodes in an unexpanded entity by the same XPath expression as if the entity were expanded. See also `.external-entity-loader()` method in [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config).
 
   * load-ext-dtd
 

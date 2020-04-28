@@ -209,7 +209,7 @@ LibXML::SAX::Builder - Building DOM trees from SAX events.
 =head1 DESCRIPTION
 
 This module provides mappings from native SAX callbacks to Raku. It is
-usually used in conjunction with a LibXML::SAX::Handler base-class.
+usually used in conjunction with a L<LibXML::SAX::Handler> base-class.
 
 =head1 EXAMPLE
 

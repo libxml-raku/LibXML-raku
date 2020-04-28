@@ -496,7 +496,7 @@ Registers variable lookup function C<<<<<< $prefix >>>>>>. The registered functi
 variable is evaluated. The callback function has two required arguments: C<<<<<< $data >>>>>>, variable name, and variable ns-URI.
 
 The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
-Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned
+Document, Element, etc.), L<<<LibXML::Node::Set>>> or L<<<LibXML::Node::List>>>. For convenience, types: List, Seq and Slip can also be returned
 array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::Node::Set >>>>>>.
 
 Any additional arguments are captured and passed to the callback function. For example:
@@ -521,7 +521,7 @@ Registers an extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> name
 simple scalars or C<<<<<< LibXML::* >>>>>> objects depending on the XPath argument types.
 
 The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
-Document, Element, etc.), LibXML::Node::Set or LibXML::Node::List. For convenience, types: List, Seq and Slip can also be returned
+Document, Element, etc.), L<<<LibXML::Node::Set>>> or L<<<LibXML::Node::List>>>. For convenience, types: List, Seq and Slip can also be returned
 array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::Node::Set >>>>>>.
 
 =end item1

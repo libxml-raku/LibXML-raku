@@ -33,7 +33,7 @@ METHODS
 
     The location parameter allows one to parse a schema from the filesystem or a URL.
 
-    The `:network` flag effects processing of `xsd:import` directives. By default this is disabled, unless a custom External Entity Loader has been installed via the `LibXML::Config.external-entity-loader` method. More detailed control can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the `LibXML::Config.input-callbacks` method.
+    The `:network` flag effects processing of `xsd:import` directives. By default this is disabled, unless a custom External Entity Loader has been installed via the `LibXML::Config.external-entity-loader` method. More detailed control can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) `.input-callbacks` method.
 
     The string parameter will parse the schema from the given XML string.
 
@@ -43,7 +43,7 @@ METHODS
 
         try { $xmlschema.validate( $doc ); };
 
-    This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](LibXML::Document ) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+    This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
 
   * is-valid / ACCEPTS
 

@@ -459,7 +459,7 @@ LibXML::Node - Abstract Base Class of LibXML Nodes
 
 LibXML::Node defines functions that are common to all Node Types. An
 LibXML::Node should never be created standalone, but as an instance of a high
-level class such as LibXML::Element or LibXML::Text. The class itself should
+level class such as L<<<LibXML::Element>>> or L<<<LibXML::Text>>>. The class itself should
 provide only common functionality. In LibXML each node is part either of a
 document or a document-fragment. Because of this there is no node without a
 parent.

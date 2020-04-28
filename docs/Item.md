@@ -6,11 +6,11 @@ LibXML::Item - LibXML Nodes and Namespaces interface role
 DESCRIPTON
 ==========
 
-LibXML::Item is a role performed by LibXML::Namespace and LibXML::Node based classes.
+LibXML::Item is a role performed by [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) based classes.
 
 These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
-Also note that the LibXML::Node `findnodes` method can sometimes return either LibXML::Node or LibXML::Namespace items, e.g.:
+Also note that the [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) `findnodes` method can sometimes return either [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) or [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) items, e.g.:
 
     use LibXML::Item;
     for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
@@ -18,7 +18,7 @@ Also note that the LibXML::Node `findnodes` method can sometimes return either L
        when LibXML::Attr      { say "attribute: " ~ .Str }
     }
 
-Please see [LibXML::Node](LibXML::Node) and [LibXML::Namespace](LibXML::Namespace).
+Please see [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) and [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace).
 
 FUNCTIONS AND METHODS
 =====================
@@ -63,7 +63,7 @@ FUNCTIONS AND METHODS
 
     By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
 
-    For example to create an xmlElem native object then a LibXML::Element containing class.
+    For example to create an xmlElem native object then a [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) containing class.
 
         use LibXML::Native;
         use LibXML::Node;

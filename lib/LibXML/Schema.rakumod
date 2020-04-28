@@ -181,7 +181,7 @@ URL.
 The `:network` flag effects processing of `xsd:import` directives. By default
 this is disabled, unless a custom External Entity Loader has been installed
 via the `LibXML::Config.external-entity-loader` method. More detailed control
-can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the `LibXML::Config.input-callbacks` method.
+can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the L<LibXML::Config> `.input-callbacks` method.
 
 The string parameter will parse the schema from the given XML string.
 

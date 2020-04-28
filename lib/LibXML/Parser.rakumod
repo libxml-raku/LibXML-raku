@@ -458,7 +458,7 @@ parse-balanced
 
   my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
 
-This function parses a well balanced XML string into a L<<<<<< LibXML::DocumentFragment >>>>>> object. The string argument contains the input XML string.
+This function parses a well balanced XML string into a L<LibXML::DocumentFragment> object. The string argument contains the input XML string.
 
 =end item1
 
@@ -551,7 +551,7 @@ given source the push parser waits for the data to be pushed into it.
 
 Please see L<LibXML::PushParser> for more details.
 
-For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a LibXML::Parser object.
+For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a L<LibXML::Parser> object.
 
 =begin item1
 init-push
@@ -597,10 +597,6 @@ LibXML provides a direct SAX parser in the L<<<<<< LibXML::SAX >>>>>> module.
 
 
 =head2 DOM based SAX Parser
-
-LibXML also provides a DOM based SAX parser. The SAX parser is defined in the
-module LibXML::SAX::Parser. As it is not a stream based parser, it parses
-documents into a DOM and traverses the DOM tree instead.
 
 Aside from the regular parsing methods, you can access the DOM tree traverser
 directly, using the reparse() method:
@@ -811,7 +807,7 @@ XML_ENTITY_REF_NODE node whose subtree will be the content obtained by parsing
 the external resource; Although this nesting is visible from the DOM it is
 transparent to XPath data model, so it is possible to match nodes in an
 unexpanded entity by the same XPath expression as if the entity were expanded.
-See also L<LibXML::Config>.external-entity-loader. 
+See also C<.external-entity-loader()> method in L<LibXML::Config>.
 
 =end item1
 

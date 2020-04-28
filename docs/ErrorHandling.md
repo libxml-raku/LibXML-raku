@@ -116,7 +116,7 @@ X:LibXML::Parser Methods
 Custom Error Handling
 =====================
 
-Parsers that perform the LibXML::ErrorHandler can install their own error-handling callbacks via SAX Handler. `warning()`, `error()` or `errorFatal()` callbacks can be defined for simple error handling or a `serror()` callback can be defined to handle everything as `X::LibXML` exception objects.
+Parsers that perform the LibXML::ErrorHandling role can install their own error-handling callbacks via SAX Handler. `warning()`, `error()` or `errorFatal()` callbacks can be defined for simple error handling or a `serror()` callback can be defined to handle everything as `X::LibXML` exception objects.
 
 The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wish to disable this module's built-in error handling.
 

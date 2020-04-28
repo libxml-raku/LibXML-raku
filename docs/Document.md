@@ -69,7 +69,7 @@ DESCRIPTION
 
 The Document Class is in most cases the result of a parsing process. But sometimes it is necessary to create a Document from scratch. The DOM Document Class provides functions that conform to the DOM Core naming style.
 
-It inherits all functions from [LibXML::Node ](LibXML::Node ) as specified in the DOM specification. This enables access to the nodes besides the root element on document level - a `DTD ` for example. The support for these nodes is limited at the moment.
+It inherits all functions from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ) as specified in the DOM specification. This enables access to the nodes besides the root element on document level - a `DTD ` for example. The support for these nodes is limited at the moment.
 
 METHODS
 =======
@@ -94,7 +94,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         <?xml version="1.0"?>
 
-    Alternatively one can call this constructor directly from the LibXML class level, to avoid some typing. This will not have any effect on the class instance, which is always LibXML::Document.
+    Alternatively one can call this constructor directly from the LibXML class level, to avoid some typing. This will not have any effect on the class instance, which is always [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document).
 
         my LibXML::Document $document = LibXML.createDocument( "1.0", "UTF-8" );
 
@@ -205,7 +205,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
         my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 
-    C14N Normalisation. See the documentation in [LibXML::Node ](LibXML::Node ).
+    C14N Normalisation. See the documentation in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ).
 
   * serialize
 
@@ -239,7 +239,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
-    You may also pass in a [LibXML::Dtd ](LibXML::Dtd ) object, to validate against an external DTD:
+    You may also pass in a [LibXML::Dtd ](https://libxml-raku.github.io/LibXML-raku/Dtd ) object, to validate against an external DTD:
 
     unless $dom.is-valid(:$dtd) {
          warn("document is not valid!");

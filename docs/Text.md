@@ -47,7 +47,7 @@ The DOM methods are provided for compatibility with ported Perl 5 code.
 METHODS
 =======
 
-The class inherits from [LibXML::Node ](LibXML::Node ). The documentation for Inherited methods is not listed here. 
+The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ). The documentation for Inherited methods is not listed here. 
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation. 
 
@@ -111,7 +111,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This method removes a chunk from the existing node data. Since the DOM spec is quite unhandy if you already know `which ` string to remove from a text node, this method allows more Rakuish code :)
 
-    The functions takes two parameters: *$string * and optional the *:g * flag. If :g is not set, `deleteDataString ` will remove only the first occurrence of $string. If $all is *TRUE *`deleteDataString ` will remove all occurrences of *$string * from the node data.
+    The functions takes two parameters: *$string * and optional the *:g * flag. If :g is not set, `deleteDataString ` will remove only the first occurrence of $string. If $all is *True *`deleteDataString ` will remove all occurrences of *$string * from the node data.
 
   * replaceData($offset, $length, $string)
 

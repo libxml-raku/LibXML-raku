@@ -70,7 +70,7 @@ method FALLBACK($key, |c) is rw {
 =begin pod
 =head1 NAME
 
-LibXML::Pattern - LibXML::Pattern - interface to libxml2 XPath patterns
+LibXML::Pattern -interface to libxml2 XPath patterns
 
 =head1 SYNOPSIS
 
@@ -119,7 +119,7 @@ within patterns before or after any token, where
 
 Note that no predicates or attribute tests are allowed.
 
-Patterns are particularly useful for stream parsing provided via the C<<<<<< LibXML::Reader >>>>>> interface.
+Patterns are particularly useful for stream parsing provided via the L<<<<<< LibXML::Reader >>>>>> interface.
 
 =begin item1
 new / compile

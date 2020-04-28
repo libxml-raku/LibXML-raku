@@ -493,7 +493,7 @@ The call of I<<<<<< createDocument >>>>>>() without any parameter will result th
 
 Alternatively one can call this constructor directly from the LibXML class
 level, to avoid some typing. This will not have any effect on the class
-instance, which is always LibXML::Document.
+instance, which is always L<LibXML::Document>.
 
 
 
