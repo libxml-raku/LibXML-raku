@@ -95,6 +95,8 @@ Other
 
   * [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) - LibXML global configuration
 
+  * [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) - LibXML XML_* enumerated constants
+
   * [LibXML::Native](https://libxml-raku.github.io/LibXML-raku/Native) - LibXML native interface
 
   * [LibXML::ErrorHandling](https://libxml-raku.github.io/LibXML-raku/ErrorHandling) - LibXML class for Error handling

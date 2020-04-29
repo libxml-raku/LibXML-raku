@@ -61,7 +61,7 @@ X:LibXML::Parser Methods
         my UInt $error-code = $!.code();
         if $!.code == XML_ERR_SPACE_REQUIRED { ... }
 
-    Returns the actual libxml2 error code. The LibXML::Enums module defines constants for individual error codes. Currently libxml2 uses over 480 different error codes. 
+    Returns the actual libxml2 error code. The [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) module defines constants for individual error codes. Currently libxml2 uses over 480 different error codes. 
 
   * message
 
@@ -73,7 +73,7 @@ X:LibXML::Parser Methods
 
         $error_level = $!.level();
 
-    Returns an integer value describing how consequent is the error. LibXMNL::Enums defines the following enumerations: 
+    Returns an integer value describing how consequent is the error. [LibXMNL::Enums](LibXMNL::Enums) defines the following enumerations:
 
       * XML_ERR_NONE = 0
 

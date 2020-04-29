@@ -286,7 +286,7 @@ code
   my UInt $error-code = $!.code();
   if $!.code == XML_ERR_SPACE_REQUIRED { ... }
 
-Returns the actual libxml2 error code. The LibXML::Enums module defines
+Returns the actual libxml2 error code. The L<LibXML::Enums> module defines
 constants for individual error codes. Currently libxml2 uses over 480 different
 error codes. 
 
@@ -306,8 +306,8 @@ level
 
   $error_level = $!.level();
 
-Returns an integer value describing how consequent is the error. LibXMNL::Enums
-defines the following enumerations: 
+Returns an integer value describing how consequent is the error. L<LibXMNL::Enums>
+defines the following enumerations:
 
   =item XML_ERR_NONE = 0
 

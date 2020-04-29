@@ -72,7 +72,7 @@ realclean : clean
 	@rm -f README.md Makefile docs/*.md docs/*/*.md
 
 doc : README.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Document.md docs/DocumentFragment.md\
-      docs/Dtd.md docs/Element.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/Native.md\
+      docs/Dtd.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/Native.md\
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md docs/XPath/Context.md docs/XPath/Expression.md
 
@@ -106,6 +106,8 @@ docs/DocumentFragment.md : lib/LibXML/DocumentFragment.rakumod
 docs/Dtd.md : lib/LibXML/Dtd.rakumod
 
 docs/Element.md : lib/LibXML/Element.rakumod
+
+docs/Enums.md : lib/LibXML/Enums.rakumod
 
 docs/ErrorHandling.md : lib/LibXML/ErrorHandling.rakumod
 

@@ -122,6 +122,8 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item L<LibXML::Config> - LibXML global configuration
 
+=item L<LibXML::Enums> - LibXML XML_* enumerated constants
+
 =item L<LibXML::Native> - LibXML native interface
 
 =item L<LibXML::ErrorHandling> - LibXML class for Error handling
