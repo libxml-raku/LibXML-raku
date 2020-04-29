@@ -30,7 +30,7 @@ For further information, please check the following documentation:
 DOM Objects
 -----------
 
-The nodes in the Document Object Model (DOM) are represented by the following classes (most of which "inherit" from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node )):
+The nodes in the Document Object Model (DOM) are represented by the following classes (most of which "inherit" from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node)):
 
   * [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) - LibXML DOM attribute class
 

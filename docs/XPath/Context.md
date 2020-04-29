@@ -132,7 +132,7 @@ METHODS
 
     Registers variable lookup function `$prefix `. The registered function is executed by the XPath engine each time an XPath variable is evaluated. The callback function has two required arguments: `$data `, variable name, and variable ns-URI.
 
-    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List). For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ) objects can be used instead of an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set ).
+    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List). For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) objects can be used instead of an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set).
 
     Any additional arguments are captured and passed to the callback function. For example:
 
@@ -148,7 +148,7 @@ METHODS
 
     Registers an extension function `$name ` in `$uri ` namespace. The arguments of the callback function are either simple scalars or `LibXML::* ` objects depending on the XPath argument types.
 
-    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List). For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ) objects can be used instead of an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set ).
+    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List). For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) objects can be used instead of an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set).
 
   * unregisterFunctionNS
 
@@ -176,9 +176,9 @@ METHODS
 
         my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $context-node );
 
-    Performs the xpath statement on the current node and returns the result as an array. In item context, returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set ) object. Optionally, a node may be passed as a second argument to set the context node for the query.
+    Performs the xpath statement on the current node and returns the result as an array. In item context, returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set) object. Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
   * first, last
 
@@ -193,9 +193,9 @@ METHODS
 
         $object = $xpc.find($xpath, $context-node );
 
-    Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52 ` results in a Numeric object being returned. Other expressions might return a Bool object, or a [LibXML::Literal ](https://libxml-raku.github.io/LibXML-raku/Literal ) object (a string). Optionally, a node may be passed as a second argument to set the context node for the query.
+    Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52 ` results in a Numeric object being returned. Other expressions might return a Bool object, or a [LibXML::Literal ](https://libxml-raku.github.io/LibXML-raku/Literal) object (a string). Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
   * findvalue
 
@@ -209,7 +209,7 @@ METHODS
 
     That is, it returns the literal value of the results. This enables you to ensure that you get a string back from your search, allowing certain shortcuts. This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>. Optionally, a node may be passed in the second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
   * exists
 

@@ -79,7 +79,7 @@ SYNOPSIS
 METHODS
 =======
 
-The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ). The documentation for Inherited methods is not listed here. 
+The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here. 
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation. 
 
@@ -248,7 +248,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function is not found in the DOM specification. It is a mix of getElementsByTagName and getElementsByTagNameNS. It will fetch all tags matching the given local-name. This allows one to select tags with the same local name across namespace borders.
 
-    In item context this function returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set ) object.
+    In item context this function returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set) object.
 
   * elements
 

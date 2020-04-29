@@ -1,7 +1,10 @@
-constant DocRoot = "https://libxml-raku.github.io/LibXML-raku";
+constant DocRoot = "https://libxml-raku.github.io";
 
-sub map-link(Str() $link) {
-    DocRoot ~ $link.substr(6).subst('::', '/', :g);
+sub resolve-class(Str() $class) {
+    my @path = $class.split('::');
+    @path[0] ~= '-raku';
+    @path.unshift: DocRoot;
+    @path.join: '/';
 }
 
-s:g/("](")("LibXML"<- [)]>*)(")")/{$0 ~ map-link($1) ~ $2}/;
+s:g:s/ '](' (LibX[ML|SLT]['::'*%%<ident>]) ')'/{'](' ~ resolve-class($0) ~ ')'}/;

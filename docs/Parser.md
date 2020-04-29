@@ -96,7 +96,7 @@ DOM Parser
 
 One of the common parser interfaces of LibXML is the DOM parser. This parser reads XML data into a DOM like data structure, so each tag can get accessed and transformed.
 
-LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ) object, which is a DOM object.
+LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object, which is a DOM object.
 
 All of the functions listed below will throw an exception if the document is invalid. To prevent this causing your program exiting, wrap the call in a try {} block
 
@@ -234,12 +234,12 @@ For Perl 5 compatibilty, the following methods are available to invoke a push-pa
 Pull Parser (Reader)
 --------------------
 
-LibXML also provides a pull-parser interface similar to the XmlReader interface in .NET. This interface is almost streaming, and is usually faster and simpler to use than SAX. See [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader ).
+LibXML also provides a pull-parser interface similar to the XmlReader interface in .NET. This interface is almost streaming, and is usually faster and simpler to use than SAX. See [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader).
 
 Direct SAX Parser
 -----------------
 
-LibXML provides a direct SAX parser in the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX ) module.
+LibXML provides a direct SAX parser in the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX) module.
 
 DOM based SAX Parser
 --------------------
@@ -254,12 +254,12 @@ This is useful for serializing DOM trees, for example that you might have done p
 
 *WARNING *
 
-This is NOT a streaming SAX parser. This parser reads the entire document into a DOM and serialises it. If you want a streaming SAX parser look at the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX ) man page
+This is NOT a streaming SAX parser. This parser reads the entire document into a DOM and serialises it. If you want a streaming SAX parser look at the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX) man page
 
 SERIALIZATION
 =============
 
-LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node ) or the [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ) documentation. LibXML checks three global flags that alter the serialization process:
+LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) or the [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) documentation. LibXML checks three global flags that alter the serialization process:
 
   * skip-xml-declaration
 

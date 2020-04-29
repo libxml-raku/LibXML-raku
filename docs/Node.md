@@ -158,7 +158,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         my UInt $type = $node.nodeType;
 
-    Return a numeric value representing the node type of this node. The module LibXML by default exports constants for the node types (see the EXPORT section in the [LibXML ](https://libxml-raku.github.io/LibXML-raku ) manual page).
+    Return a numeric value representing the node type of this node. The module LibXML by default exports constants for the node types (see the EXPORT section in the [LibXML ](https://libxml-raku.github.io/LibXML-raku) manual page).
 
   * unbindNode
 
@@ -297,7 +297,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     This function binds a node to another DOM. This method unbinds the node first, if it is already bound to another document.
 
-    This function is the opposite calling of [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document )'s adoptNode() function. Because of this it has the same limitations with Entity References as adoptNode().
+    This function is the opposite calling of [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document)'s adoptNode() function. Because of this it has the same limitations with Entity References as adoptNode().
 
   * insertBefore
 
@@ -318,9 +318,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
         my LibXML::Node @nodes = $node.findnodes( $xpath-expression );
         my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expression, :deref );
 
-    *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In item context, returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set ) object.
+    *findnodes * evaluates the xpath expression (XPath 1.0) on the current node and returns the resulting node set as an array. In item context, returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set) object.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
     The `:deref` option has an effect on associatve indexing:
 
@@ -337,7 +337,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     There are several possible ways to deal with namespaces in XPath: 
 
-      * The recommended way is to use the [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext ) module to define an explicit context for XPath evaluation, in which a document independent prefix-to-namespace mapping can be defined. For example: 
+      * The recommended way is to use the [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext) module to define an explicit context for XPath evaluation, in which a document independent prefix-to-namespace mapping can be defined. For example: 
 
             my $xpc = LibXML::XPathContext.new;
             $xpc.registerNs('x', 'http://www.w3.org/1999/xhtml');
@@ -386,9 +386,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     *find * evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric ](Numeric ) object being returned. Other expressions might return an [Bool ](Bool ) object, or a [Str ](Str ) object.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
-    See also [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext ).find.
+    See also [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext).find.
 
   * findvalue
 
@@ -400,9 +400,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     That is, it returns the literal value of the results. This enables you to ensure that you get a string back from your search, allowing certain shortcuts. This could be used as the equivalent of XSLT's <xsl:value-of select="some_xpath"/>.
 
-    See also [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext ).findvalue.
+    See also [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext).findvalue.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression ) object.
+    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
   * first
 
@@ -459,7 +459,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         my Str $xml = $node.String(:format);
 
-    This method is similar to the method `Str ` of a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants. Unlike `LibXML::Document::Str `.
+    This method is similar to the method `Str ` of a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants. Unlike `LibXML::Document::Str `.
 
   * Str: :C14N
 
@@ -480,7 +480,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
         (. | .//node() | .//@* | .//namespace::*)[not(self::comment())]
 
-    An optional parameter :$selector can be used to pass an [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext ) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector. 
+    An optional parameter :$selector can be used to pass an [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector. 
 
   * Str: :C14N, :v(v1.1)
 

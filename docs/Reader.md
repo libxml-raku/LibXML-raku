@@ -59,7 +59,7 @@ Depending on the XML source, the Reader object can be created with either of:
     my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
     my LibXML::Reader $reader .= new( DOM => $dom, ... );
 
-where ... are (optional) reader options described below in [Reader options ](Reader options ) or various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser ). The constructor recognizes the following XML sources:
+where ... are (optional) reader options described below in [Reader options ](Reader options ) or various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser). The constructor recognizes the following XML sources:
 
 Source specification
 --------------------
@@ -82,7 +82,7 @@ Source specification
 
   * LibXML::Document :$DOM
 
-    Use reader API to walk through a pre-parsed [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ).
+    Use reader API to walk through a pre-parsed [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document).
 
 Reader options
 --------------
@@ -93,15 +93,15 @@ Reader options
 
   * RelaxNG => $rng-schema
 
-    can be used to pass either a [LibXML::RelaxNG ](https://libxml-raku.github.io/LibXML-raku/RelaxNG ) object or a filename or URL of a RelaxNG schema to the constructor. The schema is then used to validate the document as it is processed.
+    can be used to pass either a [LibXML::RelaxNG ](https://libxml-raku.github.io/LibXML-raku/RelaxNG) object or a filename or URL of a RelaxNG schema to the constructor. The schema is then used to validate the document as it is processed.
 
   * Schema => $xsd-schema
 
-    can be used to pass either a [LibXML::Schema ](https://libxml-raku.github.io/LibXML-raku/Schema ) object or a filename or URL of a W3C XSD schema to the constructor. The schema is then used to validate the document as it is processed.
+    can be used to pass either a [LibXML::Schema ](https://libxml-raku.github.io/LibXML-raku/Schema) object or a filename or URL of a W3C XSD schema to the constructor. The schema is then used to validate the document as it is processed.
 
   * ...
 
-    the reader further supports various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser ) (specifically those labeled by /reader/). 
+    the reader further supports various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser) (specifically those labeled by /reader/). 
 
 METHODS CONTROLLING PARSING PROGRESS
 ====================================
@@ -138,7 +138,7 @@ METHODS CONTROLLING PARSING PROGRESS
 
   * nextPatternMatch(compiled_pattern)
 
-    Skip nodes following the current one in the document order until an element matching a given compiled pattern is reached. See [LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern ) for information on compiled patterns. See also the `matchesPattern ` method.
+    Skip nodes following the current one in the document order until an element matching a given compiled pattern is reached. See [LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns. See also the `matchesPattern ` method.
 
     Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
 
@@ -221,7 +221,7 @@ METHODS EXTRACTING INFORMATION
 
   * matchesPattern($compiled-pattern)
 
-    Returns a true value if the current node matches a compiled pattern. See [LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern ) for information on compiled patterns. See also the `nextPatternMatch ` method.
+    Returns a true value if the current node matches a compiled pattern. See [LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns. See also the `nextPatternMatch ` method.
 
 METHODS EXTRACTING DOM NODES
 ============================
@@ -440,7 +440,7 @@ The following constants represent the values returned by `readState() `. They ar
 SEE ALSO
 ========
 
-[LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern ) for information about compiled patterns.
+[LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern) for information about compiled patterns.
 
 http://xmlsoft.org/html/libxml-xmlreader.html
 

@@ -42,7 +42,7 @@ For readability, whitespace may be used in selector XPath expressions even thoug
 
 Note that no predicates or attribute tests are allowed.
 
-Patterns are particularly useful for stream parsing provided via the [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader ) interface.
+Patterns are particularly useful for stream parsing provided via the [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader) interface.
 
   * new / compile
 
@@ -65,7 +65,7 @@ Patterns are particularly useful for stream parsing provided via the [LibXML::Re
 SEE ALSO
 ========
 
-[LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader ) for other methods involving compiled patterns.
+[LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader) for other methods involving compiled patterns.
 
 COPYRIGHT
 =========

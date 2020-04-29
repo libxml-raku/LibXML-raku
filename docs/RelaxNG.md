@@ -38,7 +38,7 @@ METHODS
 
     The string parameter will parse the schema from the given XML string.
 
-    The DOM parameter allows one to parse the schema from a pre-parsed [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document ).
+    The DOM parameter allows one to parse the schema from a pre-parsed [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document).
 
     Note that the constructor will die() if the schema does not meed the constraints of the RelaxNG specification.
 
