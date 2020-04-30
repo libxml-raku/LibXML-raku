@@ -21,10 +21,10 @@ multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 
 use LibXML::_Options;
-constant %Opts = %( flat %LibXML::Parser::Context::Opts,
-                    (:URI, :html, :line-numbers,
-                     :sax-handler, :input-callbacks, :enc,)
-                  );
+constant %Opts = %LibXML::Parser::Context::Opts, %(
+    :URI, :html, :line-numbers,
+    :sax-handler, :input-callbacks, :enc,
+);
 also does LibXML::_Options[%Opts];
 
 # Perl 5 compat
