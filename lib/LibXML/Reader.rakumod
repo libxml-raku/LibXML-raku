@@ -28,8 +28,8 @@ class LibXML::Reader
     has xmlEncodingStr $!enc;
     method enc { $!enc }
     has Blob $!buf;
-    my subset RelaxNG where {!.defined || $_ ~~ LibXML::RelaxNG|Str};
-    my subset Schema  where {!.defined || $_ ~~ LibXML::Schema|Str};
+    my subset RelaxNG where LibXML::RelaxNG|Str|Any:U;
+    my subset Schema  where LibXML::Schema|Str|Any:U;
     has RelaxNG $!RelaxNG;
     has Schema  $!Schema;
     has $.sax-handler is rw;
