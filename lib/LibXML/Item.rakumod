@@ -150,12 +150,13 @@ LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> bas
 These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
 Also note that the L<LibXML::Node> `findnodes` method can sometimes return either L<LibXML::Node> or L<LibXML::Namespace> items, e.g.:
-
+  =begin code :lang<raku>
   use LibXML::Item;
   for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
      when LibXML::Namespace { say "namespace: " ~ .Str }
      when LibXML::Attr      { say "attribute: " ~ .Str }
   }
+  =end code
 
 Please see L<LibXML::Node> and L<LibXML::Namespace>.
 
@@ -167,7 +168,8 @@ ast-to-xml()
 This function can be useful when it's getting a bit long-winded to create and manipulate data via
 the DOM API. For example:
 
-    use LibXML::Elemnt;
+    =begin code :lang<raku>
+    use LibXML::Element;
     use LibXML::Item :&ast-to-xml;
     my LibXML::Element $elem = ast-to-xml(
         :dromedaries[
@@ -178,23 +180,24 @@ the DOM API. For example:
                  "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
          "\n",
          ]);
-     say $elem;
-
+    say $elem;
+    =end code
 Produces:
-
+    =begin code :lang<xml>
     <dromedaries>
       <!-- Element Construction. -->
       <species name="Camel"><humps>1 or 2</humps><disposition>Cranky</disposition></species>
       <species name="Llama"><humps>1 (sort of)</humps><disposition>Aloof</disposition></species>
       <species name="Alpaca"><humps>(see Llama)</humps><disposition>Friendly</disposition></species>
     </dromedaries>
-
+    =end code
 All DOM nodes have an `.ast()` method that can be used to output an intermediate dump of data. In the above example `$elem.ast()` would reproduce thw original data that was used to construct the element.
 
 Possible terms that can be used are:
 
   =begin table
-  *Term* | *Description*
+  Term | Description
+  =====+============  
   name => [term, term, ...] | Construct an element and its child items
   name => str-val | Construct an attribute
   'xmlns:prefix' => str-val | Construct a namespace
@@ -220,7 +223,7 @@ a containing object, of an appropriate class. The containing object will in-turn
 to ensure that the underlying native object is not destroyed while it is still alive.
 
 For example to create an xmlElem native object then a L<LibXML::Element> containing class.
-
+   =begin code :lang<raku>
    use LibXML::Native;
    use LibXML::Node;
    use LibXML::Element;
@@ -230,16 +233,16 @@ For example to create an xmlElem native object then a L<LibXML::Element> contain
    my LibXML::Element $elem = LibXML::Node.box($native);
    $!native := Nil;
    say $elem.Str; # <Foo/>
-
+   =end code
 A containing object of the correct type (LibXML::Element) has been created for the native object.
 
 =end item1
 
 =begin item1
 keep
-
-Synopsis:   $item.keep(xmlItem $rv);
-
+=begin code :lang<raku>
+$item.keep(xmlItem $rv);
+=end code
 Utility method that verifies that `$rv` is the same native struct as that help by `$item`.
 
 =end item1

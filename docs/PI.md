@@ -6,18 +6,20 @@ LibXML::PI - LibXML Processing Instructions
 SYNOPSIS
 ========
 
-    use LibXML::Document;
-    use LibXML::PI;
-    # Only methods specific to Processing Instruction nodes are listed here,
-    # see the LibXML::Node documentation for other methods
+```raku
+use LibXML::Document;
+use LibXML::PI;
+# Only methods specific to Processing Instruction nodes are listed here,
+# see the LibXML::Node documentation for other methods
 
-    my LibXML::Document $dom .= new;
-    my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
+my LibXML::Document $dom .= new;
+my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
 
-    $pi.setData( $data_string );
-    $pi.setData( name=>string_value [...] );
+$pi.setData( $data_string );
+$pi.setData( name=>string_value [...] );
 
-    $pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+$pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+```
 
 DESCRIPTION
 ===========
@@ -26,17 +28,23 @@ Processing instructions are implemented with LibXML with read and write access. 
 
 Many processing instructions have attribute like data. Therefore setData() provides, in addition to the DOM spec, the passing of named parameters. So the code segment:
 
-    my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
-    $pi.setData(foo=>'bar', foobar=>'foobar');
-    $dom.appendChild( $pi );
+```raku
+my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
+$pi.setData(foo=>'bar', foobar=>'foobar');
+$dom.appendChild( $pi );
+```
 
 will result the following PI in the DOM:
 
-    <?abc foo="bar" foobar="foobar"?>
+```xml
+<?abc foo="bar" foobar="foobar"?>
+```
 
 Which is how it is specified in the DOM specification. This three step interface creates a temporary Raku object. This can be avoided while using the insertProcessingInstruction() method. Instead of the three calls described above, the call
 
-    $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
+```raku
+$dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
+```
 
 will have the same result as above.
 
@@ -44,8 +52,10 @@ will have the same result as above.
 
   * setData
 
-        $pinode.setData( $data_string );
-        $pinode.setData( name=>string_value [...] );
+    ```raku
+    $pinode.setData( $data_string );
+    $pinode.setData( name=>string_value [...] );
+    ```
 
     This method allows one to change the content data of a PI. Additionally to the interface specified for DOM Level2, the method provides a named parameter interface to set the data. This parameter list is converted into a string before it is appended to the PI.
 

@@ -6,16 +6,18 @@ LibXML::Namespace - LibXML Namespace Implementation
 SYNOPSIS
 ========
 
-    use LibXML::Namespace;
-    my LibXML::Namespace $ns .= new(:$URI, :$prefix);
-    say $ns.nodeName();
-    say $ns.name();
-    my Str $localname = $ns.localname();
-    say $ns.getValue();
-    say $ns.value();
-    my Str $known-uri = $ns.getNamespaceURI();
-    my Str $known-prefix = $ns.prefix();
-    $key = $ns.unique-key();
+```raku
+use LibXML::Namespace;
+my LibXML::Namespace $ns .= new(:$URI, :$prefix);
+say $ns.nodeName();
+say $ns.name();
+my Str $localname = $ns.localname();
+say $ns.getValue();
+say $ns.value();
+my Str $known-uri = $ns.getNamespaceURI();
+my Str $known-prefix = $ns.prefix();
+$key = $ns.unique-key();
+```
 
 DESCRIPTION
 ===========
@@ -29,7 +31,9 @@ METHODS
 
   * new
 
-        my LibXML::Namespace $ns .= new: :$URI, :$prefix;
+    ```raku
+    my LibXML::Namespace $ns .= new: :$URI, :$prefix;
+    ```
 
     Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) Functions. All functions available for this node are listed below.
 
@@ -45,55 +49,73 @@ METHODS
 
   * nodeName
 
-        say $ns.nodeName();
+    ```raku
+    say $ns.nodeName();
+    ```
 
     Returns "xmlns:prefix", where prefix is the prefix for this namespace.
 
   * name
 
-        say $ns.name();
+    ```raku
+    say $ns.name();
+    ```
 
     Alias for nodeName()
 
   * getLocalName
 
-        my Str $localname = $ns.getLocalName();
+    ```raku
+    my Str $localname = $ns.getLocalName();
+    ```
 
     Returns the local name of this node as if it were an attribute, that is, the prefix associated with the namespace.
 
   * getData
 
-        say $ns.getData();
+    ```raku
+    say $ns.getData();
+    ```
 
     Returns the URI of the namespace, i.e. the value of this node as if it were an attribute.
 
   * getValue
 
-        say $ns.getValue();
+    ```raku
+    say $ns.getValue();
+    ```
 
     Alias for getData()
 
   * value
 
-        say $ns.value();
+    ```raku
+    say $ns.value();
+    ```
 
     Alias for getData()
 
   * getNamespaceURI
 
-        my Str $known-uri = $ns.getNamespaceURI();
+    ```raku
+    my Str $known-uri = $ns.getNamespaceURI();
+    ```
 
     Returns the string "http://www.w3.org/2000/xmlns/"
 
   * getPrefix
 
-        my Str $known-prefix = $ns.getPrefix();
+    ```raku
+    my Str $known-prefix = $ns.getPrefix();
+    ```
 
     Returns the string "xmlns"
 
   * unique-key
 
-        my Str $key = $ns.unique-key();
+    ```raku
+    my Str $key = $ns.unique-key();
+    ```
 
     This method returns a key guaranteed to be unique for this namespace, and to always be the same value for this namespace. Two namespace objects return the same key if and only if they have the same prefix and the same URI. The returned key value is useful as a key in hashes.
 

@@ -74,6 +74,7 @@ LibXML::Attr::Map - LibXML Class for Mapped Attributes
 
 =head1 SYNOPSIS
 
+  =begin code :lang<raku>
   use LibXML::Attr::Map;
   use LibXML::Document;
   use LibXML::Element;
@@ -93,6 +94,7 @@ LibXML::Attr::Map - LibXML Class for Mapped Attributes
   $atts.setNamedItem('style', 'font-weight: bold');
   my LibXML::Attr $style = $atts.getNamedItem('style');
   $atts.removeNamedItem('style');
+  =end code
 
 =head1 DESCRIPTION
 
@@ -103,20 +105,19 @@ It presents a tied hash-like mapping of attributes to attribute names.
 =head2 Updating Attributes
 
 Attributes can be created, updated or deleted associatively:
-
+  =begin code :lang<raku>
   my LibXML::Attr::Map $atts = $node.attributes;
-
   $atts<style> = 'fontweight: bold';
   my LibXML::Attr $style = $atts<style>;
   $atts<style>:delete; # remove the style
-
+  =end code
 There are also some DOM (NamedNodeMap) compatible methods:
-
+  =begin code :lang<raku>
   my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
   $atts.setNamedItem($style);
   $style = $atts.getNamedItem('style');
   $atts.removeNamedItem('style');
-
+  =end code
 =head1 METHODS
 
 =begin item1
@@ -128,45 +129,45 @@ Similar to the equivalent Raku Hash methods.
 
 =begin item1
 setNamedItem
-
+  =begin code :lang<raku>
   $map.setNamedItem($new_node)
-
+  =end code
 Adds or replaces node with the same name as C<<<<<< $new_node >>>>>>.
 
 =end item1
 
 =begin item1
 removeNamedItem
-
+  =begin code :lang<raku>
   $map.removeNamedItem($name)
-
+  =end code
 Remove the item with the name C<<<<<< $name >>>>>>.
 
 =end item1
 
 =begin item1
 getNamedItemNS
-
+  =begin code :lang<raku>
    my LibXML::Attr $att = $map.getNamedItemNS($uri, $name);
-
+  =end code
 C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
 
 =end item1
 
 =begin item1
 setNamedItemNS
-
+  =begin code :lang<raku>
   $map.setNamedItem($uri, $new_node)
-
+  =end code
 Assigns $new_node name space to $uri. Adds or replaces an nodes same local name as C<<<<<< $new_node >>>>>>.
 
 =end item1
 
 =begin item1
 removeNamedItemNS
-
+  =begin code :lang<raku>
   $map.removeNamedItemNS($uri, $name);
-
+  =end code
 C<$map.removedNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>.
 
 =end item1

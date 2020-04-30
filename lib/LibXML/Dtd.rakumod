@@ -113,8 +113,7 @@ LibXML::Dtd - LibXML DTD Handling
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Dtd;
 
   my LibXML::Dtd $dtd .= new($public-id, $system-id);
@@ -125,6 +124,7 @@ LibXML::Dtd - LibXML DTD Handling
   try { $dtd.validate($doc) };
   my Bool $valid = $dtd.is-valid($doc);
   if $doc ~~ $dtd { ... } # if doc is valid against the DTD
+  =end code
 
 =head1 DESCRIPTION
 
@@ -149,25 +149,26 @@ new
 Parse a DTD from the system identifier, and return a DTD object that you can
 pass to $doc.is-valid() or $doc.validate().
 
-
+  =begin code :lang<raku>
   my $dtd = LibXML::Dtd.new(
                         "SOME // Public / ID / 1.0",
                         "test.dtd"
                                   );
-   my $doc = LibXML.load: :file("test.xml");
-   $doc.validate($dtd);
+  my $doc = LibXML.load: :file("test.xml");
+  $doc.validate($dtd);
 
-   $doc.is-valid($dtd);
-   #-OR-
-   $doc ~~ $dtd;
+  $doc.is-valid($dtd);
+  #-OR-
+  $doc ~~ $dtd;
+  =end code
 =end item
 
 
 =begin item
 parse
-
+  =begin code :lang<raku>
   my LibXML::Dtd $dtd .= parse: :string($dtd-str);
-
+  =end code
 The same as new() above, except you can parse a DTD from a string. Note that
 parsing from string may fail if the DTD contains external parametric-entity
 references with relative URLs.
@@ -176,9 +177,9 @@ references with relative URLs.
 
 =begin item
 getName
-
+  =begin code :lang<raku>
   my Str $name = $dtd.getName();
-
+  =end code
 Returns the name of DTD; i.e., the name immediately following the DOCTYPE
 keyword.
 =end item
@@ -186,26 +187,26 @@ keyword.
 
 =begin item
 publicId
-
+  =begin code :lang<raku>
   my Str $publicId = $dtd.publicId();
-
+  =end code
 Returns the public identifier of the external subset.
 =end item
 
 
 =begin item
 systemId
-
+  =begin code :lang<raku>
   my Str $systemId = $dtd.systemId();
-
+  =end code
 Returns the system identifier of the external subset.
 =end item
 
 =begin item1
 validate
-
+  =begin code :lang<raku>
   try { $dtd.validate( $doc ); };
-
+  =end code
 This function allows one to validate a (parsed) document against the given XML
 Schema. The argument of this function should be a L<<<<<< LibXML::Document >>>>>> object. If this function succeeds, it will return 0, otherwise it will die()
 and report the errors found. Because of this validate() should be always
@@ -215,10 +216,10 @@ evaluated.
 
 =begin item1
 is-valid / ACCEPTS
-
+  =begin code :lang<raku>
   my Bool $valid = $dtd.is-valid($doc);
   $valid = $doc ~~ $dtd;
-
+  =end code
 Returns either True or False depending on whether the passed Document is valid or not.
 
 =end item1

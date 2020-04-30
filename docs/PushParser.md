@@ -6,24 +6,26 @@ LibXML::PushParser - LibXMl based push parser
 SYNOPSIS
 ========
 
-    # Perl 5 Interface
-    use LibXML;
-    use LibXML::Document;
-    my LibXML $parser .= new;
-    $parser.init-push();
-    $parser.push($chunk);
-    $parser.push(@more-chunks);
-    my $doc = $parser.finish-push;
+```raku
+# Perl 5 Compatible Interface
+use LibXML;
+use LibXML::Document;
+my LibXML $parser .= new;
+$parser.init-push();
+$parser.push($chunk);
+$parser.push(@more-chunks);
+my $doc = $parser.finish-push;
 
-    # Raku
-    use LibXML::Document;
-    use LibXML::PushParser;
-    my LibXML::PushParser $push-parser .= new(
-        :$chunk, :$path, :$sax-handler, :$html, |%parser-opts
-    );
-    $push-parser.push($another-chunk);
-    $push-parser.push(@more-chunks);
-    my $doc = $parser.finish-push;
+# Raku
+use LibXML::Document;
+use LibXML::PushParser;
+my LibXML::PushParser $push-parser .= new(
+    :$chunk, :$path, :$sax-handler, :$html, |%parser-opts
+);
+$push-parser.push($another-chunk);
+$push-parser.push(@more-chunks);
+my $doc = $parser.finish-push;
+```
 
 DESCRIPTION
 ===========
@@ -40,49 +42,61 @@ An initial chunk is usually supply to the push parser `new` method as a Str or B
 
   * parse-chunk
 
-        $parser.parse-chunk($string?, :$terminate);
-        $parser.parse-chunk($blob?, :$terminate);
-        $parser.parse-chunks(@chunks, :$terminate);
+    ```raku
+    $parser.parse-chunk($string?, :$terminate);
+    $parser.parse-chunk($blob?, :$terminate);
+    $parser.parse-chunks(@chunks, :$terminate);
+    ```
 
     parse-chunk() tries to parse a given chunk, or chunks of data, which isn't necessarily well balanced data. The function takes two parameters: The chunk of data as a Str or Blob and optional a termination flag. If the termination flag is set to a True, the parsing will be stopped and the resulting document will be returned as the following example describes:
 
-        my  LibXML::PushParser $push-parser .= new: :chunk("<foo");
-        for ' bar="hello world"', "/>" {
-             $push-parser.parse-chunk( $_ );
-        }
-        my LibXML::Document $doc = $push-parser.finish-push; # terminate the parsing
+    ```raku
+    my  LibXML::PushParser $push-parser .= new: :chunk("<foo");
+    for ' bar="hello world"', "/>" {
+         $push-parser.parse-chunk( $_ );
+    }
+    my LibXML::Document $doc = $push-parser.finish-push; # terminate the parsing
+    ```
 
 Internally LibXML provides three functions that control the push parser process:
 
   * push
 
-        $parser.push(@chunks);
+    ```raku
+    $parser.push(@chunks);
+    ```
 
     This function pushes the data stored inside the array to libxml2's parser. Each entry in @chunks must be a string! This method can be called repeatedly.
 
   * finish-push
 
-        $doc = $parser.finish-push( :$URI, :$recover );
+    ```raku
+    $doc = $parser.finish-push( :$URI, :$recover );
+    ```
 
     This function returns the result of the parsing process. If this function is called without a parameter it will complain about non well-formed documents. If :$recover is True, the push parser can be used to restore broken or non well formed (XML) documents as the following example shows:
 
-        try {
-            $parser.push( "<foo>", "bar" );
-            $doc = $parser.finish-push();    # will report broken XML
-        };
-        if ( $! ) {
-           # ...
-        }
+    ```raku
+    try {
+        $parser.push( "<foo>", "bar" );
+        $doc = $parser.finish-push();    # will report broken XML
+    };
+    if ( $! ) {
+       # ...
+    }
+    ```
 
     This can be annoying if the closing tag is missed by accident. The following code will restore the document:
 
-        try {
-            $parser.push( "<foo>", "bar" );
-            $doc = $parser.finish-push(:recover);   # will return the data parsed
-                                              # unless an error happened
-        };
+    ```raku
+    try {
+        $parser.push( "<foo>", "bar" );
+        $doc = $parser.finish-push(:recover);   # will return the data parsed
+                                          # unless an error happened
+    };
 
-        print $doc.Str(); # returns "<foo>bar</foo>"
+    print $doc.Str(); # returns "<foo>bar</foo>"
+    ```
 
 COPYRIGHT
 =========

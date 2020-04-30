@@ -142,8 +142,7 @@ LibXML::Schema - XML Schema Validation
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Schema;
   use LibXML;
 
@@ -153,6 +152,7 @@ LibXML::Schema - XML Schema Validation
   my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
   try { $xmlschema.validate( $doc ); };
   if $doc ~~ $xmlschema { ... }
+  =end code
 
 =head1 DESCRIPTION
 
@@ -166,10 +166,10 @@ validation. libxml2 only supports decimal types up to 24 digits
 
 =begin item1
 new
-
+    =begin code :lang<raku>
   my LibXML::Schema $xmlschema  .= new( location => $filename_or_url, :network );
   my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring, :network );
-
+    =end code
 The constructor of LibXML::Schema may get called with either one of two
 parameters. The parameter tells the class from which source it should generate
 a validation schema. It is important, that each schema only have a single
@@ -192,9 +192,9 @@ constraints of the XML Schema specification.
 
 =begin item1
 validate
-
-  try { $xmlschema.validate( $doc ); };
-
+    =begin code :lang<raku>
+    try { $xmlschema.validate( $doc ); };
+    =end code
 This function allows one to validate a (parsed) document against the given XML
 Schema. The argument of this function should be a L<<<<<< LibXML::Document >>>>>> object. If this function succeeds, it will return 0, otherwise it will die()
 and report the errors found. Because of this validate() should be always
@@ -204,10 +204,10 @@ evaluated.
 
 =begin item1
 is-valid / ACCEPTS
-
-  my Bool $valid = $xmlschema.is-valid($doc);
-  $valid = $doc ~~ $xmlschema;
-
+    =begin code :lang<raku>
+    my Bool $valid = $xmlschema.is-valid($doc);
+    $valid = $doc ~~ $xmlschema;
+    =end code
 Returns either True or False depending on whether the passed Document is valid or not.
 
 =end item1

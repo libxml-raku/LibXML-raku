@@ -350,6 +350,7 @@ LibXML::XPathContext - XPath Evaluation
 
 =head1 SYNOPSIS
 
+  =begin code :lang<raku>
   use LibXML::XPathContext;
   use LibXML::Node;
   my LibXML::XPath::Context $xpc .= new();
@@ -379,7 +380,7 @@ LibXML::XPathContext - XPath Evaluation
   $xpc.contextPosition = $position;
   my Int $size = $xpc.contextSize;
   $xpc.contextSize = $size;
-
+  =end code
 =head1 DESCRIPTION
 
 The LibXML::XPath::Context class provides an almost complete interface to
@@ -395,17 +396,17 @@ functions written in Raku, and even a custom XPath variable resolver.
 
 This example demonstrates C<<<<<< registerNs() >>>>>> method. It finds all paragraph nodes in an XHTML document.
 
-
-
+  =begin code :lang<raku>
   my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
   $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
   my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
-
+  =end code
 
 =head2 Custom XPath functions
 
 This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a function filtering nodes based on a Raku regular expression:
 
+    =begin code :lang<raku>
     sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
         $nodes.grep: {.textContent ~~ / <$regex> /};
     };
@@ -419,13 +420,13 @@ This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a
     my $xc = LibXML::XPath::Context.new(:$node);
     $xc.registerFunction('grep-nodes', &grep-nodes);
     @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
+    =end code
 
 =head2 Variables
 
 This example demonstrates C<<<<<< registerVarLookup() >>>>>> method. We use XPath variables to recycle results of previous evaluations:
 
-
-
+  =begin code :lang<raku>
   sub var-lookup(Str $name, Str $uri, Hash $data) {
     return $data{$name};
   }
@@ -443,55 +444,55 @@ This example demonstrates C<<<<<< registerVarLookup() >>>>>> method. We use XPat
   # get names of employees from $A working in an area listed in $B
   $xc.registerVarLookupFunc(&var-lookup, %variables);
   my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
-
+  =end code
 
 =head1 METHODS
 
 =begin item1
 new
-
+  =begin code :lang<raku>
   my LibXML::XPath::Context $xpc .= new();
-
+  =end code
 Creates a new LibXML::XPath::Context object without a context node.
-
+  =begin code :lang<raku>
   my LibXML::XPath::Context $xpc .= new: :$node;
-
+  =end code
 Creates a new LibXML::XPath::Context object with the context node set to C<<<<<< $node >>>>>>.
 
 =end item1
 
 =begin item1
 registerNs
-
+  =begin code :lang<raku>
   $xpc.registerNs($prefix, $namespace-uri);
-
+  =end code
 Registers namespace C<<<<<< $prefix >>>>>> to C<<<<<< $namespace-uri >>>>>>.
 
 =end item1
 
 =begin item1
 unregisterNs
-
+  =begin code :lang<raku>
   $xpc.unregisterNs($prefix);
-
+  =end code
 Unregisters namespace C<<<<<< $prefix >>>>>>.
 
 =end item1
 
 =begin item1
 lookupNs
-
+  =begin code :lang<raku>
   $uri = $xpc.lookupNs($prefix);
-
+  =end code
 Returns namespace URI registered with C<<<<<< $prefix >>>>>>. If C<<<<<< $prefix >>>>>> is not registered to any namespace URI returns C<<<<<< undef >>>>>>.
 
 =end item1
 
 =begin item1
 registerVarLookupFunc
-
+  =begin code :lang<raku>
   $xpc.registerVarLookupFunc(&callback, |args);
-
+  =end code
 Registers variable lookup function C<<<<<< $prefix >>>>>>. The registered function is executed by the XPath engine each time an XPath
 variable is evaluated. The callback function has two required arguments: C<<<<<< $data >>>>>>, variable name, and variable ns-URI.
 
@@ -500,23 +501,23 @@ Document, Element, etc.), L<<<LibXML::Node::Set>>> or L<<<LibXML::Node::List>>>.
 array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used instead of an L<<<<<< LibXML::Node::Set >>>>>>.
 
 Any additional arguments are captured and passed to the callback function. For example:
-
+  =begin code :lang<raku>
   $xpc.registerVarLookupFunc(&my-callback, 'Xxx', :%vars);
-
+  =end code
 matches the signature:
-
-sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) {
+  =begin code :lang<raku>
+  sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) {
     ...
-}
-
+  }
+  =end code
 =end item1
 
 
 =begin item1
 registerFunctionNS
-
+  =begin code :lang<raku>
   $xpc.registerFunctionNS($name, $uri, &callback, |args);
-
+  =end code
 Registers an extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> namespace. The arguments of the callback function are either
 simple scalars or C<<<<<< LibXML::* >>>>>> objects depending on the XPath argument types.
 
@@ -528,40 +529,40 @@ array references containing only L<<<<<< LibXML::Node >>>>>> objects can be used
 
 =begin item1
 unregisterFunctionNS
-
+  =begin code :lang<raku>
   $xpc.unregisterFunctionNS($name, $uri);
-
+  =end code
 Unregisters extension function C<<<<<< $name >>>>>> in C<<<<<< $uri >>>>>> namespace. Has the same effect as passing C<<<<<< undef >>>>>> as C<<<<<< $callback >>>>>> to registerFunctionNS.
 
 =end item1
 
 =begin item1
 registerFunction
-
+  =begin code :lang<raku>
   $xpc.registerFunction($name, &callback, |args);
-
+  =end code
 Same as C<<<<<< registerFunctionNS >>>>>> but without a namespace.
 
 =end item1
 
 =begin item1
 unregisterFunction
-
+  =begin code :lang<raku>
   $xpc.unregisterFunction($name);
-
+  =end code
 Same as C<<<<<< unregisterFunctionNS >>>>>> but without a namespace.
 
 =end item1
 
 =begin item1
 findnodes
-
+  =begin code :lang<raku>
   my LibXML::Node @nodes = $xpc.findnodes($xpath);
 
   @nodes = $xpc.findnodes($xpath, $context-node );
 
   my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $context-node );
-
+  =end code
 Performs the xpath statement on the current node and returns the result as an
 array. In item context, returns an L<<<<<< LibXML::Node::Set >>>>>> object. Optionally, a node may be passed as a second argument to set the
 context node for the query.
@@ -572,21 +573,20 @@ The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::X
 
 =begin item1
 first, last
-
+  =begin code :lang<raku>
     my LibXML::Node $body = $doc.first('body');
     my LibXML::Node $last-row = $body.last('descendant::tr');
-
+  =end code
 The C<first> and C<last> methods are similar to C<findnodes>, except they return a single node representing the first or last matching row. If no nodes were found, C<LibXML::Node:U> is returned.
 
 =end item1
 
 =begin item1
 find
-
+  =begin code :lang<raku>
   my Any $object = $xpc.find($xpath );
-
   $object = $xpc.find($xpath, $context-node );
-
+  =end code
 Performs the xpath expression using the current node as the context of the
 expression, and returns the result depending on what type of result the XPath
 expression had. For example, the XPath C<<<<<< 1 * 3 + 	      52 >>>>>> results in a Numeric object being returned. Other expressions might return a Bool object, or a L<<<<<< LibXML::Literal >>>>>> object (a string). Optionally, a node may be passed as a
@@ -598,17 +598,14 @@ The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::X
 
 =begin item1
 findvalue
-
+  =begin code :lang<raku>
   my Str $value = $xpc.findvalue($xpath );
-
   my Str $value = $xpc.findvalue($xpath, $context-node );
-
+  =end code
 Is equivalent to:
-
-
-
+  =begin code :lang<raku>
   $xpc.find( $xpath, $context-node ).to-literal;
-
+  =end code
 That is, it returns the literal value of the results. This enables you to
 ensure that you get a string back from your search, allowing certain shortcuts.
 This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>.
@@ -621,9 +618,9 @@ The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::X
 
 =begin item1
 exists
-
+  =begin code :lang<raku>
   my Bool $found = $xpc.exists( $xpath-expression, $context-node );
-
+  =end code
 This method behaves like I<<<<<< findnodes >>>>>>, except that it only returns a Bool value (True if the expression matches a
 node, False otherwise) and may be faster than I<<<<<< findnodes >>>>>>, because the XPath evaluation may stop early on the first match. 
 
@@ -634,20 +631,20 @@ the returned value is a non-zero number or a non-empty string.
 
 =begin item1
 contextNode
-
+  =begin code :lang<raku>
   $xpc.contextNode = $node;
   $node = $xpc.contextNode
-
+  =end code
 Set or get the current context node.
 
 =end item1
 
 =begin item1
 contextPosition
-
+  =begin code :lang<raku>
   $xpc.contextPosition = $position;
   $position = $xpc.contextPosition;
-
+  =end code
 Set or get the current context position. By default, this value is -1 (and evaluating
 XPath function C<<<<<< position() >>>>>> in the initial context raises an XPath error), but can be set to any value up
 to context size. This usually only serves to cheat the XPath engine to return
@@ -658,9 +655,9 @@ behavior.
 
 =begin item1
 contextSize
-
+  =begin code :lang<raku>
   $xpc.setContextSize = $size;
-
+  =end code
 Set or get the current context size. By default, this value is -1 (and evaluating
 XPath function C<<<<<< last() >>>>>> in the initial context raises an XPath error), but can be set to any
 non-negative value. This usually only serves to cheat the XPath engine to
@@ -680,7 +677,7 @@ in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
 The query handler is a third-party class or object that implements a method `$.query-to-xpath(Str $selector --> Str) {...}`, that typically maps CSS selectors to XPath querys.
 
 The handler may be configured globally:
-
+    =begin code :lang<raku>
     # set up a global query selector. use the CSS::Selector::To::XPath module
     use CSS::Selector::To::XPath;
     use LibXML::Config;
@@ -706,15 +703,15 @@ The handler may be configured globally:
     my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
     my @abc-results = $document.querySelectorAll($result-query);
     my $a-result = $document.querySelector($result-query);
-
+    =end code
 =end item1
 
 =begin item
 set-options, suppress-warnings, suppress-errors
-
+  =begin code :lang<raku>
    my LibXML::XPath::Context $ctx .= new: :suppress-warnings;
    $ctx.suppress-errors = True;
-
+  =end code
 XPath Contexts have some Boolean error handling options:
 
   =item C<suppress-warnings> - Don't report warnings

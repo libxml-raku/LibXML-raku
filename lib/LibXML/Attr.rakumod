@@ -33,8 +33,7 @@ LibXML::Attr - LibXML Attribute Class
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Attr;
   use LibXML::Element;
   # Only methods specific to Attribute nodes are listed here,
@@ -47,6 +46,7 @@ LibXML::Attr - LibXML Attribute Class
   $attr.setNamespace($nsURI, $prefix);
   my Bool $is-id = $attr.isId;
   my Str $content = $attr.serializeContent;
+  =end code
 
 =head1 DESCRIPTION
 
@@ -62,37 +62,37 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 =begin item
 new
-
+  =begin code :lang<raku>
   my LibXML::Attr $attr .= new(:$name :$value);
-
+  =end code
 Class constructor.
 
 =end item
 
 =begin item
 value
-
+  =begin code :lang<raku>
    my Str $val = $attr.value();
    $attr.value = $value;
-
+  =end code
 Gets or sets the value stored for the attribute. If Str:U is returned, the attribute
 has no value, which is different to being C<<<<<< not specified >>>>>>.
 =end item
 
 =begin item
 getOwnerElement
-
+  =begin code :lang<raku>
   my LibXML::Element $owner = $attr.getOwnerElement();
-
+  =end code
 returns the node the attribute belongs to. If the attribute is not bound to a
 node, LibXML::Element:U will be returned.
 =end item
 
 =begin item
 setNamespace
-
+  =begin code :lang<raku>
   $attr.setNamespace($nsURI, $prefix);
-
+  =end code
 This function tries to bound the attribute to a given namespace. If C<<<<<< $nsURI >>>>>> is undefined or empty, the function discards any previous association of the
 attribute with a namespace. If the namespace was not previously declared in the
 context of the attribute, this function will fail. In this case you may wish to
@@ -106,19 +106,19 @@ This function returns True on success, Failure otherwise.
 If you don't want the overheads of managing namespaces, a quick way of ensuring
 that the namespace is not rejected is to call the `requireNamespace` method on
 the containing node:
-
+  =begin code :lang<raku>
   # re-use any existing definitions in the current scope, or add to the
   # parent with a generated prefix
   my $prefix = $att.parent.requireNamespace($uri);
   $att.setNamespace($uri, $prefix);
-
+  =end code
 =end item
 
 =begin item
 isId
-
+  =begin code :lang<raku>
   my Bool $is-id = $attr.isId;
-
+  =end code
 Determine whether an attribute is of type ID. For documents with a DTD, this
 information is only available if DTD loading/validation has been requested. For
 HTML documents parsed with the HTML parser ID detection is done automatically.
@@ -127,9 +127,9 @@ In XML documents, all "xml:id" attributes are considered to be of type ID.
 
 =begin item
 serializeContent
-
+  =begin code :lang<raku>
   my Str $content = $attr.serializeContent;
-
+  =end code
 This function is not part of DOM API. It returns attribute content in the form
 in which it serializes into XML, that is with all meta-characters properly
 quoted and with raw entity references (except for entities expanded during

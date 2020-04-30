@@ -6,7 +6,9 @@ LibXML::Config - LibXML Global configuration
 SYNOPSIS
 ========
 
-    use LibXML::Config;
+```raku
+use LibXML::Config;
+```
 
 METHODS
 =======
@@ -33,15 +35,17 @@ METHODS
 
     A more granular solution to this problem, however, is provided by custom URL resolvers, as in 
 
-        my LibXML::InputCallback $cb .= new;
-        sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
-          my ($uri) = @_;
-          ? ($uri ~~ m|^'file:/'}
-             and $uri !~~ m|^'file:///etc/xml/'|)
-        }
-        sub deny(|c) { }
-        $cb.register-callbacks(&match, &deny, &deny, &deny);
-        $parser.input-callbacks($cb);
+    ```raku
+    my LibXML::InputCallback $cb .= new;
+    sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
+      my ($uri) = @_;
+      ? ($uri ~~ m|^'file:/'}
+         and $uri !~~ m|^'file:///etc/xml/'|)
+    }
+    sub deny(|c) { }
+    $cb.register-callbacks(&match, &deny, &deny, &deny);
+    $parser.input-callbacks($cb);
+    ```
 
 COPYRIGHT
 =========

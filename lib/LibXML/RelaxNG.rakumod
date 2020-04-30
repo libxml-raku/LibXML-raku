@@ -129,8 +129,8 @@ LibXML::RelaxNG - RelaxNG Schema Validation
 
 =head1 SYNOPSIS
 
-
-  use LibXML::Schema;
+  =begin code :lang<raku>
+  use LibXML::RelaxNG;
   use LibXML;
 
   my $doc = LibXML.new.parse: :file($url);
@@ -141,7 +141,7 @@ LibXML::RelaxNG - RelaxNG Schema Validation
   try { $rngschema.validate( $doc ); };
   if  $rngschema.is-valid( $doc ) {...}
   if $doc ~~ $rngschema { ... }
-
+  =end code
 =head1 DESCRIPTION
 
 The LibXML::RelaxNG class is a tiny frontend to libxml2's RelaxNG
@@ -153,11 +153,11 @@ validation.
 
 =begin item1
 new
-
+  =begin code :lang<raku>
   my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
   my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
   my LibXML::RelaxNG $rngschema .= new( :$doc );
-
+  =end code
 The constructor of LibXML::RelaxNG may get called with either one of three
 parameters. The parameter tells the class from which source it should generate
 a validation schema. It is important, that each schema only have a single
@@ -177,9 +177,9 @@ constraints of the RelaxNG specification.
 
 =begin item1
 validate
-
+  =begin code :lang<raku>
   try { $rngschema->validate( $doc ); };
-
+  =end code
 This function allows one to validate a (parsed) document against the given
 RelaxNG schema. The argument of this function should be an LibXML::Document
 object. If this function succeeds, it will return True, otherwise it will throw,
@@ -189,11 +189,11 @@ a `try` block or in the scope of a `CATCH` block.
 =end item1
 
 =begin item1
-is-valid / ACCEPTCS
-
+is-valid / ACCEPTS
+   =begin code :lang<raku>
    my Bool $valid = $rngschema.is-valid($doc);
    $valid = $doc ~~ $rngschema;
-
+   =end code
 Returns either True or False depending on whether the passed Document is valid or not.
 
 =end item1

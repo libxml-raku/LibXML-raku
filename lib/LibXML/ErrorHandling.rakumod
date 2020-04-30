@@ -207,8 +207,7 @@ LibXML::ErrorHandling - libxml exceptions and error handling
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   try { ... }
   with $! {
       when X::LibXML::Parser {
@@ -226,7 +225,7 @@ LibXML::ErrorHandling - libxml exceptions and error handling
   my UInt $line = $!.line();
   my UInt $offset = $!.column;
   my UInt $domain = $!.domain;
-
+  =end code
 =head1 DESCRIPTION
 
 The X:LibXML::Parser exception class interfaces to I<<<<<< libxml2 >>>>>>'s structured error support. If LibXML is compiled with structured error
@@ -240,9 +239,9 @@ occurred.
 
 =begin item1
 message
-
+  =begin code :lang<raku>
   Str $text = $!.message();
-
+  =end code
 This function serializes an X:LibXML::Parser object to a string containing the
 full error message close to the message produced by I<<<<<< libxml2 >>>>>> default error handlers and tools like xmllint. This method is also used to
 overload "" operator on X:LibXML::Parser, so it is automatically called whenever
@@ -252,18 +251,18 @@ X:LibXML::Parser object is treated as a string (e.g. in print $@).
 
 =begin item1
 msg
-
+  =begin code :lang<raku>
   if $!.msg.chomp eq 'attributes construct error' { ... }
-
+  =end code
 The raw message text. This may include a trailing new line.
 
 =end item1
 
 =begin item1
 prev
-
+  =begin code :lang<raku>
   my X::LibXML::Parser$previous-error = $!.prev();
-
+  =end code
 This field can possibly refer to another X::LibXML::Parser object
 representing an error which occurred just before this error.
 
@@ -271,9 +270,9 @@ representing an error which occurred just before this error.
 
 =begin item1
 messages
-
+  =begin code :lang<raku>
   say $!.messages();
-
+  =end code
 A concatenation of the current $!.msg with any linked $!.prev errors. This
 is used as the base text by the $!.message method.
 
@@ -282,10 +281,10 @@ is used as the base text by the $!.message method.
 
 =begin item1
 code
-
+  =begin code :lang<raku>
   my UInt $error-code = $!.code();
   if $!.code == XML_ERR_SPACE_REQUIRED { ... }
-
+  =end code
 Returns the actual libxml2 error code. The L<LibXML::Enums> module defines
 constants for individual error codes. Currently libxml2 uses over 480 different
 error codes. 
@@ -294,18 +293,18 @@ error codes.
 
 =begin item1
 message
-
+  =begin code :lang<raku>
   $error_message = @!.message();
-
+  =end code
 Returns a human-readable informative error message.
 
 =end item1
 
 =begin item1
 level
-
+  =begin code :lang<raku>
   $error_level = $!.level();
-
+  =end code
 Returns an integer value describing how consequent is the error. L<LibXMNL::Enums>
 defines the following enumerations:
 
@@ -321,45 +320,45 @@ defines the following enumerations:
 
 =begin item1
 file
-
+  =begin code :lang<raku>
   my Str $filename = $!.file();
-
+  =end code
 Returns the filename of the file being processed while the error occurred. 
 
 =end item1
 
 =begin item1
 line
-
+  =begin code :lang<raku>
   my UInt $line-no = $!.line();
-
+  =end code
 The line number, if available.
 
 =end item1
 
 =begin item1
 column
-
+  =begin code :lang<raku>
   my UInt $offset = $!.column();
-
+  =end code
 See C<<<<<< $@-&gt;column() >>>>>> above. 
 
 =end item1
 
 =begin item1
 domain
-
+  =begin code :lang<raku>
   if $!.domain == XML_FROM_PARSER {...}
-
+  =end code
 Returns the domain which raised the error as a number
 
 =end item1
 
 =begin item1
 domain-name
-
+  =begin code :lang<raku>
   if $!.domain-name eq 'parser' {...}
-
+  =end code
 Returns string containing information about what part of the library raised the
 error. Can be one of: "parser", "tree", "namespace", "validity", "HTML parser",
 "memory", "output", "I/O", "ftp", "http", "XInclude", "XPath", "xpointer",
@@ -373,7 +372,7 @@ parser", "Relax-NG validity", "Catalog", "C14N", "XSLT", "validity".
 Parsers that perform the LibXML::ErrorHandling role can install their own error-handling callbacks via SAX Handler. `warning()`, `error()` or `errorFatal()` callbacks can be defined for simple error handling or a `serror()` callback can be defined to handle everything as `X::LibXML` exception objects.
 
 The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wish to disable this module's built-in error handling.
-
+    =begin code :lang<raku>
     # Set up a custom SAX error handler
     use LibXML::SAX::Handler;
     class SaxHandler is LibXML::SAX::Handler {
@@ -391,7 +390,7 @@ The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wis
     my SaxHandler $sax-handler .= new();
     # for example, parse a string with custom error handling
     my LibXML::Document $doc .= parse: :$string, :$sax-handler, :suppress-warnings;
-
+    =end code
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.

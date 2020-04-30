@@ -197,8 +197,7 @@ LibXML::InputCallback - LibXML Class for Input Callbacks
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::InputCallback;
   my LibXML::InputCallback $icb .= new;
   $icb.register-callbacks(
@@ -207,7 +206,7 @@ LibXML::InputCallback - LibXML Class for Input Callbacks
       read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
       close => -> IO::Handle:D $fh { $fh.close },
   );
-
+  =end code
 
 =head1 DESCRIPTION
 
@@ -281,9 +280,8 @@ stacks on a per libxml2-parser basis.
 After object instantiation using the parameter-less constructor, you can
 register callback groups.
 
-
-
-my LibXML::InputCallback.$input-callbacks . = new(
+  =begin code :lang<raku>
+  my LibXML::InputCallback.$input-callbacks . = new(
     :&match, :&open, :&read, :&close);
   # setup second callback group (named arguments)
   $input-callbacks.register-callbacks(match => &match-cb2, open => &open-cb2,
@@ -294,6 +292,7 @@ my LibXML::InputCallback.$input-callbacks . = new(
   
   $parser.input-callbacks = $input-callbacks;
   $parser.parse: :file( $some-xml-file );
+  =end code
 
 Note that this Raku port does not currently support the old Perl Global Callback mechanism.
 
@@ -310,17 +309,22 @@ A simple constructor.
 =end item1
 
 =begin item1
-register-callbacks( &$match-cb, &open-cb, &read-cb, &close-cb);
-register-callbacks( match => &$match-cb, open => &open-cb,
+register-callbacks()
+  =begin code :lang<raku>
+  register-callbacks( &$match-cb, &open-cb, &read-cb, &close-cb);
+  # -OR-
+  register-callbacks( match => &match-cb, open => &open-cb,
                     read => &read-cb, close => &close-cb);
-
+  =end code
 The four callbacks I<<<<<< have >>>>>> to be given as array in the above order I<<<<<< match >>>>>>, I<<<<<< open >>>>>>, I<<<<<< read >>>>>>, I<<<<<< close >>>>>>!
 
 =end item1
 
 =begin item1
-unregister-callbacks( $match-cb, $open-cb, $read-cb, $close-cb )
-
+unregister-callbacks()
+  =begin code :lang<raku>
+  unregister-callbacks( &match-cb, &open-cb, &read-cb, &close-cb )
+  =end code
 With no arguments given, C<<<<<< unregister-callbacks() >>>>>> will delete the last registered callback group from the stack. If four
 callbacks are passed as array, the callback group to unregister will
 be identified by the I<<<<<< match >>>>>> callback and deleted from the callback stack. Note that if several identical I<<<<<< match >>>>>> callbacks are defined in different callback groups, ALL of them will be deleted
@@ -334,6 +338,7 @@ from the stack.
 The following example is a purely fictitious example that uses a
 minimal MyScheme::Handler stub object.
 
+  =begin code :lang<raku>
   use LibXML::Parser;
   use LibXML::InputCallBack;
 
@@ -379,6 +384,7 @@ minimal MyScheme::Handler stub object.
   
   # $some-xml-file will be parsed using our callbacks
   $parser.parse: :file('myscheme:stub.xml')
+  =end code
 
 =head1 COPYRIGHT
 

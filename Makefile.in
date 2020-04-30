@@ -74,7 +74,9 @@ realclean : clean
 doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Document.md docs/DocumentFragment.md\
       docs/Dtd.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/Native.md\
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
-      docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md docs/XPath/Context.md docs/XPath/Expression.md
+      docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
+      docs/XPath/Context.md docs/XPath/Expression.md\
+      docs/SAX/Builder.md
 
 docs/index.md : lib/LibXML.rakumod
 	(\
@@ -140,6 +142,8 @@ docs/Reader.md : lib/LibXML/Reader.rakumod
 docs/Schema.md : lib/LibXML/Schema.rakumod
 
 docs/RelaxNG.md : lib/LibXML/RelaxNG.rakumod
+
+docs/SAX/Builder : lib/LibXML/SAX/Builder.rakumod
 
 docs/Text.md : lib/LibXML/Text.rakumod
 

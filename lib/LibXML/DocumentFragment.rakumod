@@ -78,7 +78,7 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
 
 =head1 SYNOPSIS
 
-
+  =begin code :lang<raku>
   use LibXML::Document;
   use LibXML::DocumentFragment;
   my LibXML::Document $doc .= new;
@@ -103,8 +103,9 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
                :baz[],                       # element
                '#cdata' => 'a&b',            # CData section
                 "Some text.\n",               # text content
-   ]);
-   say $frag; # <!--demo--><baz/><![CDATA[a&b]]>Some text.
+      ]);
+  say $frag; # <!--demo--><baz/><![CDATA[a&b]]>Some text.
+  =end code
 
 =head1 DESCRIPTION
 
@@ -118,19 +119,19 @@ The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inher
 
 =begin item
 new
-
+  =begin code :lang<raku>
   my LibXML::Document $doc; # owner document for the fragment;
   my LibXML::DocumentFragment $frag .= new: :$doc, *%parser-options;
-
+  =end code
 Creates a new empty document fragment to which nodes can be added; typically by
 calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
 =end item
 
 =begin item
 parse
-
+  =begin code :lang<raku>
   my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>'), :recover, :suppress-warnings, :suppress-errors, *%parser-options;
-
+  =end code
 Performs a parse of the given XML fragment and appends the resulting nodes to the fragment. The `parse()` method may be called multiple times on a document fragment object to append nodes.
 
 =end item

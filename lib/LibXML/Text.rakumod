@@ -28,8 +28,7 @@ LibXML::Text - LibXML Class for Text Nodes
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Text;
   # Only methods specific to Text nodes are listed here,
   # see the LibXML::Node documentation for other methods
@@ -58,6 +57,7 @@ LibXML::Text - LibXML Class for Text Nodes
   $text.deleteDataString($remstring, :g);
   $text.replaceData($offset, $length, $string);
   $text.replaceDataString($old, $new, :g);
+  =end code
 
 =head1 DESCRIPTION
 
@@ -79,32 +79,29 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 =begin item1
 new
-
+  =begin code :lang<raku>
   $text = LibXML::Text.new( $content ); 
-
+  =end code
 The constructor of the class. It creates an unbound text node.
 
 =end item1
 
 =begin item1
 data
-
+  =begin code :lang<raku>
   $nodedata = $text.data;
-
+  =end code
 Although there exists the C<<<<<< nodeValue >>>>>> attribute in the Node class, the DOM specification defines data as a separate
 attribute. C<<<<<< LibXML >>>>>> implements these two attributes not as different attributes, but as aliases,
 such as C<<<<<< libxml2 >>>>>> does. Therefore
 
-
-
+  =begin code :lang<raku>
   $text.data;
-
+  =end code
 and
-
-
-
+  =begin code :lang<raku>
   $text.nodeValue;
-
+  =end code
 will have the same result and are not different entities.
 
 =end item1
@@ -112,9 +109,9 @@ will have the same result and are not different entities.
 
 =begin item1
 setData($string)
-
+  =begin code :lang<raku>
   $text.setData( $text-content );
-
+  =end code
 This function sets or replaces text content to a node. The node has to be of
 the type "text", "cdata" or "comment".
 
@@ -122,9 +119,9 @@ the type "text", "cdata" or "comment".
 
 =begin item1
 substringData($offset,$length)
-
+  =begin code :lang<raku>
   $text.substringData($offset, $length);
-
+  =end code
 Extracts a range of data from the node. (DOM Spec) This function takes the two
 parameters $offset and $length and returns the sub-string, if available.
 
@@ -135,9 +132,9 @@ this function will return I<<<<<< Str:U >>>>>>. If $length is out of range C<<<<
 
 =begin item1
 appendData($string)
-
+  =begin code :lang<raku>
   $text.appendData( $somedata );
-
+  =end code
 Appends a string to the end of the existing data. If the current text node
 contains no data, this function has the same effect as C<<<<<< setData >>>>>>.
 
@@ -145,9 +142,9 @@ contains no data, this function has the same effect as C<<<<<< setData >>>>>>.
 
 =begin item1
 insertData($offset,$string)
-
+  =begin code :lang<raku>
   $text.insertData($offset, $string);
-
+  =end code
 Inserts the parameter $string at the given $offset of the existing data of the
 node. This operation will not remove existing data, but change the order of the
 existing data.
@@ -157,10 +154,10 @@ The $offset has to be a positive value. If $offset is out of range, C<<<<<< inse
 =end item1
 
 =begin item1
-deleteData($offset, $length)
-
+deleteData
+  =begin code :lang<raku>
   $text.deleteData($offset, $length);
-
+  =end code
 This method removes a chunk from the existing node data at the given offset.
 The $length parameter tells, how many characters should be removed from the
 string.
@@ -168,10 +165,10 @@ string.
 =end item1
 
 =begin item1
-deleteDataString($string, :g)
-
+deleteDataString
+  =begin code :lang<raku>
   $text.deleteDataString($remstring, :g);
-
+  =end code
 This method removes a chunk from the existing node data. Since the DOM spec is
 quite unhandy if you already know C<<<<<< which >>>>>> string to remove from a text node, this method allows more Rakuish code :)
 
@@ -180,19 +177,19 @@ The functions takes two parameters: I<<<<<< $string >>>>>> and optional the I<<<
 =end item1
 
 =begin item1
-replaceData($offset, $length, $string)
-
+replaceData
+  =begin code :lang<raku>
   $text.replaceData($offset, $length, $string);
-
+  =end code
 The DOM style version to replace node data.
 
 =end item1
 
 =begin item1
-replaceDataString($oldstring, $newstring, [$all])
-
+replaceDataString
+  =begin code :lang<raku>
   $text.replaceDataString($old, $new, $flag);
-
+  =end code
 The more programmer friendly version of replaceData() :)
 
 Instead of giving offsets and length one can specify the exact string (I<<<<<< $oldstring >>>>>>) to be replaced. Additionally the I<<<<<< $all >>>>>> flag allows one to replace all occurrences of I<<<<<< $oldstring >>>>>>.
@@ -200,21 +197,21 @@ Instead of giving offsets and length one can specify the exact string (I<<<<<< $
 =end item1
 
 =begin item1
-replaceDataRegEx( $search-cond, $replace-cond, $reflags )
-
+replaceDataRegEx
+  =begin code :lang<raku>
   $text.replaceDataRegEx( $search-cond, $replace-cond, $reflags );
-
+  =end code
 This method replaces the node's data by a C<<<<<< simple >>>>>> regular expression. Optional, this function allows one to pass some flags that
 will be added as flag to the replace statement.
 
 I<<<<<< NOTE: >>>>>> This is a shortcut for
 
 
-
+  =begin code :lang<raku>
   my $datastr = $node.getData();
-   $datastr =~ s/somecond/replacement/g; # 'g' is just an example for any flag
-   $node.setData( $datastr );
-
+  $datastr =~ s/somecond/replacement/g; # 'g' is just an example for any flag
+  $node.setData( $datastr );
+  =end code
 This function can make things easier to read for simple replacements. For more
 complex variants it is recommended to use the code snippet above.
 

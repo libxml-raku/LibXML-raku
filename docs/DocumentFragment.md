@@ -6,32 +6,34 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
 SYNOPSIS
 ========
 
-    use LibXML::Document;
-    use LibXML::DocumentFragment;
-    my LibXML::Document $doc .= new;
+```raku
+use LibXML::Document;
+use LibXML::DocumentFragment;
+my LibXML::Document $doc .= new;
 
-    my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
-    say $frag.Str; # '<foo/><bar/>';
-    $frag.parse: :balanced, :string('<baz/>');
-    say $frag.Str; # '<foo/><bar/><baz>';
+my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
+say $frag.Str; # '<foo/><bar/>';
+$frag.parse: :balanced, :string('<baz/>');
+say $frag.Str; # '<foo/><bar/><baz>';
 
-    $frag = $doc.createDocumentFragment;
-    $frag.appendChild: $doc.createElement('foo');
-    $frag.appendChild: $doc.createElement('bar');
-    $frag.parse: :balanced, :string('<baz/>');
-    say $frag.Str # '<foo/><bar/><baz/>'
+$frag = $doc.createDocumentFragment;
+$frag.appendChild: $doc.createElement('foo');
+$frag.appendChild: $doc.createElement('bar');
+$frag.parse: :balanced, :string('<baz/>');
+say $frag.Str # '<foo/><bar/><baz/>'
 
-    $frag = $some-elem.removeChildNodes();
+$frag = $some-elem.removeChildNodes();
 
-    use LibXML::Item :&ast-to-xml;
-    $frag = ast-to-xml([
-                 '#comment' => 'demo',         # comment
-                 "\n  ",                       # whitespace
-                 :baz[],                       # element
-                 '#cdata' => 'a&b',            # CData section
-                  "Some text.\n",               # text content
-     ]);
-     say $frag; # <!--demo--><baz/><![CDATA[a&b]]>Some text.
+use LibXML::Item :&ast-to-xml;
+$frag = ast-to-xml([
+             '#comment' => 'demo',         # comment
+             "\n  ",                       # whitespace
+             :baz[],                       # element
+             '#cdata' => 'a&b',            # CData section
+              "Some text.\n",               # text content
+    ]);
+say $frag; # <!--demo--><baz/><![CDATA[a&b]]>Some text.
+```
 
 DESCRIPTION
 ===========
@@ -45,14 +47,18 @@ The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-rak
 
   * new
 
-        my LibXML::Document $doc; # owner document for the fragment;
-        my LibXML::DocumentFragment $frag .= new: :$doc, *%parser-options;
+    ```raku
+    my LibXML::Document $doc; # owner document for the fragment;
+    my LibXML::DocumentFragment $frag .= new: :$doc, *%parser-options;
+    ```
 
     Creates a new empty document fragment to which nodes can be added; typically by calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
 
   * parse
 
-        my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>'), :recover, :suppress-warnings, :suppress-errors, *%parser-options;
+    ```raku
+    my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>'), :recover, :suppress-warnings, :suppress-errors, *%parser-options;
+    ```
 
     Performs a parse of the given XML fragment and appends the resulting nodes to the fragment. The `parse()` method may be called multiple times on a document fragment object to append nodes.
 

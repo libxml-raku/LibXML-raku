@@ -6,17 +6,19 @@ LibXML::Native - bindings to the libxml2 library
 SYNOPSIS
 ========
 
-    do {
-        # Create a document from scratch
-        use LibXML::Native;
-        my xmlDoc:D $doc .= new;
-        my xmlElem:D $root = $doc.new-node: :name<Hello>, :content<World!>;
-        .Reference for $doc, $root;
-        $doc.SetRootElement($root);
-        say $doc.Str; # .. <Hello>World!</Hello>
-        # unreference/destroy before we go out of scope
-        .Unreference for $root, $doc;
-    }
+```raku
+do {
+    # Create a document from scratch
+    use LibXML::Native;
+    my xmlDoc:D $doc .= new;
+    my xmlElem:D $root = $doc.new-node: :name<Hello>, :content<World!>;
+    .Reference for $doc, $root;
+    $doc.SetRootElement($root);
+    say $doc.Str; # .. <Hello>World!</Hello>
+    # unreference/destroy before we go out of scope
+    .Unreference for $root, $doc;
+}
+```
 
 DESCRIPTION
 ===========
@@ -32,34 +34,40 @@ Some care needs to be taken in keeping persistant references to native structure
 
 The following is unsafe:
 
-    my LibXML::Element $elem .= new: :name<Test>;
-    my xmlElem:D $native = $elem.native;
-    $elem = Nil;
-    say $native.Str; # could have been destroyed along with $elem
+```raku
+my LibXML::Element $elem .= new: :name<Test>;
+my xmlElem:D $native = $elem.native;
+$elem = Nil;
+say $native.Str; # could have been destroyed along with $elem
+```
 
 If the native object supports the `Reference` and `Unreference` methods, the object can be reference counted and uncounted:
 
-    my LibXML::Element $elem .= new: :name<Test>;
-    my xmlElem:D $native = $elem.native;
-    $native.Reference; # add a reference to the object
-    $elem = Nil;
-    say $native.Str; # now safe
-    with $native {
-        .Unreference; # unreference, free if no more references
-        $_ = Nil;
-    }
+```raku
+my LibXML::Element $elem .= new: :name<Test>;
+my xmlElem:D $native = $elem.native;
+$native.Reference; # add a reference to the object
+$elem = Nil;
+say $native.Str; # now safe
+with $native {
+    .Unreference; # unreference, free if no more references
+    $_ = Nil;
+}
+```
 
 Otherwise, the object can usually be copied. That copy then needs to be freed, to avoid memory leaks:
 
-    my LibXML::Namespace $ns .= new: :prefix<foo>, :URI<http://foo.org>;
-    my xmlNs:D $native = $ns.native;
-     $native .= Copy;
-     $ns = Nil;
-     say $native.Str; # safe
-     with $native {
-         .Free; # free the copy
-         $_ = Nil;
-     }
+```raku
+my LibXML::Namespace $ns .= new: :prefix<foo>, :URI<http://foo.org>;
+my xmlNs:D $native = $ns.native;
+$native .= Copy;
+$ns = Nil;
+say $native.Str; # safe
+with $native {
+    .Free; # free the copy
+    $_ = Nil;
+}
+```
 
 class LibXML::Native::xmlAutomata
 ---------------------------------

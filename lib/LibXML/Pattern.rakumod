@@ -74,8 +74,7 @@ LibXML::Pattern -interface to libxml2 XPath patterns
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML;
   my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
   # test a match on an LibXML::Node $node
@@ -93,6 +92,7 @@ LibXML::Pattern -interface to libxml2 XPath patterns
 
   my LibXML::Pattern $pattern .= new( pattern, :ns{prefix => namespace_URI} );
   my Bool $matched = $pattern.matchesNode($node);
+  =end code
 
 =head1 DESCRIPTION
 
@@ -103,30 +103,29 @@ Patterns are a small subset of XPath language, which is limited to
 abbreviated form as described by the extended BNF given below: 
 
 
-
+  =begin code :lang<bnf>
   Selector ::=     Path ( '|' Path )*
   Path     ::=     ('.//' | '//' | '/' )? Step ( '/' Step )*
   Step     ::=     '.' | NameTest
   NameTest ::=     QName | '*' | NCName ':' '*'
-
+  =end code
 For readability, whitespace may be used in selector XPath expressions even
 though not explicitly allowed by the grammar: whitespace may be freely added
 within patterns before or after any token, where
 
-
-
+  =begin code :lang<bnf>
   token     ::=     '.' | '/' | '//' | '|' | NameTest
-
+  =end code
 Note that no predicates or attribute tests are allowed.
 
 Patterns are particularly useful for stream parsing provided via the L<<<<<< LibXML::Reader >>>>>> interface.
 
 =begin item1
 new / compile
-
+  =begin code :lang<raku>
   my LibXML::Pattern $pattern .= compile( $expr, :ns{ prefix => namespace_URI, ... } );
   my LibXML::Pattern $pattern2 .= new ( pattern => $expr, :ns{ prefix => namespace_URI, ... } );
-
+  =end code
 The constructors of a pattern takes a pattern expression (as described by the
 BNF grammar above) and an optional Hash mapping prefixes to namespace
 URIs. The methods return a compiled pattern object. 
@@ -135,18 +134,17 @@ Note that if the document has a default namespace, it must still be given an
 prefix in order to be matched (as demanded by the XPath 1.0 specification). For
 example, to match an element C<<<<<< &lt;a xmlns="http://foo.bar"&lt;/a&gt; >>>>>>, one should use a pattern like this: 
 
-
-
+  =begin code :lang<raku>
   my LibXML::Pattern $pattern .= compile( 'foo:a', :ns(foo => 'http://foo.bar') );
-
+  =end code
 =end item1
 
 =begin item1
 matchesNode / ACCEPTS
-
+  =begin code :lang<raku>
   my Bool $matched = $pattern.matchesNode($node);
   $matched = $node ~~ $pattern;
-
+  =end code
 Given an LibXML::Node object, returns True if the node is matched by
 the compiled pattern expression.
 

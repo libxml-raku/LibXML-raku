@@ -938,7 +938,7 @@ All are prefixed `XML_*`.
 These are mostly low-level and encapsulated by LibXML. For example for nodes of type L<LibXML::Element> always have a `type` of `XML_ELEMENT_NODE`.
 
 The `code` attribute of X::LibXML exceptions (see L<LibXML::ErrorHandling>) may be useful, if you wish to detect various libxml errors, for example:
-
+    =begin code :lang<raku>
     use LibXML;
     use LibXML::Enums;
 
@@ -951,7 +951,7 @@ The `code` attribute of X::LibXML exceptions (see L<LibXML::ErrorHandling>) may 
             warn $err;
         }
     }
-
+    =end code
 
 The libxml L<error documentation> lists possible error codes. Enumerations should be defined for all of these. 
 

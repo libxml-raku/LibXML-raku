@@ -6,28 +6,32 @@ LibXML::Node::Set - LibXML Class for XPath Node Collections
 SYNOPSIS
 ========
 
-    use LibXML::Node::Set;
-    my LibXML::Node::Set $node-set;
+```raku
+use LibXML::Node::Set;
+my LibXML::Node::Set $node-set;
 
-    $node-set = $elem.childNodes;
-    $node-set = $elem.findnodes($xpath, :$deref);
-    $node-set = $elem{$xpath}
-    $node-set .= new: $deref;
-    $node-set.add: $elem;
+$node-set = $elem.childNodes;
+$node-set = $elem.findnodes($xpath, :$deref);
+$node-set = $elem{$xpath}
+$node-set .= new: $deref;
+$node-set.add: $elem;
 
-    my LibXML::Item @items = $node-set;
-    for $node-set -> LibXML::Item $item { ... }
+my LibXML::Item @items = $node-set;
+for $node-set -> LibXML::Item $item { ... }
 
-    my LibXML::Node::Set %nodes-by-name = $node-set.Hash;
-    ...
+my LibXML::Node::Set %nodes-by-name = $node-set.Hash;
+# ...
+```
 
 DESCRIPTION
 ===========
 
 This class is commonly used for handling result sets from XPath queries. It performs the Iterator role, which enables:
 
-    for $elem.findnodes($path) {...}
-    my LibXML::Item @nodes = $elem.findnodes($xpath);
+```raku
+for $elem.findnodes($path) {...}
+my LibXML::Item @nodes = $elem.findnodes($xpath);
+```
 
 METHODS
 =======
@@ -42,21 +46,29 @@ METHODS
 
         An optional native node-set struct. Note: Please use this option with care. `xmlNodeSet` objects cannot be reference counted; which means that objects cannot be shared between classess. The native xmlNodeSet object is always freed when the LibXML::Node::Set is destroyed. xmlNodeSet objects need to be newly created, or copied from other native objects. Both of the following are OK:
 
-        my xmlNodeSet $native .= new; # create a new object from scratch #-OR- my xmlNodeSet $native = $other-node-set.native.copy; # take a copy my LibXML::Node::Set $nodes .= new: :$native; $native = Nil; # best to avoid any further direct access to the native object
+        ```raku
+        my xmlNodeSet $native .= new; # create a new object from scratch
+        #-OR-
+        my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
+        my LibXML::Node::Set $nodes .= new: :$native;
+        $native = Nil; # best to avoid any further direct access to the native object
+        ```
 
       * `Bool :deref`
 
         Dereference Elements to their constituant child nodes and attributes. For example:
 
-            my LibXML::Document $doc .= parse("example/dromeds.xml");
-            # without dereferencing
-            my LibXML::Node::Set $species = $doc.findnodes("dromedaries/species");
-            say $species.keys; # (species)
-            # with dereferencing
-            $species = $doc.findnodes("dromedaries/species", :deref);
-            #-OR-
-            $species = $doc<dromedaries/species>; # The AT-KEY method sets the :deref option
-            say $species.keys; # disposition text() humps @name)
+        ```raku
+          my LibXML::Document $doc .= parse("example/dromeds.xml");
+          # without dereferencing
+          my LibXML::Node::Set $species = $doc.findnodes("dromedaries/species");
+          say $species.keys; # (species)
+          # with dereferencing
+          $species = $doc.findnodes("dromedaries/species", :deref);
+          #-OR-
+          $species = $doc<dromedaries/species>; # The AT-KEY method sets the :deref option
+          say $species.keys; # disposition text() humps @name)
+        ```
 
         The dereference method is used by the node AT-KEY and Hash methods.
 
@@ -68,18 +80,22 @@ METHODS
 
   * AT-POS
 
-        for 0 ..^ $node-set.elems {
-            my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
-            ...
-        }
+    ```raku
+    for 0 ..^ $node-set.elems {
+        my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
+        ...
+    }
+    ```
 
     Positional interface into the node-set
 
   * AT-KEY
 
-        my LibXML::Node::Set $a-nodes = $node-set<a>;
-        my LibXML::Node::Set $b-atts = $node-set<@b>;
-        my LibXML::Text @text-nodes = $node-set<text()>;
+    ```raku
+    my LibXML::Node::Set $a-nodes = $node-set<a>;
+    my LibXML::Node::Set $b-atts = $node-set<@b>;
+    my LibXML::Text @text-nodes = $node-set<text()>;
+    ```
 
     This is an associative interface to node-sets for sub-sets grouped by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 
@@ -95,14 +111,18 @@ METHODS
 
   * pop
 
-        my LibXML::Item $node = $node-set.pop;
+    ```raku
+    my LibXML::Item $node = $node-set.pop;
+    ```
 
     Removes the last item from the set.
 
   * reverse
 
-        # process nodes in ascending order
-        for $node.find('ancestor-or-self::*').reverse { ... }
+    ```raku
+    # process nodes in ascending order
+    for $node.find('ancestor-or-self::*').reverse { ... }
+    ```
 
     Reverses the elements in the node-set
 

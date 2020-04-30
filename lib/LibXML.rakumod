@@ -23,7 +23,7 @@ use LibXML::XPath::Context;
 unit class LibXML:ver<0.3.1>
     is LibXML::Parser;
 
-method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion> {
+method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion external-entity-loader> {
     LibXML::Config;
 }
 
@@ -38,7 +38,7 @@ method createDocument(|c) {
 LibXML - Raku bindings to the libxml2 native library
 
 =head1 SYNOPSIS
-
+  =begin code :lang<raku>
   use LibXML::Document;
   my LibXML::Document $doc .=  parse: :string('<Hello/>');
   $doc.root.nodeValue = 'World!';
@@ -50,7 +50,7 @@ LibXML - Raku bindings to the libxml2 native library
 
   my Version $library-version = LibXML.version;
   my Version $module-version = LibXML.^ver;
-
+  =end code
 =head1 DESCRIPTION
 
 This module is an interface to libxml2, providing XML and HTML parsers with

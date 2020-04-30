@@ -67,8 +67,7 @@ LibXML::Namespace - LibXML Namespace Implementation
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Namespace;
   my LibXML::Namespace $ns .= new(:$URI, :$prefix);
   say $ns.nodeName();
@@ -79,6 +78,7 @@ LibXML::Namespace - LibXML Namespace Implementation
   my Str $known-uri = $ns.getNamespaceURI();
   my Str $known-prefix = $ns.prefix();
   $key = $ns.unique-key();
+  =end code
 
 =head1 DESCRIPTION
 
@@ -94,9 +94,9 @@ methods return what you would expect if you treated the namespace node as an att
 
 =begin item
 new
-
+  =begin code :lang<raku>
   my LibXML::Namespace $ns .= new: :$URI, :$prefix;
-
+  =end code
 Creates a new Namespace node. Note that this is not a 'node' as an attribute or
 an element node. Therefore you can't do call all L<<<<<< LibXML::Node >>>>>> Functions. All functions available for this node are listed below.
 
@@ -121,27 +121,27 @@ Returns the prefix for this namespace.
 
 =begin item
 nodeName
-
+  =begin code :lang<raku>
   say $ns.nodeName();
-
+  =end code
 Returns "xmlns:prefix", where prefix is the prefix for this namespace.
 =end item
 
 
 =begin item
 name
-
+  =begin code :lang<raku>
   say $ns.name();
-
+  =end code
 Alias for nodeName()
 =end item
 
 
 =begin item
 getLocalName
-
+  =begin code :lang<raku>
   my Str $localname = $ns.getLocalName();
-
+  =end code
 Returns the local name of this node as if it were an attribute, that is, the
 prefix associated with the namespace.
 =end item
@@ -149,9 +149,9 @@ prefix associated with the namespace.
 
 =begin item
 getData
-
+  =begin code :lang<raku>
   say $ns.getData();
-
+  =end code
 Returns the URI of the namespace, i.e. the value of this node as if it were an
 attribute.
 =end item
@@ -159,45 +159,45 @@ attribute.
 
 =begin item
 getValue
-
+  =begin code :lang<raku>
   say $ns.getValue();
-
+  =end code
 Alias for getData()
 =end item
 
 
 =begin item
 value
-
+  =begin code :lang<raku>
   say $ns.value();
-
+  =end code
 Alias for getData()
 =end item
 
 
 =begin item
 getNamespaceURI
-
+  =begin code :lang<raku>
   my Str $known-uri = $ns.getNamespaceURI();
-
+  =end code
 Returns the string "http://www.w3.org/2000/xmlns/"
 =end item
 
 
 =begin item
 getPrefix
-
+  =begin code :lang<raku>
   my Str $known-prefix = $ns.getPrefix();
-
+  =end code
 Returns the string "xmlns"
 =end item
 
 
 =begin item
 unique-key
-
+  =begin code :lang<raku>
   my Str $key = $ns.unique-key();
-
+  =end code
 This method returns a key guaranteed to be unique for this namespace, and to
 always be the same value for this namespace. Two namespace objects return the
 same key if and only if they have the same prefix and the same URI. The

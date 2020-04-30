@@ -129,9 +129,9 @@ LibXML::Config - LibXML Global configuration
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Config;
+  =end code
 
 =head1 METHODS
 
@@ -170,7 +170,7 @@ remote file (RSS feed) that contains an entity reference to a local file (e.g. C
 
 A more granular solution to this problem, however, is provided by custom URL
 resolvers, as in 
-
+  =begin code :lang<raku>
   my LibXML::InputCallback $cb .= new;
   sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
     my ($uri) = @_;
@@ -180,7 +180,7 @@ resolvers, as in
   sub deny(|c) { }
   $cb.register-callbacks(&match, &deny, &deny, &deny);
   $parser.input-callbacks($cb);
-
+  =end code
 
 =end item1
 

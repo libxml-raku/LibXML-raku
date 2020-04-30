@@ -37,8 +37,7 @@ LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::XPath::Expression;
   my LibXML::XPath::Expression $compiled-xpath .= compile('//foo[@bar="baz"][position()<4]');
   
@@ -55,6 +54,7 @@ LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
   my $value = $xpc.findvalue($compiled-xpath,$node);
 
   $compiled = LibXML::XPath::Expression.new( xpath-string );
+  =end code
 
 =head1 DESCRIPTION
 
@@ -64,9 +64,9 @@ same XPath query is evaluated many times. C<<<<<< LibXML::XPath::Expression >>>>
 
 =begin item1
 new()
-
+  =begin code :lang<raku>
   LibXML::XPath::Expression $compiled  = .new( :expr($xpath-string) );
-
+  =end code
 The constructor takes an XPath 1.0 expression as a string and returns an object
 representing the pre-compiled expressions (the actual data structure is
 internal to libxml2). 
@@ -75,9 +75,9 @@ internal to libxml2).
 
 =begin item1
 compile()
-
+  =begin code :lang<raku>
   LibXML::XPath::Expression $compiled  = .compile( $xpath-string );
-
+  =end code
 Alternative constructor.
 
 =end item1

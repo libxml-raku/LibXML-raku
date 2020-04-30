@@ -24,8 +24,7 @@ LibXML::CDATA - LibXML Class for CDATA Sections
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::CDATA;
   # Only methods specific to CDATA nodes are listed here,
   # see the LibXML::Node documentation for other methods
@@ -33,11 +32,11 @@ LibXML::CDATA - LibXML Class for CDATA Sections
   my LibXML::CDATA $cdata .= new( :$content );
 
   $cdata.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+  =end code
 
 =head1 DESCRIPTION
 
 This class provides all functions of L<<<<<< LibXML::Text >>>>>>, but for CDATA nodes.
-
 
 =head1 METHODS
 
@@ -47,9 +46,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 =begin item
 new
-
+  =begin code :lang<raku>
   my LibXML::CDATA $node .= new( :$content );
-
+  =end code
 The constructor is the only provided function for this package. It is required,
 because I<<<<<< libxml2 >>>>>> treats the different text node types slightly differently.
 

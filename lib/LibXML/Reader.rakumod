@@ -251,37 +251,34 @@ LibXML::Reader - LibXML::Reader - interface to libxml2 pull parser
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Reader;
 
+  sub dump-node($reader) {
+      printf "%d %d %s %d\n", $reader.depth,
+                              $reader.nodeType,
+                              $reader.name,
+                              $reader.isEmptyElement;
+  }
 
-
-  my $reader = LibXML::Reader.new(location => "file.xml")
+  my LibXML::Reader $reader .= new(location => "file.xml")
          or die "cannot read file.xml\n";
-  while ($reader.read) {
-    processNode($reader);
+  while $reader.read {
+      dump-node($reader);
   }
-
-
-
-  sub processNode($reader) {
-      printf "%d %d %s %d\n", ($reader.depth,
-                               $reader.nodeType,
-                               $reader.name,
-                               $reader.isEmptyElement);
-  }
+  =end code
 
 or
 
+  =begin code :lang<raku>
+  use LibXML::Reader;
 
-
-  my $reader = LibXML::Reader.new(location => "file.xml")
+  my LibXML::Reader $reader .= new(location => "file.xml")
          or die "cannot read file.xml\n";
-    $reader.preservePattern('//table/tr');
-    $reader.finish;
-    print $reader.document.Str(:deep);
-
+  $reader.preservePattern('//table/tr');
+  $reader.finish;
+  print $reader.document.Str(:deep);
+  =end code
 
 =head1 DESCRIPTION
 
@@ -318,13 +315,13 @@ changed or added with respect to the C interface.
 
 Depending on the XML source, the Reader object can be created with either of:
 
-
-
-    my LibXML::Reader $reader .= new( location => "file.xml", ... );
-    my LibXML::Reader $reader .= new( string => $xml_string, ... );
-    my LibXML::Reader $reader .= new( io => $file_handle, ... );
-    my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
-    my LibXML::Reader $reader .= new( DOM => $dom, ... );
+  =begin code :lang<raku>
+  my LibXML::Reader $reader .= new( location => "file.xml", ... );
+  my LibXML::Reader $reader .= new( string => $xml_string, ... );
+  my LibXML::Reader $reader .= new( io => $file_handle, ... );
+  my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
+  my LibXML::Reader $reader .= new( DOM => $dom, ... );
+  =end code
 
 where ... are (optional) reader options described below in L<<<<<< Reader options >>>>>> or various parser options described in L<<<<<< LibXML::Parser >>>>>>. The constructor recognizes the following XML sources:
 
@@ -926,8 +923,7 @@ the document tree exist.
 The reader interface provides the following constants for node types (the
 constant symbols are exported by default or if tag C<<<<<< :types >>>>>> is used).
 
-
-
+  =begin code :lang<raku>
   XML_READER_TYPE_NONE                    => 0
   XML_READER_TYPE_ELEMENT                 => 1
   XML_READER_TYPE_ATTRIBUTE               => 2
@@ -946,14 +942,13 @@ constant symbols are exported by default or if tag C<<<<<< :types >>>>>> is used
   XML_READER_TYPE_END_ELEMENT             => 15
   XML_READER_TYPE_END_ENTITY              => 16
   XML_READER_TYPE_XML_DECLARATION         => 17
-
+  =end code
 
 =head1 STATES
 
 The following constants represent the values returned by C<<<<<< readState() >>>>>>. They are exported by default, or if tag C<<<<<< :states >>>>>> is used:
 
-
-
+  =begin code :lang<raku>
   XML_READER_NONE      => -1
   XML_READER_START     =>  0
   XML_READER_ELEMENT   =>  1
@@ -962,7 +957,7 @@ The following constants represent the values returned by C<<<<<< readState() >>>
   XML_READER_BACKTRACK =>  4
   XML_READER_DONE      =>  5
   XML_READER_ERROR     =>  6
-
+  =end code
 
 =head1 SEE ALSO
 

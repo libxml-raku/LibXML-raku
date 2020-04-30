@@ -6,15 +6,17 @@ LibXML::Schema - XML Schema Validation
 SYNOPSIS
 ========
 
-    use LibXML::Schema;
-    use LibXML;
+```raku
+use LibXML::Schema;
+use LibXML;
 
-    my $doc = LibXML.new.parse: :file($url);
+my $doc = LibXML.new.parse: :file($url);
 
-    my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
-    my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
-    try { $xmlschema.validate( $doc ); };
-    if $doc ~~ $xmlschema { ... }
+my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
+my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
+try { $xmlschema.validate( $doc ); };
+if $doc ~~ $xmlschema { ... }
+```
 
 DESCRIPTION
 ===========
@@ -26,8 +28,10 @@ METHODS
 
   * new
 
-        my LibXML::Schema $xmlschema  .= new( location => $filename_or_url, :network );
-        my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring, :network );
+    code
+    ====
+
+    my LibXML::Schema $xmlschema .= new( location => $filename_or_url, :network ); my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring, :network );
 
     The constructor of LibXML::Schema may get called with either one of two parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
 
@@ -41,14 +45,18 @@ METHODS
 
   * validate
 
-        try { $xmlschema.validate( $doc ); };
+    ```raku
+    try { $xmlschema.validate( $doc ); };
+    ```
 
     This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
 
   * is-valid / ACCEPTS
 
-        my Bool $valid = $xmlschema.is-valid($doc);
-        $valid = $doc ~~ $xmlschema;
+    ```raku
+    my Bool $valid = $xmlschema.is-valid($doc);
+    $valid = $doc ~~ $xmlschema;
+    ```
 
     Returns either True or False depending on whether the passed Document is valid or not.
 

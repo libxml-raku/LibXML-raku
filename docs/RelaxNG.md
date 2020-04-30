@@ -6,17 +6,19 @@ LibXML::RelaxNG - RelaxNG Schema Validation
 SYNOPSIS
 ========
 
-    use LibXML::Schema;
-    use LibXML;
+```raku
+use LibXML::RelaxNG;
+use LibXML;
 
-    my $doc = LibXML.new.parse: :file($url);
+my $doc = LibXML.new.parse: :file($url);
 
-    my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
-    my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
-    my LibXML::RelaxNG $rngschema .= new( :$doc );
-    try { $rngschema.validate( $doc ); };
-    if  $rngschema.is-valid( $doc ) {...}
-    if $doc ~~ $rngschema { ... }
+my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
+my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
+my LibXML::RelaxNG $rngschema .= new( :$doc );
+try { $rngschema.validate( $doc ); };
+if  $rngschema.is-valid( $doc ) {...}
+if $doc ~~ $rngschema { ... }
+```
 
 DESCRIPTION
 ===========
@@ -28,9 +30,11 @@ METHODS
 
   * new
 
-        my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
-        my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
-        my LibXML::RelaxNG $rngschema .= new( :$doc );
+    ```raku
+    my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
+    my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
+    my LibXML::RelaxNG $rngschema .= new( :$doc );
+    ```
 
     The constructor of LibXML::RelaxNG may get called with either one of three parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
 
@@ -44,14 +48,18 @@ METHODS
 
   * validate
 
-        try { $rngschema->validate( $doc ); };
+    ```raku
+    try { $rngschema->validate( $doc ); };
+    ```
 
     This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return True, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
 
-  * is-valid / ACCEPTCS
+  * is-valid / ACCEPTS
 
-        my Bool $valid = $rngschema.is-valid($doc);
-        $valid = $doc ~~ $rngschema;
+    ```raku
+    my Bool $valid = $rngschema.is-valid($doc);
+    $valid = $doc ~~ $rngschema;
+    ```
 
     Returns either True or False depending on whether the passed Document is valid or not.
 

@@ -55,8 +55,7 @@ LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::RegExp;
   my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
   my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
@@ -67,6 +66,7 @@ LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
   my LibXML::RegExp $compiled-re .= new( :$regexp );
   my Bool $matched = $compiled-re.matches($string);
   my Bool $det     = $compiled-re.isDeterministic();
+  =end code
 
 =head1 DESCRIPTION
 
@@ -75,28 +75,28 @@ which are used e.g. for validation of XML Schema simple types (pattern facet).
 
 =begin item
 new / compile
-
+  =begin code :lang<raku>
   my LibXML::RegExp $compiled-re .= compile( $regexp );
   my LibXML::RegExp $compiled-re .= new( :$regexp );
-
+  =end code
 The constructors takes a string containing a regular expression and return an object that contains a compiled regexp.
 =end item
 
 =begin item
 matches / ACCEPTS
-
+  =begin code :lang<raku>
   my Bool $matched = $compiled-re.matches($string);
   $matched = $string ~~ $compiled-re;
-
+  =end code
 Given a string value, returns True if the value is matched by the
 compiled regular expression.
 =end item
 
 =begin item
 isDeterministic()
-
+  =begin code :lang<raku>
   my Bool $det = $compiled-re.isDeterministic();
-
+  =end code
 Returns True if the regular expression is deterministic; returns False
 otherwise. (See the definition of determinism in the XML spec (L<<<<<< http://www.w3.org/TR/REC-xml/#determinism >>>>>>))
 

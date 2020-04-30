@@ -6,12 +6,14 @@ LibXML::Comment - LibXML Comment Class
 SYNOPSIS
 ========
 
-    use LibXML::Comment;
-    # Only methods specific to Comment nodes are listed here,
-    # see the LibXML::Node documentation for other methods
-    my LibXML::Comment $comment .= new( :$content );
+```raku
+use LibXML::Comment;
+# Only methods specific to Comment nodes are listed here,
+# see the LibXML::Node documentation for other methods
+my LibXML::Comment $comment .= new( :$content );
 
-    $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+$comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+```
 
 DESCRIPTION
 ===========
@@ -27,7 +29,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
   * new
 
-        my LibXML::Comment $node .= new( :$content );
+    ```raku
+    my LibXML::Comment $node .= new( :$content );
+    ```
 
     The constructor is the only provided function for this package. It is required, because *libxml2 * treats text nodes and comment nodes slightly differently.
 

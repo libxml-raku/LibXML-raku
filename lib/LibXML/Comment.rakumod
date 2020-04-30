@@ -24,14 +24,14 @@ LibXML::Comment - LibXML Comment Class
 
 =head1 SYNOPSIS
 
-
-
+  =begin code :lang<raku>
   use LibXML::Comment;
   # Only methods specific to Comment nodes are listed here,
   # see the LibXML::Node documentation for other methods
   my LibXML::Comment $comment .= new( :$content );
 
   $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+  =end code
 
 =head1 DESCRIPTION
 
@@ -47,9 +47,9 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 =begin item
 new
-
+  =begin code :lang<raku>
   my LibXML::Comment $node .= new( :$content );
-
+  =end code
 The constructor is the only provided function for this package. It is required,
 because I<<<<<< libxml2 >>>>>> treats text nodes and comment nodes slightly differently.
 
