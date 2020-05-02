@@ -127,7 +127,10 @@ xml6_ref_set_fail(void* _self, xmlChar* fail) {
 
     if (self != NULL && self->magic == XML6_REF_MAGIC) {
         xmlMutexLock(self->mutex);
-        if (self->fail) xmlFree(self->fail);
+        if (self->fail) {
+            xml6_warn(self->fail);
+            xmlFree(self->fail);
+        }
         self->fail = xmlStrdup(fail);
         xmlMutexUnlock(self->mutex);
     }
