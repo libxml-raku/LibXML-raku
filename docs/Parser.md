@@ -299,14 +299,13 @@ LibXML provides some functions to serialize nodes and documents. The serializati
 
   * tag-expansion
 
-of that three functions only `tag-expansion` is available for all serialization functions.
-
-Because LibXML does these flags not itself, one has to define them locally as the following example shows:
+They are defined globally, but can be overriden by options to the `Str` or `Blob` methods on nodes. For example:
 
 ```raku
 temp LibXML.skip-xml-declaration = True;
 temp LibXML.skip-dtd = True;
 temp LibXML.tag-expansion = False;
+say $doc.Str: :skip-xml-declaration, :skip-dtd, :tag-expansion;
 ```
 
 If `skip-xml-declaration` is True, the XML declaration is omitted during serialization.

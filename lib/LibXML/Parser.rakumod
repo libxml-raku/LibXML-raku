@@ -624,16 +624,13 @@ serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the 
 
 =item1 tag-expansion
 
-of that three functions only `tag-expansion` is available for all
-serialization functions.
-
-Because LibXML does these flags not itself, one has to define them locally as
-the following example shows:
+They are defined globally, but can be overriden by options to the `Str` or `Blob` methods on nodes. For example:
 
   =begin code :lang<raku>
   temp LibXML.skip-xml-declaration = True;
   temp LibXML.skip-dtd = True;
   temp LibXML.tag-expansion = False;
+  say $doc.Str: :skip-xml-declaration, :skip-dtd, :tag-expansion;
   =end code
 
 If C<skip-xml-declaration> is True, the XML declaration is omitted

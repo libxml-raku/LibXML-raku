@@ -24,7 +24,7 @@ my $parser = LibXML.new();
     my $doc = $parser.parse: :file( "example/dtd.xml" );
     ok($doc, ' TODO : Add test name');
     my $test = "<doc>This is a valid document &foo; !</doc>\n";
-    is( $doc.Str(:skip-decl), $test, 'DTD parse' );
+    is( $doc.Str(:skip-xml-declaration), $test, 'DTD parse' );
 }
 
 {

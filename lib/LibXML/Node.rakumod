@@ -261,16 +261,22 @@ class LibXML::Node does LibXML::Item {
 
     sub output-options(UInt :$options is copy = 0,
                        Bool :$format,
-                       Bool :$skip-decl = config.skip-xml-declaration,
-                       Bool :$expand = config.tag-expansion,
+                       Bool :$skip-xml-declaration = config.skip-xml-declaration,
+                       Bool :$tag-expansion = config.tag-expansion,
+                       # **DEPRECATED**
+                       Bool :$skip-decl, Bool :$expand,
                       ) is export(:output-options) {
 
+        warn ':skip-decl option is deprecated, please use :skip-xml-declaration'
+            with $skip-decl;
+        warn ':expand option is deprecated, please use :tag-expansion'
+            with $expand;
         $options +|= XML_SAVE_FORMAT
             if $format;
         $options +|= XML_SAVE_NO_DECL
-            if $skip-decl;
+            if $skip-xml-declaration;
         $options +|= XML_SAVE_NO_EMPTY
-           if $expand;
+           if $tag-expansion;
 
         $options;
     }

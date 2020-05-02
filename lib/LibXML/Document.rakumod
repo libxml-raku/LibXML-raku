@@ -341,14 +341,17 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc
     $rv;
 }
 
-method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
+method Blob(Bool() :$skip-xml-declaration = config.skip-xml-declaration,
             Bool() :$skip-dtd =  config.skip-dtd,
             xmlEncodingStr:D :$enc is copy = self.encoding // 'UTF-8',
+            # **DEPRECATED**
+            :$skip-decl,
             |c  --> Blob) {
 
     my Blob $rv;
-
-    if $skip-decl {
+    warn ':skip-decl option is deprecated, please use :skip-xml-declaration'
+            with $skip-decl;
+    if $skip-xml-declaration {
         # losing the declaration that encludes the encoding scheme; we need
         # to switch to UTF-8 (default encoding) to stay conformant.
         $enc = 'UTF-8';
@@ -364,7 +367,7 @@ method Blob(Bool() :$skip-decl = config.skip-xml-declaration,
             .Unlink;
         }
 
-        $rv := callwith(:$enc, :$skip-decl, |c);
+        $rv := callwith(:$enc, :$skip-xml-declaration, |c);
 
         with $skipped-dtd {
             $doc.setInternalSubset($_);
