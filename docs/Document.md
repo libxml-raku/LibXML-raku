@@ -315,7 +315,7 @@ my Str $html = $document.Str: :html;
 my Str $xml-formatted = $doc.serialize(:$format);
 ```
 
-An alias for Str(). This function was name added to be more consistent with libxml2.
+Similar to Str(), but doesn't interpret `:skip-dtd`, `:html` or `:C14N` options. This function was name added to be more consistent with libxml2.
 
 ### method serialize-html
 
@@ -325,9 +325,9 @@ method serialize-html(
 ) returns Str
 ```
 
-Serialize to HTML
+Serialize to HTML.
 
-Equivalent to: .Str: :html.
+Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 
 ### method Blob
 
@@ -731,11 +731,25 @@ my LibXML::Node::Set $nodes = $doc.getElementsByLocalName($localname);
 
 This allows the fetching of all nodes from a given document with the given Localname.
 
-#| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U. method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> { &?BLOCK.returns.box: self.native.getElementById($id); }
+### method getElementById
+
+```perl6
+method getElementById(
+    Str:D $id
+) returns LibXML::Element
+```
+
+Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 
 Note: the ID of an element may change while manipulating the document. For documents with a DTD, the information about ID attributes is only available if DTD loading/validation has been requested. For HTML documents parsed with the HTML parser ID detection is done automatically. In XML documents, all "xml:id" attributes are considered to be of type ID. You can test ID-ness of an attribute node with $attr.isId().
 
-#| Index elements for faster XPath searching method indexElements returns Int { $.native.IndexElements }
+### method indexElements
+
+```perl6
+method indexElements() returns Int
+```
+
+Index elements for faster XPath searching
 
 This function causes libxml2 to stamp all elements in a document with their document position index which considerably speeds up XPath queries for large documents. It should only be used with static documents that won't be further changed by any DOM methods, because once a document is indexed, XPath will always prefer the index to other methods of determining the document order of nodes. XPath could therefore return improperly ordered node-lists when applied on a document that has been changed after being indexed. It is of course possible to use this method to re-index a modified document before using it with XPath again. This function is not a part of the DOM specification.
 

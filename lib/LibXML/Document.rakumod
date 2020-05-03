@@ -403,12 +403,12 @@ method indenting is automatic and managed by libxml2 internally.
   =begin code :lang<raku>
   my Str $xml-formatted = $doc.serialize(:$format);
   =end code
-An alias for Str(). This function was name added to be more consistent
+Similar to Str(), but doesn't interpret `:skip-dtd`, `:html` or `:C14N` options. This function was name added to be more consistent
 with libxml2.
 
 =end pod
 
-#| Serialize to HTML
+#| Serialize to HTML.
 method serialize-html(Bool :$format = True --> Str) {
     my buf8 $buf;
 
@@ -418,7 +418,7 @@ method serialize-html(Bool :$format = True --> Str) {
     }
 }
 =begin pod
-Equivalent to: .Str: :html.
+Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 =end pod
 
 #| Serialize the XML to a Blob
@@ -864,6 +864,7 @@ Implements the DOM Level 2 function
   =end code
 This allows the fetching of all nodes from a given document with the given
 Localname.
+=end pod
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
@@ -896,6 +897,7 @@ if this feature is not available in the running libxml2.
 =end pod
 
 
+=begin pod
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.
