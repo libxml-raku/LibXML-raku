@@ -61,7 +61,7 @@ multi method adoptNode(Node:D $node) is default {
     self.domImportNode($node, Move, 1);
 }
 
-method createAttributeNS(Str $URI, Str:D $name, Str:D $value = '') {
+method createAttributeNS(Str $URI, QName:D $name, Str:D $value = '') {
     if $URI {
         self.domCreateAttributeNS($URI, $name, $value);
     }

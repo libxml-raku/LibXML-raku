@@ -6,7 +6,6 @@ unit class LibXML::DocumentFragment
     does LibXML::_DOMNode;
 
 use LibXML::Config;
-use LibXML::Document;
 use LibXML::Element;
 use LibXML::Native;
 use LibXML::Node;
