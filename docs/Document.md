@@ -592,7 +592,7 @@ method importNode(
 
 Imports a node from another DOM
 
-If a node is not part of a document, it can be imported to another document. As specified in DOM Level 2 Specification the Node will not be altered or removed from its original document (`$node.cloneNode(:deep) ` will get called implicitly). )
+If a node is not part of a document, it can be imported to another document. As specified in DOM Level 2 Specification the Node will not be altered or removed from its original document (`$node.cloneNode(:deep) ` will get called implicitly).
 
 ### method adoptNode
 

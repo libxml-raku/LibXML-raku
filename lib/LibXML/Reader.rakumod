@@ -149,11 +149,11 @@ class LibXML::Reader
         .Free with $!native;
     }
 
-    method copyCurrentNode(Bool :$deep) {
+    method copyCurrentNode(Bool :$deep --> LibXML::Node) {
         my $call := $deep ?? 'currentNodeTree' !! 'currentNode';
         my anyNode $node = self!try($call);
         $node .= copy: :$deep;
-        LibXML::Node.box($node);
+        &?ROUTINE.returns.box($node);
     }
 
     constant %ParserProp = %(
@@ -214,10 +214,10 @@ class LibXML::Reader
         .GetNodePath with $!native.currentNode;
     }
 
-    method preserveNode(Bool :$deep) {
+    method preserveNode(Bool :$deep --> LibXML::Node) {
         $.document; # realise containing document
         my anyNode $node = self!try('preserveNode');
-        LibXML::Node.box($node);
+        &?ROUTINE.returns.box($node);
     }
 
     method close(--> Bool) {

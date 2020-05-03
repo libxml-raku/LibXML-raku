@@ -36,17 +36,17 @@ The nodes in the Document Object Model (DOM) are represented by the following cl
 
   * [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) - LibXML DOM attribute class
 
-  * [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) - LibXML's DOM L2 Document Fragment implementation
-
-  * [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) - LibXML class for element nodes
-
   * [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) - LibXML attribute class
 
   * [LibXML::CDATA](https://libxml-raku.github.io/LibXML-raku/CDATA) - LibXML class for DOM CDATA sections
 
   * [LibXML::Comment](https://libxml-raku.github.io/LibXML-raku/Comment) - LibXML class for comment DOM nodes
 
+  * [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) - LibXML's DOM L2 Document Fragment implementation
+
   * [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) - LibXML frontend for DTD validation
+
+  * [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) - LibXML class for element nodes
 
   * [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item))
 

@@ -520,12 +520,12 @@ If the document resides in a different document tree, it is automatically import
 method createElement(QName $name, Str :$href --> LibXML::Element) {
     $href
     ?? $.createElementNS($href, $name)
-    !! &?BLOCK.returns.box: $.native.createElement($name);
+    !! &?ROUTINE.returns.box: $.native.createElement($name);
 }
 
 #| equivalent to .createElement($name, :$href)
 method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) {
-    &?BLOCK.returns.box: $.native.createElementNS($href, $name);
+    &?ROUTINE.returns.box: $.native.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -550,7 +550,7 @@ multi method createAttribute(
         $.createAttributeNS($_, $qname, $value);
     }
     else {
-        LibXML::Attr.box: $.native.createAttribute($qname, $value);
+        &?ROUTINE.returns.box: $.native.createAttribute($qname, $value);
     }
 }
 
@@ -563,32 +563,32 @@ multi method createAttributeNS(Str $href,
                          Str $value = '',
                          --> LibXML::Attr
                         ) {
-    &?BLOCK.returns.box: $.native.createAttributeNS($href, $qname, $value);
+    &?ROUTINE.returns.box: $.native.createAttributeNS($href, $qname, $value);
 }
 
 #| Creates a Document Fragment
 method createDocumentFragment(--> LibXML::DocumentFragment) {
-    &?BLOCK.returns.new: :doc(self);
+    &?ROUTINE.returns.new: :doc(self);
 }
 
 #| Creates a Text Node bound to the DOM.
 method createTextNode(Str $content --> LibXML::Text) {
-    &?BLOCK.returns.new: :doc(self), :$content;
+    &?ROUTINE.returns.new: :doc(self), :$content;
 }
 
 #| Create a Comment Node bound to the DOM
 method createComment(Str $content --> LibXML::Comment) {
-    &?BLOCK.returns.new: :doc(self), :$content;
+    &?ROUTINE.returns.new: :doc(self), :$content;
 }
 
 #| Create a CData Section bound to the DOM
 method createCDATASection(Str $content --> LibXML::CDATA) {
-    &?BLOCK.returns.new: :doc(self), :$content;
+    &?ROUTINE.returns.new: :doc(self), :$content;
 }
 
 #| Creates an Entity Reference
 method createEntityReference(Str $name --> LibXML::EntityRef) {
-    &?BLOCK.returns.new: :doc(self), :$name;
+    &?ROUTINE.returns.new: :doc(self), :$name;
 }
 =begin pod
 If a document has a DTD specified, one can create entity references by using
@@ -614,12 +614,12 @@ multi method createPI(NameVal $_!, |c) {
     $.createPI(.key, .value, |c);
 }
 multi method createPI(NCName $name, Str $content? --> LibXML::PI) {
-    &?BLOCK.returns.new: :doc(self), :$name, :$content;
+    &?ROUTINE.returns.new: :doc(self), :$name, :$content;
 }
 
 #| Creates a new external subset
 method createExternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    &?BLOCK.returns.new: :doc(self), :type<external>, :$name, :$external-id, :$system-id;
+    &?ROUTINE.returns.new: :doc(self), :type<external>, :$name, :$external-id, :$system-id;
 }
 =begin pod
 This function is similar to C<<<<<< createInternalSubset() >>>>>> but this DTD is considered to be external and is therefore not added to the
@@ -628,7 +628,7 @@ document itself. Nevertheless it can be used for validation purposes.
 
 #| Creates a new Internal Subset
 method createInternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    &?BLOCK.returns.new: :doc(self), :type<internal>, :$name, :$external-id, :$system-id;
+    &?ROUTINE.returns.new: :doc(self), :type<internal>, :$name, :$external-id, :$system-id;
 }
 =begin pod
 =head3 method createInternalSubset
@@ -679,20 +679,19 @@ method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node(
 #| Imports a node from another DOM
 method importNode(LibXML::Node:D $node --> LibXML::Node) {
     given $.native.importNode($node.native) {
-        LibXML::Node.box: $_, :doc(self);
+        &?ROUTINE.returns.box: $_, :doc(self);
     }
 }
 =begin pod
 If a node is not part of a document, it can be imported to another document. As
 specified in DOM Level 2 Specification the Node will not be altered or removed
  from its original document (C<<<<<< $node.cloneNode(:deep) >>>>>> will get called implicitly).
-)
 =end pod
 
 #| Adopts a node from another DOM
 method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
     given $.native.adoptNode($node.native) {
-        LibXML::Node.box: $_, :doc(self);
+        &?ROUTINE.returns.box: $_, :doc(self);
     }
 }
 =begin pod
@@ -714,7 +713,7 @@ LibXML itself.
 #| DOM compatible method to get the document element
 method getDocumentElement returns LibXML::Element {
     with $.native.getDocumentElement {
-        $!docElem = LibXML::Element.box($_)
+        $!docElem = &?ROUTINE.returns.box($_)
              unless $!docElem.defined && $!docElem.native.isSameNode($_);
     }
     else {
@@ -751,7 +750,7 @@ method insertProcessingInstruction(|c) {
 }
 
 method getInternalSubset(--> LibXML::Dtd) {
-    &?BLOCK.returns.box: self.native.getInternalSubset;
+    &?ROUTINE.returns.box: self.native.getInternalSubset;
 }
 
 #|This method sets a DTD node as an internal subset of the given document.
@@ -764,7 +763,7 @@ I<<<<<< EXPERIMENTAL! >>>>>>
 
 #| This method removes an external, if defined, from the document
 method removeInternalSubset(--> LibXML::Dtd) {
-    &?BLOCK.returns.box: self.native.removeInternalSubset;
+    &?ROUTINE.returns.box: self.native.removeInternalSubset;
 }
 =begin pod
 
@@ -792,7 +791,7 @@ function on doctype declaration nodes!
 =end pod
 
 method getExternalSubset(--> LibXML::Dtd) {
-    &?BLOCK.returns.box: self.native.getExternalSubset;
+    &?ROUTINE.returns.box: self.native.getExternalSubset;
 }
 
 #| This method sets a DTD node as an external subset of the given document.
@@ -805,7 +804,7 @@ I<<<<<< EXPERIMENTAL! >>>>>>
 
 #| This method removes an external, if defined, from the document
 method removeExternalSubset(--> LibXML::Dtd) {
-    &?BLOCK.returns.box: self.native.removeExternalSubset;
+    &?ROUTINE.returns.box: self.native.removeExternalSubset;
 }
 =begin pod
 I<<<<<< EXPERIMENTAL! >>>>>>
@@ -868,7 +867,7 @@ Localname.
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
-    &?BLOCK.returns.box: self.native.getElementById($id);
+    &?ROUTINE.returns.box: self.native.getElementById($id);
 }
 =begin pod
 Note: the ID of an element may change while manipulating the document. For

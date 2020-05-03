@@ -26,7 +26,7 @@ LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
   use LibXML::Item :&ast-to-xml;
   $frag = ast-to-xml([
                '#comment' => 'demo',         # comment
-               "\n  ",                       # whitespace
+               "\n  ",                       # white-space
                :baz[],                       # element
                '#cdata' => 'a&b',            # CData section
                 "Some text.\n",               # text content
@@ -80,7 +80,7 @@ calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for 
 method native { callsame() // xmlDocFrag }
 
 # The native DOM returns the document fragment content as
-# a nodelist; rather than the fragment itself
+# a node-list; rather than the fragment itself
 method keep(|c) { LibXML::Node.box(|c) }
 my constant config = LibXML::Config;
 

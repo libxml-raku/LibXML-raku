@@ -10,7 +10,7 @@ use LibXML::Native::Defs :XML_XMLNS_NS;
 has xmlNs $!native handles <type href Str>;
 method native { $!native }
 
-method box(xmlNs $ns!) {
+method box(xmlNs $ns! --> LibXML::Namespace) {
     do with $ns {
         self.new: :native($_);
     } // self.WHAT;

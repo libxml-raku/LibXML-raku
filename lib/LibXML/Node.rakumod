@@ -210,8 +210,8 @@ class LibXML::Node does LibXML::Item {
     method clearNamespace {
         ? $!native.setNamespace(Str, Str);
     }
-    method localNS {
-        LibXML::Namespace.box: $!native.localNS;
+    method localNS(--> LibXML::Namespace) {
+        &?ROUTINE.returns.box: $!native.localNS;
     }
     method getNamespaces is also<namespaces> {
         $!native.getNamespaces.map: { LibXML::Namespace.box($_) }
@@ -221,7 +221,7 @@ class LibXML::Node does LibXML::Item {
         $node.keep: $!native.removeChild($node.native), :doc(LibXML::Node);
     }
     method removeChildNodes(--> LibXML::Node) {
-        LibXML::Node.box: $!native.removeChildNodes, :doc(LibXML::Node);
+        &?ROUTINE.returns.box: $!native.removeChildNodes, :doc(LibXML::Node);
     }
     multi method appendTextChild(NameVal:D $_) {
         $!native.appendTextChild(.key, .value);

@@ -27,7 +27,7 @@ $frag = $some-elem.removeChildNodes();
 use LibXML::Item :&ast-to-xml;
 $frag = ast-to-xml([
              '#comment' => 'demo',         # comment
-             "\n  ",                       # whitespace
+             "\n  ",                       # white-space
              :baz[],                       # element
              '#cdata' => 'a&b',            # CData section
               "Some text.\n",               # text content

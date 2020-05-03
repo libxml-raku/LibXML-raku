@@ -56,13 +56,13 @@ class LibXML::Attr::Map does Associative {
         $!node.setAttributeNodeNS($att);
     }
 
-    method getNamedItemNS(Str $uri, NCName:D $name) {
+    method getNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
         my $query = "\@*[local-name()='$name']";
         $query ~= "[namespace-uri()='$_']" with $uri;
-        LibXML::Attr.box: self.domXPathSelectStr($query);
+        &?ROUTINE.returns.box: self.domXPathSelectStr($query);
     }
 
-    method removeNamedItemNS(Str $uri, NCName:D $name) {
+    method removeNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
         do with $.getNamedItemNS($name) { .unlink } // LibXML::Attr;
     }
 }

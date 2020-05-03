@@ -230,7 +230,7 @@ For example to create an xmlElem native object then a L<LibXML::Element> contain
 
    my xmlElem $native .= new: :name<Foo>;
    say $native.type; # 1 (element)
-   my LibXML::Element $elem = LibXML::Node.box($native);
+   my LibXML::Element $elem .= box($native);
    $!native := Nil;
    say $elem.Str; # <Foo/>
    =end code

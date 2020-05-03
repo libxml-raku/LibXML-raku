@@ -128,7 +128,7 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
     }
 }
 
-my subset AttrNode of LibXML::Node where { !.defined || .nodeType == XML_ATTRIBUTE_NODE };
+constant AttrNode = LibXML::Attr;
 method !set-attr(QName $name, Str:D $value) {
     ? $.native.setAttribute($name, $value);
 }
@@ -155,13 +155,13 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value --> AttrNode) {
     if $name {
         self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
     }
-    box-class(XML_ATTRIBUTE_NODE).box: $.native.setAttributeNS($uri, $name, $value);
+    &?ROUTINE.returns.box: $.native.setAttributeNS($uri, $name, $value);
 }
 method getAttributeNode(Str $att-name --> AttrNode) is also<attribute> {
-    box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNode($att-name);
+    &?ROUTINE.returns.box: $.native.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> AttrNode) {
-    box-class(XML_ATTRIBUTE_NODE).box: $.native.getAttributeNodeNS($uri, $att-name);
+    &?ROUTINE.returns.box: $.native.getAttributeNodeNS($uri, $att-name);
 }
 method removeAttributeNode(AttrNode $att --> AttrNode) {
     $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);

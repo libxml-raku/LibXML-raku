@@ -66,17 +66,17 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
 =item L<LibXML::Document> - LibXML DOM attribute class
 
-=item L<LibXML::DocumentFragment> - LibXML's DOM L2 Document Fragment implementation
-
-=item L<LibXML::Element> - LibXML class for element nodes
-
 =item L<LibXML::Attr> - LibXML attribute class
 
 =item L<LibXML::CDATA> - LibXML class for DOM CDATA sections
 
 =item L<LibXML::Comment> - LibXML class for comment DOM nodes
 
+=item L<LibXML::DocumentFragment> - LibXML's DOM L2 Document Fragment implementation
+
 =item L<LibXML::Dtd> - LibXML frontend for DTD validation
+
+=item L<LibXML::Element> - LibXML class for element nodes
 
 =item L<LibXML::Namespace> - LibXML DOM namespaces (Inherits from L<LibXML::Item>)
 
