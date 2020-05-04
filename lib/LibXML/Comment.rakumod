@@ -1,6 +1,7 @@
 use LibXML::Node;
 use LibXML::_StringyNode;
 
+#| LibXML Comment nodes
 unit class LibXML::Comment
     is LibXML::Node
     does LibXML::_StringyNode;
@@ -18,44 +19,36 @@ method native { callsame() // xmlCommentNode }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod
-=head1 NAME
+=head2 Synopsis
 
-LibXML::Comment - LibXML Comment Class
+=begin code :lang<raku>
+use LibXML::Comment;
+# Only methods specific to Comment nodes are listed here,
+# see the LibXML::Node documentation for other methods
+my LibXML::Comment $comment .= new( :$content );
 
-=head1 SYNOPSIS
+$comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
+=end code
 
-  =begin code :lang<raku>
-  use LibXML::Comment;
-  # Only methods specific to Comment nodes are listed here,
-  # see the LibXML::Node documentation for other methods
-  my LibXML::Comment $comment .= new( :$content );
-
-  $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
-  =end code
-
-=head1 DESCRIPTION
+=head2 Description
 
 This class provides all functions of L<<<<<< LibXML::Text >>>>>>, but for comment nodes. This can be done, since only the output of the node
 types is different, but not the data structure. :-)
 
-
-=head1 METHODS
+=head2 Methods
 
 The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
 
-=begin item
-new
-  =begin code :lang<raku>
-  my LibXML::Comment $node .= new( :$content );
-  =end code
+=head3 method new
+=begin code :lang<raku>
+method new( Str :$content ) returns LibXML::Comment
+=end code
 The constructor is the only provided function for this package. It is required,
 because I<<<<<< libxml2 >>>>>> treats text nodes and comment nodes slightly differently.
 
-=end item
-
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -63,7 +56,7 @@ because I<<<<<< libxml2 >>>>>> treats text nodes and comment nodes slightly diff
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 LICENSE
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

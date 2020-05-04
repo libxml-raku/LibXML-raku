@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Comment
+---------------------
 
-LibXML::Comment - LibXML Comment Class
+LibXML Comment nodes
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Comment;
@@ -15,28 +15,28 @@ my LibXML::Comment $comment .= new( :$content );
 $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This class provides all functions of [LibXML::Text ](https://libxml-raku.github.io/LibXML-raku/Text), but for comment nodes. This can be done, since only the output of the node types is different, but not the data structure. :-)
 
-METHODS
-=======
+Methods
+-------
 
 The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
 
-  * new
+### method new
 
-    ```raku
-    my LibXML::Comment $node .= new( :$content );
-    ```
+```raku
+method new( Str :$content ) returns LibXML::Comment
+```
 
-    The constructor is the only provided function for this package. It is required, because *libxml2 * treats text nodes and comment nodes slightly differently.
+The constructor is the only provided function for this package. It is required, because *libxml2 * treats text nodes and comment nodes slightly differently.
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -45,7 +45,7 @@ COPYRIGHT
 2006-2009, Petr Pajas.
 
 LICENSE
-=======
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

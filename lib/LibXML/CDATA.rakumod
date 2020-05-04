@@ -1,6 +1,7 @@
 use LibXML::Node;
 use LibXML::_StringyNode;
 
+#| LibXML CDATA Section nodes
 unit class LibXML::CDATA
     is LibXML::Node
     does LibXML::_StringyNode;
@@ -18,11 +19,7 @@ method native { callsame() // xmlCDataNode }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod
-=head1 NAME
-
-LibXML::CDATA - LibXML Class for CDATA Sections
-
-=head1 SYNOPSIS
+=head2 Synopsis
 
   =begin code :lang<raku>
   use LibXML::CDATA;
@@ -34,28 +31,24 @@ LibXML::CDATA - LibXML Class for CDATA Sections
   $cdata.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
   =end code
 
-=head1 DESCRIPTION
+=head2 Description
 
 This class provides all functions of L<<<<<< LibXML::Text >>>>>>, but for CDATA nodes.
 
-=head1 METHODS
+=head2 Methods
 
 The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
 
-=begin item
-new
+=head3 method new
   =begin code :lang<raku>
-  my LibXML::CDATA $node .= new( :$content );
+  method new( Str :$content ) returns LibXML::CDATA
   =end code
 The constructor is the only provided function for this package. It is required,
-because I<<<<<< libxml2 >>>>>> treats the different text node types slightly differently.
+because I<<<<<<libxml2>>>>>> treats the different text node types slightly differently.
 
-=end item
-
-
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -63,7 +56,7 @@ because I<<<<<< libxml2 >>>>>> treats the different text node types slightly dif
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

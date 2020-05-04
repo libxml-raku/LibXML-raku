@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Dtd
+-----------------
 
-LibXML::Dtd - LibXML DTD Handling
+LibXML DTD Handling
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Dtd;
@@ -19,8 +19,8 @@ my Bool $valid = $dtd.is-valid($doc);
 if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This class holds a DTD. You may parse a DTD from either a string, or from an external SYSTEM identifier.
 
@@ -28,80 +28,89 @@ No support is available as yet for parsing from a filehandle.
 
 LibXML::Dtd is a sub-class of [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node), so all the methods available to nodes (particularly Str()) are available to Dtd objects.
 
-METHODS
-=======
+Methods
+-------
 
-  * new
+### method new
 
-        my LibXML::Dtd $dtd  .= new: :$public-id, :$system-id;
-        my LibXML::Dtd $dtd2 .= new($public-id, $system-id);
+```raku
+# preferred constructor
+multi method new(Str :$public-id, Str :$system-id) returns LibXML::Dtd
+# for Perl compat
+multi method new(Str $public-id, Str $system-id) returns LibXML::Dtd
+```
 
-    Parse a DTD from the system identifier, and return a DTD object that you can pass to $doc.is-valid() or $doc.validate().
+Parse a DTD from the system identifier, and return a DTD object that you can pass to $doc.is-valid() or $doc.validate().
 
-    ```raku
-    my $dtd = LibXML::Dtd.new(
-                          "SOME // Public / ID / 1.0",
-                          "test.dtd"
-                                    );
-    my $doc = LibXML.load: :file("test.xml");
-    $doc.validate($dtd);
+```raku
+my $dtd = LibXML::Dtd.new(
+                      "SOME // Public / ID / 1.0",
+                      "test.dtd"
+                                );
+my $doc = LibXML.load: :file("test.xml");
+$doc.validate($dtd);
 
-    $doc.is-valid($dtd);
-    #-OR-
-    $doc ~~ $dtd;
-    ```
+$doc.is-valid($dtd);
+#-OR-
+$doc ~~ $dtd;
+```
 
-  * parse
+### method parse
 
-    ```raku
-    my LibXML::Dtd $dtd .= parse: :string($dtd-str);
-    ```
+```raku
+method parse(Str :string) returns LibXML::Dtd;
+```
 
-    The same as new() above, except you can parse a DTD from a string. Note that parsing from string may fail if the DTD contains external parametric-entity references with relative URLs.
+The same as new() above, except you can parse a DTD from a string. Note that parsing from string may fail if the DTD contains external parametric-entity references with relative URLs.
 
-  * getName
+### method validate
 
-    ```raku
-    my Str $name = $dtd.getName();
-    ```
+```perl6
+method validate(
+    LibXML::Node:D $node
+) returns UInt
+```
 
-    Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
+validate a parsed XML document against a DTD
 
-  * publicId
+This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
 
-    ```raku
-    my Str $publicId = $dtd.publicId();
-    ```
+### method is-valid
 
-    Returns the public identifier of the external subset.
+```perl6
+method is-valid(
+    LibXML::Node:D $node
+) returns Bool
+```
 
-  * systemId
+Returns True if the passed document is valid against the DTD
 
-    ```raku
-    my Str $systemId = $dtd.systemId();
-    ```
+### method getName
 
-    Returns the system identifier of the external subset.
+```raku
+method getName() returns Str
+```
 
-  * validate
+Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
 
-    ```raku
-    try { $dtd.validate( $doc ); };
-    ```
+### method publicId
 
-    This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+```raku
+method publicId() returns Str
+```
 
-  * is-valid / ACCEPTS
+Returns the public identifier of the external subset.
 
-    ```raku
-    my Bool $valid = $dtd.is-valid($doc);
-    $valid = $doc ~~ $dtd;
-    ```
+### method systemId
 
-    Returns either True or False depending on whether the passed Document is valid or not.
+```raku
+method systemId() returns Str
+```
 
-COPYRIGHT
-=========
+Returns the system identifier of the external subset.
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -109,8 +118,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

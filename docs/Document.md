@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Document
+----------------------
 
-LibXML::Document - LibXML DOM Document Class
+LibXML DOM Document Class
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Document;
@@ -66,15 +66,15 @@ my LibXML::Element $node = $doc.getElementById($id);
 $doc.indexElements();
 ```
 
-DESCRIPTION
+Description
 ===========
 
 The Document Class is in most cases the result of a parsing process. But sometimes it is necessary to create a Document from scratch. The DOM Document Class provides functions that conform to the DOM Core naming style.
 
 It inherits all functions from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) as specified in the DOM specification. This enables access to the nodes besides the root element on document level - a `DTD ` for example. The support for these nodes is limited at the moment.
 
-EXPORTS
-=======
+Exports
+-------
 
 ### XML
 
@@ -94,8 +94,8 @@ A subset of LibXML::Document that have node-type `XML_HTML_DOCUMENT_NODE`. Gener
 
 A subset of LibXML::Document that have node-type `XML_DOCB_DOCUMENT_NODE`. XML documents of type DocBook
 
-METHODS
-=======
+Methods
+-------
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
 
@@ -115,11 +115,11 @@ method new(
 ### method createDocument
 
 ```raku
-  multi method createDocument(Str() $version, xmlEncodingStr $enc
-  ) returns LibXML::Document
-  multi method createDocument(
-       Str $URI?, QName $name?, Str $doc-type?
-  )
+multi method createDocument(Str() $version, xmlEncodingStr $enc
+) returns LibXML::Document
+multi method createDocument(
+     Str $URI?, QName $name?, Str $doc-type?
+)
 ```
 
 Perl or DOM-style constructors for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument *() will create the document:
@@ -166,10 +166,12 @@ Gets or sets the encoding of the document.
 
   * The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
 
-    my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
-    print $doc.encoding; # prints ISO-8859-15
-    my $xml-with-entities = $doc.Str;
-    'encoded.xml'.IO.spurt( $doc.Blob, :bin);
+```raku
+my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
+print $doc.encoding; # prints ISO-8859-15
+my $xml-with-entities = $doc.Str;
+'encoded.xml'.IO.spurt( $doc.Blob, :bin);
+```
 
 ### method actualEncoding
 
@@ -192,7 +194,7 @@ print $doc.encoding; # prints ISO-8859-15
 method version() returns Version
 ```
 
-rw accessor to get or set the version of the document
+Gets or sets the version of the document
 
 ### method standalone
 
@@ -201,9 +203,15 @@ use LibXML::Document :XmlStandalone;
 if $doc.standalone == XmlStandaloneYes { ... }
 ```
 
-This rw accessor gets or sets the Numerical value of a documents XML declarations standalone attribute.
+Gets or sets the Numerical value of a documents XML declarations standalone attribute.
 
-It returns *1 (XmlStandaloneYes) * if standalone="yes" was found, *0 (XmlStandaloneNo) * if standalone="no" was found and *-1 (XmlStandaloneMu) * if standalone was not specified (default on creation).
+It returns
+
+  * *1 (XmlStandaloneYes) * if standalone="yes" was found,
+
+  * *0 (XmlStandaloneNo) * if standalone="no" was found and
+
+  * *-1 (XmlStandaloneMu) * if standalone was not specified (default on creation).
 
 ### method setStandalone
 
@@ -220,7 +228,13 @@ use LibXML::Document :XmlStandalone;
 $doc.setStandalone(XmlStandaloneYes);
 ```
 
-Set it to *1 (XmlStandaloneYes) * to set standalone="yes", to *0 (XmlStandaloneNo) * to set standalone="no" or set it to *-1 (XmlStandaloneMu) * to remove the standalone attribute from the XML declaration.
+Set it to
+
+  * *1 (XmlStandaloneYes) * to set standalone="yes",
+
+  * to *0 (XmlStandaloneNo) * to set standalone="no" or
+
+  * to *-1 (XmlStandaloneMu) * to remove the standalone attribute from the XML declaration.
 
 ### method compression
 
@@ -228,7 +242,7 @@ Set it to *1 (XmlStandaloneYes) * to set standalone="yes", to *0 (XmlStandaloneN
 method compression() returns Int
 ```
 
-rw accessor to get or set output compression
+Gets or sets output compression
 
 ### method input-compressed
 
@@ -276,7 +290,7 @@ Serialize to XML/HTML
 my Str $xml = $dom.Str(:$format);
 ```
 
-*Str * is a serializing function, so the DOM Tree is serialized into an XML string, ready for output.
+*Str* is a serializing function, so the DOM Tree is serialized into an XML string, ready for output.
 
 ```raku
 $file.IO.spurt: $doc.Str;
@@ -284,7 +298,7 @@ $file.IO.spurt: $doc.Str;
 
 regardless of the actual encoding of the document.
 
-The optional *$format * flag sets the indenting of the output.
+The optional *$format* flag sets the indenting of the output.
 
 If $format is False, or omitted, the document is dumped as it was originally parsed
 
@@ -307,7 +321,7 @@ C14N Normalisation. See the documentation in [LibXML::Node ](https://libxml-raku
 my Str $html = $document.Str: :html;
 ```
 
-*.Str: :html * serializes the tree to a string as HTML. With this method indenting is automatic and managed by libxml2 internally.
+*.Str: :html* serializes the tree to a string as HTML. With this method indenting is automatic and managed by libxml2 internally.
 
 ### method serialize
 
@@ -411,7 +425,7 @@ Again, you may pass in a DTD object
 method documentElement() returns LibXML::Element
 ```
 
-rw accessor to get or set the root element of the Document.
+Gets or sets the root element of the Document.
 
 A document can have just one root element to contain the documents data. If the document resides in a different document tree, it is automatically imported.
 
@@ -513,7 +527,7 @@ If a document has a DTD specified, one can create entity references by using thi
 
 An entity reference is unique to a document and cannot be passed to other documents as other nodes can be passed.
 
-*NOTE: * A text content containing something that looks like an entity reference, will not be expanded to a real entity reference unless it is a predefined entity
+*NOTE:* A text content containing something that looks like an entity reference, will not be expanded to a real entity reference unless it is a predefined entity
 
 ```raku
 my Str $text = '&foo;';
@@ -628,7 +642,7 @@ method setDocumentElement(
 
 DOM compatible method to set the document element
 
-*EXPERIMENTAL! *
+*EXPERIMENTAL!*
 
 ### method removeInternalSubset
 
@@ -638,7 +652,7 @@ method removeInternalSubset() returns LibXML::Dtd
 
 This method removes an external, if defined, from the document
 
-*EXPERIMENTAL! *
+*EXPERIMENTAL!*
 
 If a document has an internal subset defined it can be removed from the document by using this function. The removed dtd node will be returned.
 
@@ -648,9 +662,9 @@ If a document has an internal subset defined it can be removed from the document
 method internalSubset() returns LibXML::Dtd
 ```
 
-This rw accessor gets or sets the internal DTD for the document.
+Gets or sets the internal DTD for the document.
 
-*NOTE * Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want use common node function on doctype declaration nodes!
+*NOTE* Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want use common node function on doctype declaration nodes!
 
 ### method setExternalSubset
 
@@ -662,7 +676,7 @@ method setExternalSubset(
 
 This method sets a DTD node as an external subset of the given document.
 
-*EXPERIMENTAL! *
+*EXPERIMENTAL!*
 
 ### method removeExternalSubset
 
@@ -672,7 +686,7 @@ method removeExternalSubset() returns LibXML::Dtd
 
 This method removes an external, if defined, from the document
 
-*EXPERIMENTAL! *
+*EXPERIMENTAL!*
 
 If a document has an external subset defined it can be removed from the document by using this function. The removed dtd node will be returned.
 
@@ -682,9 +696,9 @@ If a document has an external subset defined it can be removed from the document
 method externalSubset() returns LibXML::Dtd
 ```
 
-This rw accessor gets or sets the external DTD for a document.
+Gets or sets the external DTD for a document.
 
-*NOTE * Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want use common node function on doctype declaration nodes!
+*NOTE* Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want use common node function on doctype declaration nodes!
 
 ### method parse
 
@@ -755,8 +769,8 @@ This function causes libxml2 to stamp all elements in a document with their docu
 
 This function returns number of elements indexed, -1 if error occurred, or -2 if this feature is not available in the running libxml2.
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -764,8 +778,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

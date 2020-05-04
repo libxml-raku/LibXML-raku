@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::CDATA
+-------------------
 
-LibXML::CDATA - LibXML Class for CDATA Sections
+LibXML CDATA Section nodes
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::CDATA;
@@ -16,28 +16,28 @@ my LibXML::CDATA $cdata .= new( :$content );
 $cdata.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This class provides all functions of [LibXML::Text ](https://libxml-raku.github.io/LibXML-raku/Text), but for CDATA nodes.
 
-METHODS
-=======
+Methods
+-------
 
 The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
 
-  * new
+### method new
 
-    ```raku
-    my LibXML::CDATA $node .= new( :$content );
-    ```
+```raku
+method new( Str :$content ) returns LibXML::CDATA
+```
 
-    The constructor is the only provided function for this package. It is required, because *libxml2 * treats the different text node types slightly differently.
+The constructor is the only provided function for this package. It is required, because *libxml2* treats the different text node types slightly differently.
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -45,8 +45,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

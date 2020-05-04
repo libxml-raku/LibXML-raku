@@ -38,53 +38,53 @@ method createDocument(|c) {
 LibXML - Raku bindings to the libxml2 native library
 
 =head1 SYNOPSIS
-  =begin code :lang<raku>
-  use LibXML::Document;
-  my LibXML::Document $doc .=  parse: :string('<Hello/>');
-  $doc.root.nodeValue = 'World!';
-  say $doc.Str;
-  # <?xml version="1.0" encoding="UTF-8"?>
-  # <Hello>World!</Hello>
-  say $doc<Hello>;
-  # <Hello>World!</Hello>
+    =begin code :lang<raku>
+    use LibXML::Document;
+    my LibXML::Document $doc .=  parse: :string('<Hello/>');
+    $doc.root.nodeValue = 'World!';
+    say $doc.Str;
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <Hello>World!</Hello>
+    say $doc<Hello>;
+    # <Hello>World!</Hello>
 
-  my Version $library-version = LibXML.version;
-  my Version $module-version = LibXML.^ver;
-  =end code
+    my Version $library-version = LibXML.version;
+    my Version $module-version = LibXML.^ver;
+    =end code
 =head1 DESCRIPTION
 
-This module is an interface to libxml2, providing XML and HTML parsers with
-DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and
-a XML::XPath-like interface to XPath API of libxml2.
+    This module is an interface to libxml2, providing XML and HTML parsers with
+    DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and
+    a XML::XPath-like interface to XPath API of libxml2.
 
-For further information, please check the following documentation:
+    For further information, please check the following documentation:
 
 =head2 DOM Objects
 
-The nodes in the Document Object Model (DOM) are represented by the following
-classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
+    The nodes in the Document Object Model (DOM) are represented by the following
+  classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
-=item L<LibXML::Document> - LibXML DOM attribute class
+  =item L<LibXML::Document> - LibXML DOM attribute class
 
-=item L<LibXML::Attr> - LibXML attribute class
+  =item L<LibXML::Attr> - LibXML attribute class
 
-=item L<LibXML::CDATA> - LibXML class for DOM CDATA sections
+  =item L<LibXML::CDATA> - LibXML class for DOM CDATA sections
 
-=item L<LibXML::Comment> - LibXML class for comment DOM nodes
+  =item L<LibXML::Comment> - LibXML class for comment DOM nodes
 
-=item L<LibXML::DocumentFragment> - LibXML's DOM L2 Document Fragment implementation
+  =item L<LibXML::DocumentFragment> - LibXML's DOM L2 Document Fragment implementation
 
-=item L<LibXML::Dtd> - LibXML frontend for DTD validation
+  =item L<LibXML::Dtd> - LibXML frontend for DTD validation
 
-=item L<LibXML::Element> - LibXML class for element nodes
+  =item L<LibXML::Element> - LibXML class for element nodes
 
-=item L<LibXML::Namespace> - LibXML DOM namespaces (Inherits from L<LibXML::Item>)
+  =item L<LibXML::Namespace> - LibXML DOM namespaces (Inherits from L<LibXML::Item>)
 
-=item L<LibXML::Node> - LibXML DOM base node class
+  =item L<LibXML::Node> - LibXML DOM base node class
 
-=item L<LibXML::Text> - LibXML text node class
+  =item L<LibXML::Text> - LibXML text node class
 
-=item L<LibXML::PI> - LibXML DOM processing instruction nodes
+  =item L<LibXML::PI> - LibXML DOM processing instruction nodes
 
 =head2 Container/Mapping classes
 
@@ -135,14 +135,14 @@ classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
 =head2 Debian Linux
-
-  sudo apt-get install libxml2-dev
-
+=begin code :lang<shell>
+sudo apt-get install libxml2-dev
+=end code
 =head2 Mac OS X
-
-  brew update
-  brew install libxml2
-
+=begin code :lang<shell>
+brew update
+brew install libxml2
+=end code
 =head1 ACKNOWLEDGEMENTS
 
 This Raku module:
@@ -161,10 +161,9 @@ Toby Inkster,
 Tobias Leich,
 Xliff.
 
-
 =head1 VERSION
 
-0.2.6
+0.3.0
 
 =head1 COPYRIGHT
 

@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::DocumentFragment
+------------------------------
 
-LibXML::DocumentFragment - LibXML's DOM L2 Document Fragment Implementation
+LibXML's DOM L2 Document Fragment Implementation
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Document;
@@ -35,15 +35,15 @@ $frag = ast-to-xml([
 say $frag; # <!--demo--><baz/><![CDATA[a&b]]>Some text.
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 A Document Fragment differs from a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) in that it may contain multiple root nodes. It is commonly used as an intermediate object when assembling or editing documents. All adding, inserting or replacing functions are aware of document fragments.
 
 It is a helper class as described in the DOM Level 2 Specification.
 
-METHODS
-=======
+Methods
+-------
 
 The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
 
@@ -81,8 +81,8 @@ Performs a parse of the given XML fragment and appends the resulting nodes to th
 
 It accepts a full range of parser options as described in [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser)
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -90,8 +90,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 
