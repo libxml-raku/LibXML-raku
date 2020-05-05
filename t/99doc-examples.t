@@ -391,7 +391,7 @@ subtest 'LibXML::Node' => {
     $child = $node.firstChild;
     $child = $node.lastChild;
     my LibXML::Document $doc = $node.ownerDocument;
-    $doc = $node.getOwner;
+    $other-node = $node.getOwner;
     $doc .= new;
     $node.setOwnerDocument( $doc );
     $node.ownerDocument = $doc;

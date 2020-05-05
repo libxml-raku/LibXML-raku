@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Namespace
+-----------------------
 
-LibXML::Namespace - LibXML Namespace Implementation
+LibXML Namespace implementation
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Namespace;
@@ -19,108 +19,83 @@ my Str $known-prefix = $ns.prefix();
 $key = $ns.unique-key();
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 Namespace nodes are returned by both $element.findnodes('namespace::foo') or by $node.getNamespaces().
 
 The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not * a sub class of [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node), however Namespace nodes act a lot like attribute nodes (both perform the [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item) role). Similarly named methods return what you would expect if you treated the namespace node as an attribute.
 
-METHODS
-=======
+Methods
+-------
 
-  * new
+### method new
 
-    ```raku
-    my LibXML::Namespace $ns .= new: :$URI, :$prefix;
-    ```
+```raku
+method new(Str:D :$URI!, NCName :$prefix, LibXML::Node :$node)
+    returns LibXML::Namespace
+```
 
-    Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) Functions. All functions available for this node are listed below.
+Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) Functions. All functions available for this node are listed below.
 
-    Optionally you can pass the prefix to the namespace constructor. If this second parameter is omitted you will create a so called default namespace. Note, the newly created namespace is not bound to any document or node, therefore you should not expect it to be available in an existing document.
+Optionally you can pass the prefix to the namespace constructor. If `:$prefix` is omitted you will create a so called default namespace. Note, the newly created namespace is not bound to any document or node, therefore you should not expect it to be available in an existing document.
 
-  * declaredURI
+### method declaredURI
 
-    Returns the URI for this namespace.
+```perl6
+method declaredURI() returns Str
+```
 
-  * declaredPrefix
+Returns the URI for this namespace
 
-    Returns the prefix for this namespace.
+### method declaredPrefix
 
-  * nodeName
+```perl6
+method declaredPrefix() returns LibXML::Types::NCName
+```
 
-    ```raku
-    say $ns.nodeName();
-    ```
+Returns the prefix for this namespace
 
-    Returns "xmlns:prefix", where prefix is the prefix for this namespace.
+### method nodeName
 
-  * name
+```perl6
+method nodeName() returns Str
+```
 
-    ```raku
-    say $ns.name();
-    ```
+Returns "xmlns:prefix", where prefix is the prefix for this namespace.
 
-    Alias for nodeName()
+### method name
 
-  * getLocalName
+Alias for nodeName()
 
-    ```raku
-    my Str $localname = $ns.getLocalName();
-    ```
+### method unique-key
 
-    Returns the local name of this node as if it were an attribute, that is, the prefix associated with the namespace.
+```perl6
+method unique-key() returns Str
+```
 
-  * getData
+Return a unique key for the namespace
 
-    ```raku
-    say $ns.getData();
-    ```
+This method returns a key guaranteed to be unique for this namespace, and to always be the same value for this namespace. Two namespace objects return the same key if and only if they have the same prefix and the same URI. The returned key value is useful as a key in hashes.
 
-    Returns the URI of the namespace, i.e. the value of this node as if it were an attribute.
+### method getNamespaceURI
 
-  * getValue
+```perl6
+method getNamespaceURI() returns Str
+```
 
-    ```raku
-    say $ns.getValue();
-    ```
+Returns the string "http://www.w3.org/2000/xmlns/"
 
-    Alias for getData()
+### method prefix
 
-  * value
+```perl6
+method prefix() returns Str
+```
 
-    ```raku
-    say $ns.value();
-    ```
+Returns the string "xmlns"
 
-    Alias for getData()
-
-  * getNamespaceURI
-
-    ```raku
-    my Str $known-uri = $ns.getNamespaceURI();
-    ```
-
-    Returns the string "http://www.w3.org/2000/xmlns/"
-
-  * getPrefix
-
-    ```raku
-    my Str $known-prefix = $ns.getPrefix();
-    ```
-
-    Returns the string "xmlns"
-
-  * unique-key
-
-    ```raku
-    my Str $key = $ns.unique-key();
-    ```
-
-    This method returns a key guaranteed to be unique for this namespace, and to always be the same value for this namespace. Two namespace objects return the same key if and only if they have the same prefix and the same URI. The returned key value is useful as a key in hashes.
-
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -128,8 +103,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

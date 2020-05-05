@@ -1,5 +1,8 @@
 0.4.0 2020-05-xx
     - Overhaul of Pod documentation.
+    - Fix $node.getOwner() method to return the root of the
+      current node. Distinguish it from .getOwnerDocument
+      which always returns a LibXML::Document object.
     - Rename .Str(), .Blob() options; :expand -> :tag-expansion,
       :skip-decl -> :skip-xml-declaration. Make them consistant
       configuration defaults.

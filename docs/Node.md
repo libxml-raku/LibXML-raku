@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Node
+------------------
 
-LibXML::Node - Abstract Base Class of LibXML Nodes
+Abstract base class of LibXML Nodes
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Node;
@@ -13,7 +13,7 @@ my LibXML::Node $node;
 # -- Basic Properties -- #
 my Str $name = $node.nodeName;
 $node.nodeName = $newName;
-my Bool $same = $node.isSame( $other-node );
+my Bool $same = $node.isSameNode( $other-node );
 my Str $key = $node.unique-key;
 my Str $content = $node.nodeValue;
 $content = $node.textContent;
@@ -27,10 +27,10 @@ my UInt $lineno = $node.line-number();
 $node.unbindNode();
 my LibXML::Node $child = $node.removeChild( $node );
 $oldNode = $node.replaceChild( $newNode, $oldNode );
-$node.replaceNode($newNode);
 $childNode = $node.appendChild( $childNode );
 $childNode = $node.addChild( $childNode );
 $node = $parent.addNewChild( $nsURI, $name );
+$node.replaceNode($newNode);
 $node.addSibling($newNode);
 $newnode = $node.cloneNode( :deep );
 $node.insertBefore( $newNode, $refNode );
@@ -47,8 +47,8 @@ my Bool $is-parent = $node.hasChildNodes();
 $child = $node.firstChild;
 $child = $node.lastChild;
 my LibXML::Document $doc = $node.ownerDocument;
-$doc = $node.getOwner;
 $node.ownerDocument = $doc;
+$other-node = $node.getOwner;
 my LibXML::Node @kids = $node.childNodes();
 @kids = $node.nonBlankChildNodes();
 
@@ -103,248 +103,314 @@ for $node<A> { ... }; # all '<A>..</A>' child nodes
 for $node<text()> { ... }; # text nodes
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 LibXML::Node defines functions that are common to all Node Types. An LibXML::Node should never be created standalone, but as an instance of a high level class such as [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) or [LibXML::Text](https://libxml-raku.github.io/LibXML-raku/Text). The class itself should provide only common functionality. In LibXML each node is part either of a document or a document-fragment. Because of this there is no node without a parent.
 
-METHODS
-=======
+Methods
+-------
 
-Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation. 
+Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
 
-  * nodeName
+### method nodeName
 
-    ```raku
-    my Str $name = $node.nodeName;
-    ```
+```raku
+method nodeName() returns Str
+```
 
-    Returns the node's name. This function is aware of namespaces and returns the full name of the current node (`prefix:localname `). 
+Gets the node's name. This function is aware of namespaces and returns the full name of the current node (`prefix:localname`). 
 
-    This function also returns the correct DOM names for node types with constant names, namely: #text, #cdata-section, #comment, #document, #document-fragment.
+This function also returns the correct DOM names for node types with constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`, `#document-fragment`.
 
-  * setNodeName
+### method setNodeName
 
-    ```raku
-    $node.setNodeName( $newName );
-    $node.nodeName = $newName;
-    ```
+```raku
+method setNodeName(Str $new-name)
+# -Or-
+$.nodeName = $new-name
+```
 
-    In very limited situations, it is useful to change a nodes name. In the DOM specification this should throw an error. This Function is aware of namespaces.
+In very limited situations, it is useful to change a nodes name. In the DOM specification this should throw an error. This Function is aware of namespaces.
 
-  * isSameNode
+### method unique-key
 
-    ```raku
-    my Bool $is-same = $node.isSameNode( $other_node );
-    ```
+```raku
+method unique-key() returns Str
+```
 
-    returns True if the given nodes refer to the same node structure, otherwise False is returned.
+This function is not specified for any DOM level. It returns a key guaranteed to be unique for this node, and to always be the same value for this node. In other words, two node objects return the same key if and only if isSameNode indicates that they are the same node.
 
-  * unique-key
+The returned key value is useful as a key in hashes.
 
-    ```raku
-    my Str $key = $node.unique-key;
-    ```
+### method isSameNode
 
-    This function is not specified for any DOM level. It returns a key guaranteed to be unique for this node, and to always be the same value for this node. In other words, two node objects return the same key if and only if isSameNode indicates that they are the same node.
+```perl6
+method isSameNode(
+    LibXML::Item $other
+) returns Bool
+```
 
-    The returned key value is useful as a key in hashes.
+True if both objects refer to the same native structure
 
-  * nodeValue
+### method nodeValue
 
-    ```raku
-    my Str $content = $node.nodeValue;
-    ```
+```perl6
+method nodeValue() returns Str
+```
 
-    If the node has any content (such as stored in a `text node `) it can get requested through this function.
+Get or set the value of a node
 
-    *NOTE: * Element Nodes have no content per definition. To get the text value of an Element use textContent() instead!
+If the node has any content (such as stored in a `text node `) it can get requested through this function.
 
-  * textContent
+*NOTE: * Element Nodes have no content per definition. To get the text value of an Element use textContent() instead!
 
-    ```raku
-    my Str $content = $node.textContent;
-    ```
+### method textContent
 
-    this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
+```perl6
+method textContent() returns Str
+```
 
-  * nodeType
+this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
 
-    ```raku
-    my UInt $type = $node.nodeType;
-    ```
+### method nodeType
 
-    Return a numeric value representing the node type of this node. The module LibXML by default exports constants for the node types (see the EXPORT section in the [LibXML ](https://libxml-raku.github.io/LibXML-raku) manual page).
+```perl6
+method nodeType() returns UInt
+```
 
-  * unbindNode
+Return a numeric value representing the node type of this node.
 
-    ```raku
-    $node.unbindNode();
-    ```
+The module [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) by default exports enumerated constants `XML_*_NODE` and `XML_*_DECL` for the node and declaration types.
 
-    Unbinds the Node from its siblings and Parent, but not from the Document it belongs to. If the node is not inserted into the DOM afterwards, it will be lost after the program terminates. From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
+### method unbindNode
 
-  * removeChild
+```perl6
+method unbindNode() returns LibXML::Node
+```
 
-    ```raku
-    my LibXML::Node $child = $node.removeChild( $node );
-    ```
+Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
 
-    This will unbind the Child Node from its parent `$node `. The function returns the unbound node. If `oldNode ` is not a child of the given Node the function will fail.
+If the node is not inserted into the DOM afterwards, it will be lost after the program terminates. From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
 
-  * replaceChild
+### method removeChild
 
-    ```raku
-    $oldnode = $node.replaceChild( $newNode, $oldNode );
-    ```
+```perl6
+method removeChild(
+    LibXML::Node:D $node
+) returns LibXML::Node
+```
 
-    Replaces the `$oldNode ` with the `$newNode `. The `$oldNode ` will be unbound from the Node. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
+Unbind a child node from its parent
 
-  * replaceNode
+Fails if `$node` is not a child of this object
 
-    ```raku
-    $node.replaceNode($newNode);
-    ```
+### method replaceChild
 
-    This function is very similar to replaceChild(), but it replaces the node itself rather than a childnode. This is useful if a node found by any XPath function, should be replaced.
+```perl6
+method replaceChild(
+    LibXML::Node $new,
+    LibXML::Node $old
+) returns LibXML::Node
+```
 
-  * appendChild
+Replaces the `$old` node with the `$new` node.
 
-    ```raku
-    $childnode = $node.appendChild( $childnode );
-    ```
+The returned `$old` node is unbound.
 
-    The function will add the `$childnode ` to the end of `$node `'s children. The function should fail, if the new childnode is already a child of `$node `. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
+This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
 
-  * addChild
+### method appendChild
 
-    ```raku
-    $childnode = $node.addChild( $childnode );
-    ```
+```perl6
+method appendChild(
+    LibXML::Item:D $new
+) returns LibXML::Item
+```
 
-    This is alias for appendChild (unlike Perl 5 which binds this to xmlAddChild()).
+Adds a child to this node\s children
 
-  * addNewChild
+Fails, if the new childnode is already a child of this node. This method differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
 
-    ```raku
-    $node = $parent.addNewChild( $nsURI, $name );
-    ```
+### method addChild
 
-    Similar to `addChild() `, this function uses low level libxml2 functionality to provide faster interface for DOM building. *addNewChild() * uses `xmlNewChild() ` to create a new node on a given parent element.
+An alias for `appendChild`
 
-    addNewChild() has two parameters $nsURI and $name, where $nsURI is an (optional) namespace URI. $name is the fully qualified element name; addNewChild() will determine the correct prefix if necessary.
+### method addNewChild
 
-    The function returns the newly created node.
+```perl6
+method addNewChild(
+    Str $uri,
+    Str $name where { ... }
+) returns LibXML::Node
+```
 
-    This function is very useful for DOM building, where a created node can be directly associated with its parent. *NOTE * this function is not part of the DOM specification and its use will limit your code to LibXML.
+Vivify and add a new child
 
-  * addSibling
+Similar to `addChild()`, this function uses low level libxml2 functionality to provide faster interface for DOM building. *addNewChild()* uses `xmlNewChild()` to create a new node on a given parent element.
 
-    ```raku
-    $node.addSibling($newNode);
-    ```
+addNewChild() has two parameters $nsURI and $name, where $nsURI is an (optional) namespace URI. $name is the fully qualified element name; addNewChild() will determine the correct prefix if necessary.
 
-    addSibling() allows adding an additional node to the end of a nodelist, defined by the given node.
+The function returns the newly created node.
 
-  * cloneNode
+This function is very useful for DOM building, where a created node can be directly associated with its parent. *NOTE* this function is not part of the DOM specification and its use may limit your code to Raku or Perl.
 
-    ```raku
-    $newnode = $node.cloneNode( :$deep );
-    ```
+### method replaceNode
 
-    *cloneNode * creates a copy of `$node `. When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True. 
+```perl6
+method replaceNode(
+    LibXML::Node:D $new
+) returns LibXML::Node
+```
 
-    Note that the behavior of this function for $deep=0 has changed in 1.62 in order to be consistent with the DOM spec (in older versions attributes and namespace information was not copied for elements).
+Replace a node
 
-  * ast
+This function is very similar to replaceChild(), but it replaces the node itself rather than a childnode. This is useful if a node found by any XPath function, should be replaced.
 
-    This method performs a deep data-serialization of the node. The [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item) ast-to-xml() function can then be used to create a deep copy of the node;
+### method addSibling
 
-    ```raku
-      use LibXML::Item :ast-to-xml;
-      my $ast = $node.ast;
-      my LibXML::Node $copy = ast-to-xml($ast);
-    ```
+```perl6
+method addSibling(
+    LibXML::Node:D $new
+) returns LibXML::Node
+```
 
-  * parentNode
+Add an additional node to the end of a nodelist
 
-    ```raku
-    my LibXML::Node $parent = $node.parentNode;
-    ```
+### method cloneNode
 
-    Returns simply the Parent Node of the current node.
+```perl6
+method cloneNode(
+    :$deep = Bool::False
+) returns LibXML::Node
+```
 
-  * nextSibling
+Copy a node
 
-    ```raku
-    my LibXML::Node $next = $node.nextSibling();
-    ```
+When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True. 
 
-    Returns the next sibling if any .
+### method insertBefore
 
-  * nextNonBlankSibling
+```perl6
+method insertBefore(
+    LibXML::Node:D $new,
+    LibXML::Node $ref?
+) returns LibXML::Node
+```
 
-    ```raku
-    my LibXML::Node $next = $node.nextNonBlankSibling();
-    ```
+Inserts $new before $ref.
 
-    Returns the next non-blank sibling if any (a node is blank if it is a Text or CDATA node consisting of whitespace only). This method is not defined by DOM.
+If `$ref` is undefined, the newNode will be set as the new last child of the parent node. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first, automatically.
 
-  * previousSibling
+Note, that the reference node has to be a direct child of the node the function is called on. Also, `$new` is not allowed to be an ancestor of the new parent node.
 
-    ```raku
-    my LibXML::Node $prev = $node.previousSibling();
-    ```
+### method insertAfter
 
-    Analogous to *getNextSibling * the function returns the previous sibling if any.
+```perl6
+method insertAfter(
+    LibXML::Node:D $new,
+    LibXML::Node $ref?
+) returns LibXML::Node
+```
 
-  * previousNonBlankSibling
+Inserts $new after $ref.
 
-    ```raku
-    my LibXML::Node $prev = $node.previousNonBlankSibling();
-    ```
+If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node.
 
-    Returns the previous non-blank sibling if any (a node is blank if it is a Text or CDATA node consisting of whitespace only). This method is not defined by DOM.
+### method removeChildNodes
 
-  * hasChildNodes
+```raku
+method removeChildNodes() returns LibXML::DocumentFragment
+```
 
-    ```raku
-    my Bool $has-kids = $node.hasChildNodes();
-    ```
+Remove all child nodes, which are returned as a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) This function is not specified for any DOM level: It removes all childnodes from a node in a single step.
 
-    If the current node has child nodes this function returns True, otherwise it returns False.
+### method parentNode
 
-  * firstChild
+```perl6
+method parentNode() returns Mu
+```
 
-    ```raku
-    my LibXML::Node $child = $node.firstChild;
-    ```
+Returns the objects parent node
 
-    If a node has child nodes this function will return the first node in the child list.
+### method nextSibling
 
-  * lastChild
+```raku
+method nextSibling() returns LibXML::Node
+```
 
-    ```raku
-    my LibXML::Node $child = $node.lastChild;
-    ```
+Returns the next sibling if any.
 
-    If the `$node ` has child nodes this function returns the last child node.
+### method nextNonBlankSibling
 
-  * ownerDocument
+```raku
+method nextNonBlankSibling() returns LibXML::Node
+```
 
-    ```raku
-    my LibXML::Document $doc = $node.ownerDocument;
-    ```
+Returns the next non-blank sibling if any.
 
-    Through this function it is always possible to access the document the current node is bound to.
+A node is blank if it is a Text or CDATA node consisting of whitespace only. This method is not defined by DOM.
 
-  * getOwner
+### method previousSibling
 
-    ```raku
-    my LibXML::Node $owner = $node.getOwner;
-    ```
+```raku
+method previousSibling() returns LibXML::Node
+```
 
-    This function returns the node the current node is associated with. In most cases this will be a document node or a document fragment node.
+Analogous to *getNextSibling*. This method returns the previous sibling if any.
+
+### method previousNonBlankSibling
+
+```raku
+method previousNonBlankSibling() returns LibXML::Node
+```
+
+Returns the previous non-blank sibling if any.
+
+A node is blank if it is a Text or CDATA node consisting of whitespace only. This method is not defined by DOM.
+
+### method hasChildNodes
+
+```raku
+method hasChildNodes() returns Bool
+```
+
+Returns True if the current node has child nodes, False otherwise.
+
+### method firstChild
+
+```raku
+method firstChild() returns LibXML::Node
+```
+
+If a node has child nodes this function will return the first node in the child list.
+
+### method lastChild
+
+```raku
+method lastChild() returns LibXML::Node
+```
+
+If a node has child nodes this function will return the last node in the child list.
+
+ownerDocument
+
+```raku
+method ownerDocument is rw returns LibXML::Document
+my LibXML::Document $doc = $node.ownerDocument;
+```
+
+Gets or sets the owner document for the node
+
+### method getOwner
+
+```perl6
+method getOwner() returns LibXML::Node
+```
+
+Get the root (owner) node
+
+This function returns the root node that the current node is associated with. In most cases this will be a document node or a document fragment node.
 
   * setOwnerDocument
 
@@ -356,24 +422,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     This function binds a node to another DOM. This method unbinds the node first, if it is already bound to another document.
 
     This function is the opposite calling of [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document)'s adoptNode() function. Because of this it has the same limitations with Entity References as adoptNode().
-
-  * insertBefore
-
-    ```raku
-    $node.insertBefore( $newNode, $refNode );
-    ```
-
-    The method inserts `$newNode ` before `$refNode `. If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first, automatically.
-
-    Note, that the reference node has to be a direct child of the node the function is called on. Also, $newChild is not allowed to be an ancestor of the new parent node.
-
-  * insertAfter
-
-    ```raku
-    $node.insertAfter( $newNode, $refNode );
-    ```
-
-    The method inserts `$newNode ` after `$refNode `. If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node.
 
   * findnodes
 
@@ -624,6 +672,16 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     An alias for Str: :C14N, :exclusive
 
+  * ast
+
+    This method performs a deep data-serialization of the node. The [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item) ast-to-xml() function can then be used to create a deep copy of the node;
+
+    ```raku
+      use LibXML::Item :ast-to-xml;
+      my $ast = $node.ast;
+      my LibXML::Node $copy = ast-to-xml($ast);
+    ```
+
   * localname
 
     ```raku
@@ -683,14 +741,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     If a node has any namespaces defined, this function will return these namespaces. Note, that this will not return all namespaces that are in scope, but only the ones declared explicitly for that node.
 
     Although getNamespaces is available for all nodes, it only makes sense if used with element nodes.
-
-  * removeChildNodes
-
-    ```raku
-    $node.removeChildNodes();
-    ```
-
-    This function is not specified for any DOM level: It removes all childnodes from a node in a single step. Other than the libxml2 function itself (xmlFreeNodeList), this function will not immediately remove the nodes from the memory. This saves one from getting memory violations, if there are nodes still referred to from Raku.
 
   * baseURI ()
 

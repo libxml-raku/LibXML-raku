@@ -5,11 +5,9 @@
 # it will ONLY test the DOM capabilities as specified in DOM Level3
 # XPath tests should be done in another test file
 
-# since all tests are run on a preparsed
-
 use v6;
 use Test;
-plan 196;
+plan 198;
 
 use LibXML;
 use LibXML::Enums;
@@ -262,6 +260,8 @@ my $doc    = $parser.parse: :string( $xmlstring );
         $frag.appendChild($node1);
         $frag.appendChild($node2);
         is $frag, '<kung/><foobar1/>', 'frag';
+        ok $node1.getOwner.isSameNode($frag), 'owner is fragment';
+        ok $node1.getOwnerDocument.isSameNode($doc), 'ownerDocument';
 
         my $xn = $node.appendChild( $frag );
 
