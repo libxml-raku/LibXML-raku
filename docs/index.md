@@ -54,7 +54,7 @@ DOM Objects
 
   * [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item))
 
-  * [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) - LibXML DOM base node class
+  * [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) - LibXML DOM abstract base node class
 
   * [LibXML::Text](https://libxml-raku.github.io/LibXML-raku/Text) - LibXML text node class
 

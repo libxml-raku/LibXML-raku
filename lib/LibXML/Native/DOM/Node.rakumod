@@ -15,6 +15,8 @@ method copy { ... }
 method GetNodePath { ... }
 method lock { ... }
 method unlock { ... }
+method first-child { ... }
+method last-child { ... }
 
 method domAppendChild  { ... }
 method domAppendTextChild  { ... }
@@ -48,6 +50,9 @@ method native { self } # already native
 
 method firstChild { self.first-child(KeepBlanks); }
 method firstNonBlankChild { self.first-child(SkipBlanks); }
+
+method lastChild { self.last-child(KeepBlanks); }
+method lastNonBlankChild { self.last-child(SkipBlanks); }
 
 method appendChild($nNode) {
     self.domAppendChild($nNode)

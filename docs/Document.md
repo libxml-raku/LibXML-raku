@@ -347,9 +347,10 @@ Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 
 ```perl6
 method Blob(
-    :$skip-xml-declaration = Code.new,
+    :$skip-xml-declaration is copy = Code.new,
     :$skip-dtd = Code.new,
-    Str:D :$enc is copy where { ... } = Code.new,
+    Str:D :$enc where { ... } = Code.new,
+    Bool :$force,
     :$skip-decl,
     |c
 ) returns Blob
@@ -357,13 +358,30 @@ method Blob(
 
 Serialize the XML to a Blob
 
+    head3 method Blob() returns Blob
+
+```raku
+method Blob(
+    xmlEncodingStr :$enc = self.encoding // 'UTF-8',
+    Bool :$format,
+    Bool :$tag-expansion
+    Bool :$skip-dtd,
+    Bool :$skip-xml-declaration,
+    Bool :$force,
+) returns Blob;
+```
+
+Returns a binary representation of the XML document and it decendants encoded as `:$enc`.
+
+The option `:force` is needed to really allow the combination of a non-UTF8 encoding and :skip-xml-declaration.
+
 ### method write
 
 ```perl6
 method write(
     :$file!,
     Bool :$format = Bool::False
-) returns Mu
+) returns UInt
 ```
 
 Write to a name file

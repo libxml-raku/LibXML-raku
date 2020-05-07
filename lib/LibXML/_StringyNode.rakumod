@@ -41,5 +41,5 @@ multi method deleteData(UInt:D $off, UInt:D $length) {
 multi method deleteData(StrOrRegex $old, |c) {
     $.replaceData($old, '', |c);
 }
-method to-ast { self.nodeName => self.nodeValue }
+method ast { self.nodeName => self.nodeValue }
 

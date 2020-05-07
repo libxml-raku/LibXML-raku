@@ -1,11 +1,11 @@
 
 use LibXML::Node;
-use LibXML::_DOMNode;
+use LibXML::_ParentNode;
 
 #| LibXML's DOM L2 Document Fragment Implementation
 unit class LibXML::DocumentFragment
     is LibXML::Node
-    does LibXML::_DOMNode;
+    does LibXML::_ParentNode;
 
 =begin pod
     =head2 Synopsis

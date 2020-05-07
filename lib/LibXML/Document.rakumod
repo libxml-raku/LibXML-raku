@@ -1,10 +1,10 @@
 use LibXML::Node :output-options;
-use LibXML::_DOMNode;
+use LibXML::_ParentNode;
 
 #| LibXML DOM Document Class
 unit class LibXML::Document
     is LibXML::Node
-    does LibXML::_DOMNode;
+    does LibXML::_ParentNode;
 
 use LibXML::Attr;
 use LibXML::CDATA;
@@ -15,12 +15,12 @@ use LibXML::Dtd;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
-use LibXML::Item :ast-to-xml, :item-class;
+use LibXML::Item :item-class;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use LibXML::PI;
 use LibXML::Text;
-use LibXML::Types :QName, :NCName;
+use LibXML::Types :QName, :NCName, :NameVal;
 use Method::Also;
 use NativeCall;
 
@@ -119,8 +119,6 @@ use NativeCall;
 subset XML  is export(:XML)  of LibXML::Document:D where .nodeType == XML_DOCUMENT_NODE;
 subset HTML is export(:HTML) of LibXML::Document:D where .nodeType == XML_HTML_DOCUMENT_NODE;
 subset DOCB is export(:DOCB) of LibXML::Document:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
-
-my subset NameVal of Pair where .key ~~ QName:D && .value ~~ Str:D;
 
 constant config = LibXML::Config;
 has LibXML::Parser::Context $.ctx handles <wellFormed valid>;
@@ -421,9 +419,10 @@ method serialize-html(Bool :$format = True --> Str) {
 =end pod
 
 #| Serialize the XML to a Blob
-method Blob(Bool() :$skip-xml-declaration = config.skip-xml-declaration,
-            Bool() :$skip-dtd =  config.skip-dtd,
-            xmlEncodingStr:D :$enc is copy = self.encoding // 'UTF-8',
+method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
+            Bool() :$skip-dtd = config.skip-dtd,
+            xmlEncodingStr:D :$enc = self.encoding // 'UTF-8',
+            Bool :$force,
             # **DEPRECATED**
             :$skip-decl,
             |c  --> Blob) {
@@ -434,7 +433,10 @@ method Blob(Bool() :$skip-xml-declaration = config.skip-xml-declaration,
     if $skip-xml-declaration {
         # losing the declaration that includes the encoding scheme; we need
         # to switch to UTF-8 (default encoding) to stay conformant.
-        $enc = 'UTF-8';
+        unless $force || $enc eq 'UTF-8' {
+            warn "please use :force to allow :skip-xml-declaration for non-UTF-8 encoding '$enc'";
+            $skip-xml-declaration = False;
+        }
     }
 
     with self.native -> xmlDoc:D $doc {
@@ -457,9 +459,28 @@ method Blob(Bool() :$skip-xml-declaration = config.skip-xml-declaration,
 
     $rv;
 }
+=begin pod
+    head3 method Blob() returns Blob
+    =begin code :lang<raku>
+    method Blob(
+        xmlEncodingStr :$enc = self.encoding // 'UTF-8',
+        Bool :$format,
+        Bool :$tag-expansion
+        Bool :$skip-dtd,
+        Bool :$skip-xml-declaration,
+        Bool :$force,
+    ) returns Blob;
+    =end code
+    =para
+    Returns a binary representation  of the XML
+    document and it decendants encoded as `:$enc`.
+
+    The option `:force` is needed to really allow the combination of
+    a non-UTF8 encoding and :skip-xml-declaration.
+=end pod
 
 #| Write to a name file
-method write(Str() :$file!, Bool :$format = False) {
+method write(Str() :$file!, Bool :$format = False --> UInt) {
     my UInt $n = self.native.write($file, :$format);
     fail "unable to save as xml: $file" if $n < 0;
     $n;
@@ -730,12 +751,6 @@ method setDocumentElement(LibXML::Element $!docElem --> LibXML::Element) {
     $!docElem.setOwnerDocument(self);
     self.native.setDocumentElement($!docElem.native);
     $!docElem;
-}
-
-method from-ast($_) {
-    my $node = ast-to-xml($_);
-    $node .= root if $node ~~ LibXML::Document;
-    self.setDocumentElement($node);
 }
 
 method insertProcessingInstruction(|c) {

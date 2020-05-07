@@ -80,7 +80,7 @@ LibXML - Raku bindings to the libxml2 native library
 
   =item L<LibXML::Namespace> - LibXML DOM namespaces (Inherits from L<LibXML::Item>)
 
-  =item L<LibXML::Node> - LibXML DOM base node class
+  =item L<LibXML::Node> - LibXML DOM abstract base node class
 
   =item L<LibXML::Text> - LibXML text node class
 

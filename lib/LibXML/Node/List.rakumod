@@ -113,7 +113,7 @@ class LibXML::Node::List does Iterable does Iterator {
         my xmlNodeSet:D $native = $!native.list-to-nodeset($!blank);
         (require ::('LibXML::Node::Set')).new: :$native;
     }
-    method to-ast is also<ast> { self.Array.map(*.ast) }
+    method ast { self.Array.map(*.ast) }
 }
 
 =begin pod

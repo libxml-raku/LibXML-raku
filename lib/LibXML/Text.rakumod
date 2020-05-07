@@ -19,8 +19,6 @@ method native { callsame() // xmlTextNode }
 
 method content is rw is also<text ast> handles<substr substr-rw> { $.native.content };
 
-method to-ast { self.data }
-
 =begin pod
 =head1 NAME
 

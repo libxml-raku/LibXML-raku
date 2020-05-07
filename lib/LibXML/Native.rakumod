@@ -806,6 +806,7 @@ class anyNode is export does LibXML::Native::DOM::Node {
     method domAddNewChild(Str $uri, Str $name --> anyNode) is native($BIND-XML2) {*}
     method domSetNamespace(Str $URI, Str $prefix, int32 $flag --> int32) is native($BIND-XML2) {*}
     method first-child(int32 --> anyNode) is native($BIND-XML2) is symbol('xml6_node_first_child') {*}
+    method last-child(int32 --> anyNode) is native($BIND-XML2) is symbol('xml6_node_last_child') {*}
     method next-node(int32 --> anyNode) is native($BIND-XML2) is symbol('xml6_node_next') {*}
     method prev-node(int32 --> anyNode) is native($BIND-XML2) is symbol('xml6_node_prev') {*}
     method is-referenced(--> int32) is native($BIND-XML2) is symbol('domNodeIsReferenced') {*}
@@ -829,7 +830,7 @@ class anyNode is export does LibXML::Native::DOM::Node {
         }
     }
 
-    method Blob(UInt :$options = 0, Str :$enc --> Blob) {
+    method Blob(UInt :$options = 0, xmlEncodingStr :$enc --> Blob) {
         method xml6_node_to_buf(int32 $opts, size_t $len is rw, Str $enc  --> Pointer[uint8]) is native($BIND-XML2) {*}
         sub memcpy(Blob, Pointer, size_t) is native($CLIB) {*}
         sub free(Pointer) is native($CLIB) {*}

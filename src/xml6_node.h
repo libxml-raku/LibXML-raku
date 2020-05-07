@@ -12,6 +12,7 @@ DLLEXPORT int xml6_node_unlock(xmlNodePtr);
 
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr);
 DLLEXPORT xmlNodePtr xml6_node_first_child(xmlNodePtr, int blank);
+DLLEXPORT xmlNodePtr xml6_node_last_child(xmlNodePtr, int blank);
 DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr, int);
 DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr, int);
 DLLEXPORT void xml6_node_set_doc(xmlNodePtr, xmlDocPtr);

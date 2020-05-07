@@ -125,8 +125,7 @@ method prefix returns Str { 'xmlns' }
 
 method isSame(LibXML::Item $_) is also<isSameNode> { self.unique-key eq .unique-key }
 method xpath-key { 'namespace()' }
-method to-ast { self.nodeName => self.nodeValue }
-method from-ast($) { fail ".from-ast() - nyi" }
+method ast { self.nodeName => self.nodeValue }
 
 =begin pod
 =head2 Copyright

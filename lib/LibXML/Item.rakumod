@@ -129,14 +129,7 @@ method keep(LibXML::Native::DOM::Node $rv,
     } // self.WHAT;
 }
 
-method to-ast {...}
-method from-ast {...}
-method ast(Bool :$blank = False) is rw {
-    Proxy.new(
-        FETCH => -> $ { self.to-ast(:$blank)  },
-        STORE => -> $, Pair $ast { self.from-ast($ast); },
-    );
-}
+method ast { ... }
 
 =begin pod
 =head1 NAME

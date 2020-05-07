@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 52;
+plan 55;
 
 # bootstrapping tests for the DOM
 
@@ -10,8 +10,8 @@ use LibXML::DocumentFragment;
 use LibXML::Native;
 use LibXML::Node;
 
-my $string = "<a>    <b/> </a>";
-my $tstr= "<a><b/></a>\n";
+my $string = "<a>    <b/> <c/> </a>";
+my $tstr = "<a><b/><c/></a>\n";
 my $sDoc   = '<C/><D/>';
 my $sChunk = '<A/><B/>';
 
@@ -30,9 +30,12 @@ is $a.first('node()'), '    ';
 is $a.first('b'), '<b/>';
 is-deeply $a.first('XX'), LibXML::Node;
 
+is $a.last, ' ';
+is $a.last(:!blank), '<c/>';
 is $a.last('node()'), ' ';
 is $a.last('b'), '<b/>';
-is $a.elements, '<b/>', 'elements()';
+is $a.last('c'), '<c/>';
+is $a.elements, '<b/><c/>', 'elements()';
 is-deeply $a.last('XX'), LibXML::Node;
 
 $doc .= parse: :$string, :!keep-blanks;

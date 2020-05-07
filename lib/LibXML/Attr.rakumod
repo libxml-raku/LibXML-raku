@@ -67,7 +67,7 @@ method value is rw returns Str { $.nodeValue }
 method Str is also<getValue> { $.nodeValue}
 method setValue(Str $_) { $.nodeValue = $_ }
 method gist(|c) { $.native.Str(|c).trim }
-method to-ast { self.nodeName => self.nodeValue }
+method ast { self.nodeName => self.nodeValue }
 
 =begin pod
     =head3 method getOwnerElement

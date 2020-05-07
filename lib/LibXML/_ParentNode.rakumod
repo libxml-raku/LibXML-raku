@@ -1,6 +1,8 @@
-unit role LibXML::_DOMNode;
+#| methods common to elements, documents and document fragments
+unit role LibXML::_ParentNode;
 
 use LibXML::Node :iterate-set;
+use LibXML::Types :QName, :NameVal;
 
 method native {...}
 
@@ -25,3 +27,13 @@ method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
 method elements {
     iterate-set(LibXML::Node, $.native.getChildrenByLocalName('*'));
 }
+
+#| adds a child element with tag $name and text content $value
+multi method appendTextChild(QName:D $name, Str $value?) {
+    $.native.appendTextChild($name, $value);
+}
+
+multi method appendTextChild(NameVal:D $_) {
+    $.native.appendTextChild(.key, .value);
+}
+

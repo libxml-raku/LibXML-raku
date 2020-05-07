@@ -6,6 +6,7 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Item :&ast-to-xml;
 
+LibXML.config.keep-blanks-default = False;
 my LibXML::Element $elem .= new('Test');
 $elem.setAttribute('foo', 'bar');
 $elem.appendText('Some text.');
@@ -48,7 +49,7 @@ my $dromedaries = [
 is-deeply $doc<dromedaries><species>.ast, (:species['Camelid'], );
 is-deeply $doc.ast, "#xml" => [ :$dromedaries ];
 
-$doc<dromedaries><species>[0].ast = '#comment' => 'youza';
+$doc<dromedaries><species>[0].replaceNode: ast-to-xml('#comment' => 'youza');
 is $doc<dromedaries><comment()>, '<!--youza-->';
 
 done-testing;
