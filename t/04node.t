@@ -285,16 +285,17 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
         $frag.appendChild( $node1 );
         $frag.appendChild( $node2 );
+        $frag.addNewChild( Str, 'baz' );
 
         $xn = $node.insertBefore( $frag, @cn[0] );
         ok($xn, ' TODO : Add test name');
         ok($node1.isSameNode($node.firstChild), ' TODO : Add test name');
         @cn2 = $node.childNodes;
-        is(+@cn2, 6, ' TODO : Add test name');
+        is(+@cn2, 7, ' TODO : Add test name');
 
         $node.insertBefore( $frag.new, @cn[2]);
         @cn2 = $node.childNodes;
-        is(+@cn2, 6, ' TODO : Add test name');
+        is(+@cn2, 7, ' TODO : Add test name');
         dies-ok {$node.insertBefore( $frag, @cn[2].clone);}
     }
 

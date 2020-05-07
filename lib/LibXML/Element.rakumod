@@ -114,33 +114,6 @@ method properties {
     iterate-list(self, LibXML::Attr);
 }
 
-method addNewChild(Str $uri, QName $name --> LibXML::Element) {
-    &?ROUTINE.returns.box: $.native.domAddNewChild($uri, $name);
-}
-=begin pod
-    =para
-    Vivify and add a new child element.
-    =begin code :lang<raku>
-    method addNewChild(
-        Str $uri,
-        QName $name
-    ) returns LibXML::Element
-    =end code   
-    Similar to C<<<<<<addChild()>>>>>>, this function uses low level libxml2 functionality to provide faster
-    interface for DOM building. I<<<<<<addNewChild()>>>>>> uses C<<<<<<xmlNewChild()>>>>>> to create a new node on a given parent element.
-
-    addNewChild() has two parameters $nsURI and $name, where $nsURI is an
-    (optional) namespace URI. $name is the fully qualified element name;
-    addNewChild() will determine the correct prefix if necessary.
-
-    The function returns the newly created node.
-
-    This function is very useful for DOM building, where a created node can be
-    directly associated with its parent. I<<<<<<NOTE>>>>>> this function is not part of the DOM specification and its use may limit your
-    code to Raku or Perl.
- 
-=end pod
-
 method appendWellBalancedChunk(Str:D $string) {
     my $frag = (require ::('LibXML::DocumentFragment')).parse: :balanced, :$string;
     self.appendChild( $frag );

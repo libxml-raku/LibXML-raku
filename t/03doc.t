@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 173;
+plan 175;
 
 use LibXML;
 use LibXML::Enums;
@@ -338,11 +338,16 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     @cn = $doc.childNodes;
     is( +@cn, 0, 'document removeChild of root element');
 
+    $doc.addNewChild( Str, 'baz' );
+    is $doc.childNodes, '<baz/>', 'addNewChild';
+    $doc.removeChild($doc[0]);
+    is $doc.childNodes, '', 'addNewChild/removeChild';
+    
     for ( 1..2 ) {
         my $nodeA = $doc.createElement( "x" );
         $doc.documentElement = $nodeA;
     }
-    pass('Replacement of document root element'); # must not segfault here :)
+    pass('Replacement of document root element');
 
     $doc.documentElement = $node2;
     @cn = $doc.childNodes;
@@ -478,7 +483,6 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 }
 
 {
-    # Bug fixes (to be used with valgrind)
     {
        my $doc=LibXML.createDocument(); # create a doc
        my $x=$doc.createPI('foo'=>"bar");      # create a PI

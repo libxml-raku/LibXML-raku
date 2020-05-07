@@ -29,6 +29,7 @@ my LibXML::Node $child = $node.removeChild( $node );
 $oldNode = $node.replaceChild( $newNode, $oldNode );
 $childNode = $node.appendChild( $childNode );
 $childNode = $node.addChild( $childNode );
+$node = $parent.addNewChild( $nsURI, $name );
 $node.replaceNode($newNode);
 $node.addSibling($newNode);
 $newnode = $node.cloneNode( :deep );
@@ -287,6 +288,23 @@ Fails, if the new childnode is already a child of this node. This method differs
 ### method addChild
 
 An alias for `appendChild`
+
+Vivify and add a new child element.
+
+```raku
+method addNewChild(
+    Str $uri,
+    QName $name
+) returns LibXML::Element
+```
+
+Similar to `addChild()`, this function uses low level libxml2 functionality to provide faster interface for DOM building. *addNewChild()* uses `xmlNewChild()` to create a new node on a given parent element.
+
+addNewChild() has two parameters $nsURI and $name, where $nsURI is an (optional) namespace URI. $name is the fully qualified element name; addNewChild() will determine the correct prefix if necessary.
+
+The function returns the newly created node.
+
+This function is very useful for DOM building, where a created node can be directly associated with its parent. *NOTE* this function is not part of the DOM specification and its use may limit your code to Raku or Perl.
 
 ### method replaceNode
 
