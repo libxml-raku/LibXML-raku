@@ -21,24 +21,10 @@ unit class LibXML::Node
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
     my UInt $type = $node.nodeType;
-    $uri = $node.baseURI();
-    $node.baseURI = $uri;
-    $node.nodePath();
+    my Str $uri = $node.getBaseURI();
+    $node.setBaseURI($uri);
+    my Str $path = $node.nodePath();
     my UInt $lineno = $node.line-number();
-
-    # -- DOM Manipulation Methods -- #
-    $node.unbindNode();
-    my LibXML::Node $child = $node.removeChild( $node );
-    $oldNode = $node.replaceChild( $newNode, $oldNode );
-    $childNode = $node.appendChild( $childNode );
-    $childNode = $node.addChild( $childNode );
-    $node = $parent.addNewChild( $nsURI, $name );
-    $node.replaceNode($newNode);
-    $node.addSibling($newNode);
-    $newnode = $node.cloneNode( :deep );
-    $node.insertBefore( $newNode, $refNode );
-    $node.insertAfter( $newNode, $refNode );
-    $node.removeChildNodes();
 
     # -- Navigation Methods -- #
     $parent = $node.parentNode;
@@ -49,11 +35,24 @@ unit class LibXML::Node
     my Bool $is-parent = $node.hasChildNodes();
     $child = $node.firstChild;
     $child = $node.lastChild;
-    my LibXML::Document $doc = $node.ownerDocument;
-    $node.ownerDocument = $doc;
     $other-node = $node.getOwner;
     my LibXML::Node @kids = $node.childNodes();
     @kids = $node.nonBlankChildNodes();
+
+    # -- DOM Manipulation Methods -- #
+    $node.unbindNode();
+    $node.doc = $doc; # -OR- $node.setOwnerDoc($doc);
+    my LibXML::Node $child = $node.removeChild( $node );
+    $oldNode = $node.replaceChild( $newNode, $oldNode );
+    $childNode = $node.appendChild( $childNode );
+    $node = $parent.addNewChild( $nsURI, $name );
+    $node.replaceNode($newNode);
+    $node.addSibling($newNode);
+    $newnode = $node.cloneNode( :deep );
+    $node.insertBefore( $newNode, $refNode );
+    $node.insertAfter( $newNode, $refNode );
+    $node.removeChildNodes();
+    $node.ownerDocument = $doc;
 
     # -- Searching Methods -- #
     #    * XPath *
@@ -265,7 +264,7 @@ method setBaseURI(Str $uri) { $!native.SetBase($uri) }
 
 method baseURI is rw is also<URI> {
     Proxy.new(
-        FETCH => sub ($) { self.getBaseURI },
+        FETCH => { self.getBaseURI },
         STORE => sub ($, Str() $uri) { self.setBaseURI($uri) }
     );
 }
@@ -280,155 +279,6 @@ IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
 65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
 
 Note: line-number() is special to LibXML and not part of the DOM specification.
-=end pod
-
-=begin pod
-    =head2 DOM Manipulation Methods
-=end pod
-
-########################################################################
-=begin pod
-    =head2 DOM Manipulation Methods
-=end pod
-
-#| Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
-method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
-    $!native.Unlink;
-    $!doc = LibXML::Node;
-    self;
-}
-=begin pod
-    =para
-    If the node is not inserted into the DOM afterwards, it will be
-    lost after the program terminates. From a low level view, the unbound node is
-    stripped from the context it is and inserted into a (hidden) document-fragment.
-=end pod
-
-#| Unbind a child node from its parent
-method removeChild(LibXML::Node:D $node --> LibXML::Node) {
-    $node.keep: $!native.removeChild($node.native), :doc(LibXML::Node);
-}
-=begin pod
-   =para Fails if `$node` is not a child of this object
-=end pod
-
-#| Replaces the `$old` node with the `$new` node.
-method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
-    $old.keep: $!native.replaceChild($new.native, $old.native),
-}
-=begin pod
-    =para The returned C<<<<<<$old>>>>>> node is unbound.
-
-    This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the
-    node will be imported first.
-=end pod
-
-#| Adds a child to this node\s children
-method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
-    $new.keep: $!native.appendChild($new.native);
-}
-=begin pod
-    =para Fails, if the new childnode is already a child
-of this node. This method differs from the DOM L2 specification, in the case, if the new
-   node is not part of the document, the node will be imported first.
-
-   =head3 method addChild
-   =para An alias for `appendChild`
-=end pod
-
-method addNewChild(Str $uri, QName $name --> LibXML::Node) {
-    &?ROUTINE.returns.box: $.native.domAddNewChild($uri, $name);
-}
-=begin pod
-    =para
-    Vivify and add a new child element.
-    =begin code :lang<raku>
-    method addNewChild(
-        Str $uri,
-        QName $name
-    ) returns LibXML::Element
-    =end code   
-    Similar to C<<<<<<addChild()>>>>>>, this function uses low level libxml2 functionality to provide faster
-    interface for DOM building. I<<<<<<addNewChild()>>>>>> uses C<<<<<<xmlNewChild()>>>>>> to create a new node on a given parent element.
-
-    addNewChild() has two parameters $nsURI and $name, where $nsURI is an
-    (optional) namespace URI. $name is the fully qualified element name;
-    addNewChild() will determine the correct prefix if necessary.
-
-    The function returns the newly created node.
-
-    This function is very useful for DOM building, where a created node can be
-    directly associated with its parent. I<<<<<<NOTE>>>>>> this function is not part of the DOM specification and its use may limit your
-    code to Raku or Perl.
- 
-=end pod
-
-#| Replace a node
-method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
-    self.keep: $!native.replaceNode($new.native); 
-}
-=begin pod
-    =para
-    This function is very similar to replaceChild(), but it replaces the node
-    itself rather than a childnode. This is useful if a node found by any XPath
-    function, should be replaced.
-=end pod
-
-#| Add an additional node to the end of a nodelist
-method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-    &?ROUTINE.returns.box( $!native.addSibling($new.native)); 
-}
-
-#| Copy a node
-method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
-    &?ROUTINE.returns.box: $!native.cloneNode($deep), :doc(LibXML::Node);
-}
-=begin pod
-    =para
-    When $deep is True the function will copy all child nodes as well.
-    Otherwise the current node will be copied. Note that in case of
-    element, attributes are copied even if $deep is not True. 
-=end pod
-
-#| Inserts $new before $ref.
-method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
-    my anyNode $ref-native = .native with $ref;
-    $new.keep: $!native.insertBefore($new.native, $ref-native);
-}
-=begin pod
-    =para
-    If `$ref` is undefined, the newNode will be set as the new last child of the parent node.
-    This function differs from the DOM L2 specification, in the case, if the new
-    node is not part of the document, the node will be imported first,
-    automatically.
-
-    Note, that the reference node has to be a direct child of the node the function
-    is called on. Also, `$new` is not allowed to be an ancestor of the new
-    parent node.
-=end pod
-
-#| Inserts $new after $ref.
-method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
-    my anyNode $ref-native = .native with $ref;
-    $new.keep: $!native.insertAfter($new.native, $ref-native);
-}
-=begin pod
-   =para
-   If C<<<<<< $refNode >>>>>> is undefined, the newNode will be set as the new last child of the parent node.
-=end pod
-
-method removeChildNodes(--> LibXML::Node) {
-    &?ROUTINE.returns.box: $!native.removeChildNodes, :doc(LibXML::Node);
-}
-=begin pod
-    =head3 method removeChildNodes
-    =begin code :lang<raku>
-    method removeChildNodes() returns LibXML::DocumentFragment
-    =end code             
-    =para
-    Remove all child nodes, which are returned as a L<LibXML::DocumentFragment>
-    This function is not specified for any DOM level: It removes all childnodes
-    from a node in a single step.
 =end pod
 
 ########################################################################
@@ -642,6 +492,151 @@ method nonBlankChildNodes {
     =para
     This equivalent to I<<<<<<childNodes(:!blank)>>>>>>. It returns only non-blank nodes (where a node is blank if it is a Text or
     CDATA node consisting of whitespace only). This method is not defined by DOM.
+=end pod
+
+########################################################################
+=begin pod
+    =head2 DOM Manipulation Methods
+=end pod
+
+#| Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
+method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
+    $!native.Unlink;
+    $!doc = LibXML::Node;
+    self;
+}
+=begin pod
+    =para
+    If the node is not inserted into the DOM afterwards, it will be
+    lost after the program terminates. From a low level view, the unbound node is
+    stripped from the context it is and inserted into a (hidden) document-fragment.
+=end pod
+
+#| Unbind a child node from its parent
+method removeChild(LibXML::Node:D $node --> LibXML::Node) {
+    $node.keep: $!native.removeChild($node.native), :doc(LibXML::Node);
+}
+=begin pod
+   =para Fails if `$node` is not a child of this object
+=end pod
+
+#| Replaces the `$old` node with the `$new` node.
+method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
+    $old.keep: $!native.replaceChild($new.native, $old.native),
+}
+=begin pod
+    =para The returned C<<<<<<$old>>>>>> node is unbound.
+
+    This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the
+    node will be imported first.
+=end pod
+
+#| Adds a child to this node\s children
+method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
+    $new.keep: $!native.appendChild($new.native);
+}
+=begin pod
+    =para Fails, if the new childnode is already a child
+of this node. This method differs from the DOM L2 specification, in the case, if the new
+   node is not part of the document, the node will be imported first.
+
+   =head3 method addChild
+   =para An alias for `appendChild`
+=end pod
+
+method addNewChild(Str $uri, QName $name --> LibXML::Node) {
+    &?ROUTINE.returns.box: $.native.domAddNewChild($uri, $name);
+}
+=begin pod
+    =para
+    Vivify and add a new child element.
+    =begin code :lang<raku>
+    method addNewChild(
+        Str $uri,
+        QName $name
+    ) returns LibXML::Element
+    =end code   
+    Similar to C<<<<<<addChild()>>>>>>, this function uses low level libxml2 functionality to provide faster
+    interface for DOM building. I<<<<<<addNewChild()>>>>>> uses C<<<<<<xmlNewChild()>>>>>> to create a new node on a given parent element.
+
+    addNewChild() has two parameters $nsURI and $name, where $nsURI is an
+    (optional) namespace URI. $name is the fully qualified element name;
+    addNewChild() will determine the correct prefix if necessary.
+
+    The function returns the newly created node.
+
+    This function is very useful for DOM building, where a created node can be
+    directly associated with its parent. I<<<<<<NOTE>>>>>> this function is not part of the DOM specification and its use may limit your
+    code to Raku or Perl.
+ 
+=end pod
+
+#| Replace a node
+method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
+    self.keep: $!native.replaceNode($new.native); 
+}
+=begin pod
+    =para
+    This function is very similar to replaceChild(), but it replaces the node
+    itself rather than a childnode. This is useful if a node found by any XPath
+    function, should be replaced.
+=end pod
+
+#| Add an additional node to the end of a nodelist
+method addSibling(LibXML::Node:D $new --> LibXML::Node) {
+    &?ROUTINE.returns.box( $!native.addSibling($new.native)); 
+}
+
+#| Copy a node
+method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
+    &?ROUTINE.returns.box: $!native.cloneNode($deep), :doc(LibXML::Node);
+}
+=begin pod
+    =para
+    When $deep is True the function will copy all child nodes as well.
+    Otherwise the current node will be copied. Note that in case of
+    element, attributes are copied even if $deep is not True. 
+=end pod
+
+#| Inserts $new before $ref.
+method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
+    my anyNode $ref-native = .native with $ref;
+    $new.keep: $!native.insertBefore($new.native, $ref-native);
+}
+=begin pod
+    =para
+    If `$ref` is undefined, the newNode will be set as the new last child of the parent node.
+    This function differs from the DOM L2 specification, in the case, if the new
+    node is not part of the document, the node will be imported first,
+    automatically.
+
+    Note, that the reference node has to be a direct child of the node the function
+    is called on. Also, `$new` is not allowed to be an ancestor of the new
+    parent node.
+=end pod
+
+#| Inserts $new after $ref.
+method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
+    my anyNode $ref-native = .native with $ref;
+    $new.keep: $!native.insertAfter($new.native, $ref-native);
+}
+=begin pod
+   =para
+   If C<<<<<< $refNode >>>>>> is undefined, the newNode will be set as the new last child of the parent node.
+=end pod
+
+method removeChildNodes(--> LibXML::Node) {
+    &?ROUTINE.returns.box: $!native.removeChildNodes, :doc(LibXML::Node);
+}
+=begin pod
+    =head3 method removeChildNodes
+    =begin code :lang<raku>
+    method removeChildNodes() returns LibXML::DocumentFragment
+    =end code             
+    =para
+    Remove all child nodes, which are returned as a L<LibXML::DocumentFragment>
+    This function is not specified for any DOM level: It removes all childnodes
+    from a node in a single step.
 =end pod
 
 ########################################################################
@@ -916,7 +911,7 @@ multi method Str(|c) is also<gist> is default {
     $!native.Str(:$options);
 }
 =begin pod
-    =head3 method Str() returns Str
+    =head3 multi method Str() returns Str
     =begin code :lang<raku>
     method Str(Bool :$format, Bool :$tag-expansion) returns Str;
     =end code
@@ -1134,7 +1129,7 @@ method Hash(|c) handles <keys pairs kv> { $.childNodes(|c).Hash }
 
 =begin pod
 
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -1142,7 +1137,7 @@ method Hash(|c) handles <keys pairs kv> { $.childNodes(|c).Hash }
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

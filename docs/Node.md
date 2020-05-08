@@ -18,24 +18,10 @@ my Str $key = $node.unique-key;
 my Str $content = $node.nodeValue;
 $content = $node.textContent;
 my UInt $type = $node.nodeType;
-$uri = $node.baseURI();
-$node.baseURI = $uri;
-$node.nodePath();
+my Str $uri = $node.getBaseURI();
+$node.setBaseURI($uri);
+my Str $path = $node.nodePath();
 my UInt $lineno = $node.line-number();
-
-# -- DOM Manipulation Methods -- #
-$node.unbindNode();
-my LibXML::Node $child = $node.removeChild( $node );
-$oldNode = $node.replaceChild( $newNode, $oldNode );
-$childNode = $node.appendChild( $childNode );
-$childNode = $node.addChild( $childNode );
-$node = $parent.addNewChild( $nsURI, $name );
-$node.replaceNode($newNode);
-$node.addSibling($newNode);
-$newnode = $node.cloneNode( :deep );
-$node.insertBefore( $newNode, $refNode );
-$node.insertAfter( $newNode, $refNode );
-$node.removeChildNodes();
 
 # -- Navigation Methods -- #
 $parent = $node.parentNode;
@@ -46,11 +32,24 @@ $prev = $node.previousNonBlankSibling();
 my Bool $is-parent = $node.hasChildNodes();
 $child = $node.firstChild;
 $child = $node.lastChild;
-my LibXML::Document $doc = $node.ownerDocument;
-$node.ownerDocument = $doc;
 $other-node = $node.getOwner;
 my LibXML::Node @kids = $node.childNodes();
 @kids = $node.nonBlankChildNodes();
+
+# -- DOM Manipulation Methods -- #
+$node.unbindNode();
+$node.doc = $doc; # -OR- $node.setOwnerDoc($doc);
+my LibXML::Node $child = $node.removeChild( $node );
+$oldNode = $node.replaceChild( $newNode, $oldNode );
+$childNode = $node.appendChild( $childNode );
+$node = $parent.addNewChild( $nsURI, $name );
+$node.replaceNode($newNode);
+$node.addSibling($newNode);
+$newnode = $node.cloneNode( :deep );
+$node.insertBefore( $newNode, $refNode );
+$node.insertAfter( $newNode, $refNode );
+$node.removeChildNodes();
+$node.ownerDocument = $doc;
 
 # -- Searching Methods -- #
 #    * XPath *
@@ -230,152 +229,6 @@ IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 6
 
 Note: line-number() is special to LibXML and not part of the DOM specification.
 
-DOM Manipulation Methods
-------------------------
-
-DOM Manipulation Methods
-------------------------
-
-### method unbindNode
-
-```perl6
-method unbindNode() returns LibXML::Node
-```
-
-Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
-
-If the node is not inserted into the DOM afterwards, it will be lost after the program terminates. From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
-
-### method removeChild
-
-```perl6
-method removeChild(
-    LibXML::Node:D $node
-) returns LibXML::Node
-```
-
-Unbind a child node from its parent
-
-Fails if `$node` is not a child of this object
-
-### method replaceChild
-
-```perl6
-method replaceChild(
-    LibXML::Node $new,
-    LibXML::Node $old
-) returns LibXML::Node
-```
-
-Replaces the `$old` node with the `$new` node.
-
-The returned `$old` node is unbound.
-
-This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
-
-### method appendChild
-
-```perl6
-method appendChild(
-    LibXML::Item:D $new
-) returns LibXML::Item
-```
-
-Adds a child to this node\s children
-
-Fails, if the new childnode is already a child of this node. This method differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
-
-### method addChild
-
-An alias for `appendChild`
-
-Vivify and add a new child element.
-
-```raku
-method addNewChild(
-    Str $uri,
-    QName $name
-) returns LibXML::Element
-```
-
-Similar to `addChild()`, this function uses low level libxml2 functionality to provide faster interface for DOM building. *addNewChild()* uses `xmlNewChild()` to create a new node on a given parent element.
-
-addNewChild() has two parameters $nsURI and $name, where $nsURI is an (optional) namespace URI. $name is the fully qualified element name; addNewChild() will determine the correct prefix if necessary.
-
-The function returns the newly created node.
-
-This function is very useful for DOM building, where a created node can be directly associated with its parent. *NOTE* this function is not part of the DOM specification and its use may limit your code to Raku or Perl.
-
-### method replaceNode
-
-```perl6
-method replaceNode(
-    LibXML::Node:D $new
-) returns LibXML::Node
-```
-
-Replace a node
-
-This function is very similar to replaceChild(), but it replaces the node itself rather than a childnode. This is useful if a node found by any XPath function, should be replaced.
-
-### method addSibling
-
-```perl6
-method addSibling(
-    LibXML::Node:D $new
-) returns LibXML::Node
-```
-
-Add an additional node to the end of a nodelist
-
-### method cloneNode
-
-```perl6
-method cloneNode(
-    :$deep = Bool::False
-) returns LibXML::Node
-```
-
-Copy a node
-
-When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True. 
-
-### method insertBefore
-
-```perl6
-method insertBefore(
-    LibXML::Node:D $new,
-    LibXML::Node $ref?
-) returns LibXML::Node
-```
-
-Inserts $new before $ref.
-
-If `$ref` is undefined, the newNode will be set as the new last child of the parent node. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first, automatically.
-
-Note, that the reference node has to be a direct child of the node the function is called on. Also, `$new` is not allowed to be an ancestor of the new parent node.
-
-### method insertAfter
-
-```perl6
-method insertAfter(
-    LibXML::Node:D $new,
-    LibXML::Node $ref?
-) returns LibXML::Node
-```
-
-Inserts $new after $ref.
-
-If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node.
-
-### method removeChildNodes
-
-```raku
-method removeChildNodes() returns LibXML::DocumentFragment
-```
-
-Remove all child nodes, which are returned as a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) This function is not specified for any DOM level: It removes all childnodes from a node in a single step.
-
 Navigation Methods
 ------------------
 
@@ -523,6 +376,149 @@ method nonBlankChildNodes() returns LibXML::Node::List
 ```
 
 This equivalent to *childNodes(:!blank)*. It returns only non-blank nodes (where a node is blank if it is a Text or CDATA node consisting of whitespace only). This method is not defined by DOM.
+
+DOM Manipulation Methods
+------------------------
+
+### method unbindNode
+
+```perl6
+method unbindNode() returns LibXML::Node
+```
+
+Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
+
+If the node is not inserted into the DOM afterwards, it will be lost after the program terminates. From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
+
+### method removeChild
+
+```perl6
+method removeChild(
+    LibXML::Node:D $node
+) returns LibXML::Node
+```
+
+Unbind a child node from its parent
+
+Fails if `$node` is not a child of this object
+
+### method replaceChild
+
+```perl6
+method replaceChild(
+    LibXML::Node $new,
+    LibXML::Node $old
+) returns LibXML::Node
+```
+
+Replaces the `$old` node with the `$new` node.
+
+The returned `$old` node is unbound.
+
+This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
+
+### method appendChild
+
+```perl6
+method appendChild(
+    LibXML::Item:D $new
+) returns LibXML::Item
+```
+
+Adds a child to this node\s children
+
+Fails, if the new childnode is already a child of this node. This method differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
+
+### method addChild
+
+An alias for `appendChild`
+
+Vivify and add a new child element.
+
+```raku
+method addNewChild(
+    Str $uri,
+    QName $name
+) returns LibXML::Element
+```
+
+Similar to `addChild()`, this function uses low level libxml2 functionality to provide faster interface for DOM building. *addNewChild()* uses `xmlNewChild()` to create a new node on a given parent element.
+
+addNewChild() has two parameters $nsURI and $name, where $nsURI is an (optional) namespace URI. $name is the fully qualified element name; addNewChild() will determine the correct prefix if necessary.
+
+The function returns the newly created node.
+
+This function is very useful for DOM building, where a created node can be directly associated with its parent. *NOTE* this function is not part of the DOM specification and its use may limit your code to Raku or Perl.
+
+### method replaceNode
+
+```perl6
+method replaceNode(
+    LibXML::Node:D $new
+) returns LibXML::Node
+```
+
+Replace a node
+
+This function is very similar to replaceChild(), but it replaces the node itself rather than a childnode. This is useful if a node found by any XPath function, should be replaced.
+
+### method addSibling
+
+```perl6
+method addSibling(
+    LibXML::Node:D $new
+) returns LibXML::Node
+```
+
+Add an additional node to the end of a nodelist
+
+### method cloneNode
+
+```perl6
+method cloneNode(
+    :$deep = Bool::False
+) returns LibXML::Node
+```
+
+Copy a node
+
+When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True. 
+
+### method insertBefore
+
+```perl6
+method insertBefore(
+    LibXML::Node:D $new,
+    LibXML::Node $ref?
+) returns LibXML::Node
+```
+
+Inserts $new before $ref.
+
+If `$ref` is undefined, the newNode will be set as the new last child of the parent node. This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first, automatically.
+
+Note, that the reference node has to be a direct child of the node the function is called on. Also, `$new` is not allowed to be an ancestor of the new parent node.
+
+### method insertAfter
+
+```perl6
+method insertAfter(
+    LibXML::Node:D $new,
+    LibXML::Node $ref?
+) returns LibXML::Node
+```
+
+Inserts $new after $ref.
+
+If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node.
+
+### method removeChildNodes
+
+```raku
+method removeChildNodes() returns LibXML::DocumentFragment
+```
+
+Remove all child nodes, which are returned as a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) This function is not specified for any DOM level: It removes all childnodes from a node in a single step.
 
 Searching Methods
 -----------------
@@ -722,7 +718,7 @@ multi method Str(Bool :C14N!, *%opts) returns Str
 
 `$node.Str( :C14N, |%opts)` is equivalent to `$node.canonicalize(|%opts)`
 
-### method Str() returns Str
+### multi method Str() returns Str
 
 ```raku
 method Str(Bool :$format, Bool :$tag-expansion) returns Str;
@@ -852,8 +848,8 @@ say $node<species><humps>;
 
 This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`. 
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -861,8 +857,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

@@ -108,6 +108,7 @@ method box(LibXML::Native::DOM::Node $struct,
            :$doc = $.doc, # reusable document object
           ) {
     do with $struct {
+        die $_ with .domFailure;
         my $class := box-class(.type);
         die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
             unless $class ~~ self.WHAT;

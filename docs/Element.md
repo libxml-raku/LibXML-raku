@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Element
+---------------------
 
-LibXML::Element - LibXML Class for Element Nodes
+LibXML Class for Element Nodes
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Element;
@@ -13,7 +13,7 @@ use LibXML::Element;
 
 my LibXML::Element $node .= new( $name );
 
-# -- Attributes -- #
+# -- Attribute Methods -- #
 $node.setAttribute( $aname, $avalue );
 $node.setAttributeNS( $nsURI, $aname, $avalue );
 $avalue = $node.getAttribute( $aname );
@@ -30,7 +30,7 @@ $node.removeAttributeNS( $nsURI, $aname );
 $boolean = $node.hasAttribute( $aname );
 $boolean = $node.hasAttributeNS( $nsURI, $aname );
 
-# -- Navigation -- #
+# -- Navigation Methods -- #
 my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
 @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
 @nodes = $node.getChildrenByLocalName($localname);
@@ -41,7 +41,7 @@ my LibXML::Element @elems = $node.getElementsByTagName($tagname);
 @elems = $node.getElementsByLocalName($localname);
 @elems = $node.elements; # all child elements
 
-#-- DOM Manipulation -- #
+#-- DOM Manipulation Methods -- #
 $node.addNewChild( $nsURI, $name );
 $node.appendWellBalancedChunk( $chunk );
 $node.appendText( $PCDATA );
@@ -51,7 +51,7 @@ $node.setNamespace( $nsURI , $nsPrefix, :$activate );
 $node.setNamespaceDeclURI( $nsPrefix, $newURI );
 $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
-# -- Associative/XPath interface -- #
+# -- Associative interface -- #
 @nodes = $node{$xpath-expression};  # xpath node selection
 my LibXML::Element @as = $elem<a>;  # equiv: $elem.getChildrenByLocalName('a');
 my $b-value  = $elem<@b>.Str;       # value of 'b' attribute
@@ -70,7 +70,8 @@ $elem = ast-to-xml('Test' => [
                        '#comment' => 'demo',         # comment
                        :baz[],                       # sub-element
                        '#cdata' => 'a&b',            # CData section
-                       "Some text.\n",               # text content
+                       "Some text.",                 # text content
+                       "\n"
                    ]
                   );
 say $elem;
@@ -79,8 +80,13 @@ say $elem;
 # </Test>
 ```
 
-METHODS
-=======
+Name
+----
+
+LibXML::Element - LibXML Class for Element Nodes
+
+Methods
+-------
 
 The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here. 
 

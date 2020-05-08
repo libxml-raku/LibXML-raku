@@ -427,9 +427,9 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
     xmlDtdPtr ext_dtd = domGetExternalSubset(doc);
     int replace_external = (old && old->type == XML_DTD_NODE ? (xmlDtdPtr)old : dtd) == ext_dtd;
 
-    if (doc == NULL) xml6_fail(dtd, "DTD is not associated with a document");
+    if (doc == NULL) XML6_FAIL(dtd, "DTD is not associated with a document");
     if (_domIsDoc((xmlNodePtr)doc) == 0) {
-        xml6_fail((xmlNodePtr)dtd, "appendChild: HIERARCHY_REQUEST_ERR");
+        XML6_FAIL((xmlNodePtr)dtd, "SetDtd: HIERARCHY_REQUEST_ERR");
     }
     if (old && old != (xmlNodePtr) dtd) xmlUnlinkNode(old);
 
@@ -836,9 +836,21 @@ domAppendChild( xmlNodePtr self,
             return (xmlNodePtr) xmlNewNs(self, ns->href, ns->prefix);
         }
     }
+    if (newChild->type == XML_ELEMENT_NODE && _domIsDoc(self)) {
+        // special case of appending root nodes to a document
+        xmlDocPtr doc = (xmlDocPtr)self;
+        if (xmlDocGetRootElement(doc) == NULL) {
+            xmlDocSetRootElement(doc, newChild);
+            return newChild;
+        }
+        else {
+            XML6_FAIL(self, "appendChild: Unable to append additional root elements");
+        }
+    }
+
     if ( !(domTestHierarchy(self, newChild)
            && domTestDocument(self, newChild))){
-        xml6_fail(self, "appendChild: HIERARCHY_REQUEST_ERR");
+        XML6_FAIL(self, "appendChild: HIERARCHY_REQUEST_ERR");
     }
 
     if ( newChild->doc == self->doc ){
@@ -938,7 +950,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
     else {
         if ( !(domTestHierarchy(self, new)
                && domTestDocument(self, new))){
-            xml6_fail(self, "replaceChild: HIERARCHY_REQUEST_ERR");
+            XML6_FAIL(self, "replaceChild: HIERARCHY_REQUEST_ERR");
         }
 
         if ( new->doc == self->doc ) {
@@ -981,7 +993,7 @@ domInsertBefore( xmlNodePtr self,
 
     if ( refChild != NULL ) {
         if ( refChild->parent != self ) {
-            xml6_fail(self, "insertBefore/insertAfter: NOT_FOUND_ERR");
+            XML6_FAIL(self, "insertBefore/insertAfter: NOT_FOUND_ERR");
         }
     }
 
@@ -996,7 +1008,7 @@ domInsertBefore( xmlNodePtr self,
 
     if ( !(domTestHierarchy( self, newChild )
            && domTestDocument( self, newChild ))) {
-        xml6_fail(self, "insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
+        XML6_FAIL(self, "insertBefore/insertAfter: HIERARCHY_REQUEST_ERR");
     }
 
     if ( self->doc == newChild->doc ){
@@ -1049,7 +1061,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
          * wrong node type
          * new node is parent of itself
          */
-        xml6_fail(self, "replaceNode: HIERARCHY_REQUEST_ERR");
+        XML6_FAIL(self, "replaceNode: HIERARCHY_REQUEST_ERR");
     }
 
     if ( newNode->type == XML_DTD_NODE) {
@@ -1119,7 +1131,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
     }
 
     if ( nNode && nNode->type == XML_DOCUMENT_FRAG_NODE ) {
-        xml6_fail(self, "Adding document fragments with addSibling not yet supported!");
+        XML6_FAIL(self, "Adding document fragments with addSibling not yet supported!");
     }
 
     if (self->type == XML_TEXT_NODE && nNode->type == XML_TEXT_NODE
@@ -1543,7 +1555,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
         if ( ns != NULL ) {
             char msg[80];
             snprintf(msg, sizeof(msg), "setNamespaceNsDeclPrefix: prefix '%s' is in use", ns->prefix);
-            xml6_fail_i(self, msg);
+            XML6_FAIL_i(self, msg);
         }
         /* lookup the declaration */
         ns = self->nsDef;
@@ -1552,7 +1564,7 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
                 xmlStrcmp( ns->prefix, prefix ) == 0 ) {
                 if ( ns->href == NULL && new_prefix != NULL ) {
                     /* xmlns:foo="" - no go */
-                    xml6_fail_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
+                    XML6_FAIL_i(self, "setNamespaceDeclPrefix: cannot set non-empty prefix for empty namespace");
                 }
                 if ( ns->prefix != NULL )
                     xmlFree( (xmlChar*)ns->prefix );
@@ -1949,7 +1961,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
         }
 
         if ( ns == NULL ) {
-            xml6_fail(self, "unable to create Attribute namespace");
+            XML6_FAIL(self, "unable to create Attribute namespace");
         }
 
         newAttr = xmlNewDocProp( self, localname, value );
@@ -2016,11 +2028,11 @@ domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value
                 if (prefix != NULL && *prefix != 0 ) {
                     /* NS does not already exist, but we have a prefix; create a local NS on the node */
                     if (ns == NULL) {
-                        xml6_fail(self, "bad namespace");
+                        XML6_FAIL(self, "bad namespace");
                     }
                 }
                 else {
-                    xml6_fail(self, "unable to generate namespace without a prefix");
+                    XML6_FAIL(self, "unable to generate namespace without a prefix");
                 }
             }
         }

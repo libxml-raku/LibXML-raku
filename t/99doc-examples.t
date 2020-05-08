@@ -345,7 +345,7 @@ subtest 'LibXML::Namespace' => {
 };
 
 subtest 'LibXML::Node' => {
-    plan 8;
+    plan 14;
     use LibXML::Node;
     use LibXML::Element;
     use LibXML::Namespace;
@@ -358,12 +358,16 @@ subtest 'LibXML::Node' => {
     my LibXML::Element $oldNode     = $childNode;
     my LibXML::Element $refNode    .= new: :name<RefNode>;
     my LibXML::Element $parent     .= new: :name<Parent>;
-    $node.addChild($childNode);
+    my LibXML::Document $doc       .= new;
     my Str $nsURI = 'http://ns.org';
     my Str $xpath-expression = '*';
+    my Str $newName = 'Bob';
+    $node.addChild($childNode);
+    $parent.addChild($node);
+    $parent.setOwnerDocument($doc);
     #-- setup
 
-    my Str $newName = 'Bob';
+    # -- Property Methods -- #
     my Str $name = $node.nodeName;
     $node.setNodeName( $newName );
     $node.nodeName = $newName;
@@ -372,47 +376,72 @@ subtest 'LibXML::Node' => {
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
     my UInt $type = $node.nodeType;
-    $node.unbindNode();
-    my LibXML::Node $child = $node.removeChild( $childNode );
-    $oldNode = $node.replaceChild( $newNode, $oldNode );
-    $node.replaceNode($newNode);
-    $childNode = $node.appendChild( $childNode );
-    $childNode = $node.addChild( $childNode );
-    ok $node.isSame($childNode.parent);
-    $node = $parent.addNewChild( $nsURI, $name );
-    $node.addSibling($newNode);
-    $newNode = $node.cloneNode( :deep );
+    lives-ok {$node.setBaseURI('file://t/99doc-examples.t');}
+    is $node.getBaseURI, 'file://t/99doc-examples.t', 'getBaseURI';
+    is $node.nodePath, '/Parent/Bob';
+    is $node.line-number(), '0';
+
+    # -- Navigation Methods -- #
     $parent = $node.parentNode;
     my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
     my LibXML::Node $prev = $node.previousSibling();
     $prev = $node.previousNonBlankSibling();
     my Bool $is-parent = $node.hasChildNodes();
-    $child = $node.firstChild;
+    my LibXML::Node $child = $node.firstChild;
     $child = $node.lastChild;
-    my LibXML::Document $doc = $node.ownerDocument;
     $other-node = $node.getOwner;
-    $doc .= new;
-    $node.setOwnerDocument( $doc );
-    $node.ownerDocument = $doc;
-    ok $node.ownerDocument.isSameNode($doc);
-    $doc.documentElement = $node;
     $node.appendChild($refNode);
     $node.insertBefore( $newNode, $refNode );
     $node.insertAfter( $newNode, $refNode );
-    my LibXML::Node @kids = $node.findnodes( $xpath-expression );
+    my LibXML::Node @kids = $node.childNodes();
+    @kids = $node.nonBlankChildNodes();
+
+    # -- DOM Manipulation Methods ---
+    $node.unbindNode();
+    $node.ownerDocument = $doc;
+    ok $node.ownerDocument.isSameNode($doc);
+    $doc.documentElement = $node;
+    $child = $node.removeChild( $childNode );
+    $oldNode = $node.replaceChild( $newNode, $oldNode );
+    $node.replaceNode($newNode);
+    $childNode = $node.appendChild( $childNode );
+    ok $node.isSame($childNode.parent);
+    $node = $parent.addNewChild( $nsURI, $name );
+    $node.addSibling($newNode);
+    $newNode = $node.cloneNode( :deep );
+    $node.addChild($refNode);
+    ok $node.isSame($refNode.parent);
+    $node.insertBefore( $newNode, $refNode );
+    $node.insertAfter( $newNode, $refNode );
+    $node.removeChildNodes();
+    $node.ownerDocument = $doc;
+
+    # -- Searching Methods --
+    @kids = $node.findnodes( $xpath-expression );
     my LibXML::Node::Set $result = $node.find( $xpath-expression );
     print $node.findvalue( $xpath-expression );
     my Bool $found = $node.exists( $xpath-expression );
-    @kids = $node.childNodes();
-    @kids = $node.nonBlankChildNodes();
+    $found = $xpath-expression ~~ $node;
+    my LibXML::Node $item = $node.first( $xpath-expression );
+    $item = $node.last( $xpath-expression );
+
+    # -- Serialization Methods -- #
     my Str $xml = $node.Str(:format);
     my Str $xml-c14n = $doc.Str: :C14N;
     $xml-c14n = $node.Str: :C14N, :comments, :xpath($xpath-expression);
     $xml-c14n = $node.Str: :C14N, :xpath($xpath-expression), :exclusive;
     $xml-c14n = $node.Str: :C14N, :v(v1.1);
     $xml = $doc.serialize(:format);
+    # -- Binary serialization -- #
     my blob8 $buf = $node.Blob(:format, :enc<UTF-8>);
+    # -- Data serialization -- #
+    use LibXML::Item :ast-to-xml;
+    my $node-data = $node.ast;
+    my LibXML::Node $node2 = ast-to-xml($node-data);
+    is $node, $node2, 'ast round-trip';
+
+    # -- Namespace Methods --
     my Str $localname = $node.localname;
     my Str $prefix = $node.prefix;
     my Str $uri = $node.namespaceURI();
@@ -427,7 +456,7 @@ subtest 'LibXML::Node' => {
     $node.nodePath();
     my UInt $line-no = $node.line-number();
 
-    # Positional Interface to child nodes
+    # -- Positional Interface --
     $node .= new: :name<Test>;
     $node.push: LibXML::Element.new: :name<A>;
     $node.push: LibXML::Element.new: :name<B>;
@@ -441,6 +470,8 @@ subtest 'LibXML::Node' => {
     $node.pop;
     $node.pop;
     is $node.Str, '<Test><A/></Test>';
+
+    # -- Associativve Interface
 }
 
 sub test-option($obj, Str $option, *@values, :$default) {

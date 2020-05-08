@@ -1,9 +1,88 @@
 use LibXML::Node :iterate-list, :iterate-set;
 use LibXML::_ParentNode;
 
+#| LibXML Class for Element Nodes
 unit class LibXML::Element
     is LibXML::Node
     does LibXML::_ParentNode;
+
+=begin pod
+    =head2 Synopsis
+
+    =begin code :lang<raku>
+    use LibXML::Element;
+    # Only methods specific to Element nodes are listed here,
+    # see the LibXML::Node documentation for other methods
+
+    my LibXML::Element $node .= new( $name );
+
+    # -- Attribute Methods -- #
+    $node.setAttribute( $aname, $avalue );
+    $node.setAttributeNS( $nsURI, $aname, $avalue );
+    $avalue = $node.getAttribute( $aname );
+    $avalue = $node.getAttributeNS( $nsURI, $aname );
+    $attrnode = $node.getAttributeNode( $aname );
+    $attrnode = $node{'@'~$aname}; # xpath attribute selection
+    $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
+    my Bool $has-atts = $node.hasAttributes();
+    my LibXML::Attr::Map $attrs = $node.attributes();
+    $attrs = $node<attributes::>; # xpath
+    my LibXML::Attr @props = $node.properties();
+    $node.removeAttribute( $aname );
+    $node.removeAttributeNS( $nsURI, $aname );
+    $boolean = $node.hasAttribute( $aname );
+    $boolean = $node.hasAttributeNS( $nsURI, $aname );
+
+    # -- Navigation Methods -- #
+    my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
+    @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
+    @nodes = $node.getChildrenByLocalName($localname);
+    @nodes = $node.children; # all child nodes
+    @nodes = $node.children(:!blank); # non-blank child nodes
+    my LibXML::Element @elems = $node.getElementsByTagName($tagname);
+    @elems = $node.getElementsByTagNameNS($nsURI,$localname);
+    @elems = $node.getElementsByLocalName($localname);
+    @elems = $node.elements; # all child elements
+
+    #-- DOM Manipulation Methods -- #
+    $node.addNewChild( $nsURI, $name );
+    $node.appendWellBalancedChunk( $chunk );
+    $node.appendText( $PCDATA );
+    $node.appendTextNode( $PCDATA );
+    $node.appendTextChild( $childname , $PCDATA );
+    $node.setNamespace( $nsURI , $nsPrefix, :$activate );
+    $node.setNamespaceDeclURI( $nsPrefix, $newURI );
+    $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
+
+    # -- Associative interface -- #
+    @nodes = $node{$xpath-expression};  # xpath node selection
+    my LibXML::Element @as = $elem<a>;  # equiv: $elem.getChildrenByLocalName('a');
+    my $b-value  = $elem<@b>.Str;       # value of 'b' attribute
+    my LibXML::Element @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
+    my $text-content = $elem<text()>;
+    say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
+    say $_ for $elem.attributes.keys;   # att-1 .. att-n
+    say $_ for $elem.childNodes.keys;   # 0, 1, ...
+
+    # -- Construction -- #
+    use LibXML::Item :&ast-to-xml;
+    $elem = ast-to-xml('Test' => [
+                           'xmlns:mam' => 'urn:mammals', # namespace
+                           :foo<bar>,                    # attribute
+                           "\n  ",                       # whitespace
+                           '#comment' => 'demo',         # comment
+                           :baz[],                       # sub-element
+                           '#cdata' => 'a&b',            # CData section
+                           "Some text.",                 # text content
+                           "\n"
+                       ]
+                      );
+    say $elem;
+    # <Test xmlns:mam="urn:mammals" foo="bar">
+    #   <!--demo--><baz/><![CDATA[a&b]]>Some text.
+    # </Test>
+    =end code
+=end pod
 
 use NativeCall;
 
@@ -168,86 +247,12 @@ method removeAttributeNode(AttrNode $att --> AttrNode) {
 }
 
 =begin pod
-=head1 NAME
+=head2 Name
 
 LibXML::Element - LibXML Class for Element Nodes
 
-=head1 SYNOPSIS
 
-  =begin code :lang<raku>
-  use LibXML::Element;
-  # Only methods specific to Element nodes are listed here,
-  # see the LibXML::Node documentation for other methods
-
-  my LibXML::Element $node .= new( $name );
-
-  # -- Attributes -- #
-  $node.setAttribute( $aname, $avalue );
-  $node.setAttributeNS( $nsURI, $aname, $avalue );
-  $avalue = $node.getAttribute( $aname );
-  $avalue = $node.getAttributeNS( $nsURI, $aname );
-  $attrnode = $node.getAttributeNode( $aname );
-  $attrnode = $node{'@'~$aname}; # xpath attribute selection
-  $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
-  my Bool $has-atts = $node.hasAttributes();
-  my LibXML::Attr::Map $attrs = $node.attributes();
-  $attrs = $node<attributes::>; # xpath
-  my LibXML::Attr @props = $node.properties();
-  $node.removeAttribute( $aname );
-  $node.removeAttributeNS( $nsURI, $aname );
-  $boolean = $node.hasAttribute( $aname );
-  $boolean = $node.hasAttributeNS( $nsURI, $aname );
-
-  # -- Navigation -- #
-  my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
-  @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
-  @nodes = $node.getChildrenByLocalName($localname);
-  @nodes = $node.children; # all child nodes
-  @nodes = $node.children(:!blank); # non-blank child nodes
-  my LibXML::Element @elems = $node.getElementsByTagName($tagname);
-  @elems = $node.getElementsByTagNameNS($nsURI,$localname);
-  @elems = $node.getElementsByLocalName($localname);
-  @elems = $node.elements; # all child elements
-
-  #-- DOM Manipulation -- #
-  $node.addNewChild( $nsURI, $name );
-  $node.appendWellBalancedChunk( $chunk );
-  $node.appendText( $PCDATA );
-  $node.appendTextNode( $PCDATA );
-  $node.appendTextChild( $childname , $PCDATA );
-  $node.setNamespace( $nsURI , $nsPrefix, :$activate );
-  $node.setNamespaceDeclURI( $nsPrefix, $newURI );
-  $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
-
-  # -- Associative/XPath interface -- #
-  @nodes = $node{$xpath-expression};  # xpath node selection
-  my LibXML::Element @as = $elem<a>;  # equiv: $elem.getChildrenByLocalName('a');
-  my $b-value  = $elem<@b>.Str;       # value of 'b' attribute
-  my LibXML::Element @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
-  my $text-content = $elem<text()>;
-  say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
-  say $_ for $elem.attributes.keys;   # att-1 .. att-n
-  say $_ for $elem.childNodes.keys;   # 0, 1, ...
-
-  # -- Construction -- #
-  use LibXML::Item :&ast-to-xml;
-  $elem = ast-to-xml('Test' => [
-                         'xmlns:mam' => 'urn:mammals', # namespace
-                         :foo<bar>,                    # attribute
-                         "\n  ",                       # whitespace
-                         '#comment' => 'demo',         # comment
-                         :baz[],                       # sub-element
-                         '#cdata' => 'a&b',            # CData section
-                         "Some text.\n",               # text content
-                     ]
-                    );
-  say $elem;
-  # <Test xmlns:mam="urn:mammals" foo="bar">
-  #   <!--demo--><baz/><![CDATA[a&b]]>Some text.
-  # </Test>
-  =end code
-
-=head1 METHODS
+=head2 Methods
 
 The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here. 
 
