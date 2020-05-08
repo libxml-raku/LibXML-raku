@@ -82,7 +82,7 @@ docs/index.md : lib/LibXML.rakumod
 	(\
 	    echo '[![Build Status]($(TRAVIS).svg?branch=master)]($(TRAVIS))'; \
             echo '';\
-            perl6 -I . --doc=Markdown $< \
+            raku -I . --doc=Markdown $< \
             | raku -p -n etc/resolve-links.raku \
         ) > $@
 

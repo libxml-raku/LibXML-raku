@@ -232,17 +232,17 @@ Note: line-number() is special to LibXML and not part of the DOM specification.
 Navigation Methods
 ------------------
 
-### method parentNode
+### method parent
 
 ```perl6
-method parentNode() returns LibXML::Node
+method parent() returns LibXML::Node
 ```
 
 Returns the objects parent node
 
 ### method nextSibling
 
-```raku
+```perl6
 method nextSibling() returns LibXML::Node
 ```
 
@@ -250,7 +250,7 @@ Returns the next sibling if any.
 
 ### method nextNonBlankSibling
 
-```raku
+```perl6
 method nextNonBlankSibling() returns LibXML::Node
 ```
 
@@ -260,21 +260,37 @@ A node is blank if it is a Text or CDATA node consisting of whitespace only. Thi
 
 ### method previousSibling
 
-```raku
+```perl6
 method previousSibling() returns LibXML::Node
 ```
 
-Analogous to *getNextSibling*. This method returns the previous sibling if any.
+Analogous to getNextSibling(). Returns the previous sibling if any.
 
 ### method previousNonBlankSibling
 
-```raku
+```perl6
 method previousNonBlankSibling() returns LibXML::Node
 ```
 
-Returns the previous non-blank sibling if any.
+Returns the previous non-blank sibling, if any
 
 A node is blank if it is a Text or CDATA node consisting of whitespace only. This method is not defined by DOM.
+
+### method firstChild
+
+```perl6
+method firstChild() returns LibXML::Node
+```
+
+Return the first child node, if any
+
+### method lastChild
+
+```perl6
+method lastChild() returns LibXML::Node
+```
+
+Return the last child node, if any
 
 ### method hasChildNodes
 
@@ -283,22 +299,6 @@ method hasChildNodes() returns Bool
 ```
 
 Returns True if the current node has child nodes, False otherwise.
-
-### method firstChild
-
-```raku
-method firstChild(Bool :$blank=True) returns LibXML::Node
-```
-
-If a node has child nodes this function will return the first node in the child list.
-
-### method lastChild
-
-```raku
-method lastChild(Bool :$blank=True) returns LibXML::Node
-```
-
-If a node has child nodes this function will return the last node in the child list.
 
 ### method appendText
 
@@ -787,9 +787,10 @@ Returns the prefix of a tag
 
 This is the part before the colon.
 
-Example:
+### method getNamespaces
 
 ```raku
+method getNamespaces returns LibXML::Node::List
 my LibXML::Namespace @ns = $node.getNamespaces;
 ```
 

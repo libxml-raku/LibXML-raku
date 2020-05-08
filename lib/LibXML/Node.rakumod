@@ -124,6 +124,7 @@ use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::XPath::Expression;
 use LibXML::Types :NCName, :QName;
+use LibXML::Item :boxed;
 
 constant config = LibXML::Config;
 my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
@@ -150,6 +151,16 @@ has anyNode $.native handles <
 >;
 
 has $!xpath-context;
+
+method set-native(anyNode:D $new-struct) {
+    given box-class($new-struct.type) -> $class {
+        die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
+            unless self.isa($class);
+    }
+    .Reference with $new-struct;
+    .Unreference with $!native;
+    $!native = $new-struct.delegate;
+}
 
 submethod TWEAK {
     .Reference with $!native;
@@ -287,53 +298,42 @@ Note: line-number() is special to LibXML and not part of the DOM specification.
 =end pod
 
 #| Returns the objects parent node
-method parentNode is also<ownerElement getOwnerElement parent> returns LibXML::Node {
-    &?ROUTINE.returns.box: $!native.parent;
-}
-BEGIN {
-    # wrap methods that return raw nodes; simple navigation; no arguments
-    for <
-         firstNonBlankChild lastNonBlankChild
-         next nextSibling nextNonBlankSibling
-         prev previousSibling previousNonBlankSibling
-    > {
-        $?CLASS.^add_method($_, method (--> LibXML::Node) { &?ROUTINE.returns.box: $!native."$_"() });
-    }
-}
+method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is boxed {...}
 
+#| Returns the next sibling if any.
+method nextSibling returns LibXML::Node is boxed {...}
+
+#| Returns the next non-blank sibling if any.
+method nextNonBlankSibling returns LibXML::Node is boxed {...}
 =begin pod
-
-    =head3 method nextSibling
-    =begin code :lang<raku>
-    method nextSibling() returns LibXML::Node
-    =end code
-    =para Returns the next sibling if any.
-
-    =head3 method nextNonBlankSibling
-    =begin code :lang<raku>
-    method nextNonBlankSibling() returns LibXML::Node
-    =end code
-    =para Returns the next non-blank sibling if any.
-
+    =para
     A node is blank if it is a Text or CDATA node consisting of whitespace
     only. This method is not defined by DOM.
+=end pod
 
-    =head3 method previousSibling
-    =begin code :lang<raku>
-    method previousSibling() returns LibXML::Node
-    =end code
+#| Analogous to getNextSibling(). Returns the previous sibling if any.
+method previousSibling returns LibXML::Node is boxed {...}
+
+#| Returns the previous non-blank sibling, if any
+method previousNonBlankSibling returns LibXML::Node is boxed {...}
+=begin pod
     =para
-    Analogous to I<<<<<<getNextSibling>>>>>>. This method returns the previous sibling if any.
-
-    =head3 method previousNonBlankSibling
-    =begin code :lang<raku>
-    method previousNonBlankSibling() returns LibXML::Node
-    =end code
-    =para
-    Returns the previous non-blank sibling if any.
-
     A node is blank if it is a Text or CDATA node consisting of whitespace
     only. This method is not defined by DOM.
+=end pod
+
+#| Return the first child node, if any
+method firstChild is also<getFirstChild> returns LibXML::Node is boxed {...}
+
+#| Return the last child node, if any
+method lastChild is also<getLastChild> returns LibXML::Node is boxed {...}
+
+method firstNonBlankChild returns LibXML::Node is boxed {...}
+method lastNonBlankChild returns LibXML::Node is boxed {...}
+method prev returns LibXML::Node is boxed {...}
+
+# handled by native method
+=begin pod
 
     =head3 method hasChildNodes
     =begin code :lang<raku>
@@ -344,36 +344,15 @@ BEGIN {
 
 =end pod
 
-multi method first(Bool :$blank = True) is also<firstChild getFirstChild> {
-    given $!native {
-        LibXML::Node.box($blank ?? .firstChild !! .firstNonBlankChild);
-    }
+multi method first(Bool :$blank = True) {
+    $blank ?? $.firstChild !! $.firstNonBlankChild;
 }
-=begin pod
-    =head3 method firstChild
-    =begin code :lang<raku>
-    method firstChild(Bool :$blank=True) returns LibXML::Node
-    =end code
-    =para
-    If a node has child nodes this function will return the first node in the child list.
-=end pod
-
 multi method first($expr, |c) { $.xpath-context.first($expr, |c) }
-multi method last(Bool :$blank = True) is also<lastChild getLastChild> {
-    given $!native {
-        LibXML::Node.box($blank ?? .lastChild !! .lastNonBlankChild);
-    }
+multi method last(Bool :$blank = True) {
+    $blank ?? $.lastChild !! $.lastNonBlankChild;
 }
-=begin pod
-    =head3 method lastChild
-    =begin code :lang<raku>
-    method lastChild(Bool :$blank=True) returns LibXML::Node
-    =end code
-    =para
-    If a node has child nodes this function will return the last node in the child list.
-=end pod
-
 multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
+
 #| Appends text directly to a node
 method appendText(Str:D $text) is also<appendTextNode> {
     $!native.appendText($text);
@@ -383,16 +362,6 @@ method appendText(Str:D $text) is also<appendTextNode> {
     Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment,
     and DocumentFragment nodes.
 =end pod
-
-method set-native(anyNode:D $new-struct) {
-    given box-class($new-struct.type) -> $class {
-        die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-            unless self.isa($class);
-    }
-    .Reference with $new-struct;
-    .Unreference with $!native;
-    $!native = $new-struct.delegate;
-}
 
 method doc is rw is also<ownerDocument> {
     Proxy.new(
@@ -447,9 +416,7 @@ Entity References as adoptNode().
 =end pod
 
 #| Get the root (owner) node
-method getOwner returns LibXML::Node {
-    &?ROUTINE.returns.box: self.native.root
-}
+method getOwner returns LibXML::Node is boxed<root> {...}
 =begin pod
     =para
     This function returns the root node that the current node is associated with. In most
@@ -544,9 +511,7 @@ of this node. This method differs from the DOM L2 specification, in the case, if
    =para An alias for `appendChild`
 =end pod
 
-method addNewChild(Str $uri, QName $name --> LibXML::Node) {
-    &?ROUTINE.returns.box: $.native.domAddNewChild($uri, $name);
-}
+method addNewChild(Str $uri, QName $name --> LibXML::Node) is boxed<domAddNewChild> {...}
 =begin pod
     =para
     Vivify and add a new child element.
@@ -584,7 +549,7 @@ method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-    &?ROUTINE.returns.box( $!native.addSibling($new.native)); 
+    &?ROUTINE.returns.box($!native.addSibling($new.native));
 }
 
 #| Copy a node
@@ -1034,15 +999,14 @@ method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
 method clearNamespace {
     ? $!native.setNamespace(Str, Str);
 }
-method localNS(--> LibXML::Namespace) {
-    &?ROUTINE.returns.box: $!native.localNS;
-}
-method getNamespaces is also<namespaces> returns Seq {
-    $!native.getNamespaces.map: { LibXML::Namespace.box($_) }
+method localNS(--> LibXML::Namespace) is boxed {...}
+method getNamespaces is also<namespaces> {
+    iterate-list(self, LibXML::Namespace, :$.doc);
 }
 =begin pod
-    =para Example:
+    =head3 method getNamespaces
     =begin code :lang<raku>
+    method getNamespaces returns LibXML::Node::List
     my LibXML::Namespace @ns = $node.getNamespaces;
     =end code
     If a node has any namespaces defined, this function will return these

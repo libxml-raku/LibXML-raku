@@ -15,7 +15,7 @@ use LibXML::Dtd;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
-use LibXML::Item :item-class;
+use LibXML::Item :item-class, :boxed;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use LibXML::PI;
@@ -546,9 +546,7 @@ method createElement(QName $name, Str :$href --> LibXML::Element) {
 }
 
 #| equivalent to .createElement($name, :$href)
-method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) {
-    &?ROUTINE.returns.box: $.native.createElementNS($href, $name);
-}
+method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) is boxed {...}
 
 method !check-new-node($node, |) {
    if $node ~~ LibXML::Element {
@@ -767,9 +765,7 @@ method insertProcessingInstruction(|c) {
 
 }
 
-method getInternalSubset(--> LibXML::Dtd) {
-    &?ROUTINE.returns.box: self.native.getInternalSubset;
-}
+method getInternalSubset(--> LibXML::Dtd) is boxed {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
 method setInternalSubset(LibXML::Dtd $dtd) {
@@ -780,9 +776,7 @@ method setInternalSubset(LibXML::Dtd $dtd) {
 =end pod
 
 #| This method removes an external, if defined, from the document
-method removeInternalSubset(--> LibXML::Dtd) {
-    &?ROUTINE.returns.box: self.native.removeInternalSubset;
-}
+method removeInternalSubset(--> LibXML::Dtd) is boxed {...}
 =begin pod
     =para I<<<<<<EXPERIMENTAL!>>>>>>
 
@@ -807,9 +801,7 @@ method internalSubset is rw returns LibXML::Dtd {
     function on doctype declaration nodes!
 =end pod
 
-method getExternalSubset(--> LibXML::Dtd) {
-    &?ROUTINE.returns.box: self.native.getExternalSubset;
-}
+method getExternalSubset(--> LibXML::Dtd) is boxed {...}
 
 #| This method sets a DTD node as an external subset of the given document.
 method setExternalSubset(LibXML::Dtd $dtd) {
@@ -820,9 +812,7 @@ method setExternalSubset(LibXML::Dtd $dtd) {
 =end pod
 
 #| This method removes an external, if defined, from the document
-method removeExternalSubset(--> LibXML::Dtd) {
-    &?ROUTINE.returns.box: self.native.removeExternalSubset;
-}
+method removeExternalSubset(--> LibXML::Dtd) is boxed {...}
 =begin pod
     =para I<<<<<<EXPERIMENTAL!>>>>>>
 
@@ -884,9 +874,7 @@ method processXIncludes(|c) is also<process-xincludes> {
 =end pod
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
-method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
-    &?ROUTINE.returns.box: self.native.getElementById($id);
-}
+method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> is boxed {...}
 =begin pod
     =para  
     Note: the ID of an element may change while manipulating the document. For
