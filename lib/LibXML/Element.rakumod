@@ -82,6 +82,11 @@ unit class LibXML::Element
     #   <!--demo--><baz/><![CDATA[a&b]]>Some text.
     # </Test>
     =end code
+    =para
+    The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here. 
+
+    Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation. 
+
 =end pod
 
 use NativeCall;
@@ -89,7 +94,7 @@ use NativeCall;
 use LibXML::Attr;
 use LibXML::Config;
 use LibXML::Enums;
-use LibXML::Item :box-class;
+use LibXML::Item :box-class, :boxed;
 use LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :QName, :NCName, :NameVal;
@@ -110,14 +115,195 @@ method native handles<
         removeAttribute removeAttributeNS
         > { callsame() // xmlElem }
 
-multi method new(QName:D $name, *%o) {
+#| Creates a new element node, unbound to any DOM
+multi method new(QName:D $name, *%o --> LibXML::Element) {
     self.new(:$name, |%o);
 }
+=begin pod
+    =para -OR- (more rakuish, less DOMish)
+    =begin code :lang<raku>
+    method new(
+        QName:D :$name,
+        LibXML::Namespace :$ns
+    ) returns LibXML::Element
+    =end code
+=end pod
 
 multi method new(|c) is default { nextsame }
 
-method namespaces {
-    iterate-list(self, LibXML::Namespace, :$.doc);
+########################################################################
+=begin pod
+    =head2 Attribute Methods
+=end pod
+
+constant AttrNode = LibXML::Attr;
+method !set-attr(QName $name, Str:D $value) {
+    ? $.native.setAttribute($name, $value);
+}
+multi method setAttribute(NameVal:D $_ --> Bool) {
+    self!set-attr(.key, .value);
+}
+#| Sets or replaces the element's $name attribute to  $value
+multi method setAttribute(QName $name, Str:D $value) {
+    self!set-attr($name, $value);
+}
+multi method setAttribute(*%atts) {
+    self!set-attr(.key, .value)
+        for %atts.pairs.sort;
+}
+multi method setAttributeNS(Str $uri, NameVal:D $_ --> AttrNode) {
+    $.setAttributeNS($uri, .key, .value);
+}
+#| Namespace-aware version of of setAttribute()
+multi method setAttributeNS(Str $uri, QName $name, Str $value --> AttrNode) {
+    if $name {
+        self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
+    }
+    &?ROUTINE.returns.box: $.native.setAttributeNS($uri, $name, $value);
+}
+=begin pod
+    =para  where
+        =item `$nsURI` is a namespace URI,
+        =item `$name` is a qualified name, and`
+        =item `$value` is the value.
+
+    The namespace URI may be Str:U (undefined) or blank ('') in order to
+    create an attribute which has no namespace.
+
+    The current implementation differs from DOM in the following aspects 
+
+    If an attribute with the same local name and namespace URI already exists on
+    the element, but its prefix differs from the prefix of C<<<<<< $aname >>>>>>, then this function is supposed to change the prefix (regardless of namespace
+    declarations and possible collisions). However, the current implementation does
+    rather the opposite. If a prefix is declared for the namespace URI in the scope
+    of the attribute, then the already declared prefix is used, disregarding the
+    prefix specified in C<<<<<< $aname >>>>>>. If no prefix is declared for the namespace, the function tries to declare the
+    prefix specified in C<<<<<< $aname >>>>>> and dies if the prefix is already taken by some other namespace. 
+
+    According to DOM Level 2 specification, this method can also be used to create
+    or modify special attributes used for declaring XML namespaces (which belong to
+    the namespace "http://www.w3.org/2000/xmlns/" and have prefix or name "xmlns").
+    The implementation differs from DOM specification in the following: if a
+    declaration of the same namespace prefix already exists on the element, then
+    changing its value via this method automatically changes the namespace of all
+    elements and attributes in its scope. This is because in libxml2 the namespace
+    URI of an element is not static but is computed from a pointer to a namespace
+    declaration attribute.
+=end pod
+
+# handled by the native method
+=begin pod
+    =head3 method getAttribute
+    =begin code :lang<raku>
+    method getAttribute(QName $name) returns Str
+    =end code
+    If the object has an attribute with the name C<<<<<< $name >>>>>>, the value of this attribute will get returned.
+
+    =head3 method getAttributeNS
+    =begin code :lang<raku>
+    method getAttributeNS(Str $uri, QName $name) returns Str
+    =end code
+    Retrieves an attribute value by local name and namespace URI.
+
+    =head3 method getAttributeNode
+    =begin code :lang<raku>
+    method getAttributeNode(QName $name) returns LibXML::Attr
+    =end code
+    Retrieve an attribute node by name. If no attribute with a given name exists, C<<<<<<LibXML::Attr:U>>>>>> is returned.
+
+    =head3 method getAttributeNodeNS
+    =begin code :lang<raku>
+    method getAttributeNodeNS(Str $uri, QName $name) returns LibXML::Attr
+    =end code
+    Retrieves an attribute node by local name and namespace URI. If no attribute
+    with a given localname and namespace exists, C<<<<<<LibXML::Attr:U>>>>>> is returned.
+
+    =head3 method hasAttribute
+    =begin code :lang<raku>
+    method hasAttribute( QName $name ) returns Bool;
+    =end code
+    This function tests if the named attribute is set for the node. If the
+    attribute is specified, True will be returned, otherwise the return value
+    is False.
+
+    =head3 method hasAttributeNS
+    =begin code :lang<raku>
+    method hasAttributeNS(Str $uri, QName $name ) returns Bool;
+    =end code
+    namespace version of C<<<<<< hasAttribute >>>>>>
+
+    =head3 method hasAttributes
+    =begin code :lang<raku>
+    method hasAttributes( ) returns Bool;
+    =end code
+    returns True if the current node has any attributes set, otherwise False is returned.
+
+=end pod
+
+method attributes is rw is also<attribs attr> {
+    Proxy.new(
+        FETCH => {
+            (require ::('LibXML::Attr::Map')).new: :node(self)
+        },
+        STORE => sub ($, %atts) {
+            self!set-attributes: %atts.pairs.sort;
+        }
+    );
+}
+=begin pod
+    =head3 method attributes
+
+      =begin code :lang<raku>
+      method attributes() returns LibXML::Attr::Map
+      # example:
+      my LibXML::Attr::Map $atts = $elem.attributes();
+      for $atts.keys { ... }
+      $atts<color> = 'red';
+      $atts<style>:delete;
+      =end code
+
+    Proves an associative interface to a node's attributes.
+
+    Unlike the equivalent Perl 5 method, this method retrieves only L<LibXML::Attr> (not L<LibXML::Namespace>) nodes.
+
+    See also:
+
+      =item the C<properties> method, which returns a positional L<LibXML::Node::List> attributes iterator.
+
+      =item the C<namespaces> method, which returns an L<LibXML::Namespace> namespaces iterator.
+
+=end pod
+
+#| 
+method properties {
+    iterate-list(self, LibXML::Attr);
+}
+=begin pod
+    =head3 method properties
+    =begin code :lang<raku>
+    method properties() returns LibXML::Node::List
+    =end code
+    Examples:
+    =begin code :lang<raku>
+    my LibXML::Attr @props = $elem.properties;
+    my LibXML::Node::List $props = $elem.properties;
+    for $elem.properties -> LibXML::Attr $attr { ... }
+    =end code
+    Returns an attribute list for the element node. It can be used to iterate through an elements properties:
+=end pod
+
+method setAttributeNode(AttrNode:D $att --> AttrNode) {
+    $att.keep: $.native.setAttributeNode($att.native);
+}
+method setAttributeNodeNS(AttrNode:D $att --> AttrNode) {
+    $att.keep: $.native.setAttributeNodeNS($att.native);
+}
+method getAttributeNode(Str $att-name --> AttrNode) is also<attribute> is boxed {...}
+
+method getAttributeNodeNS(Str $uri, Str $att-name --> AttrNode) is boxed {...}
+
+method removeAttributeNode(AttrNode $att --> AttrNode) {
+    $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
 }
 
 method !set-attributes(@atts) {
@@ -143,17 +329,20 @@ method !set-attributes(@atts) {
     }
 }
 
-# hashy attribute containers
-method attributes is rw is also<attribs attr> {
-    Proxy.new(
-        FETCH => {
-            (require ::('LibXML::Attr::Map')).new: :node(self)
-        },
-        STORE => sub ($, %atts) {
-            self!set-attributes: %atts.pairs.sort;
-        }
-    );
-}
+########################################################################
+=begin pod
+    =head2 Navigation Methods
+=end pod
+
+########################################################################
+=begin pod
+    =head2 DOM Manipulation Methods
+=end pod
+
+########################################################################
+=begin pod
+    =head2 Associative Interface
+=end pod
 
 method ast(Bool :$blank = LibXML::Config.keep-blanks-default) {
     my @content;
@@ -188,10 +377,6 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
             }
         )
 }
-# attributes as an ordered list
-method properties {
-    iterate-list(self, LibXML::Attr);
-}
 
 method appendWellBalancedChunk(Str:D $string) {
     my $frag = (require ::('LibXML::DocumentFragment')).parse: :balanced, :$string;
@@ -207,141 +392,8 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
     }
 }
 
-constant AttrNode = LibXML::Attr;
-method !set-attr(QName $name, Str:D $value) {
-    ? $.native.setAttribute($name, $value);
-}
-multi method setAttribute(NameVal:D $_ --> Bool) {
-    self!set-attr(.key, .value);
-}
-multi method setAttribute(QName $name, Str:D $value) {
-    self!set-attr($name, $value);
-}
-multi method setAttribute(*%atts) {
-    self!set-attr(.key, .value)
-        for %atts.pairs.sort;
-}
-method setAttributeNode(AttrNode:D $att --> AttrNode) {
-    $att.keep: $.native.setAttributeNode($att.native);
-}
-method setAttributeNodeNS(AttrNode:D $att --> AttrNode) {
-    $att.keep: $.native.setAttributeNodeNS($att.native);
-}
-multi method setAttributeNS(Str $uri, NameVal:D $_ --> AttrNode) {
-    $.setAttributeNS($uri, .key, .value);
-}
-multi method setAttributeNS(Str $uri, QName $name, Str $value --> AttrNode) {
-    if $name {
-        self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
-    }
-    &?ROUTINE.returns.box: $.native.setAttributeNS($uri, $name, $value);
-}
-method getAttributeNode(Str $att-name --> AttrNode) is also<attribute> {
-    &?ROUTINE.returns.box: $.native.getAttributeNode($att-name);
-}
-method getAttributeNodeNS(Str $uri, Str $att-name --> AttrNode) {
-    &?ROUTINE.returns.box: $.native.getAttributeNodeNS($uri, $att-name);
-}
-method removeAttributeNode(AttrNode $att --> AttrNode) {
-    $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
-}
-
 =begin pod
-=head2 Name
 
-LibXML::Element - LibXML Class for Element Nodes
-
-
-=head2 Methods
-
-The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here. 
-
-Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation. 
-
-=begin item1
-new
-  =begin code :lang<raku>
-  my LibXML::Element $node .= new( $name );
-  =end code
-This function creates a new node unbound to any DOM.
-
-=end item1
-
-=begin item1
-setAttribute
-  =begin code :lang<raku>
-  $node.setAttribute( $aname, $avalue );
-  =end code
-This method sets or replaces the node's attribute C<<<<<< $aname >>>>>> to the value C<<<<<< $avalue >>>>>>
-
-=end item1
-
-=begin item1
-setAttributeNS
-  =begin code :lang<raku>
-  $node.setAttributeNS( $nsURI, $aname, $avalue );
-  =end code
-Namespace-aware version of C<<<<<< setAttribute >>>>>>, where C<<<<<< $nsURI >>>>>> is a namespace URI, C<<<<<< $aname >>>>>> is a qualified name, and C<<<<<< $avalue >>>>>> is the value. The namespace URI may be Str:U (undefined) in order to
-create an attribute which has no namespace.
-
-The current implementation differs from DOM in the following aspects 
-
-If an attribute with the same local name and namespace URI already exists on
-the element, but its prefix differs from the prefix of C<<<<<< $aname >>>>>>, then this function is supposed to change the prefix (regardless of namespace
-declarations and possible collisions). However, the current implementation does
-rather the opposite. If a prefix is declared for the namespace URI in the scope
-of the attribute, then the already declared prefix is used, disregarding the
-prefix specified in C<<<<<< $aname >>>>>>. If no prefix is declared for the namespace, the function tries to declare the
-prefix specified in C<<<<<< $aname >>>>>> and dies if the prefix is already taken by some other namespace. 
-
-According to DOM Level 2 specification, this method can also be used to create
-or modify special attributes used for declaring XML namespaces (which belong to
-the namespace "http://www.w3.org/2000/xmlns/" and have prefix or name "xmlns").
-The implementation differs from DOM specification in the following: if a
-declaration of the same namespace prefix already exists on the element, then
-changing its value via this method automatically changes the namespace of all
-elements and attributes in its scope. This is because in libxml2 the namespace
-URI of an element is not static but is computed from a pointer to a namespace
-declaration attribute.
-
-=end item1
-
-=begin item1
-getAttribute
-  =begin code :lang<raku>
-  my Str $avalue = $node.getAttribute( $aname );
-  =end code
-If C<<<<<< $node >>>>>> has an attribute with the name C<<<<<< $aname >>>>>>, the value of this attribute will get returned.
-
-=end item1
-
-=begin item1
-getAttributeNS
-  =begin code :lang<raku>
-  my Str $avalue = $node.getAttributeNS( $nsURI, $aname );
-  =end code
-Retrieves an attribute value by local name and namespace URI.
-
-=end item1
-
-=begin item1
-getAttributeNode
-  =begin code :lang<raku>
-  my LibXML::Attr $attrnode = $node.getAttributeNode( $aname );
-  =end code
-Retrieve an attribute node by name. If no attribute with a given name exists, C<<<<<< LibXML::Attr:U >>>>>> is returned.
-
-=end item1
-
-=begin item1
-getAttributeNodeNS
-  =begin code :lang<raku>
-  my LibXML::Attr $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
-  =end code
-Retrieves an attribute node by local name and namespace URI. If no attribute
-with a given localname and namespace exists, C<<<<<< LibXML::Attr:U >>>>>> is returned.
-
-=end item1
 
 =begin item1
 removeAttribute
@@ -361,70 +413,7 @@ Namespace version of C<<<<<< removeAttribute >>>>>>
 
 =end item1
 
-=begin item1
-hasAttribute
-  =begin code :lang<raku>
-  my Bool $has-this-att = $node.hasAttribute( $aname );
-  =end code
-This function tests if the named attribute is set for the node. If the
-attribute is specified, True will be returned, otherwise the return value
-is False.
 
-=end item1
-
-=begin item1
-hasAttributeNS
-  =begin code :lang<raku>
-  my Bool $has-this-att = $node.hasAttributeNS( $nsURI, $aname );
-  =end code
-namespace version of C<<<<<< hasAttribute >>>>>>
-
-=end item1
-
-=begin item1
-hasAttributes
-  =begin code :lang<raku>
-  my Bool $has-any-atts = $node.hasAttributes();
-  =end code
-returns True if the current node has any attributes set, otherwise False is returned.
-
-=end item1
-
-=begin item1
-attributes
-
-  =begin code :lang<raku>
-  use LibXML::Attr::Map;
-  my LibXML::Attr::Map $atts = $elem.attributes();
-
-  for $atts.keys { ... }
-  $atts<color> = 'red';
-  $atts<style>:delete;
-  =end code
-
-Proves an associative interface to a node's attributes.
-
-Unlike the equivalent Perl 5 method, this method retrieves only L<LibXML::Attr> (not L<LibXML::Namespace>) nodes.
-
-See also:
-
-  =item the C<properties> method, which returns an L<LibXML::Attr> attributes iterator.
-
-  =item the C<namespaces> method, which returns an L<LibXML::Namespace> namespaces iterator.
-
-=end item1
-
-=begin item
-properties
-  =begin code :lang<raku>
-  my LibXML::Attr @props = $elem.properties;
-  my LibXML::Node::List $props = $elem.properties;
-  =end code
-returns attributes for the node. It can be used to iterate through an elements properties:
-
-  for $elem.properties -> LibXML::Attr $attr { ... }
-
-=end item
 
 =begin item
 namespaces
@@ -701,7 +690,7 @@ namespace declaration.
 =end item1
 
 
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -709,7 +698,7 @@ namespace declaration.
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

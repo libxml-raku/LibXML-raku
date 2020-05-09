@@ -80,79 +80,173 @@ say $elem;
 # </Test>
 ```
 
-Name
-----
-
-LibXML::Element - LibXML Class for Element Nodes
-
-Methods
--------
-
 The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here. 
 
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation. 
 
-  * new
+### multi method new
 
-    ```raku
-    my LibXML::Element $node .= new( $name );
-    ```
+```perl6
+multi method new(
+    Str:D $name where { ... },
+    *%o
+) returns LibXML::Element
+```
 
-    This function creates a new node unbound to any DOM.
+Creates a new element node, unbound to any DOM
 
-  * setAttribute
+-OR- (more rakuish, less DOMish)
 
-    ```raku
-    $node.setAttribute( $aname, $avalue );
-    ```
+```raku
+method new(
+    QName:D :$name,
+    LibXML::Namespace :$ns
+) returns LibXML::Element
+```
 
-    This method sets or replaces the node's attribute `$aname ` to the value `$avalue `
+Attribute Methods
+-----------------
 
-  * setAttributeNS
+### multi method setAttribute
 
-    ```raku
-    $node.setAttributeNS( $nsURI, $aname, $avalue );
-    ```
+```perl6
+multi method setAttribute(
+    Str $name where { ... },
+    Str:D $value
+) returns Mu
+```
 
-    Namespace-aware version of `setAttribute `, where `$nsURI ` is a namespace URI, `$aname ` is a qualified name, and `$avalue ` is the value. The namespace URI may be Str:U (undefined) in order to create an attribute which has no namespace.
+Sets or replaces the element's $name attribute to $value
 
-    The current implementation differs from DOM in the following aspects 
+### multi method setAttributeNS
 
-    If an attribute with the same local name and namespace URI already exists on the element, but its prefix differs from the prefix of `$aname `, then this function is supposed to change the prefix (regardless of namespace declarations and possible collisions). However, the current implementation does rather the opposite. If a prefix is declared for the namespace URI in the scope of the attribute, then the already declared prefix is used, disregarding the prefix specified in `$aname `. If no prefix is declared for the namespace, the function tries to declare the prefix specified in `$aname ` and dies if the prefix is already taken by some other namespace. 
+```perl6
+multi method setAttributeNS(
+    Str $uri,
+    Str $name where { ... },
+    Str $value
+) returns LibXML::Attr
+```
 
-    According to DOM Level 2 specification, this method can also be used to create or modify special attributes used for declaring XML namespaces (which belong to the namespace "http://www.w3.org/2000/xmlns/" and have prefix or name "xmlns"). The implementation differs from DOM specification in the following: if a declaration of the same namespace prefix already exists on the element, then changing its value via this method automatically changes the namespace of all elements and attributes in its scope. This is because in libxml2 the namespace URI of an element is not static but is computed from a pointer to a namespace declaration attribute.
+Namespace-aware version of of setAttribute()
 
-  * getAttribute
+where
 
-    ```raku
-    my Str $avalue = $node.getAttribute( $aname );
-    ```
+  * `$nsURI` is a namespace URI,
 
-    If `$node ` has an attribute with the name `$aname `, the value of this attribute will get returned.
+  * `$name` is a qualified name, and`
 
-  * getAttributeNS
+  * `$value` is the value.
 
-    ```raku
-    my Str $avalue = $node.getAttributeNS( $nsURI, $aname );
-    ```
+The namespace URI may be Str:U (undefined) or blank ('') in order to create an attribute which has no namespace.
 
-    Retrieves an attribute value by local name and namespace URI.
+The current implementation differs from DOM in the following aspects 
 
-  * getAttributeNode
+If an attribute with the same local name and namespace URI already exists on the element, but its prefix differs from the prefix of `$aname `, then this function is supposed to change the prefix (regardless of namespace declarations and possible collisions). However, the current implementation does rather the opposite. If a prefix is declared for the namespace URI in the scope of the attribute, then the already declared prefix is used, disregarding the prefix specified in `$aname `. If no prefix is declared for the namespace, the function tries to declare the prefix specified in `$aname ` and dies if the prefix is already taken by some other namespace. 
 
-    ```raku
-    my LibXML::Attr $attrnode = $node.getAttributeNode( $aname );
-    ```
+According to DOM Level 2 specification, this method can also be used to create or modify special attributes used for declaring XML namespaces (which belong to the namespace "http://www.w3.org/2000/xmlns/" and have prefix or name "xmlns"). The implementation differs from DOM specification in the following: if a declaration of the same namespace prefix already exists on the element, then changing its value via this method automatically changes the namespace of all elements and attributes in its scope. This is because in libxml2 the namespace URI of an element is not static but is computed from a pointer to a namespace declaration attribute.
 
-    Retrieve an attribute node by name. If no attribute with a given name exists, `LibXML::Attr:U ` is returned.
+### method getAttribute
 
-  * getAttributeNodeNS
+```raku
+method getAttribute(QName $name) returns Str
+```
 
-    ```raku
-    my LibXML::Attr $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
-    ```
+If the object has an attribute with the name `$name `, the value of this attribute will get returned.
 
-    Retrieves an attribute node by local name and namespace URI. If no attribute with a given localname and namespace exists, `LibXML::Attr:U ` is returned.
+### method getAttributeNS
+
+```raku
+method getAttributeNS(Str $uri, QName $name) returns Str
+```
+
+Retrieves an attribute value by local name and namespace URI.
+
+### method getAttributeNode
+
+```raku
+method getAttributeNode(QName $name) returns LibXML::Attr
+```
+
+Retrieve an attribute node by name. If no attribute with a given name exists, `LibXML::Attr:U` is returned.
+
+### method getAttributeNodeNS
+
+```raku
+method getAttributeNodeNS(Str $uri, QName $name) returns LibXML::Attr
+```
+
+Retrieves an attribute node by local name and namespace URI. If no attribute with a given localname and namespace exists, `LibXML::Attr:U` is returned.
+
+### method hasAttribute
+
+```raku
+method hasAttribute( QName $name ) returns Bool;
+```
+
+This function tests if the named attribute is set for the node. If the attribute is specified, True will be returned, otherwise the return value is False.
+
+### method hasAttributeNS
+
+```raku
+method hasAttributeNS(Str $uri, QName $name ) returns Bool;
+```
+
+namespace version of `hasAttribute `
+
+### method hasAttributes
+
+```raku
+method hasAttributes( ) returns Bool;
+```
+
+returns True if the current node has any attributes set, otherwise False is returned.
+
+### method attributes
+
+```raku
+method attributes() returns LibXML::Attr::Map
+# example:
+my LibXML::Attr::Map $atts = $elem.attributes();
+for $atts.keys { ... }
+$atts<color> = 'red';
+$atts<style>:delete;
+```
+
+Proves an associative interface to a node's attributes.
+
+Unlike the equivalent Perl 5 method, this method retrieves only [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) (not [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace)) nodes.
+
+See also:
+
+  * the `properties` method, which returns a positional [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List) attributes iterator.
+
+  * the `namespaces` method, which returns an [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) namespaces iterator.
+
+### method properties
+
+```raku
+method properties() returns LibXML::Node::List
+```
+
+Examples:
+
+```raku
+my LibXML::Attr @props = $elem.properties;
+my LibXML::Node::List $props = $elem.properties;
+for $elem.properties -> LibXML::Attr $attr { ... }
+```
+
+Returns an attribute list for the element node. It can be used to iterate through an elements properties:
+
+Navigation Methods
+------------------
+
+DOM Manipulation Methods
+------------------------
+
+Associative Interface
+---------------------
 
   * removeAttribute
 
@@ -169,62 +263,6 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
     ```
 
     Namespace version of `removeAttribute `
-
-  * hasAttribute
-
-    ```raku
-    my Bool $has-this-att = $node.hasAttribute( $aname );
-    ```
-
-    This function tests if the named attribute is set for the node. If the attribute is specified, True will be returned, otherwise the return value is False.
-
-  * hasAttributeNS
-
-    ```raku
-    my Bool $has-this-att = $node.hasAttributeNS( $nsURI, $aname );
-    ```
-
-    namespace version of `hasAttribute `
-
-  * hasAttributes
-
-    ```raku
-    my Bool $has-any-atts = $node.hasAttributes();
-    ```
-
-    returns True if the current node has any attributes set, otherwise False is returned.
-
-  * attributes
-
-    ```raku
-    use LibXML::Attr::Map;
-    my LibXML::Attr::Map $atts = $elem.attributes();
-
-    for $atts.keys { ... }
-    $atts<color> = 'red';
-    $atts<style>:delete;
-    ```
-
-    Proves an associative interface to a node's attributes.
-
-    Unlike the equivalent Perl 5 method, this method retrieves only [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) (not [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace)) nodes.
-
-    See also:
-
-      * the `properties` method, which returns an [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) attributes iterator.
-
-      * the `namespaces` method, which returns an [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) namespaces iterator.
-
-  * properties
-
-    ```raku
-    my LibXML::Attr @props = $elem.properties;
-    my LibXML::Node::List $props = $elem.properties;
-    ```
-
-    returns attributes for the node. It can be used to iterate through an elements properties:
-
-        for $elem.properties -> LibXML::Attr $attr { ... }
 
   * namespaces
 
@@ -441,8 +479,8 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
     If the new prefix is undefined or empty, the namespace declaration becomes a declaration of a default namespace. The corresponding nodes drop their namespace prefix (but remain in the, now default, namespace). In this case the function fails, if the containing element is in the scope of another default namespace declaration. 
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -450,8 +488,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 
