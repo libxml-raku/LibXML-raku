@@ -52,10 +52,6 @@ class ValidContext {
         $!native .= new;
     }
 
-    submethod DESTROY {
-        .Free with $!native;
-    }
-
     method validate(DocNode:D :doc($doc-obj)!, LibXML::Dtd :dtd($dtd-obj), Bool() :$check) {
         my xmlDoc:D $doc = .native with $doc-obj;
         my xmlDtd   $dtd = .native with $dtd-obj;

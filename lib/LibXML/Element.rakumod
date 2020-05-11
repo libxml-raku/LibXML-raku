@@ -14,48 +14,50 @@ unit class LibXML::Element
     # Only methods specific to Element nodes are listed here,
     # see the LibXML::Node documentation for other methods
 
-    my LibXML::Element $node .= new( $name );
+    my LibXML::Element $elem .= new( $name );
 
     # -- Attribute Methods -- #
-    $node.setAttribute( $aname, $avalue );
-    $node.setAttributeNS( $nsURI, $aname, $avalue );
-    $avalue = $node.getAttribute( $aname );
-    $avalue = $node.getAttributeNS( $nsURI, $aname );
-    $attrnode = $node.getAttributeNode( $aname );
-    $attrnode = $node{'@'~$aname}; # xpath attribute selection
-    $attrnode = $node.getAttributeNodeNS( $namespaceURI, $aname );
-    my Bool $has-atts = $node.hasAttributes();
-    my LibXML::Attr::Map $attrs = $node.attributes();
-    $attrs = $node<attributes::>; # xpath
-    my LibXML::Attr @props = $node.properties();
-    $node.removeAttribute( $aname );
-    $node.removeAttributeNS( $nsURI, $aname );
-    $boolean = $node.hasAttribute( $aname );
-    $boolean = $node.hasAttributeNS( $nsURI, $aname );
+    $elem.setAttribute( $aname, $avalue );
+    $elem.setAttributeNS( $nsURI, $aname, $avalue );
+    my Bool $added = $elem.setAttributeNode($attrnode, :ns);
+    $elem.removeAttributeNode($attrnode);
+    $avalue = $elem.getAttribute( $aname );
+    $avalue = $elem.getAttributeNS( $nsURI, $aname );
+    $attrnode = $elem.getAttributeNode( $aname );
+    $attrnode = $elem{'@'~$aname}; # xpath attribute selection
+    $attrnode = $elem.getAttributeNodeNS( $namespaceURI, $aname );
+    my Bool $has-atts = $elem.hasAttributes();
+    my Bool $found = $elem.hasAttribute( $aname );
+    my Bool $found = $elem.hasAttributeNS( $nsURI, $aname );
+    my LibXML::Attr::Map $attrs = $elem.attributes();
+    $attrs = $elem<attributes::>; # xpath
+    my LibXML::Attr @props = $elem.properties();
+    my Bool $removed = $elem.removeAttribute( $aname );
+    $removed = $elem.removeAttributeNS( $nsURI, $aname );
 
     # -- Navigation Methods -- #
-    my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
-    @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
-    @nodes = $node.getChildrenByLocalName($localname);
-    @nodes = $node.children; # all child nodes
-    @nodes = $node.children(:!blank); # non-blank child nodes
-    my LibXML::Element @elems = $node.getElementsByTagName($tagname);
-    @elems = $node.getElementsByTagNameNS($nsURI,$localname);
-    @elems = $node.getElementsByLocalName($localname);
-    @elems = $node.elements; # all child elements
+    my LibXML::Node @nodes = $elem.getChildrenByTagName($tagname);
+    @nodes = $elem.getChildrenByTagNameNS($nsURI,$tagname);
+    @nodes = $elem.getChildrenByLocalName($localname);
+    @nodes = $elem.children; # all child nodes
+    @nodes = $elem.children(:!blank); # non-blank child nodes
+    my LibXML::Element @elems = $elem.getElementsByTagName($tagname);
+    @elems = $elem.getElementsByTagNameNS($nsURI,$localname);
+    @elems = $elem.getElementsByLocalName($localname);
+    @elems = $elem.elements; # all child elements
 
     #-- DOM Manipulation Methods -- #
-    $node.addNewChild( $nsURI, $name );
-    $node.appendWellBalancedChunk( $chunk );
-    $node.appendText( $PCDATA );
-    $node.appendTextNode( $PCDATA );
-    $node.appendTextChild( $childname , $PCDATA );
-    $node.setNamespace( $nsURI , $nsPrefix, :$activate );
-    $node.setNamespaceDeclURI( $nsPrefix, $newURI );
-    $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
+    $elem.addNewChild( $nsURI, $name );
+    $elem.appendWellBalancedChunk( $chunk );
+    $elem.appendText( $PCDATA );
+    $elem.appendTextNode( $PCDATA );
+    $elem.appendTextChild( $childname , $PCDATA );
+    $elem.setNamespace( $nsURI , $nsPrefix, :$activate );
+    $elem.setNamespaceDeclURI( $nsPrefix, $newURI );
+    $elem.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
 
     # -- Associative interface -- #
-    @nodes = $node{$xpath-expression};  # xpath node selection
+    @nodes = $elem{$xpath-expression};  # xpath node selection
     my LibXML::Element @as = $elem<a>;  # equiv: $elem.getChildrenByLocalName('a');
     my $b-value  = $elem<@b>.Str;       # value of 'b' attribute
     my LibXML::Element @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
@@ -115,28 +117,29 @@ method native handles<
         removeAttribute removeAttributeNS
         > { callsame() // xmlElem }
 
-#| Creates a new element node, unbound to any DOM
 multi method new(QName:D $name, *%o --> LibXML::Element) {
     self.new(:$name, |%o);
 }
+multi method new(|c --> LibXML::Element) is default { nextsame }
 =begin pod
-    =para -OR- (more rakuish, less DOMish)
+    =head3 method new
     =begin code :lang<raku>
-    method new(
-        QName:D :$name,
-        LibXML::Namespace :$ns
+    # DOMish
+    multi method new(QName:D $name,LibXML::Namespace :$ns
+    ) returns LibXML::Element
+    # Rakuish
+    multi method new(QName:D :$name,LibXML::Namespace :$ns
     ) returns LibXML::Element
     =end code
+    =para Creates a new element node, unbound to any DOM
 =end pod
 
-multi method new(|c) is default { nextsame }
 
 ########################################################################
 =begin pod
     =head2 Attribute Methods
 =end pod
 
-constant AttrNode = LibXML::Attr;
 method !set-attr(QName $name, Str:D $value) {
     ? $.native.setAttribute($name, $value);
 }
@@ -144,18 +147,18 @@ multi method setAttribute(NameVal:D $_ --> Bool) {
     self!set-attr(.key, .value);
 }
 #| Sets or replaces the element's $name attribute to  $value
-multi method setAttribute(QName $name, Str:D $value) {
+multi method setAttribute(QName $name, Str:D $value --> Bool) {
     self!set-attr($name, $value);
 }
 multi method setAttribute(*%atts) {
     self!set-attr(.key, .value)
         for %atts.pairs.sort;
 }
-multi method setAttributeNS(Str $uri, NameVal:D $_ --> AttrNode) {
+multi method setAttributeNS(Str $uri, NameVal:D $_ --> LibXML::Attr) {
     $.setAttributeNS($uri, .key, .value);
 }
 #| Namespace-aware version of of setAttribute()
-multi method setAttributeNS(Str $uri, QName $name, Str $value --> AttrNode) {
+multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) {
     if $name {
         self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
     }
@@ -190,6 +193,25 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value --> AttrNode) {
     URI of an element is not static but is computed from a pointer to a namespace
     declaration attribute.
 =end pod
+
+#| Set an attribute node on an element
+method setAttributeNode(LibXML::Attr:D $att, Bool :$ns --> LibXML::Attr) {
+    $ns
+        ?? self.setAttributeNodeNS($att)
+        !! $att.keep: $.native.setAttributeNode($att.native);
+}
+#| Namespace aware version of setAttributeNode
+method setAttributeNodeNS(LibXML::Attr:D $att --> LibXML::Attr) {
+    $att.keep: $.native.setAttributeNodeNS($att.native);
+}
+
+#| Remove an attribute node from an element
+method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
+    $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
+}
+
+method getAttributeNode(Str $att-name --> LibXML::Attr) is also<attribute> is boxed {...}
+method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) is boxed {...}
 
 # handled by the native method
 =begin pod
@@ -274,37 +296,39 @@ method attributes is rw is also<attribs attr> {
 
 =end pod
 
-#| 
 method properties {
     iterate-list(self, LibXML::Attr);
 }
 =begin pod
+
     =head3 method properties
     =begin code :lang<raku>
     method properties() returns LibXML::Node::List
     =end code
+    Returns an attribute list for the element node. It can be used to iterate through an elements properties.
+
     Examples:
     =begin code :lang<raku>
     my LibXML::Attr @props = $elem.properties;
     my LibXML::Node::List $props = $elem.properties;
     for $elem.properties -> LibXML::Attr $attr { ... }
     =end code
-    Returns an attribute list for the element node. It can be used to iterate through an elements properties:
+
+    =head3 method removeAttribute
+    =begin code :lang<raku>
+    method removeAttribute( QName $aname ) returns Bool;
+    =end code
+    =para
+    This method removes the attribute C<<<<<< $aname >>>>>> from the node's attribute list, if the attribute can be found.
+
+    =head3 method removeAttributeNS
+    =begin code :lang<raku>
+    method removeAttributeNS( $nsURI, $aname ) returns Bool;
+    =end code
+    =para
+    Namespace version of C<<<<<< removeAttribute >>>>>>
+
 =end pod
-
-method setAttributeNode(AttrNode:D $att --> AttrNode) {
-    $att.keep: $.native.setAttributeNode($att.native);
-}
-method setAttributeNodeNS(AttrNode:D $att --> AttrNode) {
-    $att.keep: $.native.setAttributeNodeNS($att.native);
-}
-method getAttributeNode(Str $att-name --> AttrNode) is also<attribute> is boxed {...}
-
-method getAttributeNodeNS(Str $uri, Str $att-name --> AttrNode) is boxed {...}
-
-method removeAttributeNode(AttrNode $att --> AttrNode) {
-    $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
-}
 
 method !set-attributes(@atts) {
     # clear out old attributes
@@ -330,8 +354,87 @@ method !set-attributes(@atts) {
 }
 
 ########################################################################
+
+# From role LibXML::_ParentNode (also applicable to document fragments
+# and documents    
 =begin pod
     =head2 Navigation Methods
+
+    =head3 method getChildrenByTagName
+      =begin code :lang<raku>
+      method getChildrenByTagName(Str $tagname) returns LibXML::Node::Set;
+      my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
+      =end code
+    =para
+    This method gives direct access to all child elements of the current node with
+    a given tagname, where tagname is a qualified name, that is, in case of
+    namespace usage it may consist of a prefix and local name. This function makes
+    things a lot easier if one needs to handle big data sets. A special tagname '*'
+    can be used to match any name.
+
+    =head3 method getChildrenByTagNameNS
+      =begin code :lang<raku>
+      method getChildrenByTagNameNS(Str $nsURI, Str $tagname) returns LibXML::Node::Set;
+      my LibXML::Element @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
+      =end code
+    Namespace version of C<<<<<<getChildrenByTagName>>>>>>. A special nsURI '*' matches any namespace URI, in which case the function
+    behaves just like C<<<<<<getChildrenByLocalName>>>>>>.
+
+
+    =head3 method getChildrenByLocalName
+      =begin code :lang<raku>
+      method getChildrenByLocalName(Str $localname) returns LibXML::Node::Set;
+      my LibXML::Element @nodes = $node.getChildrenByLocalName($localname);
+      =end code
+    =para
+    The function gives direct access to all child elements of the current node with
+    a given local name. It makes things a lot easier if one needs to handle big
+    data sets. Note:
+
+      =item A special C<<<<<< localname >>>>>> '*' can be used to match all ements.
+      =item C<@*> can be used to fetch attributes as a node-set
+      =item C<?*> (all), or C<?name> can be used to fetch processing instructions
+      =item The special names C<#text>, C<#comment> and C<#cdata-section> can be used to match Text, Comment or CDATA Section nodes.
+
+
+    =head3 method getElementsByTagName
+      =begin code :lang<raku>
+      method getElementsByTagName(QName $tagname) returns LibXML::Node::Set;
+      my LibXML::Element @nodes = $node.getElementsByTagName($tagname);
+      =end code
+    =para
+    This function is part of the spec. It fetches all descendants of a node with a
+    given tagname, where C<<<<<< tagname >>>>>> is a qualified name, that is, in case of namespace usage it may consist of a
+    prefix and local name. A special C<<<<<< tagname >>>>>> '*' can be used to match any tag name. 
+
+
+    =head3 method getElementsByTagNameNS
+      =begin code :lang<raku>
+      my LibXML::Element @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
+      method getElementsByTagNameNS($nsURI, QName $localname) returns LibXML::Node::Set;
+      =end code
+    =para
+    Namespace version of C<<<<<< getElementsByTagName >>>>>> as found in the DOM spec. A special C<<<<<< localname >>>>>> '*' can be used to match any local name and C<<<<<< nsURI >>>>>> '*' can be used to match any namespace URI.
+
+
+    =head3 method getElementsByLocalName
+      =begin code :lang<raku>
+      my LibXML::Element @nodes = $node.getElementsByLocalName($localname);
+      my LibXML::Node::Set $nodes = $node.getElementsByLocalName($localname);
+      =end code
+    This function is not found in the DOM specification. It is a mix of
+    getElementsByTagName and getElementsByTagNameNS. It will fetch all tags
+    matching the given local-name. This allows one to select tags with the same
+    local name across namespace borders.
+
+    In item context this function returns an L<<<<<< LibXML::Node::Set >>>>>> object.
+
+    =head3 method elements
+    =begin code :lang<raku>
+    method elements() returns LibXML::Node::Set
+    =end code
+    Equivalent to `.getElementsByLocalName('*')`
+
 =end pod
 
 ########################################################################
@@ -339,10 +442,6 @@ method !set-attributes(@atts) {
     =head2 DOM Manipulation Methods
 =end pod
 
-########################################################################
-=begin pod
-    =head2 Associative Interface
-=end pod
 
 method ast(Bool :$blank = LibXML::Config.keep-blanks-default) {
     my @content;
@@ -371,14 +470,14 @@ multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Gramm
                 // fail "unknown namespace prefix $_";
         }
         Proxy.new(
-            FETCH => { $.xpath-context.findnodes($att-path) },
+            FETCH => { $.xpath-context.first($att-path) // LibXML::Attr },
             STORE => sub ($, Str() $val) {
                 self.setAttributeNS($href, $name, $val);
             }
         )
 }
 
-method appendWellBalancedChunk(Str:D $string) {
+method appendWellBalancedChunk(Str:D $string --> LibXML::Node) {
     my $frag = (require ::('LibXML::DocumentFragment')).parse: :balanced, :$string;
     self.appendChild( $frag );
 }
@@ -395,299 +494,168 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
 =begin pod
 
 
-=begin item1
-removeAttribute
-  =begin code :lang<raku>
-  my Bool $released = $node.removeAttribute( $aname );
-  =end code
-The method removes the attribute C<<<<<< $aname >>>>>> from the node's attribute list, if the attribute can be found.
+    =head3 method namespaces
+      =begin code :lang<raku>
+      method namespaces() returns LibXML::Node::List
+      my LibXML::Namespace @ns = $node.namespaces;
+      =end code
+    returns a list of Namespace declarations for the node. It can be used to iterate through an element's namespaces:
+      =begin code :lang<raku>
+      for $elem.namespaces -> LibXML::Namespace $ns { ... }
+      =end code
 
-=end item1
+    =head3 method appendWellBalancedChunk
+    =begin code :lang<raku>
+    method appendWellBalancedChunk( Str $chunk ) returns LibXML::Node
+    =end code
+    Sometimes it is necessary to append a string coded XML Tree to a node. I<<<<<< appendWellBalancedChunk >>>>>> will do the trick for you. But this is only done if the String is C<<<<<< well-balanced >>>>>>.
 
-=begin item1
-removeAttributeNS
-  =begin code :lang<raku>
-  my Bool $released = $node.removeAttributeNS( $nsURI, $aname );
-  =end code
-Namespace version of C<<<<<< removeAttribute >>>>>>
+    I<<<<<< Note that appendWellBalancedChunk() is only left for compatibility reasons >>>>>>. Implicitly it uses
 
-=end item1
+      =begin code :lang<raku>
+      my LibXML::DocumentFragment $fragment = $parser.parse: :balanced, :$chunk;
+      $node.appendChild( $fragment );
+      =end code
 
-
-
-=begin item
-namespaces
-  =begin code :lang<raku>
-  my LibXML::Namespace @ns = $node.namespaces;
-  my LibXML::Node::List $ns = $node.namespaces;
-  =end code
-returns a list of Namespace declarations for the node. It can be used to iterate through an element's namespaces:
-
-  for $elem.namespaces -> LibXML::Namespace $ns { ... }
-
-=end item
-
-=begin item1
-getChildrenByTagName
-  =begin code :lang<raku>
-  my LibXML::Node @nodes = $node.getChildrenByTagName($tagname);
-  my LibXML::Node::Set $nodes = $node.getChildrenByTagName($tagname);
-  =end code
-The function gives direct access to all child elements of the current node with
-a given tagname, where tagname is a qualified name, that is, in case of
-namespace usage it may consist of a prefix and local name. This function makes
-things a lot easier if one needs to handle big data sets. A special tagname '*'
-can be used to match any name.
-
-=end item1
-
-=begin item1
-getChildrenByTagNameNS
-  =begin code :lang<raku>
-  my LibXML::Element @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
-  my LibXML::Node::Set $nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
-  =end code
-Namespace version of C<<<<<< getChildrenByTagName >>>>>>. A special nsURI '*' matches any namespace URI, in which case the function
-behaves just like C<<<<<< getChildrenByLocalName >>>>>>.
-
-=end item1
-
-=begin item1
-getChildrenByLocalName
-  =begin code :lang<raku>
-  my LibXML::Element @nodes = $node.getChildrenByLocalName($localname);
-  my LibXML::Node::Set $nodes = $node.getChildrenByLocalName($localname);
-  =end code
-The function gives direct access to all child elements of the current node with
-a given local name. It makes things a lot easier if one needs to handle big
-data sets. Note:
-
-  =item A special C<<<<<< localname >>>>>> '*' can be used to match all ements.
-  =item C<@*> can be used to fetch attributes as a node-set
-  =item C<?*> (all), or C<?name> can be used to fetch processing instructions
-  =item The special names C<#text>, C<#comment> and C<#cdata-section> can be used to match Text, Comment or CDATA Section nodes.
-
-=end item1
-
-=begin item1
-getElementsByTagName
-  =begin code :lang<raku>
-  my LibXML::Element @nodes = $node.getElementsByTagName($tagname);
-  my LibXML::Node::Set $nodes = $node.getElementsByTagName($tagname);
-  =end code
-This function is part of the spec. It fetches all descendants of a node with a
-given tagname, where C<<<<<< tagname >>>>>> is a qualified name, that is, in case of namespace usage it may consist of a
-prefix and local name. A special C<<<<<< tagname >>>>>> '*' can be used to match any tag name. 
-
-=end item1
-
-=begin item1
-getElementsByTagNameNS
-  =begin code :lang<raku>
-  my LibXML::Element @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
-  my LibXML::Node::Set $nodes = $node.getElementsByTagNameNS($nsURI,$localname);
-  =end code
-Namespace version of C<<<<<< getElementsByTagName >>>>>> as found in the DOM spec. A special C<<<<<< localname >>>>>> '*' can be used to match any local name and C<<<<<< nsURI >>>>>> '*' can be used to match any namespace URI.
+    This form is more explicit and makes it easier to control the flow of a script.
 
 
-=end item1
+    =head3 method appendText
+      =begin code :lang<raku>
+      method appendText( $PCDATA ) returns LibXML::Text
+      =end code
+    alias for appendTextNode().
 
-=begin item1
-getElementsByLocalName
-  =begin code :lang<raku>
-  my LibXML::Element @nodes = $node.getElementsByLocalName($localname);
-  my LibXML::Node::Set $nodes = $node.getElementsByLocalName($localname);
-  =end code
-This function is not found in the DOM specification. It is a mix of
-getElementsByTagName and getElementsByTagNameNS. It will fetch all tags
-matching the given local-name. This allows one to select tags with the same
-local name across namespace borders.
 
-In item context this function returns an L<<<<<< LibXML::Node::Set >>>>>> object.
+    =head3 method appendTextNode
+      =begin code :lang<raku>
+      method appendTextNode( $PCDATA ) returns Mu
+      =end code
+    This wrapper function lets you add a string directly to an element node.
 
-=end item1
 
-=begin item1
-elements
+    =head3 method appendTextChild
+      =begin code :lang<raku>
+      method appendTextChild( QName $childname, $PCDATA ) returns LibXML::Element;
+      =end code
+    Somewhat similar with C<<<<<< appendTextNode >>>>>>: It lets you set an Element, that contains only a C<<<<<< text node >>>>>> directly by specifying the name and the text content.
 
-Equivalent to `.getElementsByLocalName('*')`
+    =head3 method setNamespace
+      =begin code :lang<raku>
+      method setNamespace( Str $nsURI, NCName $nsPrefix?, :$activate );
+      =end code
+    setNamespace() allows one to apply a namespace to an element. The function
+    takes a namespace URI, and an optional namespace prefix. If
+    prefix is not given, undefined or empty, this function reuses any existing
+    definition, in the element's scope, or generates a new prefix.
 
-=end item1
+    The :activate option is most useful: If this parameter is set to False, a
+    new namespace declaration is simply added to the element while the element's
+    namespace itself is not altered. Nevertheless, activate is set to True on
+    default. In this case the namespace is used as the node's effective namespace.
+    This means the namespace prefix is added to the node name and if there was a
+    namespace already active for the node, it will be replaced (but its declaration
+    is not removed from the document). A new namespace declaration is only created
+    if necessary (that is, if the element is already in the scope of a namespace
+    declaration associating the prefix with the namespace URI, then this
+    declaration is reused). 
 
-=begin item1
-appendWellBalancedChunk
-  =begin code :lang<raku>
-  $node.appendWellBalancedChunk( $chunk );
-  =end code
-Sometimes it is necessary to append a string coded XML Tree to a node. I<<<<<< appendWellBalancedChunk >>>>>> will do the trick for you. But this is only done if the String is C<<<<<< well-balanced >>>>>>.
+    The following example may clarify this:
 
-I<<<<<< Note that appendWellBalancedChunk() is only left for compatibility reasons >>>>>>. Implicitly it uses
+      =begin code :lang<raku>
+      my $e1 = $doc.createElement("bar");
+      $e1.setNamespace("http://foobar.org", "foo")
+      =end code
+    results in:
 
-  =begin code :lang<raku>
-  my LibXML::DocumentFragment $fragment = $parser.parse: :balanced, :$chunk;
-  $node.appendChild( $fragment );
-  =end code
+      =begin code :lang<xml>
+      <foo:bar xmlns:foo="http://foobar.org"/>
+      =end code
+    while:
 
-This form is more explicit and makes it easier to control the flow of a script.
+      =begin code :lang<raku>
+      my $e2 = $doc.createElement("bar");
+      $e2.setNamespace("http://foobar.org", "foo", :!activate)
+      =end code
 
-=end item1
+    results in:
 
-=begin item1
-appendText
-  =begin code :lang<raku>
-  $node.appendText( $PCDATA );
-  =end code
-alias for appendTextNode().
+      =begin code :lang<xml>
+      <bar xmlns:foo="http://foobar.org"/>
+      =end code
+    By using :!activate it is possible to create multiple namespace
+    declarations on a single element.
 
-=end item1
+    The function fails if it is required to create a declaration associating the
+    prefix with the namespace URI but the element already carries a declaration
+    with the same prefix but different namespace URI. 
 
-=begin item1
-appendTextNode
-  =begin code :lang<raku>
-  $node.appendTextNode( $PCDATA );
-  =end code
-This wrapper function lets you add a string directly to an element node.
 
-=end item1
+    =head3 method requireNamespace
+      =begin code :lang<raku>
+       use LibXML::Types ::NCName;
+       method requireNamespace(Str $uri) returns NCName
+      =end code
+    Return the prefix for any any existing namespace in the node's scope that
+    matches the URL. If not found, a new namespace is created for the URI
+    on the node with an anonimised prefix (_ns0, _ns1, ...).
 
-=begin item1
-appendTextChild
-  =begin code :lang<raku>
-  $node.appendTextChild( $childname , $PCDATA );
-  =end code
-Somewhat similar with C<<<<<< appendTextNode >>>>>>: It lets you set an Element, that contains only a C<<<<<< text node >>>>>> directly by specifying the name and the text content.
+    =head3 method setNamespaceDeclURI
+      =begin code :lang<raku>
+      method setNamespaceDeclURI( NCName $nsPrefix, Str $newURI ) returns Bool
+      =end code
+    This function is NOT part of any DOM API.
 
-=end item1
+    This function manipulates directly with an existing namespace declaration on an
+    element. It takes two parameters: the prefix by which it looks up the namespace
+    declaration and a new namespace URI which replaces its previous value.
 
-=begin item1
-setNamespace
-  =begin code :lang<raku>
-  $node.setNamespace( $nsURI , $nsPrefix, :$activate );
-  =end code
-setNamespace() allows one to apply a namespace to an element. The function
-takes three parameters: 1. the namespace URI, which is required and the two
-optional values prefix, which is the namespace prefix, as it should be used in
-child elements or attributes as well as the additional activate parameter. If
-prefix is not given, undefined or empty, this function tries to create a
-declaration of the default namespace. 
+    It returns True if the namespace declaration was found and changed, False otherwise.
 
-The activate parameter is most useful: If this parameter is set to False, a
-new namespace declaration is simply added to the element while the element's
-namespace itself is not altered. Nevertheless, activate is set to True on
-default. In this case the namespace is used as the node's effective namespace.
-This means the namespace prefix is added to the node name and if there was a
-namespace already active for the node, it will be replaced (but its declaration
-is not removed from the document). A new namespace declaration is only created
-if necessary (that is, if the element is already in the scope of a namespace
-declaration associating the prefix with the namespace URI, then this
-declaration is reused). 
+    All elements and attributes (even those previously unbound from the document)
+    for which the namespace declaration determines their namespace belong to the
+    new namespace after the change.  For example:
+      =begin code :lang<raku>
+      my LibXML::Element $elem = .root()
+          given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
+      $elem.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
+      say $elem.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
+      =end code
+    If the new URI is undefined or empty, the nodes have no namespace and no prefix
+    after the change. Namespace declarations once nulled in this way do not further
+    appear in the serialized output (but do remain in the document for internal
+    integrity of libxml2 data structures). 
 
-The following example may clarify this:
+    =head3 method setNamespaceDeclPrefix
+      =begin code :lang<raku>
+      method setNamespaceDeclPrefix( NCName $oldPrefix, NCName $newPrefix ) returns Bool
+      =end code
+    This function is NOT part of any DOM API.
 
-  =begin code :lang<raku>
-  my $e1 = $doc.createElement("bar");
-  $e1.setNamespace("http://foobar.org", "foo")
-  =end code
-results in:
+    This function manipulates directly with an existing namespace declaration on an
+    element. It takes two parameters: the old prefix by which it looks up the
+    namespace declaration and a new prefix which is to replace the old one.
 
-  =begin code :lang<xml>
-  <foo:bar xmlns:foo="http://foobar.org"/>
-  =end code
-while:
+    The function dies with an error if the element is in the scope of another
+    declaration whose prefix equals to the new prefix, or if the change should
+    result in a declaration with a non-empty prefix but empty namespace URI.
+    Otherwise, it returns True if the namespace declaration was found and changed,
+    or False if not found.
 
-  =begin code :lang<raku>
-  my $e2 = $doc.createElement("bar");
-  $e2.setNamespace("http://foobar.org", "foo", :!activate)
-  =end code
-
-results in:
-
-  =begin code :lang<xml>
-  <bar xmlns:foo="http://foobar.org"/>
-  =end code
-By using :!activate it is possible to create multiple namespace
-declarations on a single element.
-
-The function fails if it is required to create a declaration associating the
-prefix with the namespace URI but the element already carries a declaration
-with the same prefix but different namespace URI. 
-
-=end item1
-
-=begin item1
-requireNamespace
-  =begin code :lang<raku>
-   use LibXML::Types ::NCName;
-   my NCName:D $prefix = $node.requireNamespace(<http://myns.org>)
-  =end code
-Return the prefix for any any existing namespace in the node's scope that
-matches the URL. If not found, a new namespace is created for the URI
-on the node with an anonimised prefix (_ns0, _ns1, ...).
-
-=end item1
-
-=begin item1
-setNamespaceDeclURI
-  =begin code :lang<raku>
-  $node.setNamespaceDeclURI( $nsPrefix, $newURI );
-  =end code
-This function is NOT part of any DOM API.
-
-This function manipulates directly with an existing namespace declaration on an
-element. It takes two parameters: the prefix by which it looks up the namespace
-declaration and a new namespace URI which replaces its previous value.
-
-It returns True if the namespace declaration was found and changed, False otherwise.
-
-All elements and attributes (even those previously unbound from the document)
-for which the namespace declaration determines their namespace belong to the
-new namespace after the change.  For example:
-  =begin code :lang<raku>
-  my LibXML::Element $elem = .root()
-      given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
-  $elem.setNamespaceDeclURI( 'xxx', 'http://ns2.com'  );
-  say $elem.Str; # <Doc xmlns:xxx="http://ns2.com"><xxx:elem/></Doc>
-  =end code
-If the new URI is undefined or empty, the nodes have no namespace and no prefix
-after the change. Namespace declarations once nulled in this way do not further
-appear in the serialized output (but do remain in the document for internal
-integrity of libxml2 data structures). 
-
-=end item1
-
-=begin item1
-setNamespaceDeclPrefix
-  =begin code :lang<raku>
-  $node.setNamespaceDeclPrefix( $oldPrefix, $newPrefix );
-  =end code
-This function is NOT part of any DOM API.
-
-This function manipulates directly with an existing namespace declaration on an
-element. It takes two parameters: the old prefix by which it looks up the
-namespace declaration and a new prefix which is to replace the old one.
-
-The function dies with an error if the element is in the scope of another
-declaration whose prefix equals to the new prefix, or if the change should
-result in a declaration with a non-empty prefix but empty namespace URI.
-Otherwise, it returns True if the namespace declaration was found and changed,
-or False if not found.
-
-All elements and attributes (even those previously unbound from the document)
-for which the namespace declaration determines their namespace change their
-prefix to the new value. For example:
-  =begin code :lang<raku>
-  my $node = .root()
-      given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
-  $node.setNamespaceDeclPrefix( 'xxx', 'yyy' );
-  say $node.Str; # <Doc xmlns:yyy="http://ns.com"><yyy:elem/></Doc>
-  =end code
-If the new prefix is undefined or empty, the namespace declaration becomes a
-declaration of a default namespace. The corresponding nodes drop their
-namespace prefix (but remain in the, now default, namespace). In this case the
-function fails, if the containing element is in the scope of another default
-namespace declaration. 
-
-=end item1
+    All elements and attributes (even those previously unbound from the document)
+    for which the namespace declaration determines their namespace change their
+    prefix to the new value. For example:
+      =begin code :lang<raku>
+      my $node = .root()
+          given LibXML.parse('<Doc xmlns:xxx="http://ns.com"><xxx:elem/></Doc>');
+      $node.setNamespaceDeclPrefix( 'xxx', 'yyy' );
+      say $node.Str; # <Doc xmlns:yyy="http://ns.com"><yyy:elem/></Doc>
+      =end code
+    If the new prefix is undefined or empty, the namespace declaration becomes a
+    declaration of a default namespace. The corresponding nodes drop their
+    namespace prefix (but remain in the, now default, namespace). In this case the
+    function fails, if the containing element is in the scope of another default
+    namespace declaration. 
 
 
 =head2 Copyright

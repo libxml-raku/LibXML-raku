@@ -582,6 +582,7 @@ DLLEXPORT void
 domReleaseNode( xmlNodePtr node ) {
     xmlUnlinkNode(node);
     if ( domNodeIsReferenced(node) == 0 ) {
+        node->_private = xml6_ref_freed();
         xmlFreeNode(node);
     }
 }
@@ -886,15 +887,17 @@ domAppendChild( xmlNodePtr self,
     return head;
 }
 
-DLLEXPORT void
+DLLEXPORT xmlNodePtr
 domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value) {
     xmlChar* buffer;
+    xmlNodePtr rv = NULL;
     /* unlike xmlSetProp, xmlNewDocProp does not encode entities in value */
     buffer = xmlEncodeEntitiesReentrant(self->doc, value);
-    xmlNewChild( self, NULL, name, buffer );
+    rv = xmlNewChild( self, NULL, name, buffer );
     if ( buffer ) {
         xmlFree(buffer);
     }
+    return rv;
 }
 
 DLLEXPORT xmlNodePtr

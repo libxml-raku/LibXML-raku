@@ -13,6 +13,14 @@ struct _xml6Ref {
 typedef struct _xml6Ref xml6Ref;
 typedef xml6Ref *xml6RefPtr;
 
+static xml6Ref ref_freed = {
+    0, 0, NULL, NULL
+};
+
+DLLEXPORT void* xml6_ref_freed() {
+    return (void *) &ref_freed;
+}
+
 static xml6RefPtr
 _ref_new(void) {
     xml6RefPtr ref = (xml6RefPtr)xmlMalloc(sizeof(struct _xml6Ref));
@@ -57,7 +65,12 @@ xml6_ref_add(void** self_ptr) {
 
         if (self->magic != XML6_REF_MAGIC) {
             char msg[80];
-            sprintf(msg, "%p is not owned by us, or is corrupted", self);
+            if (self == &ref_freed) {
+                sprintf(msg, "%p has previously been freed", self);
+            }
+            else {
+                sprintf(msg, "%p is not owned by us, or is corrupted", self);
+            }
             xml6_warn(msg);
         }
         else {

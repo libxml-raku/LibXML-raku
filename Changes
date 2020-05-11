@@ -10,6 +10,7 @@
     - implemented $node.last(:!blank) option
     - renamed role LibXML::_DOMNode -> LibXML::_ParentRole
     - Added 'boxed' trait for native wrapping of simple methods
+    - DOM method appendTextChild now returns the added element
 0.3.1 2020-04-29
     - Add $node.ACCEPTS() method for XPath matching, e.g.:
       'self::foo' ~~ $node

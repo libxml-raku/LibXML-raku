@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-plan 199;
+plan 203;
 
 use LibXML;
 use LibXML::Document;
@@ -289,7 +289,11 @@ my @badnames= ("1A", "<><", "&", "-:");
     is( $elem.string-value , $plainstring ~ $stdentstring, ' TODO : Add test name' );
 
     $elem.appendTextChild( "foo");
-    $elem.appendTextChild( "foo" => "foo&bar" );
+    my LibXML::Element $text-child = $elem.appendTextChild( "foo" => "foo&bar" );
+    is $text-child, '<foo>foo&amp;bar</foo>';
+    is $text-child.name, 'foo';
+    is $text-child.textContent, "foo&bar";
+    ok $text-child.parent.isSame($elem);
 
     my @cn = $elem.childNodes;
     ok( @cn, ' TODO : Add test name' );

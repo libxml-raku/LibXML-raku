@@ -802,7 +802,7 @@ class anyNode is export does LibXML::Native::DOM::Node {
     method domRemoveChild(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domRemoveChildNodes(--> xmlDocFrag) is native($BIND-XML2) {*}
 
-    method domAppendTextChild(Str $name, Str $value) is native($BIND-XML2) {*}
+    method domAppendTextChild(Str $name, Str $value --> anyNode) is native($BIND-XML2) {*}
     method domAddNewChild(Str $uri, Str $name --> anyNode) is native($BIND-XML2) {*}
     method domSetNamespace(Str $URI, Str $prefix, int32 $flag --> int32) is native($BIND-XML2) {*}
     method first-child(int32 --> anyNode) is native($BIND-XML2) is symbol('xml6_node_first_child') {*}

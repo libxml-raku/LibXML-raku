@@ -13,7 +13,7 @@ DLLEXPORT void xml6_ref_set_fail(void*, xmlChar*);
 DLLEXPORT xmlChar* xml6_ref_get_fail(void*);
 DLLEXPORT int xml6_ref_lock(void*);
 DLLEXPORT int xml6_ref_unlock(void*);
-
+DLLEXPORT void* xml6_ref_freed();
 #define XML6_FAIL(self, msg) { self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return NULL;}
 #define XML6_FAIL_i(self, msg) {self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return -1;}
 

@@ -29,11 +29,11 @@ method elements {
 }
 
 #| adds a child element with tag $name and text content $value
-multi method appendTextChild(QName:D $name, Str $value?) {
-    $.native.appendTextChild($name, $value);
+multi method appendTextChild(QName:D $name, Str $value? --> LibXML::Node) {
+    self.box: $.native.appendTextChild($name, $value);
 }
 
 multi method appendTextChild(NameVal:D $_) {
-    $.native.appendTextChild(.key, .value);
+    $.appendTextChild(.key, .value);
 }
 

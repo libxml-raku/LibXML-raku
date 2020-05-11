@@ -201,12 +201,14 @@ subtest 'LibXML::Dtd' => {
 
 }
 
-subtest 'XML::LibXML::Element' => {
+subtest 'LibXML::Element' => {
     plan 8;
     use LibXML::Attr;
     use LibXML::Attr::Map;
     use LibXML::Node;
     use LibXML::Document;
+
+    #++ setup
     my $name = 'test-elem';
     my $aname = 'ns:att';
     my $avalue = 'my-val';
@@ -214,64 +216,82 @@ subtest 'XML::LibXML::Element' => {
     my $nsURI = 'http://test.org';
     my $newURI = 'http://test2.org';
     my $tagname = 'elem';
-    my LibXML::Node @nodes;
     my LibXML::Document $dom .= new;
     my $chunk = '<a>XXX</a><b/>';
     my $PCDATA = 'PC Data';
     my $nsPrefix = 'foo';
     my $newPrefix = 'bar';
     my $childname = 'kid';
-    my LibXML::Element $node;
-    my $attrnode;
+    my LibXML::Element $elem;
+    my LibXML::Attr $attrnode .= new: :name<att-key>, :value<att-val>;
     my Bool $boolean;
     my $activate = True;
-    $node .= new( $name );
-    $node.setAttribute( $aname, $avalue );
-    $node.setAttributeNS( $nsURI, $aname, $avalue );
-    $avalue = $node.getAttribute( $aname );
-    $avalue = $node.getAttributeNS( $nsURI, $aname );
-    $attrnode = $node.getAttributeNode( $aname );
-    $attrnode = $node.getAttributeNodeNS( $nsURI, $aname );
-    my LibXML::Attr::Map $attrs = $node.attributes();
-    my LibXML::Attr @props = $node.properties();
-    $node.removeAttribute( $aname );
-    $node.removeAttributeNS( $nsURI, $aname );
-    $boolean = $node.hasAttribute( $aname );
-    $boolean = $node.hasAttributeNS( $nsURI, $aname );
-    @nodes = $node.getChildrenByTagName($tagname);
-    @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
-    @nodes = $node.getChildrenByLocalName($localname);
-    @nodes = $node.getElementsByTagName($tagname);
-    @nodes = $node.getElementsByTagNameNS($nsURI,$localname);
-    @nodes = $node.getElementsByLocalName($localname);
-    $node.appendWellBalancedChunk( $chunk );
-    $node.appendText( $PCDATA );
-    $node.appendTextNode( $PCDATA );
-    $node.appendTextChild( $childname , $PCDATA );
-    $node.setNamespace( $nsURI , $nsPrefix, :$activate );
-    $node.setNamespaceDeclURI( $nsPrefix, $newURI );
-    $node.setNamespaceDeclPrefix( $nsPrefix, $newPrefix );
+    my Str $xpath-expression = '*';
+    #-- setup
 
-    # Associative and positional interfaces
-    my @z-grand-kids = $node<*/z>;   # equiv: $node.findnodes<*/z>;
-    my LibXML::Node @as = $node<a>;  # equivalent to: $node.findnodes<a>;
-    is $node<@ns:att>.Str, "my-val";
-    is $node[0].Str, '<a>XXX</a>';
-    is-deeply $node[0]<text()>.Str, 'XXX';
-    is-deeply $node.keys.sort, <@ns:att a b kid text()>;
-    is-deeply $node.attributes.keys.sort, ("ns:att", );
-    is-deeply $node.childNodes.keys, (0, 1, 2, 3);
-    my $bs = $node<b>:delete;
+    $elem .= new( $name );
+
+    # -- Attribute Methods -- #
+    $elem.setAttribute( $aname, $avalue );
+    $elem.setAttributeNS( $nsURI, $aname, $avalue );
+    $elem.setAttributeNode($attrnode, :ns);
+    $elem.removeAttributeNode($attrnode);
+    $avalue = $elem.getAttribute( $aname );
+    $avalue = $elem.getAttributeNS( $nsURI, $aname );
+    $attrnode = $elem.getAttributeNode( $aname );
+    $attrnode = $elem{'@'~$aname}; # xpath attribute selection
+    $attrnode = $elem.getAttributeNodeNS( $nsURI, $aname );
+    my Bool $has-atts = $elem.hasAttributes();
+    my LibXML::Attr::Map $attrs = $elem.attributes();
+    my LibXML::Attr @props = $elem.properties();
+    $elem.removeAttribute( $aname );
+    $elem.removeAttributeNS( $nsURI, $aname );
+    $boolean = $elem.hasAttribute( $aname );
+    $boolean = $elem.hasAttributeNS( $nsURI, $aname );
+
+    # -- Navigation Methods -- #
+    my LibXML::Node @nodes = $elem.getChildrenByTagName($tagname);
+    @nodes = $elem.getChildrenByTagNameNS($nsURI,$tagname);
+    @nodes = $elem.getChildrenByLocalName($localname);
+    @nodes = $elem.children; # all child nodes
+    @nodes = $elem.children(:!blank); # non-blank child nodes
+
+    my LibXML::Element @elems = $elem.getElementsByTagName($tagname);
+    @elems = $elem.getElementsByTagNameNS($nsURI,$localname);
+    @elems = $elem.getElementsByLocalName($localname);
+    @elems = $elem.elements();
+
+    #-- DOM Manipulation Methods -- #
+    $elem.appendWellBalancedChunk( $chunk );
+    $elem.addNewChild( $nsURI, $name );
+    $elem.appendText( $PCDATA );
+    $elem.appendTextNode( $PCDATA );
+    $elem.appendTextChild( $childname , $PCDATA );
+    $elem.setNamespace( $nsURI , $nsPrefix, :$activate );
+    $elem.setNamespaceDeclURI( $nsPrefix, $newURI );
+    $elem.setNamespaceDeclPrefix( $nsPrefix, $newPrefix );
+
+    # Associative interface
+    @nodes = $elem{$xpath-expression};  # xpath node selection
+    my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
+    my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+    is $elem<@ns:att>.Str, "my-val";
+    is $elem[0].Str, '<a>XXX</a>';
+    is-deeply $elem[0]<text()>.Str, 'XXX';
+    is-deeply $elem.keys.sort, <@ns:att a b kid ns:test-elem text()>;
+    is-deeply $elem.attributes.keys.sort, ("ns:att", );
+    is-deeply $elem.childNodes.keys, (0, 1, 2, 3, 4);
+    my $bs = $elem<b>:delete;
     is $bs[0].Str, '<b/>';
 
     # verify detailed handling of namespaces, as documented for setAttributeNS
     my $aname2 = 'ns2:att2';
     my $avalue2 = 'my-val2';
-    $node.setAttributeNS( $nsURI, $aname2, $avalue2 );
-    is $node<@ns:att2>, $avalue2;
+    $elem.setAttributeNS( $nsURI, $aname2, $avalue2 );
+    is $elem<@ns:att2>, $avalue2;
 }
 
-subtest 'XML::LibXML::InputCallback' => {
+subtest 'LibXML::InputCallback' => {
     plan 1;
     my class MyScheme{
         subset URI of Str where .starts-with('myscheme:');

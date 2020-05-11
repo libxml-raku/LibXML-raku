@@ -60,15 +60,15 @@ method getAttributeNode(QName:D $att-name) {
     self.domGetAttributeNode($att-name);
 }
 
-method hasAttribute(Str $att-name --> Bool) {
+method hasAttribute(QName:D $att-name --> Bool) {
     self.getAttributeNode($att-name).defined;
 }
 
-method hasAttributeNS(Str $uri, Str $att-name --> Bool) {
+method hasAttributeNS(Str $uri, QName:D $att-name --> Bool) {
     ? self.domHasAttributeNS($uri, $att-name);
 }
 
-method removeAttribute(Str:D $attr-name) {
+method removeAttribute(QName:D $attr-name) {
     with self.getAttributeNode($attr-name) {
         .Release; True;
     }

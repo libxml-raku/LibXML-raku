@@ -305,8 +305,9 @@ _domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
     xmlNodePtr twig = (xmlNodePtr) entry;
     xmlNodePtr owner = _domItemOwner(twig);
     if (owner) {
-        if (domNodeIsReferenced(owner) == 0) {
-            xmlFreeNode(owner);
+        int orphaned = owner->parent == NULL && owner->prev == NULL && owner->next == NULL;
+        if (orphaned) {
+            domReleaseNode(owner);
         }
     }
     else {

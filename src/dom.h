@@ -126,7 +126,7 @@ DLLEXPORT xmlNodePtr
 domAppendChild( xmlNodePtr self,
                 xmlNodePtr newChild );
 
-DLLEXPORT void
+DLLEXPORT xmlNodePtr
 domAppendTextChild( xmlNodePtr self, unsigned char *name, unsigned char *value);
 
 DLLEXPORT xmlNodePtr

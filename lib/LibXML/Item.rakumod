@@ -130,7 +130,7 @@ method keep(LibXML::Native::DOM::Node $rv,
     } // self.WHAT;
 }
 multi trait_mod:<is>(
-    Method $m where .yada, ## && .returns ~~ LibXML::Item && !.signature.params>>.type.first(LibXML::Item)
+    Method $m where {.yada, && .returns ~~ LibXML::Item && !.signature.params>>.type.first(LibXML::Item)},
     :$boxed!) is export(:boxed) {
     my $name = $boxed ~~ Str:D ?? $boxed !! $m.name;
     $m.wrap: method (|c) {

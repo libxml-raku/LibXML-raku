@@ -95,11 +95,9 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
         my $dtd2 = $doc.internalSubset.cloneNode(:deep);
         ok($dtd2, ' TODO : Add test name');
 
-#        $doc2.setInternalSubset( $dtd2 );
-#        warn $doc2.Str;
+        $doc2.setInternalSubset( $dtd2 );
 
-#        $e.appendChild( $entity );
-#        warn $doc2.Str;
+        $e.appendChild( $entity );
     }
 }
 
