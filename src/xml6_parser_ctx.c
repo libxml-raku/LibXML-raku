@@ -63,3 +63,21 @@ xml6_parser_ctx_html_create_buf(const xmlChar *buf, int len, const char *encodin
 
     return(ctxt);
 }
+
+DLLEXPORT int
+xml6_parser_ctx_close(xmlParserCtxtPtr self) {
+    int i;
+    int compressed = 0;
+    for (i = self->inputNr - 1; i >= 0; i--) {
+        xmlParserInputPtr input = self->inputTab[i];
+        xmlParserInputBufferPtr buf = input->buf;
+        if (buf != NULL) {
+            if (buf->compressed != 0) {
+                compressed = 1;
+            }
+            xmlFreeParserInputBuffer(buf);
+            input->buf = NULL;
+        }
+    }
+    return compressed;
+}
