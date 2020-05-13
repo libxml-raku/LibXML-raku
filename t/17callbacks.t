@@ -145,8 +145,8 @@ my ($read1_non_global_counter, $read1_global_counter) =
     my $dom = $parser.parse: :file("example/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for expand_include called twice.');
-    todo('issue#34 - unreliable close() callback');
-    $close1_non_global_counter.test(2, 'close1 for expand_include called.');
+    # I think the second close gets called when the parser context is freed
+    $close1_non_global_counter.test(1, 'close1 for expand_include called.');
     $match1_non_global_counter.test(2, 'match1 for expand_include called twice.');
 
     $open1_non_global_counter.test(2, 'expand_include open1 worked.');
@@ -193,8 +193,7 @@ my ($read1_non_global_counter, $read1_global_counter) =
     my $dom2 = $parser2.parse: :file("example/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for $parser out of ($parser,$parser2)');
-    todo('issue#34 - unreliable close() callback');
-    $close1_non_global_counter.test(2, 'close1 for $parser out of ($parser,$parser2)');
+    $close1_non_global_counter.test(1, 'close1 for $parser out of ($parser,$parser2)');
 
     $match1_non_global_counter.test(2, 'match1 for $parser out of ($parser,$parser2)');
     $open1_non_global_counter.test(2, 'expand_include for $parser out of ($parser,$parser2)');
@@ -244,7 +243,6 @@ my $input-callbacks = LibXML::InputCallback.new: :callbacks{
 
     $match1_global_counter.test(3, 'match1 for global callback.');
 
-    todo('issue#34 - unreliable close() callback');
     $close1_global_counter.test(3, 'close1 for global callback.');
 
     $read1_global_counter.test(3, 'read1 for global counter.');
