@@ -101,6 +101,7 @@ multi method parse(Str:D() :$string!,
         $native.input.filename = $_ with $URI;
         $ctx.set-native: $native;
         $native.ParseDocument;
+        $ctx.close();
     };
     self!publish: :$ctx;
 }
@@ -119,7 +120,10 @@ multi method parse(Blob:D :$buf!,
     $native.input.filename = $_ with $URI;
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$native, :$html, |%opts;
-    $ctx.try: { $native.ParseDocument };
+    $ctx.try: {
+        $native.ParseDocument;
+        $ctx.close();
+    };
     self!publish: :$ctx;
 }
 
@@ -139,6 +143,7 @@ multi method parse(Str() :$file!,
             without $native;
         $ctx.set-native: $native;
         $native.ParseDocument;
+        $ctx.close();
     };
 
     self!publish: :$URI, :$ctx;
@@ -160,7 +165,9 @@ multi method parse(UInt :$fd!,
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
         $ctx.set-native: $native;
+        IO::Handle.?forget-about-closing($fd);
         $doc = $native.ReadFd($fd, $URI, $enc, $flags);
+        $ctx.close();
     };
 
     self!publish: :$ctx, :native($doc);

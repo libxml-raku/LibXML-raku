@@ -10,6 +10,7 @@ use LibXML::_Options;
 has xmlParserCtxt $!native handles <wellFormed valid>;
 has uint32 $.flags = LibXML::Config.default-parser-flags;
 method flags is rw {with self { $!flags } else { LibXML::Config.default-parser-flags } }
+has Bool $.input-compressed;
 has Bool $.line-numbers;
 has $.input-callbacks;
 has $.sax-handler;
@@ -46,6 +47,10 @@ also does LibXML::_Options[%Opts];
 also does LibXML::ErrorHandling;
 
 method native { $!native }
+method close {
+    $!input-compressed = ? .Close()
+        with $!native;
+}
 
 method set-native(xmlParserCtxt $native) {
     .Reference with $native;

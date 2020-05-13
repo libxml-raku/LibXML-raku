@@ -121,7 +121,7 @@ subset HTML is export(:HTML) of LibXML::Document:D where .nodeType == XML_HTML_D
 subset DOCB is export(:DOCB) of LibXML::Document:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
 
 constant config = LibXML::Config;
-has LibXML::Parser::Context $.ctx handles <wellFormed valid>;
+has LibXML::Parser::Context $.ctx handles <wellFormed valid input-compressed>;
 has LibXML::Element $!docElem;
 
 =begin pod
@@ -303,19 +303,12 @@ method compression is rw returns Int {
     );
 }
 
-#| whether the input was compressed
-method input-compressed returns Bool {
-    with self.?ctx.native.?input.?buf.compressed {
-        $_ != 0
-    } else {
-        Bool
-    };
-}
 =begin pod
+    =head3 method input-compressed
     =begin code :lang<raku>
+    method input-compressed() returns Bool'
     # get input compression
     my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
-    my Bool $compressed = $doc.input-compressed;
     # set output compression
     if LibXML.have-compression {
         $doc.compression = $zip-level;
@@ -325,7 +318,9 @@ method input-compressed returns Bool {
         $doc.write: :file<test.xml>;
     }
     =end code
-    =para libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
+    =para detect whether input was compressed
+
+    libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
 
     If one intends to write the document directly to a file, it is possible to set
     the compression level for a given document. This level can be in the range from

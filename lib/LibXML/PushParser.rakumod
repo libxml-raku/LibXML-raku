@@ -24,6 +24,7 @@ class LibXML::PushParser {
         $!ctx.try: :$recover, {
             with $!ctx.native {
                 .ParseChunk($chunk, $size, +$terminate);
+                $!ctx.close() if $terminate;
             }
             else {
                 die "parser has been finished";

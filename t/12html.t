@@ -39,8 +39,6 @@ $doc = $parser.parse: :html, :$io;
 
 ok($doc, ' TODO : Add test name');
 
-$io.close();
-
 # parsing HTML's CGI calling links
 
 my $strhref = q:to<EOHTML>;
@@ -153,7 +151,6 @@ EOHTML
 
     $io = $test_file.IO.open(:r);
     $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>, :URI<foo>;
-    $io.close;
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
@@ -167,7 +164,6 @@ skip "iso-8859-2 nyi", 2;
         # translate to UTF8 on perl-side
         $io = $test_file.IO.open( :r,  :enc<iso-8859-2>);
         $htmldoc = $parser.parse, :html, :$io, :enc<utf-8>;
-        $io.close;
         ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
         is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
     }
