@@ -51,18 +51,19 @@ LibXML - Raku bindings to the libxml2 native library
     my Version $library-version = LibXML.version;
     my Version $module-version = LibXML.^ver;
     =end code
+
 =head1 DESCRIPTION
 
-    This module is an interface to libxml2, providing XML and HTML parsers with
-    DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and
-    a XML::XPath-like interface to XPath API of libxml2.
+This module is an interface to libxml2, providing XML and HTML parsers with
+DOM, SAX and XMLReader interfaces, a large subset of DOM Layer 3 interface and
+a XML::XPath-like interface to XPath API of libxml2.
 
-    For further information, please check the following documentation:
+For further information, please check the following documentation:
 
 =head2 DOM Objects
 
-    The nodes in the Document Object Model (DOM) are represented by the following
-  classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
+The nodes in the Document Object Model (DOM) are represented by the following
+classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
 
   =item L<LibXML::Document> - LibXML DOM attribute class
 

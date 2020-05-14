@@ -1,12 +1,12 @@
+#| LibXML based push parser
 class LibXML::PushParser {
     use LibXML::Native;
     use LibXML::Parser::Context;
     use LibXML::Document;
+    use Method::Also;
 
     has Bool $.html;
-    has @!errors;
     has LibXML::Parser::Context $!ctx;
-    has Int $.err = 0;
 
     multi submethod TWEAK(Str :chunk($str), |c) {
         my $chunk = $str.encode;
@@ -20,7 +20,7 @@ class LibXML::PushParser {
         $!ctx .= new: :$native, |c;
     }
 
-    method !parse-chunk(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
+    method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
         $!ctx.try: :$recover, {
             with $!ctx.native {
                 .ParseChunk($chunk, $size, +$terminate);
@@ -32,16 +32,17 @@ class LibXML::PushParser {
         }
     }
 
+    proto method parse-chunk($, |)  is also<push> {*} 
     multi method push(Str $chunk, |c) {
-        self!parse-chunk($chunk.encode, |c);
+        self!parse($chunk.encode, |c);
     }
 
     multi method push(Blob $chunk, |c) is default {
-        self!parse-chunk($chunk, |c);
+        self!parse($chunk, |c);
     }
 
     method finish-push(Str :$URI, Bool :$recover, :$sax-handler, |c) {
-        self!parse-chunk: :terminate, :$recover, |c;
+        self!parse: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
         my xmlDoc $native = $!ctx.native.myDoc;
@@ -58,11 +59,8 @@ class LibXML::PushParser {
 }
 
 =begin pod
-=head1 NAME
 
-LibXML::PushParser - LibXMl based push parser
-
-=head1 SYNOPSIS
+=head2 Synopsis
 
   =begin code :lang<raku>
   # Perl 5 Compatible Interface
@@ -85,7 +83,7 @@ LibXML::PushParser - LibXMl based push parser
   my $doc = $parser.finish-push;
   =end code
 
-=head1 DESCRIPTION
+=head2 Description
 
 LibXML::PushParser provides a push parser interface. Rather than pulling the data from a
 given source the push parser waits for the data to be pushed into it.
@@ -107,12 +105,14 @@ An initial chunk is usually supply to the push parser `new` method as a Str or B
 `:$chunk` option. This allows the push parser to detect encoding. Subsequent chunks
 may be supplied as types Str or Blob.
 
-=begin item1
-parse-chunk
+=head2 Methods
+
+=head3 method parse-chunk
   =begin code :lang<raku>
+  multi method parse-chunk(Str $chunk, Bool :$terminate) returns Mu;
+  multi method parse-chunk(Blob $chunk, Bool :$terminate) returns Mu;
   $parser.parse-chunk($string?, :$terminate);
   $parser.parse-chunk($blob?, :$terminate);
-  $parser.parse-chunks(@chunks, :$terminate);
   =end code
 parse-chunk() tries to parse a given chunk, or chunks of data, which isn't necessarily
 well balanced data. The function takes two parameters: The chunk of data as a
@@ -127,27 +127,22 @@ will be returned as the following example describes:
   }
   my LibXML::Document $doc = $push-parser.finish-push; # terminate the parsing
   =end code
-=end item1
 
 Internally LibXML provides three functions that control the push parser
 process:
 
-=begin item1
-push
+=head3 method append
   =begin code :lang<raku>
-  $parser.push(@chunks);
+  $parser.append(@chunks);
   =end code
 This function pushes the data stored inside the array to libxml2's parser. Each
-entry in @chunks must be a string! This method can be called repeatedly.
+entry in @chunks must be a Blob or Str. This method can be called repeatedly.
 
-=end item1
-
-=begin item1
-finish-push
+=head3 method finish-push
   =begin code :lang<raku>
-  $doc = $parser.finish-push( :$URI, :$recover );
+  method finish-push( Str :$URI, Bool :$recover );
   =end code
-This function returns the result of the parsing process. If this function is
+This function returns the result of the parsing process, usually a L<LibXML::Document> object. If this function is
 called without a parameter it will complain about non well-formed documents. If
 :$recover is True, the push parser can be used to restore broken or non well formed
 (XML) documents as the following example shows:
@@ -172,10 +167,9 @@ This can be annoying if the closing tag is missed by accident. The following cod
   
   print $doc.Str(); # returns "<foo>bar</foo>"
   =end code
-=end item1
 
 
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -183,7 +177,7 @@ This can be annoying if the closing tag is missed by accident. The following cod
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
