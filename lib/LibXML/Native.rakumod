@@ -1449,6 +1449,7 @@ class xmlParserCtxt is export {
     method NewInputFile(Str --> xmlParserInput) is native($XML2) is export is symbol('xmlNewInputFromFile') {*}
     method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method GetLastError(--> xmlError) is native($XML2) is symbol('xmlCtxtGetLastError') is native($XML2) {*}
+    method Close(--> int32) is native($BIND-XML2) is symbol('xml6_parser_ctx_close') {*}
     method ParserError(Str $msg) is native($XML2) is symbol('xmlParserError') {*}
     method StopParser is native($XML2) is symbol('xmlStopParser') { * }
     method Reference is native($BIND-XML2) is symbol('xml6_parser_ctx_add_reference') {*}
