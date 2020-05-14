@@ -1,3 +1,4 @@
+#| Parse XML with LibXML
 unit class LibXML::Parser;
 
 use LibXML::Config;
@@ -149,12 +150,12 @@ multi method parse(Str() :$file!,
     self!publish: :$URI, :$ctx;
 }
 
-multi method parse(UInt :$fd!,
-                   Str :$URI = $!URI,
-                   Bool() :$html = $!html,
-                   xmlEncodingStr :$enc = $!enc,
-                   *%opts,
-                  ) {
+method !parse-fd(UInt $fd,
+                 Str :$URI = $!URI,
+                 Bool() :$html = $!html,
+                 xmlEncodingStr :$enc = $!enc,
+                 *%opts,
+                ) {
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
     my UInt $flags = self.get-flags(|%opts, :$html);
@@ -165,7 +166,6 @@ multi method parse(UInt :$fd!,
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
         $ctx.set-native: $native;
-        IO::Handle.?forget-about-closing($fd);
         $doc = $native.ReadFd($fd, $URI, $enc, $flags);
         $ctx.close();
     };
@@ -173,11 +173,16 @@ multi method parse(UInt :$fd!,
     self!publish: :$ctx, :native($doc);
 }
 
-multi method parse(IO::Handle :$io!,
+multi method parse(:$fd!, |c) is DEPRECATED('parse :fd option. Please use :io option') {
+    self!parse-fd($fd, |c);
+}
+
+multi method parse(IO::Handle:D :$io!,
                    Str :$URI = $io.path.path,
                    |c) {
     my UInt:D $fd = $io.native-descriptor;
-    self.parse( :$fd, :$URI, |c);
+    $io.?do-not-close-at-exit();
+    self!parse-fd( $fd, :$URI, |c);
 }
 
 multi method parse(IO() :io($path)!, |c) {
@@ -192,7 +197,6 @@ multi method parse(Str() :location($file)!, |c) {
 # parse from a Miscellaneous source
 multi method parse(Any:D $src, |c) is default {
     my Pair $in = do with $src {
-        when UInt       { :fd($_) }
         when IO::Handle
         |    IO::Path   { :io($_) }
         when Blob       { :buf($_) }
@@ -212,13 +216,16 @@ multi method push(Str() $chunk) {
         $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
     }
 }
+multi method push(@chunks) is default is DEPRECATED<append> {
+    $.append(@chunks);
+}
 multi method parse(:$chunk!, |c) {
    $.parse-chunk($chunk, |c);
 }
 multi method parse(:$terminate!, |c) {
    $.parse-chunk(:$terminate, |c);
 }
-multi method push(@chunks) is default { self.push($_) for @chunks }
+method append(@chunks) { self.push($_) for @chunks }
 method parse-chunk($chunk?, :$terminate, |c) {
     $.push($_) with $chunk;
     $.finish-push(|c)
@@ -273,18 +280,15 @@ method FALLBACK($key, |c) is rw {
 }
 
 =begin pod
-=head1 NAME
 
-LibXML::Parser - Parsing XML Data with LibXML
-
-=head1 SYNOPSIS
+=head2 Synopsis
 
   =begin code :lang<raku>
   use LibXML;
 
   # Parser constructor
   
-  my LibXML $parser .= new: |%opts;
+  my LibXML $parser .= new: :$catalog, |%opts;
   
   # Parsing XML
   
@@ -326,22 +330,26 @@ LibXML::Parser - Parsing XML Data with LibXML
   			    
   $parser.parse-chunk($string, :$terminate);
   $parser.init-push();
-  $parser.push(@strings);
+  $parser.push($chunk);
+  $parser.append(@chunks);
   $doc = $parser.finish-push( :$recover );
-  
+
   # Set/query parser options
-                      
+
+  my LibXML $parser .= new: name => $value, ...;
+  # -OR-
   $parser.option-exists($name);
   $parser.get-option($name);
-  $parser.set-option($name,$value);
+  $parser.set-option($name, $value);
   $parser.set-options(name => $value, ...);
   
   # XML catalogs
-                      
+  my LibXML $parser .= new: catalog => $catalog-file, |%opts
+  # -OR-
   $parser.load-catalog( $catalog-file );
   =end code
 
-=head1 PARSING
+=head2 Parsing
 
 An XML document is read into a data structure such as a DOM tree by a piece of
 software, called a parser. LibXML currently provides four different parser
@@ -360,17 +368,14 @@ interfaces:
 
 LibXML provides an OO interface to the libxml2 parser functions.
 
-=begin item1
-new
+=head3 method new
 =begin code :lang<raku>
-my LibXML $parser .= new();
+method new(Str :$catalog, *%opts) returns LibXML
 my LibXML $parser .= new: :$opt1, :$opt2, ...;
 =end code
 Create a new XML and HTML parser instance. Each parser instance holds default
 values for various parser options. Optionally, one can pass options to override
 default.
-
-=end item1
 
 
 =head2 DOM Parser
@@ -387,10 +392,11 @@ All of the functions listed below will throw an exception if the document is
 invalid. To prevent this causing your program exiting, wrap the call in a
 try {} block
 
-=begin item1
-parse
+=head3 method parse
   =begin code :lang<raku>
-  my LibXML::Document::HTML $dom;
+  method parse(*%opts) returns LibXML::Document
+
+  my LibXML::Document $dom;
 
   $dom = LibXML.parse(
       location => $file-or-url,
@@ -412,18 +418,13 @@ parse
       :$html, :$URI, :$enc,
       # parser options ...
     );
-  $dom = LibXML.parse(
-      fd => $file-descriptor-num,
-      :$html, :$URI, :$enc,
-      # parser options ...
-    );
   $dom = LibXML.parse( $src, :$html, :$URI, :$enc,
       # parser options ...
   );
   $dom = $parser.parse(...);
   =end code  			  
 
-This function provides an interface
+This method provides an interface
 to the XML parser that parses given file (or URL), string, or input stream to a
 DOM tree. The function can be called as a class method or an object method. In
 both cases it internally creates a new parser instance passing the specified
@@ -431,10 +432,10 @@ parser options; if called as an object method, it clones the original parser
 (preserving its settings) and additionally applies the specified options to the
 new parser. See the constructor C<<<<<< new >>>>>> and L<<<<<< Parser Options >>>>>> for more information. 
 
-=end item1
+Note: Although this method usually returns a `LibXML::Document` object. It can be requisitioned to return other document types by providing
+a `:sax-handler` that returns an alternate document via a `publish()` method. See L<LibXML::SAX::Builder>. L<LibXML::SAX::Handler::XML>, for example produces pure Raku XML document objects.
 
-=begin item1
-parse: :html
+=head4 method parse - `:html` option
 
   =begin code :lang<raku>
   use LibXML::Document :HTML;  
@@ -443,8 +444,6 @@ parse: :html
   =end code			  
 
 The :html option provides an interface to the HTML parser.
-
-=end item1
 
 Parsing HTML may cause problems, especially if the ampersand ('&') is used.
 This is a common problem if HTML code is parsed that contains links to
@@ -459,24 +458,61 @@ In some cases a program gets well balanced XML instead of well formed documents
 such fragments in the code, because LibXML is capable even to parse well
 balanced XML fragments.
 
-=begin item1
-parse-balanced
+=head4 method parse `:file` option
   =begin code :lang<raku>
-  my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
+  $doc = $parser.parse: :file( $xmlfilename );
+  =end code
+The :file option parses an XML document from a file or network; $xmlfilename can be either a filename or an URL.
+
+
+=head4 method parse `:io` option
+  =begin code :lang<raku>
+  $doc = $parser.parse: :io( $io-fh );
+  =end code
+parse: :io parses an IO::Handle object.
+
+
+=head4 method parse `:string` option
+  =begin code :lang<raku>
+  $doc = $parser.parse: :string( $xmlstring);
+  =end code
+This function parses an XML document that is
+available as a single string in memory. You can pass an optional base URI string to the function.
+
+  =begin code :lang<raku>
+  my $doc = $parser.parse: :string($xmlstring);
+  my $doc = $parser.parse: :string($xmlstring), :$URI;
+  =end code
+
+=head4 method parse `:html` option
+  =begin code :lang<raku>
+  use LibXML::Document :HTML;
+  my HTML $doc;
+  $doc = $parser.parse: :html, :file( $htmlfile) , |%opts;
+  $doc = $parser.parse: :html, :io($io-fh), |%opts;
+  $doc = $parser.parse: :html: :string($htmlstring), |%opts;
+  # etc..
+  =end code
+
+=head3 method parse-balanced
+  =begin code :lang<raku>
+  method parse-balanced(
+      Str() string => $string,
+      LibXML::Document :$doc
+  ) returns LibXML::DocumentFragment;
   =end code
 This function parses a well balanced XML string into a L<LibXML::DocumentFragment> object. The string argument contains the input XML string.
 
-=end item1
+
+=head3 method process-xincludes
+  =begin code :lang<raku>
+  method process-xincludes( LibXML::Document $doc ) returns UInt;
+  =end code
 
 By default LibXML does not process XInclude tags within an XML Document (see
 options section below). LibXML allows one to post-process a document to expand
 XInclude tags.
 
-=begin item1
-process-xincludes
-  =begin code :lang<raku>
-  $parser.process-xincludes( $doc );
-  =end code
 After a document is parsed into a DOM structure, you may want to expand the
 documents XInclude tags. This function processes the given document structure
 and expands all XInclude tags (or throws an error) by using the flags and
@@ -494,60 +530,11 @@ restored!
 If the parser flag "expand-xinclude" is set to True, you need not to post process
 the parsed document.
 
-=end item1
-
-=begin item1
-processXIncludes
+=head3 method processXIncludes
   =begin code :lang<raku>
-  $parser.processXIncludes( $doc );
+  method processXIncludes(LibXML::Document $doc) returns UInt
   =end code
 This is an alias to process-xincludes, but through a JAVA like function name.
-
-=end item1
-
-=begin item1
-parse: :file
-  =begin code :lang<raku>
-  $doc = $parser.parse: :file( $xmlfilename );
-  =end code
-The :file option parses an XML document from a file or network; $xmlfilename can be either a filename or an URL.
-
-=end item1
-
-=begin item1
-parse: :io
-  =begin code :lang<raku>
-  $doc = $parser.parse: :io( $io-fh );
-  =end code
-parse: :io parses an IO::Handle object.
-
-=end item1
-
-=begin item1
-parse: :string
-  =begin code :lang<raku>
-  $doc = $parser.parse: :string( $xmlstring);
-  =end code
-This function parses an XML document that is
-available as a single string in memory. You can pass an optional base URI string to the function.
-
-  =begin code :lang<raku>
-  my $doc = $parser.parse: :string($xmlstring);
-  my $doc = $parser.parse: :string($xmlstring), :$URI;
-  =end code
-=end item1
-
-=begin item1
-parse: :html
-  =begin code :lang<raku>
-  use LibXML::Document :HTML;
-  my HTML $doc;
-  $doc = $parser.parse: :html, :file( $htmlfile) , |%opts;
-  $doc = $parser.parse: :html, :io($io-fh), |%opts;
-  $doc = $parser.parse: :html: :string($htmlstring), |%opts;
-  # etc..
-  =end code
-=end item1
 
 =head2 Push Parser
 
@@ -558,47 +545,49 @@ Please see L<LibXML::PushParser> for more details.
 
 For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a L<LibXML::Parser> object.
 
-=begin item1
-init-push
+=head3 method init-push
   =begin code :lang<raku>
-  $parser.init-push();
+  method init-push($first-chunk?) returns Mu
   =end code
 Initializes the push parser.
 
-=end item1
 
-=begin item1
-push
+=head3 method push
   =begin code :lang<raku>
-  $parser.push(@chunks);
+  method push($chunks) returns Mu
+  =end code
+This function pushes a chunk to libxml2's parser. `$chunk` may be a string or blob. This method can be called repeatedly.
+
+
+=head3 method append
+  =begin code :lang<raku>
+  method append(@chunks) returns Mu
   =end code
 This function pushes the data stored inside the array to libxml2's parser. Each
-entry in @chunks may be a string or blob! This method can be called repeatedly.
+entry in @chunks may be a string or blob. This method can be called repeatedly.
 
-=end item1
 
-=begin item1
-finish-push
+=head3 method finish-push
   =begin code :lang<raku>
-  $doc = $parser.finish-push( :$URI, :$recover );
+  method finish-push(
+      Str :$URI, Bool :$recover
+  ) returns LibXML::Document
   =end code
 This function returns the result of the parsing process. If this function is
 called without a parameter it will complain about non well-formed documents. If
 :$recover is True, the push parser can be used to restore broken or non well formed (XML) documents.
-
-=end item1
 
 
 =head2 Pull Parser (Reader)
 
 LibXML also provides a pull-parser interface similar to the XmlReader interface
 in .NET. This interface is almost streaming, and is usually faster and simpler
-to use than SAX. See L<<<<<< LibXML::Reader >>>>>>.
+to use than SAX. See L<<<<<<LibXML::Reader>>>>>>.
 
 
 =head2 Direct SAX Parser
 
-LibXML provides a direct SAX parser in the L<<<<<< LibXML::SAX >>>>>> module.
+LibXML provides a direct SAX parser in the L<<<<<<LibXML::SAX>>>>>> module.
 
 
 =head2 DOM based SAX Parser
@@ -613,14 +602,14 @@ directly, using the reparse() method:
 This is useful for serializing DOM trees, for example that you might have done
 prior processing on, or that you have as a result of XSLT processing.
 
-I<<<<<< WARNING >>>>>>
+I<<<<<<WARNING>>>>>>
 
 This is NOT a streaming SAX parser. This parser reads the
 entire document into a DOM and serialises it. If you want a streaming SAX
-parser look at the L<<<<<< LibXML::SAX >>>>>> man page
+parser look at the L<<<<<<LibXML::SAX>>>>>> man page
 
 
-=head1 SERIALIZATION
+=head2 Serialization Options
 
 LibXML provides some functions to serialize nodes and documents. The
 serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the L<<<<<< LibXML::Document >>>>>> documentation. LibXML checks three global flags that alter the serialization process:
@@ -634,9 +623,6 @@ serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the 
 They are defined globally, but can be overriden by options to the `Str` or `Blob` methods on nodes. For example:
 
   =begin code :lang<raku>
-  temp LibXML.skip-xml-declaration = True;
-  temp LibXML.skip-dtd = True;
-  temp LibXML.tag-expansion = False;
   say $doc.Str: :skip-xml-declaration, :skip-dtd, :tag-expansion;
   =end code
 
@@ -657,44 +643,41 @@ Handling of libxml2 parser options has been unified and improved in LibXML
 passing them to the constructor as C<<<<<< LibXML-&gt;new({name=&gt;value, ...}) >>>>>> or C<<<<<< LibXML-&gt;new(name=&gt;value,...) >>>>>>. The options can be queried and changed using the following methods (pre-1.70
 interfaces such as C<<<<<< $parser-&gt;load-ext-dtd(0) >>>>>> also exist, see below): 
 
-=begin item1
-option-exists
+=head3 method option-exists
   =begin code :lang<raku>
-  $parser.option-exists($name);
+  method option-exists(Str $name) returns Bool
   =end code
 Returns True if the current LibXML version supports the option C<<<<<< $name >>>>>>, otherwise returns False (note that this does not necessarily mean that the option
 is supported by the underlying libxml2 library).
 
-=end item1
-
-=begin item1
-get-option
+=head3 method get-option
   =begin code :lang<raku>
-  $parser.get-option($name);
+  method get-option(Str $name) returns Mu
   =end code
-Returns the current value of the parser option C<<<<<< $name >>>>>>.
+Returns the current value of the parser option, where `$name` is both
+case and snake/kebab-case independent.
 
-=end item1
+Note also that boolean options can be negated via a `no-` prefix.
+=begin code :lang<raku>
+$parser.recover = False;
+$parser.no-recover = True;
+$parser.set-option(:recover(False));
+$parser.set-option(:no-recover);
+=end code
 
-=begin item1
-set-option
+=head3 method set-option
   =begin code :lang<raku>
-  $parser.set-option($name,$value);
+  $parser.set-option($name, $value);
   $parser.option($name) = $value;
   $parser."$name"() = $value;
   =end code
 Sets option C<<<<<< $name >>>>>> to value C<<<<<< $value >>>>>>.
 
-=end item1
-
-=begin item1
-set-options
+=head3 method set-options
   =begin code :lang<raku>
   $parser.set-options: |%options;
   =end code
 Sets multiple parsing options at once.
-
-=end item1
 
 Each of the flags listed below is labeled
 
@@ -984,7 +967,7 @@ If called without an argument, returns true if the current value of the C<<<<<< 
 
 =end item1
 
-=head1 XML CATALOGS
+=head2 XML Catalogs
 
 C<<<<<< libxml2 >>>>>> supports XML catalogs. Catalogs are used to map remote resources to their local
 copies. Using catalogs can speed up parsing processes if many external
@@ -999,10 +982,9 @@ Note also that catalogs are not used when a custom external entity handler is
 specified. At the current state it is not possible to make use of both types of
 resolving systems at the same time.
 
-=begin item1
-load-catalog
+=head3 method load-catalog
   =begin code :lang<raku>
-  $parser.load-catalog( $catalog-file );
+  method load-catalog( Str $catalog-file ) returns Mu;
   =end code
 Loads the XML catalog file $catalog-file.
 
@@ -1011,10 +993,9 @@ Loads the XML catalog file $catalog-file.
   # but this works really globally, also in XML::LibXSLT include etc..)
   LibXML.external-entity-loader = &my-loader;
   =end code
-=end item1
 
 
-=head1 ERROR REPORTING
+=head2 Error Reporting
 
 LibXML throws exceptions during parsing, validation or XPath processing (and
 some other occasions). These errors can be caught by using `try` or `CATCH` blocks.
@@ -1022,7 +1003,7 @@ some other occasions). These errors can be caught by using `try` or `CATCH` bloc
 LibXML throws errors as they occur. If the `try` is omitted, LibXML will always halt your script
 by throwing an exception.
 
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -1030,7 +1011,7 @@ by throwing an exception.
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

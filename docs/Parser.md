@@ -1,17 +1,17 @@
-NAME
-====
+class LibXML::Parser
+--------------------
 
-LibXML::Parser - Parsing XML Data with LibXML
+Parse XML with LibXML
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML;
 
 # Parser constructor
 
-my LibXML $parser .= new: |%opts;
+my LibXML $parser .= new: :$catalog, |%opts;
 
 # Parsing XML
 
@@ -53,23 +53,27 @@ $parser.processXIncludes( $doc );
 
 $parser.parse-chunk($string, :$terminate);
 $parser.init-push();
-$parser.push(@strings);
+$parser.push($chunk);
+$parser.append(@chunks);
 $doc = $parser.finish-push( :$recover );
 
 # Set/query parser options
 
+my LibXML $parser .= new: name => $value, ...;
+# -OR-
 $parser.option-exists($name);
 $parser.get-option($name);
-$parser.set-option($name,$value);
+$parser.set-option($name, $value);
 $parser.set-options(name => $value, ...);
 
 # XML catalogs
-
+my LibXML $parser .= new: catalog => $catalog-file, |%opts
+# -OR-
 $parser.load-catalog( $catalog-file );
 ```
 
-PARSING
-=======
+Parsing
+-------
 
 An XML document is read into a data structure such as a DOM tree by a piece of software, called a parser. LibXML currently provides four different parser interfaces:
 
@@ -86,14 +90,14 @@ Creating a Parser Instance
 
 LibXML provides an OO interface to the libxml2 parser functions.
 
-  * new
+### method new
 
-    ```raku
-    my LibXML $parser .= new();
-    my LibXML $parser .= new: :$opt1, :$opt2, ...;
-    ```
+```raku
+method new(Str :$catalog, *%opts) returns LibXML
+my LibXML $parser .= new: :$opt1, :$opt2, ...;
+```
 
-    Create a new XML and HTML parser instance. Each parser instance holds default values for various parser options. Optionally, one can pass options to override default.
+Create a new XML and HTML parser instance. Each parser instance holds default values for various parser options. Optionally, one can pass options to override default.
 
 DOM Parser
 ----------
@@ -104,129 +108,131 @@ LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTM
 
 All of the functions listed below will throw an exception if the document is invalid. To prevent this causing your program exiting, wrap the call in a try {} block
 
-  * parse
+### method parse
 
-    ```raku
-    my LibXML::Document::HTML $dom;
+```raku
+method parse(*%opts) returns LibXML::Document
 
-    $dom = LibXML.parse(
-        location => $file-or-url,
-        :$html, :$URI, :$enc,
-        # parser options ...
-      );
-    $dom = LibXML.parse(
-        string => $xml-string,
-        :$html, :$URI, :$enc,
-        # parser options ...
-      );
-    $dom = LibXML.parse(
-        io => $raku-path-or-file-handle,
-        :$html, :$URI, :$enc,
-        # parser options ...
-      );
-    $dom = LibXML.parse(
-        buf => $raku-blob-or-buf,
-        :$html, :$URI, :$enc,
-        # parser options ...
-      );
-    $dom = LibXML.parse(
-        fd => $file-descriptor-num,
-        :$html, :$URI, :$enc,
-        # parser options ...
-      );
-    $dom = LibXML.parse( $src, :$html, :$URI, :$enc,
-        # parser options ...
-    );
-    $dom = $parser.parse(...);
-    ```
+my LibXML::Document $dom;
 
-    This function provides an interface to the XML parser that parses given file (or URL), string, or input stream to a DOM tree. The function can be called as a class method or an object method. In both cases it internally creates a new parser instance passing the specified parser options; if called as an object method, it clones the original parser (preserving its settings) and additionally applies the specified options to the new parser. See the constructor `new ` and [Parser Options ](Parser Options ) for more information. 
+$dom = LibXML.parse(
+    location => $file-or-url,
+    :$html, :$URI, :$enc,
+    # parser options ...
+  );
+$dom = LibXML.parse(
+    string => $xml-string,
+    :$html, :$URI, :$enc,
+    # parser options ...
+  );
+$dom = LibXML.parse(
+    io => $raku-path-or-file-handle,
+    :$html, :$URI, :$enc,
+    # parser options ...
+  );
+$dom = LibXML.parse(
+    buf => $raku-blob-or-buf,
+    :$html, :$URI, :$enc,
+    # parser options ...
+  );
+$dom = LibXML.parse( $src, :$html, :$URI, :$enc,
+    # parser options ...
+);
+$dom = $parser.parse(...);
+```
 
-  * parse: :html
+This method provides an interface to the XML parser that parses given file (or URL), string, or input stream to a DOM tree. The function can be called as a class method or an object method. In both cases it internally creates a new parser instance passing the specified parser options; if called as an object method, it clones the original parser (preserving its settings) and additionally applies the specified options to the new parser. See the constructor `new ` and [Parser Options ](Parser Options ) for more information. 
 
-    ```raku
-    use LibXML::Document :HTML;  
-    my HTML $dom = LibXML.parse: :html, ...;
-    my HTML $dom = $parser.parse: :html, ...;
-    ```
+Note: Although this method usually returns a `LibXML::Document` object. It can be requisitioned to return other document types by providing a `:sax-handler` that returns an alternate document via a `publish()` method. See [LibXML::SAX::Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder). [LibXML::SAX::Handler::XML](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/XML), for example produces pure Raku XML document objects.
 
-    The :html option provides an interface to the HTML parser.
+#### method parse - `:html` option
+
+```raku
+use LibXML::Document :HTML;  
+my HTML $dom = LibXML.parse: :html, ...;
+my HTML $dom = $parser.parse: :html, ...;
+```
+
+The :html option provides an interface to the HTML parser.
 
 Parsing HTML may cause problems, especially if the ampersand ('&') is used. This is a common problem if HTML code is parsed that contains links to CGI-scripts. Such links cause the parser to throw errors. In such cases libxml2 still parses the entire document as there was no error, but the error causes LibXML to stop the parsing process. However, the document is not lost. Such HTML documents should be parsed using the *recover * flag. By default recovering is deactivated.
 
 The functions described above are implemented to parse well formed documents. In some cases a program gets well balanced XML instead of well formed documents (e.g. an XML fragment from a database). With LibXML it is not required to wrap such fragments in the code, because LibXML is capable even to parse well balanced XML fragments.
 
-  * parse-balanced
+#### method parse `:file` option
 
-    ```raku
-    my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml );
-    ```
+```raku
+$doc = $parser.parse: :file( $xmlfilename );
+```
 
-    This function parses a well balanced XML string into a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) object. The string argument contains the input XML string.
+The :file option parses an XML document from a file or network; $xmlfilename can be either a filename or an URL.
+
+#### method parse `:io` option
+
+```raku
+$doc = $parser.parse: :io( $io-fh );
+```
+
+parse: :io parses an IO::Handle object.
+
+#### method parse `:string` option
+
+```raku
+$doc = $parser.parse: :string( $xmlstring);
+```
+
+This function parses an XML document that is available as a single string in memory. You can pass an optional base URI string to the function.
+
+```raku
+my $doc = $parser.parse: :string($xmlstring);
+my $doc = $parser.parse: :string($xmlstring), :$URI;
+```
+
+#### method parse `:html` option
+
+```raku
+use LibXML::Document :HTML;
+my HTML $doc;
+$doc = $parser.parse: :html, :file( $htmlfile) , |%opts;
+$doc = $parser.parse: :html, :io($io-fh), |%opts;
+$doc = $parser.parse: :html: :string($htmlstring), |%opts;
+# etc..
+```
+
+### method parse-balanced
+
+```raku
+method parse-balanced(
+    Str() string => $string,
+    LibXML::Document :$doc
+) returns LibXML::DocumentFragment;
+```
+
+This function parses a well balanced XML string into a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) object. The string argument contains the input XML string.
+
+### method process-xincludes
+
+```raku
+method process-xincludes( LibXML::Document $doc ) returns UInt;
+```
 
 By default LibXML does not process XInclude tags within an XML Document (see options section below). LibXML allows one to post-process a document to expand XInclude tags.
 
-  * process-xincludes
+After a document is parsed into a DOM structure, you may want to expand the documents XInclude tags. This function processes the given document structure and expands all XInclude tags (or throws an error) by using the flags and callbacks of the given parser instance.
 
-    ```raku
-    $parser.process-xincludes( $doc );
-    ```
+Note that the resulting Tree contains some extra nodes (of type XML_XINCLUDE_START and XML_XINCLUDE_END) after successfully processing the document. These nodes indicate where data was included into the original tree. if the document is serialized, these extra nodes will not show up.
 
-    After a document is parsed into a DOM structure, you may want to expand the documents XInclude tags. This function processes the given document structure and expands all XInclude tags (or throws an error) by using the flags and callbacks of the given parser instance.
+Remember: A Document with processed XIncludes differs from the original document after serialization, because the original XInclude tags will not get restored!
 
-    Note that the resulting Tree contains some extra nodes (of type XML_XINCLUDE_START and XML_XINCLUDE_END) after successfully processing the document. These nodes indicate where data was included into the original tree. if the document is serialized, these extra nodes will not show up.
+If the parser flag "expand-xinclude" is set to True, you need not to post process the parsed document.
 
-    Remember: A Document with processed XIncludes differs from the original document after serialization, because the original XInclude tags will not get restored!
+### method processXIncludes
 
-    If the parser flag "expand-xinclude" is set to True, you need not to post process the parsed document.
+```raku
+method processXIncludes(LibXML::Document $doc) returns UInt
+```
 
-  * processXIncludes
-
-    ```raku
-    $parser.processXIncludes( $doc );
-    ```
-
-    This is an alias to process-xincludes, but through a JAVA like function name.
-
-  * parse: :file
-
-    ```raku
-    $doc = $parser.parse: :file( $xmlfilename );
-    ```
-
-    The :file option parses an XML document from a file or network; $xmlfilename can be either a filename or an URL.
-
-  * parse: :io
-
-    ```raku
-    $doc = $parser.parse: :io( $io-fh );
-    ```
-
-    parse: :io parses an IO::Handle object.
-
-  * parse: :string
-
-    ```raku
-    $doc = $parser.parse: :string( $xmlstring);
-    ```
-
-    This function parses an XML document that is available as a single string in memory. You can pass an optional base URI string to the function.
-
-    ```raku
-    my $doc = $parser.parse: :string($xmlstring);
-    my $doc = $parser.parse: :string($xmlstring), :$URI;
-    ```
-
-  * parse: :html
-
-    ```raku
-    use LibXML::Document :HTML;
-    my HTML $doc;
-    $doc = $parser.parse: :html, :file( $htmlfile) , |%opts;
-    $doc = $parser.parse: :html, :io($io-fh), |%opts;
-    $doc = $parser.parse: :html: :string($htmlstring), |%opts;
-    # etc..
-    ```
+This is an alias to process-xincludes, but through a JAVA like function name.
 
 Push Parser
 -----------
@@ -237,39 +243,49 @@ Please see [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushPa
 
 For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) object.
 
-  * init-push
+### method init-push
 
-    ```raku
-    $parser.init-push();
-    ```
+```raku
+method init-push($first-chunk?) returns Mu
+```
 
-    Initializes the push parser.
+Initializes the push parser.
 
-  * push
+### method push
 
-    ```raku
-    $parser.push(@chunks);
-    ```
+```raku
+method push($chunks) returns Mu
+```
 
-    This function pushes the data stored inside the array to libxml2's parser. Each entry in @chunks may be a string or blob! This method can be called repeatedly.
+This function pushes a chunk to libxml2's parser. `$chunk` may be a string or blob. This method can be called repeatedly.
 
-  * finish-push
+### method append
 
-    ```raku
-    $doc = $parser.finish-push( :$URI, :$recover );
-    ```
+```raku
+method append(@chunks) returns Mu
+```
 
-    This function returns the result of the parsing process. If this function is called without a parameter it will complain about non well-formed documents. If :$recover is True, the push parser can be used to restore broken or non well formed (XML) documents.
+This function pushes the data stored inside the array to libxml2's parser. Each entry in @chunks may be a string or blob. This method can be called repeatedly.
+
+### method finish-push
+
+```raku
+method finish-push(
+    Str :$URI, Bool :$recover
+) returns LibXML::Document
+```
+
+This function returns the result of the parsing process. If this function is called without a parameter it will complain about non well-formed documents. If :$recover is True, the push parser can be used to restore broken or non well formed (XML) documents.
 
 Pull Parser (Reader)
 --------------------
 
-LibXML also provides a pull-parser interface similar to the XmlReader interface in .NET. This interface is almost streaming, and is usually faster and simpler to use than SAX. See [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader).
+LibXML also provides a pull-parser interface similar to the XmlReader interface in .NET. This interface is almost streaming, and is usually faster and simpler to use than SAX. See [LibXML::Reader](https://libxml-raku.github.io/LibXML-raku/Reader).
 
 Direct SAX Parser
 -----------------
 
-LibXML provides a direct SAX parser in the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX) module.
+LibXML provides a direct SAX parser in the [LibXML::SAX](https://libxml-raku.github.io/LibXML-raku/SAX) module.
 
 DOM based SAX Parser
 --------------------
@@ -284,12 +300,12 @@ $parser.reparse( $doc );
 
 This is useful for serializing DOM trees, for example that you might have done prior processing on, or that you have as a result of XSLT processing.
 
-*WARNING *
+*WARNING*
 
-This is NOT a streaming SAX parser. This parser reads the entire document into a DOM and serialises it. If you want a streaming SAX parser look at the [LibXML::SAX ](https://libxml-raku.github.io/LibXML-raku/SAX) man page
+This is NOT a streaming SAX parser. This parser reads the entire document into a DOM and serialises it. If you want a streaming SAX parser look at the [LibXML::SAX](https://libxml-raku.github.io/LibXML-raku/SAX) man page
 
-SERIALIZATION
-=============
+Serialization Options
+---------------------
 
 LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) or the [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) documentation. LibXML checks three global flags that alter the serialization process:
 
@@ -302,9 +318,6 @@ LibXML provides some functions to serialize nodes and documents. The serializati
 They are defined globally, but can be overriden by options to the `Str` or `Blob` methods on nodes. For example:
 
 ```raku
-temp LibXML.skip-xml-declaration = True;
-temp LibXML.skip-dtd = True;
-temp LibXML.tag-expansion = False;
 say $doc.Str: :skip-xml-declaration, :skip-dtd, :tag-expansion;
 ```
 
@@ -319,39 +332,48 @@ PARSER OPTIONS
 
 Handling of libxml2 parser options has been unified and improved in LibXML 1.70. You can now set default options for a particular parser instance by passing them to the constructor as `LibXML-&gt;new({name=&gt;value, ...}) ` or `LibXML-&gt;new(name=&gt;value,...) `. The options can be queried and changed using the following methods (pre-1.70 interfaces such as `$parser-&gt;load-ext-dtd(0) ` also exist, see below): 
 
-  * option-exists
+### method option-exists
 
-    ```raku
-    $parser.option-exists($name);
-    ```
+```raku
+method option-exists(Str $name) returns Bool
+```
 
-    Returns True if the current LibXML version supports the option `$name `, otherwise returns False (note that this does not necessarily mean that the option is supported by the underlying libxml2 library).
+Returns True if the current LibXML version supports the option `$name `, otherwise returns False (note that this does not necessarily mean that the option is supported by the underlying libxml2 library).
 
-  * get-option
+### method get-option
 
-    ```raku
-    $parser.get-option($name);
-    ```
+```raku
+method get-option(Str $name) returns Mu
+```
 
-    Returns the current value of the parser option `$name `.
+Returns the current value of the parser option, where `$name` is both case and snake/kebab-case independent.
 
-  * set-option
+Note also that boolean options can be negated via a `no-` prefix.
 
-    ```raku
-    $parser.set-option($name,$value);
-    $parser.option($name) = $value;
-    $parser."$name"() = $value;
-    ```
+```raku
+$parser.recover = False;
+$parser.no-recover = True;
+$parser.set-option(:recover(False));
+$parser.set-option(:no-recover);
+```
 
-    Sets option `$name ` to value `$value `.
+### method set-option
 
-  * set-options
+```raku
+$parser.set-option($name, $value);
+$parser.option($name) = $value;
+$parser."$name"() = $value;
+```
 
-    ```raku
-    $parser.set-options: |%options;
-    ```
+Sets option `$name ` to value `$value `.
 
-    Sets multiple parsing options at once.
+### method set-options
+
+```raku
+$parser.set-options: |%options;
+```
+
+Sets multiple parsing options at once.
 
 Each of the flags listed below is labeled
 
@@ -537,8 +559,8 @@ The following obsolete methods trigger parser options in some special way:
 
     If called without an argument, returns true if the current value of the `recover ` parser option is 2 and returns false otherwise. With a true argument sets the `recover ` parser option to 2; with a false argument sets the `recover ` parser option to 0. 
 
-XML CATALOGS
-============
+XML Catalogs
+------------
 
 `libxml2 ` supports XML catalogs. Catalogs are used to map remote resources to their local copies. Using catalogs can speed up parsing processes if many external resources from remote addresses are loaded into the parsed documents (such as DTDs or XIncludes). 
 
@@ -546,29 +568,29 @@ Note that libxml2 has a global pool of loaded catalogs, so if you apply the meth
 
 Note also that catalogs are not used when a custom external entity handler is specified. At the current state it is not possible to make use of both types of resolving systems at the same time.
 
-  * load-catalog
+### method load-catalog
 
-    ```raku
-    $parser.load-catalog( $catalog-file );
-    ```
+```raku
+method load-catalog( Str $catalog-file ) returns Mu;
+```
 
-    Loads the XML catalog file $catalog-file.
+Loads the XML catalog file $catalog-file.
 
-    ```raku
-    # Global external entity loader (similar to ext-ent-handler option
-    # but this works really globally, also in XML::LibXSLT include etc..)
-    LibXML.external-entity-loader = &my-loader;
-    ```
+```raku
+# Global external entity loader (similar to ext-ent-handler option
+# but this works really globally, also in XML::LibXSLT include etc..)
+LibXML.external-entity-loader = &my-loader;
+```
 
-ERROR REPORTING
-===============
+Error Reporting
+---------------
 
 LibXML throws exceptions during parsing, validation or XPath processing (and some other occasions). These errors can be caught by using `try` or `CATCH` blocks.
 
 LibXML throws errors as they occur. If the `try` is omitted, LibXML will always halt your script by throwing an exception.
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -576,8 +598,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

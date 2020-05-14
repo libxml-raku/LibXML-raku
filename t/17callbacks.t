@@ -145,7 +145,6 @@ my ($read1_non_global_counter, $read1_global_counter) =
     my $dom = $parser.parse: :file("example/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for expand_include called twice.');
-    # I think the second close gets called when the parser context is freed
     $close1_non_global_counter.test(2, 'close1 for expand_include called.');
     $match1_non_global_counter.test(2, 'match1 for expand_include called twice.');
 

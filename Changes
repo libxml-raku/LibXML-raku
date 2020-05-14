@@ -11,7 +11,7 @@
     - renamed role LibXML::_DOMNode -> LibXML::_ParentRole
     - Added 'boxed' trait for native wrapping of simple methods
     - DOM method appendTextChild now returns the added element
-    - Fix for #34 - failing close() count tests (due to erratic
+    - Fix for #36 - failing close() count tests (due to erratic
       calling of close callback)
 0.3.1 2020-04-29
     - Add $node.ACCEPTS() method for XPath matching, e.g.:

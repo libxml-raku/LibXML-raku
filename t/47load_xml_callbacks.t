@@ -30,6 +30,5 @@ plan 3;
 
     ok($got_read, 'load_xml() encountered the read InputCallback');
 
-    todo "not being called";
     ok($got_close, 'load_xml() encountered the close InputCallback');
 }
