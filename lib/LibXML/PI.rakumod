@@ -1,5 +1,6 @@
 use LibXML::Node;
 
+#| LibXML Processing Instructions
 unit class LibXML::PI
     is LibXML::Node;
 
@@ -24,11 +25,7 @@ multi method setData(Str:D $string) {
 
 =begin pod
 
-=head1 NAME
-
-LibXML::PI - LibXML Processing Instructions
-
-=head1 SYNOPSIS
+=head2 Synopsis
 
   =begin code :lang<raku>
   use LibXML::Document;
@@ -45,7 +42,7 @@ LibXML::PI - LibXML Processing Instructions
   $pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
   =end code
 
-=head1 DESCRIPTION
+=head2 Description
 
 Processing instructions are implemented with LibXML with read and write
 access. The PI data is the PI without the PI target (as specified in XML 1.0
@@ -74,23 +71,22 @@ described above, the call
   =end code
 will have the same result as above.
 
-L<<<<<< LibXML::PI >>>>>>'s implementation of setData() documented below differs a bit from the standard
+L<<<<<<LibXML::PI>>>>>>'s implementation of setData() documented below differs a bit from the standard
 version as available in L<<<<<< LibXML::Node >>>>>>:
 
-=begin item
-setData
+=head2 Methods
+
+=head3 method setData
   =begin code :lang<raku>
-  $pinode.setData( $data_string );
-  $pinode.setData( name=>string_value [...] );
+  multi method setData( Str $data_string ) returns Mu
+  multi method setData( %params ) returns Mu
   =end code
 This method allows one to change the content data of a PI. Additionally to the
 interface specified for DOM Level2, the method provides a named parameter
 interface to set the data. This parameter list is converted into a string
 before it is appended to the PI.
 
-=end item
-
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -98,7 +94,7 @@ before it is appended to the PI.
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

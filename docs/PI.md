@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::PI
+----------------
 
-LibXML::PI - LibXML Processing Instructions
+LibXML Processing Instructions
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Document;
@@ -21,8 +21,8 @@ $pi.setData( name=>string_value [...] );
 $pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 Processing instructions are implemented with LibXML with read and write access. The PI data is the PI without the PI target (as specified in XML 1.0 [17]) as a string. This string can be accessed with getData as implemented in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node).
 
@@ -48,19 +48,22 @@ $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
 
 will have the same result as above.
 
-[LibXML::PI ](https://libxml-raku.github.io/LibXML-raku/PI)'s implementation of setData() documented below differs a bit from the standard version as available in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node):
+[LibXML::PI](https://libxml-raku.github.io/LibXML-raku/PI)'s implementation of setData() documented below differs a bit from the standard version as available in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node):
 
-  * setData
+Methods
+-------
 
-    ```raku
-    $pinode.setData( $data_string );
-    $pinode.setData( name=>string_value [...] );
-    ```
+### method setData
 
-    This method allows one to change the content data of a PI. Additionally to the interface specified for DOM Level2, the method provides a named parameter interface to set the data. This parameter list is converted into a string before it is appended to the PI.
+```raku
+multi method setData( Str $data_string ) returns Mu
+multi method setData( %params ) returns Mu
+```
 
-COPYRIGHT
-=========
+This method allows one to change the content data of a PI. Additionally to the interface specified for DOM Level2, the method provides a named parameter interface to set the data. This parameter list is converted into a string before it is appended to the PI.
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -68,8 +71,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 
