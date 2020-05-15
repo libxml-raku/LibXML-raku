@@ -425,13 +425,9 @@ method appendChild(
 ) returns LibXML::Item
 ```
 
-Adds a child to this node\s children
+Adds a child to this nodes children (alias addChild)
 
 Fails, if the new childnode is already a child of this node. This method differs from the DOM L2 specification, in the case, if the new node is not part of the document, the node will be imported first.
-
-### method addChild
-
-An alias for `appendChild`
 
 Vivify and add a new child element.
 

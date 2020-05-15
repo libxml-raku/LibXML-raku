@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Native
+--------------------
 
-LibXML::Native - bindings to the libxml2 library
+Bindings to the libxml2 library
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 do {
@@ -20,13 +20,12 @@ do {
 }
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 The LibXML::Native module contains class definitions for native and bindings to the LibXML2 library.
 
-Low level native access
------------------------
+### Low level native access
 
 Other high level classes, by convention, have a `native()` accessor, which can be used, if needed, to gain access to native objects from this module.
 
@@ -304,8 +303,8 @@ class LibXML::Native::xmlMemoryParserCtxt
 
 a parser context for an XML in-memory document.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

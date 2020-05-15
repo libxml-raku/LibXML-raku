@@ -181,7 +181,7 @@ multi method parse(IO::Handle:D :$io!,
                    Str :$URI = $io.path.path,
                    |c) {
     my UInt:D $fd = $io.native-descriptor;
-    $io.?do-not-close-at-exit();
+    $io.?do-not-close-automatically();
     self!parse-fd( $fd, :$URI, |c);
 }
 
@@ -504,7 +504,7 @@ available as a single string in memory. You can pass an optional base URI string
 This function parses a well balanced XML string into a L<LibXML::DocumentFragment> object. The string argument contains the input XML string.
 
 
-=head3 method process-xincludes
+=head3 method process-xincludes (alias processXIncludes)
   =begin code :lang<raku>
   method process-xincludes( LibXML::Document $doc ) returns UInt;
   =end code
@@ -529,12 +529,6 @@ restored!
 
 If the parser flag "expand-xinclude" is set to True, you need not to post process
 the parsed document.
-
-=head3 method processXIncludes
-  =begin code :lang<raku>
-  method processXIncludes(LibXML::Document $doc) returns UInt
-  =end code
-This is an alias to process-xincludes, but through a JAVA like function name.
 
 =head2 Push Parser
 

@@ -498,7 +498,7 @@ method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
     node will be imported first.
 =end pod
 
-#| Adds a child to this node\s children
+#| Adds a child to this nodes children (alias addChild)
 method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
     $new.keep: $!native.appendChild($new.native);
 }
@@ -506,12 +506,9 @@ method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::It
     =para Fails, if the new childnode is already a child
 of this node. This method differs from the DOM L2 specification, in the case, if the new
    node is not part of the document, the node will be imported first.
-
-   =head3 method addChild
-   =para An alias for `appendChild`
 =end pod
 
-method addNewChild(Str $uri, QName $name --> LibXML::Node) is boxed<domAddNewChild> {...}
+method addNewChild(Str $uri, QName $name --> LibXML::Node) is boxed {...}
 =begin pod
     =para
     Vivify and add a new child element.

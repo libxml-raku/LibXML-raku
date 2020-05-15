@@ -21,7 +21,7 @@ method load-catalog(Str:D $filename) {
             if $stat < 0;
         @catalogs.push: $filename;
     }
-    $stat > 0;
+    Mu;
 }
 
 method have-reader {

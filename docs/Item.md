@@ -1,10 +1,9 @@
-NAME
-====
 
-LibXML::Item - LibXML Nodes and Namespaces interface role
 
-DESCRIPTON
-==========
+LibXML Nodes and Namespaces interface role
+
+Descripton
+----------
 
 LibXML::Item is a role performed by [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) based classes.
 
@@ -22,82 +21,107 @@ for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
 
 Please see [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) and [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace).
 
-FUNCTIONS AND METHODS
+Functions and Methods
 =====================
 
-  * ast-to-xml()
+### sub ast-to-xml
 
-    This function can be useful when it's getting a bit long-winded to create and manipulate data via the DOM API. For example:
+```perl6
+sub ast-to-xml(
+    |
+) returns LibXML::Item
+```
 
-    ```raku
-    use LibXML::Element;
-    use LibXML::Item :&ast-to-xml;
-    my LibXML::Element $elem = ast-to-xml(
-        :dromedaries[
-                 "\n  ", # white-space
-                 '#comment' => ' Element Construction. ',
-                 "\n  ", :species[:name<Camel>, :humps["1 or 2"], :disposition["Cranky"]],
-                 "\n  ", :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
-                 "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
-         "\n",
-         ]);
-    say $elem;
-    ```
+Node constructor from data
 
-    Produces:
+This function can be useful as a succent of building nodes from data. For example:
 
-    ```xml
-    <dromedaries>
-      <!-- Element Construction. -->
-      <species name="Camel"><humps>1 or 2</humps><disposition>Cranky</disposition></species>
-      <species name="Llama"><humps>1 (sort of)</humps><disposition>Aloof</disposition></species>
-      <species name="Alpaca"><humps>(see Llama)</humps><disposition>Friendly</disposition></species>
-    </dromedaries>
-    ```
+```raku
+use LibXML::Element;
+use LibXML::Item :&ast-to-xml;
+my LibXML::Element $elem = ast-to-xml(
+    :dromedaries[
+             "\n  ", # white-space
+             '#comment' => ' Element Construction. ',
+             "\n  ", :species[:name<Camel>, :humps["1 or 2"], :disposition["Cranky"]],
+             "\n  ", :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
+             "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
+     "\n",
+     ]);
+say $elem;
+```
 
-    All DOM nodes have an `.ast()` method that can be used to output an intermediate dump of data. In the above example `$elem.ast()` would reproduce thw original data that was used to construct the element.
+Produces:
 
-    Possible terms that can be used are:
+```xml
+<dromedaries>
+  <!-- Element Construction. -->
+  <species name="Camel"><humps>1 or 2</humps><disposition>Cranky</disposition></species>
+  <species name="Llama"><humps>1 (sort of)</humps><disposition>Aloof</disposition></species>
+  <species name="Alpaca"><humps>(see Llama)</humps><disposition>Friendly</disposition></species>
+</dromedaries>
+```
 
-    <table class="pod-table">
-    <thead><tr>
-    <th>Term</th> <th>Description</th>
-    </tr></thead>
-    <tbody>
-    <tr> <td>name =&gt; [term, term, ...]</td> <td>Construct an element and its child items</td> </tr> <tr> <td>name =&gt; str-val</td> <td>Construct an attribute</td> </tr> <tr> <td>&#39;xmlns:prefix&#39; =&gt; str-val</td> <td>Construct a namespace</td> </tr> <tr> <td>&#39;text content&#39;</td> <td>Construct text node</td> </tr> <tr> <td>&#39;?name&#39; =&gt; str-val</td> <td>Construct a processing instruction</td> </tr> <tr> <td>&#39;#cdata&#39; =&gt; str-val</td> <td>Construct a CData node</td> </tr> <tr> <td>&#39;#comment&#39; =&gt; str-val</td> <td>Construct a comment node</td> </tr> <tr> <td>[elem, elem, ..]</td> <td>Construct a document fragment</td> </tr> <tr> <td>&#39;#xml&#39; =&gt; [root-elem]</td> <td>Construct an XML document</td> </tr> <tr> <td>&#39;#html&#39; =&gt; [root-elem]</td> <td>Construct an HTML document</td> </tr> <tr> <td>&#39;&amp;name&#39; =&gt; []</td> <td>Construct an entity reference</td> </tr>
-    </tbody>
-    </table>
+### method ast
 
-  * box
+```perl6
+method ast() returns Mu
+```
 
-    By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
+Dump data for a node
 
-    For example to create an xmlElem native object then a [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) containing class.
+All DOM nodes have an `.ast()` method that can be used to output an intermediate dump of data. In the above example `$elem.ast()` would reproduce thw original data that was used to construct the element.
 
-    ```raku
-    use LibXML::Native;
-    use LibXML::Node;
-    use LibXML::Element;
+Possible terms that can be used are:
 
-    my xmlElem $native .= new: :name<Foo>;
-    say $native.type; # 1 (element)
-    my LibXML::Element $elem .= box($native);
-    $!native := Nil;
-    say $elem.Str; # <Foo/>
-    ```
+<table class="pod-table">
+<thead><tr>
+<th>Term</th> <th>Description</th>
+</tr></thead>
+<tbody>
+<tr> <td>name =&gt; [term, term, ...]</td> <td>Construct an element and its child items</td> </tr> <tr> <td>name =&gt; str-val</td> <td>Construct an attribute</td> </tr> <tr> <td>&#39;xmlns:prefix&#39; =&gt; str-val</td> <td>Construct a namespace</td> </tr> <tr> <td>&#39;text content&#39;</td> <td>Construct text node</td> </tr> <tr> <td>&#39;?name&#39; =&gt; str-val</td> <td>Construct a processing instruction</td> </tr> <tr> <td>&#39;#cdata&#39; =&gt; str-val</td> <td>Construct a CData node</td> </tr> <tr> <td>&#39;#comment&#39; =&gt; str-val</td> <td>Construct a comment node</td> </tr> <tr> <td>[elem, elem, ..]</td> <td>Construct a document fragment</td> </tr> <tr> <td>&#39;#xml&#39; =&gt; [root-elem]</td> <td>Construct an XML document</td> </tr> <tr> <td>&#39;#html&#39; =&gt; [root-elem]</td> <td>Construct an HTML document</td> </tr> <tr> <td>&#39;&amp;name&#39; =&gt; []</td> <td>Construct an entity reference</td> </tr> <tr> <td>LibXML::Item</td> <td>Reuse an existing node or namespace</td> </tr>
+</tbody>
+</table>
 
-    A containing object of the correct type (LibXML::Element) has been created for the native object.
+### method box
 
-  * keep
+```perl6
+method box(
+    LibXML::Native::DOM::Node $struct,
+    :$doc = Code.new
+) returns LibXML::Item
+```
 
-    ```raku
-    $item.keep(xmlItem $rv);
-    ```
+Wrap a native object in a containing class
 
-    Utility method that verifies that `$rv` is the same native struct as that help by `$item`.
+By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
 
-COPYRIGHT
-=========
+For example to box xmlElem native object:
+
+```raku
+use LibXML::Native;
+use LibXML::Node;
+use LibXML::Element;
+
+my xmlElem $native .= new: :name<Foo>;
+say $native.type; # 1 (element)
+my LibXML::Element $elem .= box($native);
+$!native := Nil;
+say $elem.Str; # <Foo/>
+```
+
+A containing object of the correct type (LibXML::Element) has been created for the native object.
+
+method keep
+
+```raku
+method keep(xmlItem $rv) returns LibXML::Item;
+```
+
+Utility method that verifies that `$rv` is the same native struct as the current object.
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -105,8 +129,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::RelaxNG
+---------------------
 
-LibXML::RelaxNG - RelaxNG Schema Validation
+RelaxNG Schema Validation
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::RelaxNG;
@@ -20,51 +20,51 @@ if  $rngschema.is-valid( $doc ) {...}
 if $doc ~~ $rngschema { ... }
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 The LibXML::RelaxNG class is a tiny frontend to libxml2's RelaxNG implementation. Currently it supports only schema parsing and document validation.
 
-METHODS
-=======
+Methods
+-------
 
-  * new
+### method new
 
-    ```raku
-    my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
-    my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
-    my LibXML::RelaxNG $rngschema .= new( :$doc );
-    ```
+```raku
+multi method new( :location($filename_or_url) ) returns LibXML::RelaxNG;
+multi method new( :string($xml-schema-string) ) returns LibXML::RelaxNG;
+multi method new( LibXML::Document :$doc ) returns LibXML::RelaxNG;
+```
 
-    The constructor of LibXML::RelaxNG may get called with either one of three parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
+The constructors for LibXML::RelaxNG may get called with either one of three parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
 
-    The location parameter allows one to parse a schema from the filesystem or a URL.
+The `:location` parameter allows one to parse a schema from the filesystem or a URL.
 
-    The string parameter will parse the schema from the given XML string.
+The `:string` parameter will parse the schema from the given XML string.
 
-    The DOM parameter allows one to parse the schema from a pre-parsed [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document).
+The `:doc` parameter allows one to parse the schema from a pre-parsed [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document).
 
-    Note that the constructor will die() if the schema does not meed the constraints of the RelaxNG specification.
+Note that the constructor will die() if the schema does not meed the constraints of the RelaxNG specification.
 
-  * validate
+### method validate
 
-    ```raku
-    try { $rngschema->validate( $doc ); };
-    ```
+```raku
+try { $rngschema->validate( $doc ); };
+```
 
-    This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return True, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
+This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return True, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
 
-  * is-valid / ACCEPTS
+### method is-valid (alias ACCEPTS)
 
-    ```raku
-    my Bool $valid = $rngschema.is-valid($doc);
-    $valid = $doc ~~ $rngschema;
-    ```
+```raku
+method is-valid(LibXML::Document $doc) returns Bool;
+$valid = $doc ~~ $rngschema;
+```
 
-    Returns either True or False depending on whether the passed Document is valid or not.
+Returns either True or False depending on whether the passed Document is valid or not.
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -72,8 +72,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

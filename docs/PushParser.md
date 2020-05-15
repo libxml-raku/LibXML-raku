@@ -43,7 +43,7 @@ An initial chunk is usually supply to the push parser `new` method as a Str or B
 Methods
 -------
 
-### method parse-chunk
+### method parse-chunk (alias push)
 
 ```raku
 multi method parse-chunk(Str $chunk, Bool :$terminate) returns Mu;

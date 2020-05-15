@@ -5,6 +5,18 @@ use LibXML::Native::Defs :$XML2;
 use LibXML::Enums;
 
 class X::LibXML is Exception {
+=begin pod
+    =head2 Description
+
+    =para The X::LibXML exception class hierarchy interfaces to I<<<<<<libxml2>>>>>>'s structured error support. If LibXML is compiled with structured error
+    support, all errors reported by libxml2 are transformed to X::LibXML
+    exception objects. These objects automatically serialize to the corresponding error
+    messages when printed or used in a string operation, but as objects, can also
+    be used to get a detailed and structured information about the error that
+    occurred.
+
+=end pod
+
     constant @ErrorDomains = (
         "", "parser", "tree", "namespace", "validity",
         "HTML parser", "memory", "output", "I/O", "ftp",
@@ -20,26 +32,96 @@ class X::LibXML is Exception {
     has UInt $.domain-num = XML_FROM_PARSER;
     method domain returns Str { @ErrorDomains[$!domain-num // 0] }
     has X::LibXML $.prev is rw;
+
+=begin pod
+    =head2 Methods common to all X::LibXML exceptions
+
+    =head3 method message
+      =begin code :lang<raku>
+      $error_message = @!.message();
+      =end code
+    Returns a human-readable informative error message.
+
+    =head3 method level
+      =begin code :lang<raku>
+      $error_level = $!.level();
+      =end code
+    Returns an integer value describing how consequent is the error. L<LibXMNL::Enums>
+    defines the following enumerations:
+
+      =item XML_ERR_NONE = 0
+
+      =item XML_ERR_WARNING = 1 : A simple warning.
+
+      =item XML_ERR_ERROR = 2 : A recoverable error.
+
+      =item XML_ERR_FATAL = 3 : A fatal error.
+
+    =head3 method prev
+      =begin code :lang<raku>
+      method prev() returns X::LibXML
+      =end code
+    This field can possibly refer to another X::LibXML::Parser object
+    representing an error which occurred just before this error.
+
+    =head3 method domain-num
+      =begin code :lang<raku>
+      method domain-num() returns UInt
+      if $err.domain-num == XML_FROM_PARSER {...}
+      =end code
+    Returns the domain which raised the error as a number
+
+    =head3 method domain
+      =begin code :lang<raku>
+      method domain returns Str
+      if $err.domain eq 'parser' {...}
+      =end code
+    Returns a string containing information about what part of the library raised the
+    error. Can be one of: "parser", "tree", "namespace", "validity", "HTML parser",
+    "memory", "output", "I/O", "ftp", "http", "XInclude", "XPath", "xpointer",
+    "regexp", "Schemas datatype", "Schemas parser", "Schemas validity", "Relax-NG
+    parser", "Relax-NG validity", "Catalog", "C14N", "XSLT", "validity".
+
+=end pod
+
+
 }
 
+#| LibXML ad-hoc errors
 class X::LibXML::AdHoc is X::LibXML {
     has Exception $.error handles<message>;
 }
+=begin pod
+    =para
+    Exceptions raised in callbacks are wrapped in an X::LibXML::Adhoc (if not already of type X::LibXML), stashed into a
+    `$*XML-CONTEXT` or `$*XPATH-CONTEXT` variable, and re-raised
+    on return from the calling function.
 
+    =head3 method exception
+    =begin code :lang<raku>
+    method error() returns Exception
+    =end code
+    =para The trapped error
+=end pod
+
+#| Ad-hoc exceptions from Raku XPath functions
 class X::LibXML::XPath::AdHoc is X::LibXML::AdHoc {
     method domain-num {XML_FROM_XPATH}
 }
 
+#|  Ad-hoc exceptions from Raku Input callbacks
 class X::LibXML::IO::AdHoc is X::LibXML::AdHoc {
     method domain-num {XML_FROM_IO}
 }
 
+#| LibXML Reader exceptions
 class X::LibXML::OpFail is Exception {
     has Str:D $.what = 'Read';
     has Str:D $.op is required;
     method message { "XML $!what $!op operation failed" }
 }
 
+#| LibXML Parser exceptions
 class X::LibXML::Parser is X::LibXML {
 
     has Str $.file;
@@ -48,7 +130,7 @@ class X::LibXML::Parser is X::LibXML {
     has UInt $.code;
     has Str $.msg;
 
-    method message {
+    method message returns Str {
         my @meta;
         @meta.push: $_ with $.domain;
         if $.level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
@@ -65,9 +147,55 @@ class X::LibXML::Parser is X::LibXML {
         my $message = chomp(@meta.join(' ') ~ ' : ' ~ $!msg);
         $prev ~ $where ~ $message;
     }
+=begin pod
+    =head3 method message
+      =begin code :lang<raku>
+      method message() returns Str
+      =end code
+    This function serializes an X::LibXML::Parser object to a string containing the
+    full error message close to the message produced by I<<<<<< libxml2 >>>>>> default error handlers and tools like xmllint.
+
+    =head3 method msg
+      =begin code :lang<raku>
+      method msg() returns Str
+      =end code
+    The raw message text. This may include a trailing new line.
+
+    =head3 method code
+      =begin code :lang<raku>
+      my UInt $error-code = $!.code();
+      method code() returns UInt
+      if $err.code == XML_ERR_SPACE_REQUIRED { ... }
+      =end code
+    Returns the actual libxml2 error code. The L<LibXML::Enums> module defines
+    constants for individual error codes. Currently libxml2 uses over 480 different
+    error codes. 
+
+    =head3 method file
+      =begin code :lang<raku>
+      method file() returns Str
+      =end code
+    Returns the filename of the file being processed while the error occurred. 
+
+    =head3 method line
+      =begin code :lang<raku>
+      method line() returns UInt
+      =end code
+    The line number, if available.
+
+    =head3 method column
+      =begin code :lang<raku>
+      method column() returns UInt
+      =end code
+    The column, if available.
+
+=end pod
+
 }
 
+#| LibXML Exceptions and Error Handling
 role LibXML::ErrorHandling {
+
     has X::LibXML @!errors;
 
     # SAX External Callback
@@ -82,14 +210,14 @@ role LibXML::ErrorHandling {
         $*XML-CONTEXT.structured-error($err);
     }
 
-    # API Callback
+    # API Callback - structured
     method !sax-error-cb-structured(X::LibXML $err) {
         with self.sax-handler -> $sax {
             .($err) with $sax.serror-cb;
         }
     }
 
-    # API Callback
+    # API Callback - unstructured
     method !sax-error-cb-unstructured(UInt:D $level, Str $msg) {
         # unstructured error handler
         with self.sax-handler -> $sax {
@@ -129,48 +257,45 @@ role LibXML::ErrorHandling {
         self!sax-error-cb-unstructured(.level, .message);
     }
 
+    my subset ValidityError of X::LibXML where .domain-num ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV;
+
     method validity-check(|c) {
         my Bool $valid = True;
         if @!errors {
             my X::LibXML @errs;
             for @!errors {
-                if .domain-num ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV {
-		    $valid = False;
-		}
-                else {
+                when ValidityError {
+                    $valid = False;
+                }
+                default {
                     @errs.push: $_;
-		}
-	    }
+                }
+            }
             @!errors = @errs;
-	}
-	$valid;
+        }
+        $valid;
     }
 
-    method flush-errors(:$recover = $.recover) {
-        if @!errors {
-            my X::LibXML @errs = @!errors;
-            @!errors = ();
+    multi sub throw($,   X::LibXML:U) { }
+    multi sub throw('e', X::LibXML:D $err) is hidden-from-backtrace { die $err }
+    multi sub throw('w', X::LibXML:D $err) is hidden-from-backtrace { warn $err }
 
-            if self.suppress-errors {
-                @errs .= grep({ .level > XML_ERR_ERROR })
-            }
-            elsif self.suppress-warnings {
-                @errs .= grep({ .level >= XML_ERR_ERROR })
-            }
+    method flush-errors(:$recover = $.recover) is hidden-from-backtrace {
+        my X::LibXML @errs = @!errors;
+        @!errors = ();
 
-            if @errs {
-                my X::LibXML $fatal = @errs.first: { .level >= XML_ERR_ERROR };
-                my X::LibXML $err = @errs.tail;
-                @errs[$_].prev = @errs[$_-1] for 1 ..^ +@errs;
-
-                if !$fatal.defined || $recover {
-                    warn $err; 
-                }
-                else {
-                    die $err;
-                }
-            }
+        if self.suppress-errors {
+            @errs .= grep: *.level > XML_ERR_ERROR;
         }
+        elsif self.suppress-warnings {
+            @errs .= grep({ .level >= XML_ERR_ERROR })
+        }
+
+        my X::LibXML $fatal = @errs.first: *.level >= XML_ERR_ERROR;
+        my X::LibXML $err = @errs.tail;
+        @errs[$_].prev = @errs[$_-1] for 1 ..^ +@errs;
+        my $lvl := $fatal.defined && ! $recover ?? 'e' !! 'w';
+        throw($lvl, $err);
     }
 
     my class MsgArg is repr('CUnion') is export(:MsgArg) {
@@ -201,11 +326,8 @@ role LibXML::ErrorHandling {
 }
 
 =begin pod
-=head1 NAME
 
-LibXML::ErrorHandling - libxml exceptions and error handling
-
-=head1 SYNOPSIS
+=head2 Synopsis
 
   =begin code :lang<raku>
   try { ... }
@@ -226,150 +348,11 @@ LibXML::ErrorHandling - libxml exceptions and error handling
   my UInt $offset = $!.column;
   my UInt $domain = $!.domain;
   =end code
-=head1 DESCRIPTION
-
-The X:LibXML::Parser exception class interfaces to I<<<<<< libxml2 >>>>>>'s structured error support. If LibXML is compiled with structured error
-support, all errors reported by libxml2 are transformed to X::LibXML::Parser
-exception objects. These objects automatically serialize to the corresponding error
-messages when printed or used in a string operation, but as objects, can also
-be used to get a detailed and structured information about the error that
-occurred.
-
-=head1 X:LibXML::Parser Methods
-
-=begin item1
-message
-  =begin code :lang<raku>
-  Str $text = $!.message();
-  =end code
-This function serializes an X:LibXML::Parser object to a string containing the
-full error message close to the message produced by I<<<<<< libxml2 >>>>>> default error handlers and tools like xmllint. This method is also used to
-overload "" operator on X:LibXML::Parser, so it is automatically called whenever
-X:LibXML::Parser object is treated as a string (e.g. in print $@). 
-
-=end item1
-
-=begin item1
-msg
-  =begin code :lang<raku>
-  if $!.msg.chomp eq 'attributes construct error' { ... }
-  =end code
-The raw message text. This may include a trailing new line.
-
-=end item1
-
-=begin item1
-prev
-  =begin code :lang<raku>
-  my X::LibXML::Parser$previous-error = $!.prev();
-  =end code
-This field can possibly refer to another X::LibXML::Parser object
-representing an error which occurred just before this error.
-
-=end item1
-
-=begin item1
-messages
-  =begin code :lang<raku>
-  say $!.messages();
-  =end code
-A concatenation of the current $!.msg with any linked $!.prev errors. This
-is used as the base text by the $!.message method.
-
-=end item1
 
 
-=begin item1
-code
-  =begin code :lang<raku>
-  my UInt $error-code = $!.code();
-  if $!.code == XML_ERR_SPACE_REQUIRED { ... }
-  =end code
-Returns the actual libxml2 error code. The L<LibXML::Enums> module defines
-constants for individual error codes. Currently libxml2 uses over 480 different
-error codes. 
+=head2 Custom Error Handling
 
-=end item1
-
-=begin item1
-message
-  =begin code :lang<raku>
-  $error_message = @!.message();
-  =end code
-Returns a human-readable informative error message.
-
-=end item1
-
-=begin item1
-level
-  =begin code :lang<raku>
-  $error_level = $!.level();
-  =end code
-Returns an integer value describing how consequent is the error. L<LibXMNL::Enums>
-defines the following enumerations:
-
-  =item XML_ERR_NONE = 0
-
-  =item XML_ERR_WARNING = 1 : A simple warning.
-
-  =item XML_ERR_ERROR = 2 : A recoverable error.
-
-  =item XML_ERR_FATAL = 3 : A fatal error.
-
-=end item1
-
-=begin item1
-file
-  =begin code :lang<raku>
-  my Str $filename = $!.file();
-  =end code
-Returns the filename of the file being processed while the error occurred. 
-
-=end item1
-
-=begin item1
-line
-  =begin code :lang<raku>
-  my UInt $line-no = $!.line();
-  =end code
-The line number, if available.
-
-=end item1
-
-=begin item1
-column
-  =begin code :lang<raku>
-  my UInt $offset = $!.column();
-  =end code
-See C<<<<<< $@-&gt;column() >>>>>> above. 
-
-=end item1
-
-=begin item1
-domain
-  =begin code :lang<raku>
-  if $!.domain == XML_FROM_PARSER {...}
-  =end code
-Returns the domain which raised the error as a number
-
-=end item1
-
-=begin item1
-domain-name
-  =begin code :lang<raku>
-  if $!.domain-name eq 'parser' {...}
-  =end code
-Returns string containing information about what part of the library raised the
-error. Can be one of: "parser", "tree", "namespace", "validity", "HTML parser",
-"memory", "output", "I/O", "ftp", "http", "XInclude", "XPath", "xpointer",
-"regexp", "Schemas datatype", "Schemas parser", "Schemas validity", "Relax-NG
-parser", "Relax-NG validity", "Catalog", "C14N", "XSLT", "validity".
-
-=end item1
-
-=head1 Custom Error Handling
-
-Parsers that perform the LibXML::ErrorHandling role can install their own error-handling callbacks via SAX Handler. `warning()`, `error()` or `errorFatal()` callbacks can be defined for simple error handling or a `serror()` callback can be defined to handle everything as `X::LibXML` exception objects.
+Parsers that perform the LibXML::ErrorHandling role can install their own error-handling callbacks via SAX Handlers. `warning()`, `error()` or `errorFatal()` callbacks can be defined for simple error handling or a `serror()` callback can be defined to handle everything as `X::LibXML` exception objects.
 
 The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wish to disable this module's built-in error handling.
     =begin code :lang<raku>

@@ -76,7 +76,7 @@ submethod DESTROY {
     }
 }
 
-method try(&action, Bool :$recover = $.recover, Bool :$check-valid) {
+method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
     my $*XML-CONTEXT = self;

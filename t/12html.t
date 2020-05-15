@@ -8,6 +8,8 @@ use LibXML;
 use LibXML::Native;
 use LibXML::Document;
 
+constant CanDoIO = ? IO::Handle.can('do-not-close-automatically');
+
 pass(' TODO : Add test name');
 
 my $html = "example/test.html";
@@ -20,6 +22,7 @@ my $parser = LibXML.new();
     cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
     cmp-ok $doc, '!~~', LibXML::Document::XML, "isn't XML";
 }
+
 
 my $io = $html.IO.open(:r);
 
@@ -34,8 +37,12 @@ my $doc = $parser.parse: :html, :$string;
 
 ok($doc, ' TODO : Add test name');
 
-$doc = $parser.parse: :html, :$io;
-
+if CanDoIO {
+    $doc = $parser.parse: :html, :$io;
+}
+else {
+    note 'parse :$io tests need Rakudo > 2020.05';
+}
 
 ok($doc, ' TODO : Add test name');
 
@@ -144,13 +151,26 @@ EOHTML
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
 
-    my $io = $test_file.IO;
-    $htmldoc = $parser.parse: :html, :$io;
+    if CanDoIO {
+        my $io = $test_file.IO;
+        $doc = $parser.parse: :html, :$io;
+    }
+    else {
+        note 'parse :$io tests need Rakudo > 2020.05';
+        $doc = $parser.parse: :html, :file($html);
+    }
+
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
-    $io = $test_file.IO.open(:r);
-    $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>, :URI<foo>;
+    if CanDoIO {
+        my $io = $test_file.IO.open(:r);
+        $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>, :URI<foo>;
+    }
+    else {
+        note 'parse :$io tests need Rakudo > 2020.05';
+        $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>, :URI<foo>;
+    }
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     is($htmldoc.URI, 'foo', ' TODO : Add test name');
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
@@ -182,7 +202,13 @@ skip "iso-8859-2 nyi", 2;
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 
     $io = $test_file.IO;
-    $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>;
+    if CanDoIO {
+        $htmldoc = $parser.parse: :html, :$io, :enc<iso-8859-2>;
+    }
+    else {
+        note 'parse :$io tests need Rakudo > 2020.05';
+        $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>;
+    }
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
     is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
 

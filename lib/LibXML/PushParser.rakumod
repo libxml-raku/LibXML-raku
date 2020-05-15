@@ -107,7 +107,7 @@ may be supplied as types Str or Blob.
 
 =head2 Methods
 
-=head3 method parse-chunk
+=head3 method parse-chunk (alias push)
   =begin code :lang<raku>
   multi method parse-chunk(Str $chunk, Bool :$terminate) returns Mu;
   multi method parse-chunk(Blob $chunk, Bool :$terminate) returns Mu;

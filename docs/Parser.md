@@ -210,7 +210,7 @@ method parse-balanced(
 
 This function parses a well balanced XML string into a [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) object. The string argument contains the input XML string.
 
-### method process-xincludes
+### method process-xincludes (alias processXIncludes)
 
 ```raku
 method process-xincludes( LibXML::Document $doc ) returns UInt;
@@ -225,14 +225,6 @@ Note that the resulting Tree contains some extra nodes (of type XML_XINCLUDE_STA
 Remember: A Document with processed XIncludes differs from the original document after serialization, because the original XInclude tags will not get restored!
 
 If the parser flag "expand-xinclude" is set to True, you need not to post process the parsed document.
-
-### method processXIncludes
-
-```raku
-method processXIncludes(LibXML::Document $doc) returns UInt
-```
-
-This is an alias to process-xincludes, but through a JAVA like function name.
 
 Push Parser
 -----------

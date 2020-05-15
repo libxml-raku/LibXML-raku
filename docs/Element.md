@@ -66,9 +66,9 @@ say $_ for $elem.childNodes.keys;   # 0, 1, ...
 # -- Construction -- #
 use LibXML::Item :&ast-to-xml;
 $elem = ast-to-xml('Test' => [
-                       'xmlns:mam' => 'urn:mammals', # namespace
+                       'xmlns:mam' => 'urn:mammals', # name-space
                        :foo<bar>,                    # attribute
-                       "\n  ",                       # whitespace
+                       "\n  ",                       # white-space
                        '#comment' => 'demo',         # comment
                        :baz[],                       # sub-element
                        '#cdata' => 'a&b',            # CData section
@@ -311,7 +311,7 @@ my LibXML::Element @nodes = $node.getChildrenByLocalName($localname);
 
 The function gives direct access to all child elements of the current node with a given local name. It makes things a lot easier if one needs to handle big data sets. Note:
 
-  * A special `localname ` '*' can be used to match all ements.
+  * A special `localname ` '*' can be used to match all elements.
 
   * `@*` can be used to fetch attributes as a node-set
 
@@ -460,7 +460,7 @@ The function fails if it is required to create a declaration associating the pre
  method requireNamespace(Str $uri) returns NCName
 ```
 
-Return the prefix for any any existing namespace in the node's scope that matches the URL. If not found, a new namespace is created for the URI on the node with an anonimised prefix (_ns0, _ns1, ...).
+Return the prefix for any any existing namespace in the node's scope that matches the URL. If not found, a new namespace is created for the URI on the node with an anonymous prefix (_ns0, _ns1, ...).
 
 ### method setNamespaceDeclURI
 

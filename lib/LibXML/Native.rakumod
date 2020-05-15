@@ -1,14 +1,11 @@
 use v6;
 
+#| Bindings to the libxml2 library
 unit class LibXML::Native;
 
 =begin pod
 
-=head1 NAME
-
-LibXML::Native - bindings to the libxml2 library
-
-=head1 SYNOPSIS
+=head2 Synopsis
     =begin code :lang<raku>
     do {
         # Create a document from scratch
@@ -23,11 +20,11 @@ LibXML::Native - bindings to the libxml2 library
     }
     =end code
 
-=head1 DESCRIPTION
+=head2 Description
 
 The LibXML::Native module contains class definitions for native and bindings to the LibXML2 library.
 
-=head2 Low level native access
+=head3 Low level native access
 
 Other high level classes, by convention, have a `native()` accessor, which can be
 used, if needed, to gain access to native objects from this module.
@@ -1654,7 +1651,7 @@ sub xml6_gbl_message_func is export { cglobal($BIND-XML2, 'xml6_gbl_message_func
 
 =begin pod
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

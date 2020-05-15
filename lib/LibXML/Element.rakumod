@@ -69,9 +69,9 @@ unit class LibXML::Element
     # -- Construction -- #
     use LibXML::Item :&ast-to-xml;
     $elem = ast-to-xml('Test' => [
-                           'xmlns:mam' => 'urn:mammals', # namespace
+                           'xmlns:mam' => 'urn:mammals', # name-space
                            :foo<bar>,                    # attribute
-                           "\n  ",                       # whitespace
+                           "\n  ",                       # white-space
                            '#comment' => 'demo',         # comment
                            :baz[],                       # sub-element
                            '#cdata' => 'a&b',            # CData section
@@ -391,7 +391,7 @@ method !set-attributes(@atts) {
     a given local name. It makes things a lot easier if one needs to handle big
     data sets. Note:
 
-      =item A special C<<<<<< localname >>>>>> '*' can be used to match all ements.
+      =item A special C<<<<<< localname >>>>>> '*' can be used to match all elements.
       =item C<@*> can be used to fetch attributes as a node-set
       =item C<?*> (all), or C<?name> can be used to fetch processing instructions
       =item The special names C<#text>, C<#comment> and C<#cdata-section> can be used to match Text, Comment or CDATA Section nodes.
@@ -598,7 +598,7 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
       =end code
     Return the prefix for any any existing namespace in the node's scope that
     matches the URL. If not found, a new namespace is created for the URI
-    on the node with an anonimised prefix (_ns0, _ns1, ...).
+    on the node with an anonymous prefix (_ns0, _ns1, ...).
 
     =head3 method setNamespaceDeclURI
       =begin code :lang<raku>
