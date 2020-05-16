@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 104;
+plan 108;
 
 use LibXML;
 use LibXML::Reader;
@@ -89,17 +89,22 @@ my $file = "test/textReader/countries.xml";
 # FD interface
 my IO::Handle:D $io = $file.IO.open: :r;
 my UInt:D $fd = $io.native-descriptor;
-for :$fd, :$io -> Pair:D $how {
-    my $reader = LibXML::Reader.new(|$how, URI => $file);
-    isa-ok($reader, "LibXML::Reader");
-    $reader.read;
-    $reader.read;
-    is($reader.name, "countries","name in fd");
-    $reader.read;
-    $reader.read;
-    $reader.read;
-    close $io;
+for 1 .. 2 {
+    for :$fd, :$io -> Pair:D $how {
+        $io.seek(0, SeekFromBeginning );
+        my $reader = LibXML::Reader.new(|$how,);
+        isa-ok($reader, "LibXML::Reader");
+        $reader.read;
+        $reader.read;
+        is($reader.name, "countries","name in fd");
+        $reader.read;
+        $reader.read;
+        $reader.read;
+        $reader.finish;
+        $reader.close;
+    }
 }
+close $io;
 
 # string interface
 {
