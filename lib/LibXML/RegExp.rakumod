@@ -1,32 +1,63 @@
+#| interface to libxml2 regular expressions
 unit class LibXML::RegExp;
+
+
+=begin pod
+
+    =head2 Synopsis
+
+    =begin code :lang<raku>
+    use LibXML::RegExp;
+    my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
+    my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
+    if $compiled-re.isDeterministic() { ... }
+    if $compiled-re.matches($string) { ... }
+    if $string ~~ $compiled-re { ... }
+
+    my LibXML::RegExp $compiled-re .= new( :$regexp );
+    my Bool $matched = $compiled-re.matches($string);
+    my Bool $det     = $compiled-re.isDeterministic();
+    =end code
+
+    =head2 Description
+
+    This is a Raku interface to libxml2's implementation of regular expressions,
+    which are used e.g. for validation of XML Schema simple types (pattern facet).
+
+   =head2 Methods
+=end pod
 
 use LibXML::Enums;
 use LibXML::Native;
 use LibXML::Node;
-use NativeCall;
 use LibXML::ErrorHandling;
+use NativeCall;
+use Method::Also;
 
-enum Flags (
-    PAT_FROM_ROOT => 1 +< 8,
-    PAT_FROM_CUR  => 1 +< 9
-);
-
-has xmlRegexp $!native;
+has xmlRegexp $!native; # is built Rakudo 2020.xx+
 method native { $!native }
-has UInt $.flags;
 
 submethod TWEAK(Str:D :$regexp!) {
     $!native .= new(:$regexp)
        // die X::LibXML::OpFail.new(:what<RegExp>, :op<Compile>);
 }
+=begin pod
+    =head2 method new
+      =begin code :lang<raku>
+      method new(Str :$regexp) returns LibXML
+      my LibXML::RegExp $compiled-re .= new( :$regexp );
+      =end code
+    The new constructor takes a string containing a regular expression and return an object that contains a compiled regexp.
+=end pod
 
-submethod DESTROY {
-    .Free with $!native;
-}
 
-method compile(Str:D $regexp, |c) {
-    self.new: :$regexp, |c;
+#| Compile constructor
+method compile(Str:D $regexp --> LibXML::RegExp) {
+    self.new: :$regexp;
 }
+=begin pod
+    =para `LibXML::RegExp.compile($regexp)` is equivalent to `LibXML::RegExp.new(:$regexp)`
+=end pod
 
 method !try-bool(Str:D $op, |c) {
     my $rv := $!native."$op"(|c);
@@ -35,74 +66,34 @@ method !try-bool(Str:D $op, |c) {
     $rv > 0;
 }
 
-method matches(Str:D() $content) {
+multi method ACCEPTS(LibXML::RegExp:D: Str:D $content --> Bool) is also<matches> {
     self!try-bool('Match', $content);
 }
-
-method isDeterministic {
-    self!try-bool('IsDeterministic');
-}
-
-multi method ACCEPTS(LibXML::RegExp:D: Str:D $content) {
-    self.matches($content);
-}
-
 =begin pod
-
-=head1 NAME
-
-LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
-
-=head1 SYNOPSIS
-
+=head3 method matches (alias ACCEPTS)
   =begin code :lang<raku>
-  use LibXML::RegExp;
-  my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
-  my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
-  if $compiled-re.isDeterministic() { ... }
-  if $compiled-re.matches($string) { ... }
-  if $string ~~ $compiled-re { ... }
-
-  my LibXML::RegExp $compiled-re .= new( :$regexp );
-  my Bool $matched = $compiled-re.matches($string);
-  my Bool $det     = $compiled-re.isDeterministic();
-  =end code
-
-=head1 DESCRIPTION
-
-This is a Raku interface to libxml2's implementation of regular expressions,
-which are used e.g. for validation of XML Schema simple types (pattern facet).
-
-=begin item
-new / compile
-  =begin code :lang<raku>
-  my LibXML::RegExp $compiled-re .= compile( $regexp );
-  my LibXML::RegExp $compiled-re .= new( :$regexp );
-  =end code
-The constructors takes a string containing a regular expression and return an object that contains a compiled regexp.
-=end item
-
-=begin item
-matches / ACCEPTS
-  =begin code :lang<raku>
-  my Bool $matched = $compiled-re.matches($string);
+  method matches(Str $content) returns Bool
   $matched = $string ~~ $compiled-re;
   =end code
 Given a string value, returns True if the value is matched by the
 compiled regular expression.
-=end item
+=end pod
 
-=begin item
-isDeterministic()
-  =begin code :lang<raku>
-  my Bool $det = $compiled-re.isDeterministic();
-  =end code
-Returns True if the regular expression is deterministic; returns False
-otherwise. (See the definition of determinism in the XML spec (L<<<<<< http://www.w3.org/TR/REC-xml/#determinism >>>>>>))
+#| Returns True if the regular expression is deterministic; returns False otherwise. 
+method isDeterministic returns Bool {
+    self!try-bool('IsDeterministic');
+  }
+=begin pod
+    =para (See the definition of determinism in the XML spec L<<<<<<http://www.w3.org/TR/REC-xml/#determinism >>>>>>)
+=end pod
 
-=end item
+submethod DESTROY {
+    .Free with $!native;
+}
 
-=head1 COPYRIGHT
+=begin pod
+
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -110,7 +101,7 @@ otherwise. (See the definition of determinism in the XML spec (L<<<<<< http://ww
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

@@ -1,4 +1,4 @@
-use v6;
+#| Native enumerations
 unit module LibXML::Enums;
 
 enum xmlElementType is export (
@@ -925,11 +925,8 @@ enum xmlEntityType is export (
 );
 
 =begin pod
-=head1 NAME
 
-LibXML::Enums - Native enumerations
-
-=head1 DESCRIPTION
+=head2 Description
 
 The Lib::XML::Enums module exports a large number of libxml2 native enumerations.
 
@@ -954,5 +951,10 @@ The `code` attribute of X::LibXML exceptions (see L<LibXML::ErrorHandling>) may 
     =end code
 
 The libxml L<error documentation> lists possible error codes. Enumerations should be defined for all of these. 
+
+=head2 License
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.
 
 =end pod

@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Pattern
+---------------------
 
-LibXML::Pattern -interface to libxml2 XPath patterns
+interface to libxml2 XPath patterns
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML;
@@ -26,8 +26,8 @@ my LibXML::Pattern $pattern .= new( pattern, :ns{prefix => namespace_URI} );
 my Bool $matched = $pattern.matchesNode($node);
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This is a Raku interface to libxml2's pattern matching support *http://xmlsoft.org/html/libxml-pattern.html *. This feature requires recent versions of libxml2.
 
@@ -50,37 +50,47 @@ Note that no predicates or attribute tests are allowed.
 
 Patterns are particularly useful for stream parsing provided via the [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader) interface.
 
-  * new / compile
+Methods
+-------
 
-    ```raku
-    my LibXML::Pattern $pattern .= compile( $expr, :ns{ prefix => namespace_URI, ... } );
-    my LibXML::Pattern $pattern2 .= new ( pattern => $expr, :ns{ prefix => namespace_URI, ... } );
-    ```
+### method new
 
-    The constructors of a pattern takes a pattern expression (as described by the BNF grammar above) and an optional Hash mapping prefixes to namespace URIs. The methods return a compiled pattern object. 
+```raku
+method new( Str :$pattern!, Str :%ns, *%opts) returns LibXML::Pattern
+```
 
-    Note that if the document has a default namespace, it must still be given an prefix in order to be matched (as demanded by the XPath 1.0 specification). For example, to match an element `&lt;a xmlns="http://foo.bar"&lt;/a&gt; `, one should use a pattern like this: 
+The constructors of a pattern takes a pattern expression (as described by the BNF grammar above) and an optional Hash mapping prefixes to namespace URIs. The methods return a compiled pattern object. 
 
-    ```raku
-    my LibXML::Pattern $pattern .= compile( 'foo:a', :ns(foo => 'http://foo.bar') );
-    ```
+Note that if the document has a default namespace, it must still be given an prefix in order to be matched (as demanded by the XPath 1.0 specification). For example, to match an element `<a xmlns="http://foo.bar"/>`, one should use a pattern like this: 
 
-  * matchesNode / ACCEPTS
+```raku
+my LibXML::Pattern $pattern .= compile( 'foo:a', :ns(foo => 'http://foo.bar') );
+```
 
-    ```raku
-    my Bool $matched = $pattern.matchesNode($node);
-    $matched = $node ~~ $pattern;
-    ```
+### method compile
 
-    Given an LibXML::Node object, returns True if the node is matched by the compiled pattern expression.
+```raku
+method new( Str $pattern!, Str :%ns, *%opts) returns LibXML::Pattern
+```
 
-SEE ALSO
-========
+`LibXML::Pattern.compile($pattern)` is equivalent to `LibXML::Pattern.new(:$pattern)`.
 
-[LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader) for other methods involving compiled patterns.
+### method matches (alias ACCEPTS)
 
-COPYRIGHT
-=========
+```raku
+method matches(LibXML::Node:D $node) returns Bool
+my Bool $matched = $node ~~ $compiled-pattern;
+```
+
+Given an LibXML::Node object, returns True if the value is matched by the compiled pattern expression.
+
+See Also
+--------
+
+[LibXML::Reader](https://libxml-raku.github.io/LibXML-raku/Reader) for other methods involving compiled patterns.
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -88,8 +98,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

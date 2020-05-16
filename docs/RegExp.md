@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::RegExp
+--------------------
 
-LibXML::RegExp - LibXML::RegExp - interface to libxml2 regular expressions
+interface to libxml2 regular expressions
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::RegExp;
@@ -19,39 +19,57 @@ my Bool $matched = $compiled-re.matches($string);
 my Bool $det     = $compiled-re.isDeterministic();
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This is a Raku interface to libxml2's implementation of regular expressions, which are used e.g. for validation of XML Schema simple types (pattern facet).
 
-  * new / compile
+Methods
+-------
 
-    ```raku
-    my LibXML::RegExp $compiled-re .= compile( $regexp );
-    my LibXML::RegExp $compiled-re .= new( :$regexp );
-    ```
+method new
+----------
 
-    The constructors takes a string containing a regular expression and return an object that contains a compiled regexp.
+```raku
+method new(Str :$regexp) returns LibXML
+my LibXML::RegExp $compiled-re .= new( :$regexp );
+```
 
-  * matches / ACCEPTS
+The new constructor takes a string containing a regular expression and return an object that contains a compiled regexp.
 
-    ```raku
-    my Bool $matched = $compiled-re.matches($string);
-    $matched = $string ~~ $compiled-re;
-    ```
+### method compile
 
-    Given a string value, returns True if the value is matched by the compiled regular expression.
+```perl6
+method compile(
+    Str:D $regexp
+) returns LibXML::RegExp
+```
 
-  * isDeterministic()
+Compile constructor
 
-    ```raku
-    my Bool $det = $compiled-re.isDeterministic();
-    ```
+`LibXML::RegExp.compile($regexp)` is equivalent to `LibXML::RegExp.new(:$regexp)`
 
-    Returns True if the regular expression is deterministic; returns False otherwise. (See the definition of determinism in the XML spec ([http://www.w3.org/TR/REC-xml/#determinism ](http://www.w3.org/TR/REC-xml/#determinism )))
+### method matches (alias ACCEPTS)
 
-COPYRIGHT
-=========
+```raku
+method matches(Str $content) returns Bool
+$matched = $string ~~ $compiled-re;
+```
+
+Given a string value, returns True if the value is matched by the compiled regular expression.
+
+### method isDeterministic
+
+```perl6
+method isDeterministic() returns Bool
+```
+
+Returns True if the regular expression is deterministic; returns False otherwise.
+
+(See the definition of determinism in the XML spec [http://www.w3.org/TR/REC-xml/#determinism ](http://www.w3.org/TR/REC-xml/#determinism ))
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -59,8 +77,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

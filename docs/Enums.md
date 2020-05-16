@@ -1,10 +1,10 @@
-NAME
-====
+module LibXML::Enums
+--------------------
 
-LibXML::Enums - Native enumerations
+Native enumerations
 
-DESCRIPTION
-===========
+Description
+-----------
 
 The Lib::XML::Enums module exports a large number of libxml2 native enumerations.
 
@@ -30,4 +30,9 @@ with $! -> X::LibXML $err {
 ```
 
 The libxml [error documentation](error documentation) lists possible error codes. Enumerations should be defined for all of these. 
+
+License
+-------
+
+This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 
