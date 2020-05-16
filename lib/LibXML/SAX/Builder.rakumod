@@ -1,3 +1,4 @@
+#| Build DOM trees from SAX events.
 class LibXML::SAX::Builder {
     use LibXML::Native;
     use LibXML::Native::Defs :$CLIB;
@@ -202,16 +203,12 @@ class LibXML::SAX::Builder {
 
 =begin pod
 
-=head1 NAME
-
-LibXML::SAX::Builder - Build DOM trees from SAX events.
-
-=head1 DESCRIPTION
+=head2 Description
 
 This module provides mappings from native SAX callbacks to Raku. It is
 usually used in conjunction with a L<LibXML::SAX::Handler> base-class.
 
-=head1 EXAMPLE
+=head2 Example
 
 The following example builds a modified DOM tree with all tags
 and attributes converted to uppercase.
@@ -240,7 +237,7 @@ and attributes converted to uppercase.
     say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
     =end code
 
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -248,7 +245,7 @@ and attributes converted to uppercase.
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

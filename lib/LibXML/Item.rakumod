@@ -20,7 +20,7 @@ Also note that the L<LibXML::Node> `findnodes` method can sometimes return eithe
 
 Please see L<LibXML::Node> and L<LibXML::Namespace>.
 
-=head1 Functions and Methods
+=head2 Functions and Methods
 =end pod
 
 use LibXML::Native;

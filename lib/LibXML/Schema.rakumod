@@ -1,6 +1,32 @@
-use v6;
-
+#| XML Schema Validation
 unit class LibXML::Schema;
+
+=begin pod
+
+    =head2 Synopsis
+
+    =begin code :lang<raku>
+    use LibXML::Schema;
+    use LibXML;
+
+    my $doc = LibXML.new.parse: :file($url);
+
+    my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
+    my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
+    try { $xmlschema.validate( $doc ); };
+    if $doc ~~ $xmlschema { ... }
+    =end code
+
+    =head2 Description
+
+    The LibXML::Schema class is a tiny frontend to libxml2's XML Schema
+    implementation. Currently it supports only schema parsing and document
+    validation. libxml2 only supports decimal types up to 24 digits
+    (the standard requires at least 18). 
+
+    =head2 Methods
+
+=end pod
 
 use LibXML::Document;
 use LibXML::Element;
@@ -118,6 +144,31 @@ submethod TWEAK(|c) {
     my Parser::Context $parser-ctx .= new: |c;
     $!native = $parser-ctx.parse;
 }
+=begin pod
+    =head3 method new
+    =begin code :lang<raku>
+    multi method new( Str :$location!, *%opts ) returns LibXML::Schema
+    multi method new( Str :string!,  *%opts ) returns LibXML::Schema
+    multi method new( LibXML::Document :$doc!,  *%opts ) returns LibXML::Schema
+    =end code
+    The constructor of LibXML::Schema may get called with either one of two
+    parameters. The parameter tells the class from which source it should generate
+    a validation schema. It is important, that each schema only have a single
+    source.
+
+    The location parameter allows one to parse a schema from the filesystem or a
+    URL.
+
+    The `:network` flag effects processing of `xsd:import` directives. By default
+    this is disabled, unless a custom External Entity Loader has been installed
+    via the L<LibXML::Config>`.external-entity-loader` method. More detailed control
+    can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the L<LibXML::Config> `.input-callbacks` method.
+
+    The string parameter will parse the schema from the given XML string.
+
+    Note that the constructor will die() if the schema does not meed the
+    constraints of the XML Schema specification.
+=end pod
 
 submethod DESTROY {
     .Free with $!native;
@@ -127,92 +178,42 @@ method !valid-ctx { ValidContext.new: :schema(self) }
 method validate(LibXML::Node:D $node) {
     self!valid-ctx.validate($node);
 }
-method is-valid(LibXML::Node:D $node) {
-    self!valid-ctx.validate($node, :check);
-}
-
-multi method ACCEPTS(LibXML::Schema:D: LibXML::Node:D $node) {
-    self.is-valid($node);
-}
-
 =begin pod
-=head1 NAME
-
-LibXML::Schema - XML Schema Validation
-
-=head1 SYNOPSIS
-
-  =begin code :lang<raku>
-  use LibXML::Schema;
-  use LibXML;
-
-  my $doc = LibXML.new.parse: :file($url);
-
-  my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
-  my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
-  try { $xmlschema.validate( $doc ); };
-  if $doc ~~ $xmlschema { ... }
-  =end code
-
-=head1 DESCRIPTION
-
-The LibXML::Schema class is a tiny frontend to libxml2's XML Schema
-implementation. Currently it supports only schema parsing and document
-validation. libxml2 only supports decimal types up to 24 digits
-(the standard requires at least 18). 
-
-
-=head1 METHODS
-
-=begin item1
-new
+    =head3 method validate
     =begin code :lang<raku>
-  my LibXML::Schema $xmlschema  .= new( location => $filename_or_url, :network );
-  my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring, :network );
-    =end code
-The constructor of LibXML::Schema may get called with either one of two
-parameters. The parameter tells the class from which source it should generate
-a validation schema. It is important, that each schema only have a single
-source.
-
-The location parameter allows one to parse a schema from the filesystem or a
-URL.
-
-The `:network` flag effects processing of `xsd:import` directives. By default
-this is disabled, unless a custom External Entity Loader has been installed
-via the `LibXML::Config.external-entity-loader` method. More detailed control
-can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the L<LibXML::Config> `.input-callbacks` method.
-
-The string parameter will parse the schema from the given XML string.
-
-Note that the constructor will die() if the schema does not meed the
-constraints of the XML Schema specification.
-
-=end item1
-
-=begin item1
-validate
-    =begin code :lang<raku>
+    multi method validate(LibXML::Document $doc) returns Int
+    multi method validate(LibXML::Element $elem) returns Int
     try { $xmlschema.validate( $doc ); };
     =end code
-This function allows one to validate a (parsed) document against the given XML
-Schema. The argument of this function should be a L<<<<<< LibXML::Document >>>>>> object. If this function succeeds, it will return 0, otherwise it will die()
-and report the errors found. Because of this validate() should be always
-evaluated.
+    This function allows one to validate a document, or a root element
+    against the given XML Schema. If this function succeeds, it will
+    return 0, otherwise it will die() and report the errors found.
+=end pod
 
-=end item1
-
-=begin item1
-is-valid / ACCEPTS
+method is-valid(LibXML::Node:D $node) {
+    self!valid-ctx.validate($node, :check);
+    }
+=begin pod
+    =head3 method is-valid
     =begin code :lang<raku>
-    my Bool $valid = $xmlschema.is-valid($doc);
+    multi method is-valid(LibXML::Document $doc) returns Bool
+    multi method is-valid(LibXML::Element $elem) returns Bool
+    =end code
+=end pod
+
+#| Returns either True or False depending on whether the Document or Element is valid or not.
+multi method ACCEPTS(LibXML::Schema:D: LibXML::Node:D $node --> Bool) {
+    self.is-valid($node);
+}
+=begin pod
+    =para Example:
+    =begin code :lang<raku>
     $valid = $doc ~~ $xmlschema;
     =end code
-Returns either True or False depending on whether the passed Document is valid or not.
+=end pod
 
-=end item1
-
-=head1 COPYRIGHT
+=begin pod
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -220,7 +221,7 @@ Returns either True or False depending on whether the passed Document is valid o
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

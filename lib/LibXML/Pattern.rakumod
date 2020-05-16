@@ -5,25 +5,25 @@ unit class LibXML::Pattern;
 
     =head2 Synopsis
 
-      =begin code :lang<raku>
-      use LibXML;
-      my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
-      # test a match on an LibXML::Node $node
+    =begin code :lang<raku>
+    use LibXML;
+    my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
+    # test a match on an LibXML::Node $node
 
-      if $pattern.matchesNode($node) { ... }
-      if $node ~~ $pattern { ... }
+    if $pattern.matchesNode($node) { ... }
+    if $node ~~ $pattern { ... }
 
-      # or on an LibXML::Reader
+    # or on an LibXML::Reader
 
-      if $reader.matchesPattern($pattern) { ... }
+    if $reader.matchesPattern($pattern) { ... }
 
-      # or skip reading all nodes that do not match
+    # or skip reading all nodes that do not match
 
-      print $reader.nodePath while $reader.nextPatternMatch($pattern);
+    print $reader.nodePath while $reader.nextPatternMatch($pattern);
 
-      my LibXML::Pattern $pattern .= new( pattern, :ns{prefix => namespace_URI} );
-      my Bool $matched = $pattern.matchesNode($node);
-      =end code
+    my LibXML::Pattern $pattern .= new( pattern, :ns{prefix => namespace_URI} );
+    my Bool $matched = $pattern.matchesNode($node);
+    =end code
 
     =head2 Description
 
@@ -128,7 +128,8 @@ method !try-bool(Str:D $op, |c) {
     $rv > 0;
 }
 
-multi method matchesNode(LibXML::Node $node) {
+#| True if the node is matched by the compiled pattern
+multi method matchesNode(LibXML::Node $node --> Bool) {
      self!try-bool('Match', $node.native);
 }
 
@@ -136,18 +137,15 @@ multi method matchesNode(anyNode $node) {
     self!try-bool('Match', $node);
 }
 
-multi method ACCEPTS(LibXML::Pattern:D: LibXML::Node:D $node) {
+#| True if the Node matches the pattern
+multi method ACCEPTS(LibXML::Pattern:D: LibXML::Node:D $node --> Bool) {
     self.matchesNode($node);
 }
-
 =begin pod
-=head3 method matches (alias ACCEPTS)
-  =begin code :lang<raku>
-  method matches(LibXML::Node:D $node) returns Bool
-  my Bool $matched = $node ~~ $compiled-pattern;
-  =end code
-Given an LibXML::Node object, returns True if the value is matched by the
-compiled pattern expression.
+    =para Example:
+    =begin code :lang<raku>
+    my Bool $valid = $elem ~~ $pattern;
+    =end code
 =end pod
 
 method FALLBACK($key, |c) is rw {

@@ -1,9 +1,64 @@
 use LibXML::Attr;
 
+#| LibXML Mapped Attributes
 class LibXML::Attr::Map does Associative {
     use LibXML::Types :QName, :NCName;
     has LibXML::Node $.node handles<removeAttributeNode>;
     use Method::Also;
+
+=begin pod
+    =head2 Synopsis
+
+      =begin code :lang<raku>
+      use LibXML::Attr::Map;
+      use LibXML::Document;
+      use LibXML::Element;
+      my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
+      my LibXML::Element $node = $doc.root;
+      my LibXML::Attr::Map $atts = $node.attributes;
+
+      # -- Associative Interface --
+      say $atts.keys.sort;  # att1 att2
+      say $atts<att1>.Str ; # AAA
+      say $atts<att1>.gist; # att1="AAA"
+      $atts<att2>:delete;
+      $atts<att3> = "CCC";
+      say $node.Str; # <foo att1="AAA" att3="CCC"/>
+
+      # -- DOM Interface --
+      $atts.setNamedItem('style', 'font-weight: bold');
+      my LibXML::Attr $style = $atts.getNamedItem('style');
+      $atts.removeNamedItem('style');
+      =end code
+
+    =head2 Description
+
+    This class is roughly equivalent to the W3C DOM NamedNodeMap (and the Perl XML::LibXML::NamedNodeMap class). This implementation currently limits their use to manipulation of an element's attributes.
+
+    It presents a tied hash-like mapping of attributes to attribute names.
+
+    =head2 Updating Attributes
+
+    Attributes can be created, updated or deleted associatively:
+      =begin code :lang<raku>
+      my LibXML::Attr::Map $atts = $node.attributes;
+      $atts<style> = 'fontweight: bold';
+      my LibXML::Attr $style = $atts<style>;
+      $atts<style>:delete; # remove the style
+      =end code
+    There are also some DOM (NamedNodeMap) compatible methods:
+      =begin code :lang<raku>
+      my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
+      $atts.setNamedItem($style);
+      $style = $atts.getNamedItem('style');
+      $atts.removeNamedItem('style');
+      =end code
+
+    =head2 Methods
+
+    =head3 keys, pairs, kv, elems, values, list, AT-KEY, ASSIGN-KEY, DELETE-KEY
+    =para Similar to the equivalent Raku Hash methods.
+=end pod
 
     multi method AT-KEY(QName:D $name) {
         $!node.getAttributeNode($name);
@@ -32,22 +87,29 @@ class LibXML::Attr::Map does Associative {
 
 
     # DOM Support
-    method setNamedItem(LibXML::Attr:D $att) {
+
+    #| Adds or replaces node with the same name as $att
+    method setNamedItem(LibXML::Attr:D $att --> LibXML::Attr) {
         $!node.setAttributeNodeNS($att);
     }
-    method getNamedItem(QName:D $name) {
+
+    #| Gets an attribute by name
+    method getNamedItem(QName:D $name --> LibXML::Attr) {
         self{$name};
     }
-    method removeNamedItem(QName:D $name) {
+
+    #| Remove the item with the name `$name`
+    method removeNamedItem(QName:D $name --> LibXML::Attr) {
         self{$name}:delete;
     }
 
-    method setNamedItemNS(Str $new-uri, LibXML::Attr:D $att) {
+    #| Assigns $att name space to $uri. Adds or replaces an attribute with the same as `$att`
+    method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
         my $old-uri = $att.getNamespaceURI;
-        if $new-uri {
-            unless $old-uri ~~ $new-uri {
-                my $prefix = $!node.requireNamespace($new-uri);
-                $att.setNamespace($new-uri, $prefix);
+        if $uri {
+            unless $old-uri ~~ $uri {
+                my $prefix = $!node.requireNamespace($uri);
+                $att.setNamespace($uri, $prefix);
             }
         }
         elsif $old-uri {
@@ -56,123 +118,29 @@ class LibXML::Attr::Map does Associative {
         $!node.setAttributeNodeNS($att);
     }
 
+    #| Lookup attribute by namespace and name
     method getNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
         my $query = "\@*[local-name()='$name']";
         $query ~= "[namespace-uri()='$_']" with $uri;
         &?ROUTINE.returns.box: self.domXPathSelectStr($query);
     }
+    =begin pod
+    C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
+    =end pod
 
+    #| Lookup and remove attribute by namespace and name
     method removeNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
         do with $.getNamedItemNS($name) { .unlink } // LibXML::Attr;
     }
+    =begin pod
+    C<$map.removeNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>.
+    =end pod
+
 }
 
 =begin pod
-=head1 NAME
 
-LibXML::Attr::Map - LibXML Class for Mapped Attributes
-
-=head1 SYNOPSIS
-
-  =begin code :lang<raku>
-  use LibXML::Attr::Map;
-  use LibXML::Document;
-  use LibXML::Element;
-  my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
-  my LibXML::Element $node = $doc.root;
-  my LibXML::Attr::Map $atts = $node.attributes;
-
-  # -- Associative Interface --
-  say $atts.keys.sort;  # att1 att2
-  say $atts<att1>.Str ; # AAA
-  say $atts<att1>.gist; # att1="AAA"
-  $atts<att2>:delete;
-  $atts<att3> = "CCC";
-  say $node.Str; # <foo att1="AAA" att3="CCC"/>
-
-  # -- DOM Interface --
-  $atts.setNamedItem('style', 'font-weight: bold');
-  my LibXML::Attr $style = $atts.getNamedItem('style');
-  $atts.removeNamedItem('style');
-  =end code
-
-=head1 DESCRIPTION
-
-This class is roughly equivalent to the W3C DOM NamedNodeMap and (Perl 5's XML::LibXML::NamedNodeMap). This implementation currently limits their use to manipulation of an element's attributes.
-
-It presents a tied hash-like mapping of attributes to attribute names.
-
-=head2 Updating Attributes
-
-Attributes can be created, updated or deleted associatively:
-  =begin code :lang<raku>
-  my LibXML::Attr::Map $atts = $node.attributes;
-  $atts<style> = 'fontweight: bold';
-  my LibXML::Attr $style = $atts<style>;
-  $atts<style>:delete; # remove the style
-  =end code
-There are also some DOM (NamedNodeMap) compatible methods:
-  =begin code :lang<raku>
-  my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
-  $atts.setNamedItem($style);
-  $style = $atts.getNamedItem('style');
-  $atts.removeNamedItem('style');
-  =end code
-=head1 METHODS
-
-=begin item1
-keys, pairs, kv, elems, values, list
-
-Similar to the equivalent Raku Hash methods.
-
-=end item1
-
-=begin item1
-setNamedItem
-  =begin code :lang<raku>
-  $map.setNamedItem($new_node)
-  =end code
-Adds or replaces node with the same name as C<<<<<< $new_node >>>>>>.
-
-=end item1
-
-=begin item1
-removeNamedItem
-  =begin code :lang<raku>
-  $map.removeNamedItem($name)
-  =end code
-Remove the item with the name C<<<<<< $name >>>>>>.
-
-=end item1
-
-=begin item1
-getNamedItemNS
-  =begin code :lang<raku>
-   my LibXML::Attr $att = $map.getNamedItemNS($uri, $name);
-  =end code
-C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
-
-=end item1
-
-=begin item1
-setNamedItemNS
-  =begin code :lang<raku>
-  $map.setNamedItem($uri, $new_node)
-  =end code
-Assigns $new_node name space to $uri. Adds or replaces an nodes same local name as C<<<<<< $new_node >>>>>>.
-
-=end item1
-
-=begin item1
-removeNamedItemNS
-  =begin code :lang<raku>
-  $map.removeNamedItemNS($uri, $name);
-  =end code
-C<$map.removedNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>.
-
-=end item1
-
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -180,7 +148,7 @@ C<$map.removedNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

@@ -75,14 +75,31 @@ method new( Str $pattern!, Str :%ns, *%opts) returns LibXML::Pattern
 
 `LibXML::Pattern.compile($pattern)` is equivalent to `LibXML::Pattern.new(:$pattern)`.
 
-### method matches (alias ACCEPTS)
+### multi method matchesNode
 
-```raku
-method matches(LibXML::Node:D $node) returns Bool
-my Bool $matched = $node ~~ $compiled-pattern;
+```perl6
+multi method matchesNode(
+    LibXML::Node $node
+) returns Bool
 ```
 
-Given an LibXML::Node object, returns True if the value is matched by the compiled pattern expression.
+True if the node is matched by the compiled pattern
+
+### multi method ACCEPTS
+
+```perl6
+multi method ACCEPTS(
+    LibXML::Node:D $node
+) returns Bool
+```
+
+True if the Node matches the pattern
+
+Example:
+
+```raku
+my Bool $valid = $elem ~~ $pattern;
+```
 
 See Also
 --------

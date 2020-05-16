@@ -86,7 +86,7 @@ use NativeCall;
     $doc.indexElements();
     =end code
 
-    =head1 Description
+    =head2 Description
 
     The Document Class is in most cases the result of a parsing process. But
     sometimes it is necessary to create a Document from scratch. The DOM Document

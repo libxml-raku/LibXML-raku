@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Attr::Map
+-----------------------
 
-LibXML::Attr::Map - LibXML Class for Mapped Attributes
+LibXML Mapped Attributes
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Attr::Map;
@@ -28,10 +28,10 @@ my LibXML::Attr $style = $atts.getNamedItem('style');
 $atts.removeNamedItem('style');
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
-This class is roughly equivalent to the W3C DOM NamedNodeMap and (Perl 5's XML::LibXML::NamedNodeMap). This implementation currently limits their use to manipulation of an element's attributes.
+This class is roughly equivalent to the W3C DOM NamedNodeMap (and the Perl XML::LibXML::NamedNodeMap class). This implementation currently limits their use to manipulation of an element's attributes.
 
 It presents a tied hash-like mapping of attributes to attribute names.
 
@@ -56,55 +56,82 @@ $style = $atts.getNamedItem('style');
 $atts.removeNamedItem('style');
 ```
 
-METHODS
-=======
+Methods
+-------
 
-  * keys, pairs, kv, elems, values, list
+### keys, pairs, kv, elems, values, list, AT-KEY, ASSIGN-KEY, DELETE-KEY
 
-    Similar to the equivalent Raku Hash methods.
+Similar to the equivalent Raku Hash methods.
 
-  * setNamedItem
+### method setNamedItem
 
-    ```raku
-    $map.setNamedItem($new_node)
-    ```
+```perl6
+method setNamedItem(
+    LibXML::Attr:D $att
+) returns LibXML::Attr
+```
 
-    Adds or replaces node with the same name as `$new_node `.
+Adds or replaces node with the same name as $att
 
-  * removeNamedItem
+### method getNamedItem
 
-    ```raku
-    $map.removeNamedItem($name)
-    ```
+```perl6
+method getNamedItem(
+    Str:D $name where { ... }
+) returns LibXML::Attr
+```
 
-    Remove the item with the name `$name `.
+Gets an attribute by name
 
-  * getNamedItemNS
+### method removeNamedItem
 
-    ```raku
-     my LibXML::Attr $att = $map.getNamedItemNS($uri, $name);
-    ```
+```perl6
+method removeNamedItem(
+    Str:D $name where { ... }
+) returns LibXML::Attr
+```
 
-    `$map.getNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}`.
+Remove the item with the name `$name`
 
-  * setNamedItemNS
+### method setNamedItemNS
 
-    ```raku
-    $map.setNamedItem($uri, $new_node)
-    ```
+```perl6
+method setNamedItemNS(
+    Str $uri,
+    LibXML::Attr:D $att
+) returns Mu
+```
 
-    Assigns $new_node name space to $uri. Adds or replaces an nodes same local name as `$new_node `.
+Assigns $att name space to $uri. Adds or replaces an attribute with the same as `$att`
 
-  * removeNamedItemNS
+### method getNamedItemNS
 
-    ```raku
-    $map.removeNamedItemNS($uri, $name);
-    ```
+```perl6
+method getNamedItemNS(
+    Str $uri,
+    Str:D $name where { ... }
+) returns LibXML::Attr
+```
 
-    `$map.removedNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}:delete`.
+Lookup attribute by namespace and name
 
-COPYRIGHT
-=========
+`$map.getNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}`.
+
+### method removeNamedItemNS
+
+```perl6
+method removeNamedItemNS(
+    Str $uri,
+    Str:D $name where { ... }
+) returns LibXML::Attr
+```
+
+Lookup and remove attribute by namespace and name
+
+`$map.removeNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}:delete`.
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -112,8 +139,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

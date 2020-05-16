@@ -22,7 +22,7 @@ for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
 Please see [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) and [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace).
 
 Functions and Methods
-=====================
+---------------------
 
 ### sub ast-to-xml
 

@@ -3,6 +3,35 @@ use v6;
 #| RelaxNG Schema Validation
 unit class LibXML::RelaxNG;
 
+=begin pod
+
+    =head2 Synopsis
+
+    =begin code :lang<raku>
+    use LibXML::RelaxNG;
+    use LibXML;
+
+    my $doc = LibXML.new.parse: :file($url);
+
+    my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
+    my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
+    my LibXML::RelaxNG $rngschema .= new( :$doc );
+    try { $rngschema.validate( $doc ); };
+    if  $rngschema.is-valid( $doc ) {...}
+    if $doc ~~ $rngschema { ... }
+    =end code
+
+    =head2 Description
+
+    The LibXML::RelaxNG class is a tiny frontend to libxml2's RelaxNG
+    implementation. Currently it supports only schema parsing and document
+    validation.
+
+
+    =head2 Methods
+
+=end pod
+
 use LibXML::Document;
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
@@ -106,89 +135,73 @@ submethod TWEAK(|c) {
     my Parser::Context $parser-ctx .= new: |c;
     $!native = $parser-ctx.parse;
 }
+=begin pod
+    =head3 method new
+    =begin code :lang<raku>
+    multi method new( :location($filename_or_url) ) returns LibXML::RelaxNG;
+    multi method new( :string($xml-schema-string) ) returns LibXML::RelaxNG;
+    multi method new( LibXML::Document :$doc ) returns LibXML::RelaxNG;
+    =end code
+    The constructors for LibXML::RelaxNG may get called with either one of three
+    parameters. The parameter tells the class from which source it should generate
+    a validation schema. It is important, that each schema only have a single
+    source.
 
-submethod DESTROY {
-    .Free with $!native;
-}
+    The `:location` parameter allows one to parse a schema from the filesystem or a
+    URL.
+
+    The `:string` parameter will parse the schema from the given XML string.
+
+    The `:doc` parameter allows one to parse the schema from a pre-parsed L<<<<<<LibXML::Document>>>>>>.
+
+    Note that the constructor will die() if the schema does not meed the
+    constraints of the RelaxNG specification.
+=end pod
 
 method !valid-ctx { ValidContext.new: :schema(self) }
 method validate(LibXML::Document:D $doc) {
     self!valid-ctx.validate($doc);
 }
+=begin pod
+    =head3 method validate
+    =begin code :lang<raku>
+    try { $rngschema->validate( $doc ); };
+    =end code
+    This function allows one to validate a (parsed) document against the given
+    RelaxNG schema. The argument of this function should be an LibXML::Document
+    object. If this function succeeds, it will return 0, otherwise it will throw,
+    reporting the found. Because of this validate() should be always be execute in
+    a `try` block or in the scope of a `CATCH` block.
+=end pod
+
 method is-valid(LibXML::Document:D $doc) {
     self!valid-ctx.is-valid($doc);
 }
+=begin pod
+    =head3 method is-valid (alias ACCEPTS)
+    =begin code :lang<raku>
+    method is-valid(LibXML::Document $doc) returns Bool;
+    $valid = $doc ~~ $rngschema;
+    =end code
+    Returns either True or False depending on whether the passed Document is valid or not.
+=end pod
 
-multi method ACCEPTS(LibXML::RelaxNG:D: LibXML::Node:D $node) {
-    self.is-valid($node);
+#| Returns True if the document validates against the given schema
+multi method ACCEPTS(LibXML::RelaxNG:D: LibXML::Document:D $doc --> Bool) {
+    self.is-valid($doc);
+}
+=begin pod
+    =para Example:
+    =begin code :lang<raku>
+    $valid = $doc ~~ $rngschema;
+    =end code
+=end pod
+
+submethod DESTROY {
+    .Free with $!native;
 }
 
 =begin pod
-
-=head2 Synopsis
-
-  =begin code :lang<raku>
-  use LibXML::RelaxNG;
-  use LibXML;
-
-  my $doc = LibXML.new.parse: :file($url);
-
-  my LibXML::RelaxNG $rngschema .= new( location => $filename_or_url );
-  my LibXML::RelaxNG $rngschema .= new( string => $xmlschemastring );
-  my LibXML::RelaxNG $rngschema .= new( :$doc );
-  try { $rngschema.validate( $doc ); };
-  if  $rngschema.is-valid( $doc ) {...}
-  if $doc ~~ $rngschema { ... }
-  =end code
-
-=head2 Description
-
-The LibXML::RelaxNG class is a tiny frontend to libxml2's RelaxNG
-implementation. Currently it supports only schema parsing and document
-validation.
-
-
-=head2 Methods
-
-=head3 method new
-  =begin code :lang<raku>
-  multi method new( :location($filename_or_url) ) returns LibXML::RelaxNG;
-  multi method new( :string($xml-schema-string) ) returns LibXML::RelaxNG;
-  multi method new( LibXML::Document :$doc ) returns LibXML::RelaxNG;
-  =end code
-The constructors for LibXML::RelaxNG may get called with either one of three
-parameters. The parameter tells the class from which source it should generate
-a validation schema. It is important, that each schema only have a single
-source.
-
-The `:location` parameter allows one to parse a schema from the filesystem or a
-URL.
-
-The `:string` parameter will parse the schema from the given XML string.
-
-The `:doc` parameter allows one to parse the schema from a pre-parsed L<<<<<<LibXML::Document>>>>>>.
-
-Note that the constructor will die() if the schema does not meed the
-constraints of the RelaxNG specification.
-
-=head3 method validate
-  =begin code :lang<raku>
-  try { $rngschema->validate( $doc ); };
-  =end code
-This function allows one to validate a (parsed) document against the given
-RelaxNG schema. The argument of this function should be an LibXML::Document
-object. If this function succeeds, it will return True, otherwise it will throw,
-reporting the found. Because of this validate() should be always be execute in
-a `try` block or in the scope of a `CATCH` block.
-
-
-=head3 method is-valid (alias ACCEPTS)
-   =begin code :lang<raku>
-   method is-valid(LibXML::Document $doc) returns Bool;
-   $valid = $doc ~~ $rngschema;
-   =end code
-Returns either True or False depending on whether the passed Document is valid or not.
-
 
 =head2 Copyright
 

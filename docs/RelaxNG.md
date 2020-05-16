@@ -52,7 +52,7 @@ Note that the constructor will die() if the schema does not meed the constraints
 try { $rngschema->validate( $doc ); };
 ```
 
-This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return True, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
+This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return 0, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
 
 ### method is-valid (alias ACCEPTS)
 
@@ -62,6 +62,22 @@ $valid = $doc ~~ $rngschema;
 ```
 
 Returns either True or False depending on whether the passed Document is valid or not.
+
+### multi method ACCEPTS
+
+```perl6
+multi method ACCEPTS(
+    LibXML::Document:D $doc
+) returns Bool
+```
+
+Returns True if the document validates against the given schema
+
+Example:
+
+```raku
+$valid = $doc ~~ $rngschema;
+```
 
 Copyright
 ---------

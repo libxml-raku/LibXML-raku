@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Schema
+--------------------
 
-LibXML::Schema - XML Schema Validation
+XML Schema Validation
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Schema;
@@ -18,50 +18,67 @@ try { $xmlschema.validate( $doc ); };
 if $doc ~~ $xmlschema { ... }
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 The LibXML::Schema class is a tiny frontend to libxml2's XML Schema implementation. Currently it supports only schema parsing and document validation. libxml2 only supports decimal types up to 24 digits (the standard requires at least 18). 
 
-METHODS
-=======
+Methods
+-------
 
-  * new
+### method new
 
-    code
-    ====
+```raku
+multi method new( Str :$location!, *%opts ) returns LibXML::Schema
+multi method new( Str :string!,  *%opts ) returns LibXML::Schema
+multi method new( LibXML::Document :$doc!,  *%opts ) returns LibXML::Schema
+```
 
-    my LibXML::Schema $xmlschema .= new( location => $filename_or_url, :network ); my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring, :network );
+The constructor of LibXML::Schema may get called with either one of two parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
 
-    The constructor of LibXML::Schema may get called with either one of two parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
+The location parameter allows one to parse a schema from the filesystem or a URL.
 
-    The location parameter allows one to parse a schema from the filesystem or a URL.
+The `:network` flag effects processing of `xsd:import` directives. By default this is disabled, unless a custom External Entity Loader has been installed via the [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config)`.external-entity-loader` method. More detailed control can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) `.input-callbacks` method.
 
-    The `:network` flag effects processing of `xsd:import` directives. By default this is disabled, unless a custom External Entity Loader has been installed via the `LibXML::Config.external-entity-loader` method. More detailed control can then be achieved by setting up a custom entity loader, or by using input callbacks configured via the [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) `.input-callbacks` method.
+The string parameter will parse the schema from the given XML string.
 
-    The string parameter will parse the schema from the given XML string.
+Note that the constructor will die() if the schema does not meed the constraints of the XML Schema specification.
 
-    Note that the constructor will die() if the schema does not meed the constraints of the XML Schema specification.
+### method validate
 
-  * validate
+```raku
+multi method validate(LibXML::Document $doc) returns Int
+multi method validate(LibXML::Element $elem) returns Int
+try { $xmlschema.validate( $doc ); };
+```
 
-    ```raku
-    try { $xmlschema.validate( $doc ); };
-    ```
+This function allows one to validate a document, or a root element against the given XML Schema. If this function succeeds, it will return 0, otherwise it will die() and report the errors found.
 
-    This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+### method is-valid
 
-  * is-valid / ACCEPTS
+```raku
+multi method is-valid(LibXML::Document $doc) returns Bool
+multi method is-valid(LibXML::Element $elem) returns Bool
+```
 
-    ```raku
-    my Bool $valid = $xmlschema.is-valid($doc);
-    $valid = $doc ~~ $xmlschema;
-    ```
+### multi method ACCEPTS
 
-    Returns either True or False depending on whether the passed Document is valid or not.
+```perl6
+multi method ACCEPTS(
+    LibXML::Node:D $node
+) returns Bool
+```
 
-COPYRIGHT
-=========
+Returns either True or False depending on whether the Document or Element is valid or not.
+
+Example:
+
+```raku
+$valid = $doc ~~ $xmlschema;
+```
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -69,8 +86,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

@@ -1,15 +1,15 @@
-NAME
-====
+class LibXML::SAX::Builder
+--------------------------
 
-LibXML::SAX::Builder - Build DOM trees from SAX events.
+Build DOM trees from SAX events.
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This module provides mappings from native SAX callbacks to Raku. It is usually used in conjunction with a [LibXML::SAX::Handler](https://libxml-raku.github.io/LibXML-raku/SAX/Handler) base-class.
 
-EXAMPLE
-=======
+Example
+-------
 
 The following example builds a modified DOM tree with all tags and attributes converted to uppercase.
 
@@ -37,8 +37,8 @@ my LibXML::Document $doc .= parse: :$sax-hander;
 say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
 ```
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -46,8 +46,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

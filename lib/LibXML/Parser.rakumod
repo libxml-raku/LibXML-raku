@@ -630,7 +630,7 @@ If C<tag-expansion> is True empty tags are displayed as open
 and closing tags rather than the shortcut. For example the empty tag I<<<<<< foo >>>>>> will be rendered as I<<<<<< &lt;foo&gt;&lt;/foo&gt; >>>>>> rather than I<<<<<< &lt;foo/&gt; >>>>>>.
 
 
-=head1 PARSER OPTIONS
+=head2 Parser Options
 
 Handling of libxml2 parser options has been unified and improved in LibXML
 1.70. You can now set default options for a particular parser instance by

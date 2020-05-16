@@ -374,7 +374,7 @@ The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wis
     # for example, parse a string with custom error handling
     my LibXML::Document $doc .= parse: :$string, :$sax-handler, :suppress-warnings;
     =end code
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -382,7 +382,7 @@ The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wis
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Node::Set
+-----------------------
 
-LibXML::Node::Set - LibXML Class for XPath Node Collections
+LibXML XPath Node Collections
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Node::Set;
@@ -23,8 +23,8 @@ my LibXML::Node::Set %nodes-by-name = $node-set.Hash;
 # ...
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This class is commonly used for handling result sets from XPath queries. It performs the Iterator role, which enables:
 
@@ -33,101 +33,111 @@ for $elem.findnodes($path) {...}
 my LibXML::Item @nodes = $elem.findnodes($xpath);
 ```
 
-METHODS
-=======
+Methods
+-------
 
-  * new
+### method new
 
-        my LibXML::Node::Set $nodes .= new: :$native, :deref;
+```raku
+method new(xmlNodeSet :$native, Bool :$deref) returns LibXML::Node::Set
+```
 
-    Options:
+For example:
 
-      * `xmlNodeSet :$native`
+```raku
+my xmlNodeSet $native .= new; # create a new object from scratch
+#-OR-
+my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
+my LibXML::Node::Set $nodes .= new: :$native;
+$native = Nil; # best to avoid any further direct access to the native object
+```
 
-        An optional native node-set struct. Note: Please use this option with care. `xmlNodeSet` objects cannot be reference counted; which means that objects cannot be shared between classess. The native xmlNodeSet object is always freed when the LibXML::Node::Set is destroyed. xmlNodeSet objects need to be newly created, or copied from other native objects. Both of the following are OK:
+The `:deref` option dereferences elements to their constituant child nodes and attributes. For example:
 
-        ```raku
-        my xmlNodeSet $native .= new; # create a new object from scratch
-        #-OR-
-        my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
-        my LibXML::Node::Set $nodes .= new: :$native;
-        $native = Nil; # best to avoid any further direct access to the native object
-        ```
+```raku
+  my LibXML::Document $doc .= parse("example/dromeds.xml");
+  # without dereferencing
+  my LibXML::Node::Set $species = $doc.findnodes("dromedaries/species");
+  say $species.keys; # (species)
+  # with dereferencing
+  $species = $doc.findnodes("dromedaries/species", :deref);
+  #-OR-
+  $species = $doc<dromedaries/species>; # The AT-KEY method sets the :deref option
+  say $species.keys; # disposition text() humps @name)
+```
 
-      * `Bool :deref`
+`:deref` is used by the node AT-KEY and Hash methods.
 
-        Dereference Elements to their constituant child nodes and attributes. For example:
+### method elems
 
-        ```raku
-          my LibXML::Document $doc .= parse("example/dromeds.xml");
-          # without dereferencing
-          my LibXML::Node::Set $species = $doc.findnodes("dromedaries/species");
-          say $species.keys; # (species)
-          # with dereferencing
-          $species = $doc.findnodes("dromedaries/species", :deref);
-          #-OR-
-          $species = $doc<dromedaries/species>; # The AT-KEY method sets the :deref option
-          say $species.keys; # disposition text() humps @name)
-        ```
+```raku
+method elems() returns UInt
+```
 
-        The dereference method is used by the node AT-KEY and Hash methods.
+Returns the number of nodes in the set.
 
-    Creates a new node set object. Options are:
+### method AT-POS
 
-  * elems
+```raku
+method AT-POS(UInt) returns LibXML::Item
 
-    Returns the number of nodes in the set.
+for 0 ..^ $node-set.elems {
+    my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
+    ...
+}
+```
 
-  * AT-POS
+Positional interface into the node-set
 
-    ```raku
-    for 0 ..^ $node-set.elems {
-        my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
-        ...
-    }
-    ```
+### method AT-KEY
 
-    Positional interface into the node-set
+```raku
+method AT-KEY(Str $expr) returns LibXML::Node::Set
+my LibXML::Node::Set $a-nodes = $node-set<a>;
+my LibXML::Node::Set $b-atts = $node-set<@b>;
+my LibXML::Text @text-nodes = $node-set<text()>;
+```
 
-  * AT-KEY
+This is an associative interface to node sub-sets grouped by element name, attribute name (`@name`), or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 
-    ```raku
-    my LibXML::Node::Set $a-nodes = $node-set<a>;
-    my LibXML::Node::Set $b-atts = $node-set<@b>;
-    my LibXML::Text @text-nodes = $node-set<text()>;
-    ```
+### method add (alias push)
 
-    This is an associative interface to node-sets for sub-sets grouped by element name, attribute name (`@name`)], or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
+```raku
+method add(LibXML::Item $node) returns LibXML::Item
+```
 
-  * add($node)
+Adds a node to the set.
 
-    Adds a node to the set.
+### method pop
 
-  * delete($node)
+```raku
+method pop() returns LibXML::Item
+```
 
-    Deletes a given node from the set.
+Removes the last item from the set.
 
-    Note: this is O(n) and will be slower as node-set size increases.
+### method delete
 
-  * pop
+```raku
+multi method delete(LibXML::Item $node) returns LibXML::Item
+multi method delete(UInt $pos) returns LibXML::Item
+```
 
-    ```raku
-    my LibXML::Item $node = $node-set.pop;
-    ```
+Deletes a given node from the set.
 
-    Removes the last item from the set.
+Note: this is O(n) and will be slower as node-set size increases.
 
-  * reverse
+### method reverse
 
-    ```raku
-    # process nodes in ascending order
-    for $node.find('ancestor-or-self::*').reverse { ... }
-    ```
+```raku
+# process nodes in ascending order
+for $node.find('ancestor-or-self::*').reverse { ... }
+```
 
-    Reverses the elements in the node-set
+Reverses the elements in the node-set
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -135,8 +145,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

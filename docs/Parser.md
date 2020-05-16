@@ -319,8 +319,8 @@ If `skip-dtd` is defined is True, an existing DTD would not be serialized with t
 
 If `tag-expansion` is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo * will be rendered as *&lt;foo&gt;&lt;/foo&gt; * rather than *&lt;foo/&gt; *.
 
-PARSER OPTIONS
-==============
+Parser Options
+--------------
 
 Handling of libxml2 parser options has been unified and improved in LibXML 1.70. You can now set default options for a particular parser instance by passing them to the constructor as `LibXML-&gt;new({name=&gt;value, ...}) ` or `LibXML-&gt;new(name=&gt;value,...) `. The options can be queried and changed using the following methods (pre-1.70 interfaces such as `$parser-&gt;load-ext-dtd(0) ` also exist, see below): 
 
