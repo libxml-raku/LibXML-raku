@@ -207,11 +207,11 @@ Gets or sets the Numerical value of a documents XML declarations standalone attr
 
 It returns
 
-  * *1 (XmlStandaloneYes) * if standalone="yes" was found,
+  * *1 (XmlStandaloneYes)* if standalone="yes" was found,
 
-  * *0 (XmlStandaloneNo) * if standalone="no" was found and
+  * *0 (XmlStandaloneNo)* if standalone="no" was found and
 
-  * *-1 (XmlStandaloneMu) * if standalone was not specified (default on creation).
+  * *-1 (XmlStandaloneMu)* if standalone was not specified (default on creation).
 
 ### method setStandalone
 
@@ -610,6 +610,18 @@ will cause the following declaration to be created on the document:
 <!DOCTYPE foo PUBLIC "-//FOO//DTD FOO 0.1//EN">
 ```
 
+### method createDTD
+
+```perl6
+method createDTD(
+    Str $name,
+    Str $external-id,
+    Str $system-id
+) returns LibXML::Dtd
+```
+
+Create a new DTD
+
 ### method importNode
 
 ```perl6
@@ -781,7 +793,7 @@ Index elements for faster XPath searching
 
 This function causes libxml2 to stamp all elements in a document with their document position index which considerably speeds up XPath queries for large documents. It should only be used with static documents that won't be further changed by any DOM methods, because once a document is indexed, XPath will always prefer the index to other methods of determining the document order of nodes. XPath could therefore return improperly ordered node-lists when applied on a document that has been changed after being indexed. It is of course possible to use this method to re-index a modified document before using it with XPath again. This function is not a part of the DOM specification.
 
-This function returns number of elements indexed, -1 if error occurred, or -2 if this feature is not available in the running libxml2.
+This function returns the number of elements indexed, -1 if error occurred, or -2 if this feature is not available in the running libxml2.
 
 Copyright
 ---------

@@ -15,7 +15,7 @@ use LibXML::Dtd;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
-use LibXML::Item :item-class, :boxed;
+use LibXML::Item :item-class, :dom-native;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use LibXML::PI;
@@ -272,9 +272,9 @@ enum XmlStandalone is export(:XmlStandalone) (
     standalone attribute.
 
     It returns
-    =item I<<<<<< 1 (XmlStandaloneYes) >>>>>> if standalone="yes" was found,
-    =item I<<<<<< 0 (XmlStandaloneNo) >>>>>> if standalone="no" was found and
-    =item I<<<<<< -1 (XmlStandaloneMu) >>>>>> if standalone was not specified (default on creation).
+    =item I<<<<<<1 (XmlStandaloneYes)>>>>>> if standalone="yes" was found,
+    =item I<<<<<<0 (XmlStandaloneNo)>>>>>> if standalone="no" was found and
+    =item I<<<<<<-1 (XmlStandaloneMu)>>>>>> if standalone was not specified (default on creation).
 =end pod
 
 #| Alter the value of a documents standalone attribute.
@@ -541,7 +541,9 @@ method createElement(QName $name, Str :$href --> LibXML::Element) {
 }
 
 #| equivalent to .createElement($name, :$href)
-method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) is boxed {...}
+method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) {
+    &?ROUTINE.returns.box: $.native.createElementNS($href, $name);
+}
 
 method !check-new-node($node, |) {
    if $node ~~ LibXML::Element {
@@ -637,11 +639,8 @@ multi method createPI(NCName $name, Str $content? --> LibXML::PI) {
 method createExternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
     &?ROUTINE.returns.new: :doc(self), :type<external>, :$name, :$external-id, :$system-id;
 }
-=begin pod
-    =para
-    This function is similar to C<<<<<< createInternalSubset() >>>>>> but this DTD is considered to be external and is therefore not added to the
+=para This function is similar to C<<<<<< createInternalSubset() >>>>>> but this DTD is considered to be external and is therefore not added to the
   document itself. Nevertheless it can be used for validation purposes.
-=end pod
 
 #| Creates a new Internal Subset
 method createInternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
@@ -682,8 +681,9 @@ method createInternalSubset(Str $name, Str $external-id, Str $system-id --> LibX
     =end code
 =end pod
 
-method createDTD(Str $name, Str $external-id, Str $system-id) {
-    LibXML::Dtd.new: :$name, :$external-id, :$system-id, :type<external>;
+#| Create a new DTD
+method createDTD(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
+    &?ROUTINE.returns.new: :$name, :$external-id, :$system-id, :type<external>;
 }
 
 # don't allow more than one element in the document root
@@ -698,12 +698,9 @@ method importNode(LibXML::Node:D $node --> LibXML::Node) {
         &?ROUTINE.returns.box: $_, :doc(self);
     }
 }
-=begin pod
-    =para
-    If a node is not part of a document, it can be imported to another document. As
+=para If a node is not part of a document, it can be imported to another document. As
     specified in DOM Level 2 Specification the Node will not be altered or removed
-     from its original document (C<<<<<< $node.cloneNode(:deep) >>>>>> will get called implicitly).
-=end pod
+    from its original document (C<<<<<< $node.cloneNode(:deep) >>>>>> will get called implicitly).
 
 #| Adopts a node from another DOM
 method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
@@ -711,21 +708,16 @@ method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
         &?ROUTINE.returns.box: $_, :doc(self);
     }
 }
-=begin pod
-    =para  
-    If a node is not part of a document, it can be adopted by another document. As
+=para If a node is not part of a document, it can be adopted by another document. As
     specified in DOM Level 3 Specification the Node will not be altered but it will
     removed from its original document.
-
-    After a document adopted a node, the node, its attributes and all its
+=para After a document adopted a node, the node, its attributes and all its
     descendants belong to the new document. Because the node does not belong to the
     old document, it will be unlinked from its old location first.
-
-    I<<<<<<NOTE:>>>>>> Don't try to use importNode() or adoptNode() to import sub-trees that contain entity references -
+=para I<<<<<<NOTE:>>>>>> Don't try to use importNode() or adoptNode() to import sub-trees that contain entity references -
     even if the entity reference is the root node of the sub-tree. This will cause
     serious problems to your program. This is a limitation of libxml2 and not of
     LibXML itself.
-=end pod
 
 #| DOM compatible method to get the document element
 method getDocumentElement returns LibXML::Element {
@@ -760,7 +752,7 @@ method insertProcessingInstruction(|c) {
 
 }
 
-method getInternalSubset(--> LibXML::Dtd) is boxed {...}
+method getInternalSubset(--> LibXML::Dtd) is dom-native {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
 method setInternalSubset(LibXML::Dtd $dtd) {
@@ -771,7 +763,7 @@ method setInternalSubset(LibXML::Dtd $dtd) {
 =end pod
 
 #| This method removes an external, if defined, from the document
-method removeInternalSubset(--> LibXML::Dtd) is boxed {...}
+method removeInternalSubset(--> LibXML::Dtd) is dom-native {...}
 =begin pod
     =para I<<<<<<EXPERIMENTAL!>>>>>>
 
@@ -796,7 +788,7 @@ method internalSubset is rw returns LibXML::Dtd {
     function on doctype declaration nodes!
 =end pod
 
-method getExternalSubset(--> LibXML::Dtd) is boxed {...}
+method getExternalSubset(--> LibXML::Dtd) is dom-native {...}
 
 #| This method sets a DTD node as an external subset of the given document.
 method setExternalSubset(LibXML::Dtd $dtd) {
@@ -807,7 +799,7 @@ method setExternalSubset(LibXML::Dtd $dtd) {
 =end pod
 
 #| This method removes an external, if defined, from the document
-method removeExternalSubset(--> LibXML::Dtd) is boxed {...}
+method removeExternalSubset(--> LibXML::Dtd) is dom-native {...}
 =begin pod
     =para I<<<<<<EXPERIMENTAL!>>>>>>
 
@@ -823,12 +815,9 @@ method externalSubset is rw returns LibXML::Dtd {
                  }
              );
 }
-=begin pod
-    =para
-    I<<<<<<NOTE>>>>>> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
+=para I<<<<<<NOTE>>>>>> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
     LibXML is still limited. In particular one may not want use common node
     function on doctype declaration nodes!
-=end pod
 
 method parser handles<parse> { require ::('LibXML::Parser'); }
 =begin pod
@@ -869,22 +858,19 @@ method processXIncludes(|c) is also<process-xincludes> {
 =end pod
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
-method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> is boxed {...}
-=begin pod
-    =para  
-    Note: the ID of an element may change while manipulating the document. For
+method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
+   &?ROUTINE.returns.box: $.native.getElementById($id);
+}
+=para Note: the ID of an element may change while manipulating the document. For
     documents with a DTD, the information about ID attributes is only available if
     DTD loading/validation has been requested. For HTML documents parsed with the
     HTML parser ID detection is done automatically. In XML documents, all "xml:id"
     attributes are considered to be of type ID. You can test ID-ness of an
     attribute node with $attr.isId().
-=end pod
 
 #| Index elements for faster XPath searching
 method indexElements returns Int { $.native.IndexElements }
-=begin pod
-    =para
-    This function causes libxml2 to stamp all elements in a document with their
+=para This function causes libxml2 to stamp all elements in a document with their
     document position index which considerably speeds up XPath queries for large
     documents. It should only be used with static documents that won't be further
     changed by any DOM methods, because once a document is indexed, XPath will
@@ -894,9 +880,8 @@ method indexElements returns Int { $.native.IndexElements }
     possible to use this method to re-index a modified document before using it
     with XPath again. This function is not a part of the DOM specification.
 
-    This function returns number of elements indexed, -1 if error occurred, or -2
+=para This function returns the number of elements indexed, -1 if error occurred, or -2
     if this feature is not available in the running libxml2.
-=end pod
 
 
 =begin pod

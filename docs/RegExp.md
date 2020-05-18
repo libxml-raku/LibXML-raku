@@ -49,14 +49,15 @@ Compile constructor
 
 `LibXML::RegExp.compile($regexp)` is equivalent to `LibXML::RegExp.new(:$regexp)`
 
-### method matches (alias ACCEPTS)
+### multi method ACCEPTS
 
-```raku
-method matches(Str $content) returns Bool
-$matched = $string ~~ $compiled-re;
+```perl6
+multi method ACCEPTS(
+    Str:D $content
+) returns Bool
 ```
 
-Given a string value, returns True if the value is matched by the compiled regular expression.
+(alias matches) Returns True if $content matches the regular expression
 
 ### method isDeterministic
 
@@ -64,7 +65,7 @@ Given a string value, returns True if the value is matched by the compiled regul
 method isDeterministic() returns Bool
 ```
 
-Returns True if the regular expression is deterministic; returns False otherwise.
+Returns True if the regular expression is deterministic.
 
 (See the definition of determinism in the XML spec [http://www.w3.org/TR/REC-xml/#determinism ](http://www.w3.org/TR/REC-xml/#determinism ))
 

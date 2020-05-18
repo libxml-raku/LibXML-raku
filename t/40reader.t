@@ -130,7 +130,7 @@ close $io;
 
 # Expand
 {
-  my ($node1,$node2, $node3);
+  my LibXML::Node ($node1,$node2, $node3);
   my $xml = q:to<EOF>;
 <root>
   <AA foo="FOO"> text1 <inner/> </AA>

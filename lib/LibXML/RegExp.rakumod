@@ -55,9 +55,7 @@ submethod TWEAK(Str:D :$regexp!) {
 method compile(Str:D $regexp --> LibXML::RegExp) {
     self.new: :$regexp;
 }
-=begin pod
-    =para `LibXML::RegExp.compile($regexp)` is equivalent to `LibXML::RegExp.new(:$regexp)`
-=end pod
+=para `LibXML::RegExp.compile($regexp)` is equivalent to `LibXML::RegExp.new(:$regexp)`
 
 method !try-bool(Str:D $op, |c) {
     my $rv := $!native."$op"(|c);
@@ -66,26 +64,16 @@ method !try-bool(Str:D $op, |c) {
     $rv > 0;
 }
 
+#| (alias matches) Returns True if $content matches the regular expression
 multi method ACCEPTS(LibXML::RegExp:D: Str:D $content --> Bool) is also<matches> {
     self!try-bool('Match', $content);
 }
-=begin pod
-=head3 method matches (alias ACCEPTS)
-  =begin code :lang<raku>
-  method matches(Str $content) returns Bool
-  $matched = $string ~~ $compiled-re;
-  =end code
-Given a string value, returns True if the value is matched by the
-compiled regular expression.
-=end pod
 
-#| Returns True if the regular expression is deterministic; returns False otherwise. 
+#| Returns True if the regular expression is deterministic. 
 method isDeterministic returns Bool {
     self!try-bool('IsDeterministic');
-  }
-=begin pod
-    =para (See the definition of determinism in the XML spec L<<<<<<http://www.w3.org/TR/REC-xml/#determinism >>>>>>)
-=end pod
+}
+=para (See the definition of determinism in the XML spec L<<<<<<http://www.w3.org/TR/REC-xml/#determinism >>>>>>)
 
 submethod DESTROY {
     .Free with $!native;

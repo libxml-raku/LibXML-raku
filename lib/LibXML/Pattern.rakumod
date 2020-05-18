@@ -141,12 +141,10 @@ multi method matchesNode(anyNode $node) {
 multi method ACCEPTS(LibXML::Pattern:D: LibXML::Node:D $node --> Bool) {
     self.matchesNode($node);
 }
-=begin pod
-    =para Example:
+=para Example:
     =begin code :lang<raku>
     my Bool $valid = $elem ~~ $pattern;
     =end code
-=end pod
 
 method FALLBACK($key, |c) is rw {
     $.option-exists($key)

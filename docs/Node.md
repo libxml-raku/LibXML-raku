@@ -171,7 +171,7 @@ Get or set the value of a node
 
 If the node has any content (such as stored in a `text node `) it can get requested through this function.
 
-*NOTE: * Element Nodes have no content per definition. To get the text value of an Element use textContent() instead!
+*NOTE: * Element Nodes have no content per definition. To get the text value of an element use textContent() instead!
 
 ### method textContent
 
@@ -294,7 +294,7 @@ Return the last child node, if any
 
 ### method hasChildNodes
 
-```raku
+```perl6
 method hasChildNodes() returns Bool
 ```
 
@@ -771,7 +771,7 @@ method localname() returns Str
 
 Returns the local name of a tag.
 
-This is the part behind the colon.
+This is the part after the colon.
 
 ### method prefix
 

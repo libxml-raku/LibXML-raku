@@ -190,9 +190,9 @@ method validate(LibXML::Node:D $node) {
     return 0, otherwise it will die() and report the errors found.
 =end pod
 
-method is-valid(LibXML::Node:D $node) {
+method is-valid(LibXML::Node:D $node --> Bool) {
     self!valid-ctx.validate($node, :check);
-    }
+}
 =begin pod
     =head3 method is-valid
     =begin code :lang<raku>
@@ -205,12 +205,10 @@ method is-valid(LibXML::Node:D $node) {
 multi method ACCEPTS(LibXML::Schema:D: LibXML::Node:D $node --> Bool) {
     self.is-valid($node);
 }
-=begin pod
-    =para Example:
+=para Example:
     =begin code :lang<raku>
     $valid = $doc ~~ $xmlschema;
     =end code
-=end pod
 
 =begin pod
 =head2 Copyright

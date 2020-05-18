@@ -124,7 +124,7 @@ use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::XPath::Expression;
 use LibXML::Types :NCName, :QName;
-use LibXML::Item :boxed;
+use LibXML::Item :dom-native;
 
 constant config = LibXML::Config;
 my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
@@ -132,15 +132,12 @@ enum <SkipBlanks KeepBlanks>;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 ########################################################################
-=begin pod
-    =head2 Property Methods
-=end pod
+=head2 Property Methods
 
 has LibXML::Node $.doc;
 
 has anyNode $.native handles <
     domCheck domFailure
-    hasChildNodes
     getNodeName getNodeValue
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
@@ -229,13 +226,10 @@ method nodeValue is rw is also<value> returns Str {
         STORE => sub ($, Str() $_) { self.setNodeValue($_) },
     );
 }
-=begin pod
-    =para
-    If the node has any content (such as stored in a C<<<<<< text node >>>>>>) it can get requested through this function.
-
-    I<<<<<< NOTE: >>>>>> Element Nodes have no content per definition. To get the text value of an
-    Element use textContent() instead!
-=end pod
+=para If the node has any content (such as stored in a C<<<<<< text node >>>>>>) it
+    can get requested through this function.
+=para I<<<<<< NOTE: >>>>>> Element Nodes have no content per definition. To get the
+    text value of an element use textContent() instead!
 
 #| this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
 method textContent is also<text string-value to-literal> returns Str {
@@ -244,34 +238,25 @@ method textContent is also<text string-value to-literal> returns Str {
 
 #| Return a numeric value representing the node type of this node.
 method nodeType returns UInt { $!native.type }
-=begin pod
-    =para
-    The module L<LibXML::Enums> by default exports enumerated constants `XML_*_NODE` and `XML_*_DECL` for the node and declaration types.
-=end pod
+=para The module L<LibXML::Enums> by default exports enumerated constants
+    `XML_*_NODE` and `XML_*_DECL` for the node and declaration types.
 
 #| Gets the base URI
 method getBaseURI returns Str { $!native.GetBase }
-=begin pod
-    =para
-    Searches for the base URL of the node. The method should work on both XML and
+=para Searches for the base URL of the node. The method should work on both XML and
     HTML documents even if base mechanisms for these are completely different. It
     returns the base as defined in RFC 2396 sections "5.1.1. Base URI within
     Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However
     it does not return the document base (5.1.3), use method C<<<<<< URI >>>>>> of L<LibXML::Document> for this. 
-=end pod
 
 #| Sets the base URI
 method setBaseURI(Str $uri) { $!native.SetBase($uri) }
-=begin pod
-    =para
-    This method only does something useful for an element node in an XML document.
+=para This method only does something useful for an element node in an XML document.
     It sets the xml:base attribute on the node to $strURI, which effectively sets
     the base URI of the node to the same value. 
-
-    Note: For HTML documents this behaves as if the document was XML which may not
+=para Note: For HTML documents this behaves as if the document was XML which may not
     be desired, since it does not effectively set the base URI of the node. See RFC
     2396 appendix D for an example of how base URI can be specified in HTML. 
-=end pod
 
 method baseURI is rw is also<URI> {
     Proxy.new(
@@ -282,67 +267,48 @@ method baseURI is rw is also<URI> {
 
 #| Return the source line number where the tag was found
 method line-number returns UInt  { $!native.GetLineNo }
-=begin pod
-If a node is added to the document the line number is 0. Problems may occur, if
-a node from one document is passed to another one.
-
-IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
-65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
-
-Note: line-number() is special to LibXML and not part of the DOM specification.
-=end pod
+=para If a node is added to the document the line number is 0. Problems may occur, if
+    a node from one document is passed to another one.
+=para IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
+    65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
+=para Note: line-number() is special to LibXML and not part of the DOM specification.
 
 ########################################################################
-=begin pod
-    =head2 Navigation Methods
-=end pod
+=head2 Navigation Methods
 
 #| Returns the objects parent node
-method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is boxed {...}
+method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is dom-native {...}
 
 #| Returns the next sibling if any.
-method nextSibling returns LibXML::Node is boxed {...}
+method nextSibling returns LibXML::Node is dom-native {...}
 
 #| Returns the next non-blank sibling if any.
-method nextNonBlankSibling returns LibXML::Node is boxed {...}
-=begin pod
-    =para
-    A node is blank if it is a Text or CDATA node consisting of whitespace
+method nextNonBlankSibling returns LibXML::Node is dom-native {...}
+=para A node is blank if it is a Text or CDATA node consisting of whitespace
     only. This method is not defined by DOM.
-=end pod
 
 #| Analogous to getNextSibling(). Returns the previous sibling if any.
-method previousSibling returns LibXML::Node is boxed {...}
+method previousSibling returns LibXML::Node is dom-native {...}
 
 #| Returns the previous non-blank sibling, if any
-method previousNonBlankSibling returns LibXML::Node is boxed {...}
-=begin pod
-    =para
-    A node is blank if it is a Text or CDATA node consisting of whitespace
+method previousNonBlankSibling returns LibXML::Node is dom-native {...}
+=para A node is blank if it is a Text or CDATA node consisting of whitespace
     only. This method is not defined by DOM.
-=end pod
 
 #| Return the first child node, if any
-method firstChild is also<getFirstChild> returns LibXML::Node is boxed {...}
+method firstChild is also<getFirstChild> returns LibXML::Node is dom-native {...}
 
 #| Return the last child node, if any
-method lastChild is also<getLastChild> returns LibXML::Node is boxed {...}
+method lastChild is also<getLastChild> returns LibXML::Node is dom-native {...}
 
-method firstNonBlankChild returns LibXML::Node is boxed {...}
-method lastNonBlankChild returns LibXML::Node is boxed {...}
-method prev returns LibXML::Node is boxed {...}
+method firstNonBlankChild returns LibXML::Node is dom-native {...}
+method lastNonBlankChild returns LibXML::Node is dom-native {...}
+method prev returns LibXML::Node is dom-native {...}
 
-# handled by native method
-=begin pod
-
-    =head3 method hasChildNodes
-    =begin code :lang<raku>
-    method hasChildNodes() returns Bool
-    =end code
-    =para
-    Returns True if the current node has child nodes, False otherwise.
-
-=end pod
+#| Returns True if the current node has child nodes, False otherwise.
+method hasChildNodes returns Bool {
+    ? $!native.hasChildNodes();
+}
 
 multi method first(Bool :$blank = True) {
     $blank ?? $.firstChild !! $.firstNonBlankChild;
@@ -357,11 +323,8 @@ multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
 method appendText(Str:D $text) is also<appendTextNode> {
     $!native.appendText($text);
 }
-=begin pod
-    =para
-    Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment,
+=para Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment,
     and DocumentFragment nodes.
-=end pod
 
 method doc is rw is also<ownerDocument> {
     Proxy.new(
@@ -380,7 +343,6 @@ ownerDocument
   my LibXML::Document $doc = $node.ownerDocument;
   =end code
 Gets or sets the owner document for the node
-
 =end pod
 
 
@@ -407,21 +369,14 @@ method setOwnerDocument( LibXML::Node $doc) {
     }
     $!doc = $doc;
 }
-=begin pod
-    =para
-    This method unbinds the node first, if it is already bound to another document.
-
-    Calling `$node.setOwnerDocument($doc)` is equivalent to calling $doc.adoptNode($node)`. Because of this it has the same limitations with
-Entity References as adoptNode().
-=end pod
+=para This method unbinds the node first, if it is already bound to another document.
+=para Calling `$node.setOwnerDocument($doc)` is equivalent to calling $doc.adoptNode($node)`.
+    Because of this it has the same limitations with Entity References as adoptNode().
 
 #| Get the root (owner) node
-method getOwner returns LibXML::Node is boxed<root> {...}
-=begin pod
-    =para
-    This function returns the root node that the current node is associated with. In most
-    cases this will be a document node or a document fragment node.
-=end pod
+method getOwner returns LibXML::Node is dom-native<root> {...}
+=para This function returns the root node that the current node is associated with.
+    In most cases this will be a document node or a document fragment node.
 
 method childNodes(Bool :$blank = True) is also<getChildnodes children nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
     iterate-list(self, LibXML::Node, :$blank);
@@ -462,9 +417,7 @@ method nonBlankChildNodes {
 =end pod
 
 ########################################################################
-=begin pod
-    =head2 DOM Manipulation Methods
-=end pod
+=head2 DOM Manipulation Methods
 
 #| Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
 method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
@@ -472,43 +425,35 @@ method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
     $!doc = LibXML::Node;
     self;
 }
-=begin pod
-    =para
-    If the node is not inserted into the DOM afterwards, it will be
+=para If the node is not inserted into the DOM afterwards, it will be
     lost after the program terminates. From a low level view, the unbound node is
     stripped from the context it is and inserted into a (hidden) document-fragment.
-=end pod
 
 #| Unbind a child node from its parent
 method removeChild(LibXML::Node:D $node --> LibXML::Node) {
     $node.keep: $!native.removeChild($node.native), :doc(LibXML::Node);
 }
-=begin pod
-   =para Fails if `$node` is not a child of this object
-=end pod
+=para Fails if `$node` is not a child of this object
 
 #| Replaces the `$old` node with the `$new` node.
 method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
     $old.keep: $!native.replaceChild($new.native, $old.native),
 }
-=begin pod
-    =para The returned C<<<<<<$old>>>>>> node is unbound.
-
-    This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the
+=para The returned C<<<<<<$old>>>>>> node is unbound.
+=para This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the
     node will be imported first.
-=end pod
 
 #| Adds a child to this nodes children (alias addChild)
 method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
     $new.keep: $!native.appendChild($new.native);
 }
-=begin pod
-    =para Fails, if the new childnode is already a child
-of this node. This method differs from the DOM L2 specification, in the case, if the new
-   node is not part of the document, the node will be imported first.
-=end pod
+=para Fails, if the new childnode is already a child
+    of this node. This method differs from the DOM L2 specification, in the case, if the new
+    node is not part of the document, the node will be imported first.
 
-method addNewChild(Str $uri, QName $name --> LibXML::Node) is boxed {...}
+method addNewChild(Str $uri, QName $name --> LibXML::Node) {
+    LibXML::Node.box: $!native.addNewChild($uri, $name);
+}
 =begin pod
     =para
     Vivify and add a new child element.
@@ -530,19 +475,15 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) is boxed {...}
     This function is very useful for DOM building, where a created node can be
     directly associated with its parent. I<<<<<<NOTE>>>>>> this function is not part of the DOM specification and its use may limit your
     code to Raku or Perl.
- 
 =end pod
 
 #| Replace a node
 method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
     self.keep: $!native.replaceNode($new.native); 
 }
-=begin pod
-    =para
-    This function is very similar to replaceChild(), but it replaces the node
+=para This function is very similar to replaceChild(), but it replaces the node
     itself rather than a childnode. This is useful if a node found by any XPath
     function, should be replaced.
-=end pod
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
@@ -553,39 +494,30 @@ method addSibling(LibXML::Node:D $new --> LibXML::Node) {
 method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
     &?ROUTINE.returns.box: $!native.cloneNode($deep), :doc(LibXML::Node);
 }
-=begin pod
-    =para
-    When $deep is True the function will copy all child nodes as well.
+=para When $deep is True the function will copy all child nodes as well.
     Otherwise the current node will be copied. Note that in case of
     element, attributes are copied even if $deep is not True. 
-=end pod
 
 #| Inserts $new before $ref.
 method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
     my anyNode $ref-native = .native with $ref;
     $new.keep: $!native.insertBefore($new.native, $ref-native);
 }
-=begin pod
-    =para
-    If `$ref` is undefined, the newNode will be set as the new last child of the parent node.
+=para If `$ref` is undefined, the newNode will be set as the new last child of the parent node.
     This function differs from the DOM L2 specification, in the case, if the new
     node is not part of the document, the node will be imported first,
     automatically.
-
-    Note, that the reference node has to be a direct child of the node the function
+=para Note, that the reference node has to be a direct child of the node the function
     is called on. Also, `$new` is not allowed to be an ancestor of the new
     parent node.
-=end pod
 
 #| Inserts $new after $ref.
 method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
     my anyNode $ref-native = .native with $ref;
     $new.keep: $!native.insertAfter($new.native, $ref-native);
 }
-=begin pod
-   =para
-   If C<<<<<< $refNode >>>>>> is undefined, the newNode will be set as the new last child of the parent node.
-=end pod
+=para If C<<<<<< $refNode >>>>>> is undefined, the newNode will be set as the new
+    last child of the parent node.
 
 method removeChildNodes(--> LibXML::Node) {
     &?ROUTINE.returns.box: $!native.removeChildNodes, :doc(LibXML::Node);
@@ -602,9 +534,7 @@ method removeChildNodes(--> LibXML::Node) {
 =end pod
 
 ########################################################################
-=begin pod
-    =head2 Searching Methods
-=end pod
+=head2 Searching Methods
 
 method xpath-context handles<find findnodes findvalue exists registerNs query-handler querySelector querySelectorAll> {
     $!xpath-context //= (require ::('LibXML::XPath::Context')).new: :node(self);
@@ -778,9 +708,7 @@ multi method ACCEPTS(LibXML::Node:D: Str:D $expr) {
 }
 
 ########################################################################
-=begin pod
-    =head2 Serialization Methods
-=end pod
+=head2 Serialization Methods
 
 #| serialize to a string; canonicalized as per C14N specification
 method canonicalize(
@@ -968,21 +896,15 @@ method protect(&action) {
 }
 
 ########################################################################
-=begin pod
-    =head2 Namespace Methods
-=end pod
+=head2 Namespace Methods
 
 #| Returns the local name of a tag.
 method localname returns Str { $!native.name.subst(/^.*':'/,'') }
-=begin pod
-    =para  This is the part behind the colon.
-=end pod
+=para This is the part after the colon.
 
 #| Returns the prefix of a tag
 method prefix    returns Str { do with $!native.ns {.prefix} // Str }
-=begin pod
-    =para  This is the part before the colon.
-=end pod
+=para This is the part before the colon.
 
 method addNamespace(Str $uri, NCName $prefix?) {
     $.setNamespace($uri, $prefix, :!activate);
@@ -996,7 +918,7 @@ method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
 method clearNamespace {
     ? $!native.setNamespace(Str, Str);
 }
-method localNS(--> LibXML::Namespace) is boxed {...}
+method localNS(--> LibXML::Namespace) is dom-native {...}
 method getNamespaces is also<namespaces> {
     iterate-list(self, LibXML::Namespace, :$.doc);
 }
@@ -1046,9 +968,7 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.hr
 =end pod
 
 ########################################################################
-=begin pod
-    =head2 Associative Interface
-=end pod
+=head2 Associative Interface
 
 =begin pod
   =head3 methods AT-KEY, keys
@@ -1083,10 +1003,6 @@ method DELETE-KEY(Str:D $xpath) {
 }
 
 method Hash(|c) handles <keys pairs kv> { $.childNodes(|c).Hash }
-
-########################################################################
-# Trailing POD
-########################################################################
 
 =begin pod
 

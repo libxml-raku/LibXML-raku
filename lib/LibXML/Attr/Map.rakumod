@@ -132,9 +132,7 @@ class LibXML::Attr::Map does Associative {
     method removeNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
         do with $.getNamedItemNS($name) { .unlink } // LibXML::Attr;
     }
-    =begin pod
-    C<$map.removeNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}:delete>.
-    =end pod
+    =para `$map.removeNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}:delete`.
 
 }
 

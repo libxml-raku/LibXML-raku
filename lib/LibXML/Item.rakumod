@@ -223,15 +223,15 @@ method box(LibXML::Native::DOM::Node $struct,
 
 method unbox { $.native }
 
+# api/native wrapper for simple DOM methods
 multi trait_mod:<is>(
-    Method $m where {.yada, && .returns ~~ LibXML::Item && !.signature.params>>.type.first(LibXML::Item)},
-    :$boxed!) is export(:boxed) {
-    my $name = $boxed ~~ Str:D ?? $boxed !! $m.name;
-    $m.wrap: method (|c) {
-        $m.returns.box: $.native."$name"(|c);
-    }
+    Method $m where {.yada && .count <= 1 }, #Rakudo 2019.03+: && .returns ~~ LibXML::Item},
+    :$dom-native!) is export(:dom-native) {
+    my $name := $dom-native ~~ Str:D ?? $dom-native !! $m.name;
+    $m.wrap: method () is hidden-from-backtrace { $m.returns.box: $.native."$name"(); }
 }
 
+#| Utility method that verifies that `$rv` is the same native struct as the current object.
 method keep(LibXML::Native::DOM::Node $rv,
             :$doc = $.doc, # reusable document object
             --> LibXML::Item) {
@@ -243,13 +243,6 @@ method keep(LibXML::Native::DOM::Node $rv,
         } // self.box: $_, :$doc;
     } // self.WHAT;
 }
-=begin pod
-method keep
-=begin code :lang<raku>
-method keep(xmlItem $rv) returns LibXML::Item;
-=end code
-Utility method that verifies that `$rv` is the same native struct as the current object.
-=end pod
 
 =begin pod
 =head2 Copyright

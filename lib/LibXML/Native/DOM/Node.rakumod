@@ -1,4 +1,4 @@
-#| low level unboxed/unsugared DOM. Works directly on native XML Nodes
+#| low level undom-native/unsugared DOM. Works directly on native XML Nodes
 unit role LibXML::Native::DOM::Node;
 
 use LibXML::Enums;

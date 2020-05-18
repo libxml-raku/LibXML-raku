@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Reader
+--------------------
 
-LibXML::Reader - LibXML::Reader - interface to libxml2 pull parser
+Interface to libxml2 Pull Parser
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Reader;
@@ -16,7 +16,7 @@ sub dump-node($reader) {
                             $reader.isEmptyElement;
 }
 
-my LibXML::Reader $reader .= new(location => "file.xml")
+my LibXML::Reader $reader .= new(file => "file.xml")
        or die "cannot read file.xml\n";
 while $reader.read {
     dump-node($reader);
@@ -28,15 +28,15 @@ or
 ```raku
 use LibXML::Reader;
 
-my LibXML::Reader $reader .= new(location => "file.xml")
+my LibXML::Reader $reader .= new(file => "file.xml")
        or die "cannot read file.xml\n";
 $reader.preservePattern('//table/tr');
 $reader.finish;
 print $reader.document.Str(:deep);
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 This is a Raku interface to libxml2's pull-parser implementation xmlTextReader *http://xmlsoft.org/html/libxml-xmlreader.html *. Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
 
@@ -50,25 +50,24 @@ Reader API also supports namespaces, xml:base, entity handling, DTD, Schema and 
 
 The naming of methods compared to libxml2 and C# XmlTextReader has been changed slightly to match the conventions of LibXML. Some functions have been changed or added with respect to the C interface.
 
-CONSTRUCTOR
-===========
+Constructor
+-----------
 
 Depending on the XML source, the Reader object can be created with either of:
 
 ```raku
-my LibXML::Reader $reader .= new( location => "file.xml", ... );
+my LibXML::Reader $reader .= new( file => "file.xml", ... );
 my LibXML::Reader $reader .= new( string => $xml_string, ... );
 my LibXML::Reader $reader .= new( io => $file_handle, ... );
 my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
 my LibXML::Reader $reader .= new( DOM => $dom, ... );
 ```
 
-where ... are (optional) reader options described below in [Reader options ](Reader options ) or various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser). The constructor recognizes the following XML sources:
+where ... are reader options described below in [Reader options](Reader options) or various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser). The constructor recognizes the following XML sources:
 
-Source specification
---------------------
+### Source specification
 
-  * Str :$location
+  * Str :$file
 
     Read XML from a local file or URL.
 
@@ -86,10 +85,9 @@ Source specification
 
   * LibXML::Document :$DOM
 
-    Use reader API to walk through a pre-parsed [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document).
+    Use reader API to walk through a pre-parsed [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document).
 
-Reader options
---------------
+### Reader options
 
   * :$encoding
 
@@ -107,304 +105,610 @@ Reader options
 
     the reader further supports various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser) (specifically those labeled by /reader/). 
 
-METHODS CONTROLLING PARSING PROGRESS
-====================================
+Methods Controlling Parsing Progress
+------------------------------------
 
-  * read()
+### method read
 
-    Moves the position to the next node in the stream, exposing its properties.
+```perl6
+method read() returns Bool
+```
 
-    Returns True if the node was read successfully, False if there is no more nodes to read, or Failure in case of error
+Moves the position to the next node in the stream, exposing its properties.
 
-  * readAttributeValue()
+Returns True if the node was read successfully, False if there is no more nodes to read, or Failure in case of error
 
-    Parses an attribute value into one or more Text and EntityReference nodes.
+### method readAttributeValue
 
-    Returns True in case of success, False if the reader was not positioned on an attribute node or all the attribute values have been read, or Failure in case of error.
+```perl6
+method readAttributeValue() returns Bool
+```
 
-  * readState()
+Parses an attribute value into one or more Text and EntityReference nodes.
 
-    Gets the read state of the reader. Returns the state value, or -1 in case of error. The module exports constants for the Reader states, see STATES below.
+Returns True in case of success, False if the reader was not positioned on an attribute node or all the attribute values have been read, or Failure in case of error.
 
-  * depth()
+### method readState
 
-    The depth of the node in the tree, starts at 0 for the root node.
+```perl6
+method readState() returns UInt
+```
 
-  * next()
+Gets the read state of the reader.
 
-    Skip to the node following the current one in the document order while avoiding the sub-tree if any. Returns True if the node was read successfully, False if there is no more nodes to read, or Failure in case of error.
+Returns the state value, or Failure in case of error. The module exports constants for the Reader states, see STATES below.
 
-  * nextElement(localname?,nsURI?)
+### method depth
 
-    Skip nodes following the current one in the document order until a specific element is reached. The element's name must be equal to a given localname if defined, and its namespace must equal to a given nsURI if defined. Either of the arguments can be undefined (or omitted, in case of the latter or both).
+```perl6
+method depth() returns UInt
+```
 
-    Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
+The depth of the node in the tree, starts at 0 for the root node.
 
-  * nextPatternMatch(compiled_pattern)
+### method next
 
-    Skip nodes following the current one in the document order until an element matching a given compiled pattern is reached. See [LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns. See also the `matchesPattern ` method.
+```perl6
+method next() returns Bool
+```
 
-    Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
+Skip to the node following the current one in the document order while avoiding the sub-tree if any.
 
-  * skipSiblings()
+Returns True if the node was read successfully, False if there is no more nodes to read, or Failure in case of error.
 
-    Skip all nodes on the same or lower level until the first node on a higher level is reached. In particular, if the current node occurs in an element, the reader stops at the end tag of the parent element, otherwise it stops at a node immediately following the parent node.
+### method nextElement
 
-    Returns True if successful, False if end of the document is reached, or Failure in case of error.
+```perl6
+method nextElement(
+    Str $local-name? where { ... },
+    Str $URI?
+) returns Bool
+```
 
-  * nextSibling()
+Skip nodes following the current one in the document order until a specific element is reached.
 
-    It skips to the node following the current one in the document order while avoiding the sub-tree if any.
+The element's name must be equal to a given localname if defined, and its namespace must equal to a given nsURI if defined. Either of the arguments can be undefined (or omitted, in case of the latter or both).
 
-    Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
+Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
 
-  * nextSiblingElement (name?,nsURI?)
+### method nextPatternMatch
 
-    Like nextElement but only processes sibling elements of the current node (moving forward using `nextSibling() ` rather than `read() `, internally).
+```perl6
+method nextPatternMatch(
+    LibXML::Pattern:D $pattern
+) returns Bool
+```
 
-    Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
+Skip nodes following the current one in the document order until an element matching a given compiled pattern is reached.
 
-  * finish()
+See [LibXML::Pattern](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns. See also the `matchesPattern` method.
 
-    Skip all remaining nodes in the document, reaching end of the document.
+Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
 
-    Returns True if successful, False in case of error.
+### method skipSiblings
 
-  * close()
+```perl6
+method skipSiblings() returns Bool
+```
 
-    This method releases any resources allocated by the current instance and closes any underlying input. It returns False on failure and True on success. This method is automatically called by the destructor when the reader is forgotten, therefore you do not have to call it directly.
+Skip all nodes on the same or lower level until the first node on a higher level is reached.
 
-METHODS EXTRACTING INFORMATION
-==============================
+In particular, if the current node occurs in an element, the reader stops at the end tag of the parent element, otherwise it stops at a node immediately following the parent node.
 
-  * name()
+Returns True if successful, False if end of the document is reached, or Failure in case of error.
 
-    Returns the qualified name of the current node, equal to (Prefix:)LocalName.
+### method nextSibling
 
-  * nodeType()
+```perl6
+method nextSibling() returns Bool
+```
 
-    Returns the type of the current node. See NODE TYPES below.
+Skips to the node following the current one in the document order while avoiding the sub-tree if any.
 
-  * localName()
+Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
 
-    Returns the local name of the node.
+### method nextSiblingElement
 
-  * prefix()
+```perl6
+method nextSiblingElement(
+    Str $name? where { ... },
+    Str $URI?
+) returns Mu
+```
 
-    Returns the prefix of the namespace associated with the node.
+Like nextElement but only processes sibling elements of the current node (moving forward using nextSibling() rather than read(), internally).
 
-  * namespaceURI()
+Returns True if the element was found, False if there is no more nodes to read, or Failure in case of error.
 
-    Returns the URI defining the namespace associated with the node.
+### method finish
 
-  * isEmptyElement()
+```perl6
+method finish() returns Bool
+```
 
-    Check if the current node is empty, this is a bit bizarre in the sense that <a/> will be considered empty while <a></a> will not.
+Skip all remaining nodes in the document, reaching end of the document.
 
-  * hasValue()
+Returns True if successful, False in case of error.
 
-    Returns true if the node can have a text value.
+### method close
 
-  * value()
+```perl6
+method close() returns Bool
+```
 
-    Provides the text value of the node if present or undef if not available.
+This method releases any resources allocated by the current instance and closes underlying input.
 
-  * readInnerXml()
+It returns False on failure and True on success. This method is automatically called by the destructor when the reader is forgotten, therefore you do not have to call it directly.
 
-    Reads the contents of the current node, including child nodes and markup. Returns a string containing the XML of the node's content, or undef if the current node is neither an element nor attribute, or has no child nodes.
+Methods Extracting Information
+------------------------------
 
-  * readOuterXml()
+### method name
 
-    Reads the contents of the current node, including child nodes and markup.
+```perl6
+method name() returns LibXML::Types::QName
+```
 
-    Returns a string containing the XML of the node including its content, or undef if the current node is neither an element nor attribute.
+Returns the qualified name of the current node.
 
-  * nodePath()
+Equal to (Prefix:)LocalName.
 
-    Returns a canonical location path to the current element from the root node to the current node. Namespaced elements are matched by '*', because there is no way to declare prefixes within XPath patterns. Unlike `LibXML::Node::nodePath() `, this function does not provide sibling counts (i.e. instead of e.g. '/a/b[1]' and '/a/b[2]' you get '/a/b' for both matches). 
+### method nodeType
 
-  * matchesPattern($compiled-pattern)
+```perl6
+method nodeType() returns UInt
+```
 
-    Returns a true value if the current node matches a compiled pattern. See [LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns. See also the `nextPatternMatch ` method.
+Returns the type of the current node.
 
-METHODS EXTRACTING DOM NODES
-============================
+See NODE TYPES below.
 
-  * document()
+### method localName
 
-    Provides access to the document tree built by the reader. This function can be used to collect the preserved nodes (see `preserveNode() ` and preservePattern).
+```perl6
+method localName() returns LibXML::Types::NCName
+```
 
-    CAUTION: Never use this function to modify the tree unless reading of the whole document is completed!
+Returns he local name of the node.
 
-  * copyCurrentNode(:$deep)
+### method prefix
 
-    This function is similar a DOM function `copyNode() `. It returns a copy of the currently processed node as a corresponding DOM object. Use :deep to obtain the full sub-tree.
+```perl6
+method prefix() returns LibXML::Types::NCName
+```
 
-  * preserveNode()
+Returns the prefix of the namespace associated with the node.
 
-    This tells the XML Reader to preserve the current node in the document tree. A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
+### method namespaceURI
 
-    Returns the node or NULL in case of error.
+```perl6
+method namespaceURI() returns Str
+```
 
-  * preservePattern($pattern, :%ns)
+Returns the URI defining the namespace associated with the node.
 
-    This tells the XML Reader to preserve all nodes matched by the pattern (which is a streaming XPath subset). A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
+### method isEmptyElement
 
-    An :%ns may be used to pass a mapping prefixes used by the XPath to namespace URIs.
+```perl6
+method isEmptyElement() returns Bool
+```
 
-    The XPath subset available with this function is described at
+Check if the current node is empty.
 
-        http://www.w3.org/TR/xmlschema-1/#Selector
+This is a bit bizarre in the sense that <a/> will be considered empty while <a></a> will not.
 
-    and matches the production
+### method hasValue
 
-        Path ::= ('.//')? ( Step '/' )* ( Step | '@' NameTest )
+```perl6
+method hasValue() returns Bool
+```
 
-    Returns a positive number in case of success and -1 in case of error
+Returns True if the node can have a text value.
 
-METHODS PROCESSING ATTRIBUTES
-=============================
+### method value
 
-  * attributeCount()
+```perl6
+method value() returns Str
+```
 
-    Provides the number of attributes of the current node.
+Provides the text value of the node if present or Str:U if not available.
 
-  * hasAttributes()
+### method readInnerXml
 
-    Whether the node has attributes.
+```perl6
+method readInnerXml() returns Str
+```
 
-  * getAttribute(name)
+Reads the contents of the current node, including child nodes and markup.
 
-    Provides the value of the attribute with the specified qualified name.
+Returns a string containing the XML of the node's content, or Str:U if the current node is neither an element nor attribute, or has no child nodes.
 
-    Returns a string containing the value of the specified attribute, or undef in case of error.
+### method readOuterXml
 
-  * getAttributeNs(localName, namespaceURI)
+```perl6
+method readOuterXml() returns Str
+```
 
-    Provides the value of the specified attribute.
+Reads the contents of the current node, including child nodes and markup.
 
-    Returns a string containing the value of the specified attribute, or undef in case of error.
+Returns a string containing the XML of the node including its content, or undef if the current node is neither an element nor attribute.
 
-  * getAttributeNo(no)
+### method nodePath
 
-    Provides the value of the attribute with the specified index relative to the containing element.
+```perl6
+method nodePath() returns Mu
+```
 
-    Returns a string containing the value of the specified attribute, or undef in case of error.
+Returns a canonical location path to the current element from the root node to
 
-  * isDefault()
+  * Namespaced elements are matched by '*', because there is no way to declare prefixes within XPath patterns.
 
-    Returns true if the current attribute node was generated from the default value defined in the DTD.
+  * Unlike `LibXML::Node::nodePath() `, this function does not provide sibling counts (i.e. instead of e.g. '/a/b[1]' and '/a/b[2]' you get '/a/b' for both matches). 
 
-  * moveToAttribute(name)
+### method matchesPattern
 
-    Moves the position to the attribute with the specified local name and namespace URI.
+```perl6
+method matchesPattern(
+    LibXML::Pattern:D $pattern
+) returns Bool
+```
 
-    Returns True in case of success, Failure in case of error, False if not found
+Returns a true value if the current node matches a compiled pattern.
 
-  * moveToAttributeNo(no)
+  * See [LibXML::Pattern](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns.
 
-    Moves the position to the attribute with the specified index relative to the containing element.
+  * See also the `nextPatternMatch ` method.
 
-    Returns True in case of success, Failure in case of error, False if not found
+Methods Extracting DOM Nodes
+----------------------------
 
-  * moveToAttributeNs(localName,namespaceURI)
+### method document
 
-    Moves the position to the attribute with the specified local name and namespace URI.
+```perl6
+method document() returns Mu
+```
 
-    Returns True in case of success, Failure in case of error, False if not found
+Provides access to the document tree built by the reader.
 
-  * moveToFirstAttribute()
+  * This function can be used to collect the preserved nodes (see `preserveNode() ` and preservePattern).
 
-    Moves the position to the first attribute associated with the current node.
+  * CAUTION: Never use this function to modify the tree unless reading of the whole document is completed!
 
-    Returns True in case of success, Failure in case of error, False if not found
+### method copyCurrentNode
 
-  * moveToNextAttribute()
+```perl6
+method copyCurrentNode(
+    Bool :$deep
+) returns LibXML::Node
+```
 
-    Moves the position to the next attribute associated with the current node.
+This function is similar a DOM function copyNode(). It returns a copy of the currently processed node as a corresponding DOM object.
 
-    Returns True in case of success, Failure in case of error, False if not found
+  * Use :deep to obtain the full sub-tree.
 
-  * moveToElement()
+### method preserveNode
 
-    Moves the position to the node that contains the current attribute node.
+```perl6
+method preserveNode() returns LibXML::Node
+```
 
-    Returns True in case of success, Failure in case of error, False if not moved
+This tells the XML Reader to preserve the current node in the document tree.
 
-  * isNamespaceDecl()
+A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
 
-    Determine whether the current node is a namespace declaration rather than a regular attribute.
+Returns the node or LibXML::Node:U in case of error.
 
-    Returns True if the current node is a namespace declaration, False if it is a regular attribute or other type of node, or Failure in case of error.
+### method preservePattern
 
-OTHER METHODS
-=============
+```perl6
+method preservePattern(
+    Str:D $pattern,
+    :%ns
+) returns UInt
+```
 
-  * lookupNamespace(prefix)
+This tells the XML Reader to preserve all nodes matched by the pattern (which is a streaming XPath subset).
 
-    Resolves a namespace prefix in the scope of the current element.
+A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
 
-    Returns a string containing the namespace URI to which the prefix maps or undef in case of error.
+An :%ns may be used to pass a mapping prefixes used by the XPath to namespace URIs.
 
-  * encoding()
+The XPath subset available with this function is described at http://www.w3.org/TR/xmlschema-1/#Selector and matches the production
 
-    Returns a string containing the encoding of the document or Str:U in case of error.
+```bnf
+Path ::= ('.//')? ( Step '/' )* ( Step | '@' NameTest )
+```
 
-  * standalone()
+Returns a positive number in case of success or Failure in case of error
 
-    Determine the standalone status of the document being read. Returns True if the document was declared to be standalone, False if it was declared to be not standalone, or Bool (undefined) if the document did not specify its standalone status or in case of error.
+Methods Processing Attributes
+-----------------------------
 
-  * xmlVersion()
+### method attributeCount
 
-    Determine the XML version of the document being read. Returns a string containing the XML version of the document or undef in case of error.
+```perl6
+method attributeCount() returns UInt
+```
 
-  * baseURI()
+Provides the number of attributes of the current node.
 
-    Returns the base URI of a given node.
+### method hasAttributes
 
-  * isValid()
+```perl6
+method hasAttributes() returns Bool
+```
 
-    Retrieve the validity status from the parser.
+Whether the node has attributes.
 
-    Returns True if valid, False if no, and Failure in case of error.
+### method getAttribute
 
-  * xmlLang()
+```perl6
+method getAttribute(
+    Str $name where { ... }
+) returns Str
+```
 
-    The xml:lang scope within which the node resides.
+Provides the value of the attribute with the specified qualified name.
 
-  * lineNumber()
+Returns a string containing the value of the specified attribute, or Str:U in case of error.
 
-    Provide the line number of the current parsing point.
+### method getAttributeNs
 
-  * columnNumber()
+```perl6
+method getAttributeNs(
+    Str $local-name where { ... },
+    Str $namespace-URI
+) returns Str
+```
 
-    Provide the column number of the current parsing point.
+Provides the value of the specified attribute in a given namespace
 
-  * byteConsumed()
+### method getAttributeNo
 
-    This function provides the current index of the parser relative to the start of the current entity. This function is computed in bytes from the beginning starting at zero and finishing at the size in bytes of the file if parsing a file. The function is of constant cost if the input is UTF-8 but can be costly if run on non-UTF-8 input.
+```perl6
+method getAttributeNo(
+    Int $i where { ... }
+) returns Str
+```
 
-  * setParserProp(:$prop)
+Provides the value of the attribute with the specified index relative to the containing element.
 
-    Change the parser processing behaviour by changing some of its internal properties. The following properties are available with this function: `load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`
+### method isDefault
 
-    Since some of the properties can only be changed before any read has been done, it is best to set the parsing properties at the constructor.
+```perl6
+method isDefault() returns Bool
+```
 
-    Returns True if the call was successful, or Failure in case of error
+Returns True if the current attribute node was generated from the default value defined in the DTD.
 
-  * my Bool $flag = getParserProp($prop);
+### method moveToAttribute
 
-    Get value of an parser internal property. The following property names can be used: `load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`.
+```perl6
+method moveToAttribute(
+    Str $name where { ... }
+) returns Bool
+```
 
-    Returns the value, usually True, False, or Failure in case of error.
+Moves the position to the attribute with the specified name
 
-DESTRUCTION
-===========
+Returns True in case of success, Failure in case of error, False if not found
+
+### method moveToAttributeNo
+
+```perl6
+method moveToAttributeNo(
+    Int $i
+) returns Bool
+```
+
+Moves the position to the attribute with the specified index relative to the containing element.
+
+Returns True in case of success, Failure in case of error, False if not found
+
+### method moveToAttributeNs
+
+```perl6
+method moveToAttributeNs(
+    Str:D $name where { ... },
+    Str $URI
+) returns Mu
+```
+
+Moves the position to the attribute with the specified local name and namespace URI.
+
+Returns True in case of success, Failure in case of error, False if not found
+
+### method moveToFirstAttribute
+
+```perl6
+method moveToFirstAttribute() returns Bool
+```
+
+Moves the position to the first attribute associated with the current node.
+
+Returns True in case of success, Failure in case of error, False if not found
+
+### method moveToNextAttribute
+
+```perl6
+method moveToNextAttribute() returns Bool
+```
+
+Moves the position to the next attribute associated with the current node.
+
+Returns True in case of success, Failure in case of error, False if not found
+
+### method moveToElement
+
+```perl6
+method moveToElement() returns Bool
+```
+
+Moves the position to the node that contains the current attribute node.
+
+Returns True in case of success, Failure in case of error, False if not moved
+
+### method isNamespaceDecl
+
+```perl6
+method isNamespaceDecl() returns Bool
+```
+
+Determine whether the current node is a namespace declaration rather than a regular attribute.
+
+Returns True if the current node is a namespace declaration, False if it is a regular attribute or other type of node, or Failure in case of error.
+
+Other Methods
+-------------
+
+### method lookupNamespace
+
+```perl6
+method lookupNamespace(
+    Str $URI
+) returns LibXML::Types::NCName
+```
+
+Resolves a namespace prefix in the scope of the current element.
+
+Returns a string containing the namespace URI to which the prefix maps or undef in case of error.
+
+### method encoding
+
+```perl6
+method encoding() returns LibXML::Native::xmlEncodingStr
+```
+
+Get the encoding of the document being read
+
+### method standalone
+
+```perl6
+method standalone() returns Int
+```
+
+Returns a string containing the encoding of the document or Str:U in case of error. Determine the standalone status of the document being read.
+
+```raku
+use LibXML::Document :XmlStandalone;
+if $reader.standalone == XmlStandaloneYes { ... }
+```
+
+Gets or sets the Numerical value of a documents XML declarations standalone attribute.
+
+It returns
+
+  * *1 (XmlStandaloneYes)* if standalone="yes" was found,
+
+  * *0 (XmlStandaloneNo)* if standalone="no" was found and
+
+  * *-1 (XmlStandaloneMu)* if standalone was not specified (default on creation).
+
+### method xmlVersion
+
+```perl6
+method xmlVersion() returns Version
+```
+
+Determine the XML version of the document being read
+
+### method baseURI
+
+```perl6
+method baseURI() returns Str
+```
+
+Returns the base URI of the current node.
+
+### method isValid
+
+```perl6
+method isValid() returns Bool
+```
+
+Retrieve the validity status from the parser.
+
+Returns True if valid, False if no, and Failure in case of error.
+
+### method xmlLang
+
+```perl6
+method xmlLang() returns Str
+```
+
+The xml:lang scope within which the current node resides.
+
+### method lineNumber
+
+```perl6
+method lineNumber() returns UInt
+```
+
+Provide the line number of the current parsing point.
+
+### method columnNumber
+
+```perl6
+method columnNumber() returns UInt
+```
+
+Provide the column number of the current parsing point.
+
+### method byteConsumed
+
+```perl6
+method byteConsumed() returns UInt
+```
+
+This function provides the current index of the parser relative to the start of the current entity.
+
+This function is computed in bytes from the beginning starting at zero and finishing at the size in bytes of the file if parsing a file. The function is of constant cost if the input is UTF-8 but can be costly if run on non-UTF-8 input.
+
+### method setParserProp
+
+```perl6
+method setParserProp(
+    *%props
+) returns Hash
+```
+
+Change the parser processing behaviour by changing some of its internal properties.
+
+The following properties are available with this function: `load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`
+
+Since some of the properties can only be changed before any read has been done, it is best to set the parsing properties at the constructor.
+
+Returns True if the call was successful, or Failure in case of error
+
+### multi method getParserProp
+
+```perl6
+multi method getParserProp(
+    Str:D $opt
+) returns Bool
+```
+
+Get value of an parser internal property.
+
+The following property names can be used: `load-ext-dtd`, `complete-attributes`, `validation`, `expand-entities`.
+
+Returns the value, usually True, False, or Failure in case of error.
+
+### method have-reader
+
+```perl6
+method have-reader() returns Mu
+```
+
+Ensure libxml2 has been compiled with the reader pull-parser enabled
+
+Destruction
+-----------
 
 LibXML takes care of the reader object destruction when the last reference to the reader object goes out of scope. The document tree is preserved, though, if either of $reader.document or $reader.preserveNode was used and references to the document tree exist.
 
-NODE TYPES
-==========
+Node Types
+----------
 
 The reader interface provides the following constants for node types (the constant symbols are exported by default or if tag `:types ` is used).
 
@@ -429,8 +733,8 @@ XML_READER_TYPE_END_ENTITY              => 16
 XML_READER_TYPE_XML_DECLARATION         => 17
 ```
 
-STATES
-======
+States
+------
 
 The following constants represent the values returned by `readState() `. They are exported by default, or if tag `:states ` is used:
 
@@ -446,21 +750,21 @@ XML_READER_ERROR     =>  6
 ```
 
 SEE ALSO
-========
+--------
 
-[LibXML::Pattern ](https://libxml-raku.github.io/LibXML-raku/Pattern) for information about compiled patterns.
+[LibXML::Pattern](https://libxml-raku.github.io/LibXML-raku/Pattern) for information about compiled patterns.
 
 http://xmlsoft.org/html/libxml-xmlreader.html
 
 http://dotgnu.org/pnetlib-doc/System/Xml/XmlTextReader.html
 
-ORIGINAL IMPLEMENTATION
-=======================
+Original Perl Implementation
+----------------------------
 
-Heiko Klein, <H.Klein@gmx.net<gt> and Petr Pajas
+Heiko Klein, <H.Klein@gmx.net> and Petr Pajas
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -468,8 +772,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::Node::List
+------------------------
 
-LibXML::Node::List - LibXML Class for Sibling Node Lists
+LibXML Sibling Node Lists
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::Node::List;
@@ -21,7 +21,7 @@ my LibXML::Node::Set %nodes-by-xpath-name = $node-list.Hash;
 # ...
 ```
 
-DESCRIPTION
+Description
 -----------
 
 This class is used for traversing child nodes or attribute lists.
@@ -39,8 +39,8 @@ $node-set.push: LibXML::Element.new(:name<NewElem>);
 
 Currently, the only tied methods are `push`, `pop` and `ASSIGN-POS`.
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -48,8 +48,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

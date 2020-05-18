@@ -112,10 +112,13 @@ say $elem.Str; # <Foo/>
 
 A containing object of the correct type (LibXML::Element) has been created for the native object.
 
-method keep
+### method keep
 
-```raku
-method keep(xmlItem $rv) returns LibXML::Item;
+```perl6
+method keep(
+    LibXML::Native::DOM::Node $rv,
+    :$doc = Code.new
+) returns LibXML::Item
 ```
 
 Utility method that verifies that `$rv` is the same native struct as the current object.

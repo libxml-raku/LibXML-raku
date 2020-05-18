@@ -96,7 +96,7 @@ use NativeCall;
 use LibXML::Attr;
 use LibXML::Config;
 use LibXML::Enums;
-use LibXML::Item :box-class, :boxed;
+use LibXML::Item :box-class, :dom-native;
 use LibXML::Namespace;
 use LibXML::Native;
 use LibXML::Types :QName, :NCName, :NameVal;
@@ -136,9 +136,7 @@ multi method new(|c --> LibXML::Element) is default { nextsame }
 
 
 ########################################################################
-=begin pod
-    =head2 Attribute Methods
-=end pod
+=head2 Attribute Methods
 
 method !set-attr(QName $name, Str:D $value) {
     ? $.native.setAttribute($name, $value);
@@ -210,8 +208,12 @@ method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
     $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
 }
 
-method getAttributeNode(Str $att-name --> LibXML::Attr) is also<attribute> is boxed {...}
-method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) is boxed {...}
+method getAttributeNode(Str $att-name --> LibXML::Attr) is also<attribute> {
+    LibXML::Attr.box: $.native.getAttributeNode($att-name)
+}
+method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
+    LibXML::Attr.box: $.native.getAttributeNodeNS($uri, $att-name)
+}
 
 # handled by the native method
 =begin pod
@@ -354,11 +356,11 @@ method !set-attributes(@atts) {
 }
 
 ########################################################################
+=head2 Navigation Methods
 
 # From role LibXML::_ParentNode (also applicable to document fragments
 # and documents    
 =begin pod
-    =head2 Navigation Methods
 
     =head3 method getChildrenByTagName
       =begin code :lang<raku>
@@ -438,10 +440,7 @@ method !set-attributes(@atts) {
 =end pod
 
 ########################################################################
-=begin pod
-    =head2 DOM Manipulation Methods
-=end pod
-
+=head2 DOM Manipulation Methods
 
 method ast(Bool :$blank = LibXML::Config.keep-blanks-default) {
     my @content;

@@ -3,8 +3,6 @@ use v6;
 #| RelaxNG Schema Validation
 unit class LibXML::RelaxNG;
 
-=begin pod
-
     =head2 Synopsis
 
     =begin code :lang<raku>
@@ -23,14 +21,13 @@ unit class LibXML::RelaxNG;
 
     =head2 Description
 
+    =begin para
     The LibXML::RelaxNG class is a tiny frontend to libxml2's RelaxNG
     implementation. Currently it supports only schema parsing and document
     validation.
-
+    =end para
 
     =head2 Methods
-
-=end pod
 
 use LibXML::Document;
 use LibXML::ErrorHandling :&structured-error-cb;
@@ -178,7 +175,7 @@ method is-valid(LibXML::Document:D $doc) {
     self!valid-ctx.is-valid($doc);
 }
 =begin pod
-    =head3 method is-valid (alias ACCEPTS)
+    =head3 method is-valid
     =begin code :lang<raku>
     method is-valid(LibXML::Document $doc) returns Bool;
     $valid = $doc ~~ $rngschema;
@@ -190,12 +187,10 @@ method is-valid(LibXML::Document:D $doc) {
 multi method ACCEPTS(LibXML::RelaxNG:D: LibXML::Document:D $doc --> Bool) {
     self.is-valid($doc);
 }
-=begin pod
-    =para Example:
+=para Example:
     =begin code :lang<raku>
     $valid = $doc ~~ $rngschema;
     =end code
-=end pod
 
 submethod DESTROY {
     .Free with $!native;

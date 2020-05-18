@@ -9,7 +9,7 @@
       configuration defaults.
     - implemented $node.last(:!blank) option
     - renamed role LibXML::_DOMNode -> LibXML::_ParentRole
-    - Added 'boxed' trait for native wrapping of simple methods
+    - Added 'dom-native' trait for native wrapping of simple methods
     - DOM method appendTextChild now returns the added element
     - Fix for #36 - failing close() count tests (due to erratic
       calling of close callback)
