@@ -1,16 +1,45 @@
+#| LibXML Global configuration
 unit class LibXML::Config;
+
+=head2 Synopsis
+
+  =begin code :lang<raku>
+  use LibXML::Config;
+  if  LibXML::Config.have-compression { ... }
+  =end code
 
 use LibXML::Enums;
 use LibXML::Native;
 use LibXML::InputCallback;
+use NativeCall;
 
-method version {
+=head2 Configuration Methods
+
+#| Returns the run-time version of the `libxml2` library.
+method version returns Version {
     state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
 }
 
-method have-threads { ? xml6_config_have_threads(); }
-method have-compression { ? xml6_config_have_compression(); }
+#| Returns the version of the `libxml2` library that the LibXML module was built against
 method config-version { Version.new: xml6_config_version(); }
+
+#| Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
+method have-reader returns Bool {
+    (require ::('LibXML::Reader')).have-reader
+}
+
+#| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
+method have-schemas returns Bool {
+    given $.version {
+        $_ >= v2.05.10 && $_ != v2.09.04
+    }
+}
+
+#| Returns True if the `libxml2` library supports threads
+method have-threads returns Bool { ? xml6_config_have_threads(); }
+
+#| Returns True if the `libxml2` library supports compression
+method have-compression returns Bool { ? xml6_config_have_compression(); }
 
 our @catalogs;
 method load-catalog(Str:D $filename) {
@@ -24,15 +53,7 @@ method load-catalog(Str:D $filename) {
     Mu;
 }
 
-method have-reader {
-    (require ::('LibXML::Reader')).have-reader
-}
-
-method have-schemas {
-    given $.version {
-        $_ >= v2.05.10 && $_ != v2.09.04
-    }
-}
+=head2 Serialization Default Options
 
 our $inputCallbacks;
 
@@ -41,35 +62,50 @@ our $inputCallbacks;
 our $skipXMLDeclaration = Bool;
 our $skipDTD = Bool;
 
-method skip-xml-declaration is rw { flag-proxy($skipXMLDeclaration) }
-method skip-dtd is rw { flag-proxy($skipDTD) }
+#| Whether to omit '<?xml ...>' preamble (default Fallse)
+method skip-xml-declaration returns Bool is rw { flag-proxy($skipXMLDeclaration) }
 
+#| Whether to omit internal DTDs (default False)
+method skip-dtd returns Bool is rw { flag-proxy($skipDTD) }
+
+#| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 method tag-expansion is rw {
     LibXML::Native.TagExpansion;
 }
 
-# -- Parsing options --
+=head2 Parsing Default Options
 
 sub flag-proxy($flag is rw) is rw {
     Proxy.new( FETCH => sub ($) { $flag.so },
                STORE => sub ($, $_) { $flag = .so } ); 
 }
 
-method keep-blanks-default is rw {
-    LibXML::Native.KeepBlanksDefault;
+method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
+method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
+
+#| Keep blank nodes (Default True)
+method keep-blanks returns Bool is rw {
+   Proxy.new(
+        FETCH => { ? xmlKeepBlanksDefaultValue() },
+        STORE => sub ($, Bool() $_) {
+            xmlKeepBlanksDefault($_);
+        },
+    );
 }
 
-method default-parser-flags {
+#| Low-level default parser flags (Read-only)
+method parser-flags returns UInt {
     XML_PARSE_NONET
     + XML_PARSE_NODICT
-    + ($.keep-blanks-default() ?? 0 !! XML_PARSE_NOBLANKS)
+    + ($.keep-blanks() ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
 state &externalEntityLoader;
-method external-entity-loader is rw {
+#| External entity handler to be used when parser expand-entities is set.
+method external-entity-loader returns Callable is rw {
     Proxy.new(
         FETCH => {
-            &externalEntityLoader // xmlExternalEntityLoader::Get()
+            &externalEntityLoader //= nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
         },
         STORE => -> $, &cb {
             &externalEntityLoader = &cb;
@@ -96,6 +132,30 @@ method external-entity-loader is rw {
     );
 }
 
+=para The routine provided is called whenever the parser needs to retrieve the
+    content of an external entity. It is called with two arguments: the system ID
+    (URI) and the public ID. The value returned by the subroutine is parsed as the
+    content of the entity. 
+
+=para This method can be used to completely disable entity loading, e.g. to prevent
+    exploits of the type described at  (L<<<<<< http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html >>>>>>), where a service is tricked to expose its private data by letting it parse a
+   remote file (RSS feed) that contains an entity reference to a local file (e.g. C<<<<<< /etc/fstab >>>>>>). 
+
+=para A more granular solution to this problem, however, is provided by custom URL
+    resolvers, as in 
+    =begin code :lang<raku>
+    my LibXML::InputCallback $cb .= new;
+    sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
+      my ($uri) = @_;
+      ? ($uri ~~ m|^'file:/'}
+         and $uri !~~ m|^'file:///etc/xml/'|)
+    }
+    sub deny(|c) { }
+    $cb.register-callbacks(&match, &deny, &deny, &deny);
+    $parser.input-callbacks($cb);
+    =end code
+
+#| Default input callback handlers
 method input-callbacks is rw {
     Proxy.new(
         FETCH => sub ($) { $inputCallbacks },
@@ -104,8 +164,11 @@ method input-callbacks is rw {
         }
     );
 }
+=para See L<LibXML::InputCallback>
 
-# -- Query Handler --
+=head2 Query Handler
+
+my subset QueryHandler where .can('to-xpath').so;
 
 our $queryHandler = class NoQueryHandler {
     method to-xpath($) {
@@ -113,79 +176,20 @@ our $queryHandler = class NoQueryHandler {
     }
 }
 
-method query-handler is rw {
+#| Query handler to service querySelector() and querySelectorAll() methods
+method query-handler returns QueryHandler is rw {
     Proxy.new(
         FETCH => sub ($) { $queryHandler },
-        STORE => sub ($, LibXML::InputCallback $query-handler) {
-            $queryHandler = $query-handler;
+        STORE => sub ($, QueryHandler $_) {
+            $queryHandler = $_;
         }
     );
 }
+=para See L<LibXML::Node>
 
 =begin pod
-=head1 NAME
 
-LibXML::Config - LibXML Global configuration
-
-=head1 SYNOPSIS
-
-  =begin code :lang<raku>
-  use LibXML::Config;
-  =end code
-
-=head1 METHODS
-
-=begin item1
-version
-
-Returns the version of the `libxml2` library.
-=end item1
-
-=begin item1
-have-reader
-
-Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
-=end item1
-
-=begin item1
-have-schemas
-
-Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
-=end item1
-
-=begin item1
-external-entity-loader
-
-Provide a custom external entity handler to be used when parser expand-entities is set
-to True. Possible value is a subroutine reference. 
-
-The routine provided is called whenever the parser needs to retrieve the
-content of an external entity. It is called with two arguments: the system ID
-(URI) and the public ID. The value returned by the subroutine is parsed as the
-content of the entity. 
-
-This method can be used to completely disable entity loading, e.g. to prevent
-exploits of the type described at  (L<<<<<< http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html >>>>>>), where a service is tricked to expose its private data by letting it parse a
-remote file (RSS feed) that contains an entity reference to a local file (e.g. C<<<<<< /etc/fstab >>>>>>). 
-
-A more granular solution to this problem, however, is provided by custom URL
-resolvers, as in 
-  =begin code :lang<raku>
-  my LibXML::InputCallback $cb .= new;
-  sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
-    my ($uri) = @_;
-    ? ($uri ~~ m|^'file:/'}
-       and $uri !~~ m|^'file:///etc/xml/'|)
-  }
-  sub deny(|c) { }
-  $cb.register-callbacks(&match, &deny, &deny, &deny);
-  $parser.input-callbacks($cb);
-  =end code
-
-=end item1
-
-
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -193,7 +197,7 @@ resolvers, as in
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

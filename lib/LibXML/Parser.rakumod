@@ -13,7 +13,7 @@ constant config = LibXML::Config;
 
 has Bool $.html is rw = False;
 has Bool $.line-numbers is rw = False;
-has UInt $.flags is rw = config.default-parser-flags();
+has UInt $.flags is rw = config.parser-flags();
 has Str $.URI is rw;
 has $.sax-handler is rw;
 has xmlEncodingStr $.enc is rw;
@@ -152,12 +152,12 @@ multi method parse(Str() :$file!,
     self!publish: :$URI, :$ctx;
 }
 
-method !parse-fd(UInt $fd,
-                 Str :$URI = $!URI,
-                 Bool() :$html = $!html,
-                 xmlEncodingStr :$enc = $!enc,
-                 *%opts,
-                ) {
+multi method parse(UInt :$fd!,
+                   Str :$URI = $!URI,
+                   Bool() :$html = $!html,
+                   xmlEncodingStr :$enc = $!enc,
+                   *%opts,
+                  ) {
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
     my UInt $flags = self.get-flags(|%opts, :$html);
@@ -175,16 +175,12 @@ method !parse-fd(UInt $fd,
     self!publish: :$ctx, :native($doc);
 }
 
-multi method parse(:$fd!, |c) is DEPRECATED('parse :fd option. Please use :io option') {
-    self!parse-fd($fd, |c);
-}
-
 multi method parse(IO::Handle:D :$io!,
                    Str :$URI = $io.path.path,
                    |c) {
     my UInt:D $fd = $io.native-descriptor;
     $io.?do-not-close-automatically();
-    self!parse-fd( $fd, :$URI, |c);
+    self.parse( :$fd, :$URI, |c);
 }
 
 multi method parse(IO() :io($path)!, |c) {

@@ -838,7 +838,7 @@ method Blob(Str :$enc, |c) {
 =end pod
 
 #| Data serialization
-method ast(Bool :$blank = config.keep-blanks-default --> Pair) {
+method ast(Bool :$blank = config.keep-blanks --> Pair) {
     self.ast-key => [self.childNodes(:$blank).map(*.ast: :$blank)];
 }
 =begin pod

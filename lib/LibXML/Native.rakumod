@@ -1605,9 +1605,12 @@ sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}
 
 method KeepBlanksDefault is rw {
     sub xmlKeepBlanksDefault(int32 $v --> int32) is native($XML2) is export { * }
+    sub xmlKeepBlanksDefaultValue is export {
+        cglobal($XML2, "xmlKeepBlanksDefaultValue", int32);
+    }
 
     Proxy.new(
-        FETCH => { ? cglobal($XML2, "xmlKeepBlanksDefaultValue", int32); },
+        FETCH => { xmlKeepBlanksDefaultValue() },
         STORE => sub ($, Bool() $_) {
             xmlKeepBlanksDefault($_);
         },

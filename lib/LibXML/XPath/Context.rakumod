@@ -16,7 +16,7 @@ class LibXML::XPath::Context {
     use NativeCall;
     use Method::Also;
 
-    has $.query-handler is rw = $LibXML::Config::QueryHandler;
+    has $.query-handler is rw = LibXML::Config.query-handler;
     has LibXML::Node $!context-node;
     has xmlXPathContext $!native .= new;
     method native { $!native }

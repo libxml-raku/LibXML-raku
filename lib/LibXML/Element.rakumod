@@ -442,7 +442,7 @@ method !set-attributes(@atts) {
 ########################################################################
 =head2 DOM Manipulation Methods
 
-method ast(Bool :$blank = LibXML::Config.keep-blanks-default) {
+method ast(Bool :$blank = LibXML::Config.keep-blanks) {
     my @content;
     @content.push: .ast for self.namespaces;
     @content.push: .ast for self.properties;

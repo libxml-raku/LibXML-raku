@@ -93,7 +93,7 @@ my subset Schema  where LibXML::Schema|Str|Any:U;
 has RelaxNG $!RelaxNG;
 has Schema  $!Schema;
 has $.sax-handler is rw;
-has UInt $.flags is rw = LibXML::Config.default-parser-flags();
+has UInt $.flags is rw = LibXML::Config.parser-flags();
 
 also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 

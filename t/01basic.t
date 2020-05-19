@@ -26,8 +26,8 @@ ok($version >= Min-LibXML-Version, "LibXML version is suppported")
     or diag "sorry this version of libxml is not supported ($version < {Min-LibXML-Version})";
 
 for True, False -> $kb {
-    lives-ok { config.keep-blanks-default = $kb }, 'set keep-blanks-default';
-    is-deeply config.keep-blanks-default, $kb, 'get keep-blanks-default';
+    lives-ok { config.keep-blanks = $kb }, 'set keep-blanks default';
+    is-deeply config.keep-blanks, $kb, 'get keep-blanks default';
 }
 
 

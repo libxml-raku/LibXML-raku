@@ -13,6 +13,8 @@
     - DOM method appendTextChild now returns the added element
     - Fix for #36 - failing close() count tests (due to erratic
       calling of close callback)
+    - Rename config methods: keep-blanks-default() -> keep-blanks(),
+      default-parser-flags() -> parser-flags()
 0.3.1 2020-04-29
     - Add $node.ACCEPTS() method for XPath matching, e.g.:
       'self::foo' ~~ $node

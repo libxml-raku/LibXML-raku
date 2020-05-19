@@ -8,8 +8,9 @@ use LibXML::Native;
 use LibXML::_Options;
 
 has xmlParserCtxt $!native handles <wellFormed valid>;
-has uint32 $.flags = LibXML::Config.default-parser-flags;
-method flags is rw {with self { $!flags } else { LibXML::Config.default-parser-flags } }
+has uint32 $.flags = LibXML::Config.parser-flags;
+multi method flags(LibXML::Parser::Context:D:) is default is rw { $!flags }
+multi method flags { LibXML::Config.parser-flags }
 has Bool $.input-compressed;
 has Bool $.line-numbers;
 has $.input-callbacks;
