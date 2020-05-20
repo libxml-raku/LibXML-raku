@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 175;
+plan 176;
 
 use LibXML;
 use LibXML::Enums;
@@ -589,4 +589,23 @@ subtest 'compress' => {
     else {
         skip "LibXML compression is not available for compression tests", 4;
     }
+}
+
+sub check-standalone($code is raw, Str $string, Bool $expected) {
+    use LibXML::Document;
+    my LibXML::Document $doc .= new: :version('1.0'), :enc('UTF-8');
+    $doc.setStandalone($code);
+    my LibXML::Element $root = $doc.createElement('Types');
+    $root.setNamespace('http://schemas.openxmlformats.org/package/2006/content-types');
+    $doc.setDocumentElement($root);
+    is $doc.Str.lines.head.contains($string), $expected, "standalone=$code; declaration {$expected ?? 'contains' !! 'lacks'} $string";
+}
+
+subtest 'issue#37 - standalone mixup' => {
+    use LibXML::Document;
+    plan 3;
+    check-standalone(LibXML::Document::XmlStandaloneYes, 'standalone="yes"', True);
+    check-standalone(LibXML::Document::XmlStandaloneNo, 'standalone="no"', True);
+    check-standalone(LibXML::Document::XmlStandaloneMu, 'standalone', False);
+    
 }

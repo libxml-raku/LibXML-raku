@@ -280,7 +280,7 @@ enum XmlStandalone is export(:XmlStandalone) (
 #| Alter the value of a documents standalone attribute.
 method setStandalone(Numeric $_) {
     $.native.standalone = .defined
-        ?? ($_ == 0 ?? XmlStandaloneYes !!  XmlStandaloneNo)
+        ?? $_
         !! XmlStandaloneMu
 }
 =begin pod
