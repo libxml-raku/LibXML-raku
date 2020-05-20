@@ -176,7 +176,7 @@ our $queryHandler = class NoQueryHandler {
     }
 }
 
-#| Query handler to service querySelector() and querySelectorAll() methods
+#| Default query handler to service querySelector() and querySelectorAll() methods
 method query-handler returns QueryHandler is rw {
     Proxy.new(
         FETCH => sub ($) { $queryHandler },
@@ -185,7 +185,7 @@ method query-handler returns QueryHandler is rw {
         }
     );
 }
-=para See L<LibXML::Node>
+=para See L<LibXML::XPath::Context>
 
 =begin pod
 

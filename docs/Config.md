@@ -153,9 +153,9 @@ Query Handler
 method query-handler() returns LibXML::Config::QueryHandler
 ```
 
-Query handler to service querySelector() and querySelectorAll() methods
+Default query handler to service querySelector() and querySelectorAll() methods
 
-See [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node)
+See [LibXML::XPath::Context](https://libxml-raku.github.io/LibXML-raku/XPath/Context)
 
 Copyright
 ---------

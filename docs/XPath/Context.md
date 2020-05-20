@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::XPath::Context
+----------------------------
 
-LibXML::XPathContext - XPath Evaluation
+XPath Evaluation Context
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::XPathContext;
@@ -38,16 +38,15 @@ my Int $size = $xpc.contextSize;
 $xpc.contextSize = $size;
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 The LibXML::XPath::Context class provides an almost complete interface to libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to evaluate XPath expressions in the context of arbitrary node, context size, and context position, with a user-defined namespace-prefix mapping, custom XPath functions written in Raku, and even a custom XPath variable resolver. 
 
-EXAMPLES
-========
+Examples
+--------
 
-Namespaces
-----------
+### 1. Namespaces
 
 This example demonstrates `registerNs() ` method. It finds all paragraph nodes in an XHTML document.
 
@@ -57,8 +56,7 @@ $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
 my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 ```
 
-Custom XPath functions
-----------------------
+### 2. Custom XPath functions
 
 This example demonstrates `registerFunction() ` method by defining a function filtering nodes based on a Raku regular expression:
 
@@ -78,8 +76,7 @@ $xc.registerFunction('grep-nodes', &grep-nodes);
 @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
 ```
 
-Variables
----------
+### 3. Variables
 
 This example demonstrates `registerVarLookup() ` method. We use XPath variables to recycle results of previous evaluations:
 
@@ -103,243 +100,346 @@ $xc.registerVarLookupFunc(&var-lookup, %variables);
 my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
 ```
 
-METHODS
-=======
+Methods
+-------
 
-  * new
+### method new
 
-    ```raku
-    my LibXML::XPath::Context $xpc .= new();
-    ```
+```raku
+multi method new(LibXML::Document :$doc!, *%opts) returns LibXML::XPath::Context;
+multi method new(LibXML::Node :$node, *%opts) returns LibXML::XPath::Context;
+```
 
-    Creates a new LibXML::XPath::Context object without a context node.
+Creates a new LibXML::XPath::Context object with an optional context document or node.
 
-    ```raku
-    my LibXML::XPath::Context $xpc .= new: :$node;
-    ```
+### method registerNs
 
-    Creates a new LibXML::XPath::Context object with the context node set to `$node `.
+```raku
+multi method registerNs(NCName:D :$prefix!, Str :$uri) returns 0
+multi method registerNs(NCName:D $prefix!, Str $uri?) returns 0
+multi method registerNs(LibXML::Namespace:D $ns) returns 0
+```
 
-  * registerNs
+Registers a namespace with a given prefix and uri.
 
-    ```raku
-    $xpc.registerNs($prefix, $namespace-uri);
-    ```
+A uri of Str:U will unregister any namespace with the given prefix.
 
-    Registers namespace `$prefix ` to `$namespace-uri `.
+### method unregisterNs
 
-  * unregisterNs
+```raku
+multi method unregisterNs(NCName:D :$prefix!) returns 0
+multi method unregisterNs(NCName:D $prefix!) returns 0
+multi method unregisterNs(LibXML::Namespace:D $ns) returns 0
+```
 
-    ```raku
-    $xpc.unregisterNs($prefix);
-    ```
+Unregisters a namespace with the given prefix
 
-    Unregisters namespace `$prefix `.
+### method lookupNs
 
-  * lookupNs
+```perl6
+method lookupNs(
+    Str:D $prefix where { ... }
+) returns Str
+```
 
-    ```raku
-    $uri = $xpc.lookupNs($prefix);
-    ```
+Returns namespace URI registered with $prefix.
 
-    Returns namespace URI registered with `$prefix `. If `$prefix ` is not registered to any namespace URI returns `undef `.
+If `$prefix` is not registered to any namespace URI returns `Str:U`.
 
-  * registerVarLookupFunc
+### method registerVarLookupFunc
 
-    ```raku
-    $xpc.registerVarLookupFunc(&callback, |args);
-    ```
+```perl6
+method registerVarLookupFunc(
+    &callback,
+    |args
+) returns Mu
+```
 
-    Registers variable lookup function `$prefix `. The registered function is executed by the XPath engine each time an XPath variable is evaluated. The callback function has two required arguments: `$data `, variable name, and variable ns-URI.
+Registers a variable lookup function.
 
-    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List). For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) objects can be used instead of an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set).
+The registered function is executed by the XPath engine each time an XPath variable is evaluated. The callback function has two required arguments: `$name`, variable name, and `$uri`.
 
-    Any additional arguments are captured and passed to the callback function. For example:
+The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List).
 
-    ```raku
-    $xpc.registerVarLookupFunc(&my-callback, 'Xxx', :%vars);
-    ```
+For convenience, types: List, Seq and Slip can also be returned, these should contain only [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) objects.
 
-    matches the signature:
+Any additional arguments are captured and passed to the callback function. For example:
 
-    ```raku
-    sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) {
-      ...
-    }
-    ```
+```raku
+$xpc.registerVarLookupFunc(&my-callback, 'Xxx', :%vars);
+```
 
-  * registerFunctionNS
+matches the signature:
 
-    ```raku
-    $xpc.registerFunctionNS($name, $uri, &callback, |args);
-    ```
+```raku
+sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) {
+  ...
+}
+```
 
-    Registers an extension function `$name ` in `$uri ` namespace. The arguments of the callback function are either simple scalars or `LibXML::* ` objects depending on the XPath argument types.
+### method unregisterVarLookupFunc
 
-    The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List). For convenience, types: List, Seq and Slip can also be returned array references containing only [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) objects can be used instead of an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set).
+```perl6
+method unregisterVarLookupFunc() returns Mu
+```
 
-  * unregisterFunctionNS
+Removes the variable lookup function. Disables variable lookup
 
-    ```raku
-    $xpc.unregisterFunctionNS($name, $uri);
-    ```
+### method getVarLookupFunc
 
-    Unregisters extension function `$name ` in `$uri ` namespace. Has the same effect as passing `undef ` as `$callback ` to registerFunctionNS.
+```perl6
+method getVarLookupFunc() returns Routine
+```
 
-  * registerFunction
+Gets the current variable lookup function
 
-    ```raku
-    $xpc.registerFunction($name, &callback, |args);
-    ```
+### method registerFunctionNS
 
-    Same as `registerFunctionNS ` but without a namespace.
+```perl6
+method registerFunctionNS(
+    Str:D $name where { ... },
+    Str $uri,
+    &func,
+    |args
+) returns Mu
+```
 
-  * unregisterFunction
+Registers an extension function $name in $uri namespace
 
-    ```raku
-    $xpc.unregisterFunction($name);
-    ```
+The arguments of the callback function are either simple scalars or `LibXML::*` objects depending on the XPath argument types.
 
-    Same as `unregisterFunctionNS ` but without a namespace.
+The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g. Document, Element, etc.), [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) or [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List).
 
-  * findnodes
+For convenience, types: List, Seq and Slip can also be returned, these shoulf contain only [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) objects.
 
-    ```raku
-    my LibXML::Node @nodes = $xpc.findnodes($xpath);
+### method unregisterFunctionNS
 
-    @nodes = $xpc.findnodes($xpath, $context-node );
+```perl6
+method unregisterFunctionNS(
+    Str:D $name where { ... },
+    Str $uri
+) returns Mu
+```
 
-    my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $context-node );
-    ```
+Unregisters extension function $name in $uri namespace.
 
-    Performs the xpath statement on the current node and returns the result as an array. In item context, returns an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set) object. Optionally, a node may be passed as a second argument to set the context node for the query.
+### method register-function
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+```perl6
+method register-function(
+    Str $url,
+    Str:D $name where { ... },
+    &func,
+    |c
+) returns Mu
+```
 
-  * first, last
+Like registerFunctionNS; same argument order as LibXSLT.register-function()
 
-    ```raku
-      my LibXML::Node $body = $doc.first('body');
-      my LibXML::Node $last-row = $body.last('descendant::tr');
-    ```
+### method registerFunction
 
-    The `first` and `last` methods are similar to `findnodes`, except they return a single node representing the first or last matching row. If no nodes were found, `LibXML::Node:U` is returned.
+```perl6
+method registerFunction(
+    Str:D $name where { ... },
+    &func,
+    |c
+) returns Mu
+```
 
-  * find
+Same as registerFunctionNS but without a namespace.
 
-    ```raku
-    my Any $object = $xpc.find($xpath );
-    $object = $xpc.find($xpath, $context-node );
-    ```
+### method unregisterFunction
 
-    Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52 ` results in a Numeric object being returned. Other expressions might return a Bool object, or a [LibXML::Literal ](https://libxml-raku.github.io/LibXML-raku/Literal) object (a string). Optionally, a node may be passed as a second argument to set the context node for the query.
+```perl6
+method unregisterFunction(
+    Str:D $name where { ... }
+) returns Mu
+```
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+Same as unregisterFunctionNS but without a namespace.
 
-  * findvalue
+### method findnodes
 
-    ```raku
-    my Str $value = $xpc.findvalue($xpath );
-    my Str $value = $xpc.findvalue($xpath, $context-node );
-    ```
+```raku
+multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bool :$deref) returns LibXML::Node::Set;
+multi method findnodes(Str:D $expr, LibXML::Node $ref?, Bool :$deref) returns LibXML::Node::Set;
+# Examples
+my LibXML::Node @nodes = $xpc.findnodes($xpath);
+@nodes = $xpc.findnodes($xpath, $context-node );
+my LibXML::Node::Set $nodes = $xpc.findnodes($xpath);
+for  $xpc.findnodes($xpath) { ... }
+```
 
-    Is equivalent to:
+Performs the xpath statement on the current node and returns the result as an [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) object.
 
-    ```raku
-    $xpc.find( $xpath, $context-node ).to-literal;
-    ```
+Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    That is, it returns the literal value of the results. This enables you to ensure that you get a string back from your search, allowing certain shortcuts. This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>. Optionally, a node may be passed in the second argument to set the context node for the query.
+The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
-    The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+### method first
 
-  * exists
+```raku
+  multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) returns LibXML::Item;
+  multi method first(Str:D $expr, LibXML::Node $ref?) returns LibXML::Item;
+  my LibXML::Node $body = $doc.first('body');
+```
 
-    ```raku
-    my Bool $found = $xpc.exists( $xpath-expression, $context-node );
-    ```
+The `first` method is similar to `findnodes`, except it returns a single node representing the first matching row. If no nodes were found, `LibXML::Node:U` is returned.
 
-    This method behaves like *findnodes *, except that it only returns a Bool value (True if the expression matches a node, False otherwise) and may be faster than *findnodes *, because the XPath evaluation may stop early on the first match. 
+### method last
 
-    For XPath expressions that do not return node-sets, the method returns True if the returned value is a non-zero number or a non-empty string.
+```raku
+  my LibXML::Node $last-row = $body.last('descendant::tr');
+```
 
-  * contextNode
+The `last` method is similar to `first`, except it returns the last rather than the first matching row.
 
-    ```raku
-    $xpc.contextNode = $node;
-    $node = $xpc.contextNode
-    ```
+### method AT-KEY
 
-    Set or get the current context node.
+```perl6
+method AT-KEY(
+    $_,
+    Bool :$deref = Bool::True
+) returns LibXML::Node::Set
+```
 
-  * contextPosition
+Alias for findnodes($_, :deref)
 
-    ```raku
-    $xpc.contextPosition = $position;
-    $position = $xpc.contextPosition;
-    ```
+Example
 
-    Set or get the current context position. By default, this value is -1 (and evaluating XPath function `position() ` in the initial context raises an XPath error), but can be set to any value up to context size. This usually only serves to cheat the XPath engine to return given position when `position() ` XPath function is called. Setting this value to -1 restores the default behavior.
+```raku
+my LibXML::XPath::Context $xpc .= new: :node($table-elem);
+for $xpc<tr> -> LibXML::Element $row-elem {...}
+```
 
-  * contextSize
+### method find
 
-    ```raku
-    $xpc.setContextSize = $size;
-    ```
+```raku
+multi method find(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bool :$deref) returns Any;
+multi method find(Str:D $expr, LibXML::Node $ref?, Bool :$deref) returns Any;
+my Any $object = $xpc.find($xpath );
+$object = $xpc.find($xpath, $context-node );
+```
 
-    Set or get the current context size. By default, this value is -1 (and evaluating XPath function `last() ` in the initial context raises an XPath error), but can be set to any non-negative value. This usually only serves to cheat the XPath engine to return the given value when `last() ` XPath function is called. If context size is set to 0, position is automatically also set to 0. If context size is positive, position is automatically set to 1. Setting context size to -1 restores the default behavior.
+Finds nodes or values.
 
-  * query-handler, querySelector, querySelectorAll
+Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52 ` results in a Numeric object being returned. Other expressions might return a Bool object, or a string. Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    These methods provide pluggable support for CSS Selectors, as described in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
+The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
-    The query handler is a third-party class or object that implements a method `$.query-to-xpath(Str $selector --> Str) {...}`, that typically maps CSS selectors to XPath querys.
+### method findvalue
 
-    The handler may be configured globally:
+```raku
+multi method findvalue(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) returns Any;
+multi method findvalue(Str:D $expr, LibXML::Node $ref?) returns Any;
+```
 
-    ```raku
-    # set up a global query selector. use the CSS::Selector::To::XPath module
-    use CSS::Selector::To::XPath;
-    use LibXML::Config;
-    LibXML::Config.query-handler = CSS::Selector::To::XPath.new;
+Returns only a simple value as string, numeric or boolean.
 
-    # run queries
-    my LibXML::Document $doc .= new: string => q:to<\_(ツ)_/>;
-      <table id="score">
-        <thead>
-          <tr>  <th>Test</th>     <th>Result</th> </tr>
-        <thead>
-        <tbody>
-          <tr>  <td>A</td>        <td>87%</td>     </tr>
-          <tr>  <td>B</td>        <td>78%</td>     </tr>
-          <tr>  <td>C</td>        <td>81%</td>     </tr>
-        </tbody>
-        <tfoot>
-          <tr>  <th>Average</th>  <td>82%</td>     </tr>
-        </tfoot>
-      </table>
-    \_(ツ)_/
+An expression that would return an [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) is coerced by calling `string-value()` on each of its members and joing the result.
 
-    my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
-    my @abc-results = $document.querySelectorAll($result-query);
-    my $a-result = $document.querySelector($result-query);
-    ```
+This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>.
 
-  * set-options, suppress-warnings, suppress-errors
+Optionally, a node may be passed in the second argument to set the context node for the query.
 
-    ```raku
-     my LibXML::XPath::Context $ctx .= new: :suppress-warnings;
-     $ctx.suppress-errors = True;
-    ```
+The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
-    XPath Contexts have some Boolean error handling options:
+### method exists
 
-      * `suppress-warnings` - Don't report warnings
+```raku
+multi method exists(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) returns Bool;
+multi method exists(Str:D $expr, LibXML::Node $ref?) returns Bool;
+```
 
-      * `suppress-errors` - Don't report or handle errors
+This method behaves like *find*, except that it only returns a Bool value (True if the expression matches a node, False otherwise) and may be faster than *find*, because the XPath evaluation may stop early on the first match. 
 
-COPYRIGHT
-=========
+For XPath expressions that do not return node-sets, the method returns True if the returned value is a non-zero number or a non-empty string.
+
+### method contextNode
+
+```perl6
+method contextNode() returns LibXML::Node
+```
+
+Set or get the context node
+
+### method contextPosition
+
+```perl6
+method contextPosition() returns Int
+```
+
+Set or get the current context position.
+
+By default, this value is -1 (and evaluating XPath function `position()` in the initial context raises an XPath error), but can be set to any value up to context size. This usually only serves to cheat the XPath engine to return given position when `position()` XPath function is called.
+
+Setting this value to -1 restores the default behavior.
+
+### method contextSize
+
+```perl6
+method contextSize() returns Int
+```
+
+Set or get the current context size.
+
+By default, this value is -1 (and evaluating XPath function `last() ` in the initial context raises an XPath error), but can be set to any non-negative value. This usually only serves to cheat the XPath engine to return the given value when `last() ` XPath function is called.
+
+  * If context size is set to 0, position is automatically also set to 0.
+
+  * If context size is positive, position is automatically set to 1. Setting context size to -1 restores the default behavior.
+
+### methods query-handler, querySelector, querySelectorAll
+
+These methods provide pluggable support for CSS Selectors, as described in https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE.
+
+The query handler is a third-party class or object that implements a method `$.query-to-xpath(Str $selector --> Str) {...}`, that typically maps CSS selectors to XPath querys.
+
+The handler may be configured globally:
+
+```raku
+# set up a global query selector. use the CSS::Selector::To::XPath module
+use CSS::Selector::To::XPath;
+use LibXML::Config;
+LibXML::Config.query-handler = CSS::Selector::To::XPath.new;
+
+# run queries
+my LibXML::Document $doc .= new: string => q:to<\_(ツ)_/>;
+  <table id="score">
+    <thead>
+      <tr>  <th>Test</th>     <th>Result</th> </tr>
+    <thead>
+    <tbody>
+      <tr>  <td>A</td>        <td>87%</td>     </tr>
+      <tr>  <td>B</td>        <td>78%</td>     </tr>
+      <tr>  <td>C</td>        <td>81%</td>     </tr>
+    </tbody>
+    <tfoot>
+      <tr>  <th>Average</th>  <td>82%</td>     </tr>
+    </tfoot>
+  </table>
+\_(ツ)_/
+
+my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
+my @abc-results = $document.querySelectorAll($result-query);
+my $a-result = $document.querySelector($result-query);
+```
+
+### methods set-options, suppress-warnings, suppress-errors
+
+```raku
+ my LibXML::XPath::Context $ctx .= new: :suppress-warnings;
+ $ctx.suppress-errors = True;
+```
+
+XPath Contexts have some Boolean error handling options:
+
+  * `suppress-warnings` - Don't report warnings
+
+  * `suppress-errors` - Don't report or handle errors
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -347,8 +447,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 
