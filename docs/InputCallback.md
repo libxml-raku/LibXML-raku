@@ -1,24 +1,23 @@
-NAME
-====
+class LibXML::InputCallback
+---------------------------
 
-LibXML::InputCallback - LibXML Class for Input Callbacks
+LibXML Input Callbacks
 
-SYNOPSIS
-========
+Example
+-------
 
 ```raku
 use LibXML::InputCallback;
-my LibXML::InputCallback $icb .= new;
-$icb.register-callbacks(
+my LibXML::InputCallback $icb .= new: :callbacks{
     match => -> Str $file --> Bool { $file.starts-with('file:') },
     open  => -> Str $file --> IO::Handle { $file.substr(5).IO.open(:r); },
     read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
     close => -> IO::Handle:D $fh { $fh.close },
-);
+};
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
 You may get unexpected results if you are trying to load external documents during libxml2 parsing if the location of the resource is not a HTTP, FTP or relative location but a absolute path for example. To get around this limitation, you may add your own input handler to open, read and close particular types of locations or URI classes. Using this input callback handlers, you can handle your own custom URI schemes for example.
 
@@ -35,7 +34,7 @@ Using the function-oriented part the global callback stack of libxml2 can be man
 
 ### Callback Groups
 
-The libxml2 input callbacks come in groups. Each group contains a URI matcher (*match *), a data stream constructor (*open *), a data stream reader (*read *), and a data stream destructor (*close *). The callbacks can be manipulated on a per group basis only.
+The libxml2 input callbacks come in groups. Each group contains a URI matcher (*match*), a data stream constructor (*open*), a data stream reader (*read*), and a data stream destructor (*close*). The callbacks can be manipulated on a per group basis only.
 
 ### The Parser Process
 
@@ -70,37 +69,46 @@ $parser.parse: :file( $some-xml-file );
 
 Note that this Raku port does not currently support the old Perl Global Callback mechanism.
 
-INTERFACE DESCRIPTION
-=====================
+Methods
+-------
 
-Class methods
--------------
+### method new
 
-  * new()
+```raku
+    multi method new(Callable :%callbacks) returns LibXML::InoputCallback
+    multi method new(Hash :@callbacks) returns LibXML::InoputCallback
+```
 
-    A simple constructor.
+A simple constructor.
 
-  * register-callbacks()
+A `:callbacks` Hash option can be provided with `match`, `open`, `read` and `close` members; these represent one callback group to be registered. Or a List of such hashes to register multiple callback groups.
 
-    ```raku
-    register-callbacks( &$match-cb, &open-cb, &read-cb, &close-cb);
-    # -OR-
-    register-callbacks( match => &match-cb, open => &open-cb,
-                      read => &read-cb, close => &close-cb);
-    ```
+### method register-callbacks
 
-    The four callbacks *have * to be given as array in the above order *match *, *open *, *read *, *close *!
+```raku
+multi method register-callbacks(:&match!, :&open!, :&read!, :&close);
+# Perl compatibility
+multi method register-callbacks( &match, &open, &read, &close?);
+multi method register-callbacks( @ (&match, &open, &read, &close?));
+```
 
-  * unregister-callbacks()
+The four input callbacks in a group are supplied via the `:match`, `:open`, `:read`, and `:close` options.
 
-    ```raku
-    unregister-callbacks( &match-cb, &open-cb, &read-cb, &close-cb )
-    ```
+For Perl compatibility, the four callbacks may be given as array, or positionally in the above order *match*, *open*, *read*, *close*!
 
-    With no arguments given, `unregister-callbacks() ` will delete the last registered callback group from the stack. If four callbacks are passed as array, the callback group to unregister will be identified by the *match * callback and deleted from the callback stack. Note that if several identical *match * callbacks are defined in different callback groups, ALL of them will be deleted from the stack.
+### method unregister-callbacks
 
-EXAMPLE CALLBACKS
-=================
+```raku
+multi method unregister-callbacks(:&match, :&open, :&read, :&close);
+# Perl compatibility
+multi method unregister-callbacks( &match?, &open?, &read?, &close?);
+multi method unregister-callbacks( @ (&match?, &open?, &read?, &close?));
+```
+
+With no arguments given, `unregister-callbacks()` will delete the last registered callback group from the stack. If four callbacks are passed as array, the callback group to unregister will be identified by supplied callbacks and deleted from the callback stack. Note that if several callback groups match, ALL of them will be deleted from the stack.
+
+Example Callbacks
+-----------------
 
 The following example is a purely fictitious example that uses a minimal MyScheme::Handler stub object.
 
@@ -152,8 +160,8 @@ $parser.input-callbacks = $input-callbacks;
 $parser.parse: :file('myscheme:stub.xml')
 ```
 
-COPYRIGHT
-=========
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -161,8 +169,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 

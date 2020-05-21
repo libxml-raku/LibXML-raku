@@ -1,41 +1,36 @@
-use v6;
-class LibXML::XPath::Expression {
+#| Interface to LibXML pre-compiled XPath Expressions
+unit class LibXML::XPath::Expression;
 
-    use LibXML::Native;
-    use Method::Also;
+use LibXML::Native;
+use Method::Also;
 
-    has xmlXPathCompExpr $!native;
-    method native { $!native }
-    # for the LibXML::ErrorHandling role
-    use LibXML::ErrorHandling;
-    use LibXML::_Options;
-    has $.sax-handler is rw;
-    has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
-    also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
-    also does LibXML::ErrorHandling;
+has xmlXPathCompExpr $!native;
+method native { $!native }
+# for the LibXML::ErrorHandling role
+use LibXML::ErrorHandling;
+use LibXML::_Options;
+has $.sax-handler is rw;
+has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+also does LibXML::ErrorHandling;
 
-    multi submethod TWEAK(Str:D :$expr!) {
-        my $*XML-CONTEXT = self;
-        $!native .= new(:$expr);
-        self.flush-errors;
-        die "invalid xpath expression: $expr"
-            without $!native;
-    }
-    submethod DESTROY {
-        .Free with $!native;
-    }
+multi submethod TWEAK(Str:D :$expr!) {
+    my $*XML-CONTEXT = self;
+    $!native .= new(:$expr);
+    self.flush-errors;
+    die "invalid xpath expression: $expr"
+        without $!native;
+}
+submethod DESTROY {
+    .Free with $!native;
+}
 
-    method compile(Str:D $expr) is also<parse> {
-        self.new: :$expr;
-    }
+method compile(Str:D $expr) is also<parse> {
+    self.new: :$expr;
 }
 
 =begin pod
-=head1 NAME
-
-LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
-
-=head1 SYNOPSIS
+=head2 Synopsis
 
   =begin code :lang<raku>
   use LibXML::XPath::Expression;
@@ -47,42 +42,41 @@ LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
   my @nodes = $node.findnodes($compiled-xpath);
   my $value = $node.findvalue($compiled-xpath);
   
-  # interface from LibXML::XPathContext
+  # interface from LibXML::XPath::Context
   
-  my $result = $xpc.find($compiled-xpath,$node);
-  my @nodes = $xpc.findnodes($compiled-xpath,$node);
-  my $value = $xpc.findvalue($compiled-xpath,$node);
+  my $result = $xpc.find($compiled-xpath, $node);
+  my @nodes = $xpc.findnodes($compiled-xpath, $node);
+  my $value = $xpc.findvalue($compiled-xpath, $node);
 
-  $compiled = LibXML::XPath::Expression.new( xpath-string );
+  my LibXML::XPath::Expression $compiled .= new: :expr($xpath-string), :$node;
   =end code
 
-=head1 DESCRIPTION
+=head2 Description
 
 This is a Raku interface to libxml2's pre-compiled XPath expressions.
 Pre-compiling an XPath expression can give in some performance benefit if the
-same XPath query is evaluated many times. C<<<<<< LibXML::XPath::Expression >>>>>> objects can be passed to all C<<<<<< find... >>>>>> functions C<<<<<< LibXML >>>>>> that expect an XPath expression. 
+same XPath query is evaluated many times. C<<<<<<LibXML::XPath::Expression>>>>>> objects can be passed to all C<<<<<<find...>>>>>> functions in L<LibXML> that expect an XPath expression. 
 
-=begin item1
-new()
+=head2 Methods
+
+=head3 method new
   =begin code :lang<raku>
-  LibXML::XPath::Expression $compiled  = .new( :expr($xpath-string) );
+  method new(
+      Str :expr($xpath)!, LibXML::Node :node($ref-node)
+  ) returns LibXML::XPath::Expression
   =end code
 The constructor takes an XPath 1.0 expression as a string and returns an object
 representing the pre-compiled expressions (the actual data structure is
 internal to libxml2). 
 
-=end item1
-
-=begin item1
-compile()
+=head3 method compile
   =begin code :lang<raku>
-  LibXML::XPath::Expression $compiled  = .compile( $xpath-string );
+  method compile( Str $xpath ) returns LibXML::XPath::Expression;
   =end code
 Alternative constructor.
 
-=end item1
 
-=head1 COPYRIGHT
+=head2 Copyright
 
 2001-2007, AxKit.com Ltd.
 
@@ -90,7 +84,7 @@ Alternative constructor.
 
 2006-2009, Petr Pajas.
 
-=head1 LICENSE
+=head2 License
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the Artistic License 2.0 L<http://www.perlfoundation.org/artistic_license_2_0>.

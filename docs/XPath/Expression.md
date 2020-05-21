@@ -1,10 +1,10 @@
-NAME
-====
+class LibXML::XPath::Expression
+-------------------------------
 
-LibXML::XPath::Expression - interface to libxml2 pre-compiled XPath expressions
+Interface to LibXML pre-compiled XPath Expressions
 
-SYNOPSIS
-========
+Synopsis
+--------
 
 ```raku
 use LibXML::XPath::Expression;
@@ -16,38 +16,43 @@ my $result = $node.find($compiled-xpath);
 my @nodes = $node.findnodes($compiled-xpath);
 my $value = $node.findvalue($compiled-xpath);
 
-# interface from LibXML::XPathContext
+# interface from LibXML::XPath::Context
 
-my $result = $xpc.find($compiled-xpath,$node);
-my @nodes = $xpc.findnodes($compiled-xpath,$node);
-my $value = $xpc.findvalue($compiled-xpath,$node);
+my $result = $xpc.find($compiled-xpath, $node);
+my @nodes = $xpc.findnodes($compiled-xpath, $node);
+my $value = $xpc.findvalue($compiled-xpath, $node);
 
-$compiled = LibXML::XPath::Expression.new( xpath-string );
+my LibXML::XPath::Expression $compiled .= new: :expr($xpath-string), :$node;
 ```
 
-DESCRIPTION
-===========
+Description
+-----------
 
-This is a Raku interface to libxml2's pre-compiled XPath expressions. Pre-compiling an XPath expression can give in some performance benefit if the same XPath query is evaluated many times. `LibXML::XPath::Expression ` objects can be passed to all `find... ` functions `LibXML ` that expect an XPath expression. 
+This is a Raku interface to libxml2's pre-compiled XPath expressions. Pre-compiling an XPath expression can give in some performance benefit if the same XPath query is evaluated many times. `LibXML::XPath::Expression` objects can be passed to all `find...` functions in [LibXML](https://libxml-raku.github.io/LibXML-raku) that expect an XPath expression. 
 
-  * new()
+Methods
+-------
 
-    ```raku
-    LibXML::XPath::Expression $compiled  = .new( :expr($xpath-string) );
-    ```
+### method new
 
-    The constructor takes an XPath 1.0 expression as a string and returns an object representing the pre-compiled expressions (the actual data structure is internal to libxml2). 
+```raku
+method new(
+    Str :expr($xpath)!, LibXML::Node :node($ref-node)
+) returns LibXML::XPath::Expression
+```
 
-  * compile()
+The constructor takes an XPath 1.0 expression as a string and returns an object representing the pre-compiled expressions (the actual data structure is internal to libxml2). 
 
-    ```raku
-    LibXML::XPath::Expression $compiled  = .compile( $xpath-string );
-    ```
+### method compile
 
-    Alternative constructor.
+```raku
+method compile( Str $xpath ) returns LibXML::XPath::Expression;
+```
 
-COPYRIGHT
-=========
+Alternative constructor.
+
+Copyright
+---------
 
 2001-2007, AxKit.com Ltd.
 
@@ -55,8 +60,8 @@ COPYRIGHT
 
 2006-2009, Petr Pajas.
 
-LICENSE
-=======
+License
+-------
 
 This program is free software; you can redistribute it and/or modify it under the terms of the Artistic License 2.0 [http://www.perlfoundation.org/artistic_license_2_0](http://www.perlfoundation.org/artistic_license_2_0).
 
