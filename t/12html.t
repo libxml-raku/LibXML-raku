@@ -39,12 +39,12 @@ ok($doc, ' TODO : Add test name');
 
 if CanDoIO {
     $doc = $parser.parse: :html, :$io;
+    ok($doc, ' TODO : Add test name');
 }
 else {
-    note 'parse :$io tests need Rakudo > 2020.05';
+    skip 'parse :$io tests need Rakudo > 2020.05';
 }
 
-ok($doc, ' TODO : Add test name');
 
 # parsing HTML's CGI calling links
 

@@ -5,8 +5,9 @@ use LibXML::Element;
 use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Item :&ast-to-xml;
+use LibXML::Config;
 
-LibXML.config.keep-blanks = False;
+LibXML::Config.keep-blanks = False;
 my LibXML::Element $elem .= new('Test');
 $elem.setAttribute('foo', 'bar');
 $elem.appendText('Some text.');
