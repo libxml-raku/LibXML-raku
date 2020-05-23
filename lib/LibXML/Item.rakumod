@@ -79,7 +79,7 @@ sub box-class(UInt $_) is export(:box-class) {
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
 =begin pod
     =para
-    This function can be useful as a succent of building nodes from data. For example:
+    This function can be useful as a succinct of building nodes from data. For example:
 
     =begin code :lang<raku>
     use LibXML::Element;

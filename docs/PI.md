@@ -24,7 +24,7 @@ $pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 Description
 -----------
 
-Processing instructions are implemented with LibXML with read and write access. The PI data is the PI without the PI target (as specified in XML 1.0 [17]) as a string. This string can be accessed with getData as implemented in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node).
+Processing instructions are implemented with LibXML with read and write access. The PI data is the PI without the PI target (as specified in XML 1.0 [17]) as a string. This string can be accessed with getData as implemented in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node).
 
 Many processing instructions have attribute like data. Therefore setData() provides, in addition to the DOM spec, the passing of named parameters. So the code segment:
 
@@ -48,7 +48,7 @@ $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
 
 will have the same result as above.
 
-[LibXML::PI](https://libxml-raku.github.io/LibXML-raku/PI)'s implementation of setData() documented below differs a bit from the standard version as available in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node):
+[LibXML::PI](https://libxml-raku.github.io/LibXML-raku/PI)'s implementation of setData() documented below differs a bit from the standard version as available in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node):
 
 Methods
 -------

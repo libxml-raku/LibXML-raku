@@ -41,7 +41,7 @@ unit class LibXML::Reader
 
    =head2 Description
 
-   This is a Raku interface to libxml2's pull-parser implementation xmlTextReader I<<<<<< http://xmlsoft.org/html/libxml-xmlreader.html >>>>>>. Pull-parsers (such as StAX in
+   This is a Raku interface to libxml2's pull-parser implementation xmlTextReader I<http://xmlsoft.org/html/libxml-xmlreader.html>. Pull-parsers (such as StAX in
    Java, or XmlReader in C#) use an iterator approach to parse XML documents. They
    are easier to program than event-based parser (SAX) and much more lightweight
    than tree-based parser (DOM), which load the complete tree into memory.
@@ -51,7 +51,7 @@ unit class LibXML::Reader
    object allow one to examine the current node (name, namespace, attributes,
    etc.)
 
-   The user's code keeps control of the progress and simply calls the C<<<<<< read() >>>>>> function repeatedly to progress to the next node in the document order. Other
+   The user's code keeps control of the progress and simply calls the C<read()> function repeatedly to progress to the next node in the document order. Other
    functions provide means for skipping complete sub-trees, or nodes until a
    specific element, etc.
 
@@ -206,7 +206,7 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
       my LibXML::Reader $reader .= new( DOM => $dom, ... );
       =end code
 
-    where ... are reader options described below in L<<<<<<Reader options>>>>>> or various parser options described in L<<<<<<LibXML::Parser >>>>>>. The constructor recognizes the following XML sources:
+    where ... are reader options described below in L<Reader options> or various parser options described in L<LibXML::Parser>. The constructor recognizes the following XML sources:
 
     =head3 Source specification
 
@@ -241,7 +241,7 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =begin item1
         LibXML::Document :$DOM
 
-        Use reader API to walk through a pre-parsed L<<<<<<LibXML::Document>>>>>>.
+        Use reader API to walk through a pre-parsed L<LibXML::Document>.
 
         =end item1
 
@@ -258,7 +258,7 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =begin item1
         RelaxNG => $rng-schema
 
-        can be used to pass either a L<<<<<< LibXML::RelaxNG >>>>>> object or a filename or URL of a RelaxNG schema to the constructor. The schema
+        can be used to pass either a L<LibXML::RelaxNG> object or a filename or URL of a RelaxNG schema to the constructor. The schema
         is then used to validate the document as it is processed.
 
         =end item1
@@ -266,7 +266,7 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =begin item1
         Schema => $xsd-schema
 
-        can be used to pass either a L<<<<<< LibXML::Schema >>>>>> object or a filename or URL of a W3C XSD schema to the constructor. The schema
+        can be used to pass either a L<LibXML::Schema> object or a filename or URL of a W3C XSD schema to the constructor. The schema
         is then used to validate the document as it is processed.
 
         =end item1
@@ -274,7 +274,7 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =begin item1
         ...
 
-        the reader further supports various parser options described in L<<<<<< LibXML::Parser >>>>>> (specifically those labeled by /reader/). 
+        the reader further supports various parser options described in L<LibXML::Parser> (specifically those labeled by /reader/). 
 
         =end item1
 =end pod
@@ -459,7 +459,7 @@ method nodePath {
 }
 =item Namespaced elements are matched by '*', because there is no
     way to declare prefixes within XPath patterns.
-=item Unlike C<<<<<< LibXML::Node::nodePath() >>>>>>, this function does not provide
+=item Unlike C<LibXML::Node::nodePath()>, this function does not provide
     sibling counts (i.e. instead of e.g. '/a/b[1]'
     and '/a/b[2]' you get '/a/b' for both matches). 
 
@@ -468,8 +468,8 @@ method nodePath {
 method matchesPattern(LibXML::Pattern:D $pattern --> Bool) {
     ? $pattern.matchesNode($_) with $!native.currentNode;
 }
-=item  See L<<<<<<LibXML::Pattern>>>>>> for information on compiled patterns.
-=item See also the C<<<<<< nextPatternMatch >>>>>> method.
+=item  See L<LibXML::Pattern> for information on compiled patterns.
+=item See also the C<nextPatternMatch> method.
 
 ########################################################################
 =head2 Methods Extracting DOM Nodes
@@ -480,7 +480,7 @@ method document {
         with $!native.currentDoc;
 }
 =item This function can be
-used to collect the preserved nodes (see C<<<<<< preserveNode() >>>>>> and preservePattern).
+used to collect the preserved nodes (see C<preserveNode()> and preservePattern).
 =item CAUTION: Never use this function to modify the tree unless reading of the whole
     document is completed!
 
@@ -499,7 +499,7 @@ method preserveNode(--> LibXML::Node) {
     &?ROUTINE.returns.box: self!op('preserveNode');
 }
 =para A document tree consisting of the preserved nodes and their content can be
-    obtained using the method C<<<<<< document() >>>>>> once parsing is finished.
+    obtained using the method C<document()> once parsing is finished.
 =para Returns the node or LibXML::Node:U in case of error.
 
 
@@ -513,7 +513,7 @@ method preservePattern(Str:D $pattern, :%ns --> UInt) {
 =begin pod
     =para
     A document tree consisting of the preserved nodes
-    and their content can be obtained using the method C<<<<<< document() >>>>>> once parsing is finished.
+    and their content can be obtained using the method C<document()> once parsing is finished.
 
     An :%ns may be used to pass a mapping
     prefixes used by the XPath to namespace URIs.
@@ -626,9 +626,9 @@ method standalone returns Int {
     standalone attribute.
 
     It returns
-    =item I<<<<<<1 (XmlStandaloneYes)>>>>>> if standalone="yes" was found,
-    =item I<<<<<<0 (XmlStandaloneNo)>>>>>> if standalone="no" was found and
-    =item I<<<<<<-1 (XmlStandaloneMu)>>>>>> if standalone was not specified (default on creation).
+    =item I<1 (XmlStandaloneYes)> if standalone="yes" was found,
+    =item I<0 (XmlStandaloneNo)> if standalone="no" was found and
+    =item I<-1 (XmlStandaloneMu)> if standalone was not specified (default on creation).
 =end pod
 
 
@@ -732,7 +732,7 @@ the document tree exist.
 =head2 Node Types
 
 The reader interface provides the following constants for node types (the
-constant symbols are exported by default or if tag C<<<<<< :types >>>>>> is used).
+constant symbols are exported by default or if tag C<:types> is used).
 
   =begin code :lang<raku>
   XML_READER_TYPE_NONE                    => 0
@@ -757,7 +757,7 @@ constant symbols are exported by default or if tag C<<<<<< :types >>>>>> is used
 
 =head2 States
 
-The following constants represent the values returned by C<<<<<< readState() >>>>>>. They are exported by default, or if tag C<<<<<< :states >>>>>> is used:
+The following constants represent the values returned by C<readState()>. They are exported by default, or if tag C<:states> is used:
 
   =begin code :lang<raku>
   XML_READER_NONE      => -1
@@ -772,7 +772,7 @@ The following constants represent the values returned by C<<<<<< readState() >>>
 
 =head2 SEE ALSO
 
-L<<<<<<LibXML::Pattern>>>>>> for information about compiled patterns.
+L<LibXML::Pattern> for information about compiled patterns.
 
 http://xmlsoft.org/html/libxml-xmlreader.html
 

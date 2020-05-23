@@ -92,8 +92,8 @@ use NativeCall;
     sometimes it is necessary to create a Document from scratch. The DOM Document
     Class provides functions that conform to the DOM Core naming style.
 
-    It inherits all functions from L<<<<<< LibXML::Node >>>>>> as specified in the DOM specification. This enables access to the nodes besides
-    the root element on document level - a C<<<<<< DTD >>>>>> for example. The support for these nodes is limited at the moment.
+    It inherits all functions from L<LibXML::Node> as specified in the DOM specification. This enables access to the nodes besides
+    the root element on document level - a C<DTD> for example. The support for these nodes is limited at the moment.
 
 =end pod
 
@@ -127,7 +127,7 @@ has LibXML::Element $!docElem;
 =begin pod
     =head2 Methods
 
-    Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
+    Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
 submethod TWEAK(
@@ -183,15 +183,15 @@ multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str
     )
     =end code
     Perl or DOM-style constructors for the document class. As parameters it takes the version
-    string and (optionally) the encoding string. Simply calling I<<<<<< createDocument >>>>>>() will create the document:
+    string and (optionally) the encoding string. Simply calling I<createDocument>() will create the document:
 
     =begin code :lang<xml>
     <?xml version="your version" encoding="your encoding"?>
     =end code
-    Both parameters are optional. The default value for I<<<<<< $version >>>>>> is C<<<<<< 1.0 >>>>>>, of course. If the I<<<<<< $encoding >>>>>> parameter is not set, the encoding will be left unset, which means UTF-8 is
+    Both parameters are optional. The default value for I<$version> is C<1.0>, of course. If the I<$encoding> parameter is not set, the encoding will be left unset, which means UTF-8 is
 implied.
 
-    The call of I<<<<<< createDocument >>>>>>() without any parameter will result the following code:
+    The call of I<createDocument>() without any parameter will result the following code:
 
     =begin code :lang<xml>
     <?xml version="1.0"?>
@@ -210,8 +210,8 @@ method native(--> xmlDoc) handles <encoding setCompression getCompression standa
     =end code
     Gets or sets the URI (or filename) of the original document. For documents obtained
     by parsing a string of a FH without using the URI parsing argument of the
-    corresponding C<<<<<< parse_* >>>>>> function, the result is a generated string unknown-XYZ where XYZ is some
-    number; for documents created with the constructor C<<<<<< new >>>>>>, the URI is undefined.
+    corresponding C<parse_*> function, the result is a generated string unknown-XYZ where XYZ is some
+    number; for documents created with the constructor C<new>, the URI is undefined.
 
     =head3 method encoding
     =begin code :lang<raku>
@@ -272,9 +272,9 @@ enum XmlStandalone is export(:XmlStandalone) (
     standalone attribute.
 
     It returns
-    =item I<<<<<<1 (XmlStandaloneYes)>>>>>> if standalone="yes" was found,
-    =item I<<<<<<0 (XmlStandaloneNo)>>>>>> if standalone="no" was found and
-    =item I<<<<<<-1 (XmlStandaloneMu)>>>>>> if standalone was not specified (default on creation).
+    =item I<1 (XmlStandaloneYes)> if standalone="yes" was found,
+    =item I<0 (XmlStandaloneNo)> if standalone="no" was found and
+    =item I<-1 (XmlStandaloneMu)> if standalone was not specified (default on creation).
 =end pod
 
 #| Alter the value of a documents standalone attribute.
@@ -290,9 +290,9 @@ method setStandalone(Numeric $_) {
     =end code
 
     =para Set it to
-    =item I<<<<<< 1 (XmlStandaloneYes) >>>>>> to set standalone="yes",
-    =item to I<<<<<< 0 (XmlStandaloneNo) >>>>>> to set standalone="no" or
-    =item to I<<<<<< -1 (XmlStandaloneMu) >>>>>> to remove the standalone attribute from the XML declaration.
+    =item I<1 (XmlStandaloneYes)> to set standalone="yes",
+    =item to I<0 (XmlStandaloneNo)> to set standalone="no" or
+    =item to I<-1 (XmlStandaloneMu)> to remove the standalone attribute from the XML declaration.
 =end pod
 
 #| Gets or sets output compression
@@ -324,9 +324,9 @@ method compression is rw returns Int {
 
     If one intends to write the document directly to a file, it is possible to set
     the compression level for a given document. This level can be in the range from
-    0 to 8. If LibXML should not try to compress use I<<<<<< -1 >>>>>> (default).
+    0 to 8. If LibXML should not try to compress use I<-1> (default).
 
-    Note that this feature will I<<<<<< only >>>>>> work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
+    Note that this feature will I<only> work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
 =end pod
 
 #| Serialize to XML/HTML
@@ -360,14 +360,14 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc
     =begin code :lang<raku>
     my Str $xml = $dom.Str(:$format);
     =end code
-  I<<<<<<Str>>>>>> is a serializing function, so the DOM Tree is serialized into an XML
+  I<Str> is a serializing function, so the DOM Tree is serialized into an XML
   string, ready for output.
     =begin code :lang<raku>
     $file.IO.spurt: $doc.Str;
     =end code
     regardless of the actual encoding of the document.
 
-    The optional I<<<<<<$format>>>>>> flag sets the indenting of the output.
+    The optional I<$format> flag sets the indenting of the output.
 
     If $format is False, or omitted, the document is dumped as it was originally parsed
 
@@ -382,14 +382,14 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc
     my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
     my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
     =end code
-    C14N Normalisation. See the documentation in L<<<<<< LibXML::Node >>>>>>.
+    C14N Normalisation. See the documentation in L<LibXML::Node>.
 
 
     =head4 method Str: :html
     =begin code :lang<raku>
     my Str $html = $document.Str: :html;
     =end code
-    I<<<<<<.Str: :html>>>>>> serializes the tree to a string as HTML. With this
+    I<.Str: :html> serializes the tree to a string as HTML. With this
     method indenting is automatic and managed by libxml2 internally.
 
     =head3 method serialize
@@ -493,7 +493,7 @@ method is-valid(LibXML::Dtd $dtd?) { $.validate($dtd, :check); }
     =end code
     Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
-    You may also pass in a L<<<<<< LibXML::Dtd >>>>>> object, to validate against an external DTD:
+    You may also pass in a L<LibXML::Dtd> object, to validate against an external DTD:
 
     =begin code :lang<raku>
     unless $dom.is-valid($dtd) {
@@ -616,7 +616,7 @@ method createEntityReference(Str $name --> LibXML::EntityRef) {
     An entity reference is unique to a document and cannot be passed to other
     documents as other nodes can be passed.
 
-    I<<<<<<NOTE:>>>>>> A text content containing something that looks like an entity reference, will
+    I<NOTE:> A text content containing something that looks like an entity reference, will
     not be expanded to a real entity reference unless it is a predefined entity
 
     =begin code :lang<raku>
@@ -639,7 +639,7 @@ multi method createPI(NCName $name, Str $content? --> LibXML::PI) {
 method createExternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
     &?ROUTINE.returns.new: :doc(self), :type<external>, :$name, :$external-id, :$system-id;
 }
-=para This function is similar to C<<<<<< createInternalSubset() >>>>>> but this DTD is considered to be external and is therefore not added to the
+=para This function is similar to C<createInternalSubset()> but this DTD is considered to be external and is therefore not added to the
   document itself. Nevertheless it can be used for validation purposes.
 
 #| Creates a new Internal Subset
@@ -700,7 +700,7 @@ method importNode(LibXML::Node:D $node --> LibXML::Node) {
 }
 =para If a node is not part of a document, it can be imported to another document. As
     specified in DOM Level 2 Specification the Node will not be altered or removed
-    from its original document (C<<<<<< $node.cloneNode(:deep) >>>>>> will get called implicitly).
+    from its original document (C<$node.cloneNode(:deep)> will get called implicitly).
 
 #| Adopts a node from another DOM
 method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
@@ -714,7 +714,7 @@ method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
 =para After a document adopted a node, the node, its attributes and all its
     descendants belong to the new document. Because the node does not belong to the
     old document, it will be unlinked from its old location first.
-=para I<<<<<<NOTE:>>>>>> Don't try to use importNode() or adoptNode() to import sub-trees that contain entity references -
+=para I<NOTE:> Don't try to use importNode() or adoptNode() to import sub-trees that contain entity references -
     even if the entity reference is the root node of the sub-tree. This will cause
     serious problems to your program. This is a limitation of libxml2 and not of
     LibXML itself.
@@ -759,13 +759,13 @@ method setInternalSubset(LibXML::Dtd $dtd) {
     self.native.setInternalSubset: $dtd.native;
 }
 =begin pod
-    =para I<<<<<<EXPERIMENTAL!>>>>>>
+    =para I<EXPERIMENTAL!>
 =end pod
 
 #| This method removes an external, if defined, from the document
 method removeInternalSubset(--> LibXML::Dtd) is dom-native {...}
 =begin pod
-    =para I<<<<<<EXPERIMENTAL!>>>>>>
+    =para I<EXPERIMENTAL!>
 
     If a document has an internal subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
@@ -783,7 +783,7 @@ method internalSubset is rw returns LibXML::Dtd {
              );
 }
 =begin pod
-    =para I<<<<<<NOTE>>>>>> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
+    =para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
     LibXML is still limited. In particular one may not want use common node
     function on doctype declaration nodes!
 =end pod
@@ -795,13 +795,13 @@ method setExternalSubset(LibXML::Dtd $dtd) {
     self.native.setExternalSubset: $dtd.native;
 }
 =begin pod
-    =para I<<<<<<EXPERIMENTAL!>>>>>>
+    =para I<EXPERIMENTAL!>
 =end pod
 
 #| This method removes an external, if defined, from the document
 method removeExternalSubset(--> LibXML::Dtd) is dom-native {...}
 =begin pod
-    =para I<<<<<<EXPERIMENTAL!>>>>>>
+    =para I<EXPERIMENTAL!>
 
     If a document has an external subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
@@ -815,7 +815,7 @@ method externalSubset is rw returns LibXML::Dtd {
                  }
              );
 }
-=para I<<<<<<NOTE>>>>>> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
+=para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
     LibXML is still limited. In particular one may not want use common node
     function on doctype declaration nodes!
 

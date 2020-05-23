@@ -118,7 +118,7 @@ External entity handler to be used when parser expand-entities is set.
 
 The routine provided is called whenever the parser needs to retrieve the content of an external entity. It is called with two arguments: the system ID (URI) and the public ID. The value returned by the subroutine is parsed as the content of the entity. 
 
-This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html ](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html )), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab `). 
+This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html)), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab`). 
 
 A more granular solution to this problem, however, is provided by custom URL resolvers, as in 
 

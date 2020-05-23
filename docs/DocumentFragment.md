@@ -45,7 +45,7 @@ It is a helper class as described in the DOM Level 2 Specification.
 Methods
 -------
 
-The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
+The class inherits from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
 
 ### method new
 

@@ -49,7 +49,7 @@ unit class LibXML::InputCallback;
 
     =head3 Callback Groups
 
-    The libxml2 input callbacks come in groups. Each group contains a URI matcher (I<<<<<<match>>>>>>), a data stream constructor (I<<<<<<open>>>>>>), a data stream reader (I<<<<<<read>>>>>>), and a data stream destructor (I<<<<<<close>>>>>>). The callbacks can be manipulated on a per group basis only.
+    The libxml2 input callbacks come in groups. Each group contains a URI matcher (I<match>), a data stream constructor (I<open>), a data stream reader (I<read>), and a data stream destructor (I<close>). The callbacks can be manipulated on a per group basis only.
 
 
     =head3 The Parser Process
@@ -58,7 +58,7 @@ unit class LibXML::InputCallback;
     resources can be embedded. This can be links to external DTDs or XIncludes for
     example. Those resources are identified by URIs. The callback implementation of
     libxml2 assumes that one callback group can handle a certain amount of URIs and
-    a certain URI scheme. Per default, callback handlers for I<<<<<< file://* >>>>>>, I<<<<<< file:://*.gz >>>>>>, I<<<<<< http://* >>>>>> and I<<<<<< ftp://* >>>>>> are registered.
+    a certain URI scheme. Per default, callback handlers for I<file://*>, I<file:://*.gz>, I<http://*> and I<ftp://*> are registered.
 
     Callback groups in the callback stack are processed from top to bottom, meaning
     that callback groups registered later will be processed before the earlier
@@ -66,10 +66,10 @@ unit class LibXML::InputCallback;
 
     While parsing the data stream, the libxml2 parser checks if a registered
     callback group will handle a URI - if they will not, the URI will be
-    interpreted as I<<<<<< file://URI >>>>>>. To handle a URI, the I<<<<<< match >>>>>> callback will have to return True. If that happens, the handling of the URI will
-    be passed to that callback group. Next, the URI will be passed to the I<<<<<< open >>>>>> callback, which should return a defined data streaming object if it successfully opened the file, or an undefined value otherwise. If
-    opening the stream was successful, the I<<<<<< read >>>>>> callback will be called repeatedly until it returns an empty string. After the
-    read callback, the I<<<<<< close >>>>>> callback will be called to close the stream.
+    interpreted as I<file://URI>. To handle a URI, the I<match> callback will have to return True. If that happens, the handling of the URI will
+    be passed to that callback group. Next, the URI will be passed to the I<open> callback, which should return a defined data streaming object if it successfully opened the file, or an undefined value otherwise. If
+    opening the stream was successful, the I<read> callback will be called repeatedly until it returns an empty string. After the
+    read callback, the I<close> callback will be called to close the stream.
 
 
     =head3 Organisation of callback groups in LibXML::InputCallback
@@ -263,7 +263,7 @@ multi method register-callbacks(:&match!, :&open!, :&read!, :&close = sub ($) {}
   =end code
 The four input callbacks in a group are supplied via the `:match`, `:open`, `:read`, and `:close` options.
 
-For Perl compatibility, the four callbacks may be given as array, or positionally in the above order I<<<<<<match>>>>>>, I<<<<<<open>>>>>>, I<<<<<<read>>>>>>, I<<<<<<close>>>>>>!
+For Perl compatibility, the four callbacks may be given as array, or positionally in the above order I<match>, I<open>, I<read>, I<close>!
 
 =end pod
 
@@ -296,7 +296,7 @@ multi method unregister-callbacks( :&match, :&open, :&read, :&close) is default 
     multi method unregister-callbacks( @ (&match?, &open?, &read?, &close?));
     =end code
     =para
-    With no arguments given, C<<<<<<unregister-callbacks()>>>>>> will delete the last registered callback group from the stack. If four
+    With no arguments given, C<unregister-callbacks()> will delete the last registered callback group from the stack. If four
     callbacks are passed as array, the callback group to unregister will
     be identified by supplied callbacks and deleted from the callback stack. Note that if several callback groups match, ALL of them will be deleted
     from the stack.

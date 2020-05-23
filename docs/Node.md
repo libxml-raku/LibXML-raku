@@ -106,7 +106,7 @@ Description
 
 LibXML::Node defines functions that are common to all Node Types. An LibXML::Node should never be created standalone, but as an instance of a high level class such as [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) or [LibXML::Text](https://libxml-raku.github.io/LibXML-raku/Text). The class itself should provide only common functionality. In LibXML each node is part either of a document or a document-fragment. Because of this there is no node without a parent.
 
-Many methods listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
+Many methods listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 Property Methods
 ----------------
@@ -169,9 +169,9 @@ method nodeValue() returns Str
 
 Get or set the value of a node
 
-If the node has any content (such as stored in a `text node `) it can get requested through this function.
+If the node has any content (such as stored in a `text node`) it can get requested through this function.
 
-*NOTE: * Element Nodes have no content per definition. To get the text value of an element use textContent() instead!
+*NOTE:* Element Nodes have no content per definition. To get the text value of an element use textContent() instead!
 
 ### method textContent
 
@@ -199,7 +199,7 @@ method getBaseURI() returns Str
 
 Gets the base URI
 
-Searches for the base URL of the node. The method should work on both XML and HTML documents even if base mechanisms for these are completely different. It returns the base as defined in RFC 2396 sections "5.1.1. Base URI within Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However it does not return the document base (5.1.3), use method `URI ` of [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) for this. 
+Searches for the base URL of the node. The method should work on both XML and HTML documents even if base mechanisms for these are completely different. It returns the base as defined in RFC 2396 sections "5.1.1. Base URI within Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However it does not return the document base (5.1.3), use method `URI` of [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) for this. 
 
 ### method setBaseURI
 
@@ -225,7 +225,7 @@ Return the source line number where the tag was found
 
 If a node is added to the document the line number is 0. Problems may occur, if a node from one document is passed to another one.
 
-IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533 ](http://bugzilla.gnome.org/show_bug.cgi?id=325533 ) for more details. 
+IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533](http://bugzilla.gnome.org/show_bug.cgi?id=325533) for more details. 
 
 Note: line-number() is special to LibXML and not part of the DOM specification.
 
@@ -353,7 +353,7 @@ Get child nodes of a node
 method childNodes(Bool :$blank = True) returns LibXML::Node::List
 ```
 
-*childNodes* implements a more intuitive interface to the childnodes of the current node. It enables you to pass all children directly to a `map ` or `grep `.
+*childNodes* implements a more intuitive interface to the childnodes of the current node. It enables you to pass all children directly to a `map` or `grep`.
 
 Note that child nodes are iterable:
 
@@ -506,7 +506,7 @@ method insertAfter(
 
 Inserts $new after $ref.
 
-If `$refNode ` is undefined, the newNode will be set as the new last child of the parent node.
+If `$refNode` is undefined, the newNode will be set as the new last child of the parent node.
 
 ### method removeChildNodes
 
@@ -534,9 +534,9 @@ my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expr, :deref );
 for $node.findnodes($xpath-expr) {...}
 ```
 
-*findnodes* evaluates the XPath expression (XPath 1.0) on the current node and returns the resulting node set as an array; returning an [LibXML::Node::Set ](https://libxml-raku.github.io/LibXML-raku/Node/Set) object.
+*findnodes* evaluates the XPath expression (XPath 1.0) on the current node and returns the resulting node set as an array; returning an [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) object.
 
-The XPath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+The XPath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
 The `:deref` option has an effect on associatve indexing:
 
@@ -562,7 +562,7 @@ There are several possible ways to deal with namespaces in XPath:
     $node.find('/x:html');
     ```
 
-  * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML ` allows you to use the prefix in the XPath expression, e.g.: 
+  * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML` allows you to use the prefix in the XPath expression, e.g.: 
 
     ```raku
     $node.find('/xhtml:html');
@@ -577,9 +577,9 @@ multi method find( LibXML::XPath::Expression:D $xpath ) returns Any
 
 *find* evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric](Numeric) object being returned. Other expressions might return an [Bool](Bool) object, or a [Str](Str) object.
 
-The XPath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+The XPath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
-See also [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext).find.
+See also [LibXML::XPathContext](https://libxml-raku.github.io/LibXML-raku/XPathContext).find.
 
 ### method findvalue
 
@@ -596,9 +596,9 @@ $node.find( $xpath ).to-literal;
 
 That is, it returns the literal value of the results. This enables you to ensure that you get a string back from your search, allowing certain shortcuts. This could be used as the equivalent of XSLT's <xsl:value-of select="some_xpath"/>.
 
-See also [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext).findvalue.
+See also [LibXML::XPathContext](https://libxml-raku.github.io/LibXML-raku/XPathContext).findvalue.
 
-The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
 ### method first
 
@@ -684,7 +684,7 @@ method canonicalize(
 
 serialize to a string; canonicalized as per C14N specification
 
-The canonicalize method is similar to Str(). Instead of simply serializing the document tree, it transforms it as it is specified in the XML-C14N Specification (see [http://www.w3.org/TR/xml-c14n ](http://www.w3.org/TR/xml-c14n )). Such transformation is known as canonicalization.
+The canonicalize method is similar to Str(). Instead of simply serializing the document tree, it transforms it as it is specified in the XML-C14N Specification (see [http://www.w3.org/TR/xml-c14n](http://www.w3.org/TR/xml-c14n)). Such transformation is known as canonicalization.
 
 If :$comments is False or not specified, the result-document will not contain any comments that exist in the original document. To include comments into the canonized document, :$comments has to be set to True.
 
@@ -702,7 +702,7 @@ and without comments
 (. | .//node() | .//@* | .//namespace::*)[not(self::comment())]
 ```
 
-An optional parameter :$selector can be used to pass an [LibXML::XPathContext ](https://libxml-raku.github.io/LibXML-raku/XPathContext) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector. 
+An optional parameter :$selector can be used to pass an [LibXML::XPathContext](https://libxml-raku.github.io/LibXML-raku/XPathContext) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector. 
 
 :v(v1.1) can be passed to specify v1.1 of the C14N specification. The `:$eclusve` flag is not applicable to this level.
 
@@ -720,7 +720,7 @@ multi method Str(Bool :C14N!, *%opts) returns Str
 method Str(Bool :$format, Bool :$tag-expansion) returns Str;
 ```
 
-This method is similar to the method `Str ` of a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants.
+This method is similar to the method `Str` of a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants.
 
 ### method serialize
 
@@ -818,7 +818,7 @@ method lookupNamespacePrefix( Str $URI ) returns NCName;
 
 Find a namespace prefix by its URI starting at the current node.
 
-*NOTE * Only the namespace URIs are meant to be unique. The prefix is only document related. Also the document might have more than a single prefix defined for a namespace.
+*NOTE* Only the namespace URIs are meant to be unique. The prefix is only document related. Also the document might have more than a single prefix defined for a namespace.
 
 ### method normalize
 

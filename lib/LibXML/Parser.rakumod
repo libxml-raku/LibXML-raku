@@ -382,9 +382,9 @@ One of the common parser interfaces of LibXML is the DOM parser. This parser
 reads XML data into a DOM like data structure, so each tag can get accessed and
 transformed.
 
-LibXML's DOM parser is not only capable to parse XML data, but also (strict)
+LibXML's DOM parser is not only able to parse XML data, but also (strict)
 HTML files. There are three ways to parse documents - as a string, as a Raku
-filehandle, or as a filename/URL. The return value from each is a L<<<<<< LibXML::Document >>>>>> object, which is a DOM object.
+filehandle, or as a filename/URL. The return value from each is a L<LibXML::Document> object, which is a DOM object.
 
 All of the functions listed below will throw an exception if the document is
 invalid. To prevent this causing your program exiting, wrap the call in a
@@ -428,7 +428,7 @@ DOM tree. The function can be called as a class method or an object method. In
 both cases it internally creates a new parser instance passing the specified
 parser options; if called as an object method, it clones the original parser
 (preserving its settings) and additionally applies the specified options to the
-new parser. See the constructor C<<<<<< new >>>>>> and L<<<<<< Parser Options >>>>>> for more information. 
+new parser. See the constructor `new` and L<Parser Options> for more information. 
 
 Note: Although this method usually returns a `LibXML::Document` object. It can be requisitioned to return other document types by providing
 a `:sax-handler` that returns an alternate document via a `publish()` method. See L<LibXML::SAX::Builder>. L<LibXML::SAX::Handler::XML>, for example produces pure Raku XML document objects.
@@ -448,7 +448,7 @@ This is a common problem if HTML code is parsed that contains links to
 CGI-scripts. Such links cause the parser to throw errors. In such cases libxml2
 still parses the entire document as there was no error, but the error causes
 LibXML to stop the parsing process. However, the document is not lost. Such
-HTML documents should be parsed using the I<<<<<< recover >>>>>> flag. By default recovering is deactivated.
+HTML documents should be parsed using the I<recover> flag. By default recovering is deactivated.
 
 The functions described above are implemented to parse well formed documents.
 In some cases a program gets well balanced XML instead of well formed documents
@@ -574,12 +574,12 @@ called without a parameter it will complain about non well-formed documents. If
 
 LibXML also provides a pull-parser interface similar to the XmlReader interface
 in .NET. This interface is almost streaming, and is usually faster and simpler
-to use than SAX. See L<<<<<<LibXML::Reader>>>>>>.
+to use than SAX. See L<LibXML::Reader>.
 
 
 =head2 Direct SAX Parser
 
-LibXML provides a direct SAX parser in the L<<<<<<LibXML::SAX>>>>>> module.
+LibXML provides a direct SAX parser in the L<LibXML::SAX> module.
 
 
 =head2 DOM based SAX Parser
@@ -594,17 +594,17 @@ directly, using the reparse() method:
 This is useful for serializing DOM trees, for example that you might have done
 prior processing on, or that you have as a result of XSLT processing.
 
-I<<<<<<WARNING>>>>>>
+I<WARNING>
 
 This is NOT a streaming SAX parser. This parser reads the
 entire document into a DOM and serialises it. If you want a streaming SAX
-parser look at the L<<<<<<LibXML::SAX>>>>>> man page
+parser look at the L<LibXML::SAX> man page
 
 
 =head2 Serialization Options
 
 LibXML provides some functions to serialize nodes and documents. The
-serialization functions are described on the L<<<<<< LibXML::Node >>>>>> or the L<<<<<< LibXML::Document >>>>>> documentation. LibXML checks three global flags that alter the serialization process:
+serialization functions are described on the L<LibXML::Node> or the L<LibXML::Document> documentation. LibXML checks three global flags that alter the serialization process:
 
 =item1 skip-xml-declaration
 
@@ -625,21 +625,16 @@ If C<skip-dtd> is defined is True, an existing DTD would not be serialized with
 the document.
 
 If C<tag-expansion> is True empty tags are displayed as open
-and closing tags rather than the shortcut. For example the empty tag I<<<<<< foo >>>>>> will be rendered as I<<<<<< &lt;foo&gt;&lt;/foo&gt; >>>>>> rather than I<<<<<< &lt;foo/&gt; >>>>>>.
+and closing tags rather than the shortcut. For example the empty tag I<foo> will be rendered as I<&lt;foo&gt;&lt;/foo&gt;> rather than I<&lt;foo/&gt;>.
 
 
 =head2 Parser Options
-
-Handling of libxml2 parser options has been unified and improved in LibXML
-1.70. You can now set default options for a particular parser instance by
-passing them to the constructor as C<<<<<< LibXML-&gt;new({name=&gt;value, ...}) >>>>>> or C<<<<<< LibXML-&gt;new(name=&gt;value,...) >>>>>>. The options can be queried and changed using the following methods (pre-1.70
-interfaces such as C<<<<<< $parser-&gt;load-ext-dtd(0) >>>>>> also exist, see below): 
 
 =head3 method option-exists
   =begin code :lang<raku>
   method option-exists(Str $name) returns Bool
   =end code
-Returns True if the current LibXML version supports the option C<<<<<< $name >>>>>>, otherwise returns False (note that this does not necessarily mean that the option
+Returns True if the current LibXML version supports the option C<$name>, otherwise returns False (note that this does not necessarily mean that the option
 is supported by the underlying libxml2 library).
 
 =head3 method get-option
@@ -663,7 +658,7 @@ $parser.set-option(:no-recover);
   $parser.option($name) = $value;
   $parser."$name"() = $value;
   =end code
-Sets option C<<<<<< $name >>>>>> to value C<<<<<< $value >>>>>>.
+Sets option C<$name> to value C<$value>.
 
 =head3 method set-options
   =begin code :lang<raku>
@@ -676,7 +671,7 @@ Each of the flags listed below is labeled
 =begin item1
 /parser/
 
-if it can be used with a C<<<<<< LibXML >>>>>> parser object (i.e. passed to C<<<<<< LibXML-&gt;new >>>>>>, C<<<<<< LibXML-&gt;set-option >>>>>>, etc.) 
+if it can be used with a L<LibXML> parser object (i.e. passed to C<LibXML.new>, C<LibXML.set-option>, etc.) 
 
 =end item1
 
@@ -690,7 +685,7 @@ if it is applicable to HTML parsing
 =begin item1
 /reader/
 
-if it can be used with the C<<<<<< LibXML::Reader >>>>>>.
+if it can be used with the L<LibXML::Reader>.
 
 =end item1
 
@@ -728,12 +723,12 @@ line-numbers
 /parser/
 
 If this option is activated, libxml2 will store the line number of each element
-node in the parsed document. The line number can be obtained using the C<<<<<< line-number() >>>>>> method of the C<<<<<< LibXML::Node >>>>>> class (for non-element nodes this may report the line number of the containing
+node in the parsed document. The line number can be obtained using the C<line-number()> method of the L<LibXML::Node> class (for non-element nodes this may report the line number of the containing
 element). The line numbers are also used for reporting positions of validation
 errors. 
 
 IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
-65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
+65535 will be returned as 65535. Please see L<http://bugzilla.gnome.org/show_bug.cgi?id=325533> for more details. 
 
 =end item1
 
@@ -872,7 +867,7 @@ expand-xinclude
 Implement XInclude substitution; type Bool
 
 Expands XInclude tags immediately while parsing the document. Note that the
-parser will use the URI resolvers installed via C<<<<<< LibXML::InputCallback >>>>>> to parse the included document (if any).
+parser will use the URI resolvers installed via L<LibXML::InputCallback> to parse the included document (if any).
 
 It is recommended to use `input-callbacks` to restrict access when `expand-xinclude` is enabled on untrusted input files, otherwise it's trivial to inject arbitrary content from the file-system, as in:
 
@@ -901,7 +896,7 @@ Enable network access; default False
 All attempts to fetch non-local resources (such as DTD or
 external entities) will fail unless set to True (or custom input-callbacks are defined).
 
-It may be necessary to use the flag C<<<<<< recover >>>>>> for processing documents requiring such resources while networking is off. 
+It may be necessary to use the flag C<recover> for processing documents requiring such resources while networking is off. 
 
 =end item1
 
@@ -955,19 +950,19 @@ recover-silently
   =begin code :lang<raku>
   $parser.recover-silently = True;
   =end code
-If called without an argument, returns true if the current value of the C<<<<<< recover >>>>>> parser option is 2 and returns false otherwise. With a true argument sets the C<<<<<< recover >>>>>> parser option to 2; with a false argument sets the C<<<<<< recover >>>>>> parser option to 0. 
+If called without an argument, returns true if the current value of the C<recover> parser option is 2 and returns false otherwise. With a true argument sets the C<recover> parser option to 2; with a false argument sets the C<recover> parser option to 0. 
 
 =end item1
 
 =head2 XML Catalogs
 
-C<<<<<< libxml2 >>>>>> supports XML catalogs. Catalogs are used to map remote resources to their local
+C<libxml2> supports XML catalogs. Catalogs are used to map remote resources to their local
 copies. Using catalogs can speed up parsing processes if many external
 resources from remote addresses are loaded into the parsed documents (such as
 DTDs or XIncludes). 
 
 Note that libxml2 has a global pool of loaded catalogs, so if you apply the
-method C<<<<<< load-catalog >>>>>> to one parser instance, all parser instances will start using the catalog (in
+method C<load-catalog> to one parser instance, all parser instances will start using the catalog (in
 addition to other previously loaded catalogs). 
 
 Note also that catalogs are not used when a custom external entity handler is

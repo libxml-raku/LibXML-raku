@@ -85,9 +85,9 @@ unit class LibXML::Element
     # </Test>
     =end code
     =para
-    The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here. 
+    The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here. 
 
-    Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation. 
+    Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation. 
 
 =end pod
 
@@ -174,12 +174,12 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) 
     The current implementation differs from DOM in the following aspects 
 
     If an attribute with the same local name and namespace URI already exists on
-    the element, but its prefix differs from the prefix of C<<<<<< $aname >>>>>>, then this function is supposed to change the prefix (regardless of namespace
+    the element, but its prefix differs from the prefix of C<$aname>, then this function is supposed to change the prefix (regardless of namespace
     declarations and possible collisions). However, the current implementation does
     rather the opposite. If a prefix is declared for the namespace URI in the scope
     of the attribute, then the already declared prefix is used, disregarding the
-    prefix specified in C<<<<<< $aname >>>>>>. If no prefix is declared for the namespace, the function tries to declare the
-    prefix specified in C<<<<<< $aname >>>>>> and dies if the prefix is already taken by some other namespace. 
+    prefix specified in C<$aname>. If no prefix is declared for the namespace, the function tries to declare the
+    prefix specified in C<$aname> and dies if the prefix is already taken by some other namespace. 
 
     According to DOM Level 2 specification, this method can also be used to create
     or modify special attributes used for declaring XML namespaces (which belong to
@@ -221,7 +221,7 @@ method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
     =begin code :lang<raku>
     method getAttribute(QName $name) returns Str
     =end code
-    If the object has an attribute with the name C<<<<<< $name >>>>>>, the value of this attribute will get returned.
+    If the object has an attribute with the name C<$name>, the value of this attribute will get returned.
 
     =head3 method getAttributeNS
     =begin code :lang<raku>
@@ -233,14 +233,14 @@ method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
     =begin code :lang<raku>
     method getAttributeNode(QName $name) returns LibXML::Attr
     =end code
-    Retrieve an attribute node by name. If no attribute with a given name exists, C<<<<<<LibXML::Attr:U>>>>>> is returned.
+    Retrieve an attribute node by name. If no attribute with a given name exists, C<LibXML::Attr:U> is returned.
 
     =head3 method getAttributeNodeNS
     =begin code :lang<raku>
     method getAttributeNodeNS(Str $uri, QName $name) returns LibXML::Attr
     =end code
     Retrieves an attribute node by local name and namespace URI. If no attribute
-    with a given localname and namespace exists, C<<<<<<LibXML::Attr:U>>>>>> is returned.
+    with a given localname and namespace exists, C<LibXML::Attr:U> is returned.
 
     =head3 method hasAttribute
     =begin code :lang<raku>
@@ -254,7 +254,7 @@ method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
     =begin code :lang<raku>
     method hasAttributeNS(Str $uri, QName $name ) returns Bool;
     =end code
-    namespace version of C<<<<<< hasAttribute >>>>>>
+    namespace version of C<hasAttribute>
 
     =head3 method hasAttributes
     =begin code :lang<raku>
@@ -321,14 +321,14 @@ method properties {
     method removeAttribute( QName $aname ) returns Bool;
     =end code
     =para
-    This method removes the attribute C<<<<<< $aname >>>>>> from the node's attribute list, if the attribute can be found.
+    This method removes the attribute C<$aname> from the node's attribute list, if the attribute can be found.
 
     =head3 method removeAttributeNS
     =begin code :lang<raku>
     method removeAttributeNS( $nsURI, $aname ) returns Bool;
     =end code
     =para
-    Namespace version of C<<<<<< removeAttribute >>>>>>
+    Namespace version of C<removeAttribute>
 
 =end pod
 
@@ -379,8 +379,8 @@ method !set-attributes(@atts) {
       method getChildrenByTagNameNS(Str $nsURI, Str $tagname) returns LibXML::Node::Set;
       my LibXML::Element @nodes = $node.getChildrenByTagNameNS($nsURI,$tagname);
       =end code
-    Namespace version of C<<<<<<getChildrenByTagName>>>>>>. A special nsURI '*' matches any namespace URI, in which case the function
-    behaves just like C<<<<<<getChildrenByLocalName>>>>>>.
+    Namespace version of C<getChildrenByTagName>. A special nsURI '*' matches any namespace URI, in which case the function
+    behaves just like C<getChildrenByLocalName>.
 
 
     =head3 method getChildrenByLocalName
@@ -393,7 +393,7 @@ method !set-attributes(@atts) {
     a given local name. It makes things a lot easier if one needs to handle big
     data sets. Note:
 
-      =item A special C<<<<<< localname >>>>>> '*' can be used to match all elements.
+      =item A special C<localname> '*' can be used to match all elements.
       =item C<@*> can be used to fetch attributes as a node-set
       =item C<?*> (all), or C<?name> can be used to fetch processing instructions
       =item The special names C<#text>, C<#comment> and C<#cdata-section> can be used to match Text, Comment or CDATA Section nodes.
@@ -406,8 +406,8 @@ method !set-attributes(@atts) {
       =end code
     =para
     This function is part of the spec. It fetches all descendants of a node with a
-    given tagname, where C<<<<<< tagname >>>>>> is a qualified name, that is, in case of namespace usage it may consist of a
-    prefix and local name. A special C<<<<<< tagname >>>>>> '*' can be used to match any tag name. 
+    given tagname, where C<tagname> is a qualified name, that is, in case of namespace usage it may consist of a
+    prefix and local name. A special C<tagname> '*' can be used to match any tag name. 
 
 
     =head3 method getElementsByTagNameNS
@@ -416,7 +416,7 @@ method !set-attributes(@atts) {
       method getElementsByTagNameNS($nsURI, QName $localname) returns LibXML::Node::Set;
       =end code
     =para
-    Namespace version of C<<<<<< getElementsByTagName >>>>>> as found in the DOM spec. A special C<<<<<< localname >>>>>> '*' can be used to match any local name and C<<<<<< nsURI >>>>>> '*' can be used to match any namespace URI.
+    Namespace version of C<getElementsByTagName> as found in the DOM spec. A special C<localname> '*' can be used to match any local name and C<nsURI> '*' can be used to match any namespace URI.
 
 
     =head3 method getElementsByLocalName
@@ -429,7 +429,7 @@ method !set-attributes(@atts) {
     matching the given local-name. This allows one to select tags with the same
     local name across namespace borders.
 
-    In item context this function returns an L<<<<<< LibXML::Node::Set >>>>>> object.
+    In item context this function returns an L<LibXML::Node::Set> object.
 
     =head3 method elements
     =begin code :lang<raku>
@@ -507,9 +507,9 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
     =begin code :lang<raku>
     method appendWellBalancedChunk( Str $chunk ) returns LibXML::Node
     =end code
-    Sometimes it is necessary to append a string coded XML Tree to a node. I<<<<<< appendWellBalancedChunk >>>>>> will do the trick for you. But this is only done if the String is C<<<<<< well-balanced >>>>>>.
+    Sometimes it is necessary to append a string coded XML Tree to a node. I<appendWellBalancedChunk> will do the trick for you. But this is only done if the String is C<well-balanced>.
 
-    I<<<<<< Note that appendWellBalancedChunk() is only left for compatibility reasons >>>>>>. Implicitly it uses
+    I<Note that appendWellBalancedChunk() is only left for compatibility reasons>. Implicitly it uses
 
       =begin code :lang<raku>
       my LibXML::DocumentFragment $fragment = $parser.parse: :balanced, :$chunk;
@@ -537,7 +537,7 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
       =begin code :lang<raku>
       method appendTextChild( QName $childname, $PCDATA ) returns LibXML::Element;
       =end code
-    Somewhat similar with C<<<<<< appendTextNode >>>>>>: It lets you set an Element, that contains only a C<<<<<< text node >>>>>> directly by specifying the name and the text content.
+    Somewhat similar with C<appendTextNode>: It lets you set an Element, that contains only a C<text node> directly by specifying the name and the text content.
 
     =head3 method setNamespace
       =begin code :lang<raku>

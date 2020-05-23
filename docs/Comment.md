@@ -18,14 +18,14 @@ $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 Description
 -----------
 
-This class provides all functions of [LibXML::Text ](https://libxml-raku.github.io/LibXML-raku/Text), but for comment nodes. This can be done, since only the output of the node types is different, but not the data structure. :-)
+This class provides all functions of [LibXML::Text](https://libxml-raku.github.io/LibXML-raku/Text), but for comment nodes. This can be done, since only the output of the node types is different, but not the data structure. :-)
 
 Methods
 -------
 
-The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
+The class inherits from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
 
-Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
+Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 ### method new
 
@@ -33,7 +33,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 method new( Str :$content ) returns LibXML::Comment
 ```
 
-The constructor is the only provided function for this package. It is required, because *libxml2 * treats text nodes and comment nodes slightly differently.
+The constructor is the only provided function for this package. It is required, because *libxml2* treats text nodes and comment nodes slightly differently.
 
 Copyright
 ---------

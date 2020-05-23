@@ -113,7 +113,7 @@ unit class LibXML::Node
     document or a document-fragment. Because of this there is no node without a
     parent.
 
-    Many methods listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
+    Many methods listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 use Method::Also;
 use NativeCall;
@@ -178,7 +178,7 @@ method nodeName is rw is also<name tag tagName> returns Str {
 
 =begin pod
     =para This method is aware of namespaces and returns the
-full name of the current node (C<<<<<<prefix:localname>>>>>>). 
+full name of the current node (C<prefix:localname>). 
 
     It also returns the correct DOM names for node types with
     constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`,
@@ -226,9 +226,9 @@ method nodeValue is rw is also<value> returns Str {
         STORE => sub ($, Str() $_) { self.setNodeValue($_) },
     );
 }
-=para If the node has any content (such as stored in a C<<<<<< text node >>>>>>) it
+=para If the node has any content (such as stored in a C<text node>) it
     can get requested through this function.
-=para I<<<<<< NOTE: >>>>>> Element Nodes have no content per definition. To get the
+=para I<NOTE:> Element Nodes have no content per definition. To get the
     text value of an element use textContent() instead!
 
 #| this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
@@ -247,7 +247,7 @@ method getBaseURI returns Str { $!native.GetBase }
     HTML documents even if base mechanisms for these are completely different. It
     returns the base as defined in RFC 2396 sections "5.1.1. Base URI within
     Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However
-    it does not return the document base (5.1.3), use method C<<<<<< URI >>>>>> of L<LibXML::Document> for this. 
+    it does not return the document base (5.1.3), use method C<URI> of L<LibXML::Document> for this. 
 
 #| Sets the base URI
 method setBaseURI(Str $uri) { $!native.SetBase($uri) }
@@ -270,7 +270,7 @@ method line-number returns UInt  { $!native.GetLineNo }
 =para If a node is added to the document the line number is 0. Problems may occur, if
     a node from one document is passed to another one.
 =para IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
-    65535 will be returned as 65535. Please see L<<<<<< http://bugzilla.gnome.org/show_bug.cgi?id=325533 >>>>>> for more details. 
+    65535 will be returned as 65535. Please see L<http://bugzilla.gnome.org/show_bug.cgi?id=325533> for more details. 
 =para Note: line-number() is special to LibXML and not part of the DOM specification.
 
 ########################################################################
@@ -388,8 +388,8 @@ method childNodes(Bool :$blank = True) is also<getChildnodes children nodes> han
     =begin code :lang<raku>
     method childNodes(Bool :$blank = True) returns LibXML::Node::List
     =end code
-    I<<<<<<childNodes>>>>>> implements a more intuitive interface to the childnodes of the current node. It
-    enables you to pass all children directly to a C<<<<<< map >>>>>> or C<<<<<< grep >>>>>>.
+    I<childNodes> implements a more intuitive interface to the childnodes of the current node. It
+    enables you to pass all children directly to a C<map> or C<grep>.
 
     Note that child nodes are iterable:
     =begin code :lang<raku>
@@ -412,7 +412,7 @@ method nonBlankChildNodes {
     method nonBlankChildNodes() returns LibXML::Node::List
     =end code
     =para
-    This equivalent to I<<<<<<childNodes(:!blank)>>>>>>. It returns only non-blank nodes (where a node is blank if it is a Text or
+    This equivalent to I<childNodes(:!blank)>. It returns only non-blank nodes (where a node is blank if it is a Text or
     CDATA node consisting of whitespace only). This method is not defined by DOM.
 =end pod
 
@@ -439,7 +439,7 @@ method removeChild(LibXML::Node:D $node --> LibXML::Node) {
 method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
     $old.keep: $!native.replaceChild($new.native, $old.native),
 }
-=para The returned C<<<<<<$old>>>>>> node is unbound.
+=para The returned C<$old> node is unbound.
 =para This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the
     node will be imported first.
 
@@ -463,8 +463,8 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) {
         QName $name
     ) returns LibXML::Element
     =end code   
-    Similar to C<<<<<<addChild()>>>>>>, this function uses low level libxml2 functionality to provide faster
-    interface for DOM building. I<<<<<<addNewChild()>>>>>> uses C<<<<<<xmlNewChild()>>>>>> to create a new node on a given parent element.
+    Similar to C<addChild()>, this function uses low level libxml2 functionality to provide faster
+    interface for DOM building. I<addNewChild()> uses C<xmlNewChild()> to create a new node on a given parent element.
 
     addNewChild() has two parameters $nsURI and $name, where $nsURI is an
     (optional) namespace URI. $name is the fully qualified element name;
@@ -473,7 +473,7 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) {
     The function returns the newly created node.
 
     This function is very useful for DOM building, where a created node can be
-    directly associated with its parent. I<<<<<<NOTE>>>>>> this function is not part of the DOM specification and its use may limit your
+    directly associated with its parent. I<NOTE> this function is not part of the DOM specification and its use may limit your
     code to Raku or Perl.
 =end pod
 
@@ -516,7 +516,7 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
     my anyNode $ref-native = .native with $ref;
     $new.keep: $!native.insertAfter($new.native, $ref-native);
 }
-=para If C<<<<<< $refNode >>>>>> is undefined, the newNode will be set as the new
+=para If C<$refNode> is undefined, the newNode will be set as the new
     last child of the parent node.
 
 method removeChildNodes(--> LibXML::Node) {
@@ -553,10 +553,10 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expr, :deref );
     for $node.findnodes($xpath-expr) {...}
     =end code
-    I<<<<<<findnodes>>>>>> evaluates the XPath expression (XPath 1.0) on the current node and returns the
-    resulting node set as an array; returning an L<<<<<< LibXML::Node::Set >>>>>> object.
+    I<findnodes> evaluates the XPath expression (XPath 1.0) on the current node and returns the
+    resulting node set as an array; returning an L<LibXML::Node::Set> object.
 
-    The XPath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
+    The XPath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
     The `:deref` option has an effect on associatve indexing:
     =begin code :lang<raku>
@@ -565,15 +565,15 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     =end code
     It indexes element child nodes and attributes. This option is used by the `AT-KEY` method (see below).
 
-    I<<<<<<NOTE ON NAMESPACES AND XPATH>>>>>>:
+    I<NOTE ON NAMESPACES AND XPATH>:
 
     A common mistake about XPath is to assume that node tests consisting of an
     element name with no prefix match elements in the default namespace. This
     assumption is wrong - by XPath specification, such node tests can only match
     elements that are in no (i.e. null) namespace. 
 
-    So, for example, one cannot match the root element of an XHTML document with C<<<<<<$node.find('/html')>>>>>> since C<<<<<<'/html'>>>>>> would only match if the root element `<html>` had no namespace, but all XHTML elements belong to the namespace
-    http://www.w3.org/1999/xhtml. (Note that C<<<<<<xmlns="...">>>>>> namespace declarations can also be specified in a DTD, which makes the
+    So, for example, one cannot match the root element of an XHTML document with C<$node.find('/html')> since C<'/html'> would only match if the root element `<html>` had no namespace, but all XHTML elements belong to the namespace
+    http://www.w3.org/1999/xhtml. (Note that C<xmlns="..."> namespace declarations can also be specified in a DTD, which makes the
     situation even worse, since the XML document looks as if there was no default
     namespace). 
 
@@ -591,7 +591,7 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
         =begin item
         Another possibility is to use prefixes declared in the queried document (if
         known). If the document declares a prefix for the namespace in question (and
-        the context node is in the scope of the declaration), C<<<<<< LibXML >>>>>> allows you to use the prefix in the XPath expression, e.g.: 
+        the context node is in the scope of the declaration), C<LibXML> allows you to use the prefix in the XPath expression, e.g.: 
 
           =begin code :lang<raku>
           $node.find('/xhtml:html');
@@ -603,20 +603,20 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     multi method find( Str $xpath ) returns Any
     multi method find( LibXML::XPath::Expression:D $xpath ) returns Any
     =end code
-    I<<<<<<find>>>>>> evaluates the XPath 1.0 expression using the current node as the context of the
+    I<find> evaluates the XPath 1.0 expression using the current node as the context of the
     expression, and returns the result depending on what type of result the XPath
-    expression had. For example, the XPath "1 * 3 + 52" results in a L<<<<<<Numeric>>>>>> object being returned. Other expressions might return an L<<<<<<Bool>>>>>> object, or a L<<<<<<Str>>>>>> object.
+    expression had. For example, the XPath "1 * 3 + 52" results in a L<Numeric> object being returned. Other expressions might return an L<Bool> object, or a L<Str> object.
 
-    The XPath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
+    The XPath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
-    See also L<<<<<< LibXML::XPathContext >>>>>>.find.
+    See also L<LibXML::XPathContext>.find.
 
     =head3 method findvalue
     =begin code :lang<raku>
     multi method findvalue( Str $xpath ) returns Str
     multi method findvalue( LibXML::XPath::Expression:D $xpath ) returns Str
     =end code
-    I<<<<<<findvalue>>>>>> is equivalent to:
+    I<findvalue> is equivalent to:
 
       =begin code :lang<raku>
       $node.find( $xpath ).to-literal;
@@ -627,9 +627,9 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     This could be used as the equivalent of XSLT's <xsl:value-of
     select="some_xpath"/>.
 
-    See also L<<<<<< LibXML::XPathContext >>>>>>.findvalue.
+    See also L<LibXML::XPathContext>.findvalue.
 
-    The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
+    The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
     =head3 method first
     =begin code :lang<raku>
@@ -660,8 +660,8 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     multi method exists(Str $xpath-expr) returns Bool
     multi method exist(LibXML::XPath::Expression:D $xpath-expr) returns Bool
     =end code
-    This method behaves like I<<<<<<findnodes>>>>>>, except that it only returns a boolean value (True if the expression matches a
-    node, False otherwise) and may be faster than I<<<<<<findnodes>>>>>>, because the XPath evaluation may stop early on the first match.
+    This method behaves like I<findnodes>, except that it only returns a boolean value (True if the expression matches a
+    node, False otherwise) and may be faster than I<findnodes>, because the XPath evaluation may stop early on the first match.
 
     For XPath expressions that do not return node-set, the method returns True if
     the returned value is a non-zero number or a non-empty string.
@@ -752,7 +752,7 @@ method canonicalize(
     =para
     The canonicalize  method is similar to Str(). Instead of simply serializing the
     document tree, it transforms it as it is specified in the XML-C14N
-    Specification (see L<<<<<< http://www.w3.org/TR/xml-c14n >>>>>>). Such transformation is known as canonicalization.
+    Specification (see L<http://www.w3.org/TR/xml-c14n>). Such transformation is known as canonicalization.
 
     If :$comments is False or not specified, the result-document will not contain any
     comments that exist in the original document. To include comments into the
@@ -775,7 +775,7 @@ method canonicalize(
       (. | .//node() | .//@* | .//namespace::*)[not(self::comment())]
       =end code
 
-    An optional parameter :$selector can be used to pass an L<<<<<< LibXML::XPathContext >>>>>> object defining the context for evaluation of $xpath-expression. This is useful
+    An optional parameter :$selector can be used to pass an L<LibXML::XPathContext> object defining the context for evaluation of $xpath-expression. This is useful
     for mapping namespace prefixes used in the XPath expression to namespace URIs.
     Note, however, that $node will be used as the context node for the evaluation,
     not the context node of :$selector. 
@@ -806,7 +806,7 @@ multi method Str(|c) is also<gist> is default {
     method Str(Bool :$format, Bool :$tag-expansion) returns Str;
     =end code
     =para
-    This method is similar to the method C<<<<<< Str >>>>>> of a L<<<<<< LibXML::Document >>>>>> but for a single node. It returns a string consisting of XML serialization of
+    This method is similar to the method C<Str> of a L<LibXML::Document> but for a single node. It returns a string consisting of XML serialization of
     the given node and all its descendants.
 =end pod
 
@@ -953,7 +953,7 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.hr
       =end code
     Find a namespace prefix by its URI starting at the current node.
 
-    I<<<<<< NOTE >>>>>> Only the namespace URIs are meant to be unique. The prefix is only document
+    I<NOTE> Only the namespace URIs are meant to be unique. The prefix is only document
     related. Also the document might have more than a single prefix defined for a
     namespace.
 

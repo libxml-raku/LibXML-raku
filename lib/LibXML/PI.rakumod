@@ -46,7 +46,7 @@ multi method setData(Str:D $string) {
 
 Processing instructions are implemented with LibXML with read and write
 access. The PI data is the PI without the PI target (as specified in XML 1.0
-[17]) as a string. This string can be accessed with getData as implemented in L<<<<<< LibXML::Node >>>>>>.
+[17]) as a string. This string can be accessed with getData as implemented in L<LibXML::Node>.
 
 Many processing instructions have attribute like data. Therefore setData() provides,
 in addition to the DOM spec, the passing of named parameters. So the code segment:
@@ -71,8 +71,8 @@ described above, the call
   =end code
 will have the same result as above.
 
-L<<<<<<LibXML::PI>>>>>>'s implementation of setData() documented below differs a bit from the standard
-version as available in L<<<<<< LibXML::Node >>>>>>:
+L<LibXML::PI>'s implementation of setData() documented below differs a bit from the standard
+version as available in L<LibXML::Node>:
 
 =head2 Methods
 

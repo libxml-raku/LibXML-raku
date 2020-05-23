@@ -105,7 +105,7 @@ If the node contains no data or $offset refers to an non-existing string index, 
 method appendData( Str $somedata ) returns Str;
 ```
 
-Appends a string to the end of the existing data. If the current text node contains no data, this function has the same effect as `setData `.
+Appends a string to the end of the existing data. If the current text node contains no data, this function has the same effect as `setData`.
 
 ### method insertData
 
@@ -133,7 +133,7 @@ method deleteDataString(Str $remstring, Bool :$g);
 
 This method removes a chunk from the existing node data. Since the DOM spec is quite unhandy if you already know `which` string to remove from a text node, this method allows more Rakuish code :)
 
-The functions takes two parameters: *$string* and optional the *:g* flag. If :g is not set, `deleteDataString` will remove only the first occurrence of $string. If $g is *True*`deleteDataString ` will remove all occurrences of *$string* from the node data.
+The functions takes two parameters: *$string* and optional the *:g* flag. If :g is not set, `deleteDataString` will remove only the first occurrence of $string. If $g is *True*`deleteDataString` will remove all occurrences of *$string* from the node data.
 
 ### method replaceData
 

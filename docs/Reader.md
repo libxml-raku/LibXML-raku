@@ -38,11 +38,11 @@ print $reader.document.Str(:deep);
 Description
 -----------
 
-This is a Raku interface to libxml2's pull-parser implementation xmlTextReader *http://xmlsoft.org/html/libxml-xmlreader.html *. Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
+This is a Raku interface to libxml2's pull-parser implementation xmlTextReader *http://xmlsoft.org/html/libxml-xmlreader.html*. Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
 
 The Reader acts as a cursor going forward on the document stream and stopping at each node on the way. At every point, the DOM-like methods of the Reader object allow one to examine the current node (name, namespace, attributes, etc.)
 
-The user's code keeps control of the progress and simply calls the `read() ` function repeatedly to progress to the next node in the document order. Other functions provide means for skipping complete sub-trees, or nodes until a specific element, etc.
+The user's code keeps control of the progress and simply calls the `read()` function repeatedly to progress to the next node in the document order. Other functions provide means for skipping complete sub-trees, or nodes until a specific element, etc.
 
 At every time, only a very limited portion of the document is kept in the memory, which makes the API more memory-efficient than using DOM. However, it is also possible to mix Reader with DOM. At every point the user may copy the current node (optionally expanded into a complete sub-tree) from the processed document to another DOM tree, or to instruct the Reader to collect sub-document in form of a DOM tree consisting of selected nodes.
 
@@ -63,7 +63,7 @@ my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
 my LibXML::Reader $reader .= new( DOM => $dom, ... );
 ```
 
-where ... are reader options described below in [Reader options](Reader options) or various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser). The constructor recognizes the following XML sources:
+where ... are reader options described below in [Reader options](Reader options) or various parser options described in [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser). The constructor recognizes the following XML sources:
 
 ### Source specification
 
@@ -95,15 +95,15 @@ where ... are reader options described below in [Reader options](Reader options)
 
   * RelaxNG => $rng-schema
 
-    can be used to pass either a [LibXML::RelaxNG ](https://libxml-raku.github.io/LibXML-raku/RelaxNG) object or a filename or URL of a RelaxNG schema to the constructor. The schema is then used to validate the document as it is processed.
+    can be used to pass either a [LibXML::RelaxNG](https://libxml-raku.github.io/LibXML-raku/RelaxNG) object or a filename or URL of a RelaxNG schema to the constructor. The schema is then used to validate the document as it is processed.
 
   * Schema => $xsd-schema
 
-    can be used to pass either a [LibXML::Schema ](https://libxml-raku.github.io/LibXML-raku/Schema) object or a filename or URL of a W3C XSD schema to the constructor. The schema is then used to validate the document as it is processed.
+    can be used to pass either a [LibXML::Schema](https://libxml-raku.github.io/LibXML-raku/Schema) object or a filename or URL of a W3C XSD schema to the constructor. The schema is then used to validate the document as it is processed.
 
   * ...
 
-    the reader further supports various parser options described in [LibXML::Parser ](https://libxml-raku.github.io/LibXML-raku/Parser) (specifically those labeled by /reader/). 
+    the reader further supports various parser options described in [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) (specifically those labeled by /reader/). 
 
 Methods Controlling Parsing Progress
 ------------------------------------
@@ -343,7 +343,7 @@ Returns a canonical location path to the current element from the root node to
 
   * Namespaced elements are matched by '*', because there is no way to declare prefixes within XPath patterns.
 
-  * Unlike `LibXML::Node::nodePath() `, this function does not provide sibling counts (i.e. instead of e.g. '/a/b[1]' and '/a/b[2]' you get '/a/b' for both matches). 
+  * Unlike `LibXML::Node::nodePath()`, this function does not provide sibling counts (i.e. instead of e.g. '/a/b[1]' and '/a/b[2]' you get '/a/b' for both matches). 
 
 ### method matchesPattern
 
@@ -357,7 +357,7 @@ Returns a true value if the current node matches a compiled pattern.
 
   * See [LibXML::Pattern](https://libxml-raku.github.io/LibXML-raku/Pattern) for information on compiled patterns.
 
-  * See also the `nextPatternMatch ` method.
+  * See also the `nextPatternMatch` method.
 
 Methods Extracting DOM Nodes
 ----------------------------
@@ -370,7 +370,7 @@ method document() returns Mu
 
 Provides access to the document tree built by the reader.
 
-  * This function can be used to collect the preserved nodes (see `preserveNode() ` and preservePattern).
+  * This function can be used to collect the preserved nodes (see `preserveNode()` and preservePattern).
 
   * CAUTION: Never use this function to modify the tree unless reading of the whole document is completed!
 
@@ -394,7 +394,7 @@ method preserveNode() returns LibXML::Node
 
 This tells the XML Reader to preserve the current node in the document tree.
 
-A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
+A document tree consisting of the preserved nodes and their content can be obtained using the method `document()` once parsing is finished.
 
 Returns the node or LibXML::Node:U in case of error.
 
@@ -409,7 +409,7 @@ method preservePattern(
 
 This tells the XML Reader to preserve all nodes matched by the pattern (which is a streaming XPath subset).
 
-A document tree consisting of the preserved nodes and their content can be obtained using the method `document() ` once parsing is finished.
+A document tree consisting of the preserved nodes and their content can be obtained using the method `document()` once parsing is finished.
 
 An :%ns may be used to pass a mapping prefixes used by the XPath to namespace URIs.
 
@@ -710,7 +710,7 @@ LibXML takes care of the reader object destruction when the last reference to th
 Node Types
 ----------
 
-The reader interface provides the following constants for node types (the constant symbols are exported by default or if tag `:types ` is used).
+The reader interface provides the following constants for node types (the constant symbols are exported by default or if tag `:types` is used).
 
 ```raku
 XML_READER_TYPE_NONE                    => 0
@@ -736,7 +736,7 @@ XML_READER_TYPE_XML_DECLARATION         => 17
 States
 ------
 
-The following constants represent the values returned by `readState() `. They are exported by default, or if tag `:states ` is used:
+The following constants represent the values returned by `readState()`. They are exported by default, or if tag `:states` is used:
 
 ```raku
 XML_READER_NONE      => -1

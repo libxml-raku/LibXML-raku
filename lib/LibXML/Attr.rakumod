@@ -35,9 +35,9 @@ use Method::Also;
 =begin pod
     =head2 Methods
 
-    The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
+    The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here.
 
-    Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
+    Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
 multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :native($)!) {
@@ -81,13 +81,13 @@ method ast { self.nodeName => self.nodeValue }
     =begin code :lang<raku>
     method setNamespace(Str $nsURI, NCName $prefix);
     =end code
-    This function tries to bound the attribute to a given namespace. If C<<<<<< $nsURI >>>>>> is undefined or empty, the function discards any previous association of the
+    This function tries to bound the attribute to a given namespace. If C<$nsURI> is undefined or empty, the function discards any previous association of the
     attribute with a namespace. If the namespace was not previously declared in the
     context of the attribute, this function will fail. In this case you may wish to
     call setNamespace() on the ownerElement. If the namespace URI is non-empty and
     declared in the context of the attribute, but only with a different (non-empty)
     prefix, then the attribute is still bound to the namespace but gets a different
-    prefix than C<<<<<<$prefix>>>>>>. The function also fails if the prefix is empty but the namespace URI is not
+    prefix than C<$prefix>. The function also fails if the prefix is empty but the namespace URI is not
     (because unprefixed attributes should by definition belong to no namespace).
     This function returns True on success, Failure otherwise.
 

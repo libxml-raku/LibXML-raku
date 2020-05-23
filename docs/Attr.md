@@ -29,9 +29,9 @@ This is the interface to handle Attributes like ordinary nodes. The naming of th
 Methods
 -------
 
-The class inherits from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
+The class inherits from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
 
-Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
+Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 ### method new
 
@@ -65,7 +65,7 @@ Returns the node the attribute belongs to. If the attribute is not bound to a no
 method setNamespace(Str $nsURI, NCName $prefix);
 ```
 
-This function tries to bound the attribute to a given namespace. If `$nsURI ` is undefined or empty, the function discards any previous association of the attribute with a namespace. If the namespace was not previously declared in the context of the attribute, this function will fail. In this case you may wish to call setNamespace() on the ownerElement. If the namespace URI is non-empty and declared in the context of the attribute, but only with a different (non-empty) prefix, then the attribute is still bound to the namespace but gets a different prefix than `$prefix`. The function also fails if the prefix is empty but the namespace URI is not (because unprefixed attributes should by definition belong to no namespace). This function returns True on success, Failure otherwise.
+This function tries to bound the attribute to a given namespace. If `$nsURI` is undefined or empty, the function discards any previous association of the attribute with a namespace. If the namespace was not previously declared in the context of the attribute, this function will fail. In this case you may wish to call setNamespace() on the ownerElement. If the namespace URI is non-empty and declared in the context of the attribute, but only with a different (non-empty) prefix, then the attribute is still bound to the namespace but gets a different prefix than `$prefix`. The function also fails if the prefix is empty but the namespace URI is not (because unprefixed attributes should by definition belong to no namespace). This function returns True on success, Failure otherwise.
 
 If you don't want the overheads of managing namespaces, a quick way of ensuring that the namespace is not rejected is to call the `requireNamespace` method on the containing node:
 

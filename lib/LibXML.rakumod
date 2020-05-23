@@ -63,7 +63,7 @@ For further information, please check the following documentation:
 =head2 DOM Objects
 
 The nodes in the Document Object Model (DOM) are represented by the following
-classes (most of which "inherit" from L<<<<<< LibXML::Node >>>>>>):
+classes (most of which "inherit" from L<LibXML::Node>):
 
   =item L<LibXML::Document> - LibXML DOM attribute class
 

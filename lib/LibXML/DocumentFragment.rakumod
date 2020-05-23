@@ -70,7 +70,7 @@ class ParserContext is LibXML::Parser::Context {
 =begin pod
     =head2 Methods
 
-    The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
+    The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here.
 =end pod
 
 # The native DOM returns the document fragment content as

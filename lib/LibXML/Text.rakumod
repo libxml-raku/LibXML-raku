@@ -69,9 +69,9 @@ The DOM methods are provided for compatibility with ported Perl 5 code.
 
 =head2 Methods
 
-The class inherits from L<<<<<<LibXML::Node>>>>>>. The documentation for Inherited methods is not listed here. 
+The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here. 
 
-Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<<http://www.w3.org/TR/DOM-Level-3-Core/>>>>>>). Please refer to the specification for extensive documentation. 
+Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation. 
 
 =head3 method new
   =begin code :lang<raku>
@@ -84,9 +84,9 @@ The constructor of the class. It creates an unbound text node.
   =begin code :lang<raku>
   method data() returns Str
   =end code
-Although there exists the C<<<<<<nodeValue>>>>>> attribute in the Node class, the DOM specification defines data as a separate
-attribute. C<<<<<<LibXML>>>>>> implements these two attributes not as different attributes, but as aliases,
-such as C<<<<<<libxml2>>>>>> does. Therefore
+Although there exists the C<nodeValue> attribute in the Node class, the DOM specification defines data as a separate
+attribute. C<LibXML> implements these two attributes not as different attributes, but as aliases,
+such as C<libxml2> does. Therefore
 
   =begin code :lang<raku>
   $text.data;
@@ -112,14 +112,14 @@ Extracts a range of data from the node. (DOM Spec) This function takes the two
 parameters $offset and $length and returns the sub-string, if available.
 
 If the node contains no data or $offset refers to an non-existing string index,
-this function will return I<<<<<<Str:U>>>>>>. If $length is out of range C<<<<<<substringData>>>>>> will return the data starting at $offset instead of causing an error.
+this function will return I<Str:U>. If $length is out of range C<substringData> will return the data starting at $offset instead of causing an error.
 
 =head3 method appendData
   =begin code :lang<raku>
   method appendData( Str $somedata ) returns Str;
   =end code
 Appends a string to the end of the existing data. If the current text node
-contains no data, this function has the same effect as C<<<<<< setData >>>>>>.
+contains no data, this function has the same effect as C<setData>.
 
 =head3 method insertData
   =begin code :lang<raku>
@@ -129,7 +129,7 @@ Inserts the parameter $string at the given $offset of the existing data of the
 node. This operation will not remove existing data, but change the order of the
 existing data.
 
-If $offset is out of range, C<<<<<<insertData>>>>>> will have the same behaviour as C<<<<<<appendData>>>>>>.
+If $offset is out of range, C<insertData> will have the same behaviour as C<appendData>.
 
 =head3 method deleteData
   =begin code :lang<raku>
@@ -145,9 +145,9 @@ string.
   method deleteDataString(Str $remstring, Bool :$g);
   =end code
 This method removes a chunk from the existing node data. Since the DOM spec is
-quite unhandy if you already know C<<<<<<which>>>>>> string to remove from a text node, this method allows more Rakuish code :)
+quite unhandy if you already know C<which> string to remove from a text node, this method allows more Rakuish code :)
 
-The functions takes two parameters: I<<<<<<$string>>>>>> and optional the I<<<<<<:g>>>>>> flag. If :g is not set, C<<<<<<deleteDataString>>>>>> will remove only the first occurrence of $string. If $g is I<<<<<<True>>>>>>C<<<<<< deleteDataString >>>>>> will remove all occurrences of I<<<<<<$string>>>>>> from the node data.
+The functions takes two parameters: I<$string> and optional the I<:g> flag. If :g is not set, C<deleteDataString> will remove only the first occurrence of $string. If $g is I<True>C<deleteDataString> will remove all occurrences of I<$string> from the node data.
 
 
 =head3 method replaceData
@@ -165,9 +165,9 @@ The DOM style version to replace node data.
   =end code
 The more programmer friendly version of replaceData() :)
 
-Instead of giving offsets and length one can specify the exact string or a regular expression (I<<<<<<$old>>>>>>) to be replaced. Additionally the I<<<<<<:g>>>>>> option allows one to replace all occurrences of I<<<<<<$old>>>>>>.
+Instead of giving offsets and length one can specify the exact string or a regular expression (I<$old>) to be replaced. Additionally the I<:g> option allows one to replace all occurrences of I<$old>.
 
-I<<<<<<NOTE:>>>>>> This is a shortcut for
+I<NOTE:> This is a shortcut for
 
 
   =begin code :lang<raku>

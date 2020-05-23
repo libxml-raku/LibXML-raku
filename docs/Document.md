@@ -71,7 +71,7 @@ Description
 
 The Document Class is in most cases the result of a parsing process. But sometimes it is necessary to create a Document from scratch. The DOM Document Class provides functions that conform to the DOM Core naming style.
 
-It inherits all functions from [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) as specified in the DOM specification. This enables access to the nodes besides the root element on document level - a `DTD ` for example. The support for these nodes is limited at the moment.
+It inherits all functions from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) as specified in the DOM specification. This enables access to the nodes besides the root element on document level - a `DTD` for example. The support for these nodes is limited at the moment.
 
 Exports
 -------
@@ -97,7 +97,7 @@ A subset of LibXML::Document that have node-type `XML_DOCB_DOCUMENT_NODE`. XML d
 Methods
 -------
 
-Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/ ](http://www.w3.org/TR/DOM-Level-3-Core/ )). Please refer to the specification for extensive documentation.
+Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 ### method new
 
@@ -122,15 +122,15 @@ multi method createDocument(
 )
 ```
 
-Perl or DOM-style constructors for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument *() will create the document:
+Perl or DOM-style constructors for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument*() will create the document:
 
 ```xml
 <?xml version="your version" encoding="your encoding"?>
 ```
 
-Both parameters are optional. The default value for *$version * is `1.0 `, of course. If the *$encoding * parameter is not set, the encoding will be left unset, which means UTF-8 is implied.
+Both parameters are optional. The default value for *$version* is `1.0`, of course. If the *$encoding* parameter is not set, the encoding will be left unset, which means UTF-8 is implied.
 
-The call of *createDocument *() without any parameter will result the following code:
+The call of *createDocument*() without any parameter will result the following code:
 
 ```xml
 <?xml version="1.0"?>
@@ -151,7 +151,7 @@ my Str $URI = $doc.URI();
 $doc.URI = $URI;
 ```
 
-Gets or sets the URI (or filename) of the original document. For documents obtained by parsing a string of a FH without using the URI parsing argument of the corresponding `parse_* ` function, the result is a generated string unknown-XYZ where XYZ is some number; for documents created with the constructor `new `, the URI is undefined.
+Gets or sets the URI (or filename) of the original document. For documents obtained by parsing a string of a FH without using the URI parsing argument of the corresponding `parse_*` function, the result is a generated string unknown-XYZ where XYZ is some number; for documents created with the constructor `new`, the URI is undefined.
 
 ### method encoding
 
@@ -230,11 +230,11 @@ $doc.setStandalone(XmlStandaloneYes);
 
 Set it to
 
-  * *1 (XmlStandaloneYes) * to set standalone="yes",
+  * *1 (XmlStandaloneYes)* to set standalone="yes",
 
-  * to *0 (XmlStandaloneNo) * to set standalone="no" or
+  * to *0 (XmlStandaloneNo)* to set standalone="no" or
 
-  * to *-1 (XmlStandaloneMu) * to remove the standalone attribute from the XML declaration.
+  * to *-1 (XmlStandaloneMu)* to remove the standalone attribute from the XML declaration.
 
 ### method compression
 
@@ -264,9 +264,9 @@ detect whether input was compressed
 
 libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
 
-If one intends to write the document directly to a file, it is possible to set the compression level for a given document. This level can be in the range from 0 to 8. If LibXML should not try to compress use *-1 * (default).
+If one intends to write the document directly to a file, it is possible to set the compression level for a given document. This level can be in the range from 0 to 8. If LibXML should not try to compress use *-1* (default).
 
-Note that this feature will *only * work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
+Note that this feature will *only* work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
 
 ### method Str
 
@@ -309,7 +309,7 @@ my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
 my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 ```
 
-C14N Normalisation. See the documentation in [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node).
+C14N Normalisation. See the documentation in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node).
 
 #### method Str: :html
 
@@ -410,7 +410,7 @@ my Bool $valid = $dom.is-valid();
 
 Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
-You may also pass in a [LibXML::Dtd ](https://libxml-raku.github.io/LibXML-raku/Dtd) object, to validate against an external DTD:
+You may also pass in a [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) object, to validate against an external DTD:
 
 ```raku
 unless $dom.is-valid($dtd) {
@@ -561,7 +561,7 @@ method createExternalSubset(
 
 Creates a new external subset
 
-This function is similar to `createInternalSubset() ` but this DTD is considered to be external and is therefore not added to the document itself. Nevertheless it can be used for validation purposes.
+This function is similar to `createInternalSubset()` but this DTD is considered to be external and is therefore not added to the document itself. Nevertheless it can be used for validation purposes.
 
 ### method createInternalSubset
 
@@ -632,7 +632,7 @@ method importNode(
 
 Imports a node from another DOM
 
-If a node is not part of a document, it can be imported to another document. As specified in DOM Level 2 Specification the Node will not be altered or removed from its original document (`$node.cloneNode(:deep) ` will get called implicitly).
+If a node is not part of a document, it can be imported to another document. As specified in DOM Level 2 Specification the Node will not be altered or removed from its original document (`$node.cloneNode(:deep)` will get called implicitly).
 
 ### method adoptNode
 

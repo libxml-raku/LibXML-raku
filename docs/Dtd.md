@@ -26,7 +26,7 @@ This class holds a DTD. You may parse a DTD from either a string, or from an ext
 
 No support is available as yet for parsing from a filehandle.
 
-LibXML::Dtd is a sub-class of [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node), so all the methods available to nodes (particularly Str()) are available to Dtd objects.
+LibXML::Dtd is a sub-class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), so all the methods available to nodes (particularly Str()) are available to Dtd objects.
 
 Methods
 -------
@@ -73,7 +73,7 @@ method validate(
 
 validate a parsed XML document against a DTD
 
-This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
+This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
 
 ### method is-valid
 

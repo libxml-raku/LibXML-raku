@@ -38,11 +38,11 @@ The libxml2 input callbacks come in groups. Each group contains a URI matcher (*
 
 ### The Parser Process
 
-The parser process works on an XML data stream, along which, links to other resources can be embedded. This can be links to external DTDs or XIncludes for example. Those resources are identified by URIs. The callback implementation of libxml2 assumes that one callback group can handle a certain amount of URIs and a certain URI scheme. Per default, callback handlers for *file://* *, *file:://*.gz *, *http://* * and *ftp://* * are registered.
+The parser process works on an XML data stream, along which, links to other resources can be embedded. This can be links to external DTDs or XIncludes for example. Those resources are identified by URIs. The callback implementation of libxml2 assumes that one callback group can handle a certain amount of URIs and a certain URI scheme. Per default, callback handlers for *file://**, *file:://*.gz*, *http://** and *ftp://** are registered.
 
 Callback groups in the callback stack are processed from top to bottom, meaning that callback groups registered later will be processed before the earlier registered ones.
 
-While parsing the data stream, the libxml2 parser checks if a registered callback group will handle a URI - if they will not, the URI will be interpreted as *file://URI *. To handle a URI, the *match * callback will have to return True. If that happens, the handling of the URI will be passed to that callback group. Next, the URI will be passed to the *open * callback, which should return a defined data streaming object if it successfully opened the file, or an undefined value otherwise. If opening the stream was successful, the *read * callback will be called repeatedly until it returns an empty string. After the read callback, the *close * callback will be called to close the stream.
+While parsing the data stream, the libxml2 parser checks if a registered callback group will handle a URI - if they will not, the URI will be interpreted as *file://URI*. To handle a URI, the *match* callback will have to return True. If that happens, the handling of the URI will be passed to that callback group. Next, the URI will be passed to the *open* callback, which should return a defined data streaming object if it successfully opened the file, or an undefined value otherwise. If opening the stream was successful, the *read* callback will be called repeatedly until it returns an empty string. After the read callback, the *close* callback will be called to close the stream.
 
 ### Organisation of callback groups in LibXML::InputCallback
 

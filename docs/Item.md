@@ -34,7 +34,7 @@ sub ast-to-xml(
 
 Node constructor from data
 
-This function can be useful as a succent of building nodes from data. For example:
+This function can be useful as a succinct of building nodes from data. For example:
 
 ```raku
 use LibXML::Element;

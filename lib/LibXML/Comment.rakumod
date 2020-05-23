@@ -32,21 +32,21 @@ $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 
 =head2 Description
 
-This class provides all functions of L<<<<<< LibXML::Text >>>>>>, but for comment nodes. This can be done, since only the output of the node
+This class provides all functions of L<LibXML::Text>, but for comment nodes. This can be done, since only the output of the node
 types is different, but not the data structure. :-)
 
 =head2 Methods
 
-The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
+The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here.
 
-Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
+Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 
 =head3 method new
 =begin code :lang<raku>
 method new( Str :$content ) returns LibXML::Comment
 =end code
 The constructor is the only provided function for this package. It is required,
-because I<<<<<< libxml2 >>>>>> treats text nodes and comment nodes slightly differently.
+because I<libxml2> treats text nodes and comment nodes slightly differently.
 
 =head2 Copyright
 

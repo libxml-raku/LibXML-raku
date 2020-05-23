@@ -48,7 +48,7 @@ Examples
 
 ### 1. Namespaces
 
-This example demonstrates `registerNs() ` method. It finds all paragraph nodes in an XHTML document.
+This example demonstrates `registerNs()` method. It finds all paragraph nodes in an XHTML document.
 
 ```raku
 my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
@@ -58,7 +58,7 @@ my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
 ### 2. Custom XPath functions
 
-This example demonstrates `registerFunction() ` method by defining a function filtering nodes based on a Raku regular expression:
+This example demonstrates `registerFunction()` method by defining a function filtering nodes based on a Raku regular expression:
 
 ```raku
 sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
@@ -78,7 +78,7 @@ $xc.registerFunction('grep-nodes', &grep-nodes);
 
 ### 3. Variables
 
-This example demonstrates `registerVarLookup() ` method. We use XPath variables to recycle results of previous evaluations:
+This example demonstrates `registerVarLookup()` method. We use XPath variables to recycle results of previous evaluations:
 
 ```raku
 sub var-lookup(Str $name, Str $uri, Hash $data) {
@@ -323,7 +323,7 @@ $object = $xpc.find($xpath, $context-node );
 
 Finds nodes or values.
 
-Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52 ` results in a Numeric object being returned. Other expressions might return a Bool object, or a string. Optionally, a node may be passed as a second argument to set the context node for the query.
+Performs the xpath expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath `1 * 3 + 52` results in a Numeric object being returned. Other expressions might return a Bool object, or a string. Optionally, a node may be passed as a second argument to set the context node for the query.
 
 The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
@@ -342,7 +342,7 @@ This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>.
 
 Optionally, a node may be passed in the second argument to set the context node for the query.
 
-The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression ](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
+The xpath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
 ### method exists
 
@@ -383,7 +383,7 @@ method contextSize() returns Int
 
 Set or get the current context size.
 
-By default, this value is -1 (and evaluating XPath function `last() ` in the initial context raises an XPath error), but can be set to any non-negative value. This usually only serves to cheat the XPath engine to return the given value when `last() ` XPath function is called.
+By default, this value is -1 (and evaluating XPath function `last()` in the initial context raises an XPath error), but can be set to any non-negative value. This usually only serves to cheat the XPath engine to return the given value when `last()` XPath function is called.
 
   * If context size is set to 0, position is automatically also set to 0.
 

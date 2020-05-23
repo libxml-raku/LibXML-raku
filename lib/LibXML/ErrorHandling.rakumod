@@ -8,7 +8,7 @@ class X::LibXML is Exception {
 =begin pod
     =head2 Description
 
-    =para The X::LibXML exception class hierarchy interfaces to I<<<<<<libxml2>>>>>>'s structured error support. If LibXML is compiled with structured error
+    =para The X::LibXML exception class hierarchy interfaces to I<libxml2>'s structured error support. If LibXML is compiled with structured error
     support, all errors reported by libxml2 are transformed to X::LibXML
     exception objects. These objects automatically serialize to the corresponding error
     messages when printed or used in a string operation, but as objects, can also
@@ -153,7 +153,7 @@ class X::LibXML::Parser is X::LibXML {
       method message() returns Str
       =end code
     This function serializes an X::LibXML::Parser object to a string containing the
-    full error message close to the message produced by I<<<<<< libxml2 >>>>>> default error handlers and tools like xmllint.
+    full error message close to the message produced by I<libxml2> default error handlers and tools like xmllint.
 
     =head3 method msg
       =begin code :lang<raku>

@@ -49,7 +49,7 @@ unit class LibXML::XPath::Context;
 
     =head3 1. Namespaces
 
-    This example demonstrates C<<<<<< registerNs() >>>>>> method. It finds all paragraph nodes in an XHTML document.
+    This example demonstrates C<registerNs()> method. It finds all paragraph nodes in an XHTML document.
 
       =begin code :lang<raku>
       my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
@@ -59,7 +59,7 @@ unit class LibXML::XPath::Context;
 
     =head3 2. Custom XPath functions
 
-    This example demonstrates C<<<<<< registerFunction() >>>>>> method by defining a function filtering nodes based on a Raku regular expression:
+    This example demonstrates C<registerFunction()> method by defining a function filtering nodes based on a Raku regular expression:
 
         =begin code :lang<raku>
         sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
@@ -79,7 +79,7 @@ unit class LibXML::XPath::Context;
 
     =head3 3. Variables
 
-    This example demonstrates C<<<<<< registerVarLookup() >>>>>> method. We use XPath variables to recycle results of previous evaluations:
+    This example demonstrates C<registerVarLookup()> method. We use XPath variables to recycle results of previous evaluations:
 
       =begin code :lang<raku>
       sub var-lookup(Str $name, Str $uri, Hash $data) {
@@ -219,7 +219,7 @@ multi method unregisterNs(LibXML::Namespace:D $_ --> 0) {
 method lookupNs(NCName:D $prefix --> Str) {
     $!native.NsLookup($prefix);
 }
-=para If C<<<<<<$prefix>>>>>> is not registered to any namespace URI returns C<<<<<<Str:U>>>>>>.
+=para If C<$prefix> is not registered to any namespace URI returns C<Str:U>.
 
 #| Registers a variable lookup function.
 method registerVarLookupFunc(&callback, |args) {
@@ -241,7 +241,7 @@ method registerVarLookupFunc(&callback, |args) {
     Document, Element, etc.), L<<<LibXML::Node::Set>>> or L<<<LibXML::Node::List>>>.
 
     For convenience, types: List, Seq and Slip can also be returned,
-    these should contain only L<<<<<<LibXML::Node>>>>>> objects.
+    these should contain only L<LibXML::Node> objects.
 
     Any additional arguments are captured and passed to the callback function. For example:
       =begin code :lang<raku>
@@ -291,12 +291,12 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
     );
 }
 =para The arguments of the callback function are either
-    simple scalars or C<<<<<<LibXML::*>>>>>> objects depending on the XPath argument types.
+    simple scalars or C<LibXML::*> objects depending on the XPath argument types.
 
 =para The function must return one value: Bool, Str, Numeric, LibXML::Node (e.g.
     Document, Element, etc.), L<<<LibXML::Node::Set>>> or L<<<LibXML::Node::List>>>.
 
-=para For convenience, types: List, Seq and Slip can also be returned, these shoulf contain only L<<<<<<LibXML::Node>>>>>> objects.
+=para For convenience, types: List, Seq and Slip can also be returned, these shoulf contain only L<LibXML::Node> objects.
 
 #| Unregisters extension function $name in $uri namespace.
 method unregisterFunctionNS(QName:D $name, Str $uri) { $!native.RegisterFuncNS($name, $uri, Pointer) }
@@ -361,11 +361,11 @@ multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) is default {
       my LibXML::Node::Set $nodes = $xpc.findnodes($xpath);
       for  $xpc.findnodes($xpath) { ... }
       =end code
-    Performs the xpath statement on the current node and returns the result as an L<<<<<<LibXML::Node::Set>>>>>> object.
+    Performs the xpath statement on the current node and returns the result as an L<LibXML::Node::Set> object.
 
     Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a L<<<<<<LibXML::XPath::Expression>>>>>> object.
+    The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 =end pod
 
 sub box(itemNode $elem) {
@@ -450,9 +450,9 @@ multi method find(Str:D $expr, LibXML::Node $ref-node?, |c) {
 
     Performs the xpath expression using the current node as the context of the
     expression, and returns the result depending on what type of result the XPath
-    expression had. For example, the XPath C<<<<<< 1 * 3 + 	      52 >>>>>> results in a Numeric object being returned. Other expressions might return a Bool object, or a string. Optionally, a node may be passed as a second argument to set the context node for the query.
+    expression had. For example, the XPath C<1 * 3 + 	      52> results in a Numeric object being returned. Other expressions might return a Bool object, or a string. Optionally, a node may be passed as a second argument to set the context node for the query.
 
-    The xpath expression can be passed either as a string, or as a L<<<<<<LibXML::XPath::Expression>>>>>> object.
+    The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 =end pod
 
 multi method findvalue(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, |c) {
@@ -477,7 +477,7 @@ multi method findvalue(Str:D $expr, LibXML::Node $ref-node?, |c) {
     Optionally, a node may be passed in the second argument to set the context node
     for the query.
 
-    The xpath expression can be passed either as a string, or as a L<<<<<< LibXML::XPath::Expression >>>>>> object.
+    The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 =end pod
 
 method exists(XPathExpr:D $xpath-expr, LibXML::Node $node? --> Bool:D) {
@@ -488,8 +488,8 @@ method exists(XPathExpr:D $xpath-expr, LibXML::Node $node? --> Bool:D) {
 multi method exists(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) returns Bool;
 multi method exists(Str:D $expr, LibXML::Node $ref?) returns Bool;
 =end code
-=para This method behaves like I<<<<<<find>>>>>>, except that it only returns a Bool value (True if the expression matches a
-    node, False otherwise) and may be faster than I<<<<<<find>>>>>>, because the XPath evaluation may stop early on the first match. 
+=para This method behaves like I<find>, except that it only returns a Bool value (True if the expression matches a
+    node, False otherwise) and may be faster than I<find>, because the XPath evaluation may stop early on the first match. 
 
 =para For XPath expressions that do not return node-sets, the method returns True if
     the returned value is a non-zero number or a non-empty string.
@@ -539,9 +539,9 @@ method contextPosition returns Int is rw {
     );
 }
 =para By default, this value is -1 (and evaluating
-    XPath function C<<<<<<position()>>>>>> in the initial context raises an XPath error), but can be set to any value up
+    XPath function C<position()> in the initial context raises an XPath error), but can be set to any value up
     to context size. This usually only serves to cheat the XPath engine to return
-    given position when C<<<<<<position()>>>>>> XPath function is called.
+    given position when C<position()> XPath function is called.
 =para Setting this value to -1 restores the default behavior.
 
 method getContextSize { $!native.contextSize }
@@ -562,9 +562,9 @@ method contextSize returns Int is rw {
     );
 }
 =para By default, this value is -1 (and evaluating
-    XPath function C<<<<<< last() >>>>>> in the initial context raises an XPath error), but can be set to any
+    XPath function C<last()> in the initial context raises an XPath error), but can be set to any
     non-negative value. This usually only serves to cheat the XPath engine to
-    return the given value when C<<<<<< last() >>>>>> XPath function is called.
+    return the given value when C<last()> XPath function is called.
 =item If context size is set to 0, position is
     automatically also set to 0.
 =item If context size is positive, position is

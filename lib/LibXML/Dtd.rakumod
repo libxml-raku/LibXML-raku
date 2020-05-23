@@ -27,7 +27,7 @@ unit class LibXML::Dtd
 
   No support is available as yet for parsing from a filehandle.
 
-  LibXML::Dtd is a sub-class of L<<<<<< LibXML::Node >>>>>>, so all the methods available to nodes (particularly Str()) are available
+  LibXML::Dtd is a sub-class of L<LibXML::Node>, so all the methods available to nodes (particularly Str()) are available
   to Dtd objects.
   =end  pod
 
@@ -165,7 +165,7 @@ method validate(LibXML::Node:D $node --> UInt) {
 }
   =begin pod
   This function allows one to validate a (parsed) document against the given XML
-  Schema. The argument of this function should be a L<<<<<< LibXML::Document >>>>>> object.  If this function succeeds, it will return 0, otherwise it will die()
+  Schema. The argument of this function should be a L<LibXML::Document> object.  If this function succeeds, it will return 0, otherwise it will die()
   and report the errors found. Because of this validate() should be always
   evaluated.
   =end pod

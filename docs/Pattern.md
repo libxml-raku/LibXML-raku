@@ -29,7 +29,7 @@ my Bool $matched = $pattern.matchesNode($node);
 Description
 -----------
 
-This is a Raku interface to libxml2's pattern matching support *http://xmlsoft.org/html/libxml-pattern.html *. This feature requires recent versions of libxml2.
+This is a Raku interface to libxml2's pattern matching support *http://xmlsoft.org/html/libxml-pattern.html*. This feature requires recent versions of libxml2.
 
 Patterns are a small subset of XPath language, which is limited to (disjunctions of) location paths involving the child and descendant axes in abbreviated form as described by the extended BNF given below: 
 
@@ -48,7 +48,7 @@ token     ::=     '.' | '/' | '//' | '|' | NameTest
 
 Note that no predicates or attribute tests are allowed.
 
-Patterns are particularly useful for stream parsing provided via the [LibXML::Reader ](https://libxml-raku.github.io/LibXML-raku/Reader) interface.
+Patterns are particularly useful for stream parsing provided via the [LibXML::Reader](https://libxml-raku.github.io/LibXML-raku/Reader) interface.
 
 Methods
 -------

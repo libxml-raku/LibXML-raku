@@ -24,7 +24,7 @@ Description
 
 Namespace nodes are returned by both $element.findnodes('namespace::foo') or by $node.getNamespaces().
 
-The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not * a sub class of [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node), however Namespace nodes act a lot like attribute nodes (both perform the [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item) role). Similarly named methods return what you would expect if you treated the namespace node as an attribute.
+The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not* a sub class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), however Namespace nodes act a lot like attribute nodes (both perform the [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item) role). Similarly named methods return what you would expect if you treated the namespace node as an attribute.
 
 Methods
 -------
@@ -36,7 +36,7 @@ method new(Str:D :$URI!, NCName :$prefix, LibXML::Node :$node)
     returns LibXML::Namespace
 ```
 
-Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) Functions. All functions available for this node are listed below.
+Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) Functions. All functions available for this node are listed below.
 
 Optionally you can pass the prefix to the namespace constructor. If `:$prefix` is omitted you will create a so called default namespace. Note, the newly created namespace is not bound to any document or node, therefore you should not expect it to be available in an existing document.
 

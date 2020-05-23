@@ -138,8 +138,8 @@ method external-entity-loader returns Callable is rw {
     content of the entity. 
 
 =para This method can be used to completely disable entity loading, e.g. to prevent
-    exploits of the type described at  (L<<<<<< http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html >>>>>>), where a service is tricked to expose its private data by letting it parse a
-   remote file (RSS feed) that contains an entity reference to a local file (e.g. C<<<<<< /etc/fstab >>>>>>). 
+    exploits of the type described at  (L<http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html>), where a service is tricked to expose its private data by letting it parse a
+   remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>). 
 
 =para A more granular solution to this problem, however, is provided by custom URL
     resolvers, as in 

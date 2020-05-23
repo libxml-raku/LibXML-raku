@@ -97,7 +97,7 @@ LibXML Parser exceptions
 method message() returns Str
 ```
 
-This function serializes an X::LibXML::Parser object to a string containing the full error message close to the message produced by *libxml2 * default error handlers and tools like xmllint.
+This function serializes an X::LibXML::Parser object to a string containing the full error message close to the message produced by *libxml2* default error handlers and tools like xmllint.
 
 ### method msg
 

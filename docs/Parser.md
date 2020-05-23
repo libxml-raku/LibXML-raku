@@ -104,7 +104,7 @@ DOM Parser
 
 One of the common parser interfaces of LibXML is the DOM parser. This parser reads XML data into a DOM like data structure, so each tag can get accessed and transformed.
 
-LibXML's DOM parser is not only capable to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) object, which is a DOM object.
+LibXML's DOM parser is not only able to parse XML data, but also (strict) HTML files. There are three ways to parse documents - as a string, as a Raku filehandle, or as a filename/URL. The return value from each is a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) object, which is a DOM object.
 
 All of the functions listed below will throw an exception if the document is invalid. To prevent this causing your program exiting, wrap the call in a try {} block
 
@@ -141,7 +141,7 @@ $dom = LibXML.parse( $src, :$html, :$URI, :$enc,
 $dom = $parser.parse(...);
 ```
 
-This method provides an interface to the XML parser that parses given file (or URL), string, or input stream to a DOM tree. The function can be called as a class method or an object method. In both cases it internally creates a new parser instance passing the specified parser options; if called as an object method, it clones the original parser (preserving its settings) and additionally applies the specified options to the new parser. See the constructor `new ` and [Parser Options ](Parser Options ) for more information. 
+This method provides an interface to the XML parser that parses given file (or URL), string, or input stream to a DOM tree. The function can be called as a class method or an object method. In both cases it internally creates a new parser instance passing the specified parser options; if called as an object method, it clones the original parser (preserving its settings) and additionally applies the specified options to the new parser. See the constructor `new` and [Parser Options](Parser Options) for more information. 
 
 Note: Although this method usually returns a `LibXML::Document` object. It can be requisitioned to return other document types by providing a `:sax-handler` that returns an alternate document via a `publish()` method. See [LibXML::SAX::Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder). [LibXML::SAX::Handler::XML](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/XML), for example produces pure Raku XML document objects.
 
@@ -155,7 +155,7 @@ my HTML $dom = $parser.parse: :html, ...;
 
 The :html option provides an interface to the HTML parser.
 
-Parsing HTML may cause problems, especially if the ampersand ('&') is used. This is a common problem if HTML code is parsed that contains links to CGI-scripts. Such links cause the parser to throw errors. In such cases libxml2 still parses the entire document as there was no error, but the error causes LibXML to stop the parsing process. However, the document is not lost. Such HTML documents should be parsed using the *recover * flag. By default recovering is deactivated.
+Parsing HTML may cause problems, especially if the ampersand ('&') is used. This is a common problem if HTML code is parsed that contains links to CGI-scripts. Such links cause the parser to throw errors. In such cases libxml2 still parses the entire document as there was no error, but the error causes LibXML to stop the parsing process. However, the document is not lost. Such HTML documents should be parsed using the *recover* flag. By default recovering is deactivated.
 
 The functions described above are implemented to parse well formed documents. In some cases a program gets well balanced XML instead of well formed documents (e.g. an XML fragment from a database). With LibXML it is not required to wrap such fragments in the code, because LibXML is capable even to parse well balanced XML fragments.
 
@@ -299,7 +299,7 @@ This is NOT a streaming SAX parser. This parser reads the entire document into a
 Serialization Options
 ---------------------
 
-LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node ](https://libxml-raku.github.io/LibXML-raku/Node) or the [LibXML::Document ](https://libxml-raku.github.io/LibXML-raku/Document) documentation. LibXML checks three global flags that alter the serialization process:
+LibXML provides some functions to serialize nodes and documents. The serialization functions are described on the [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) or the [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) documentation. LibXML checks three global flags that alter the serialization process:
 
   * skip-xml-declaration
 
@@ -317,12 +317,10 @@ If `skip-xml-declaration` is True, the XML declaration is omitted during seriali
 
 If `skip-dtd` is defined is True, an existing DTD would not be serialized with the document.
 
-If `tag-expansion` is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo * will be rendered as *&lt;foo&gt;&lt;/foo&gt; * rather than *&lt;foo/&gt; *.
+If `tag-expansion` is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo* will be rendered as *&lt;foo&gt;&lt;/foo&gt;* rather than *&lt;foo/&gt;*.
 
 Parser Options
 --------------
-
-Handling of libxml2 parser options has been unified and improved in LibXML 1.70. You can now set default options for a particular parser instance by passing them to the constructor as `LibXML-&gt;new({name=&gt;value, ...}) ` or `LibXML-&gt;new(name=&gt;value,...) `. The options can be queried and changed using the following methods (pre-1.70 interfaces such as `$parser-&gt;load-ext-dtd(0) ` also exist, see below): 
 
 ### method option-exists
 
@@ -330,7 +328,7 @@ Handling of libxml2 parser options has been unified and improved in LibXML 1.70.
 method option-exists(Str $name) returns Bool
 ```
 
-Returns True if the current LibXML version supports the option `$name `, otherwise returns False (note that this does not necessarily mean that the option is supported by the underlying libxml2 library).
+Returns True if the current LibXML version supports the option `$name`, otherwise returns False (note that this does not necessarily mean that the option is supported by the underlying libxml2 library).
 
 ### method get-option
 
@@ -357,7 +355,7 @@ $parser.option($name) = $value;
 $parser."$name"() = $value;
 ```
 
-Sets option `$name ` to value `$value `.
+Sets option `$name` to value `$value`.
 
 ### method set-options
 
@@ -371,7 +369,7 @@ Each of the flags listed below is labeled
 
   * /parser/
 
-    if it can be used with a `LibXML ` parser object (i.e. passed to `LibXML-&gt;new `, `LibXML-&gt;set-option `, etc.) 
+    if it can be used with a [LibXML](https://libxml-raku.github.io/LibXML-raku) parser object (i.e. passed to `LibXML.new`, `LibXML.set-option`, etc.) 
 
   * /html/
 
@@ -379,7 +377,7 @@ Each of the flags listed below is labeled
 
   * /reader/
 
-    if it can be used with the `LibXML::Reader `.
+    if it can be used with the [LibXML::Reader](https://libxml-raku.github.io/LibXML-raku/Reader).
 
 Unless specified otherwise, the default for boolean valued options is False. 
 
@@ -405,9 +403,9 @@ The available options are:
 
     /parser/
 
-    If this option is activated, libxml2 will store the line number of each element node in the parsed document. The line number can be obtained using the `line-number() ` method of the `LibXML::Node ` class (for non-element nodes this may report the line number of the containing element). The line numbers are also used for reporting positions of validation errors. 
+    If this option is activated, libxml2 will store the line number of each element node in the parsed document. The line number can be obtained using the `line-number()` method of the [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) class (for non-element nodes this may report the line number of the containing element). The line numbers are also used for reporting positions of validation errors. 
 
-    IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533 ](http://bugzilla.gnome.org/show_bug.cgi?id=325533 ) for more details. 
+    IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533](http://bugzilla.gnome.org/show_bug.cgi?id=325533) for more details. 
 
   * enc
 
@@ -491,7 +489,7 @@ The available options are:
 
     Implement XInclude substitution; type Bool
 
-    Expands XInclude tags immediately while parsing the document. Note that the parser will use the URI resolvers installed via `LibXML::InputCallback ` to parse the included document (if any).
+    Expands XInclude tags immediately while parsing the document. Note that the parser will use the URI resolvers installed via [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallback) to parse the included document (if any).
 
     It is recommended to use `input-callbacks` to restrict access when `expand-xinclude` is enabled on untrusted input files, otherwise it's trivial to inject arbitrary content from the file-system, as in:
 
@@ -513,7 +511,7 @@ The available options are:
 
     All attempts to fetch non-local resources (such as DTD or external entities) will fail unless set to True (or custom input-callbacks are defined).
 
-    It may be necessary to use the flag `recover ` for processing documents requiring such resources while networking is off. 
+    It may be necessary to use the flag `recover` for processing documents requiring such resources while networking is off. 
 
   * clean-namespaces
 
@@ -549,14 +547,14 @@ The following obsolete methods trigger parser options in some special way:
     $parser.recover-silently = True;
     ```
 
-    If called without an argument, returns true if the current value of the `recover ` parser option is 2 and returns false otherwise. With a true argument sets the `recover ` parser option to 2; with a false argument sets the `recover ` parser option to 0. 
+    If called without an argument, returns true if the current value of the `recover` parser option is 2 and returns false otherwise. With a true argument sets the `recover` parser option to 2; with a false argument sets the `recover` parser option to 0. 
 
 XML Catalogs
 ------------
 
-`libxml2 ` supports XML catalogs. Catalogs are used to map remote resources to their local copies. Using catalogs can speed up parsing processes if many external resources from remote addresses are loaded into the parsed documents (such as DTDs or XIncludes). 
+`libxml2` supports XML catalogs. Catalogs are used to map remote resources to their local copies. Using catalogs can speed up parsing processes if many external resources from remote addresses are loaded into the parsed documents (such as DTDs or XIncludes). 
 
-Note that libxml2 has a global pool of loaded catalogs, so if you apply the method `load-catalog ` to one parser instance, all parser instances will start using the catalog (in addition to other previously loaded catalogs). 
+Note that libxml2 has a global pool of loaded catalogs, so if you apply the method `load-catalog` to one parser instance, all parser instances will start using the catalog (in addition to other previously loaded catalogs). 
 
 Note also that catalogs are not used when a custom external entity handler is specified. At the current state it is not possible to make use of both types of resolving systems at the same time.
 

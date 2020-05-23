@@ -27,7 +27,7 @@ unit class LibXML::Pattern;
 
     =head2 Description
 
-    This is a Raku interface to libxml2's pattern matching support I<<<<<< http://xmlsoft.org/html/libxml-pattern.html >>>>>>. This feature requires recent versions of libxml2.
+    This is a Raku interface to libxml2's pattern matching support I<http://xmlsoft.org/html/libxml-pattern.html>. This feature requires recent versions of libxml2.
 
     Patterns are a small subset of XPath language, which is limited to
     (disjunctions of) location paths involving the child and descendant axes in
@@ -49,7 +49,7 @@ unit class LibXML::Pattern;
       =end code
     Note that no predicates or attribute tests are allowed.
 
-    Patterns are particularly useful for stream parsing provided via the L<<<<<< LibXML::Reader >>>>>> interface.
+    Patterns are particularly useful for stream parsing provided via the L<LibXML::Reader> interface.
 
     =head2 Methods
 =end pod
@@ -156,7 +156,7 @@ method FALLBACK($key, |c) is rw {
 
 =head2 See Also
 
-L<<<<<<LibXML::Reader>>>>>> for other methods involving compiled patterns.
+L<LibXML::Reader> for other methods involving compiled patterns.
 
 =head2 Copyright
 

@@ -33,20 +33,20 @@ method content is rw handles<substr substr-rw> { $.native.content };
 
 =head2 Description
 
-This class provides all functions of L<<<<<< LibXML::Text >>>>>>, but for CDATA nodes.
+This class provides all functions of L<LibXML::Text>, but for CDATA nodes.
 
 =head2 Methods
 
-The class inherits from L<<<<<< LibXML::Node >>>>>>. The documentation for Inherited methods is not listed here.
+The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here.
 
-Many functions listed here are extensively documented in the DOM Level 3 specification (L<<<<<< http://www.w3.org/TR/DOM-Level-3-Core/ >>>>>>). Please refer to the specification for extensive documentation.
+Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 
 =head3 method new
   =begin code :lang<raku>
   method new( Str :$content ) returns LibXML::CDATA
   =end code
 The constructor is the only provided function for this package. It is required,
-because I<<<<<<libxml2>>>>>> treats the different text node types slightly differently.
+because I<libxml2> treats the different text node types slightly differently.
 
 =head2 Copyright
 
