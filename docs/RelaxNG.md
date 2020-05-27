@@ -30,11 +30,9 @@ Methods
 
 ### method new
 
-```raku
-multi method new( :location($filename_or_url) ) returns LibXML::RelaxNG;
-multi method new( :string($xml-schema-string) ) returns LibXML::RelaxNG;
-multi method new( LibXML::Document :$doc ) returns LibXML::RelaxNG;
-```
+    multi method new( :location($filename_or_url) ) returns LibXML::RelaxNG;
+    multi method new( :string($xml-schema-string) ) returns LibXML::RelaxNG;
+    multi method new( LibXML::Document :$doc ) returns LibXML::RelaxNG;
 
 The constructors for LibXML::RelaxNG may get called with either one of three parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
 
@@ -48,18 +46,14 @@ Note that the constructor will die() if the schema does not meed the constraints
 
 ### method validate
 
-```raku
-try { $rngschema->validate( $doc ); };
-```
+    try { $rngschema->validate( $doc ); };
 
 This function allows one to validate a (parsed) document against the given RelaxNG schema. The argument of this function should be an LibXML::Document object. If this function succeeds, it will return 0, otherwise it will throw, reporting the found. Because of this validate() should be always be execute in a `try` block or in the scope of a `CATCH` block.
 
 ### method is-valid
 
-```raku
-method is-valid(LibXML::Document $doc) returns Bool;
-$valid = $doc ~~ $rngschema;
-```
+    method is-valid(LibXML::Document $doc) returns Bool;
+    $valid = $doc ~~ $rngschema;
 
 Returns either True or False depending on whether the passed Document is valid or not.
 

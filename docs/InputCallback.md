@@ -6,15 +6,13 @@ LibXML Input Callbacks
 Example
 -------
 
-```raku
-use LibXML::InputCallback;
-my LibXML::InputCallback $icb .= new: :callbacks{
-    match => -> Str $file --> Bool { $file.starts-with('file:') },
-    open  => -> Str $file --> IO::Handle { $file.substr(5).IO.open(:r); },
-    read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
-    close => -> IO::Handle:D $fh { $fh.close },
-};
-```
+    use LibXML::InputCallback;
+    my LibXML::InputCallback $icb .= new: :callbacks{
+        match => -> Str $file --> Bool { $file.starts-with('file:') },
+        open  => -> Str $file --> IO::Handle { $file.substr(5).IO.open(:r); },
+        read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
+        close => -> IO::Handle:D $fh { $fh.close },
+    };
 
 Description
 -----------
@@ -53,19 +51,17 @@ Using LibXML::InputCallback
 
 After object instantiation using the parameter-less constructor, you can register callback groups.
 
-```raku
-my LibXML::InputCallback.$input-callbacks . = new(
-  :&match, :&open, :&read, :&close);
-# setup second callback group (named arguments)
-$input-callbacks.register-callbacks(match => &match-cb2, open => &open-cb2,
-                                    read => &read-cb2, close => &close-cb2);
-# setup third callback group (positional arguments)
-$input-callbacks.register-callbacks(&match-cb3, &open-cb3,
-                                    &read-cb3, &close-cb3);
+    my LibXML::InputCallback.$input-callbacks . = new(
+      :&match, :&open, :&read, :&close);
+    # setup second callback group (named arguments)
+    $input-callbacks.register-callbacks(match => &match-cb2, open => &open-cb2,
+                                        read => &read-cb2, close => &close-cb2);
+    # setup third callback group (positional arguments)
+    $input-callbacks.register-callbacks(&match-cb3, &open-cb3,
+                                        &read-cb3, &close-cb3);
 
-$parser.input-callbacks = $input-callbacks;
-$parser.parse: :file( $some-xml-file );
-```
+    $parser.input-callbacks = $input-callbacks;
+    $parser.parse: :file( $some-xml-file );
 
 Note that this Raku port does not currently support the old Perl Global Callback mechanism.
 
@@ -74,10 +70,8 @@ Methods
 
 ### method new
 
-```raku
     multi method new(Callable :%callbacks) returns LibXML::InoputCallback
     multi method new(Hash :@callbacks) returns LibXML::InoputCallback
-```
 
 A simple constructor.
 
@@ -85,12 +79,10 @@ A `:callbacks` Hash option can be provided with `match`, `open`, `read` and `clo
 
 ### method register-callbacks
 
-```raku
-multi method register-callbacks(:&match!, :&open!, :&read!, :&close);
-# Perl compatibility
-multi method register-callbacks( &match, &open, &read, &close?);
-multi method register-callbacks( @ (&match, &open, &read, &close?));
-```
+    multi method register-callbacks(:&match!, :&open!, :&read!, :&close);
+    # Perl compatibility
+    multi method register-callbacks( &match, &open, &read, &close?);
+    multi method register-callbacks( @ (&match, &open, &read, &close?));
 
 The four input callbacks in a group are supplied via the `:match`, `:open`, `:read`, and `:close` options.
 
@@ -98,12 +90,10 @@ For Perl compatibility, the four callbacks may be given as array, or positionall
 
 ### method unregister-callbacks
 
-```raku
-multi method unregister-callbacks(:&match, :&open, :&read, :&close);
-# Perl compatibility
-multi method unregister-callbacks( &match?, &open?, &read?, &close?);
-multi method unregister-callbacks( @ (&match?, &open?, &read?, &close?));
-```
+    multi method unregister-callbacks(:&match, :&open, :&read, :&close);
+    # Perl compatibility
+    multi method unregister-callbacks( &match?, &open?, &read?, &close?);
+    multi method unregister-callbacks( @ (&match?, &open?, &read?, &close?));
 
 With no arguments given, `unregister-callbacks()` will delete the last registered callback group from the stack. If four callbacks are passed as array, the callback group to unregister will be identified by supplied callbacks and deleted from the callback stack. Note that if several callback groups match, ALL of them will be deleted from the stack.
 
@@ -112,53 +102,51 @@ Example Callbacks
 
 The following example is a purely fictitious example that uses a minimal MyScheme::Handler stub object.
 
-```raku
-use LibXML::Parser;
-use LibXML::InputCallBack;
+    use LibXML::Parser;
+    use LibXML::InputCallBack;
 
-my class MyScheme {
-      subset URI of Str where .starts-with('myscheme:');
-      our class Handler {
-          has URI:D $.uri is required;
-          has Bool $!first = True;
+    my class MyScheme {
+          subset URI of Str where .starts-with('myscheme:');
+          our class Handler {
+              has URI:D $.uri is required;
+              has Bool $!first = True;
 
-          method read($len) {
-              ($!first-- ?? '<helloworld/>' !! '').encode;
+              method read($len) {
+                  ($!first-- ?? '<helloworld/>' !! '').encode;
+              }
+              method close {$!first = True}
           }
-          method close {$!first = True}
-      }
-}
-# Define the four callback functions
-sub match-uri(Str $uri) {
-    $uri ~~ MyScheme::URI:D; # trigger our callback group at a 'myscheme' URIs
-}
+    }
+    # Define the four callback functions
+    sub match-uri(Str $uri) {
+        $uri ~~ MyScheme::URI:D; # trigger our callback group at a 'myscheme' URIs
+    }
 
-sub open-uri(MyScheme::URI:D $uri) {
-    MyScheme::Handler.new(:$uri);
-}
+    sub open-uri(MyScheme::URI:D $uri) {
+        MyScheme::Handler.new(:$uri);
+    }
 
-# The returned $buffer will be parsed by the libxml2 parser
-sub read-uri(MyScheme::Handler:D $handler, UInt $n --> Blob) {
-    $handler.read($n);
-}
+    # The returned $buffer will be parsed by the libxml2 parser
+    sub read-uri(MyScheme::Handler:D $handler, UInt $n --> Blob) {
+        $handler.read($n);
+    }
 
-# Close the handle associated with the resource.
-sub close-uri(MyScheme::Handler:D $handler) {
-    $handler.close;
-}
+    # Close the handle associated with the resource.
+    sub close-uri(MyScheme::Handler:D $handler) {
+        $handler.close;
+    }
 
-# Register them with a instance of LibXML::InputCallback
-my LibXML::InputCallback $input-callbacks .= new;
-$input-callbacks.register-callbacks(&match-uri, &open-uri,
-                                    &read-uri, &close-uri );
+    # Register them with a instance of LibXML::InputCallback
+    my LibXML::InputCallback $input-callbacks .= new;
+    $input-callbacks.register-callbacks(&match-uri, &open-uri,
+                                        &read-uri, &close-uri );
 
-# Register the callback group at a parser instance
-my LibXML $parser .= new;
-$parser.input-callbacks = $input-callbacks;
+    # Register the callback group at a parser instance
+    my LibXML $parser .= new;
+    $parser.input-callbacks = $input-callbacks;
 
-# $some-xml-file will be parsed using our callbacks
-$parser.parse: :file('myscheme:stub.xml')
-```
+    # $some-xml-file will be parsed using our callbacks
+    $parser.parse: :file('myscheme:stub.xml')
 
 Copyright
 ---------

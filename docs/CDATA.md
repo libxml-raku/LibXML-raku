@@ -6,15 +6,13 @@ LibXML CDATA Section nodes
 Synopsis
 --------
 
-```raku
-use LibXML::CDATA;
-# Only methods specific to CDATA nodes are listed here,
-# see the LibXML::Node documentation for other methods
+    use LibXML::CDATA;
+    # Only methods specific to CDATA nodes are listed here,
+    # see the LibXML::Node documentation for other methods
 
-my LibXML::CDATA $cdata .= new( :$content );
+    my LibXML::CDATA $cdata .= new( :$content );
 
-$cdata.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
-```
+    $cdata.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 
 Description
 -----------
@@ -30,9 +28,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 ### method new
 
-```raku
-method new( Str :$content ) returns LibXML::CDATA
-```
+    method new( Str :$content ) returns LibXML::CDATA
 
 The constructor is the only provided function for this package. It is required, because *libxml2* treats the different text node types slightly differently.
 

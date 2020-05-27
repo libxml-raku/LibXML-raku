@@ -6,27 +6,25 @@ LibXML Mapped Attributes
 Synopsis
 --------
 
-```raku
-use LibXML::Attr::Map;
-use LibXML::Document;
-use LibXML::Element;
-my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
-my LibXML::Element $node = $doc.root;
-my LibXML::Attr::Map $atts = $node.attributes;
+    use LibXML::Attr::Map;
+    use LibXML::Document;
+    use LibXML::Element;
+    my LibXML::Document $doc .= parse('<foo att1="AAA" att2="BBB"/>');
+    my LibXML::Element $node = $doc.root;
+    my LibXML::Attr::Map $atts = $node.attributes;
 
-# -- Associative Interface --
-say $atts.keys.sort;  # att1 att2
-say $atts<att1>.Str ; # AAA
-say $atts<att1>.gist; # att1="AAA"
-$atts<att2>:delete;
-$atts<att3> = "CCC";
-say $node.Str; # <foo att1="AAA" att3="CCC"/>
+    # -- Associative Interface --
+    say $atts.keys.sort;  # att1 att2
+    say $atts<att1>.Str ; # AAA
+    say $atts<att1>.gist; # att1="AAA"
+    $atts<att2>:delete;
+    $atts<att3> = "CCC";
+    say $node.Str; # <foo att1="AAA" att3="CCC"/>
 
-# -- DOM Interface --
-$atts.setNamedItem('style', 'font-weight: bold');
-my LibXML::Attr $style = $atts.getNamedItem('style');
-$atts.removeNamedItem('style');
-```
+    # -- DOM Interface --
+    $atts.setNamedItem('style', 'font-weight: bold');
+    my LibXML::Attr $style = $atts.getNamedItem('style');
+    $atts.removeNamedItem('style');
 
 Description
 -----------
@@ -40,21 +38,17 @@ Updating Attributes
 
 Attributes can be created, updated or deleted associatively:
 
-```raku
-my LibXML::Attr::Map $atts = $node.attributes;
-$atts<style> = 'fontweight: bold';
-my LibXML::Attr $style = $atts<style>;
-$atts<style>:delete; # remove the style
-```
+    my LibXML::Attr::Map $atts = $node.attributes;
+    $atts<style> = 'fontweight: bold';
+    my LibXML::Attr $style = $atts<style>;
+    $atts<style>:delete; # remove the style
 
 There are also some DOM (NamedNodeMap) compatible methods:
 
-```raku
-my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
-$atts.setNamedItem($style);
-$style = $atts.getNamedItem('style');
-$atts.removeNamedItem('style');
-```
+    my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
+    $atts.setNamedItem($style);
+    $style = $atts.getNamedItem('style');
+    $atts.removeNamedItem('style');
 
 Methods
 -------

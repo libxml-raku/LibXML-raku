@@ -8,19 +8,17 @@ LibXML - Raku bindings to the libxml2 native library
 SYNOPSIS
 ========
 
-```raku
-use LibXML::Document;
-my LibXML::Document $doc .=  parse: :string('<Hello/>');
-$doc.root.nodeValue = 'World!';
-say $doc.Str;
-# <?xml version="1.0" encoding="UTF-8"?>
-# <Hello>World!</Hello>
-say $doc<Hello>;
-# <Hello>World!</Hello>
+    use LibXML::Document;
+    my LibXML::Document $doc .=  parse: :string('<Hello/>');
+    $doc.root.nodeValue = 'World!';
+    say $doc.Str;
+    # <?xml version="1.0" encoding="UTF-8"?>
+    # <Hello>World!</Hello>
+    say $doc<Hello>;
+    # <Hello>World!</Hello>
 
-my Version $library-version = LibXML.version;
-my Version $module-version = LibXML.^ver;
-```
+    my Version $library-version = LibXML.version;
+    my Version $module-version = LibXML.^ver;
 
 DESCRIPTION
 ===========

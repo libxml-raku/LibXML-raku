@@ -5,25 +5,24 @@ unit class LibXML::Pattern;
 
     =head2 Synopsis
 
-    =begin code :lang<raku>
-    use LibXML;
-    my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
-    # test a match on an LibXML::Node $node
+        use LibXML;
+        my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
+        # test a match on an LibXML::Node $node
 
-    if $pattern.matchesNode($node) { ... }
-    if $node ~~ $pattern { ... }
+        if $pattern.matchesNode($node) { ... }
+        if $node ~~ $pattern { ... }
 
-    # or on an LibXML::Reader
+        # or on an LibXML::Reader
 
-    if $reader.matchesPattern($pattern) { ... }
+        if $reader.matchesPattern($pattern) { ... }
 
-    # or skip reading all nodes that do not match
+        # or skip reading all nodes that do not match
 
-    print $reader.nodePath while $reader.nextPatternMatch($pattern);
+        print $reader.nodePath while $reader.nextPatternMatch($pattern);
 
-    my LibXML::Pattern $pattern .= new( pattern, :ns{prefix => namespace_URI} );
-    my Bool $matched = $pattern.matchesNode($node);
-    =end code
+        my LibXML::Pattern $pattern .= new( pattern, :ns{prefix => namespace_URI} );
+        my Bool $matched = $pattern.matchesNode($node);
+
 
     =head2 Description
 
@@ -31,9 +30,7 @@ unit class LibXML::Pattern;
 
     Patterns are a small subset of XPath language, which is limited to
     (disjunctions of) location paths involving the child and descendant axes in
-    abbreviated form as described by the extended BNF given below: 
-
-
+    abbreviated form as described by the extended BNF given below:
       =begin code :lang<bnf>
       Selector ::=     Path ( '|' Path )*
       Path     ::=     ('.//' | '//' | '/' )? Step ( '/' Step )*
@@ -42,8 +39,7 @@ unit class LibXML::Pattern;
       =end code
     For readability, whitespace may be used in selector XPath expressions even
     though not explicitly allowed by the grammar: whitespace may be freely added
-    within patterns before or after any token, where
-
+    within patterns before or after any token, where:
       =begin code :lang<bnf>
       token     ::=     '.' | '/' | '//' | '|' | NameTest
       =end code
@@ -95,9 +91,9 @@ method compile(Str:D $pattern, |c) {
 
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
-    method new( Str :$pattern!, Str :%ns, *%opts) returns LibXML::Pattern
-    =end code
+
+        method new( Str :$pattern!, Str :%ns, *%opts) returns LibXML::Pattern
+
     The constructors of a pattern takes a pattern expression (as described by the
     BNF grammar above) and an optional Hash mapping prefixes to namespace
     URIs. The methods return a compiled pattern object. 
@@ -106,14 +102,13 @@ method compile(Str:D $pattern, |c) {
     prefix in order to be matched (as demanded by the XPath 1.0 specification). For
     example, to match an element `<a xmlns="http://foo.bar"/>`, one should use a pattern like this: 
 
-    =begin code :lang<raku>
-    my LibXML::Pattern $pattern .= compile( 'foo:a', :ns(foo => 'http://foo.bar') );
-    =end code
+
+        my LibXML::Pattern $pattern .= compile( 'foo:a', :ns(foo => 'http://foo.bar') );
 
     =head3 method compile
-    =begin code :lang<raku>
-    method new( Str $pattern!, Str :%ns, *%opts) returns LibXML::Pattern
-    =end code
+
+        method compile( Str $pattern!, Str :%ns, *%opts) returns LibXML::Pattern
+
     `LibXML::Pattern.compile($pattern)` is equivalent to `LibXML::Pattern.new(:$pattern)`.
 =end pod
 
@@ -137,11 +132,11 @@ multi method matchesNode(anyNode $node) {
     self!try-bool('Match', $node);
 }
 
-#| True if the Node matches the pattern
+#| True if the Node matches the pattern.
 multi method ACCEPTS(LibXML::Pattern:D: LibXML::Node:D $node --> Bool) {
     self.matchesNode($node);
 }
-=para Example:
+=para Example
     =begin code :lang<raku>
     my Bool $valid = $elem ~~ $pattern;
     =end code

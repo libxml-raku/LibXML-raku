@@ -21,14 +21,12 @@ method content is rw handles<substr substr-rw> { $.native.content };
 =begin pod
 =head2 Synopsis
 
-=begin code :lang<raku>
-use LibXML::Comment;
-# Only methods specific to Comment nodes are listed here,
-# see the LibXML::Node documentation for other methods
-my LibXML::Comment $comment .= new( :$content );
+    use LibXML::Comment;
+    # Only methods specific to Comment nodes are listed here,
+    # see the LibXML::Node documentation for other methods
+    my LibXML::Comment $comment .= new( :$content );
 
-$comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
-=end code
+    $comment.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
 
 =head2 Description
 
@@ -42,9 +40,9 @@ The class inherits from L<LibXML::Node>. The documentation for Inherited methods
 Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 
 =head3 method new
-=begin code :lang<raku>
-method new( Str :$content ) returns LibXML::Comment
-=end code
+
+    method new( Str :$content ) returns LibXML::Comment
+
 The constructor is the only provided function for this package. It is required,
 because I<libxml2> treats text nodes and comment nodes slightly differently.
 

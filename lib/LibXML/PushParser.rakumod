@@ -62,7 +62,6 @@ class LibXML::PushParser {
 
 =head2 Synopsis
 
-  =begin code :lang<raku>
   # Perl 5 Compatible Interface
   use LibXML;
   use LibXML::Document;
@@ -81,7 +80,6 @@ class LibXML::PushParser {
   $push-parser.push($another-chunk);
   $push-parser.push(@more-chunks);
   my $doc = $parser.finish-push;
-  =end code
 
 =head2 Description
 
@@ -108,46 +106,43 @@ may be supplied as types Str or Blob.
 =head2 Methods
 
 =head3 method parse-chunk (alias push)
-  =begin code :lang<raku>
+
   multi method parse-chunk(Str $chunk, Bool :$terminate) returns Mu;
   multi method parse-chunk(Blob $chunk, Bool :$terminate) returns Mu;
   $parser.parse-chunk($string?, :$terminate);
   $parser.parse-chunk($blob?, :$terminate);
-  =end code
+
 parse-chunk() tries to parse a given chunk, or chunks of data, which isn't necessarily
 well balanced data. The function takes two parameters: The chunk of data as a
 Str or Blob and optional a termination flag. If the termination flag is set to a
 True, the parsing will be stopped and the resulting document
 will be returned as the following example describes:
 
-  =begin code :lang<raku>
   my  LibXML::PushParser $push-parser .= new: :chunk("<foo");
   for ' bar="hello world"', "/>" {
        $push-parser.parse-chunk( $_ );
   }
   my LibXML::Document $doc = $push-parser.finish-push; # terminate the parsing
-  =end code
 
 Internally LibXML provides three functions that control the push parser
 process:
 
 =head3 method append
-  =begin code :lang<raku>
+
   $parser.append(@chunks);
-  =end code
+
 This function pushes the data stored inside the array to libxml2's parser. Each
 entry in @chunks must be a Blob or Str. This method can be called repeatedly.
 
 =head3 method finish-push
-  =begin code :lang<raku>
+
   method finish-push( Str :$URI, Bool :$recover );
-  =end code
+
 This function returns the result of the parsing process, usually a L<LibXML::Document> object. If this function is
 called without a parameter it will complain about non well-formed documents. If
 :$recover is True, the push parser can be used to restore broken or non well formed
 (XML) documents as the following example shows:
 
-  =begin code :lang<raku>
   try {
       $parser.push( "<foo>", "bar" );
       $doc = $parser.finish-push();    # will report broken XML
@@ -155,10 +150,9 @@ called without a parameter it will complain about non well-formed documents. If
   if ( $! ) {
      # ...
   }
-  =end code
+
 This can be annoying if the closing tag is missed by accident. The following code will restore the document:
 
-  =begin code :lang<raku>
   try {
       $parser.push( "<foo>", "bar" );
       $doc = $parser.finish-push(:recover);   # will return the data parsed
@@ -166,7 +160,6 @@ This can be annoying if the closing tag is missed by accident. The following cod
   };
   
   print $doc.Str(); # returns "<foo>bar</foo>"
-  =end code
 
 
 =head2 Copyright

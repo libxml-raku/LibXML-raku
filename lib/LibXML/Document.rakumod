@@ -26,65 +26,64 @@ use NativeCall;
 
 =begin pod
     =head2 Synopsis
-    =begin code :lang<raku>
-    use LibXML::Document;
-    # Only methods specific to Document nodes are listed here,
-    # see the LibXML::Node documentation for other methods
 
-    my LibXML::Document $doc  .= new: :$version, :$enc;
-    $doc .= createDocument($version, $enc);
-    $doc .= parse($string);
+        use LibXML::Document;
+        # Only methods specific to Document nodes are listed here,
+        # see the LibXML::Node documentation for other methods
 
-    my Str $URI = $doc.URI();
-    $doc.setURI($URI);
-    my Str $enc = $doc.encoding();
-    $enc = $doc.actualEncoding();
-    $doc.encoding = $new-encoding;
-    my Version $doc-version = $doc.version();
-    use LibXML::Document :XmlStandalone;
-    if $doc.standalone == XmlStandaloneYes {...}
-    $doc.standalone = XmlStandaloneNo;
-    my Bool $is-compressed = $doc.input-compressed;
-    my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
-    $doc.compression = $zip-level;
-    my Str $html-tidy = $dom.Str(:$format, :$html);
-    my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
-    my Str $xml-tidy = $doc.serialize(:$format);
-    my Int $state = $doc.write: :$file, :$format;
-    $state = $doc.save: :io($fh), :$format;
-    my Str $html = $doc.Str(:html);
-    $html = $doc.serialize-html();
-    try { $dom.validate(); }
-    if $dom.is-valid() { ... }
+        my LibXML::Document $doc  .= new: :$version, :$enc;
+        $doc .= createDocument($version, $enc);
+        $doc .= parse($string);
 
-    my LibXML::Element $root = $dom.documentElement();
-    $dom.documentElement = $root;
-    my LibXML::Element $element = $dom.createElement( $nodename );
-    $element = $dom.createElementNS( $namespaceURI, $nodename );
-    my LibXML::Text $text = $dom.createTextNode( $content_text );
-    my LibXML::Comment $comment = $dom.createComment( $comment_text );
-    my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
-    $attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
-    my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
-    my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
-    my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
-    my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
-    my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
-    $dtd = $doc.createExternalSubset( $rootnode_name, $publicId, $systemId);
-    $doc.importNode( $node );
-    $doc.adoptNode( $node );
-    $dtd = $doc.externalSubset;
-    $dtd = $doc.internalSubset;
-    $doc.externalSubset = $dtd;
-    $doc.internalSubset = $dtd;
-    $dtd = $doc.removeExternalSubset();
-    $dtd = $doc.removeInternalSubset();
-    my LibXML::Element @found = $doc.getElementsByTagName($tagname);
-    @found = $doc.getElementsByTagNameNS($nsURI,$tagname);
-    @found = $doc.getElementsByLocalName($localname);
-    my LibXML::Element $node = $doc.getElementById($id);
-    $doc.indexElements();
-    =end code
+        my Str $URI = $doc.URI();
+        $doc.setURI($URI);
+        my Str $enc = $doc.encoding();
+        $enc = $doc.actualEncoding();
+        $doc.encoding = $new-encoding;
+        my Version $doc-version = $doc.version();
+        use LibXML::Document :XmlStandalone;
+        if $doc.standalone == XmlStandaloneYes {...}
+        $doc.standalone = XmlStandaloneNo;
+        my Bool $is-compressed = $doc.input-compressed;
+        my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
+        $doc.compression = $zip-level;
+        my Str $html-tidy = $dom.Str(:$format, :$html);
+        my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
+        my Str $xml-tidy = $doc.serialize(:$format);
+        my Int $state = $doc.write: :$file, :$format;
+        $state = $doc.save: :io($fh), :$format;
+        my Str $html = $doc.Str(:html);
+        $html = $doc.serialize-html();
+        try { $dom.validate(); }
+        if $dom.is-valid() { ... }
+
+        my LibXML::Element $root = $dom.documentElement();
+        $dom.documentElement = $root;
+        my LibXML::Element $element = $dom.createElement( $nodename );
+        $element = $dom.createElementNS( $namespaceURI, $nodename );
+        my LibXML::Text $text = $dom.createTextNode( $content_text );
+        my LibXML::Comment $comment = $dom.createComment( $comment_text );
+        my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
+        $attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
+        my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
+        my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
+        my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
+        my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
+        my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
+        $dtd = $doc.createExternalSubset( $rootnode_name, $publicId, $systemId);
+        $doc.importNode( $node );
+        $doc.adoptNode( $node );
+        $dtd = $doc.externalSubset;
+        $dtd = $doc.internalSubset;
+        $doc.externalSubset = $dtd;
+        $doc.internalSubset = $dtd;
+        $dtd = $doc.removeExternalSubset();
+        $dtd = $doc.removeInternalSubset();
+        my LibXML::Element @found = $doc.getElementsByTagName($tagname);
+        @found = $doc.getElementsByTagNameNS($nsURI,$tagname);
+        @found = $doc.getElementsByLocalName($localname);
+        my LibXML::Element $node = $doc.getElementById($id);
+        $doc.indexElements();
 
     =head2 Description
 
@@ -147,16 +146,16 @@ submethod TWEAK(
 }
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
-    method new(
-      xmlDoc :$native,
-      Str :$version,
-      xmlEncodingStr :$enc, # e.g. 'utf-8', 'utf-16'
-      Str :$URI,
-      Bool :$html,
-      Int :$compression
-    ) returns LibXML::Document
-    =end code
+
+        method new(
+          xmlDoc :$native,
+          Str :$version,
+          xmlEncodingStr :$enc, # e.g. 'utf-8', 'utf-16'
+          Str :$URI,
+          Bool :$html,
+          Int :$compression
+        ) returns LibXML::Document
+
 =end pod
 
 multi method createDocument(Str() $version, xmlEncodingStr $enc) {
@@ -175,27 +174,25 @@ multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str
 
 =begin pod
     =head3 method createDocument
-    =begin code :lang<raku>
-    multi method createDocument(Str() $version, xmlEncodingStr $enc
-    ) returns LibXML::Document
-    multi method createDocument(
-         Str $URI?, QName $name?, Str $doc-type?
-    )
-    =end code
+
+        multi method createDocument(Str() $version, xmlEncodingStr $enc
+        ) returns LibXML::Document
+        multi method createDocument(
+             Str $URI?, QName $name?, Str $doc-type?
+        )
+
     Perl or DOM-style constructors for the document class. As parameters it takes the version
     string and (optionally) the encoding string. Simply calling I<createDocument>() will create the document:
-
-    =begin code :lang<xml>
-    <?xml version="your version" encoding="your encoding"?>
-    =end code
+        =begin code :lang<xml>
+        <?xml version="your version" encoding="your encoding"?>
+        =end code
     Both parameters are optional. The default value for I<$version> is C<1.0>, of course. If the I<$encoding> parameter is not set, the encoding will be left unset, which means UTF-8 is
 implied.
 
     The call of I<createDocument>() without any parameter will result the following code:
-
-    =begin code :lang<xml>
-    <?xml version="1.0"?>
-    =end code
+        =begin code :lang<xml>
+        <?xml version="1.0"?>
+        =end code
 =end pod
 
 #| returns the underlying native structure managed by this object
@@ -204,30 +201,30 @@ method native(--> xmlDoc) handles <encoding setCompression getCompression standa
 }
 =begin pod
     =head3 method URI
-    =begin code :lang<raku>
-    my Str $URI = $doc.URI();
-    $doc.URI = $URI;
-    =end code
+
+        my Str $URI = $doc.URI();
+        $doc.URI = $URI;
+
     Gets or sets the URI (or filename) of the original document. For documents obtained
     by parsing a string of a FH without using the URI parsing argument of the
     corresponding C<parse_*> function, the result is a generated string unknown-XYZ where XYZ is some
     number; for documents created with the constructor C<new>, the URI is undefined.
 
     =head3 method encoding
-    =begin code :lang<raku>
-    my Str $enc = $doc.encoding();
-    $doc.encoding = $new-encoding;
-    =end code
+
+        my Str $enc = $doc.encoding();
+        $doc.encoding = $new-encoding;
+
     Gets or sets the encoding of the document.
 
     =item The `.Str` method treats the encoding as a subset. Any characters that fall outside the encoding set are encoded as entities (e.g. `&nbsp;`)
     =item The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
-    =begin code :lang<raku>
-    my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
-    print $doc.encoding; # prints ISO-8859-15
-    my $xml-with-entities = $doc.Str;
-    'encoded.xml'.IO.spurt( $doc.Blob, :bin);
-    =end code
+
+        my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
+        print $doc.encoding; # prints ISO-8859-15
+        my $xml-with-entities = $doc.Str;
+        'encoded.xml'.IO.spurt( $doc.Blob, :bin);
+
 =end pod
 
 method doc { self }
@@ -240,10 +237,10 @@ method actualEncoding returns xmlEncodingStr { $.encoding || 'UTF-8' }
     declaration and returned by $doc.encoding. If the original encoding is not
     known (e.g. if created in memory or parsed from a XML without a declared
     encoding), 'UTF-8' is returned.
-    =begin code :lang<raku>
-    my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
-    print $doc.encoding; # prints ISO-8859-15
-    =end code
+
+        my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
+        print $doc.encoding; # prints ISO-8859-15
+
 =end pod
 
 #| Gets or sets the version of the document
@@ -264,10 +261,10 @@ enum XmlStandalone is export(:XmlStandalone) (
 # standalone() is handled by native() method
 =begin pod
     =head3 method standalone
-    =begin code :lang<raku>
-    use LibXML::Document :XmlStandalone;
-    if $doc.standalone == XmlStandaloneYes { ... }
-    =end code
+
+        use LibXML::Document :XmlStandalone;
+        if $doc.standalone == XmlStandaloneYes { ... }
+
     Gets or sets the Numerical value of a documents XML declarations
     standalone attribute.
 
@@ -284,10 +281,9 @@ method setStandalone(Numeric $_) {
         !! XmlStandaloneMu
 }
 =begin pod
-    =begin code :lang<raku>
-    use LibXML::Document :XmlStandalone;
-    $doc.setStandalone(XmlStandaloneYes);
-    =end code
+
+        use LibXML::Document :XmlStandalone;
+        $doc.setStandalone(XmlStandaloneYes);
 
     =para Set it to
     =item I<1 (XmlStandaloneYes)> to set standalone="yes",
@@ -305,19 +301,19 @@ method compression is rw returns Int {
 
 =begin pod
     =head3 method input-compressed
-    =begin code :lang<raku>
-    method input-compressed() returns Bool'
-    # get input compression
-    my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
-    # set output compression
-    if LibXML.have-compression {
-        $doc.compression = $zip-level;
-        $doc.write: :file<test.xml.gz>;
-    }
-    else {
-        $doc.write: :file<test.xml>;
-    }
-    =end code
+
+        method input-compressed() returns Bool'
+        # get input compression
+        my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
+        # set output compression
+        if LibXML.have-compression {
+            $doc.compression = $zip-level;
+            $doc.write: :file<test.xml.gz>;
+        }
+        else {
+            $doc.write: :file<test.xml>;
+        }
+
     =para detect whether input was compressed
 
     libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
@@ -326,7 +322,7 @@ method compression is rw returns Int {
     the compression level for a given document. This level can be in the range from
     0 to 8. If LibXML should not try to compress use I<-1> (default).
 
-    Note that this feature will I<only> work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
+    Note that this feature will I<only> work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(...)` is used for input and `.write` is used for output.
 =end pod
 
 #| Serialize to XML/HTML
@@ -357,14 +353,14 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc
 }
 =begin pod
     =head3 method Str
-    =begin code :lang<raku>
-    my Str $xml = $dom.Str(:$format);
-    =end code
-  I<Str> is a serializing function, so the DOM Tree is serialized into an XML
-  string, ready for output.
-    =begin code :lang<raku>
-    $file.IO.spurt: $doc.Str;
-    =end code
+
+        proto method Str(Bool :$format) returns Str {*};
+
+    I<Str> is a serializing function, so the DOM Tree is serialized into an XML
+    string, ready for output.
+
+        $file.IO.spurt: $doc.Str;
+
     regardless of the actual encoding of the document.
 
     The optional I<$format> flag sets the indenting of the output.
@@ -377,25 +373,24 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc
     libxml2 uses a hard-coded indentation of 2 space characters per indentation
     level. This value can not be altered on run-time.
 
-    =head4 method Str: :C14N
-    =begin code :lang<raku>
-    my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
-    my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
-    =end code
-    C14N Normalisation. See the documentation in L<LibXML::Node>.
+    =head4 method Str: :C14N option
 
+      my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
+      my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 
-    =head4 method Str: :html
-    =begin code :lang<raku>
-    my Str $html = $document.Str: :html;
-    =end code
+   C14N Normalisation. See the documentation in L<LibXML::Node>.
+
+    =head4 method Str: :html option
+
+      my Str $html = $document.Str: :html;
+
     I<.Str: :html> serializes the tree to a string as HTML. With this
     method indenting is automatic and managed by libxml2 internally.
 
     =head3 method serialize
-    =begin code :lang<raku>
-    my Str $xml-formatted = $doc.serialize(:$format);
-    =end code
+
+        my Str $xml-formatted = $doc.serialize(:$format);
+
     Similar to Str(), but doesn't interpret `:skip-dtd`, `:html` or `:C14N` options. This function was name added to be more consistent
     with libxml2.
 =end pod
@@ -455,17 +450,17 @@ method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
     $rv;
 }
 =begin pod
-    head3 method Blob() returns Blob
-    =begin code :lang<raku>
-    method Blob(
-        xmlEncodingStr :$enc = self.encoding // 'UTF-8',
-        Bool :$format,
-        Bool :$tag-expansion
-        Bool :$skip-dtd,
-        Bool :$skip-xml-declaration,
-        Bool :$force,
-    ) returns Blob;
-    =end code
+    =head3 method Blob() returns Blob
+
+        method Blob(
+            xmlEncodingStr :$enc = self.encoding // 'UTF-8',
+            Bool :$format,
+            Bool :$tag-expansion
+            Bool :$skip-dtd,
+            Bool :$skip-xml-declaration,
+            Bool :$force,
+        ) returns Blob;
+
     =para
     Returns a binary representation  of the XML
     document and it decendants encoded as `:$enc`.
@@ -488,18 +483,17 @@ method save-as(Str() $file --> UInt) { $.write(:$file) }
 method is-valid(LibXML::Dtd $dtd?) { $.validate($dtd, :check); }
 =begin pod
     =head3 method is-valid
-    =begin code :lang<raku>
-    my Bool $valid = $dom.is-valid();
-    =end code
+
+        my Bool $valid = $dom.is-valid();
+
     Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
     You may also pass in a L<LibXML::Dtd> object, to validate against an external DTD:
 
-    =begin code :lang<raku>
-    unless $dom.is-valid($dtd) {
-        warn("document is not valid!");
-    }
-    =end code
+        unless $dom.is-valid($dtd) {
+            warn("document is not valid!");
+        }
+
 =end pod
 
 #| Document validity assertion
@@ -619,11 +613,10 @@ method createEntityReference(Str $name --> LibXML::EntityRef) {
     I<NOTE:> A text content containing something that looks like an entity reference, will
     not be expanded to a real entity reference unless it is a predefined entity
 
-    =begin code :lang<raku>
-    my Str $text = '&foo;';
-    $some_element.appendText( $text );
-    print $some_element.textContent; # prints "&amp;foo;"
-    =end code
+        my Str $text = '&foo;';
+        $some_element.appendText( $text );
+        print $some_element.textContent; # prints "&amp;foo;"
+
 =end pod
 
 # (or createProcessingInstruction) create a processing instruction node.
@@ -648,37 +641,33 @@ method createInternalSubset(Str $name, Str $external-id, Str $system-id --> LibX
 }
 =begin pod
     =head3 method createInternalSubset
-    =begin code :lang<raku>
-    my LibXML::Dtd
-    $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
-    =end code
+
+        my LibXML::Dtd
+        $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
+
     This function creates and adds an internal subset to the given document.
     Because the function automatically adds the DTD to the document there is no
     need to add the created node explicitly to the document.
 
-    =begin code :lang<raku>
-    my LibXML::Document $doc = LibXML::Document.new();
-    my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", undef, "foo.dtd" );
-    =end code
-    will result in the following XML document:
+        my LibXML::Document $doc = LibXML::Document.new();
+        my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", undef, "foo.dtd" );
 
-    =begin code :lang<xml>
-    <?xml version="1.0"?>
-    <!DOCTYPE foo SYSTEM "foo.dtd">
-    =end code
+    will result in the following XML document:
+        =begin code :lang<xml>
+        <?xml version="1.0"?>
+        <!DOCTYPE foo SYSTEM "foo.dtd">
+        =end code
     By setting the public parameter it is possible to set PUBLIC DTDs to a given
     document. So
 
-    =begin code :lang<raku>
-    my LibXML::Document $doc = LibXML::Document.new();
-    my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", "-//FOO//DTD FOO 0.1//EN", undef );
-    =end code
-    will cause the following declaration to be created on the document:
+        my LibXML::Document $doc = LibXML::Document.new();
+        my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", "-//FOO//DTD FOO 0.1//EN", undef );
 
-    =begin code :lang<xml>
-    <?xml version="1.0"?>
-    <!DOCTYPE foo PUBLIC "-//FOO//DTD FOO 0.1//EN">
-    =end code
+    will cause the following declaration to be created on the document:
+        =begin code :lang<xml>
+        <?xml version="1.0"?>
+        <!DOCTYPE foo PUBLIC "-//FOO//DTD FOO 0.1//EN">
+        =end code
 =end pod
 
 #| Create a new DTD
@@ -822,9 +811,9 @@ method externalSubset is rw returns LibXML::Dtd {
 method parser handles<parse> { require ::('LibXML::Parser'); }
 =begin pod
     =head3 method parse
-    =begin code :lang<raku>
-    my LibXML::Document $doc .= parse($string, |%opts);
-    =end code
+
+        my LibXML::Document $doc .= parse($string, |%opts);
+
     Calling C<LibXML::Document.parse(|c)> is equivalent to calling C<LibXML.parse(|c)>; See the parse method in L<LibXML>.
 =end pod
 
@@ -835,24 +824,24 @@ method processXIncludes(|c) is also<process-xincludes> {
 
 =begin pod
     =head3 method getElementsByTagName
-    =begin code :lang<raku>
-    my LibXML::Element @nodes = $doc.getElementsByTagName($tagname);
-    my LibXML::Node::Set $nodes = $doc.getElementsByTagName($tagname);
-    =end code
+
+        my LibXML::Element @nodes = $doc.getElementsByTagName($tagname);
+        my LibXML::Node::Set $nodes = $doc.getElementsByTagName($tagname);
+
     Implements the DOM Level 2 function
 
     =head3 method getElementsByTagNameNS
-    =begin code :lang<raku>
-    my LibXML::Element @nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
-    my LibXML::Node::Set $nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
-    =end code
+
+        my LibXML::Element @nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
+        my LibXML::Node::Set $nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
+
     Implements the DOM Level 2 function
 
     =head3 method getElementsByLocalName
-    =begin code :lang<raku>
-    my LibXML::Element @nodes = $doc.getElementsByLocalName($localname);
-    my LibXML::Node::Set $nodes = $doc.getElementsByLocalName($localname);
-    =end code
+
+        my LibXML::Element @nodes = $doc.getElementsByLocalName($localname);
+        my LibXML::Node::Set $nodes = $doc.getElementsByLocalName($localname);
+
     This allows the fetching of all nodes from a given document with the given
     Localname.
 =end pod

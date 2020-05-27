@@ -6,20 +6,18 @@ LibXML Attribute nodes
 Synopsis
 --------
 
-```raku
-use LibXML::Attr;
-use LibXML::Element;
-# Only methods specific to Attribute nodes are listed here,
-# see the LibXML::Node documentation for other methods
+    use LibXML::Attr;
+    use LibXML::Element;
+    # Only methods specific to Attribute nodes are listed here,
+    # see the LibXML::Node documentation for other methods
 
-my LibXML::Attr $attr .= new(:$name, :$value);
-my Str $value = $attr.value;
-$att.value = $value;
-my LibXML::Element $node = $attr.getOwnerElement();
-$attr.setNamespace($nsURI, $prefix);
-my Bool $is-id = $attr.isId;
-my Str $content = $attr.serializeContent;
-```
+    my LibXML::Attr $attr .= new(:$name, :$value);
+    my Str $value = $attr.value;
+    $att.value = $value;
+    my LibXML::Element $node = $attr.getOwnerElement();
+    $attr.setNamespace($nsURI, $prefix);
+    my Bool $is-id = $attr.isId;
+    my Str $content = $attr.serializeContent;
 
 Description
 -----------
@@ -35,9 +33,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 ### method new
 
-```raku
-method new(QName :$name!, Str :$value!, LibXML::Document :$doc) returns LibXML::Attribue
-```
+    method new(QName :$name!, Str :$value!, LibXML::Document :$doc) returns LibXML::Attribue
 
 Class constructor.
 
@@ -53,42 +49,32 @@ Str:U is returned if the attribute has no value
 
 ### method getOwnerElement
 
-```raku
-method getOwnerElement() returns LibXML::Element;
-```
+    method getOwnerElement() returns LibXML::Element;
 
 Returns the node the attribute belongs to. If the attribute is not bound to a node, LibXML::Element:U will be returned.
 
 ### method setNamespace
 
-```raku
-method setNamespace(Str $nsURI, NCName $prefix);
-```
+    method setNamespace(Str $nsURI, NCName $prefix);
 
 This function tries to bound the attribute to a given namespace. If `$nsURI` is undefined or empty, the function discards any previous association of the attribute with a namespace. If the namespace was not previously declared in the context of the attribute, this function will fail. In this case you may wish to call setNamespace() on the ownerElement. If the namespace URI is non-empty and declared in the context of the attribute, but only with a different (non-empty) prefix, then the attribute is still bound to the namespace but gets a different prefix than `$prefix`. The function also fails if the prefix is empty but the namespace URI is not (because unprefixed attributes should by definition belong to no namespace). This function returns True on success, Failure otherwise.
 
 If you don't want the overheads of managing namespaces, a quick way of ensuring that the namespace is not rejected is to call the `requireNamespace` method on the containing node:
 
-```raku
-# re-use any existing definitions in the current scope, or add to the
-# parent with a generated prefix
-my $prefix = $att.parent.requireNamespace($uri);
-$att.setNamespace($uri, $prefix);
-```
+    # re-use any existing definitions in the current scope, or add to the
+    # parent with a generated prefix
+    my $prefix = $att.parent.requireNamespace($uri);
+    $att.setNamespace($uri, $prefix);
 
 ### method isId
 
-```raku
-method isId() returns Bool
-```
+    method isId() returns Bool
 
 Determine whether an attribute is of type ID. For documents with a DTD, this information is only available if DTD loading/validation has been requested. For HTML documents parsed with the HTML parser ID detection is done automatically. In XML documents, all "xml:id" attributes are considered to be of type ID.
 
 ### method serializeContent
 
-```raku
-method serializeContent() returns Bool
-```
+    method serializeContent() returns Bool
 
 This function is not part of DOM API. It returns attribute content in the form in which it serializes into XML, that is with all meta-characters properly quoted and with raw entity references (except for entities expanded during parse time).
 

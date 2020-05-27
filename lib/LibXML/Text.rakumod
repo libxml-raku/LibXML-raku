@@ -24,7 +24,6 @@ method content is rw is also<text ast> handles<substr substr-rw> { $.native.cont
 
 =head2 Synopsis
 
-  =begin code :lang<raku>
   use LibXML::Text;
   # Only methods specific to Text nodes are listed here,
   # see the LibXML::Node documentation for other methods
@@ -53,7 +52,6 @@ method content is rw is also<text ast> handles<substr substr-rw> { $.native.cont
   $text.deleteDataString($remstring, :g);
   $text.replaceData($offset, $length, $string);
   $text.replaceDataString($old, $new, :g);
-  =end code
 
 =head2 Description
 
@@ -74,40 +72,38 @@ The class inherits from L<LibXML::Node>. The documentation for Inherited methods
 Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation. 
 
 =head3 method new
-  =begin code :lang<raku>
+
   method new( Str :$content ) returns LibXML::Text 
-  =end code
 The constructor of the class. It creates an unbound text node.
 
 
 =head3 method data
-  =begin code :lang<raku>
+
   method data() returns Str
-  =end code
+
 Although there exists the C<nodeValue> attribute in the Node class, the DOM specification defines data as a separate
 attribute. C<LibXML> implements these two attributes not as different attributes, but as aliases,
 such as C<libxml2> does. Therefore
 
-  =begin code :lang<raku>
   $text.data;
-  =end code
+
 and
-  =begin code :lang<raku>
+
   $text.nodeValue;
-  =end code
+
 will have the same result and are not different entities.
 
 =head3 method setData
-  =begin code :lang<raku>
+
   method setData(Str $text) returns Str
-  =end code
+
 This function sets or replaces text content to a node. The node has to be of
 the type "text", "cdata" or "comment".
 
 =head3 method substringData
-  =begin code :lang<raku>
-  methid substringData(UInt $offset, UInt $length) returns Str;
-  =end code
+
+  method substringData(UInt $offset, UInt $length) returns Str;
+
 Extracts a range of data from the node. (DOM Spec) This function takes the two
 parameters $offset and $length and returns the sub-string, if available.
 
@@ -115,16 +111,16 @@ If the node contains no data or $offset refers to an non-existing string index,
 this function will return I<Str:U>. If $length is out of range C<substringData> will return the data starting at $offset instead of causing an error.
 
 =head3 method appendData
-  =begin code :lang<raku>
+
   method appendData( Str $somedata ) returns Str;
-  =end code
+
 Appends a string to the end of the existing data. If the current text node
 contains no data, this function has the same effect as C<setData>.
 
 =head3 method insertData
-  =begin code :lang<raku>
+
   method insertData(UInt $offset, UInt $string) returns Str;
-  =end code
+
 Inserts the parameter $string at the given $offset of the existing data of the
 node. This operation will not remove existing data, but change the order of the
 existing data.
@@ -132,18 +128,18 @@ existing data.
 If $offset is out of range, C<insertData> will have the same behaviour as C<appendData>.
 
 =head3 method deleteData
-  =begin code :lang<raku>
+
   method deleteData(UInt $offset, UInt $length);
-  =end code
+
 This method removes a chunk from the existing node data at the given offset.
 The $length parameter tells, how many characters should be removed from the
 string.
 
 
 =head3 method deleteDataString
-  =begin code :lang<raku>
+
   method deleteDataString(Str $remstring, Bool :$g);
-  =end code
+
 This method removes a chunk from the existing node data. Since the DOM spec is
 quite unhandy if you already know C<which> string to remove from a text node, this method allows more Rakuish code :)
 
@@ -151,28 +147,25 @@ The functions takes two parameters: I<$string> and optional the I<:g> flag. If :
 
 
 =head3 method replaceData
-  =begin code :lang<raku>
+
   method replaceData(UInt $offset, UInt $length, Str $string) returns Str;
-  =end code
+
 The DOM style version to replace node data.
 
 
 =head3 method replaceDataString
-  =begin code :lang<raku>
+
   my subset StrOrRegex where Str|Regex;
   my subset StrOrCode where Str|Code;
   method replaceDataString(StrOrRegex $old, StrOrCode $new, *%opts);
-  =end code
+
 The more programmer friendly version of replaceData() :)
 
 Instead of giving offsets and length one can specify the exact string or a regular expression (I<$old>) to be replaced. Additionally the I<:g> option allows one to replace all occurrences of I<$old>.
 
 I<NOTE:> This is a shortcut for
 
-
-  =begin code :lang<raku>
   my $datastr = $node.data ~~ s/somecond/replacement/g; # 'g' is just an example for any flag
-  =end code
 
 
 =head2 Copyright

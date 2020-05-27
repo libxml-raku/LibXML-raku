@@ -6,18 +6,16 @@ LibXML Namespace implementation
 Synopsis
 --------
 
-```raku
-use LibXML::Namespace;
-my LibXML::Namespace $ns .= new(:$URI, :$prefix);
-say $ns.nodeName();
-say $ns.name();
-my Str $localname = $ns.localname();
-say $ns.getValue();
-say $ns.value();
-my Str $known-uri = $ns.getNamespaceURI();
-my Str $known-prefix = $ns.prefix();
-$key = $ns.unique-key();
-```
+    use LibXML::Namespace;
+    my LibXML::Namespace $ns .= new(:$URI, :$prefix);
+    say $ns.nodeName();
+    say $ns.name();
+    my Str $localname = $ns.localname();
+    say $ns.getValue();
+    say $ns.value();
+    my Str $known-uri = $ns.getNamespaceURI();
+    my Str $known-prefix = $ns.prefix();
+    $key = $ns.unique-key();
 
 Description
 -----------
@@ -31,10 +29,8 @@ Methods
 
 ### method new
 
-```raku
-method new(Str:D :$URI!, NCName :$prefix, LibXML::Node :$node)
-    returns LibXML::Namespace
-```
+    method new(Str:D :$URI!, NCName :$prefix, LibXML::Node :$node)
+        returns LibXML::Namespace
 
 Creates a new Namespace node. Note that this is not a 'node' as an attribute or an element node. Therefore you can't do call all [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) Functions. All functions available for this node are listed below.
 

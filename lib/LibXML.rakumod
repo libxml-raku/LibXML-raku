@@ -38,7 +38,7 @@ method createDocument(|c) {
 LibXML - Raku bindings to the libxml2 native library
 
 =head1 SYNOPSIS
-    =begin code :lang<raku>
+
     use LibXML::Document;
     my LibXML::Document $doc .=  parse: :string('<Hello/>');
     $doc.root.nodeValue = 'World!';
@@ -50,7 +50,6 @@ LibXML - Raku bindings to the libxml2 native library
 
     my Version $library-version = LibXML.version;
     my Version $module-version = LibXML.^ver;
-    =end code
 
 =head1 DESCRIPTION
 
@@ -136,14 +135,15 @@ classes (most of which "inherit" from L<LibXML::Node>):
 This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
 =head2 Debian Linux
-=begin code :lang<shell>
-sudo apt-get install libxml2-dev
-=end code
+    =begin code :lang<shell>
+    sudo apt-get install libxml2-dev
+    =end code
+
 =head2 Mac OS X
-=begin code :lang<shell>
-brew update
-brew install libxml2
-=end code
+    =begin code :lang<shell>
+    brew update
+    brew install libxml2
+    =end code
 
 =head1 ACKNOWLEDGEMENTS
 

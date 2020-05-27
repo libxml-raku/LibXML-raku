@@ -9,7 +9,6 @@ class LibXML::Attr::Map does Associative {
 =begin pod
     =head2 Synopsis
 
-      =begin code :lang<raku>
       use LibXML::Attr::Map;
       use LibXML::Document;
       use LibXML::Element;
@@ -29,7 +28,6 @@ class LibXML::Attr::Map does Associative {
       $atts.setNamedItem('style', 'font-weight: bold');
       my LibXML::Attr $style = $atts.getNamedItem('style');
       $atts.removeNamedItem('style');
-      =end code
 
     =head2 Description
 
@@ -40,19 +38,18 @@ class LibXML::Attr::Map does Associative {
     =head2 Updating Attributes
 
     Attributes can be created, updated or deleted associatively:
-      =begin code :lang<raku>
+
       my LibXML::Attr::Map $atts = $node.attributes;
       $atts<style> = 'fontweight: bold';
       my LibXML::Attr $style = $atts<style>;
       $atts<style>:delete; # remove the style
-      =end code
+
     There are also some DOM (NamedNodeMap) compatible methods:
-      =begin code :lang<raku>
+
       my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
       $atts.setNamedItem($style);
       $style = $atts.getNamedItem('style');
       $atts.removeNamedItem('style');
-      =end code
 
     =head2 Methods
 

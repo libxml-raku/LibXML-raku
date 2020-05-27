@@ -121,7 +121,7 @@ method ast { self.Array.map(*.ast) }
 
 =begin pod
 =head2 Synopsis
-  =begin code :lang<raku>
+
   use LibXML::Node::List;
   my LibXML::Node::List $node-list, $att-list;
 
@@ -134,7 +134,6 @@ method ast { self.Array.map(*.ast) }
 
   my LibXML::Node::Set %nodes-by-xpath-name = $node-list.Hash;
   # ...
-  =end code
 
 =head2 Description
 
@@ -142,14 +141,14 @@ This class is used for traversing child nodes or attribute lists.
 
 Unlike node-sets, the list is tied to the DOM and can be used to update
 nodes.
-  =begin code :lang<raku>
+
   # replace 4th child
   $node-list[3] = LibXML::TextNode.new :content("Replacement Text");
   # remove last child
   my $deleted-node = $node-set.pop;
   # append a new child element
   $node-set.push: LibXML::Element.new(:name<NewElem>);
-  =end code
+
 Currently, the only tied methods are `push`, `pop` and `ASSIGN-POS`.
 
 

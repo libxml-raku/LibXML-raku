@@ -127,7 +127,6 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
 
 =head2 Synopsis
 
-  =begin code :lang<raku>
   use LibXML::Node::Set;
   my LibXML::Node::Set $node-set;
 
@@ -142,36 +141,28 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
 
   my LibXML::Node::Set %nodes-by-name = $node-set.Hash;
   # ...
-  =end code
 
 =head2 Description
 
 This class is commonly used for handling result sets from XPath queries. It performs the Iterator role, which enables:
-    =begin code :lang<raku>
+
     for $elem.findnodes($path) {...}
     my LibXML::Item @nodes = $elem.findnodes($xpath);
-    =end code
 
 =head2 Methods
 
     =head3 method new
 
-    =begin code :lang<raku>
-    method new(xmlNodeSet :$native, Bool :$deref) returns LibXML::Node::Set
-    =end code
+        method new(xmlNodeSet :$native, Bool :$deref) returns LibXML::Node::Set
 
-    =para
-    For example:
-    =begin code :lang<raku>
-    my xmlNodeSet $native .= new; # create a new object from scratch
-    #-OR-
-    my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
-    my LibXML::Node::Set $nodes .= new: :$native;
-    $native = Nil; # best to avoid any further direct access to the native object
-    =end code
+        my xmlNodeSet $native .= new; # create a new object from scratch
+        #-OR-
+        my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
+        my LibXML::Node::Set $nodes .= new: :$native;
+        $native = Nil; # best to avoid any further direct access to the native object
 
     The `:deref` option dereferences elements to their constituant child nodes and attributes. For example:
-    =begin code :lang<raku>    
+
       my LibXML::Document $doc .= parse("example/dromeds.xml");
       # without dereferencing
       my LibXML::Node::Set $species = $doc.findnodes("dromedaries/species");
@@ -181,64 +172,63 @@ This class is commonly used for handling result sets from XPath queries. It perf
       #-OR-
       $species = $doc<dromedaries/species>; # The AT-KEY method sets the :deref option
       say $species.keys; # disposition text() humps @name)
-    =end code
+
     `:deref` is used by the node AT-KEY and Hash methods.
 
     =head3 method elems
-    =begin code :lang<raku>
-    method elems() returns UInt
-    =end code
-    =para Returns the number of nodes in the set.
+
+        method elems() returns UInt
+
+    Returns the number of nodes in the set.
 
     =head3 method AT-POS
-    =begin code :lang<raku>
-    method AT-POS(UInt) returns LibXML::Item
 
-    for 0 ..^ $node-set.elems {
-        my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
-        ...
-    }
-    =end code
-    =para Positional interface into the node-set
+        method AT-POS(UInt) returns LibXML::Item
+
+        for 0 ..^ $node-set.elems {
+            my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
+            ...
+        }
+
+    Positional interface into the node-set
 
     =head3 method AT-KEY
-    =begin code :lang<raku>
-    method AT-KEY(Str $expr) returns LibXML::Node::Set
-    my LibXML::Node::Set $a-nodes = $node-set<a>;
-    my LibXML::Node::Set $b-atts = $node-set<@b>;
-    my LibXML::Text @text-nodes = $node-set<text()>;
-    =end code
+
+        method AT-KEY(Str $expr) returns LibXML::Node::Set
+        my LibXML::Node::Set $a-nodes = $node-set<a>;
+        my LibXML::Node::Set $b-atts = $node-set<@b>;
+        my LibXML::Text @text-nodes = $node-set<text()>;
+
     =para This is an associative interface to node sub-sets grouped by element name, attribute name (`@name`),
     or by node type, e.g. `text()`, `comment()`, processing-instruction()`.
 
 
     =head3 method add (alias push)
-    =begin code :lang<raku>
-    method add(LibXML::Item $node) returns LibXML::Item
-    =end code
-    =para Adds a node to the set.
+
+        method add(LibXML::Item $node) returns LibXML::Item
+
+    Adds a node to the set.
 
     =head3 method pop
-    =begin code :lang<raku>
-    method pop() returns LibXML::Item
-    =end code
+
+        method pop() returns LibXML::Item
+
     Removes the last item from the set.
 
     =head3 method delete
-    =begin code :lang<raku>
-    multi method delete(LibXML::Item $node) returns LibXML::Item
-    multi method delete(UInt $pos) returns LibXML::Item
-    =end code
-    =para
+
+        multi method delete(LibXML::Item $node) returns LibXML::Item
+        multi method delete(UInt $pos) returns LibXML::Item
+
     Deletes a given node from the set.
 
     Note: this is O(n) and will be slower as node-set size increases.
 
     =head3 method reverse
-    =begin code :lang<raku>
-    # process nodes in ascending order
-    for $node.find('ancestor-or-self::*').reverse { ... }
-    =end code
+
+        # process nodes in ascending order
+        for $node.find('ancestor-or-self::*').reverse { ... }
+
     Reverses the elements in the node-set
 
 =head2 Copyright

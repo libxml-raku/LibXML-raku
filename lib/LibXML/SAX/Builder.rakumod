@@ -213,7 +213,6 @@ usually used in conjunction with a L<LibXML::SAX::Handler> base-class.
 The following example builds a modified DOM tree with all tags
 and attributes converted to uppercase.
 
-    =begin code :lang<raku>
     use LibXML::Document;
     use LibXML::SAX::Builder;
     use LibXML::SAX::Handler::SAX2;
@@ -235,7 +234,6 @@ and attributes converted to uppercase.
     my $string = '<html><body><h1>Hello World</h1></body></html>'
     my LibXML::Document $doc .= parse: :$sax-hander;
     say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
-    =end code
 
 =head2 Copyright
 

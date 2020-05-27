@@ -4,7 +4,6 @@ unit class LibXML::XPath::Context;
 =begin pod
     =head2 Synopsis
 
-      =begin code :lang<raku>
       use LibXML::XPathContext;
       use LibXML::Node;
       my LibXML::XPath::Context $xpc .= new();
@@ -34,7 +33,6 @@ unit class LibXML::XPath::Context;
       $xpc.contextPosition = $position;
       my Int $size = $xpc.contextSize;
       $xpc.contextSize = $size;
-      =end code
 
     =head2 Description
 
@@ -51,17 +49,14 @@ unit class LibXML::XPath::Context;
 
     This example demonstrates C<registerNs()> method. It finds all paragraph nodes in an XHTML document.
 
-      =begin code :lang<raku>
       my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
       $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
       my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
-      =end code
 
     =head3 2. Custom XPath functions
 
     This example demonstrates C<registerFunction()> method by defining a function filtering nodes based on a Raku regular expression:
 
-        =begin code :lang<raku>
         sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
             $nodes.grep: {.textContent ~~ / <$regex> /};
         };
@@ -75,13 +70,11 @@ unit class LibXML::XPath::Context;
         my $xc = LibXML::XPath::Context.new(:$node);
         $xc.registerFunction('grep-nodes', &grep-nodes);
         @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
-        =end code
 
     =head3 3. Variables
 
     This example demonstrates C<registerVarLookup()> method. We use XPath variables to recycle results of previous evaluations:
 
-      =begin code :lang<raku>
       sub var-lookup(Str $name, Str $uri, Hash $data) {
         return $data{$name};
       }
@@ -99,7 +92,6 @@ unit class LibXML::XPath::Context;
       # get names of employees from $A working in an area listed in $B
       $xc.registerVarLookupFunc(&var-lookup, %variables);
       my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
-      =end code
 =end pod
 
 use LibXML::Config;

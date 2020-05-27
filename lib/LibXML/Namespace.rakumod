@@ -6,18 +6,16 @@ unit class LibXML::Namespace
 =begin pod
     =head2 Synopsis
 
-    =begin code :lang<raku>
-    use LibXML::Namespace;
-    my LibXML::Namespace $ns .= new(:$URI, :$prefix);
-    say $ns.nodeName();
-    say $ns.name();
-    my Str $localname = $ns.localname();
-    say $ns.getValue();
-    say $ns.value();
-    my Str $known-uri = $ns.getNamespaceURI();
-    my Str $known-prefix = $ns.prefix();
-    $key = $ns.unique-key();
-    =end code
+        use LibXML::Namespace;
+        my LibXML::Namespace $ns .= new(:$URI, :$prefix);
+        say $ns.nodeName();
+        say $ns.name();
+        my Str $localname = $ns.localname();
+        say $ns.getValue();
+        say $ns.value();
+        my Str $known-uri = $ns.getNamespaceURI();
+        my Str $known-prefix = $ns.prefix();
+        $key = $ns.unique-key();
 
     =head2 Description
 
@@ -72,10 +70,10 @@ multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
 }
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
-    method new(Str:D :$URI!, NCName :$prefix, LibXML::Node :$node)
-        returns LibXML::Namespace
-    =end code
+
+        method new(Str:D :$URI!, NCName :$prefix, LibXML::Node :$node)
+            returns LibXML::Namespace
+
     Creates a new Namespace node. Note that this is not a 'node' as an attribute or
     an element node. Therefore you can't do call all L<LibXML::Node> Functions. All functions available for this node are listed below.
 

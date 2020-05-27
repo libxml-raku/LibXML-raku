@@ -143,17 +143,17 @@ method external-entity-loader returns Callable is rw {
 
 =para A more granular solution to this problem, however, is provided by custom URL
     resolvers, as in 
-    =begin code :lang<raku>
-    my LibXML::InputCallback $cb .= new;
-    sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
-      my ($uri) = @_;
-      ? ($uri ~~ m|^'file:/'}
-         and $uri !~~ m|^'file:///etc/xml/'|)
-    }
-    sub deny(|c) { }
-    $cb.register-callbacks(&match, &deny, &deny, &deny);
-    $parser.input-callbacks($cb);
-    =end code
+        =begin code :lang<raku>
+        my LibXML::InputCallback $cb .= new;
+        sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
+          my ($uri) = @_;
+          ? ($uri ~~ m|^'file:/'}
+             and $uri !~~ m|^'file:///etc/xml/'|)
+        }
+        sub deny(|c) { }
+        $cb.register-callbacks(&match, &deny, &deny, &deny);
+        $parser.input-callbacks($cb);
+        =end code
 
 #| Default input callback handlers
 method input-callbacks is rw {

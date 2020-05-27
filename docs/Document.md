@@ -6,65 +6,63 @@ LibXML DOM Document Class
 Synopsis
 --------
 
-```raku
-use LibXML::Document;
-# Only methods specific to Document nodes are listed here,
-# see the LibXML::Node documentation for other methods
+    use LibXML::Document;
+    # Only methods specific to Document nodes are listed here,
+    # see the LibXML::Node documentation for other methods
 
-my LibXML::Document $doc  .= new: :$version, :$enc;
-$doc .= createDocument($version, $enc);
-$doc .= parse($string);
+    my LibXML::Document $doc  .= new: :$version, :$enc;
+    $doc .= createDocument($version, $enc);
+    $doc .= parse($string);
 
-my Str $URI = $doc.URI();
-$doc.setURI($URI);
-my Str $enc = $doc.encoding();
-$enc = $doc.actualEncoding();
-$doc.encoding = $new-encoding;
-my Version $doc-version = $doc.version();
-use LibXML::Document :XmlStandalone;
-if $doc.standalone == XmlStandaloneYes {...}
-$doc.standalone = XmlStandaloneNo;
-my Bool $is-compressed = $doc.input-compressed;
-my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
-$doc.compression = $zip-level;
-my Str $html-tidy = $dom.Str(:$format, :$html);
-my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
-my Str $xml-tidy = $doc.serialize(:$format);
-my Int $state = $doc.write: :$file, :$format;
-$state = $doc.save: :io($fh), :$format;
-my Str $html = $doc.Str(:html);
-$html = $doc.serialize-html();
-try { $dom.validate(); }
-if $dom.is-valid() { ... }
+    my Str $URI = $doc.URI();
+    $doc.setURI($URI);
+    my Str $enc = $doc.encoding();
+    $enc = $doc.actualEncoding();
+    $doc.encoding = $new-encoding;
+    my Version $doc-version = $doc.version();
+    use LibXML::Document :XmlStandalone;
+    if $doc.standalone == XmlStandaloneYes {...}
+    $doc.standalone = XmlStandaloneNo;
+    my Bool $is-compressed = $doc.input-compressed;
+    my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
+    $doc.compression = $zip-level;
+    my Str $html-tidy = $dom.Str(:$format, :$html);
+    my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
+    my Str $xml-tidy = $doc.serialize(:$format);
+    my Int $state = $doc.write: :$file, :$format;
+    $state = $doc.save: :io($fh), :$format;
+    my Str $html = $doc.Str(:html);
+    $html = $doc.serialize-html();
+    try { $dom.validate(); }
+    if $dom.is-valid() { ... }
 
-my LibXML::Element $root = $dom.documentElement();
-$dom.documentElement = $root;
-my LibXML::Element $element = $dom.createElement( $nodename );
-$element = $dom.createElementNS( $namespaceURI, $nodename );
-my LibXML::Text $text = $dom.createTextNode( $content_text );
-my LibXML::Comment $comment = $dom.createComment( $comment_text );
-my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
-$attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
-my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
-my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
-my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
-my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
-my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
-$dtd = $doc.createExternalSubset( $rootnode_name, $publicId, $systemId);
-$doc.importNode( $node );
-$doc.adoptNode( $node );
-$dtd = $doc.externalSubset;
-$dtd = $doc.internalSubset;
-$doc.externalSubset = $dtd;
-$doc.internalSubset = $dtd;
-$dtd = $doc.removeExternalSubset();
-$dtd = $doc.removeInternalSubset();
-my LibXML::Element @found = $doc.getElementsByTagName($tagname);
-@found = $doc.getElementsByTagNameNS($nsURI,$tagname);
-@found = $doc.getElementsByLocalName($localname);
-my LibXML::Element $node = $doc.getElementById($id);
-$doc.indexElements();
-```
+    my LibXML::Element $root = $dom.documentElement();
+    $dom.documentElement = $root;
+    my LibXML::Element $element = $dom.createElement( $nodename );
+    $element = $dom.createElementNS( $namespaceURI, $nodename );
+    my LibXML::Text $text = $dom.createTextNode( $content_text );
+    my LibXML::Comment $comment = $dom.createComment( $comment_text );
+    my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
+    $attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
+    my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
+    my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
+    my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
+    my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
+    my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
+    $dtd = $doc.createExternalSubset( $rootnode_name, $publicId, $systemId);
+    $doc.importNode( $node );
+    $doc.adoptNode( $node );
+    $dtd = $doc.externalSubset;
+    $dtd = $doc.internalSubset;
+    $doc.externalSubset = $dtd;
+    $doc.internalSubset = $dtd;
+    $dtd = $doc.removeExternalSubset();
+    $dtd = $doc.removeInternalSubset();
+    my LibXML::Element @found = $doc.getElementsByTagName($tagname);
+    @found = $doc.getElementsByTagNameNS($nsURI,$tagname);
+    @found = $doc.getElementsByLocalName($localname);
+    my LibXML::Element $node = $doc.getElementById($id);
+    $doc.indexElements();
 
 Description
 -----------
@@ -101,26 +99,22 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 
 ### method new
 
-```raku
-method new(
-  xmlDoc :$native,
-  Str :$version,
-  xmlEncodingStr :$enc, # e.g. 'utf-8', 'utf-16'
-  Str :$URI,
-  Bool :$html,
-  Int :$compression
-) returns LibXML::Document
-```
+    method new(
+      xmlDoc :$native,
+      Str :$version,
+      xmlEncodingStr :$enc, # e.g. 'utf-8', 'utf-16'
+      Str :$URI,
+      Bool :$html,
+      Int :$compression
+    ) returns LibXML::Document
 
 ### method createDocument
 
-```raku
-multi method createDocument(Str() $version, xmlEncodingStr $enc
-) returns LibXML::Document
-multi method createDocument(
-     Str $URI?, QName $name?, Str $doc-type?
-)
-```
+    multi method createDocument(Str() $version, xmlEncodingStr $enc
+    ) returns LibXML::Document
+    multi method createDocument(
+         Str $URI?, QName $name?, Str $doc-type?
+    )
 
 Perl or DOM-style constructors for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument*() will create the document:
 
@@ -146,19 +140,15 @@ returns the underlying native structure managed by this object
 
 ### method URI
 
-```raku
-my Str $URI = $doc.URI();
-$doc.URI = $URI;
-```
+    my Str $URI = $doc.URI();
+    $doc.URI = $URI;
 
 Gets or sets the URI (or filename) of the original document. For documents obtained by parsing a string of a FH without using the URI parsing argument of the corresponding `parse_*` function, the result is a generated string unknown-XYZ where XYZ is some number; for documents created with the constructor `new`, the URI is undefined.
 
 ### method encoding
 
-```raku
-my Str $enc = $doc.encoding();
-$doc.encoding = $new-encoding;
-```
+    my Str $enc = $doc.encoding();
+    $doc.encoding = $new-encoding;
 
 Gets or sets the encoding of the document.
 
@@ -166,12 +156,10 @@ Gets or sets the encoding of the document.
 
   * The `.Blob` method will fully render the XML document in as a Blob with the specified encoding.
 
-```raku
-my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
-print $doc.encoding; # prints ISO-8859-15
-my $xml-with-entities = $doc.Str;
-'encoded.xml'.IO.spurt( $doc.Blob, :bin);
-```
+    my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
+    print $doc.encoding; # prints ISO-8859-15
+    my $xml-with-entities = $doc.Str;
+    'encoded.xml'.IO.spurt( $doc.Blob, :bin);
 
 ### method actualEncoding
 
@@ -183,10 +171,8 @@ Returns the encoding in which the XML will be output by $doc.Blob() or $doc.writ
 
 This is usually the original encoding of the document as declared in the XML declaration and returned by $doc.encoding. If the original encoding is not known (e.g. if created in memory or parsed from a XML without a declared encoding), 'UTF-8' is returned.
 
-```raku
-my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
-print $doc.encoding; # prints ISO-8859-15
-```
+    my $doc = LibXML.createDocument( "1.0", "ISO-8859-15" );
+    print $doc.encoding; # prints ISO-8859-15
 
 ### method version
 
@@ -198,10 +184,8 @@ Gets or sets the version of the document
 
 ### method standalone
 
-```raku
-use LibXML::Document :XmlStandalone;
-if $doc.standalone == XmlStandaloneYes { ... }
-```
+    use LibXML::Document :XmlStandalone;
+    if $doc.standalone == XmlStandaloneYes { ... }
 
 Gets or sets the Numerical value of a documents XML declarations standalone attribute.
 
@@ -223,10 +207,8 @@ method setStandalone(
 
 Alter the value of a documents standalone attribute.
 
-```raku
-use LibXML::Document :XmlStandalone;
-$doc.setStandalone(XmlStandaloneYes);
-```
+    use LibXML::Document :XmlStandalone;
+    $doc.setStandalone(XmlStandaloneYes);
 
 Set it to
 
@@ -246,19 +228,17 @@ Gets or sets output compression
 
 ### method input-compressed
 
-```raku
-method input-compressed() returns Bool'
-# get input compression
-my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
-# set output compression
-if LibXML.have-compression {
-    $doc.compression = $zip-level;
-    $doc.write: :file<test.xml.gz>;
-}
-else {
-    $doc.write: :file<test.xml>;
-}
-```
+    method input-compressed() returns Bool'
+    # get input compression
+    my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
+    # set output compression
+    if LibXML.have-compression {
+        $doc.compression = $zip-level;
+        $doc.write: :file<test.xml.gz>;
+    }
+    else {
+        $doc.write: :file<test.xml>;
+    }
 
 detect whether input was compressed
 
@@ -266,7 +246,7 @@ libxml2 allows reading of documents directly from gzipped files. The input-compr
 
 If one intends to write the document directly to a file, it is possible to set the compression level for a given document. This level can be in the range from 0 to 8. If LibXML should not try to compress use *-1* (default).
 
-Note that this feature will *only* work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(..._)` is used for input and `.write` is used for output.
+Note that this feature will *only* work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(...)` is used for input and `.write` is used for output.
 
 ### method Str
 
@@ -282,15 +262,11 @@ Serialize to XML/HTML
 
 ### method Str
 
-```raku
-my Str $xml = $dom.Str(:$format);
-```
+    proto method Str(Bool :$format) returns Str {*};
 
 *Str* is a serializing function, so the DOM Tree is serialized into an XML string, ready for output.
 
-```raku
-$file.IO.spurt: $doc.Str;
-```
+    $file.IO.spurt: $doc.Str;
 
 regardless of the actual encoding of the document.
 
@@ -302,28 +278,22 @@ If $format is True, libxml2 will add ignorable white spaces, so the nodes conten
 
 libxml2 uses a hard-coded indentation of 2 space characters per indentation level. This value can not be altered on run-time.
 
-#### method Str: :C14N
+#### method Str: :C14N option
 
-```raku
-my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
-my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
-```
+    my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
+    my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 
 C14N Normalisation. See the documentation in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node).
 
-#### method Str: :html
+#### method Str: :html option
 
-```raku
-my Str $html = $document.Str: :html;
-```
+    my Str $html = $document.Str: :html;
 
 *.Str: :html* serializes the tree to a string as HTML. With this method indenting is automatic and managed by libxml2 internally.
 
 ### method serialize
 
-```raku
-my Str $xml-formatted = $doc.serialize(:$format);
-```
+    my Str $xml-formatted = $doc.serialize(:$format);
 
 Similar to Str(), but doesn't interpret `:skip-dtd`, `:html` or `:C14N` options. This function was name added to be more consistent with libxml2.
 
@@ -354,18 +324,16 @@ method Blob(
 
 Serialize the XML to a Blob
 
-    head3 method Blob() returns Blob
+### method Blob() returns Blob
 
-```raku
-method Blob(
-    xmlEncodingStr :$enc = self.encoding // 'UTF-8',
-    Bool :$format,
-    Bool :$tag-expansion
-    Bool :$skip-dtd,
-    Bool :$skip-xml-declaration,
-    Bool :$force,
-) returns Blob;
-```
+    method Blob(
+        xmlEncodingStr :$enc = self.encoding // 'UTF-8',
+        Bool :$format,
+        Bool :$tag-expansion
+        Bool :$skip-dtd,
+        Bool :$skip-xml-declaration,
+        Bool :$force,
+    ) returns Blob;
 
 Returns a binary representation of the XML document and it decendants encoded as `:$enc`.
 
@@ -404,19 +372,15 @@ Document validity check
 
 ### method is-valid
 
-```raku
-my Bool $valid = $dom.is-valid();
-```
+    my Bool $valid = $dom.is-valid();
 
 Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
 You may also pass in a [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) object, to validate against an external DTD:
 
-```raku
-unless $dom.is-valid($dtd) {
-    warn("document is not valid!");
-}
-```
+    unless $dom.is-valid($dtd) {
+        warn("document is not valid!");
+    }
 
 ### method validate
 
@@ -543,11 +507,9 @@ An entity reference is unique to a document and cannot be passed to other docume
 
 *NOTE:* A text content containing something that looks like an entity reference, will not be expanded to a real entity reference unless it is a predefined entity
 
-```raku
-my Str $text = '&foo;';
-$some_element.appendText( $text );
-print $some_element.textContent; # prints "&amp;foo;"
-```
+    my Str $text = '&foo;';
+    $some_element.appendText( $text );
+    print $some_element.textContent; # prints "&amp;foo;"
 
 ### method createExternalSubset
 
@@ -577,17 +539,13 @@ Creates a new Internal Subset
 
 ### method createInternalSubset
 
-```raku
-my LibXML::Dtd
-$dtd = $doc.createInternalSubset( $rootnode, $public, $system);
-```
+    my LibXML::Dtd
+    $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
 
 This function creates and adds an internal subset to the given document. Because the function automatically adds the DTD to the document there is no need to add the created node explicitly to the document.
 
-```raku
-my LibXML::Document $doc = LibXML::Document.new();
-my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", undef, "foo.dtd" );
-```
+    my LibXML::Document $doc = LibXML::Document.new();
+    my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", undef, "foo.dtd" );
 
 will result in the following XML document:
 
@@ -598,10 +556,8 @@ will result in the following XML document:
 
 By setting the public parameter it is possible to set PUBLIC DTDs to a given document. So
 
-```raku
-my LibXML::Document $doc = LibXML::Document.new();
-my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", "-//FOO//DTD FOO 0.1//EN", undef );
-```
+    my LibXML::Document $doc = LibXML::Document.new();
+    my LibXML::Dtd $dtd = $doc.createInternalSubset( "foo", "-//FOO//DTD FOO 0.1//EN", undef );
 
 will cause the following declaration to be created on the document:
 
@@ -728,9 +684,7 @@ Gets or sets the external DTD for a document.
 
 ### method parse
 
-```raku
-my LibXML::Document $doc .= parse($string, |%opts);
-```
+    my LibXML::Document $doc .= parse($string, |%opts);
 
 Calling `LibXML::Document.parse(|c)` is equivalent to calling `LibXML.parse(|c)`; See the parse method in [LibXML](https://libxml-raku.github.io/LibXML-raku).
 
@@ -746,28 +700,22 @@ Expand XInclude flags
 
 ### method getElementsByTagName
 
-```raku
-my LibXML::Element @nodes = $doc.getElementsByTagName($tagname);
-my LibXML::Node::Set $nodes = $doc.getElementsByTagName($tagname);
-```
+    my LibXML::Element @nodes = $doc.getElementsByTagName($tagname);
+    my LibXML::Node::Set $nodes = $doc.getElementsByTagName($tagname);
 
 Implements the DOM Level 2 function
 
 ### method getElementsByTagNameNS
 
-```raku
-my LibXML::Element @nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
-my LibXML::Node::Set $nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
-```
+    my LibXML::Element @nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
+    my LibXML::Node::Set $nodes = $doc.getElementsByTagNameNS($nsURI,$tagname);
 
 Implements the DOM Level 2 function
 
 ### method getElementsByLocalName
 
-```raku
-my LibXML::Element @nodes = $doc.getElementsByLocalName($localname);
-my LibXML::Node::Set $nodes = $doc.getElementsByLocalName($localname);
-```
+    my LibXML::Element @nodes = $doc.getElementsByLocalName($localname);
+    my LibXML::Node::Set $nodes = $doc.getElementsByLocalName($localname);
 
 This allows the fetching of all nodes from a given document with the given Localname.
 

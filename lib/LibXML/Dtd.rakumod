@@ -7,18 +7,16 @@ unit class LibXML::Dtd
   =begin pod
   =head2 Synopsis
 
-  =begin code :lang<raku>
-  use LibXML::Dtd;
+      use LibXML::Dtd;
 
-  my LibXML::Dtd $dtd .= new($public-id, $system-id);
-  my LibXML::Dtd $dtd .= parse: :string($dtd-str);
-  my Str $dtdName = $dtd.getName();
-  my Str $publicId = $dtd.publicId();
-  my Str $systemId = $dtd.systemId();
-  try { $dtd.validate($doc) };
-  my Bool $valid = $dtd.is-valid($doc);
-  if $doc ~~ $dtd { ... } # if doc is valid against the DTD
-  =end code
+      my LibXML::Dtd $dtd .= new($public-id, $system-id);
+      my LibXML::Dtd $dtd .= parse: :string($dtd-str);
+      my Str $dtdName = $dtd.getName();
+      my Str $publicId = $dtd.publicId();
+      my Str $systemId = $dtd.systemId();
+      try { $dtd.validate($doc) };
+      my Bool $valid = $dtd.is-valid($doc);
+      if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
   =head2 Description
 
@@ -104,28 +102,26 @@ multi method new($external-id, $system-id) {
 multi method new(|c) is default { nextsame }
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
-    # preferred constructor
-    multi method new(Str :$public-id, Str :$system-id) returns LibXML::Dtd
-    # for Perl compat
-    multi method new(Str $public-id, Str $system-id) returns LibXML::Dtd
-    =end code
+
+        # preferred constructor
+        multi method new(Str :$public-id, Str :$system-id) returns LibXML::Dtd
+        # for Perl compat
+        multi method new(Str $public-id, Str $system-id) returns LibXML::Dtd
 
     Parse a DTD from the system identifier, and return a DTD object that you can
     pass to $doc.is-valid() or $doc.validate().
 
-    =begin code :lang<raku>
-    my $dtd = LibXML::Dtd.new(
-                          "SOME // Public / ID / 1.0",
-                          "test.dtd"
-                                    );
-    my $doc = LibXML.load: :file("test.xml");
-    $doc.validate($dtd);
+        my $dtd = LibXML::Dtd.new(
+                              "SOME // Public / ID / 1.0",
+                              "test.dtd"
+                                        );
+        my $doc = LibXML.load: :file("test.xml");
+        $doc.validate($dtd);
 
-    $doc.is-valid($dtd);
-    #-OR-
-    $doc ~~ $dtd;
-    =end code
+        $doc.is-valid($dtd);
+        #-OR-
+        $doc ~~ $dtd;
+
 =end pod
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
@@ -134,9 +130,9 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
 }
 =begin pod
     =head3 method parse
-    =begin code :lang<raku>
-    method parse(Str :string) returns LibXML::Dtd;
-    =end code
+
+        method parse(Str :string) returns LibXML::Dtd;
+
     The same as new() above, except you can parse a DTD from a string. Note that
     parsing from string may fail if the DTD contains external parametric-entity
     references with relative URLs.
@@ -181,23 +177,23 @@ multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {
 
 =begin pod
     =head3 method getName
-    =begin code :lang<raku>
-    method getName() returns Str
-    =end code
+
+        method getName() returns Str
+
     Returns the name of DTD; i.e., the name immediately following the DOCTYPE
     keyword.
 
     =head3 method publicId
-    =begin code :lang<raku>
-    method publicId() returns Str
-    =end code
+
+        method publicId() returns Str
+
     Returns the public identifier of the external subset.
 
 
     =head3 method systemId
-    =begin code :lang<raku>
-    method systemId() returns Str
-    =end code
+
+        method systemId() returns Str
+
     Returns the system identifier of the external subset.
 =end pod
 

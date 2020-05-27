@@ -10,13 +10,12 @@ LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> bas
 These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
 Also note that the L<LibXML::Node> `findnodes` method can sometimes return either L<LibXML::Node> or L<LibXML::Namespace> items, e.g.:
-  =begin code :lang<raku>
+
   use LibXML::Item;
   for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
      when LibXML::Namespace { say "namespace: " ~ .Str }
      when LibXML::Attr      { say "attribute: " ~ .Str }
   }
-  =end code
 
 Please see L<LibXML::Node> and L<LibXML::Namespace>.
 
@@ -78,10 +77,8 @@ sub box-class(UInt $_) is export(:box-class) {
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
 =begin pod
-    =para
-    This function can be useful as a succinct of building nodes from data. For example:
+This function can be useful as a succinct of building nodes from data. For example:
 
-    =begin code :lang<raku>
     use LibXML::Element;
     use LibXML::Item :&ast-to-xml;
     my LibXML::Element $elem = ast-to-xml(
@@ -94,7 +91,7 @@ proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
          "\n",
          ]);
     say $elem;
-    =end code
+
 Produces:
     =begin code :lang<xml>
     <dromedaries>
@@ -206,7 +203,7 @@ method box(LibXML::Native::DOM::Node $struct,
     to ensure that the underlying native object is not destroyed while it is still alive.
 
     For example to box xmlElem native object:
-     =begin code :lang<raku>
+
      use LibXML::Native;
      use LibXML::Node;
      use LibXML::Element;
@@ -216,7 +213,7 @@ method box(LibXML::Native::DOM::Node $struct,
      my LibXML::Element $elem .= box($native);
      $!native := Nil;
      say $elem.Str; # <Foo/>
-     =end code
+
     A containing object of the correct type (LibXML::Element) has been created for the native object.
 
 =end pod
@@ -231,13 +228,13 @@ multi trait_mod:<is>(
     $m.wrap: method () is hidden-from-backtrace { $m.returns.box: $.native."$name"(); }
 }
 
-#| Utility method that verifies that `$rv` is the same native struct as the current object.
-method keep(LibXML::Native::DOM::Node $rv,
+#| Utility method that verifies that `$native` is the same native struct as the current object.
+method keep(LibXML::Native::DOM::Node $native,
             :$doc = $.doc, # reusable document object
             --> LibXML::Item) {
-    do with $rv {
+    do with $native {
         do with self -> $obj {
-            die "returned unexpected node: {$.Str}"
+            die "returned unexpected node: {.Str}"
                 unless $obj.native.isSameNode($_);
             $obj;
         } // self.box: $_, :$doc;

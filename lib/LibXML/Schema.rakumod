@@ -5,17 +5,15 @@ unit class LibXML::Schema;
 
     =head2 Synopsis
 
-    =begin code :lang<raku>
-    use LibXML::Schema;
-    use LibXML;
+        use LibXML::Schema;
+        use LibXML;
 
-    my $doc = LibXML.new.parse: :file($url);
+        my $doc = LibXML.new.parse: :file($url);
 
-    my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
-    my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
-    try { $xmlschema.validate( $doc ); };
-    if $doc ~~ $xmlschema { ... }
-    =end code
+        my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
+        my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
+        try { $xmlschema.validate( $doc ); };
+        if $doc ~~ $xmlschema { ... }
 
     =head2 Description
 
@@ -146,11 +144,11 @@ submethod TWEAK(|c) {
 }
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
-    multi method new( Str :$location!, *%opts ) returns LibXML::Schema
-    multi method new( Str :string!,  *%opts ) returns LibXML::Schema
-    multi method new( LibXML::Document :$doc!,  *%opts ) returns LibXML::Schema
-    =end code
+
+        multi method new( Str :$location!, *%opts ) returns LibXML::Schema
+        multi method new( Str :string!,  *%opts ) returns LibXML::Schema
+        multi method new( LibXML::Document :$doc!,  *%opts ) returns LibXML::Schema
+
     The constructor of LibXML::Schema may get called with either one of two
     parameters. The parameter tells the class from which source it should generate
     a validation schema. It is important, that each schema only have a single
@@ -180,11 +178,11 @@ method validate(LibXML::Node:D $node) {
 }
 =begin pod
     =head3 method validate
-    =begin code :lang<raku>
-    multi method validate(LibXML::Document $doc) returns Int
-    multi method validate(LibXML::Element $elem) returns Int
-    try { $xmlschema.validate( $doc ); };
-    =end code
+
+        multi method validate(LibXML::Document $doc) returns Int
+        multi method validate(LibXML::Element $elem) returns Int
+        try { $xmlschema.validate( $doc ); };
+
     This function allows one to validate a document, or a root element
     against the given XML Schema. If this function succeeds, it will
     return 0, otherwise it will die() and report the errors found.
@@ -195,10 +193,10 @@ method is-valid(LibXML::Node:D $node --> Bool) {
 }
 =begin pod
     =head3 method is-valid
-    =begin code :lang<raku>
-    multi method is-valid(LibXML::Document $doc) returns Bool
-    multi method is-valid(LibXML::Element $elem) returns Bool
-    =end code
+
+        multi method is-valid(LibXML::Document $doc) returns Bool
+        multi method is-valid(LibXML::Element $elem) returns Bool
+
 =end pod
 
 #| Returns either True or False depending on whether the Document or Element is valid or not.

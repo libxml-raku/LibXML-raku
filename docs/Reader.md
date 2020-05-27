@@ -6,34 +6,30 @@ Interface to libxml2 Pull Parser
 Synopsis
 --------
 
-```raku
-use LibXML::Reader;
+    use LibXML::Reader;
 
-sub dump-node($reader) {
-    printf "%d %d %s %d\n", $reader.depth,
-                            $reader.nodeType,
-                            $reader.name,
-                            $reader.isEmptyElement;
-}
+    sub dump-node($reader) {
+        printf "%d %d %s %d\n", $reader.depth,
+                                $reader.nodeType,
+                                $reader.name,
+                                $reader.isEmptyElement;
+    }
 
-my LibXML::Reader $reader .= new(file => "file.xml")
-       or die "cannot read file.xml\n";
-while $reader.read {
-    dump-node($reader);
-}
-```
+    my LibXML::Reader $reader .= new(file => "file.xml")
+           or die "cannot read file.xml\n";
+    while $reader.read {
+        dump-node($reader);
+    }
 
 or
 
-```raku
-use LibXML::Reader;
+    use LibXML::Reader;
 
-my LibXML::Reader $reader .= new(file => "file.xml")
-       or die "cannot read file.xml\n";
-$reader.preservePattern('//table/tr');
-$reader.finish;
-print $reader.document.Str(:deep);
-```
+    my LibXML::Reader $reader .= new(file => "file.xml")
+           or die "cannot read file.xml\n";
+    $reader.preservePattern('//table/tr');
+    $reader.finish;
+    print $reader.document.Str(:deep);
 
 Description
 -----------
@@ -55,13 +51,11 @@ Constructor
 
 Depending on the XML source, the Reader object can be created with either of:
 
-```raku
-my LibXML::Reader $reader .= new( file => "file.xml", ... );
-my LibXML::Reader $reader .= new( string => $xml_string, ... );
-my LibXML::Reader $reader .= new( io => $file_handle, ... );
-my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
-my LibXML::Reader $reader .= new( DOM => $dom, ... );
-```
+    my LibXML::Reader $reader .= new( file => "file.xml", ... );
+    my LibXML::Reader $reader .= new( string => $xml_string, ... );
+    my LibXML::Reader $reader .= new( io => $file_handle, ... );
+    my LibXML::Reader $reader .= new( fd => $file_handle.native_descriptor, ... );
+    my LibXML::Reader $reader .= new( DOM => $dom, ... );
 
 where ... are reader options described below in [Reader options](Reader options) or various parser options described in [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser). The constructor recognizes the following XML sources:
 
@@ -413,7 +407,7 @@ A document tree consisting of the preserved nodes and their content can be obtai
 
 An :%ns may be used to pass a mapping prefixes used by the XPath to namespace URIs.
 
-The XPath subset available with this function is described at http://www.w3.org/TR/xmlschema-1/#Selector and matches the production
+The XPath subset available with this function is described at [http://www.w3.org/TR/xmlschema-1/#Selector](http://www.w3.org/TR/xmlschema-1/#Selector) and matches the production
 
 ```bnf
 Path ::= ('.//')? ( Step '/' )* ( Step | '@' NameTest )
@@ -589,10 +583,8 @@ method standalone() returns Int
 
 Returns a string containing the encoding of the document or Str:U in case of error. Determine the standalone status of the document being read.
 
-```raku
-use LibXML::Document :XmlStandalone;
-if $reader.standalone == XmlStandaloneYes { ... }
-```
+    use LibXML::Document :XmlStandalone;
+    if $reader.standalone == XmlStandaloneYes { ... }
 
 Gets or sets the Numerical value of a documents XML declarations standalone attribute.
 
@@ -712,51 +704,47 @@ Node Types
 
 The reader interface provides the following constants for node types (the constant symbols are exported by default or if tag `:types` is used).
 
-```raku
-XML_READER_TYPE_NONE                    => 0
-XML_READER_TYPE_ELEMENT                 => 1
-XML_READER_TYPE_ATTRIBUTE               => 2
-XML_READER_TYPE_TEXT                    => 3
-XML_READER_TYPE_CDATA                   => 4
-XML_READER_TYPE_ENTITY_REFERENCE        => 5
-XML_READER_TYPE_ENTITY                  => 6
-XML_READER_TYPE_PROCESSING_INSTRUCTION  => 7
-XML_READER_TYPE_COMMENT                 => 8
-XML_READER_TYPE_DOCUMENT                => 9
-XML_READER_TYPE_DOCUMENT_TYPE           => 10
-XML_READER_TYPE_DOCUMENT_FRAGMENT       => 11
-XML_READER_TYPE_NOTATION                => 12
-XML_READER_TYPE_WHITESPACE              => 13
-XML_READER_TYPE_SIGNIFICANT_WHITESPACE  => 14
-XML_READER_TYPE_END_ELEMENT             => 15
-XML_READER_TYPE_END_ENTITY              => 16
-XML_READER_TYPE_XML_DECLARATION         => 17
-```
+    XML_READER_TYPE_NONE                    => 0
+    XML_READER_TYPE_ELEMENT                 => 1
+    XML_READER_TYPE_ATTRIBUTE               => 2
+    XML_READER_TYPE_TEXT                    => 3
+    XML_READER_TYPE_CDATA                   => 4
+    XML_READER_TYPE_ENTITY_REFERENCE        => 5
+    XML_READER_TYPE_ENTITY                  => 6
+    XML_READER_TYPE_PROCESSING_INSTRUCTION  => 7
+    XML_READER_TYPE_COMMENT                 => 8
+    XML_READER_TYPE_DOCUMENT                => 9
+    XML_READER_TYPE_DOCUMENT_TYPE           => 10
+    XML_READER_TYPE_DOCUMENT_FRAGMENT       => 11
+    XML_READER_TYPE_NOTATION                => 12
+    XML_READER_TYPE_WHITESPACE              => 13
+    XML_READER_TYPE_SIGNIFICANT_WHITESPACE  => 14
+    XML_READER_TYPE_END_ELEMENT             => 15
+    XML_READER_TYPE_END_ENTITY              => 16
+    XML_READER_TYPE_XML_DECLARATION         => 17
 
 States
 ------
 
 The following constants represent the values returned by `readState()`. They are exported by default, or if tag `:states` is used:
 
-```raku
-XML_READER_NONE      => -1
-XML_READER_START     =>  0
-XML_READER_ELEMENT   =>  1
-XML_READER_END       =>  2
-XML_READER_EMPTY     =>  3
-XML_READER_BACKTRACK =>  4
-XML_READER_DONE      =>  5
-XML_READER_ERROR     =>  6
-```
+    XML_READER_NONE      => -1
+    XML_READER_START     =>  0
+    XML_READER_ELEMENT   =>  1
+    XML_READER_END       =>  2
+    XML_READER_EMPTY     =>  3
+    XML_READER_BACKTRACK =>  4
+    XML_READER_DONE      =>  5
+    XML_READER_ERROR     =>  6
 
 SEE ALSO
 --------
 
 [LibXML::Pattern](https://libxml-raku.github.io/LibXML-raku/Pattern) for information about compiled patterns.
 
-http://xmlsoft.org/html/libxml-xmlreader.html
+[http://xmlsoft.org/html/libxml-xmlreader.html](http://xmlsoft.org/html/libxml-xmlreader.html)
 
-http://dotgnu.org/pnetlib-doc/System/Xml/XmlTextReader.html
+[http://dotgnu.org/pnetlib-doc/System/Xml/XmlTextReader.html](http://dotgnu.org/pnetlib-doc/System/Xml/XmlTextReader.html)
 
 Original Perl Implementation
 ----------------------------

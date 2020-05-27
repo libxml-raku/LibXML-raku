@@ -32,7 +32,6 @@ method compile(Str:D $expr) is also<parse> {
 =begin pod
 =head2 Synopsis
 
-  =begin code :lang<raku>
   use LibXML::XPath::Expression;
   my LibXML::XPath::Expression $compiled-xpath .= compile('//foo[@bar="baz"][position()<4]');
   
@@ -49,7 +48,6 @@ method compile(Str:D $expr) is also<parse> {
   my $value = $xpc.findvalue($compiled-xpath, $node);
 
   my LibXML::XPath::Expression $compiled .= new: :expr($xpath-string), :$node;
-  =end code
 
 =head2 Description
 
@@ -60,19 +58,19 @@ same XPath query is evaluated many times. C<<<<<<LibXML::XPath::Expression>>>>>>
 =head2 Methods
 
 =head3 method new
-  =begin code :lang<raku>
+
   method new(
       Str :expr($xpath)!, LibXML::Node :node($ref-node)
   ) returns LibXML::XPath::Expression
-  =end code
+
 The constructor takes an XPath 1.0 expression as a string and returns an object
 representing the pre-compiled expressions (the actual data structure is
 internal to libxml2). 
 
 =head3 method compile
-  =begin code :lang<raku>
+
   method compile( Str $xpath ) returns LibXML::XPath::Expression;
-  =end code
+
 Alternative constructor.
 
 

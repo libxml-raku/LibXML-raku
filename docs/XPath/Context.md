@@ -6,37 +6,35 @@ XPath Evaluation Context
 Synopsis
 --------
 
-```raku
-use LibXML::XPathContext;
-use LibXML::Node;
-my LibXML::XPath::Context $xpc .= new();
-$xpc .= new(:$node, :suppress-warnings, :suppress-errors);
-$xpc.registerNs($prefix, $namespace-uri);
-$xpc.unregisterNs($prefix);
-my Str $uri = $xpc.lookupNs($prefix);
-$xpc.registerVarLookupFunc(&get-variable);
-my &func = $xpc.getVarLookupFunc();
-$xpc.unregisterVarLookupFunc;
-$xpc.registerFunctionNS($name, $uri, &callback);
-$xpc.unregisterFunctionNS($name, $uri);
-$xpc.registerFunction($name, &callback);
-$xpc.unregisterFunction($name);
-my @nodes = $xpc.findnodes($xpath);
-@nodes = $xpc.findnodes($xpath, $ref-node );
-$node = $xpc.first($xpath);
-$node = $xpc.last($xpath);
-my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
-my Any $object = $xpc.find($xpath );
-$object = $xpc.find($xpath, $ref-node );
-my $value = $xpc.findvalue($xpath );
-my Bool $found = $xpc.exists( $xpath, $ref-node );
-$xpc.contextNode = $node;
-$node = $xpc.contextNode;
-my Int $position = $xpc.contextPosition;
-$xpc.contextPosition = $position;
-my Int $size = $xpc.contextSize;
-$xpc.contextSize = $size;
-```
+    use LibXML::XPathContext;
+    use LibXML::Node;
+    my LibXML::XPath::Context $xpc .= new();
+    $xpc .= new(:$node, :suppress-warnings, :suppress-errors);
+    $xpc.registerNs($prefix, $namespace-uri);
+    $xpc.unregisterNs($prefix);
+    my Str $uri = $xpc.lookupNs($prefix);
+    $xpc.registerVarLookupFunc(&get-variable);
+    my &func = $xpc.getVarLookupFunc();
+    $xpc.unregisterVarLookupFunc;
+    $xpc.registerFunctionNS($name, $uri, &callback);
+    $xpc.unregisterFunctionNS($name, $uri);
+    $xpc.registerFunction($name, &callback);
+    $xpc.unregisterFunction($name);
+    my @nodes = $xpc.findnodes($xpath);
+    @nodes = $xpc.findnodes($xpath, $ref-node );
+    $node = $xpc.first($xpath);
+    $node = $xpc.last($xpath);
+    my LibXML::Node::Set $nodes = $xpc.findnodes($xpath, $ref-node );
+    my Any $object = $xpc.find($xpath );
+    $object = $xpc.find($xpath, $ref-node );
+    my $value = $xpc.findvalue($xpath );
+    my Bool $found = $xpc.exists( $xpath, $ref-node );
+    $xpc.contextNode = $node;
+    $node = $xpc.contextNode;
+    my Int $position = $xpc.contextPosition;
+    $xpc.contextPosition = $position;
+    my Int $size = $xpc.contextSize;
+    $xpc.contextSize = $size;
 
 Description
 -----------
@@ -50,55 +48,49 @@ Examples
 
 This example demonstrates `registerNs()` method. It finds all paragraph nodes in an XHTML document.
 
-```raku
-my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
-$xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
-my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
-```
+    my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
+    $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
+    my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
 ### 2. Custom XPath functions
 
 This example demonstrates `registerFunction()` method by defining a function filtering nodes based on a Raku regular expression:
 
-```raku
-sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
-    $nodes.grep: {.textContent ~~ / <$regex> /};
-};
-# -OR-
-sub grep-nodes(Array() $nodes, Str $regex) {
-    $nodes.grep: {.textContent ~~ / <$regex> /};
-};
+    sub grep-nodes(LibXML::Node::Set $nodes, Str $regex) {
+        $nodes.grep: {.textContent ~~ / <$regex> /};
+    };
+    # -OR-
+    sub grep-nodes(Array() $nodes, Str $regex) {
+        $nodes.grep: {.textContent ~~ / <$regex> /};
+    };
 
-my LibXML::Document $doc .= parse: "example/article.xml";
-$node = $doc.root;
-my $xc = LibXML::XPath::Context.new(:$node);
-$xc.registerFunction('grep-nodes', &grep-nodes);
-@nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
-```
+    my LibXML::Document $doc .= parse: "example/article.xml";
+    $node = $doc.root;
+    my $xc = LibXML::XPath::Context.new(:$node);
+    $xc.registerFunction('grep-nodes', &grep-nodes);
+    @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
 
 ### 3. Variables
 
 This example demonstrates `registerVarLookup()` method. We use XPath variables to recycle results of previous evaluations:
 
-```raku
-sub var-lookup(Str $name, Str $uri, Hash $data) {
-  return $data{$name};
-}
+    sub var-lookup(Str $name, Str $uri, Hash $data) {
+      return $data{$name};
+    }
 
-my $areas = LibXML.new.parse: :file('areas.xml');
-my $empl = LibXML.new.parse: :file('employees.xml');
+    my $areas = LibXML.new.parse: :file('areas.xml');
+    my $empl = LibXML.new.parse: :file('employees.xml');
 
-my $xc = LibXML::XPath::Context.new(node => $empl);
+    my $xc = LibXML::XPath::Context.new(node => $empl);
 
-my %variables = (
-  A => $xc.find('/employees/employee[@salary>10000]'),
-  B => $areas.find('/areas/area[district='Brooklyn']/street'),
-);
+    my %variables = (
+      A => $xc.find('/employees/employee[@salary>10000]'),
+      B => $areas.find('/areas/area[district='Brooklyn']/street'),
+    );
 
-# get names of employees from $A working in an area listed in $B
-$xc.registerVarLookupFunc(&var-lookup, %variables);
-my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
-```
+    # get names of employees from $A working in an area listed in $B
+    $xc.registerVarLookupFunc(&var-lookup, %variables);
+    my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
 
 Methods
 -------

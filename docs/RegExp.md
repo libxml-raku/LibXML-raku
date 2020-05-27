@@ -6,18 +6,16 @@ interface to libxml2 regular expressions
 Synopsis
 --------
 
-```raku
-use LibXML::RegExp;
-my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
-my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
-if $compiled-re.isDeterministic() { ... }
-if $compiled-re.matches($string) { ... }
-if $string ~~ $compiled-re { ... }
+    use LibXML::RegExp;
+    my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
+    my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
+    if $compiled-re.isDeterministic() { ... }
+    if $compiled-re.matches($string) { ... }
+    if $string ~~ $compiled-re { ... }
 
-my LibXML::RegExp $compiled-re .= new( :$regexp );
-my Bool $matched = $compiled-re.matches($string);
-my Bool $det     = $compiled-re.isDeterministic();
-```
+    my LibXML::RegExp $compiled-re .= new( :$regexp );
+    my Bool $matched = $compiled-re.matches($string);
+    my Bool $det     = $compiled-re.isDeterministic();
 
 Description
 -----------
@@ -30,10 +28,8 @@ Methods
 method new
 ----------
 
-```raku
-method new(Str :$regexp) returns LibXML
-my LibXML::RegExp $compiled-re .= new( :$regexp );
-```
+    method new(Str :$regexp) returns LibXML
+    my LibXML::RegExp $compiled-re .= new( :$regexp );
 
 The new constructor takes a string containing a regular expression and return an object that contains a compiled regexp.
 

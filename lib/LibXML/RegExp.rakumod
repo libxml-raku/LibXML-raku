@@ -6,18 +6,16 @@ unit class LibXML::RegExp;
 
     =head2 Synopsis
 
-    =begin code :lang<raku>
-    use LibXML::RegExp;
-    my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
-    my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
-    if $compiled-re.isDeterministic() { ... }
-    if $compiled-re.matches($string) { ... }
-    if $string ~~ $compiled-re { ... }
+        use LibXML::RegExp;
+        my LibXML::RegExp $compiled-re .= compile('[0-9]{5}(-[0-9]{4})?');
+        my LibXML::RegExp $compiled-re .= new(rexexp => '[0-9]{5}(-[0-9]{4})?');
+        if $compiled-re.isDeterministic() { ... }
+        if $compiled-re.matches($string) { ... }
+        if $string ~~ $compiled-re { ... }
 
-    my LibXML::RegExp $compiled-re .= new( :$regexp );
-    my Bool $matched = $compiled-re.matches($string);
-    my Bool $det     = $compiled-re.isDeterministic();
-    =end code
+        my LibXML::RegExp $compiled-re .= new( :$regexp );
+        my Bool $matched = $compiled-re.matches($string);
+        my Bool $det     = $compiled-re.isDeterministic();
 
     =head2 Description
 
@@ -43,10 +41,10 @@ submethod TWEAK(Str:D :$regexp!) {
 }
 =begin pod
     =head2 method new
-      =begin code :lang<raku>
-      method new(Str :$regexp) returns LibXML
-      my LibXML::RegExp $compiled-re .= new( :$regexp );
-      =end code
+
+          method new(Str :$regexp) returns LibXML
+          my LibXML::RegExp $compiled-re .= new( :$regexp );
+
     The new constructor takes a string containing a regular expression and return an object that contains a compiled regexp.
 =end pod
 

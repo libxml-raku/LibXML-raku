@@ -6,7 +6,7 @@ unit class LibXML::Native;
 =begin pod
 
 =head2 Synopsis
-    =begin code :lang<raku>
+
     do {
         # Create a document from scratch
         use LibXML::Native;
@@ -18,7 +18,6 @@ unit class LibXML::Native;
         # unreference/destroy before we go out of scope
         .Unreference for $root, $doc;
     }
-    =end code
 
 =head2 Description
 
@@ -32,14 +31,14 @@ used, if needed, to gain access to native objects from this module.
 Some care needs to be taken in keeping persistant references to native structures.
 
 The following is unsafe:
-   =begin code :lang<raku>
+
    my LibXML::Element $elem .= new: :name<Test>;
    my xmlElem:D $native = $elem.native;
    $elem = Nil;
    say $native.Str; # could have been destroyed along with $elem
-   =end code
+
 If the native object supports the `Reference` and `Unreference` methods, the object can be reference counted and uncounted:
-   =begin code :lang<raku>
+
    my LibXML::Element $elem .= new: :name<Test>;
    my xmlElem:D $native = $elem.native;
    $native.Reference; # add a reference to the object
@@ -49,9 +48,9 @@ If the native object supports the `Reference` and `Unreference` methods, the obj
        .Unreference; # unreference, free if no more references
        $_ = Nil;
    }
-   =end code
+
 Otherwise, the object can usually be copied. That copy then needs to be freed, to avoid memory leaks:
-  =begin code :lang<raku>
+
   my LibXML::Namespace $ns .= new: :prefix<foo>, :URI<http://foo.org>;
   my xmlNs:D $native = $ns.native;
   $native .= Copy;
@@ -61,7 +60,6 @@ Otherwise, the object can usually be copied. That copy then needs to be freed, t
       .Free; # free the copy
       $_ = Nil;
   }
-  =end code
 
 =end pod
 

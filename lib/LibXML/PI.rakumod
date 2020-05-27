@@ -27,7 +27,6 @@ multi method setData(Str:D $string) {
 
 =head2 Synopsis
 
-  =begin code :lang<raku>
   use LibXML::Document;
   use LibXML::PI;
   # Only methods specific to Processing Instruction nodes are listed here,
@@ -40,7 +39,6 @@ multi method setData(Str:D $string) {
   $pi.setData( name=>string_value [...] );
 
   $pi.data ~~ s/xxx/yyy/; # Stringy Interface - see LibXML::Text
-  =end code
 
 =head2 Description
 
@@ -51,13 +49,11 @@ access. The PI data is the PI without the PI target (as specified in XML 1.0
 Many processing instructions have attribute like data. Therefore setData() provides,
 in addition to the DOM spec, the passing of named parameters. So the code segment:
 
-  =begin code :lang<raku>
   my LibXML::PI $pi = $dom.createProcessingInstruction("abc");
   $pi.setData(foo=>'bar', foobar=>'foobar');
   $dom.appendChild( $pi );
-  =end code
-will result the following PI in the DOM:
 
+will result the following PI in the DOM:
   =begin code :lang<xml>
   <?abc foo="bar" foobar="foobar"?>
   =end code
@@ -66,9 +62,8 @@ interface creates a temporary Raku object. This can be avoided while
 using the insertProcessingInstruction() method. Instead of the three calls
 described above, the call
 
-  =begin code :lang<raku>
   $dom.insertProcessingInstruction("abc",'foo="bar" foobar="foobar"');
-  =end code
+
 will have the same result as above.
 
 L<LibXML::PI>'s implementation of setData() documented below differs a bit from the standard
@@ -77,10 +72,10 @@ version as available in L<LibXML::Node>:
 =head2 Methods
 
 =head3 method setData
-  =begin code :lang<raku>
-  multi method setData( Str $data_string ) returns Mu
-  multi method setData( %params ) returns Mu
-  =end code
+
+      multi method setData( Str $data_string ) returns Mu
+      multi method setData( %params ) returns Mu
+
 This method allows one to change the content data of a PI. Additionally to the
 interface specified for DOM Level2, the method provides a named parameter
 interface to set the data. This parameter list is converted into a string

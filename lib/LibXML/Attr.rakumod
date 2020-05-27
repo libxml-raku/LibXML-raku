@@ -7,20 +7,18 @@ unit class LibXML::Attr
 =begin pod
     =head2 Synopsis
 
-    =begin code :lang<raku>
-    use LibXML::Attr;
-    use LibXML::Element;
-    # Only methods specific to Attribute nodes are listed here,
-    # see the LibXML::Node documentation for other methods
+        use LibXML::Attr;
+        use LibXML::Element;
+        # Only methods specific to Attribute nodes are listed here,
+        # see the LibXML::Node documentation for other methods
 
-    my LibXML::Attr $attr .= new(:$name, :$value);
-    my Str $value = $attr.value;
-    $att.value = $value;
-    my LibXML::Element $node = $attr.getOwnerElement();
-    $attr.setNamespace($nsURI, $prefix);
-    my Bool $is-id = $attr.isId;
-    my Str $content = $attr.serializeContent;
-    =end code
+        my LibXML::Attr $attr .= new(:$name, :$value);
+        my Str $value = $attr.value;
+        $att.value = $value;
+        my LibXML::Element $node = $attr.getOwnerElement();
+        $attr.setNamespace($nsURI, $prefix);
+        my Bool $is-id = $attr.isId;
+        my Str $content = $attr.serializeContent;
 
     =head2 Description
 
@@ -48,9 +46,9 @@ multi submethod TWEAK(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!
 }
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
-    method new(QName :$name!, Str :$value!, LibXML::Document :$doc) returns LibXML::Attribue
-    =end code
+
+        method new(QName :$name!, Str :$value!, LibXML::Document :$doc) returns LibXML::Attribue
+
     Class constructor.
 =end pod
 
@@ -71,16 +69,16 @@ method ast { self.nodeName => self.nodeValue }
 
 =begin pod
     =head3 method getOwnerElement
-    =begin code :lang<raku>
-    method getOwnerElement() returns LibXML::Element;
-    =end code
+
+        method getOwnerElement() returns LibXML::Element;
+
     Returns the node the attribute belongs to. If the attribute is not bound to a
     node, LibXML::Element:U will be returned.
 
     =head3 method setNamespace
-    =begin code :lang<raku>
-    method setNamespace(Str $nsURI, NCName $prefix);
-    =end code
+
+        method setNamespace(Str $nsURI, NCName $prefix);
+
     This function tries to bound the attribute to a given namespace. If C<$nsURI> is undefined or empty, the function discards any previous association of the
     attribute with a namespace. If the namespace was not previously declared in the
     context of the attribute, this function will fail. In this case you may wish to
@@ -94,26 +92,25 @@ method ast { self.nodeName => self.nodeValue }
     If you don't want the overheads of managing namespaces, a quick way of ensuring
     that the namespace is not rejected is to call the `requireNamespace` method on
     the containing node:
-    =begin code :lang<raku>
-    # re-use any existing definitions in the current scope, or add to the
-    # parent with a generated prefix
-    my $prefix = $att.parent.requireNamespace($uri);
-    $att.setNamespace($uri, $prefix);
-    =end code
+
+        # re-use any existing definitions in the current scope, or add to the
+        # parent with a generated prefix
+        my $prefix = $att.parent.requireNamespace($uri);
+        $att.setNamespace($uri, $prefix);
 
     =head3 method isId
-    =begin code :lang<raku>
-    method isId() returns Bool
-    =end code
+
+        method isId() returns Bool
+
     Determine whether an attribute is of type ID. For documents with a DTD, this
     information is only available if DTD loading/validation has been requested. For
     HTML documents parsed with the HTML parser ID detection is done automatically.
     In XML documents, all "xml:id" attributes are considered to be of type ID.
 
     =head3 method serializeContent
-    =begin code :lang<raku>
-    method serializeContent() returns Bool
-    =end code
+
+        method serializeContent() returns Bool
+
     This function is not part of DOM API. It returns attribute content in the form
     in which it serializes into XML, that is with all meta-characters properly
     quoted and with raw entity references (except for entities expanded during

@@ -4,7 +4,6 @@ unit class LibXML::InputCallback;
 =begin pod
     =head2 Example
 
-      =begin code :lang<raku>
       use LibXML::InputCallback;
       my LibXML::InputCallback $icb .= new: :callbacks{
           match => -> Str $file --> Bool { $file.starts-with('file:') },
@@ -12,7 +11,6 @@ unit class LibXML::InputCallback;
           read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
           close => -> IO::Handle:D $fh { $fh.close },
       };
-      =end code
 
     =head2 Description
 
@@ -86,7 +84,6 @@ unit class LibXML::InputCallback;
     After object instantiation using the parameter-less constructor, you can
     register callback groups.
 
-      =begin code :lang<raku>
       my LibXML::InputCallback.$input-callbacks . = new(
         :&match, :&open, :&read, :&close);
       # setup second callback group (named arguments)
@@ -98,7 +95,6 @@ unit class LibXML::InputCallback;
 
       $parser.input-callbacks = $input-callbacks;
       $parser.parse: :file( $some-xml-file );
-      =end code
 
     Note that this Raku port does not currently support the old Perl Global Callback mechanism.
 
@@ -232,10 +228,10 @@ multi method TWEAK is default {
 }
 =begin pod
     =head3 method new
-    =begin code :lang<raku>
+
         multi method new(Callable :%callbacks) returns LibXML::InoputCallback
         multi method new(Hash :@callbacks) returns LibXML::InoputCallback
-    =end code
+
     A simple constructor.
 
     A `:callbacks` Hash option can be provided with `match`, `open`, `read` and `close`
@@ -255,12 +251,12 @@ multi method register-callbacks(:&match!, :&open!, :&read!, :&close = sub ($) {}
 }
 =begin pod
 =head3 method register-callbacks
-  =begin code :lang<raku>
+
   multi method register-callbacks(:&match!, :&open!, :&read!, :&close);
   # Perl compatibility
   multi method register-callbacks( &match, &open, &read, &close?);
   multi method register-callbacks( @ (&match, &open, &read, &close?));
-  =end code
+
 The four input callbacks in a group are supplied via the `:match`, `:open`, `:read`, and `:close` options.
 
 For Perl compatibility, the four callbacks may be given as array, or positionally in the above order I<match>, I<open>, I<read>, I<close>!
@@ -288,14 +284,13 @@ multi method unregister-callbacks( :&match, :&open, :&read, :&close) is default 
     }
 }
 =begin pod
-=head3 method unregister-callbacks
-    =begin code :lang<raku>
-    multi method unregister-callbacks(:&match, :&open, :&read, :&close);
-    # Perl compatibility
-    multi method unregister-callbacks( &match?, &open?, &read?, &close?);
-    multi method unregister-callbacks( @ (&match?, &open?, &read?, &close?));
-    =end code
-    =para
+    =head3 method unregister-callbacks
+
+        multi method unregister-callbacks(:&match, :&open, :&read, :&close);
+        # Perl compatibility
+        multi method unregister-callbacks( &match?, &open?, &read?, &close?);
+        multi method unregister-callbacks( @ (&match?, &open?, &read?, &close?));
+
     With no arguments given, C<unregister-callbacks()> will delete the last registered callback group from the stack. If four
     callbacks are passed as array, the callback group to unregister will
     be identified by supplied callbacks and deleted from the callback stack. Note that if several callback groups match, ALL of them will be deleted
@@ -343,7 +338,6 @@ method deactivate {
 The following example is a purely fictitious example that uses a
 minimal MyScheme::Handler stub object.
 
-  =begin code :lang<raku>
   use LibXML::Parser;
   use LibXML::InputCallBack;
 
@@ -389,7 +383,6 @@ minimal MyScheme::Handler stub object.
   
   # $some-xml-file will be parsed using our callbacks
   $parser.parse: :file('myscheme:stub.xml')
-  =end code
 
 =head2 Copyright
 

@@ -11,13 +11,11 @@ These are distinct classes in libxml2, but do share common methods: getNamespace
 
 Also note that the [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) `findnodes` method can sometimes return either [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) or [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) items, e.g.:
 
-```raku
-use LibXML::Item;
-for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
-   when LibXML::Namespace { say "namespace: " ~ .Str }
-   when LibXML::Attr      { say "attribute: " ~ .Str }
-}
-```
+    use LibXML::Item;
+    for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
+       when LibXML::Namespace { say "namespace: " ~ .Str }
+       when LibXML::Attr      { say "attribute: " ~ .Str }
+    }
 
 Please see [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) and [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace).
 
@@ -36,20 +34,18 @@ Node constructor from data
 
 This function can be useful as a succinct of building nodes from data. For example:
 
-```raku
-use LibXML::Element;
-use LibXML::Item :&ast-to-xml;
-my LibXML::Element $elem = ast-to-xml(
-    :dromedaries[
-             "\n  ", # white-space
-             '#comment' => ' Element Construction. ',
-             "\n  ", :species[:name<Camel>, :humps["1 or 2"], :disposition["Cranky"]],
-             "\n  ", :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
-             "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
-     "\n",
-     ]);
-say $elem;
-```
+    use LibXML::Element;
+    use LibXML::Item :&ast-to-xml;
+    my LibXML::Element $elem = ast-to-xml(
+        :dromedaries[
+                 "\n  ", # white-space
+                 '#comment' => ' Element Construction. ',
+                 "\n  ", :species[:name<Camel>, :humps["1 or 2"], :disposition["Cranky"]],
+                 "\n  ", :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
+                 "\n  ", :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]],
+         "\n",
+         ]);
+    say $elem;
 
 Produces:
 
@@ -98,17 +94,15 @@ By convention native classes in the LibXML module are not directly exposed, but 
 
 For example to box xmlElem native object:
 
-```raku
-use LibXML::Native;
-use LibXML::Node;
-use LibXML::Element;
+    use LibXML::Native;
+    use LibXML::Node;
+    use LibXML::Element;
 
-my xmlElem $native .= new: :name<Foo>;
-say $native.type; # 1 (element)
-my LibXML::Element $elem .= box($native);
-$!native := Nil;
-say $elem.Str; # <Foo/>
-```
+    my xmlElem $native .= new: :name<Foo>;
+    say $native.type; # 1 (element)
+    my LibXML::Element $elem .= box($native);
+    $!native := Nil;
+    say $elem.Str; # <Foo/>
 
 A containing object of the correct type (LibXML::Element) has been created for the native object.
 
@@ -116,12 +110,12 @@ A containing object of the correct type (LibXML::Element) has been created for t
 
 ```perl6
 method keep(
-    LibXML::Native::DOM::Node $rv,
+    LibXML::Native::DOM::Node $native,
     :$doc = Code.new
 ) returns LibXML::Item
 ```
 
-Utility method that verifies that `$rv` is the same native struct as the current object.
+Utility method that verifies that `$native` is the same native struct as the current object.
 
 Copyright
 ---------

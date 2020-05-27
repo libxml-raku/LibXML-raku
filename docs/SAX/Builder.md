@@ -13,29 +13,27 @@ Example
 
 The following example builds a modified DOM tree with all tags and attributes converted to uppercase.
 
-```raku
-use LibXML::Document;
-use LibXML::SAX::Builder;
-use LibXML::SAX::Handler::SAX2;
+    use LibXML::Document;
+    use LibXML::SAX::Builder;
+    use LibXML::SAX::Handler::SAX2;
 
-class SAXShouter is LibXML::SAX::Handler::SAX2 {
-    use LibXML::SAX::Builder :sax-cb;
-    method startElement($name, |c) is sax-cb {
-        nextwith($name.uc, |c);
+    class SAXShouter is LibXML::SAX::Handler::SAX2 {
+        use LibXML::SAX::Builder :sax-cb;
+        method startElement($name, |c) is sax-cb {
+            nextwith($name.uc, |c);
+        }
+        method endElement($name, |c) is sax-cb {
+            nextwith($name.uc, |c);
+        }
+        method characters($chars, |c) is sax-cb {
+            nextwith($chars.uc, |c);
+        }
     }
-    method endElement($name, |c) is sax-cb {
-        nextwith($name.uc, |c);
-    }
-    method characters($chars, |c) is sax-cb {
-        nextwith($chars.uc, |c);
-    }
-}
 
-my SAXShouter $sax-handler .= new();
-my $string = '<html><body><h1>Hello World</h1></body></html>'
-my LibXML::Document $doc .= parse: :$sax-hander;
-say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
-```
+    my SAXShouter $sax-handler .= new();
+    my $string = '<html><body><h1>Hello World</h1></body></html>'
+    my LibXML::Document $doc .= parse: :$sax-hander;
+    say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
 
 Copyright
 ---------

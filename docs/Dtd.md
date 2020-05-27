@@ -6,18 +6,16 @@ LibXML DTD Handling
 Synopsis
 --------
 
-```raku
-use LibXML::Dtd;
+    use LibXML::Dtd;
 
-my LibXML::Dtd $dtd .= new($public-id, $system-id);
-my LibXML::Dtd $dtd .= parse: :string($dtd-str);
-my Str $dtdName = $dtd.getName();
-my Str $publicId = $dtd.publicId();
-my Str $systemId = $dtd.systemId();
-try { $dtd.validate($doc) };
-my Bool $valid = $dtd.is-valid($doc);
-if $doc ~~ $dtd { ... } # if doc is valid against the DTD
-```
+    my LibXML::Dtd $dtd .= new($public-id, $system-id);
+    my LibXML::Dtd $dtd .= parse: :string($dtd-str);
+    my Str $dtdName = $dtd.getName();
+    my Str $publicId = $dtd.publicId();
+    my Str $systemId = $dtd.systemId();
+    try { $dtd.validate($doc) };
+    my Bool $valid = $dtd.is-valid($doc);
+    if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
 Description
 -----------
@@ -33,33 +31,27 @@ Methods
 
 ### method new
 
-```raku
-# preferred constructor
-multi method new(Str :$public-id, Str :$system-id) returns LibXML::Dtd
-# for Perl compat
-multi method new(Str $public-id, Str $system-id) returns LibXML::Dtd
-```
+    # preferred constructor
+    multi method new(Str :$public-id, Str :$system-id) returns LibXML::Dtd
+    # for Perl compat
+    multi method new(Str $public-id, Str $system-id) returns LibXML::Dtd
 
 Parse a DTD from the system identifier, and return a DTD object that you can pass to $doc.is-valid() or $doc.validate().
 
-```raku
-my $dtd = LibXML::Dtd.new(
-                      "SOME // Public / ID / 1.0",
-                      "test.dtd"
-                                );
-my $doc = LibXML.load: :file("test.xml");
-$doc.validate($dtd);
+    my $dtd = LibXML::Dtd.new(
+                          "SOME // Public / ID / 1.0",
+                          "test.dtd"
+                                    );
+    my $doc = LibXML.load: :file("test.xml");
+    $doc.validate($dtd);
 
-$doc.is-valid($dtd);
-#-OR-
-$doc ~~ $dtd;
-```
+    $doc.is-valid($dtd);
+    #-OR-
+    $doc ~~ $dtd;
 
 ### method parse
 
-```raku
-method parse(Str :string) returns LibXML::Dtd;
-```
+    method parse(Str :string) returns LibXML::Dtd;
 
 The same as new() above, except you can parse a DTD from a string. Note that parsing from string may fail if the DTD contains external parametric-entity references with relative URLs.
 
@@ -87,25 +79,19 @@ Returns True if the passed document is valid against the DTD
 
 ### method getName
 
-```raku
-method getName() returns Str
-```
+    method getName() returns Str
 
 Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
 
 ### method publicId
 
-```raku
-method publicId() returns Str
-```
+    method publicId() returns Str
 
 Returns the public identifier of the external subset.
 
 ### method systemId
 
-```raku
-method systemId() returns Str
-```
+    method systemId() returns Str
 
 Returns the system identifier of the external subset.
 

@@ -6,17 +6,15 @@ XML Schema Validation
 Synopsis
 --------
 
-```raku
-use LibXML::Schema;
-use LibXML;
+    use LibXML::Schema;
+    use LibXML;
 
-my $doc = LibXML.new.parse: :file($url);
+    my $doc = LibXML.new.parse: :file($url);
 
-my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
-my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
-try { $xmlschema.validate( $doc ); };
-if $doc ~~ $xmlschema { ... }
-```
+    my LibXML::Schema $xmlschema  .= new( location => $filename_or_url );
+    my LibXML::Schema $xmlschema2 .= new( string => $xmlschemastring );
+    try { $xmlschema.validate( $doc ); };
+    if $doc ~~ $xmlschema { ... }
 
 Description
 -----------
@@ -28,11 +26,9 @@ Methods
 
 ### method new
 
-```raku
-multi method new( Str :$location!, *%opts ) returns LibXML::Schema
-multi method new( Str :string!,  *%opts ) returns LibXML::Schema
-multi method new( LibXML::Document :$doc!,  *%opts ) returns LibXML::Schema
-```
+    multi method new( Str :$location!, *%opts ) returns LibXML::Schema
+    multi method new( Str :string!,  *%opts ) returns LibXML::Schema
+    multi method new( LibXML::Document :$doc!,  *%opts ) returns LibXML::Schema
 
 The constructor of LibXML::Schema may get called with either one of two parameters. The parameter tells the class from which source it should generate a validation schema. It is important, that each schema only have a single source.
 
@@ -46,20 +42,16 @@ Note that the constructor will die() if the schema does not meed the constraints
 
 ### method validate
 
-```raku
-multi method validate(LibXML::Document $doc) returns Int
-multi method validate(LibXML::Element $elem) returns Int
-try { $xmlschema.validate( $doc ); };
-```
+    multi method validate(LibXML::Document $doc) returns Int
+    multi method validate(LibXML::Element $elem) returns Int
+    try { $xmlschema.validate( $doc ); };
 
 This function allows one to validate a document, or a root element against the given XML Schema. If this function succeeds, it will return 0, otherwise it will die() and report the errors found.
 
 ### method is-valid
 
-```raku
-multi method is-valid(LibXML::Document $doc) returns Bool
-multi method is-valid(LibXML::Element $elem) returns Bool
-```
+    multi method is-valid(LibXML::Document $doc) returns Bool
+    multi method is-valid(LibXML::Element $elem) returns Bool
 
 ### multi method ACCEPTS
 

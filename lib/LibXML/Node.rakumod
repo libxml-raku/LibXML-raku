@@ -9,106 +9,104 @@ unit class LibXML::Node
 
     =head2 Synopsis
 
-    =begin code :lang<raku>
-    use LibXML::Node;
-    my LibXML::Node $node;
+        use LibXML::Node;
+        my LibXML::Node $node;
 
-    # -- Property Methods -- #
-    my Str $name = $node.nodeName;
-    $node.nodeName = $newName;
-    my Bool $same = $node.isSameNode( $other-node );
-    my Str $key = $node.unique-key;
-    my Str $content = $node.nodeValue;
-    $content = $node.textContent;
-    my UInt $type = $node.nodeType;
-    my Str $uri = $node.getBaseURI();
-    $node.setBaseURI($uri);
-    my Str $path = $node.nodePath();
-    my UInt $lineno = $node.line-number();
+        # -- Property Methods -- #
+        my Str $name = $node.nodeName;
+        $node.nodeName = $newName;
+        my Bool $same = $node.isSameNode( $other-node );
+        my Str $key = $node.unique-key;
+        my Str $content = $node.nodeValue;
+        $content = $node.textContent;
+        my UInt $type = $node.nodeType;
+        my Str $uri = $node.getBaseURI();
+        $node.setBaseURI($uri);
+        my Str $path = $node.nodePath();
+        my UInt $lineno = $node.line-number();
 
-    # -- Navigation Methods -- #
-    $parent = $node.parentNode;
-    my LibXML::Node $next = $node.nextSibling();
-    $next = $node.nextNonBlankSibling();
-    my LibXML::Node $prev = $node.previousSibling();
-    $prev = $node.previousNonBlankSibling();
-    my Bool $is-parent = $node.hasChildNodes();
-    $child = $node.firstChild;
-    $child = $node.lastChild;
-    $other-node = $node.getOwner;
-    my LibXML::Node @kids = $node.childNodes();
-    @kids = $node.nonBlankChildNodes();
+        # -- Navigation Methods -- #
+        $parent = $node.parentNode;
+        my LibXML::Node $next = $node.nextSibling();
+        $next = $node.nextNonBlankSibling();
+        my LibXML::Node $prev = $node.previousSibling();
+        $prev = $node.previousNonBlankSibling();
+        my Bool $is-parent = $node.hasChildNodes();
+        $child = $node.firstChild;
+        $child = $node.lastChild;
+        $other-node = $node.getOwner;
+        my LibXML::Node @kids = $node.childNodes();
+        @kids = $node.nonBlankChildNodes();
 
-    # -- DOM Manipulation Methods -- #
-    $node.unbindNode();
-    $node.doc = $doc; # -OR- $node.setOwnerDoc($doc);
-    my LibXML::Node $child = $node.removeChild( $node );
-    $oldNode = $node.replaceChild( $newNode, $oldNode );
-    $childNode = $node.appendChild( $childNode );
-    $node = $parent.addNewChild( $nsURI, $name );
-    $node.replaceNode($newNode);
-    $node.addSibling($newNode);
-    $newnode = $node.cloneNode( :deep );
-    $node.insertBefore( $newNode, $refNode );
-    $node.insertAfter( $newNode, $refNode );
-    $node.removeChildNodes();
-    $node.ownerDocument = $doc;
+        # -- DOM Manipulation Methods -- #
+        $node.unbindNode();
+        $node.doc = $doc; # -OR- $node.setOwnerDoc($doc);
+        my LibXML::Node $child = $node.removeChild( $node );
+        $oldNode = $node.replaceChild( $newNode, $oldNode );
+        $childNode = $node.appendChild( $childNode );
+        $node = $parent.addNewChild( $nsURI, $name );
+        $node.replaceNode($newNode);
+        $node.addSibling($newNode);
+        $newnode = $node.cloneNode( :deep );
+        $node.insertBefore( $newNode, $refNode );
+        $node.insertAfter( $newNode, $refNode );
+        $node.removeChildNodes();
+        $node.ownerDocument = $doc;
 
-    # -- Searching Methods -- #
-    #    * XPath *
-    my LibXML::Node @found = $node.findnodes( $xpath-expression );
-    my LibXML::Node::Set $results = $node.find( $xpath-expression );
-    print $node.findvalue( $xpath-expression );
-    my Bool $found = $node.exists( $xpath-expression );
-    $found = $xpath-expression ~~ $node;
-    my LibXML::Node $item = $node.first( $xpath-expression );
-    $item = $node.last( $xpath-expression );
-    #    * CSS selectors *
-    $node.query-handler = CSS::Selector::To::XPath.new; # setup a query selector handler
-    $item = $node.querySelector($css-selector); # first match
-    $results = $node.querySelectorAll($css-selector); # all matches
+        # -- Searching Methods -- #
+        #    * XPath *
+        my LibXML::Node @found = $node.findnodes( $xpath-expression );
+        my LibXML::Node::Set $results = $node.find( $xpath-expression );
+        print $node.findvalue( $xpath-expression );
+        my Bool $found = $node.exists( $xpath-expression );
+        $found = $xpath-expression ~~ $node;
+        my LibXML::Node $item = $node.first( $xpath-expression );
+        $item = $node.last( $xpath-expression );
+        #    * CSS selectors *
+        $node.query-handler = CSS::Selector::To::XPath.new; # setup a query selector handler
+        $item = $node.querySelector($css-selector); # first match
+        $results = $node.querySelectorAll($css-selector); # all matches
 
-    # -- Serialization Methods -- #
-    my Str $xml = $node.Str(:format);
-    my Str $xml-c14 = $node.Str: :C14N;
-    $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
-    $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression);
-    $xml = $doc.serialize(:format);
-    # -- Binary serialization/encoding
-    my blob8 $buf = $node.Blob(:format, :enc<UTF-8>);
-    # -- Data  serialization -- #
-    use LibXML::Item :ast-to-xml;
-    my $node-data = $node.ast;
-    my LibXML::Node $node2 = ast-to-xml($node-data);
+        # -- Serialization Methods -- #
+        my Str $xml = $node.Str(:format);
+        my Str $xml-c14 = $node.Str: :C14N;
+        $xml-c14 = $node.Str: :C14N, :comments, :xpath($expression), :exclusive;
+        $xml-c14 = $node.Str :C14N, :v1_1, :xpath($expression);
+        $xml = $doc.serialize(:format);
+        # -- Binary serialization/encoding
+        my blob8 $buf = $node.Blob(:format, :enc<UTF-8>);
+        # -- Data  serialization -- #
+        use LibXML::Item :ast-to-xml;
+        my $node-data = $node.ast;
+        my LibXML::Node $node2 = ast-to-xml($node-data);
 
-    # -- Namespace Methods -- #
-    my LibXML::Namespace @ns = $node.getNamespaces;
-    my Str $localname = $node.localname;
-    my Str $prefix = $node.prefix;
-    my Str $uri = $node.namespaceURI();
-    $uri = $node.lookupNamespaceURI( $prefix );
-    $prefix = $node.lookupNamespacePrefix( $URI );
-    $node.normalize;
+        # -- Namespace Methods -- #
+        my LibXML::Namespace @ns = $node.getNamespaces;
+        my Str $localname = $node.localname;
+        my Str $prefix = $node.prefix;
+        my Str $uri = $node.namespaceURI();
+        $uri = $node.lookupNamespaceURI( $prefix );
+        $prefix = $node.lookupNamespacePrefix( $URI );
+        $node.normalize;
 
-    # -- Positional interface -- #
-    $node.push: LibXML::Element.new: :name<A>;
-    $node.push: LibXML::Element.new: :name<B>;
-    say $node[1].Str; # <B/>
-    $node[1] = LibXML::Element.new: :name<C>;
-    say $node.values.map(*.Str).join(':');  # <A/>:<C/>
-    $node.pop;  # remove last child
+        # -- Positional interface -- #
+        $node.push: LibXML::Element.new: :name<A>;
+        $node.push: LibXML::Element.new: :name<B>;
+        say $node[1].Str; # <B/>
+        $node[1] = LibXML::Element.new: :name<C>;
+        say $node.values.map(*.Str).join(':');  # <A/>:<C/>
+        $node.pop;  # remove last child
 
-    # -- Associative interface -- #
-    say $node.keys; # A B text() ..
-    for $node<A> { ... }; # all '<A>..</A>' child nodes
-    for $node<text()> { ... }; # text nodes
-    =end code
+        # -- Associative interface -- #
+        say $node.keys; # A B text() ..
+        for $node<A> { ... }; # all '<A>..</A>' child nodes
+        for $node<text()> { ... }; # text nodes
 
     =head2 Description
 
     LibXML::Node defines functions that are common to all Node Types. An
     LibXML::Node should never be created standalone, but as an instance of a high
-    level class such as L<<<LibXML::Element>>> or L<<<LibXML::Text>>>. The class itself should
+    level class such as L<LibXML::Element> or L<LibXML::Text>. The class itself should
     provide only common functionality. In LibXML each node is part either of a
     document or a document-fragment. Because of this there is no node without a
     parent.
@@ -168,6 +166,7 @@ submethod DESTROY {
 }
 
 method getName { self.getNodeName }
+
 #| Gets or sets the node name
 method nodeName is rw is also<name tag tagName> returns Str {
     Proxy.new(
@@ -185,18 +184,18 @@ full name of the current node (C<prefix:localname>).
 `#document-fragment`.
 
     =head3 method setNodeName
-    =begin code :lang<raku>
-    method setNodeName(Str $new-name)
-    # -Or-
-    $.nodeName = $new-name
-    =end code
+
+        method setNodeName(QName $new-name)
+        # -Or-
+        $.nodeName = $new-name
+
     In very limited situations, it is useful to change a nodes name. In the DOM
     specification this should throw an error. This Function is aware of namespaces.
 
     =head3 method unique-key
-    =begin code :lang<raku>
-    method unique-key() returns Str
-    =end code
+
+        method unique-key() returns Str
+
     This function is not specified for any DOM level. It returns a key guaranteed
     to be unique for this node, and to always be the same value for this node. In
     other words, two node objects return the same key if and only if isSameNode
@@ -205,9 +204,9 @@ full name of the current node (C<prefix:localname>).
     The returned key value is useful as a key in hashes.
 
     =head3 method nodePath
-    =begin code :lang<raku>
-    method nodePath() returns Str
-    =end code
+
+        method nodePath() returns Str
+
     This function is not specified for any DOM level: It returns a canonical
     structure based XPath for a given node.
 
@@ -338,10 +337,10 @@ method doc is rw is also<ownerDocument> {
 }
 =begin pod
 ownerDocument
-  =begin code :lang<raku>
-  method ownerDocument is rw returns LibXML::Document
-  my LibXML::Document $doc = $node.ownerDocument;
-  =end code
+
+      method ownerDocument is rw returns LibXML::Document
+      my LibXML::Document $doc = $node.ownerDocument;
+
 Gets or sets the owner document for the node
 =end pod
 
@@ -383,22 +382,23 @@ method childNodes(Bool :$blank = True) is also<getChildnodes children nodes> han
 }
 =begin pod
     =head3 method childNodes
+
+        method childNodes(Bool :$blank = True) returns LibXML::Node::List
+
     =para
     Get child nodes of a node
-    =begin code :lang<raku>
-    method childNodes(Bool :$blank = True) returns LibXML::Node::List
-    =end code
+
     I<childNodes> implements a more intuitive interface to the childnodes of the current node. It
     enables you to pass all children directly to a C<map> or C<grep>.
 
     Note that child nodes are iterable:
-    =begin code :lang<raku>
-    for $elem.childNodes { ... }
-    =end code
+
+        for $elem.childNodes { ... }
+
     They also directly support a number of update operations, including 'push' (add an element), 'pop' (remove last element) and ASSIGN-POS, e.g.:
-    =begin code :lang<raku>
-    $elem.childNodes[3] = LibXML::TextNode.new('p', 'replacement text for 4th child');
-    =end code
+
+        $elem.childNodes[3] = LibXML::TextNode.new('p', 'replacement text for 4th child');
+
 =end pod
 
 method nonBlankChildNodes {
@@ -406,12 +406,11 @@ method nonBlankChildNodes {
 }
 =begin pod
     =head3 method nonBlankChildNodes
-    =para
+
+        method nonBlankChildNodes() returns LibXML::Node::List
+
     Get non-blank child nodes of a node
-    =begin code :lang<raku>
-    method nonBlankChildNodes() returns LibXML::Node::List
-    =end code
-    =para
+ 
     This equivalent to I<childNodes(:!blank)>. It returns only non-blank nodes (where a node is blank if it is a Text or
     CDATA node consisting of whitespace only). This method is not defined by DOM.
 =end pod
@@ -455,14 +454,15 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) {
     LibXML::Node.box: $!native.addNewChild($uri, $name);
 }
 =begin pod
-    =para
+    =head3 method addNewChild
+
+        method addNewChild(
+            Str $uri,
+            QName $name
+        ) returns LibXML::Element
+
     Vivify and add a new child element.
-    =begin code :lang<raku>
-    method addNewChild(
-        Str $uri,
-        QName $name
-    ) returns LibXML::Element
-    =end code   
+
     Similar to C<addChild()>, this function uses low level libxml2 functionality to provide faster
     interface for DOM building. I<addNewChild()> uses C<xmlNewChild()> to create a new node on a given parent element.
 
@@ -492,7 +492,7 @@ method addSibling(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Copy a node
 method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
-    &?ROUTINE.returns.box: $!native.cloneNode($deep), :doc(LibXML::Node);
+    &?ROUTINE.returns.box: $!native.cloneNode($deep), :$.doc;
 }
 =para When $deep is True the function will copy all child nodes as well.
     Otherwise the current node will be copied. Note that in case of
@@ -524,10 +524,9 @@ method removeChildNodes(--> LibXML::Node) {
 }
 =begin pod
     =head3 method removeChildNodes
-    =begin code :lang<raku>
-    method removeChildNodes() returns LibXML::DocumentFragment
-    =end code             
-    =para
+
+        method removeChildNodes() returns LibXML::DocumentFragment
+
     Remove all child nodes, which are returned as a L<LibXML::DocumentFragment>
     This function is not specified for any DOM level: It removes all childnodes
     from a node in a single step.
@@ -541,28 +540,28 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
 }
 =begin pod
     =head3 method findnodes
-    =begin code :lang<raku>
-    multi method findnodes(Str $xpath-expr,
-                           LibXML::Node $ref-node?,
-                           Bool :$deref) returns LibXML::Node::Set 
-    multi method findnodes(LibXML::XPath::Expression:D $xpath-expr,
-                           LibXML::Node $ref-node?,
-                           Bool :$deref) returns LibXML::Node::Set
-    # Examples:
-    my LibXML::Node @nodes = $node.findnodes( $xpath-expr );
-    my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expr, :deref );
-    for $node.findnodes($xpath-expr) {...}
-    =end code
+
+        multi method findnodes(Str $xpath-expr,
+                               LibXML::Node $ref-node?,
+                               Bool :$deref) returns LibXML::Node::Set 
+        multi method findnodes(LibXML::XPath::Expression:D $xpath-expr,
+                               LibXML::Node $ref-node?,
+                               Bool :$deref) returns LibXML::Node::Set
+        # Examples:
+        my LibXML::Node @nodes = $node.findnodes( $xpath-expr );
+        my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expr, :deref );
+        for $node.findnodes($xpath-expr) {...}
+
     I<findnodes> evaluates the XPath expression (XPath 1.0) on the current node and returns the
     resulting node set as an array; returning an L<LibXML::Node::Set> object.
 
     The XPath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
     The `:deref` option has an effect on associatve indexing:
-    =begin code :lang<raku>
-    my $humps = $node.findnodes("dromedaries/species")<species/humps>;
-    my $humps = $node.findnodes("dromedaries/species", :deref)<humps>;
-    =end code
+
+        my $humps = $node.findnodes("dromedaries/species")<species/humps>;
+        my $humps = $node.findnodes("dromedaries/species", :deref)<humps>;
+
     It indexes element child nodes and attributes. This option is used by the `AT-KEY` method (see below).
 
     I<NOTE ON NAMESPACES AND XPATH>:
@@ -583,26 +582,24 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
         The recommended way is to define a document
         independent prefix-to-namespace mapping. For example: 
 
-          =begin code :lang<raku>
           $node.xpath-context.registerNs('x', 'http://www.w3.org/1999/xhtml');
           $node.find('/x:html');
-          =end code
+
         =end item
         =begin item
         Another possibility is to use prefixes declared in the queried document (if
         known). If the document declares a prefix for the namespace in question (and
         the context node is in the scope of the declaration), C<LibXML> allows you to use the prefix in the XPath expression, e.g.: 
 
-          =begin code :lang<raku>
           $node.find('/xhtml:html');
-          =end code
+
         =end item
 
     =head3 method find
-    =begin code :lang<raku>
-    multi method find( Str $xpath ) returns Any
-    multi method find( LibXML::XPath::Expression:D $xpath ) returns Any
-    =end code
+
+      multi method find( Str $xpath ) returns Any
+      multi method find( LibXML::XPath::Expression:D $xpath ) returns Any
+
     I<find> evaluates the XPath 1.0 expression using the current node as the context of the
     expression, and returns the result depending on what type of result the XPath
     expression had. For example, the XPath "1 * 3 + 52" results in a L<Numeric> object being returned. Other expressions might return an L<Bool> object, or a L<Str> object.
@@ -612,15 +609,13 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     See also L<LibXML::XPathContext>.find.
 
     =head3 method findvalue
-    =begin code :lang<raku>
-    multi method findvalue( Str $xpath ) returns Str
-    multi method findvalue( LibXML::XPath::Expression:D $xpath ) returns Str
-    =end code
+
+      multi method findvalue( Str $xpath ) returns Str
+      multi method findvalue( LibXML::XPath::Expression:D $xpath ) returns Str
+
     I<findvalue> is equivalent to:
 
-      =begin code :lang<raku>
       $node.find( $xpath ).to-literal;
-      =end code
 
     That is, it returns the literal value of the results. This enables you to
     ensure that you get a string back from your search, allowing certain shortcuts.
@@ -632,34 +627,34 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
     =head3 method first
-    =begin code :lang<raku>
-    multi method first(Bool :$blank=True) returns LibXML::Node
-    multi method first(Str $xpath-expr) returns LibXML::Node
-    multi method first(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
-    # Examples
-    my $child = $node.first;          # first child
-    my $child = $node.first: :!blank; # first non-blank child
-    my $descendant = $node.first($xpath-expr);
-    =end code
+
+        multi method first(Bool :$blank=True) returns LibXML::Node
+        multi method first(Str $xpath-expr) returns LibXML::Node
+        multi method first(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
+        # Examples
+        my $child = $node.first;          # first child
+        my $child = $node.first: :!blank; # first non-blank child
+        my $descendant = $node.first($xpath-expr);
+
     This node returns the first child node, or descendant node that matches an optional XPath expression.
 
     =head3 method last
-    =begin code :lang<raku>
-    multi method last(Bool :$blank=True) returns LibXML::Node
-    multi method last(Str $xpath-expr) returns LibXML::Node
-    multi method last(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
-    # Examples
-    my $child = $node.last;          # last child
-    my $child = $node.last: :!blank; # last non-blank child
-    my $descendant = $node.last($xpath-expr);
-    =end code
+
+        multi method last(Bool :$blank=True) returns LibXML::Node
+        multi method last(Str $xpath-expr) returns LibXML::Node
+        multi method last(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
+        # Examples
+        my $child = $node.last;          # last child
+        my $child = $node.last: :!blank; # last non-blank child
+        my $descendant = $node.last($xpath-expr);
+
     This node returns the last child node, or descendant node that matches an optional XPath expression.
 
     =head3 method exists
-    =begin code :lang<raku>
-    multi method exists(Str $xpath-expr) returns Bool
-    multi method exist(LibXML::XPath::Expression:D $xpath-expr) returns Bool
-    =end code
+
+        multi method exists(Str $xpath-expr) returns Bool
+        multi method exist(LibXML::XPath::Expression:D $xpath-expr) returns Bool
+
     This method behaves like I<findnodes>, except that it only returns a boolean value (True if the expression matches a
     node, False otherwise) and may be faster than I<findnodes>, because the XPath evaluation may stop early on the first match.
 
@@ -667,25 +662,24 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     the returned value is a non-zero number or a non-empty string.
 
     =head3 xpath-context
-    =begin code :lang<raku>
-    method xpath-context returns LibXML::XPath::Context
-    =end code
+
+        method xpath-context() returns LibXML::XPath::Context
+
     Gets the L<LibXML::XPath::Context> object that is used for xpath queries (including `find()`, `findvalue()`, `exists()` and some `AT-KEY` queries.
-      =begin code :lang<raku>
+
       $node.xpath-context.set-options: :suppress-warnings, :suppress-errors;
-      =end code
 
     =head3 methods query-handler, querySelector, querySelectorAll
 
     These methods provide pluggable support for CSS (or other 3rd party) Query Selectors. See https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE. For example,
     to use the L<CSS::Selector::To::XPath> (module available separately).
-    =begin code :lang<raku>
-    use CSS::Selector::To::XPath;
-    $doc.query-handler = CSS::Selector::To::XPath.new;
-    my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
-    my $results = $doc.querySelectorAll($result-query);
-    my $first-result = $doc.querySelector($result-query);
-    =end code
+
+        use CSS::Selector::To::XPath;
+        $doc.query-handler = CSS::Selector::To::XPath.new;
+        my $result-query = "#score>tbody>tr>td:nth-of-type(2)"
+        my $results = $doc.querySelectorAll($result-query);
+        my $first-result = $doc.querySelector($result-query);
+
     See L<LibXML::XPath::Context> for more details.
 =end pod
 
@@ -789,10 +783,9 @@ multi method Str(:$C14N! where .so, |c) {
 }
 =begin pod
     =head3 multi method Str :C14N
-    =begin code :lang<raku>
-    multi method Str(Bool :C14N!, *%opts) returns Str
-    =end code
-    =para
+
+        multi method Str(Bool :C14N!, *%opts) returns Str
+
     `$node.Str( :C14N, |%opts)` is equivalent to `$node.canonicalize(|%opts)`
 =end pod
 
@@ -802,19 +795,18 @@ multi method Str(|c) is also<gist> is default {
 }
 =begin pod
     =head3 multi method Str() returns Str
-    =begin code :lang<raku>
-    method Str(Bool :$format, Bool :$tag-expansion) returns Str;
-    =end code
-    =para
+
+        method Str(Bool :$format, Bool :$tag-expansion) returns Str;
+
     This method is similar to the method C<Str> of a L<LibXML::Document> but for a single node. It returns a string consisting of XML serialization of
     the given node and all its descendants.
 =end pod
 
 =begin pod
     =head3 method serialize
-    =begin code :lang<raku>
-    method serialize(*%opts) returns Str
-    =end code
+
+        method serialize(*%opts) returns Str
+
     An alias for Str. This function name was added to be more consistent
     with libxml2.
 =end pod
@@ -824,17 +816,16 @@ method Blob(Str :$enc, |c) {
     $!native.Blob(:$enc, :$options);
 }
 =begin pod
-    head3 method Blob() returns Blob
-    =begin code :lang<raku>
-    method Blob(
-        xmlEncodingStr :$enc = 'UTF-8',
-        Bool :$format,
-        Bool :$tag-expansion
-    ) returns Blob;
-    =end code
-    =para
-    Returns a binary representation  of the XML
-    node and it decendants encoded as `:$enc`.
+    =head3 method Blob() returns Blob
+
+        method Blob(
+            xmlEncodingStr :$enc = 'UTF-8',
+            Bool :$format,
+            Bool :$tag-expansion
+        ) returns Blob;
+
+   Returns a binary representation  of the XML
+   node and it decendants encoded as `:$enc`.
 =end pod
 
 #| Data serialization
@@ -844,11 +835,11 @@ method ast(Bool :$blank = config.keep-blanks --> Pair) {
 =begin pod
     =para
     This method performs a deep data-serialization of the node. The L<LibXML::Item> X<ast-to-xml()> function can then be used to create a deep copy of the node;
-    =begin code :lang<raku>
-    use LibXML::Item :ast-to-xml;
-    my $ast = $node.ast;
-    my LibXML::Node $copy = ast-to-xml($ast);
-    =end code
+
+        use LibXML::Item :ast-to-xml;
+        my $ast = $node.ast;
+        my LibXML::Node $copy = ast-to-xml($ast);
+
 =end pod
 
 multi method save(IO::Handle :$io!, Bool :$format = False) {
@@ -924,10 +915,10 @@ method getNamespaces is also<namespaces> {
 }
 =begin pod
     =head3 method getNamespaces
-    =begin code :lang<raku>
-    method getNamespaces returns LibXML::Node::List
-    my LibXML::Namespace @ns = $node.getNamespaces;
-    =end code
+
+        method getNamespaces returns LibXML::Node::List
+        my LibXML::Namespace @ns = $node.getNamespaces;
+
     If a node has any namespaces defined, this function will return these
     namespaces. Note, that this will not return all namespaces that are in scope,
     but only the ones declared explicitly for that node.
@@ -942,15 +933,15 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.hr
 # handled by native method
 =begin pod
     =head3 method lookupNamespaceURI
-      =begin code :lang<raku>
+
       method lookupNamespaceURI( NCName $prefix ) returns Str;
-      =end code
+
     Find a namespace URI by its prefix starting at the current node.
 
     =head3 method lookupNamespacePrefix
-      =begin code :lang<raku>
+
       method lookupNamespacePrefix( Str $URI ) returns NCName;
-      =end code
+
     Find a namespace prefix by its URI starting at the current node.
 
     I<NOTE> Only the namespace URIs are meant to be unique. The prefix is only document
@@ -958,9 +949,9 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.hr
     namespace.
 
     =head3 method normalize
-    =begin code :lang<raku>
-    $node.normalize;
-    =end code
+
+        method normalize() returns Str
+
     This function normalizes adjacent text nodes. This function is not as strict as
     libxml2's xmlTextMerge() function, since it will not free a node that is still
     referenced by Raku.
@@ -973,15 +964,13 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.hr
 =begin pod
   =head3 methods AT-KEY, keys
 
-  =begin code :lang<raku>
-  say $node.AT-KEY("species");
-  #-OR-
-  say $node<species>;
+      say $node.AT-KEY("species");
+      #-OR-
+      say $node<species>;
 
-  say $node<species>.keys; # (disposition text() @name humps)
-  say $node<species/humps>;
-  say $node<species><humps>;
-  =end code
+      say $node<species>.keys; # (disposition text() @name humps)
+      say $node<species/humps>;
+      say $node<species><humps>;
 
   This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`.                                                   
 

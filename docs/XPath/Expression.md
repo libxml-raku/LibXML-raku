@@ -6,24 +6,22 @@ Interface to LibXML pre-compiled XPath Expressions
 Synopsis
 --------
 
-```raku
-use LibXML::XPath::Expression;
-my LibXML::XPath::Expression $compiled-xpath .= compile('//foo[@bar="baz"][position()<4]');
+    use LibXML::XPath::Expression;
+    my LibXML::XPath::Expression $compiled-xpath .= compile('//foo[@bar="baz"][position()<4]');
 
-# interface from LibXML::Node
+    # interface from LibXML::Node
 
-my $result = $node.find($compiled-xpath);
-my @nodes = $node.findnodes($compiled-xpath);
-my $value = $node.findvalue($compiled-xpath);
+    my $result = $node.find($compiled-xpath);
+    my @nodes = $node.findnodes($compiled-xpath);
+    my $value = $node.findvalue($compiled-xpath);
 
-# interface from LibXML::XPath::Context
+    # interface from LibXML::XPath::Context
 
-my $result = $xpc.find($compiled-xpath, $node);
-my @nodes = $xpc.findnodes($compiled-xpath, $node);
-my $value = $xpc.findvalue($compiled-xpath, $node);
+    my $result = $xpc.find($compiled-xpath, $node);
+    my @nodes = $xpc.findnodes($compiled-xpath, $node);
+    my $value = $xpc.findvalue($compiled-xpath, $node);
 
-my LibXML::XPath::Expression $compiled .= new: :expr($xpath-string), :$node;
-```
+    my LibXML::XPath::Expression $compiled .= new: :expr($xpath-string), :$node;
 
 Description
 -----------
@@ -35,19 +33,15 @@ Methods
 
 ### method new
 
-```raku
-method new(
-    Str :expr($xpath)!, LibXML::Node :node($ref-node)
-) returns LibXML::XPath::Expression
-```
+    method new(
+        Str :expr($xpath)!, LibXML::Node :node($ref-node)
+    ) returns LibXML::XPath::Expression
 
 The constructor takes an XPath 1.0 expression as a string and returns an object representing the pre-compiled expressions (the actual data structure is internal to libxml2). 
 
 ### method compile
 
-```raku
-method compile( Str $xpath ) returns LibXML::XPath::Expression;
-```
+    method compile( Str $xpath ) returns LibXML::XPath::Expression;
 
 Alternative constructor.
 
