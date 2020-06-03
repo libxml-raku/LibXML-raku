@@ -280,6 +280,10 @@ role LibXML::ErrorHandling {
     multi sub throw('e', X::LibXML:D $err) is hidden-from-backtrace { die $err }
     multi sub throw('w', X::LibXML:D $err) is hidden-from-backtrace { warn $err }
 
+    method will-die(--> Bool) {
+        @!errors.first(*.level >= XML_ERR_ERROR).defined;
+    }
+
     method flush-errors(:$recover = $.recover) is hidden-from-backtrace {
         my X::LibXML @errs = @!errors;
         @!errors = ();

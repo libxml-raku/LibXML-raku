@@ -84,15 +84,15 @@ is also<process-xincludes> {
     $ctx.try: { $doc.XIncludeProcessFlags($flags) }
 }
 
-proto method parse(|c) is also<load> {
-    with self {return {*}} else { self.new.parse(|c) }
-}
+proto method parse(|c) is also<load> {*}
 
-multi method parse(Str:D() :$string!,
-                   Bool() :$html = $!html,
-                   Str() :$URI = $!URI,
-                   *%opts 
-                  ) {
+multi method parse(
+    LibXML::Parser:D:
+    Str:D() :$string!,
+    Bool() :$html = $!html,
+    Str() :$URI = $!URI,
+    *%opts 
+) is hidden-from-backtrace {
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
@@ -109,12 +109,14 @@ multi method parse(Str:D() :$string!,
     self!publish: :$ctx;
 }
 
-multi method parse(Blob:D :$buf!,
-                   Bool() :$html = $!html,
-                   Str() :$URI = $!URI,
-                   xmlEncodingStr :$enc = $!enc,
-                   *%opts,
-                  ) {
+multi method parse(
+    LibXML::Parser:D:
+    Blob:D :$buf!,
+    Bool() :$html = $!html,
+    Str() :$URI = $!URI,
+    xmlEncodingStr :$enc = $!enc,
+    *%opts,
+) is hidden-from-backtrace {
 
     my xmlParserCtxt:D $native = $html
        ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
@@ -130,34 +132,42 @@ multi method parse(Blob:D :$buf!,
     self!publish: :$ctx;
 }
 
-multi method parse(Str() :$file!,
-                   Bool() :$html = $!html,
-                   xmlEncodingStr :$enc = $!enc,
-                   Str :$URI = $!URI,
-                   *%opts,
-                  ) {
+multi method parse(
+    LibXML::Parser:D:
+    Str() :$file!,
+    Bool() :$html = $!html,
+    xmlEncodingStr :$enc = $!enc,
+    Str :$URI = $!URI,
+    *%opts,
+) is hidden-from-backtrace {
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
     $ctx.try: {
         my xmlParserCtxt $native = $html
            ?? htmlFileParserCtxt.new(:$file, :$enc)
            !! xmlFileParserCtxt.new(:$file);
-        die "unable to load file: $file"
-            without $native;
-        $ctx.set-native: $native;
-        $native.ParseDocument;
+        with $native {
+            $ctx.set-native: $_;
+            .ParseDocument;
+        }
+        else {
+            $ctx.generic-error("unable to load file: %s", $file)\
+                unless $ctx.will-die();
+        }
         $ctx.close();
     };
 
     self!publish: :$URI, :$ctx;
 }
 
-multi method parse(UInt :$fd!,
-                   Str :$URI = $!URI,
-                   Bool() :$html = $!html,
-                   xmlEncodingStr :$enc = $!enc,
-                   *%opts,
-                  ) {
+multi method parse(
+    LibXML::Parser:D:
+    UInt :$fd!,
+    Str :$URI = $!URI,
+    Bool() :$html = $!html,
+    xmlEncodingStr :$enc = $!enc,
+    *%opts,
+) is hidden-from-backtrace {
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
     my UInt $flags = self.get-flags(|%opts, :$html);
@@ -175,25 +185,37 @@ multi method parse(UInt :$fd!,
     self!publish: :$ctx, :native($doc);
 }
 
-multi method parse(IO::Handle:D :$io!,
-                   Str :$URI = $io.path.path,
-                   |c) {
+multi method parse(
+    LibXML::Parser:D:
+    IO::Handle:D :$io!,
+    Str :$URI = $io.path.path,
+    |c) is hidden-from-backtrace {
     my UInt:D $fd = $io.native-descriptor;
     $io.?do-not-close-automatically();
     self.parse( :$fd, :$URI, |c);
 }
 
-multi method parse(IO() :io($path)!, |c) {
+multi method parse(
+    LibXML::Parser:D:
+    IO() :io($path)!,
+    |c
+) is hidden-from-backtrace {
     my IO::Handle $io = $path.open(:bin, :r);
     $.parse(:$io, |c);
 }
 
-multi method parse(Str() :location($file)!, |c) {
+multi method parse(
+    LibXML::Parser:D:
+    Str() :location($file)!,
+    |c) is hidden-from-backtrace {
     $.parse(:$file, |c);
 }
 
 # parse from a Miscellaneous source
-multi method parse(Any:D $src, |c) is default {
+multi method parse(
+    LibXML::Parser:D:
+    Any:D $src,
+    |c) is hidden-from-backtrace {
     my Pair $in = do with $src {
         when IO::Handle
         |    IO::Path   { :io($_) }
@@ -202,6 +224,10 @@ multi method parse(Any:D $src, |c) is default {
         default { fail "Unrecognised parser input: {.perl}"; }
     }
     $.parse( |$in, |c );
+}
+
+multi method parse(LibXML::Parser:U: |c) is hidden-from-backtrace is default {
+     self.new.parse(|c);
 }
 
 has LibXML::PushParser $!push-parser;
