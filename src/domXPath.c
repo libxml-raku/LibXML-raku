@@ -167,7 +167,6 @@ static xmlNodePtr _domNewItem(xmlNodePtr item) {
 static xmlNodePtr _domReferenceItem(xmlNodePtr item) {
     xmlNodePtr owner = _domItemOwner(item);
     if (owner != NULL) {
-        assert(owner->type != XML_NAMESPACE_DECL);
         xml6_node_add_reference(owner);
     }
     return item;
@@ -176,7 +175,7 @@ static xmlNodePtr _domReferenceItem(xmlNodePtr item) {
 static xmlNodePtr _domUnreferenceItem(xmlNodePtr item) {
     xmlNodePtr owner = _domItemOwner(item);
     if (owner != NULL) {
-        xml6_node_remove_reference(item);
+        xml6_node_remove_reference(owner);
     }
     return owner;
 }
