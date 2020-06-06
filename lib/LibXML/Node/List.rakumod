@@ -10,13 +10,12 @@ use Method::Also;
 has Bool:D $.blank = False;
 has $.doc is required;
 has $!native handles <string-value>;
-has LibXML::Item $!first;
 has $!cur;
 has $.of is required;
 has int $.idx = 0;
 has LibXML::Item @!store;
 has Hash $!hstore;
-has Bool $!lazy = True;
+has Bool $!reified;
 has LibXML::Item $.parent is required;
 
 submethod TWEAK {
@@ -25,37 +24,22 @@ submethod TWEAK {
         when $!of.isa("LibXML::Namespace") { .nsDef }
         default { .first-child(+$!blank); }
     }
-    $!first = $!of.box: $_ with $!native;
     $!cur = $!native;
     $!idx = 0;
 }
 
 method Array handles<elems List list values map grep Numeric tail> {
-    if $!lazy-- {
-        $!idx = 0;
-        $!cur = $!native;
-        @!store = self;
-    }
+    self.pull-one until $!reified;
     @!store;
 }
-method first { $!first }
+method first {
+    self.AT-POS(0);
+}
 
-# allow lazy incremental iteration
 method AT-POS(UInt() $pos) {
-    when $pos == $!idx {
-        # current element
-        $!of.box: $!cur, :$!doc;
-    }
-    when $pos == $!idx+1 {
-        # next element
-        $!idx++;
-        $_ = .next-node($!blank) with $!cur;
-        $!of.box: $!cur, :$!doc;
-    }
-    default {
-        # switch to random access
-        self.Array.AT-POS($pos);
-    }
+    self.pull-one
+        until $!reified // $!idx > $pos;
+    @!store[$pos] // $!of;
 }
 method Hash handles <AT-KEY> {
     $!hstore //= do {
@@ -70,7 +54,8 @@ method Hash handles <AT-KEY> {
 
 method push(LibXML::Item:D $node) {
     $.parent.appendChild($node);
-    @!store.push($node) unless $!lazy;
+    self.pull-one until $!reified;
+    @!store.push($node);
     .{$node.xpath-key}.push: $node with $!hstore;
     $node;
 } 
@@ -78,6 +63,10 @@ method pop {
     do with self.Array.tail -> LibXML::Item $item {
         @!store.pop;
         .{$item.xpath-key}.pop with $!hstore;
+        if $!idx == @!store {
+            $!idx = 0;
+            $!cur = $!native;
+        }
         $item.unbindNode;
     } // $!of;
 }
@@ -101,15 +90,16 @@ multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_
 method Str is also<gist> { $.Array.map(*.Str).join }
 method iterator {
     $!cur = $!native;
+    $!idx = 0;
     self;
 }
 method pull-one {
     with $!cur -> $this {
-        $!idx++;
         $!cur = $this.next-node($!blank);
-        $!of.box: $this, :$!doc
+        @!store[$!idx++] //= $!of.box: $this, :$!doc
     }
     else {
+        $!reified = True;
         IterationEnd;
     }
 }

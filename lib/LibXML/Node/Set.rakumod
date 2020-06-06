@@ -10,7 +10,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     has UInt $!idx = 0;
     has @!store;
     has Hash $!hstore;
-    has Bool $!lazy = True;
+    has Bool $!reified;
     has Bool $.deref;
 
     submethod TWEAK {
@@ -20,22 +20,10 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     submethod DESTROY {
         .Unreference with $!native;
     }
-    method !box(itemNode $elem) {
-        do with $elem {
-            my $class := box-class(.type);
-            die "unexpected node of type {$class.WHAT.perl} in {$!of.perl} node-set"
-               unless $class ~~ $!of;
 
-            $class.box: .delegate;
-        } // $!of;
-    }
     method elems is also<size Numeric> { $!native.nodeNr }
     method Array handles<List list values map grep> {
-        if $!lazy {
-            $!idx = 0;
-            @!store = self;
-            $!lazy = False;
-        }
+        self.pull-one until $!reified;
         @!store;
     }
     sub deref(%h, $nodes is raw) {
@@ -60,23 +48,30 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
             %h;
         }
     }
-    multi method AT-POS(UInt:D $pos where !$!lazy) { @!store[$pos] }
-    multi method AT-POS(UInt:D $pos where $_ >= $!native.nodeNr) { $!of }
-    multi method AT-POS(UInt:D $pos) is default {
-        self!box: $!native.nodeTab[$pos];
+    method AT-POS(UInt:D $pos) {
+        $pos >= $!native.nodeNr
+            ?? $!of
+            !! (@!store[$pos] //= $!of.box: $!native.nodeTab[$pos]);
     }
     method add(LibXML::Item:D $node) is also<push> {
-        @!store.push: $_ unless $!lazy;
+        fail "node has wrong type {$node.WHAT.perl} for node-set of type: {$!of.WHAT}"
+            unless $node.isa($!of);
+        @!store[$!native.nodeNr] = $node;
         .{$node.xpath-key}.push: $node with $!hstore;
         $!native.push: $node.native.ItemNode;
         $node;
     }
     method pop {
-        my $node := $!native.pop;
-        if $node.defined {
+        with $!native.pop -> $node {
             .{$node.xpath-key}.pop with $!hstore;
+            do {
+                @!store.pop
+                    if @!store > $!native.nodeNr
+            } // $!of.box: $node;
         }
-        $!lazy ?? self!box($node) !! @!store.pop;
+        else {
+            $!of;
+        }
     }
     multi method delete(UInt $pos) is also<DELETE-POS> {
         my $node = self.AT-POS($pos);
@@ -86,7 +81,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     multi method delete(LibXML::Item:D $node) {
         my UInt $idx := $!native.delete($node.native.ItemNode);
         if $idx >= 0 {
-            @!store.slice($idx, 1) unless $!lazy;
+            @!store.slice($idx, 1) if @!store >= $idx;
             .{$node.xpath-key}.delete with $!hstore;
             $node;
         }
@@ -104,7 +99,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     method is-equiv(LibXML::Node::Set:D $_) { ? $!native.hasSameNodes(.native) }
     method reverse {
         $!native.reverse;
-        @!store .= reverse unless $!lazy;
+        @!store .= reverse if @!store;
         $!hstore = Nil;
         self;
     }
@@ -113,10 +108,11 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         self;
     }
     method pull-one {
-        if $!native.defined && $!idx < $!native.nodeNr {
+        if $!idx < $!native.nodeNr {
             self.AT-POS($!idx++);
         }
         else {
+            $!reified = True;
             IterationEnd;
         }
     }
