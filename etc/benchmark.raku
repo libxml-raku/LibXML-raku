@@ -1,4 +1,5 @@
 use LibXML;
+use LibXML::Node;
 use LibXML::Document;
 use LibXML::Element;
 use XML;
@@ -6,71 +7,87 @@ use LibXML::SAX::Handler::XML;
 
 use Bench;
 
-multi sub load('libxml') { LibXML.parse: :$*file; };
-multi sub load('xml') { from-xml-file($*file) };
-multi sub load('hybrid') {
-    my $sax-handler = LibXML::SAX::Handler::XML.new;
-    LibXML.parse: :$*file, :$sax-handler;
-};
+sub traverse-elems($_) {
+    traverse-elems($_) for .elements;
+}
+
+sub traverse-kids($_) {
+    traverse-kids($_) for .childNodes;
+}
 
 multi sub get-elems(LibXML::Element:D $e) {
-    for 1 .. 50 {
-        my @elems = $e.getElementsByTagName('files');
-    }
+    my @elems = $e.getElementsByTagName('files');
 }
 
 multi sub get-elems(XML::Element:D $e) {
-    for 1 .. 50 {
-        my @elems = $e.elements(:TAG<files>);
-    }
+    my @elems = $e.elements(:TAG<files>);
 }
 
 multi sub get-elems-local(LibXML::Element:D $e) {
-    for 1 .. 50 {
-        my @elems = $e.getElementsByLocalName('files');
-    }
+    my @elems = $e.getElementsByLocalName('files');
+}
+multi sub get-elems-assoc(LibXML::Element:D $e) {
+    my @elems = $e<files>.list;
 }
 sub get-elems-native(LibXML::Element:D $e) {
-    my $native = $e.native;
-    for 1 .. 50 {
-        $native.getElementsByTagName('files');
-    }
+    $e.native.getElementsByTagName('files');
+}
+sub get-children-native(LibXML::Element:D $e) {
+    $e.native.children;
 }
 multi sub get-attribute(LibXML::Element:D $e) {
-    for 1 .. 500 {
+    for 1 .. 5 {
        $e.getAttribute('name');
     }
 }
 multi sub get-attribute-native(LibXML::Element:D $e) {
     my $native = $e.native;
-    for 1 .. 500 {
+    for 1 .. 5 {
        $native.getAttribute('name');
     }
 }
 multi sub get-attribute(XML::Element:D $e) {
-    for 1 .. 500 {
+    for 1 .. 5 {
        $e.attribs<name>;
     }
 }
 
-sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 10) {
+sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
     my Bench $b .= new;
     
-    my XML::Document $xml-doc = load('xml');
-    my LibXML::Document $libxml-doc = load('libxml');
-    my XML::Element $xml-root = $xml-doc.root;
-    my LibXML::Element $libxml-root = $libxml-doc.root;
+    my XML::Document $xml;
+    my LibXML::Document $libxml;
+    my XML::Element $xml-root;
+    my LibXML::Element $libxml-root;
+
+    $b.timethese: 1, %(
+        '00-load.libxml' => {
+            $libxml = LibXML.parse: :$*file, :!blanks;
+            $libxml-root = $libxml.root;
+        },
+        '00-load.xml' => {
+            $xml = from-xml-file($*file);
+            $xml-root = $xml.root;
+        },
+        '00-hybrid' => {
+            my $sax-handler = LibXML::SAX::Handler::XML.new;
+            LibXML.parse: :$*file, :$sax-handler;
+        },
+        '01-traverse-elems.xml' => { traverse-elems($xml-root) },
+        '01-traverse-elems.libxml' => { traverse-elems($libxml-root) },
+        '01-traverse-kids.libxml' => { traverse-kids($libxml-root) },
+    );
 
     $b.timethese: $*reps, %(
-        flat
-        <libxml xml hybrid>.map({'00-load.'~$_ => {load($_)} }),
-        '01-elems.libxml' => -> { get-elems($libxml-root)},
-        '01-elems.libxml-native' => -> { get-elems-native($libxml-root)},
-        '01-elems.libxml-local' => -> { get-elems-local($libxml-root)},
-        '01-elems.xml' =>  -> { get-elems($xml-root)},
-        '02-attribs.libxml' => -> { get-attribute($libxml-root)},
-        '02-attribs.libxml-native' => -> { get-attribute-native($libxml-root)},
-        '02-attribs.xml' => -> { get-attribute($xml-root)},
+        '02-elems.libxml' => -> { get-elems($libxml-root)},
+        '02-elems.libxml-native' => -> { get-elems-native($libxml-root)},
+        '02-children.libxml-native' => -> { get-children-native($libxml-root)},
+        '02-elems.libxml-local' => -> { get-elems-local($libxml-root)},
+        '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},
+        '03-elems.xml' =>  -> { get-elems($xml-root)},
+        '03-attribs.libxml' => -> { get-attribute($libxml-root)},
+        '03-attribs.libxml-native' => -> { get-attribute-native($libxml-root)},
+        '03-attribs.xml' => -> { get-attribute($xml-root)},
     );
 
 }
