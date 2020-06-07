@@ -118,7 +118,7 @@ method native handles<
 multi method new(QName:D $name, *%o --> LibXML::Element) {
     self.new(:$name, |%o);
 }
-multi method new(|c --> LibXML::Element) is default { nextsame }
+multi method new(| --> LibXML::Element) is default { nextsame }
 =begin pod
     =head3 method new
 

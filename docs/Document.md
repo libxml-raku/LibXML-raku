@@ -116,7 +116,7 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
          Str $URI?, QName $name?, Str $doc-type?
     )
 
-Perl or DOM-style constructors for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument*() will create the document:
+Raku or DOM-style constructors for the document class. As parameters it takes the version string and (optionally) the encoding string. Simply calling *createDocument*() will create the document:
 
 ```xml
 <?xml version="your version" encoding="your encoding"?>

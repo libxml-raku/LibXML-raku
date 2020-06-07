@@ -15,7 +15,7 @@ use LibXML::Dtd;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
-use LibXML::Item :item-class, :dom-native;
+use LibXML::Item :dom-native;
 use LibXML::Native;
 use LibXML::Parser::Context;
 use LibXML::PI;
@@ -181,7 +181,7 @@ multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str
              Str $URI?, QName $name?, Str $doc-type?
         )
 
-    Perl or DOM-style constructors for the document class. As parameters it takes the version
+    Raku or DOM-style constructors for the document class. As parameters it takes the version
     string and (optionally) the encoding string. Simply calling I<createDocument>() will create the document:
         =begin code :lang<xml>
         <?xml version="your version" encoding="your encoding"?>
@@ -747,18 +747,13 @@ method getInternalSubset(--> LibXML::Dtd) is dom-native {...}
 method setInternalSubset(LibXML::Dtd $dtd) {
     self.native.setInternalSubset: $dtd.native;
 }
-=begin pod
-    =para I<EXPERIMENTAL!>
-=end pod
+=para I<EXPERIMENTAL!>
 
 #| This method removes an external, if defined, from the document
 method removeInternalSubset(--> LibXML::Dtd) is dom-native {...}
-=begin pod
-    =para I<EXPERIMENTAL!>
-
-    If a document has an internal subset defined it can be removed from the
+=para I<EXPERIMENTAL!>
+=para If a document has an internal subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
-=end pod
 
 method setURI(Str $uri) { self.URI = $_ }
 method setEncoding(xmlEncodingStr $enc) { $.encoding = $enc }
@@ -771,11 +766,9 @@ method internalSubset is rw returns LibXML::Dtd {
                  }
              );
 }
-=begin pod
-    =para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
+=para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
     LibXML is still limited. In particular one may not want use common node
     function on doctype declaration nodes!
-=end pod
 
 method getExternalSubset(--> LibXML::Dtd) is dom-native {...}
 
@@ -783,18 +776,14 @@ method getExternalSubset(--> LibXML::Dtd) is dom-native {...}
 method setExternalSubset(LibXML::Dtd $dtd) {
     self.native.setExternalSubset: $dtd.native;
 }
-=begin pod
-    =para I<EXPERIMENTAL!>
-=end pod
+=para I<EXPERIMENTAL!>
 
 #| This method removes an external, if defined, from the document
 method removeExternalSubset(--> LibXML::Dtd) is dom-native {...}
-=begin pod
-    =para I<EXPERIMENTAL!>
+=para I<EXPERIMENTAL!>
 
-    If a document has an external subset defined it can be removed from the
+=para If a document has an external subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
-=end pod
 
 #| Gets or sets the external DTD for a document.
 method externalSubset is rw returns LibXML::Dtd {

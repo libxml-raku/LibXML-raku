@@ -4,6 +4,7 @@ use LibXML::Document;
 use LibXML::Element;
 use XML;
 use LibXML::SAX::Handler::XML;
+use LibXML::XPath::Expression;
 
 use Bench;
 
@@ -31,6 +32,15 @@ multi sub get-elems-assoc(LibXML::Element:D $e) {
 }
 sub get-elems-native(LibXML::Element:D $e) {
     $e.native.getElementsByTagName('files');
+}
+sub find-elems(LibXML::Element:D $e) {
+    $e.find($*kids-expr);
+}
+sub get-children(LibXML::Element:D $e) {
+    $e.childNodes
+}
+sub get-children-array(LibXML::Element:D $e) {
+    $e.childNodes.Array;
 }
 sub get-children-native(LibXML::Element:D $e) {
     $e.native.children;
@@ -78,9 +88,14 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '01-traverse-kids.libxml' => { traverse-kids($libxml-root) },
     );
 
+    my LibXML::XPath::Expression $*kids-expr .= compile("descendant::*");
+
     $b.timethese: $*reps, %(
         '02-elems.libxml' => -> { get-elems($libxml-root)},
+        '02-children.libxml' => -> { get-children($libxml-root)},
+        '02-children-array.libxml' => -> { get-children-array($libxml-root)},
         '02-elems.libxml-native' => -> { get-elems-native($libxml-root)},
+        '02-find.libxml' => -> { find-elems($libxml-root)},
         '02-children.libxml-native' => -> { get-children-native($libxml-root)},
         '02-elems.libxml-local' => -> { get-elems-local($libxml-root)},
         '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},

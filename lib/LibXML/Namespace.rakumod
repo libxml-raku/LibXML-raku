@@ -1,7 +1,9 @@
 use LibXML::Item;
+use LibXML::_DomNode;
 #| LibXML Namespace implementation
 unit class LibXML::Namespace
-    does LibXML::Item;
+    is LibXML::Item
+    does LibXML::_DomNode;
 
 =begin pod
     =head2 Synopsis
@@ -35,10 +37,8 @@ use LibXML::Native::Defs :XML_XMLNS_NS;
 has xmlNs $!native handles <type href Str>;
 method native { $!native }
 
-method box(xmlNs $ns! --> LibXML::Namespace) {
-    do with $ns {
-        self.new: :native($_);
-    } // self.WHAT;
+method box(xmlNs $native --> LibXML::Namespace) {
+    self.new: :$native;
 }
 
 method keep($_) {
@@ -50,21 +50,19 @@ method keep($_) {
 }
 
 # Perl 5 compat
-multi method new(Str:D $URI, NCName $prefix?, *%o) {
-    self.new(:$URI, :$prefix, |%o);
+multi method new(Str:D $URI, NCName $prefix?, *%o) is default {
+    self.bless: :$URI, :$prefix, |%o;
 }
 
-multi method new(|c) is default { nextsame }
+multi method new(|c) { self.bless: |c; }
 
-=begin pod
-    =head2 Methods
-=end pod
+=head2 Methods
 
 multi submethod TWEAK(xmlNs:D :$!native!) {
     $!native .= Copy;
 }
 
-multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, :node($node-obj)) {
+multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, LibXML::Item :node($node-obj)) {
     my xmlElem $node = .native with $node-obj;
     $!native .= new: :$URI, :$prefix, :$node;
 }

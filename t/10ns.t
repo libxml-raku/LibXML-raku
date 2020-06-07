@@ -395,7 +395,7 @@ print "# 9. namespace reconciliation\n";
 
     # tests for reconciliation during setAttributeNodeNS
     my $attr = $doca.createAttributeNS(
-        'http://children', 'child:attr','value'
+        'http://children', 'child:attr', 'value'
     );
     ok($attr, ' TODO : Add test name');
     my $child= $doca.documentElement.firstChild;

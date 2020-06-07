@@ -1,9 +1,9 @@
-# methods implemented by LibXML::Node and LibXML::Namespace
+# super-abstract class for LibXML::Node and LibXML::Namespace
 #| LibXML Nodes and Namespaces interface role
-unit role LibXML::Item;
+unit class LibXML::Item;
 
 =begin pod
-=head2 Descripton
+=head2 Description
 
 LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> based classes.
 
@@ -26,18 +26,6 @@ use LibXML::Native;
 use LibXML::Native::DOM::Node;
 use LibXML::Enums;
  
-method getNamespaceURI {...}
-method localname {...}
-method name {...}
-method nodeName {...}
-method nodeType {...}
-method prefix {...}
-method string-value {...}
-method Str {...}
-method URI {...}
-method type {...}
-method value {...}
-
 my constant @ClassMap = do {
     my Str @map;
     for (
@@ -63,16 +51,20 @@ my constant @ClassMap = do {
     @map;
 }
 
-sub item-class($class-name) is export(:item-class) {
-    my $class = ::($class-name);
-    $class ~~ LibXML::Item
-        ?? $class
-        !! (require ::($class-name));
+our %class;
+
+sub item-class($class-name) {
+    %class{$class-name}:exists
+        ?? %class{$class-name}
+        !! (%class{$class-name} = (require ::($class-name)));
 }
 
 sub box-class(UInt $_) is export(:box-class) {
     item-class(@ClassMap[$_] // 'LibXML::Item');
 }
+
+multi method box(Any:D $_) { box-class(.type).box: .delegate }
+multi method box(Any:U $_) { self.WHAT }
 
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
@@ -153,8 +145,6 @@ multi sub ast-to-xml(*%p where .elems == 1) {
     ast-to-xml(%p.pairs[0]);
 }
 
-#| Dump data for a node
-method ast { ... }
 =begin pod
 
     =para
@@ -181,20 +171,7 @@ method ast { ... }
 
 =end pod
 
-#| Wrap a native object in a containing class
-method box(LibXML::Native::DOM::Node $struct,
-           :$doc = $.doc, # reusable document object
-           --> LibXML::Item
-          ) {
-    do with $struct {
-        die $_ with .domFailure;
-        my $class := box-class(.type);
-        die "mismatch between DOM node of type {.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-            unless $class ~~ self.WHAT;
-        my $native := .delegate;
-        $class.new: :$native, :$doc;
-    } // self.WHAT; 
-}
+
 =begin pod
     =para
     By convention native classes in the LibXML module are not directly exposed, but have a containing class

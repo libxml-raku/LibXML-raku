@@ -1210,28 +1210,32 @@ class itemNode is export {
     has Pointer $._; # first field depends on type
     has int32 $.type;
     # + other fields, which also depend on type
-    method delegate {
-        my $class := do given $!type {
-            when XML_ATTRIBUTE_DECL     { xmlAttrDecl }
-            when XML_ATTRIBUTE_NODE     { xmlAttr }
-            when XML_CDATA_SECTION_NODE { xmlCDataNode }
-            when XML_COMMENT_NODE       { xmlCommentNode }
-            when XML_DOCUMENT_FRAG_NODE { xmlDocFrag }
-            when XML_DOCUMENT_NODE      { xmlDoc }
-            when XML_DTD_NODE           { xmlDtd }
-            when XML_ELEMENT_DECL       { xmlElementDecl }
-            when XML_ELEMENT_NODE       { xmlElem }
-            when XML_ENTITY_DECL        { xmlEntity }
-            when XML_ENTITY_REF_NODE    { xmlEntityRefNode }
-            when XML_HTML_DOCUMENT_NODE { htmlDoc }
-            when XML_NAMESPACE_DECL     { xmlNs }
-            when XML_PI_NODE            { xmlPINode }
-            when XML_TEXT_NODE          { xmlTextNode }
-            default {
-                warn "node type not yet handled: $_";
-                anyNode;
-            }
+    my constant @ClassMap = do {
+        my @map;
+        for  (
+            [XML_ATTRIBUTE_DECL, xmlAttrDecl],
+            [XML_ATTRIBUTE_NODE, xmlAttr],
+            [XML_CDATA_SECTION_NODE, xmlCDataNode],
+            [XML_COMMENT_NODE, xmlCommentNode],
+            [XML_DOCUMENT_FRAG_NODE, xmlDocFrag],
+            [XML_DOCUMENT_NODE, xmlDoc],
+            [XML_DTD_NODE, xmlDtd],
+            [XML_ELEMENT_DECL, xmlElementDecl],
+            [XML_ELEMENT_NODE, xmlElem],
+            [XML_ENTITY_DECL, xmlEntity],
+            [XML_ENTITY_REF_NODE, xmlEntityRefNode],
+            [XML_HTML_DOCUMENT_NODE, htmlDoc],
+            [XML_NAMESPACE_DECL, xmlNs],
+            [XML_PI_NODE, xmlPINode],
+            [XML_TEXT_NODE, xmlTextNode]
+        ) {
+            @map[ .[0] ] = .[1];
         }
+        @map;
+    }
+
+    method delegate {
+        my $class := @ClassMap[$!type];
         nativecast($class, self);
     }
     our sub NodeType(Str --> int32) is native($BIND-XML2) is symbol('domNodeType') {*}

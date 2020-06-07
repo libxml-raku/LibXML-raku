@@ -16,6 +16,8 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     submethod TWEAK {
         $!native //= xmlNodeSet.new;
         .Reference given $!native;
+        @!store[$!native.nodeNr - 1] = Mu
+            if $!native.nodeNr;
     }
     submethod DESTROY {
         .Unreference with $!native;

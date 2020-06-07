@@ -1,9 +1,10 @@
-
+class LibXML::Item
+------------------
 
 LibXML Nodes and Namespaces interface role
 
-Descripton
-----------
+Description
+-----------
 
 LibXML::Item is a role performed by [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) based classes.
 
@@ -58,14 +59,6 @@ Produces:
 </dromedaries>
 ```
 
-### method ast
-
-```perl6
-method ast() returns Mu
-```
-
-Dump data for a node
-
 All DOM nodes have an `.ast()` method that can be used to output an intermediate dump of data. In the above example `$elem.ast()` would reproduce thw original data that was used to construct the element.
 
 Possible terms that can be used are:
@@ -78,17 +71,6 @@ Possible terms that can be used are:
 <tr> <td>name =&gt; [term, term, ...]</td> <td>Construct an element and its child items</td> </tr> <tr> <td>name =&gt; str-val</td> <td>Construct an attribute</td> </tr> <tr> <td>&#39;xmlns:prefix&#39; =&gt; str-val</td> <td>Construct a namespace</td> </tr> <tr> <td>&#39;text content&#39;</td> <td>Construct text node</td> </tr> <tr> <td>&#39;?name&#39; =&gt; str-val</td> <td>Construct a processing instruction</td> </tr> <tr> <td>&#39;#cdata&#39; =&gt; str-val</td> <td>Construct a CData node</td> </tr> <tr> <td>&#39;#comment&#39; =&gt; str-val</td> <td>Construct a comment node</td> </tr> <tr> <td>[elem, elem, ..]</td> <td>Construct a document fragment</td> </tr> <tr> <td>&#39;#xml&#39; =&gt; [root-elem]</td> <td>Construct an XML document</td> </tr> <tr> <td>&#39;#html&#39; =&gt; [root-elem]</td> <td>Construct an HTML document</td> </tr> <tr> <td>&#39;&amp;name&#39; =&gt; []</td> <td>Construct an entity reference</td> </tr> <tr> <td>LibXML::Item</td> <td>Reuse an existing node or namespace</td> </tr>
 </tbody>
 </table>
-
-### method box
-
-```perl6
-method box(
-    LibXML::Native::DOM::Node $struct,
-    :$doc = Code.new
-) returns LibXML::Item
-```
-
-Wrap a native object in a containing class
 
 By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
 

@@ -1,9 +1,11 @@
 use v6;
 use LibXML::Item :box-class, :ast-to-xml;
+use LibXML::_DomNode;
 
 #| Abstract base class of LibXML Nodes
 unit class LibXML::Node
-    does LibXML::Item;
+    is LibXML::Item
+    does LibXML::_DomNode;
 
 =begin pod
 
@@ -164,6 +166,8 @@ submethod TWEAK {
 submethod DESTROY {
     .Unreference with $!native;
 }
+
+multi method box(Any:D $_, :$doc = $.get-doc) { box-class(.type).new: :native(.delegate), :$doc }
 
 method getName { self.getNodeName }
 
@@ -345,7 +349,7 @@ Gets or sets the owner document for the node
 =end pod
 
 
-method getOwnerDocument returns LibXML::Node {
+method getOwnerDocument is also<get-doc> returns LibXML::Node {
     my \doc-class = box-class(XML_DOCUMENT_NODE);
     do with self {
         with .native.doc -> xmlDoc $struct {
@@ -683,14 +687,16 @@ method xpath-context handles<find findnodes findvalue exists registerNs query-ha
     See L<LibXML::XPath::Context> for more details.
 =end pod
 
-sub iterate-list($parent, $of, Bool :$properties, :$doc = $of.doc, Bool :$blank = True) is export(:iterate-list) {
+sub iterate-list($parent, $of, Bool :$properties, :$doc = $of.get-doc, Bool :$blank = True) is export(:iterate-list) {
     # follow a chain of .next links.
-    (require ::('LibXML::Node::List')).new: :$of, :$properties, :$doc, :$blank, :$parent;
+    require LibXML::Node::List;
+    LibXML::Node::List.new: :$of, :$properties, :$doc, :$blank, :$parent;
 }
 
 sub iterate-set($of, xmlNodeSet $native, Bool :$deref) is export(:iterate-set) {
     # iterate through a set of nodes
-    (require ::('LibXML::Node::Set')).new( :$native, :$of, :$deref )
+    require LibXML::Node::Set;
+    LibXML::Node::Set.new( :$native, :$of, :$deref )
 }
 
 multi method ACCEPTS(LibXML::Node:D: LibXML::XPath::Expression:D $expr) {
