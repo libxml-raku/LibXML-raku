@@ -1,25 +1,27 @@
-# super-abstract class for LibXML::Node and LibXML::Namespace
-#| LibXML Nodes and Namespaces interface role
-unit class LibXML::Item;
+our %class;
+
+unit role LibXML::Item;
 
 =begin pod
-=head2 Description
+    =head2 Name
 
-LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> based classes.
+    =head2 role LibXML::Item
 
-These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
+    LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> based classes.
 
-Also note that the L<LibXML::Node> `findnodes` method can sometimes return either L<LibXML::Node> or L<LibXML::Namespace> items, e.g.:
+    These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
-  use LibXML::Item;
-  for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
-     when LibXML::Namespace { say "namespace: " ~ .Str }
-     when LibXML::Attr      { say "attribute: " ~ .Str }
-  }
+    Also note that the L<LibXML::Node> `findnodes` method can sometimes return either L<LibXML::Node> or L<LibXML::Namespace> items, e.g.:
 
-Please see L<LibXML::Node> and L<LibXML::Namespace>.
+      use LibXML::Item;
+      for $elem.findnodes('namespace::*|attribute::*') -> LibXML::Item $_ {
+         when LibXML::Namespace { say "namespace: " ~ .Str }
+         when LibXML::Attr      { say "attribute: " ~ .Str }
+      }
 
-=head2 Functions and Methods
+    Please see L<LibXML::Node> and L<LibXML::Namespace>.
+
+    =head2 Functions and Methods
 =end pod
 
 use LibXML::Native;
@@ -51,20 +53,21 @@ my constant @ClassMap = do {
     @map;
 }
 
-our %class;
-
-sub item-class($class-name) {
-    %class{$class-name}:exists
-        ?? %class{$class-name}
-        !! (%class{$class-name} = (require ::($class-name)));
+proto sub box-class($) {*}
+multi sub box-class(Str:D $class-name) {
+    given %class{$class-name} {
+        .does(LibXML::Item) ?? $_ !! ($_ = (require ::($class-name)));
+    }
 }
 
-sub box-class(UInt $_) is export(:box-class) {
-    item-class(@ClassMap[$_] // 'LibXML::Item');
+multi sub box-class(UInt $_) is export(:box-class) {
+    box-class(@ClassMap[$_] // 'LibXML::Item');
 }
 
-multi method box(Any:D $_) { box-class(.type).box: .delegate }
+multi method box(itemNode:D $_) { box-class(.type).box: .delegate }
 multi method box(Any:U $_) { self.WHAT }
+
+method raw { self.native }
 
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
@@ -107,15 +110,15 @@ multi sub ast-to-xml(Pair $_) {
         }
         when $name.starts-with('?') {
             $name .= substr(1);
-            item-class('LibXML::PI').new: :$name, :content($value);
+            box-class('LibXML::PI').new: :$name, :content($value);
         }
         when $name.starts-with('xmlns:') {
             my $prefix = $name.substr(6);
-            item-class('LibXML::Namespace').new: :$prefix, :URI($value)
+            box-class('LibXML::Namespace').new: :$prefix, :URI($value)
         }
         default {
             $name .= substr(1) if $name.starts-with('@');
-            item-class('LibXML::Attr').new: :$name, :$value;
+            box-class('LibXML::Attr').new: :$name, :$value;
         }
     }
     else {
@@ -136,7 +139,7 @@ multi sub ast-to-xml(Positional $_) {
 }
 
 multi sub ast-to-xml(Str:D $content) {
-    item-class('LibXML::Text').new: :$content;
+    box-class('LibXML::Text').new: :$content;
 }
 
 multi sub ast-to-xml(LibXML::Item:D $_) { $_ }

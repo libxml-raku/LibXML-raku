@@ -2,7 +2,8 @@ use LibXML::Item;
 use LibXML::_DomNode;
 #| LibXML Namespace implementation
 unit class LibXML::Namespace
-    is LibXML::Item
+    is repr('CPointer')
+    does LibXML::Item
     does LibXML::_DomNode;
 
 =begin pod
@@ -33,39 +34,44 @@ use LibXML::Native;
 use LibXML::Types :NCName;
 use NativeCall;
 use Method::Also;
+use LibXML::Enums;
 use LibXML::Native::Defs :XML_XMLNS_NS;
-has xmlNs $!native handles <type href Str>;
-method native { $!native }
+method raw handles<type href Str> { nativecast(xmlNs, self) }
+method native is DEPRECATED<raw> { self.raw }
 
-method box(xmlNs $native --> LibXML::Namespace) {
-    self.new: :$native;
+multi method box(LibXML::Namespace $_) { $_ }
+multi method box(xmlNs:D $raw --> LibXML::Namespace) {
+    nativecast(LibXML::Namespace, $raw.Copy);
+}
+multi method box(itemNode:D $raw --> LibXML::Namespace) {
+    fail "not a namespace node"
+        unless .type == XML_NAMESPACE_DECL;
+    nativecast(LibXML::Namespace, $raw.delegate.Copy);
 }
 
 method keep($_) {
-    given .delegate {
-        .prefix ~~ $.declaredPrefix && .href ~~ $.href
+    given .delegate -> xmlNs:D $ns {
+        $ns.prefix ~~ $.declaredPrefix && $ns.href ~~ $.href
             ?? self
             !! self.box($_);
     }
 }
 
+multi method new(xmlNs:D :native($_)!) is DEPRECATED<box> { self.box: $_ }
+
 # Perl 5 compat
-multi method new(Str:D $URI, NCName $prefix?, *%o) is default {
-    self.bless: :$URI, :$prefix, |%o;
+multi method new(Str:D $URI, NCName $prefix?, |c) {
+    self.new: :$URI, :$prefix, |c;
 }
 
-multi method new(|c) { self.bless: |c; }
+multi method new(Str:D :$URI!, NCName :$prefix, LibXML::Item :node($node-obj)) {
+    my xmlElem $node = .raw with $node-obj;
+    my xmlNs:D $raw .= new: :$URI, :$prefix, :$node;
+    self.box: $raw;
+}
 
 =head2 Methods
 
-multi submethod TWEAK(xmlNs:D :$!native!) {
-    $!native .= Copy;
-}
-
-multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, LibXML::Item :node($node-obj)) {
-    my xmlElem $node = .native with $node-obj;
-    $!native .= new: :$URI, :$prefix, :$node;
-}
 =begin pod
     =head3 method new
 
@@ -82,17 +88,17 @@ multi submethod TWEAK(Str:D :$URI!, NCName :$prefix, LibXML::Item :node($node-ob
 =end pod
 
 submethod DESTROY {
-    .Free with $!native;
+    self.raw.Free;
 }
 
-method nodeType { $!native.type }
+method nodeType { $.raw.type }
 
 #| Returns the URI for this namespace
-method declaredURI(--> Str) is also<URI getValue string-value value nodeValue> { $!native.href }
+method declaredURI(--> Str) is also<URI getValue string-value value nodeValue> { $.raw.href }
 
 #| Returns the prefix for this namespace
 method declaredPrefix(--> NCName) is also<localname>
-                    { $!native.prefix }
+                    { $.raw.prefix }
 
 #| Returns "xmlns:prefix", where prefix is the prefix for this namespace.
 method nodeName returns Str is also<name tag> {
@@ -104,7 +110,7 @@ method nodeName returns Str is also<name tag> {
 =end pod
 
 #| Return a unique key for the namespace
-method unique-key returns Str { $!native.UniqueKey }
+method unique-key returns Str { $.raw.UniqueKey }
 =begin pod
     =para
     This method returns a key guaranteed to be unique for this namespace, and to

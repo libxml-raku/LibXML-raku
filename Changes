@@ -1,4 +1,7 @@
-0.4.0 2020-05-xx
+0.5.0 2020-06-xx
+    - Convert all boxing classes to CPointer representations. This allows
+      for mememory thrifty and fast stantation of objects via nativecast.
+0.4.0 2020-05-21
     - Fix $node.getOwner() method to return the root of the
       current node. Distinguish it from .getOwnerDocument
       which always returns a LibXML::Document object.

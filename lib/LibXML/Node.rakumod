@@ -4,7 +4,7 @@ use LibXML::_DomNode;
 
 #| Abstract base class of LibXML Nodes
 unit class LibXML::Node
-    is LibXML::Item
+    does LibXML::Item
     does LibXML::_DomNode;
 
 =begin pod
@@ -167,7 +167,7 @@ submethod DESTROY {
     .Unreference with $!native;
 }
 
-multi method box(Any:D $_, :$doc = $.get-doc) { box-class(.type).new: :native(.delegate), :$doc }
+multi method box(anyNode:D $_, :$doc = $.get-doc) { box-class(.type).new: :native(.delegate), :$doc }
 
 method getName { self.getNodeName }
 
@@ -448,7 +448,7 @@ method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
 
 #| Adds a child to this nodes children (alias addChild)
 method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
-    $new.keep: $!native.appendChild($new.native);
+    $new.keep: $!native.appendChild($new.raw);
 }
 =para Fails, if the new childnode is already a child
     of this node. This method differs from the DOM L2 specification, in the case, if the new

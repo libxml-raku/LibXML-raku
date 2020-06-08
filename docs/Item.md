@@ -1,10 +1,8 @@
-class LibXML::Item
-------------------
+Name
+----
 
-LibXML Nodes and Namespaces interface role
-
-Description
------------
+role LibXML::Item
+-----------------
 
 LibXML::Item is a role performed by [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) based classes.
 

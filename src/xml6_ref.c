@@ -4,17 +4,18 @@
 #include <string.h>
 
 struct _xml6Ref {
-    int magic;     /* for verification */
-    int ref_count;
-    xmlMutexPtr mutex;
+    void *yada;    /* object private data */
     xmlChar *fail;
+    xmlMutexPtr mutex;
+    int ref_count;
+    int magic;     /* for verification */
 };
 
 typedef struct _xml6Ref xml6Ref;
 typedef xml6Ref *xml6RefPtr;
 
 static xml6Ref ref_freed = {
-    0, 0, NULL, NULL
+    NULL, NULL, NULL, 0, 0
 };
 
 DLLEXPORT void* xml6_ref_freed() {
@@ -82,19 +83,19 @@ xml6_ref_add(void** self_ptr) {
 }
 
 DLLEXPORT int
-xml6_ref_remove(void** self_ptr, const char* what, void* where) {
+xml6_ref_remove(void** self_ptr, const char* name, void *obj) {
     char msg[120];
     int released = 0;
 
     if (*self_ptr == NULL) {
-        sprintf(msg, "%s %p was not referenced", what, where);
+        sprintf(msg, "%s %p was not referenced", name, obj);
         xml6_warn(msg);
         released = 1;
     }
     else {
         xml6RefPtr self = (xml6RefPtr) *self_ptr;
         if (self->magic != XML6_REF_MAGIC) {
-            sprintf(msg, "%s %p is not owned by us, or is corrupted", what, where);
+            sprintf(msg, "%s %p is not owned by us, or is corrupted", name, obj);
             xml6_warn(msg);
         }
         else {
@@ -102,13 +103,13 @@ xml6_ref_remove(void** self_ptr, const char* what, void* where) {
             if (mutex != NULL) xmlMutexLock(mutex);
 
             if (self->ref_count <= 0 || self->ref_count >= 65536) {
-                sprintf(msg, "%s %p has unexpected ref_count value: %d", what, where, self->ref_count);
+                sprintf(msg, "%s %p has unexpected ref_count value: %d", name, obj, self->ref_count);
                 xml6_warn(msg);
             }
             else {
                 if (self->ref_count == 1) {
                     if (self->fail != NULL) {
-                        snprintf(msg, sizeof(msg), "uncaught failure on %s %p destruction: %s", what, where, self->fail);
+                        snprintf(msg, sizeof(msg), "uncaught failure on %s %p destruction: %s", name, obj, self->fail);
                         xml6_warn(msg);
                         xmlFree(self->fail);
                     }

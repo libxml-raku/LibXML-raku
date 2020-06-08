@@ -57,7 +57,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     }
     method add(LibXML::Item:D $node) is also<push> {
         fail "node has wrong type {$node.WHAT.perl} for node-set of type: {$!of.WHAT}"
-            unless $node.isa($!of);
+            unless $node ~~ $!of;
         @!store[$!native.nodeNr] = $node;
         .{$node.xpath-key}.push: $node with $!hstore;
         $!native.push: $node.native.ItemNode;
