@@ -155,9 +155,6 @@ multi method setAttributeNS(Str $uri, NameVal:D $_ --> LibXML::Attr) {
 }
 #| Namespace-aware version of of setAttribute()
 multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) {
-    if $name {
-        self.registerNs($name.substr(0, $_), $uri) with $name.index(':');
-    }
     &?ROUTINE.returns.box: $.native.setAttributeNS($uri, $name, $value);
 }
 =begin pod

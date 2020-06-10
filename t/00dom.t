@@ -115,9 +115,10 @@ $elem.requireNamespace('http://ns2');
 $prefix = $elem.native.genNsPrefix;
 is $prefix, '_ns1', 'second generated NS prefix';
 
-$elem.registerNs('ns1', 'http://ns');
-is $elem<@ns1:aaa>, 'BBB', 'registered namespace';
-lives-ok {$attr = ($elem<@ns1:aaa>:delete)[0]}, 'delete via ns';
+my $elem-xpath-ctxt = $elem.xpath-context;
+$elem.setNamespace('http://ns', 'x', :!activate);
+is $elem<@x:aaa>, 'BBB', 'registered namespace';
+lives-ok {$attr = ($elem<@x:aaa>:delete)[0]}, 'delete via ns';
 
 is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"><p>some text</p></foo>', 'NS Elem after NS proxy deletion');
 

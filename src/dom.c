@@ -2020,6 +2020,11 @@ domSetAttributeNS(xmlNodePtr self, xmlChar* nsURI, xmlChar* name, xmlChar* value
 
         localname = xmlSplitQName2(name, &prefix);
         if ( localname ) {
+            /* try without namespace */
+            xmlAttrPtr oldAttr = xmlHasNsProp(self, name, NULL);
+            if (oldAttr != NULL) {
+                domReleaseNode((xmlNodePtr) oldAttr);
+            }
             name = localname;
         }
 

@@ -18,17 +18,19 @@ my LibXML::Document $doc = LibXML.parse: :string(q:to<\_(ツ)_/>);
       </ul>
 \_(ツ)_/
 
-dies-ok {$doc.querySelector('li.bar')}, 'query selection before configuration - dies';
+my $xpath-context = $doc.xpath-context;
+
+dies-ok {$xpath-context.querySelector('li.bar')}, 'query selection before configuration - dies';
 
 my List $expected = ('<li class="bar baz"><a href="foo.html">baz</a></li>',
                      '<li class="bar"><a href="foo.html">baz</a></li>');
 
-$doc.query-handler = dummySelectorHandler.new;
+$xpath-context.query-handler = dummySelectorHandler.new;
 
-my LibXML::Node:D $node = $doc.querySelector('li.bar');
+my LibXML::Node:D $node = $xpath-context.querySelector('li.bar');
 is $node.Str, $expected[0];
 
-my LibXML::Node::Set:D $node-set = $doc.querySelectorAll('li.bar');
+my LibXML::Node::Set:D $node-set = $xpath-context.querySelectorAll('li.bar');
 is $node-set.map(*.Str), $expected;
 
 done-testing();

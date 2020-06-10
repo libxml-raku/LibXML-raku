@@ -17,9 +17,9 @@ my $xpath = '/*';
 my $xpath2 = '/*/*';
 for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
     my @nodes = LibXML::XPath::Context.new(:$doc).findnodes($exp);
-  ok(@nodes == 1, ' TODO : Add test name');
-  ok(@nodes[0].nodeName eq 'foo', ' TODO : Add test name');
-  is(
+    ok(@nodes == 1, ' TODO : Add test name');
+    ok(@nodes[0].nodeName eq 'foo', ' TODO : Add test name');
+    is(
       (LibXML::XPath::Context.new( node => @nodes[0]).findnodes('bar'))[0].nodeName(),
       'bar',
       ' TODO : Add test list',

@@ -202,7 +202,7 @@ subtest 'LibXML::Dtd' => {
 }
 
 subtest 'LibXML::Element' => {
-    plan 8;
+    plan 9;
     use LibXML::Attr;
     use LibXML::Attr::Map;
     use LibXML::Node;
@@ -212,6 +212,7 @@ subtest 'LibXML::Element' => {
     my $name = 'test-elem';
     my $aname = 'ns:att';
     my $avalue = 'my-val';
+my Str $value;
     my $localname = 'fred';
     my $nsURI = 'http://test.org';
     my $newURI = 'http://test2.org';
@@ -234,10 +235,11 @@ subtest 'LibXML::Element' => {
     # -- Attribute Methods -- #
     $elem.setAttribute( $aname, $avalue );
     $elem.setAttributeNS( $nsURI, $aname, $avalue );
+    is $elem.Str, qq{<test-elem xmlns:ns="$nsURI" $aname="$avalue"/>};
     $elem.setAttributeNode($attrnode, :ns);
     $elem.removeAttributeNode($attrnode);
-    $avalue = $elem.getAttribute( $aname );
-    $avalue = $elem.getAttributeNS( $nsURI, $aname );
+    $value = $elem.getAttribute( $aname );
+    $value = $elem.getAttributeNS( $nsURI, $aname );
     $attrnode = $elem.getAttributeNode( $aname );
     $attrnode = $elem{'@'~$aname}; # xpath attribute selection
     $attrnode = $elem.getAttributeNodeNS( $nsURI, $aname );
@@ -275,6 +277,7 @@ subtest 'LibXML::Element' => {
     @nodes = $elem{$xpath-expression};  # xpath node selection
     my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
     my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+    $elem.setAttributeNS( $nsURI, $aname, $avalue );
     is $elem<@ns:att>.Str, "my-val";
     is $elem[0].Str, '<a>XXX</a>';
     is-deeply $elem[0]<text()>.Str, 'XXX';

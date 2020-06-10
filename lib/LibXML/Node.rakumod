@@ -147,8 +147,6 @@ has anyNode $.native handles <
     unique-key ast-key xpath-key
 >;
 
-has $!xpath-context;
-
 method set-native(anyNode:D $new-struct) {
     given box-class($new-struct.type) -> $class {
         die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
@@ -539,8 +537,8 @@ method removeChildNodes(--> LibXML::Node) {
 ########################################################################
 =head2 Searching Methods
 
-method xpath-context handles<find findnodes findvalue exists registerNs query-handler querySelector querySelectorAll> {
-    $!xpath-context //= (require ::('LibXML::XPath::Context')).new: :node(self);
+method xpath-context handles<find findnodes findvalue exists> {
+    (require ::('LibXML::XPath::Context')).new: :node(self);
 }
 =begin pod
     =head3 method findnodes
@@ -907,9 +905,6 @@ method addNamespace(Str $uri, NCName $prefix?) {
     $.setNamespace($uri, $prefix, :!activate);
 }
 method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
-    if $prefix && $uri {
-        .registerNs($prefix, $uri) with $!xpath-context;
-    }
     ? $!native.setNamespace($uri, $prefix, :$activate);
 }
 method clearNamespace {
