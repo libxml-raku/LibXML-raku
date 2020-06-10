@@ -168,10 +168,10 @@ method input-callbacks is rw {
 
 =head2 Query Handler
 
-my subset QueryHandler where .can('to-xpath').so;
+my subset QueryHandler where .can('query-to-xpath').so;
 
 our $queryHandler = class NoQueryHandler {
-    method to-xpath($) {
+    method query-to-xpath($) {
         fail "queryHandler has not been configured";
     }
 }

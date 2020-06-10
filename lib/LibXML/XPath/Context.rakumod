@@ -127,10 +127,12 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 multi submethod TWEAK(LibXML::Document:D :$doc!) {
     self.setContextNode($doc);
+    .Reference with $!native.node;
 }
 
 multi submethod TWEAK(LibXML::Node :$node) {
     self.setContextNode($_) with $node;
+    .Reference with $!native.node;
 }
 
 =head3 method new
@@ -140,8 +142,11 @@ multi submethod TWEAK(LibXML::Node :$node) {
   =end code
   =para Creates a new LibXML::XPath::Context object with an optional context document or node.
 
-submethod DESTROY {
-    .Free with $!native;
+  submethod DESTROY {
+      with $!native {
+          .Unreference with .node;
+          .Free;
+      }
 }
 
 sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:structured-error-cb) {

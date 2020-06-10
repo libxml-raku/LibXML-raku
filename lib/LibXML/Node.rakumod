@@ -907,7 +907,7 @@ method addNamespace(Str $uri, NCName $prefix?) {
     $.setNamespace($uri, $prefix, :!activate);
 }
 method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
-    if $prefix {
+    if $prefix && $uri {
         .registerNs($prefix, $uri) with $!xpath-context;
     }
     ? $!native.setNamespace($uri, $prefix, :$activate);
