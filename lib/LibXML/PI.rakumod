@@ -6,11 +6,10 @@ unit class LibXML::PI
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlPINode:D :native($)!) { }
-multi submethod TWEAK(:doc($owner)!, Str :$name!, Str :$content!) {
+multi method new(:doc($owner)!, Str :$name!, Str :$content!) {
     my xmlDoc:D $doc = .native with $owner;
-    my xmlPINode:D $pi-struct .= new: :$name, :$content, :$doc;
-    self.set-native: $pi-struct;
+    my xmlPINode:D $native .= new: :$name, :$content, :$doc;
+    self.box: $native, :doc($owner);
 }
 
 method native { callsame() // xmlPINode }

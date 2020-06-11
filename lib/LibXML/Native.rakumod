@@ -1080,6 +1080,8 @@ class xmlDoc is anyNode does LibXML::Native::DOM::Document is export {
     method domSetInternalSubset(xmlDtd) is native($BIND-XML2) {*}
     method domSetExternalSubset(xmlDtd) is native($BIND-XML2) {*}
 
+    method set-flags(int32 --> int32) is native($BIND-XML2) is symbol('xml6_doc_set_flags') {*}
+    method get-flags(--> int32) is native($BIND-XML2) is symbol('xml6_doc_get_flags') {*}
 }
 
 #| xmlDoc of type: XML_HTML_DOCUMENT_NODE

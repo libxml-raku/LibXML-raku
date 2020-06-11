@@ -84,14 +84,13 @@ method native handles <publicId systemId> {
     =head2 Methods
 =end pod
 
-multi submethod TWEAK(xmlDtd:D :native($)!) { }
-multi submethod TWEAK(
+multi method new(
     Str:D :$type!,
     LibXML::Node :doc($owner), Str:D :$name!,
     Str :$external-id, Str :$system-id, ) {
     my xmlDoc $doc = .native with $owner;
-    my xmlDtd:D $dtd-struct .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
-    self.set-native($dtd-struct);
+    my xmlDtd:D $native .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
+    self.box: $native, :doc($owner);
 }
 
 # for Perl 5 compat
@@ -99,7 +98,6 @@ multi method new($external-id, $system-id) {
     self.parse(:$external-id, :$system-id);
 }
 
-multi method new(|c) is default { nextsame }
 =begin pod
     =head3 method new
 
@@ -126,7 +124,7 @@ multi method new(|c) is default { nextsame }
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     my xmlDtd:D $native = LibXML::Parser::Context.try: {xmlDtd.parse: :$string, :$enc};
-    self.new: :$native;
+    self.box($native);
 }
 =begin pod
     =head3 method parse
@@ -141,7 +139,7 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
 
 multi method parse(Str:D :$external-id, Str:D :$system-id) {
     my xmlDtd:D $native = LibXML::Parser::Context.try: {xmlDtd.parse: :$external-id, :$system-id;};
-    self.new: :$native;
+    self.box($native);
 }
 multi method parse(Str $external-id, Str $system-id) is default {
     self.parse: :$external-id, :$system-id;
@@ -151,6 +149,7 @@ method getPublicId { $.publicId }
 method getSystemId { $.systemId }
 method cloneNode(LibXML::Dtd:D: $?) {
     my xmlDtd:D $native = self.native.copy;
+    $native.Reference;
     self.clone: :$native;
 }
 

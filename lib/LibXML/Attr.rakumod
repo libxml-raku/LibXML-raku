@@ -38,11 +38,10 @@ use Method::Also;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlAttr:D :native($)!) {
-}
-multi submethod TWEAK(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!) {
+multi method new(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!) {
     my xmlDoc $doc = .native with $doc-obj;
-    self.set-native: xmlAttr.new( :$name, :$value, :$doc );
+    my xmlAttr:D $native := xmlAttr.new( :$name, :$value, :$doc );
+    self.box: $native, :doc($doc-obj);
 }
 =begin pod
     =head3 method new

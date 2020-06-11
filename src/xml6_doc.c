@@ -1,5 +1,6 @@
 #include "xml6.h"
 #include "xml6_doc.h"
+#include "xml6_ref.h"
 #include <string.h>
 #include <assert.h>
 
@@ -37,5 +38,19 @@ DLLEXPORT void xml6_doc_set_dict(xmlDocPtr self, xmlDictPtr dict) {
         xmlDictFree(self->dict);
     }
     self->dict = dict;
+}
+
+DLLEXPORT int
+xml6_doc_set_flags(xmlDocPtr self, int flags) {
+    assert(self != NULL);
+    assert(self->_private != NULL);
+    return xml6_ref_set_flags( self->_private, flags);
+}
+
+DLLEXPORT int
+xml6_doc_get_flags(xmlDocPtr self) {
+    assert(self != NULL);
+    assert(self->_private != NULL);
+    return xml6_ref_get_flags( self->_private);
 }
 

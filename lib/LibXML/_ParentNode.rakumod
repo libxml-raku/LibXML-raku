@@ -3,6 +3,8 @@ unit role LibXML::_ParentNode;
 
 use LibXML::Node :iterate-set;
 use LibXML::Types :QName, :NameVal;
+use LibXML::Config;
+my constant config = LibXML::Config;
 
 method native {...}
 
@@ -37,3 +39,6 @@ multi method appendTextChild(NameVal:D $_) {
     $.appendTextChild(.key, .value);
 }
 
+method ast(Bool :$blank = config.keep-blanks --> Pair) {
+    self.ast-key => [self.childNodes(:$blank).map(*.ast: :$blank)];
+}

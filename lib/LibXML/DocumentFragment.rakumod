@@ -75,11 +75,14 @@ class ParserContext is LibXML::Parser::Context {
 # a node-list; rather than the fragment itself
 method keep(|c) { LibXML::Node.box(|c) }
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlDocFrag:D :native($)!) {}
-multi submethod TWEAK(LibXML::Node :doc($doc-obj)) {
+# we should encounter document fragments in a DOM
+method box(|) { "can't box document frgaments" }
+
+method new(LibXML::Node :doc($doc-obj), xmlDocFrag :$native is copy) {
     my xmlDoc:D $doc = .native with $doc-obj;
-    my xmlDocFrag $doc-frag-struct .= new: :$doc;
-    self.set-native: $doc-frag-struct;
+    $native //= xmlDocFrag.new: :$doc;
+    $native.Reference;
+    self.bless: :$native, :doc($doc-obj);
 }
 =begin pod
     =head3 method new

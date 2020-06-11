@@ -368,7 +368,7 @@ method is-valid(
 ) returns Mu
 ```
 
-Document validity check
+Check that the current document is valid
 
 ### method is-valid
 
@@ -382,6 +382,14 @@ You may also pass in a [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/D
         warn("document is not valid!");
     }
 
+### method was-valid
+
+```perl6
+method was-valid() returns Bool
+```
+
+Whether the document was valid when it was parsed
+
 ### method validate
 
 ```perl6
@@ -391,7 +399,7 @@ method validate(
 ) returns Bool
 ```
 
-Document validity assertion
+Assert that the current document is valid
 
 This is an exception throwing equivalent of is_valid. If the document is not valid it will throw an exception containing the error. This allows you much better error reporting than simply is_valid or not.
 

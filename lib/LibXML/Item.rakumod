@@ -67,7 +67,6 @@ multi sub box-class(UInt $_) is export(:box-class) {
 multi method box(itemNode:D $_) { box-class(.type).box: .delegate }
 multi method box(Any:U $_) { self.WHAT }
 
-method raw { self.native }
 
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
@@ -127,6 +126,7 @@ multi sub ast-to-xml(Pair $_) {
             $name .= chop() if $name.ends-with(';');
         }
         my $node := box-class($node-type).new: :$name;
+
         for $value.List {
             $node.add( ast-to-xml($_) ) if .defined;
         }

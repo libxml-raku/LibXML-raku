@@ -9,14 +9,9 @@ unit class LibXML::Text
 use LibXML::Native;
 use Method::Also;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlTextNode:D :native($)!) { }
-multi submethod TWEAK(LibXML::Node :doc($owner), Str() :$content!) {
-    my xmlDoc $doc = .native with $owner;
-    my xmlTextNode $text-struct .= new: :$content, :$doc;
-    self.set-native($text-struct);
-}
-
-method native { callsame() // xmlTextNode }
+proto method native(--> xmlTextNode) {*}
+multi method native(LibXML::Text:D:) { self.raw }
+multi method native(LibXML::Text:U:) { xmlTextNode }
 
 method content is rw is also<text ast> handles<substr substr-rw> { $.native.content };
 

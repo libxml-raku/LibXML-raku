@@ -5,6 +5,4 @@ unit class LibXML::Dtd::Attr
 
 use LibXML::Native;
 
-submethod TWEAK(LibXML::Node :doc($)!, xmlAttrDecl:D :native($)!) { }
-
 method native { callsame() // xmlAttrDecl }

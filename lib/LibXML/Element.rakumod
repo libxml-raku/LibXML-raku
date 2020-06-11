@@ -101,11 +101,15 @@ use LibXML::Types :QName, :NCName, :NameVal;
 use XML::Grammar;
 use Method::Also;
 
-multi submethod TWEAK(xmlElem:D :native($)!) { }
-multi submethod TWEAK(:doc($doc-obj), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
-    my xmlDoc:D $doc = .native with $doc-obj;
+# Perl compat
+multi method new(QName:D $name, LibXML::Namespace $ns?) {
+    self.new(:$name, :$ns);
+}
+multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
+    my xmlDoc:D $doc = .native with $owner;
     my xmlNs:D $ns = .native with $ns-obj;
-    self.set-native: xmlElem.new( :$name, :$doc, :$ns );
+    my $native := xmlElem.new( :$name, :$doc, :$ns );
+    self.box: $native, :doc($owner);
 }
 
 method native handles<
@@ -115,10 +119,6 @@ method native handles<
         removeAttribute removeAttributeNS
         > { callsame() // xmlElem }
 
-multi method new(QName:D $name, *%o --> LibXML::Element) {
-    self.new(:$name, |%o);
-}
-multi method new(| --> LibXML::Element) is default { nextsame }
 =begin pod
     =head3 method new
 

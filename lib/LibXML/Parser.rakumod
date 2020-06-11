@@ -59,11 +59,14 @@ method !make-handler(xmlParserCtxt :$native, :$line-numbers=$!line-numbers, :$in
     LibXML::Parser::Context.new: :$native, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
 }
 
-method !publish(:$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
-    my LibXML::Document $doc .= new: :$ctx, :$native;
-    $doc.URI = $_ with $URI;
-    self.processXIncludes($doc, :$ctx)
-        if $.expand-xinclude;
+method !publish(Str :$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
+    my LibXML::Document $doc .= new: :$ctx, :$URI, :native($_)
+        with $native;
+
+    if $.expand-xinclude {
+        self.processXIncludes($_, :$ctx)
+            with $doc;
+    }
 
     with $!sax-handler {
         .publish($doc);

@@ -11,6 +11,8 @@ DLLEXPORT void xml6_ref_add(void**);
 DLLEXPORT int xml6_ref_remove(void**, const char*, void*);
 DLLEXPORT void xml6_ref_set_fail(void*, xmlChar*);
 DLLEXPORT xmlChar* xml6_ref_get_fail(void*);
+DLLEXPORT int xml6_ref_set_flags(void*, int);
+DLLEXPORT int xml6_ref_get_flags(void*);
 DLLEXPORT int xml6_ref_lock(void*);
 DLLEXPORT int xml6_ref_unlock(void*);
 DLLEXPORT void* xml6_ref_freed();

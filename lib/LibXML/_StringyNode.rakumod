@@ -1,13 +1,19 @@
 unit role LibXML::_StringyNode;
 
+use LibXML::Native;
+use LibXML::Node;
+
 method nodeValue { ... }
 method content {...}
 
+multi method new(LibXML::Node :doc($owner), Str() :$content!) {
+    my xmlDoc $doc = .native with $owner;
+    my anyNode:D $native = self.native.new: :$content, :$doc;
+    self.box: $native, :doc($owner);
+}
 multi method new(Str:D() $content, *%o) {
     self.new(:$content, |%o);
 }
-
-multi method new(|c) is default { nextsame }
 
 method data returns Str is rw { $.nodeValue }
 
@@ -44,5 +50,4 @@ multi method deleteData(UInt:D $off, UInt:D $length --> Str) {
 multi method deleteData(StrOrRegex $old, |c --> Str) {
     $.replaceData($old, '', |c);
 }
-method ast { self.nodeName => self.nodeValue }
 

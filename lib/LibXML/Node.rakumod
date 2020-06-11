@@ -147,25 +147,17 @@ has anyNode $.native handles <
     unique-key ast-key xpath-key
 >;
 
-method set-native(anyNode:D $new-struct) {
-    given box-class($new-struct.type) -> $class {
-        die "mismatch between DOM node of type {$new-struct.type} ({$class.perl}) and container object of class {self.WHAT.perl}"
-            unless self.isa($class);
-    }
-    .Reference with $new-struct;
-    .Unreference with $!native;
-    $!native = $new-struct.delegate;
-}
-
-submethod TWEAK {
-    .Reference with $!native;
-}
+method raw { $!native }
 
 submethod DESTROY {
     .Unreference with $!native;
 }
 
-multi method box(anyNode:D $_, :$doc = $.get-doc) { box-class(.type).new: :native(.delegate), :$doc }
+multi method box(anyNode:D $_, :$doc = $.get-doc) {
+    my anyNode:D $native := .delegate;
+    $native.Reference;
+    box-class(.type).new: :$native, :$doc
+}
 
 method getName { self.getNodeName }
 
@@ -446,7 +438,7 @@ method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
 
 #| Adds a child to this nodes children (alias addChild)
 method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
-    $new.keep: $!native.appendChild($new.raw);
+    $new.keep: $!native.appendChild($new.native);
 }
 =para Fails, if the new childnode is already a child
     of this node. This method differs from the DOM L2 specification, in the case, if the new
@@ -829,13 +821,11 @@ method Blob(Str :$enc, |c) {
         ) returns Blob;
 
    Returns a binary representation  of the XML
-   node and it decendants encoded as `:$enc`.
+   node and its descendants encoded as `:$enc`.
 =end pod
 
 #| Data serialization
-method ast(Bool :$blank = config.keep-blanks --> Pair) {
-    self.ast-key => [self.childNodes(:$blank).map(*.ast: :$blank)];
-}
+method ast returns Pair { self.ast-key => self.nodeValue }
 =begin pod
     =para
     This method performs a deep data-serialization of the node. The L<LibXML::Item> X<ast-to-xml()> function can then be used to create a deep copy of the node;

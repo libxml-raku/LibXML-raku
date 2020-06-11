@@ -11,5 +11,5 @@ method Str {...}
 method URI {...}
 method type {...}
 method value {...}
-method ast { ... }
-method box { ... }
+method ast {...}
+method box {...}

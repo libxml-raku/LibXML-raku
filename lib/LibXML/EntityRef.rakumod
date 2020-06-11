@@ -5,11 +5,13 @@ unit class LibXML::EntityRef
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlEntityRefNode:D :native($)!) { }
-multi submethod TWEAK(LibXML::Node :doc($owner), Str :$name!) {
-    my xmlDoc:D $doc = .native with $owner;
-    my xmlEntityRefNode:D $entity-ref-struct = $doc.new-ent-ref: :$name;
-    self.set-native($entity-ref-struct);
-}
+proto method native(--> xmlEntityRefNode) {*}
+multi method native(LibXML::EntityRef:D:) { self.raw }
+multi method native(LibXML::EntityRef:U:) { xmlEntityRefNode }
 
-method native { callsame() // xmlEntityRefNode }
+multi method new(LibXML::Node :doc($owner), Str :$name!) {
+    my xmlDoc:D $doc = .native with $owner;
+    my xmlEntityRefNode:D $native = $doc.new-ent-ref: :$name;
+    self.box($native, :doc($owner));
+}
+method ast { self.ast-key => [] }

@@ -8,14 +8,10 @@ unit class LibXML::CDATA
 
 use LibXML::Native;
 
-multi submethod TWEAK(LibXML::Node :doc($)!, xmlCDataNode:D :native($)!) { }
-multi submethod TWEAK(:doc($owner), Str :$content!) {
-    my xmlDoc:D $doc = .native with $owner;
-    my xmlCDataNode:D $cdata-struct .= new: :$content, :$doc;
-    self.set-native: $cdata-struct;
-}
+proto method native(--> xmlCDataNode) {*}
+multi method native(LibXML::CDATA:D:) { self.raw }
+multi method native(LibXML::CDATA:U:) { xmlCDataNode }
 
-method native { callsame() // xmlCDataNode }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod

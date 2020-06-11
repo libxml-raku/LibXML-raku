@@ -686,14 +686,12 @@ An alias for Str. This function name was added to be more consistent with libxml
         Bool :$tag-expansion
     ) returns Blob;
 
-Returns a binary representation of the XML node and it decendants encoded as `:$enc`.
+Returns a binary representation of the XML node and its descendants encoded as `:$enc`.
 
 ### method ast
 
 ```perl6
-method ast(
-    Bool :$blank = Code.new
-) returns Pair
+method ast() returns Pair
 ```
 
 Data serialization

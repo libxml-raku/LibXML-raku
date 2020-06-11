@@ -4,10 +4,10 @@
 #include <string.h>
 
 struct _xml6Ref {
-    void *yada;    /* object private data */
     xmlChar *fail;
     xmlMutexPtr mutex;
     int ref_count;
+    int flags;
     int magic;     /* for verification */
 };
 
@@ -15,7 +15,7 @@ typedef struct _xml6Ref xml6Ref;
 typedef xml6Ref *xml6RefPtr;
 
 static xml6Ref ref_freed = {
-    NULL, NULL, NULL, 0, 0
+    NULL, NULL, 0, 0, 0
 };
 
 DLLEXPORT void* xml6_ref_freed() {
@@ -166,6 +166,31 @@ xml6_ref_get_fail(void* _self) {
       xmlMutexUnlock(self->mutex);
   }
   return fail;
+}
+
+DLLEXPORT int
+xml6_ref_set_flags(void* _self, int flags) {
+    xml6RefPtr self = (xml6RefPtr) _self;
+    if (self != NULL && self->magic == XML6_REF_MAGIC) {
+        xmlMutexLock(self->mutex);
+        self->flags = flags;
+        xmlMutexUnlock(self->mutex);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+DLLEXPORT int
+xml6_ref_get_flags(void* _self) {
+    xml6RefPtr self = (xml6RefPtr) _self;
+    if (self != NULL && self->magic == XML6_REF_MAGIC) {
+        return self->flags;
+    }
+    else {
+        return 0;
+    }
 }
 
 DLLEXPORT int

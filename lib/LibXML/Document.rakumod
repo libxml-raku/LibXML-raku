@@ -120,8 +120,8 @@ subset HTML is export(:HTML) of LibXML::Document:D where .nodeType == XML_HTML_D
 subset DOCB is export(:DOCB) of LibXML::Document:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
 
 constant config = LibXML::Config;
-has LibXML::Parser::Context $.ctx handles <wellFormed valid input-compressed>;
 has LibXML::Element $!docElem;
+constant InputCompressed = 1;
 
 =begin pod
     =head2 Methods
@@ -129,20 +129,32 @@ has LibXML::Element $!docElem;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-submethod TWEAK(
-                Str  :$version,
-                xmlEncodingStr :$enc,
-                Str  :$URI,
-                Bool :$html,
-                Int  :$compression,
-) {
-    my xmlDoc:D $struct = self.native
-        // self.set-native: ($html ?? htmlDoc !! xmlDoc).new;
+method box(xmlDoc:D $raw) {
+    nextwith($raw, :boxing);
+}
 
-    $struct.version = $_ with $version;
-    $struct.encoding = $_ with $enc;
-    $struct.URI = $_ with $URI;
-    $struct.setCompression($_) with $compression;
+method new(
+    Str  :$version,
+    xmlEncodingStr :$enc,
+    Str  :$URI,
+    Bool :$html,
+    Int  :$compression,
+    Bool :$boxing, # temp
+    LibXML::Parser::Context :$ctx,
+    xmlDoc:D :$native = ($html ?? htmlDoc !! xmlDoc).new,
+    *%o
+) {
+
+    $native.version = $_ with $version;
+    $native.encoding = $_ with $enc;
+    $native.URI = $_ with $URI;
+    $native.setCompression($_) with $compression;
+    $native.Reference unless $boxing;
+    with $ctx {
+        $native.set-flags(InputCompressed)
+            if .input-compressed;
+    }
+    self.bless: :$native, |%o;
 }
 =begin pod
     =head3 method new
@@ -196,7 +208,7 @@ implied.
 =end pod
 
 #| returns the underlying native structure managed by this object
-method native(--> xmlDoc) handles <encoding setCompression getCompression standalone URI> {
+method native(--> xmlDoc) handles <encoding setCompression getCompression standalone URI wellFormed> {
     callsame() // xmlDoc
 }
 =begin pod
@@ -299,6 +311,10 @@ method compression is rw returns Int {
     );
 }
 
+#|
+method input-compressed returns Bool {
+   ? ($.raw.get-flags +& InputCompressed);
+}
 =begin pod
     =head3 method input-compressed
 
@@ -479,7 +495,7 @@ method write(Str() :$file!, Bool :$format = False --> UInt) {
 #| Write to a name file (equivalent to $.write: :$file)
 method save-as(Str() $file --> UInt) { $.write(:$file) }
 
-#| Document validity check
+#| Check that the current document is valid
 method is-valid(LibXML::Dtd $dtd?) { $.validate($dtd, :check); }
 =begin pod
     =head3 method is-valid
@@ -496,7 +512,13 @@ method is-valid(LibXML::Dtd $dtd?) { $.validate($dtd, :check); }
 
 =end pod
 
-#| Document validity assertion
+#| Whether the document was valid when it was parsed
+method was-valid returns Bool {
+    ? ($.raw.properties +& XML_DOC_DTDVALID)
+}
+method valid is DEPRECATED<was-valid> { $.was-valid }
+
+#| Assert that the current document is valid
 method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
     $valid-ctx.validate(:doc(self), :$dtd, :$check);
@@ -808,7 +830,7 @@ method parser handles<parse> { require ::('LibXML::Parser'); }
 
 #| Expand XInclude flags
 method processXIncludes(|c) is also<process-xincludes> {
-    self.parser.new.processXIncludes(self, :$!ctx, |c);
+    self.parser.new.processXIncludes(self, |c);
 }
 
 =begin pod
