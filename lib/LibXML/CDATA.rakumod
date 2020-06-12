@@ -3,15 +3,13 @@ use LibXML::_StringyNode;
 
 #| LibXML CDATA Section nodes
 unit class LibXML::CDATA
+    is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode;
 
 use LibXML::Native;
-
-proto method native(--> xmlCDataNode) {*}
-multi method native(LibXML::CDATA:D:) { self.raw }
-multi method native(LibXML::CDATA:U:) { xmlCDataNode }
-
+use NativeCall;
+method raw { nativecast(xmlCDataNode, self) }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 =begin pod

@@ -2,17 +2,19 @@ use LibXML::Node;
 
 #| LibXML Processing Instructions
 unit class LibXML::PI
+    is repr('CPointer')
     is LibXML::Node;
 
 use LibXML::Native;
+use NativeCall;
 
-multi method new(:doc($owner)!, Str :$name!, Str :$content!) {
+method new(:doc($owner)!, Str :$name!, Str :$content!) {
     my xmlDoc:D $doc = .native with $owner;
-    my xmlPINode:D $native .= new: :$name, :$content, :$doc;
-    self.box: $native, :doc($owner);
+    my xmlPINode:D $raw .= new: :$name, :$content, :$doc;
+    self.box: $raw;
 }
 
-method native { callsame() // xmlPINode }
+method raw { nativecast(xmlPINode, self) }
 method content is rw handles<substr substr-rw> { $.native.content };
 
 multi method setData(*%atts) {

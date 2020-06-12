@@ -96,7 +96,7 @@ method iterator {
 method pull-one {
     with $!cur -> $this {
         $!cur = $this.next-node($!blank);
-        @!store[$!idx++] //= $!of.box: $this, :$!doc
+        @!store[$!idx++] //= $!of.box: $this;
     }
     else {
         $!reified = True;

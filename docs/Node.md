@@ -370,7 +370,7 @@ method unbindNode() returns LibXML::Node
 
 Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
 
-If the node is not inserted into the DOM afterwards, it will be lost after the program terminates. From a low level view, the unbound node is stripped from the context it is and inserted into a (hidden) document-fragment.
+If the node is not inserted into the DOM afterwards, it will be lost after the program terminates.
 
 ### method removeChild
 

@@ -2,6 +2,7 @@ use LibXML::Node;
 
 #| LibXML DTD Handling
 unit class LibXML::Dtd
+    is repr('CPointer')
     is LibXML::Node;
 
   =begin pod
@@ -76,8 +77,8 @@ class ValidContext {
 
 }
 
-method native handles <publicId systemId> {
-    callsame() // xmlDtd;
+method raw handles <publicId systemId> {
+    nativecast(xmlDtd, self);
 }
 
 =begin pod
@@ -89,8 +90,8 @@ multi method new(
     LibXML::Node :doc($owner), Str:D :$name!,
     Str :$external-id, Str :$system-id, ) {
     my xmlDoc $doc = .native with $owner;
-    my xmlDtd:D $native .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
-    self.box: $native, :doc($owner);
+    my xmlDtd:D $raw .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
+    self.box: $raw;
 }
 
 # for Perl 5 compat

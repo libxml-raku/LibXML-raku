@@ -3,7 +3,7 @@ use LibXML::_DomNode;
 #| LibXML Namespace implementation
 unit class LibXML::Namespace
     is repr('CPointer')
-    does LibXML::Item
+    is LibXML::Item
     does LibXML::_DomNode;
 
 =begin pod

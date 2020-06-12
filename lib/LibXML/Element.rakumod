@@ -3,6 +3,7 @@ use LibXML::_ParentNode;
 
 #| LibXML Class for Element Nodes
 unit class LibXML::Element
+    is repr('CPointer')
     is LibXML::Node
     does LibXML::_ParentNode;
 
@@ -108,16 +109,17 @@ multi method new(QName:D $name, LibXML::Namespace $ns?) {
 multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
     my xmlDoc:D $doc = .native with $owner;
     my xmlNs:D $ns = .native with $ns-obj;
-    my $native := xmlElem.new( :$name, :$doc, :$ns );
-    self.box: $native, :doc($owner);
+    my $raw := xmlElem.new( :$name, :$doc, :$ns );
+    self.box: $raw;
 }
 
-method native handles<
+method raw handles<
         content
         getAttribute getAttributeNS getNamespaceDeclURI
         hasAttributes hasAttribute hasAttributeNS
-        removeAttribute removeAttributeNS
-        > { callsame() // xmlElem }
+        removeAttribute removeAttributeNS> {
+    nativecast(xmlElem, self);
+}
 
 =begin pod
     =head3 method new
@@ -137,7 +139,7 @@ method native handles<
 =head2 Attribute Methods
 
 method !set-attr(QName $name, Str:D $value) {
-    ? $.native.setAttribute($name, $value);
+    ? $.raw.setAttribute($name, $value);
 }
 multi method setAttribute(NameVal:D $_ --> Bool) {
     self!set-attr(.key, .value);

@@ -1,17 +1,18 @@
 use LibXML::Node;
 
 unit class LibXML::EntityRef
+    is repr('CPointer')
     is LibXML::Node;
 
 use LibXML::Native;
 
-proto method native(--> xmlEntityRefNode) {*}
-multi method native(LibXML::EntityRef:D:) { self.raw }
-multi method native(LibXML::EntityRef:U:) { xmlEntityRefNode }
+use LibXML::Native;
+use NativeCall;
+method raw { nativecast(xmlEntityRefNode, self) }
 
-multi method new(LibXML::Node :doc($owner), Str :$name!) {
+method new(LibXML::Node :doc($owner), Str :$name!) {
     my xmlDoc:D $doc = .native with $owner;
-    my xmlEntityRefNode:D $native = $doc.new-ent-ref: :$name;
-    self.box($native, :doc($owner));
+    my xmlEntityRefNode:D $raw = $doc.new-ent-ref: :$name;
+    self.box($raw);
 }
 method ast { self.ast-key => [] }

@@ -392,7 +392,7 @@ class xmlSAXHandler is repr('CStruct') is export {
             self."{.key}"() = .value;
         }
     }
-    method native { self } # already native
+    method raw { self } # already raw
 
     has Pointer   $.internalSubset is rw-ptr(
         method xml6_sax_set_internalSubset( &cb (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native($BIND-XML2) {*}

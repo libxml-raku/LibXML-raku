@@ -3,14 +3,13 @@ use LibXML::_StringyNode;
 
 #| LibXML Comment nodes
 unit class LibXML::Comment
+    is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode;
 
 use LibXML::Native;
-
-proto method native(--> xmlCommentNode) {*}
-multi method native(LibXML::Comment:D:) { self.raw }
-multi method native(LibXML::Comment:U:) { xmlCommentNode }
+use NativeCall;
+method raw { nativecast(xmlCommentNode, self) }
 
 method content is rw handles<substr substr-rw> { $.native.content };
 

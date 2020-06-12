@@ -1,13 +1,12 @@
 our %class;
 
-unit role LibXML::Item;
+#| base class for namespaces and nodes
+unit class LibXML::Item;
 
 =begin pod
     =head2 Name
 
-    =head2 role LibXML::Item
-
-    LibXML::Item is a role performed by L<LibXML::Namespace> and L<LibXML::Node> based classes.
+    LibXML::Item is a base class for L<LibXML::Namespace> and L<LibXML::Node> based classes.
 
     These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 
@@ -56,7 +55,7 @@ my constant @ClassMap = do {
 proto sub box-class($) {*}
 multi sub box-class(Str:D $class-name) {
     given %class{$class-name} {
-        .does(LibXML::Item) ?? $_ !! ($_ = (require ::($class-name)));
+        .isa(LibXML::Item) ?? $_ !! ($_ = (require ::($class-name)));
     }
 }
 
@@ -64,9 +63,10 @@ multi sub box-class(UInt $_) is export(:box-class) {
     box-class(@ClassMap[$_] // 'LibXML::Item');
 }
 
-multi method box(itemNode:D $_) { box-class(.type).box: .delegate }
+multi method box(itemNode:D $_) {
+    box-class(.type).box: .delegate;
+}
 multi method box(Any:U $_) { self.WHAT }
-
 
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}

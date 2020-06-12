@@ -3,6 +3,7 @@ use LibXML::_ParentNode;
 
 #| LibXML DOM Document Class
 unit class LibXML::Document
+    is repr('CPointer')
     is LibXML::Node
     does LibXML::_ParentNode;
 
@@ -128,32 +129,26 @@ constant InputCompressed = 1;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-method box(xmlDoc:D $raw) {
-    nextwith($raw, :boxing);
-}
-
 method new(
     Str  :$version,
     xmlEncodingStr :$enc,
     Str  :$URI,
     Bool :$html,
     Int  :$compression,
-    Bool :$boxing, # temp
     LibXML::Parser::Context :$ctx,
     xmlDoc:D :$native = ($html ?? htmlDoc !! xmlDoc).new,
-    *%o
 ) {
 
     $native.version = $_ with $version;
     $native.encoding = $_ with $enc;
     $native.URI = $_ with $URI;
     $native.setCompression($_) with $compression;
-    $native.Reference unless $boxing;
-    with $ctx {
-        $native.set-flags(InputCompressed)
-            if .input-compressed;
+
+    given self.box($native) {
+        .set-flags(InputCompressed)
+            if $ctx && $ctx.input-compressed;
+        $_;
     }
-    self.bless: :$native, |%o;
 }
 =begin pod
     =head3 method new
@@ -206,9 +201,8 @@ implied.
         =end code
 =end pod
 
-#| returns the underlying native structure managed by this object
-method native(--> xmlDoc) handles <encoding setCompression getCompression standalone URI wellFormed> {
-    callsame() // xmlDoc
+method raw returns xmlDoc handles <encoding setCompression getCompression standalone URI wellFormed set-flags> {
+    nativecast(itemNode, self).delegate; # xmlDoc htmlDoc
 }
 =begin pod
     =head3 method URI
@@ -257,9 +251,9 @@ method actualEncoding returns xmlEncodingStr { $.encoding || 'UTF-8' }
 #| Gets or sets the version of the document
 method version is rw returns Version {
     Proxy.new(
-        FETCH => { Version.new($.native.version) },
+        FETCH => { Version.new($.raw.version) },
         STORE => -> $, Str() $_ {
-            $.native.version = Version.new($_).Str;
+            $.raw.version = Version.new($_).Str;
     });
 }
 
@@ -287,7 +281,7 @@ enum XmlStandalone is export(:XmlStandalone) (
 
 #| Alter the value of a documents standalone attribute.
 method setStandalone(Numeric $_) {
-    $.native.standalone = .defined
+    $.raw.standalone = .defined
         ?? $_
         !! XmlStandaloneMu
 }
@@ -341,10 +335,10 @@ method input-compressed returns Bool {
 =end pod
 
 #| Serialize to XML/HTML
-method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc), |c --> Str) {
+method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.raw.isa(htmlDoc), |c --> Str) {
     my Str $rv;
 
-    with self.native -> xmlDoc:D $doc {
+    with self.raw -> xmlDoc:D $doc {
 
         my $skipped-dtd = $doc.getInternalSubset
             if $skip-dtd;
@@ -414,7 +408,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.native.isa(htmlDoc
 method serialize-html(Bool :$format = True --> Str) {
     my buf8 $buf;
 
-    given self.native -> xmlDoc:D $_ {
+    given self.raw -> xmlDoc:D $_ {
         my htmlDoc:D $html-doc = nativecast(htmlDoc, $_);
         $html-doc.dump(:$format);
     }
@@ -444,7 +438,7 @@ method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
         }
     }
 
-    with self.native -> xmlDoc:D $doc {
+    with self.raw -> xmlDoc:D $doc {
 
         my $skipped-dtd = $doc.getInternalSubset
             if $skip-dtd;
@@ -486,7 +480,7 @@ method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
 
 #| Write to a name file
 method write(Str() :$file!, Bool :$format = False --> UInt) {
-    my UInt $n = self.native.write($file, :$format);
+    my UInt $n = self.raw.write($file, :$format);
     fail "unable to save as xml: $file" if $n < 0;
     $n;
 }
@@ -552,12 +546,12 @@ method documentElement is rw is also<root> returns LibXML::Element {
 method createElement(QName $name, Str :$href --> LibXML::Element) {
     $href
     ?? $.createElementNS($href, $name)
-    !! &?ROUTINE.returns.box: $.native.createElement($name);
+    !! &?ROUTINE.returns.box: $.raw.createElement($name);
 }
 
 #| equivalent to .createElement($name, :$href)
 method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) {
-    &?ROUTINE.returns.box: $.native.createElementNS($href, $name);
+    &?ROUTINE.returns.box: $.raw.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -582,7 +576,7 @@ multi method createAttribute(
         $.createAttributeNS($_, $qname, $value);
     }
     else {
-        &?ROUTINE.returns.box: $.native.createAttribute($qname, $value);
+        &?ROUTINE.returns.box: $.raw.createAttribute($qname, $value);
     }
 }
 
@@ -595,7 +589,7 @@ multi method createAttributeNS(Str $href,
                          Str $value = '',
                          --> LibXML::Attr
                         ) {
-    &?ROUTINE.returns.box: $.native.createAttributeNS($href, $qname, $value);
+    &?ROUTINE.returns.box: $.raw.createAttributeNS($href, $qname, $value);
 }
 
 #| Creates a Document Fragment
@@ -703,10 +697,8 @@ method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node(
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
 #| Imports a node from another DOM
-method importNode(LibXML::Node:D $node --> LibXML::Node) {
-    given $.native.importNode($node.native) {
-        &?ROUTINE.returns.box: $_, :doc(self);
-    }
+method importNode(LibXML::Node:D $node --> LibXML::Element) {
+    &?ROUTINE.returns.box: $.raw.importNode($node.raw);
 }
 =para If a node is not part of a document, it can be imported to another document. As
     specified in DOM Level 2 Specification the Node will not be altered or removed
@@ -714,9 +706,7 @@ method importNode(LibXML::Node:D $node --> LibXML::Node) {
 
 #| Adopts a node from another DOM
 method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
-    given $.native.adoptNode($node.native) {
-        &?ROUTINE.returns.box: $_, :doc(self);
-    }
+    $node.keep: $.raw.adoptNode($node.raw);
 }
 =para If a node is not part of a document, it can be adopted by another document. As
     specified in DOM Level 3 Specification the Node will not be altered but it will
@@ -731,7 +721,7 @@ method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
 
 #| DOM compatible method to get the document element
 method getDocumentElement returns LibXML::Element {
-    with $.native.getDocumentElement {
+    with $.raw.getDocumentElement {
         &?ROUTINE.returns.box($_);
     }
     else {
@@ -742,7 +732,7 @@ method getDocumentElement returns LibXML::Element {
 #| DOM compatible method to set the document element
 method setDocumentElement(LibXML::Element:D $elem --> LibXML::Element) {
     $elem.setOwnerDocument(self);
-    self.native.setDocumentElement($elem.native);
+    self.raw.setDocumentElement($elem.raw);
     $elem;
 }
 
@@ -764,7 +754,7 @@ method getInternalSubset(--> LibXML::Dtd) is dom-native {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
 method setInternalSubset(LibXML::Dtd $dtd) {
-    self.native.setInternalSubset: $dtd.native;
+    self.raw.setInternalSubset: $dtd.raw;
 }
 =para I<EXPERIMENTAL!>
 
@@ -793,7 +783,7 @@ method getExternalSubset(--> LibXML::Dtd) is dom-native {...}
 
 #| This method sets a DTD node as an external subset of the given document.
 method setExternalSubset(LibXML::Dtd $dtd) {
-    self.native.setExternalSubset: $dtd.native;
+    self.raw.setExternalSubset: $dtd.raw;
 }
 =para I<EXPERIMENTAL!>
 
@@ -856,7 +846,7 @@ method processXIncludes(|c) is also<process-xincludes> {
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
-   &?ROUTINE.returns.box: $.native.getElementById($id);
+   &?ROUTINE.returns.box: $.raw.getElementById($id);
 }
 =para Note: the ID of an element may change while manipulating the document. For
     documents with a DTD, the information about ID attributes is only available if
@@ -866,7 +856,7 @@ method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
     attribute node with $attr.isId().
 
 #| Index elements for faster XPath searching
-method indexElements returns Int { $.native.IndexElements }
+method indexElements returns Int { $.raw.IndexElements }
 =para This function causes libxml2 to stamp all elements in a document with their
     document position index which considerably speeds up XPath queries for large
     documents. It should only be used with static documents that won't be further

@@ -3,15 +3,15 @@ use LibXML::_StringyNode;
 
 #| LibXML Text Nodes
 unit class LibXML::Text
+    is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode;
 
 use LibXML::Native;
 use Method::Also;
+use NativeCall;
 
-proto method native(--> xmlTextNode) {*}
-multi method native(LibXML::Text:D:) { self.raw }
-multi method native(LibXML::Text:U:) { xmlTextNode }
+method raw { nativecast(xmlTextNode, self) }
 
 method content is rw is also<text ast> handles<substr substr-rw> { $.native.content };
 

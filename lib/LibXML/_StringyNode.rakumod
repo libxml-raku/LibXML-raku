@@ -8,8 +8,8 @@ method content {...}
 
 multi method new(LibXML::Node :doc($owner), Str() :$content!) {
     my xmlDoc $doc = .native with $owner;
-    my anyNode:D $native = self.native.new: :$content, :$doc;
-    self.box: $native, :doc($owner);
+    my anyNode:D $raw = self.raw.new: :$content, :$doc;
+    self.box: $raw;
 }
 multi method new(Str:D() $content, *%o) {
     self.new(:$content, |%o);

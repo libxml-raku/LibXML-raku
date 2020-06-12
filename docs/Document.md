@@ -130,14 +130,6 @@ The call of *createDocument*() without any parameter will result the following c
 <?xml version="1.0"?>
 ```
 
-### method native
-
-```perl6
-method native() returns LibXML::Native::xmlDoc
-```
-
-returns the underlying native structure managed by this object
-
 ### method URI
 
     my Str $URI = $doc.URI();
@@ -591,7 +583,7 @@ Create a new DTD
 ```perl6
 method importNode(
     LibXML::Node:D $node
-) returns LibXML::Node
+) returns LibXML::Element
 ```
 
 Imports a node from another DOM
@@ -626,7 +618,7 @@ DOM compatible method to get the document element
 
 ```perl6
 method setDocumentElement(
-    LibXML::Element $!docElem
+    LibXML::Element:D $elem
 ) returns LibXML::Element
 ```
 

@@ -6,8 +6,6 @@ use LibXML::Types :QName, :NameVal;
 use LibXML::Config;
 my constant config = LibXML::Config;
 
-method native {...}
-
 method getElementsByTagName(Str:D $name) {
     iterate-set(LibXML::Node, $.native.getElementsByTagName($name));
 }

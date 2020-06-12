@@ -2,6 +2,7 @@ use LibXML::Node;
 
 #| LibXML Attribute nodes
 unit class LibXML::Attr
+    is repr('CPointer')
     is LibXML::Node;
 
 =begin pod
@@ -29,6 +30,7 @@ unit class LibXML::Attr
 use LibXML::Native;
 use LibXML::Types :QName;
 use Method::Also;
+use NativeCall;
 
 =begin pod
     =head2 Methods
@@ -38,10 +40,10 @@ use Method::Also;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-multi method new(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!) {
-    my xmlDoc $doc = .native with $doc-obj;
-    my xmlAttr:D $native := xmlAttr.new( :$name, :$value, :$doc );
-    self.box: $native, :doc($doc-obj);
+method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!) {
+    my xmlDoc $doc = .native with $owner;
+    my xmlAttr:D $raw := xmlAttr.new( :$name, :$value, :$doc );
+    self.box: $raw;
 }
 =begin pod
     =head3 method new
@@ -51,8 +53,8 @@ multi method new(LibXML::Node :doc($doc-obj), QName:D :$name!, Str :$value!) {
     Class constructor.
 =end pod
 
-method native handles <atype isId name serializeContent> {
-    callsame() // xmlAttr;
+method raw handles <atype isId name serializeContent> {
+    nativecast(xmlAttr, self);
 }
 
     #| Gets or sets the attribute stored for the value

@@ -1,10 +1,12 @@
+class LibXML::Item
+------------------
+
+base class for namespaces and nodes
+
 Name
 ----
 
-role LibXML::Item
------------------
-
-LibXML::Item is a role performed by [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) based classes.
+LibXML::Item is a base class for [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) based classes.
 
 These are distinct classes in libxml2, but do share common methods: getNamespaceURI, localname(prefix), name(nodeName), type (nodeType), string-value, URI.
 

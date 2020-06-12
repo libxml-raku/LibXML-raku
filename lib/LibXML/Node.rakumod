@@ -4,7 +4,8 @@ use LibXML::_DomNode;
 
 #| Abstract base class of LibXML Nodes
 unit class LibXML::Node
-    does LibXML::Item
+    is repr('CPointer')
+    is LibXML::Item
     does LibXML::_DomNode;
 
 =begin pod
@@ -134,27 +135,26 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 ########################################################################
 =head2 Property Methods
 
-has anyNode $.native handles <
+method raw handles<
     domCheck domFailure
     getNodeName getNodeValue
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
-    setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
+    setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue string-value
     type
     lock unlock
     unique-key ast-key xpath-key
->;
+> { ... }
 
-method raw { $!native }
+method native { self.raw }
 
 submethod DESTROY {
-    .Unreference with $!native;
+    self.raw.Unreference;
 }
 
 multi method box(anyNode:D $_) {
-    my anyNode:D $native := .delegate;
-    $native.Reference;
-    box-class(.type).new: :$native;
+    .Reference;
+    nativecast(box-class(.type), $_);
 }
 
 method getName { self.getNodeName }
@@ -206,7 +206,7 @@ full name of the current node (C<prefix:localname>).
 
 #| True if both objects refer to the same native structure
 method isSameNode(LibXML::Item $other) is also<isSame> returns Bool {
-    $!native.isSameNode($other.native);
+    self.raw.isSameNode($other.raw);
 }
 method isEqual(|c) is DEPRECATED<isSameNode> { $.isSameNode(|c) }
 
@@ -223,17 +223,17 @@ method nodeValue is rw is also<value> returns Str {
     text value of an element use textContent() instead!
 
 #| this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
-method textContent is also<text string-value to-literal> returns Str {
-    $!native.string-value;
+method textContent is also<text to-literal> returns Str {
+    self.string-value;
 }
 
 #| Return a numeric value representing the node type of this node.
-method nodeType returns UInt { $!native.type }
+method nodeType returns UInt { self.type }
 =para The module L<LibXML::Enums> by default exports enumerated constants
     `XML_*_NODE` and `XML_*_DECL` for the node and declaration types.
 
 #| Gets the base URI
-method getBaseURI returns Str { $!native.GetBase }
+method getBaseURI returns Str { self.raw.GetBase }
 =para Searches for the base URL of the node. The method should work on both XML and
     HTML documents even if base mechanisms for these are completely different. It
     returns the base as defined in RFC 2396 sections "5.1.1. Base URI within
@@ -241,7 +241,7 @@ method getBaseURI returns Str { $!native.GetBase }
     it does not return the document base (5.1.3), use method C<URI> of L<LibXML::Document> for this. 
 
 #| Sets the base URI
-method setBaseURI(Str $uri) { $!native.SetBase($uri) }
+method setBaseURI(Str $uri) { self.raw.SetBase($uri) }
 =para This method only does something useful for an element node in an XML document.
     It sets the xml:base attribute on the node to $strURI, which effectively sets
     the base URI of the node to the same value. 
@@ -257,7 +257,7 @@ method baseURI is rw is also<URI> {
 }
 
 #| Return the source line number where the tag was found
-method line-number returns UInt  { $!native.GetLineNo }
+method line-number returns UInt  { self.raw.GetLineNo }
 =para If a node is added to the document the line number is 0. Problems may occur, if
     a node from one document is passed to another one.
 =para IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
@@ -298,7 +298,7 @@ method prev returns LibXML::Node is dom-native {...}
 
 #| Returns True if the current node has child nodes, False otherwise.
 method hasChildNodes returns Bool {
-    ? $!native.hasChildNodes();
+    ? self.raw.hasChildNodes();
 }
 
 multi method first(Bool :$blank = True) {
@@ -312,7 +312,7 @@ multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
 
 #| Appends text directly to a node
 method appendText(Str:D $text) is also<appendTextNode> {
-    $!native.appendText($text);
+    self.raw.appendText($text);
 }
 =para Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment,
     and DocumentFragment nodes.
@@ -347,7 +347,7 @@ method getOwnerDocument is also<get-doc> returns LibXML::Node {
 }
 
 submethod TWEAK(*%args) {
-    die if %args<doc>:exists;
+    die "no content" unless nativecast(Pointer, self).defined
 }
 
 #| Transfers a node to another document
@@ -407,7 +407,7 @@ method nonBlankChildNodes {
 
 #| Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
 method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
-    $!native.Unlink;
+    self.raw.Unlink;
     self;
 }
 =para If the node is not inserted into the DOM afterwards, it will be
@@ -415,13 +415,13 @@ method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
 
 #| Unbind a child node from its parent
 method removeChild(LibXML::Node:D $node --> LibXML::Node) {
-    $node.keep: $!native.removeChild($node.native), :doc(LibXML::Node);
+    $node.keep: self.raw.removeChild($node.raw);
 }
 =para Fails if `$node` is not a child of this object
 
 #| Replaces the `$old` node with the `$new` node.
 method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
-    $old.keep: $!native.replaceChild($new.native, $old.native),
+    $old.keep: self.raw.replaceChild($new.raw, $old.raw),
 }
 =para The returned C<$old> node is unbound.
 =para This function differs from the DOM L2 specification, in the case, if the new node is not part of the document, the
@@ -429,14 +429,14 @@ method replaceChild(LibXML::Node $new, LibXML::Node $old --> LibXML::Node) {
 
 #| Adds a child to this nodes children (alias addChild)
 method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::Item {
-    $new.keep: $!native.appendChild($new.native);
+    $new.keep: self.raw.appendChild($new.raw);
 }
 =para Fails, if the new childnode is already a child
     of this node. This method differs from the DOM L2 specification, in the case, if the new
     node is not part of the document, the node will be imported first.
 
 method addNewChild(Str $uri, QName $name --> LibXML::Node) {
-    LibXML::Node.box: $!native.addNewChild($uri, $name);
+    LibXML::Node.box: self.raw.addNewChild($uri, $name);
 }
 =begin pod
     =head3 method addNewChild
@@ -464,7 +464,7 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) {
 
 #| Replace a node
 method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
-    self.keep: $!native.replaceNode($new.native); 
+    self.keep: self.raw.replaceNode($new.native); 
 }
 =para This function is very similar to replaceChild(), but it replaces the node
     itself rather than a childnode. This is useful if a node found by any XPath
@@ -472,12 +472,12 @@ method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-    &?ROUTINE.returns.box($!native.addSibling($new.native));
+    &?ROUTINE.returns.box(self.raw.addSibling($new.native));
 }
 
 #| Copy a node
 method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
-    &?ROUTINE.returns.box: $!native.cloneNode($deep), :$.doc;
+    &?ROUTINE.returns.box: self.raw.cloneNode($deep);
 }
 =para When $deep is True the function will copy all child nodes as well.
     Otherwise the current node will be copied. Note that in case of
@@ -485,8 +485,8 @@ method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also
 
 #| Inserts $new before $ref.
 method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
-    my anyNode $ref-native = .native with $ref;
-    $new.keep: $!native.insertBefore($new.native, $ref-native);
+    my anyNode $ref-raw = .raw with $ref;
+    $new.keep: self.raw.insertBefore($new.raw, $ref-raw);
 }
 =para If `$ref` is undefined, the newNode will be set as the new last child of the parent node.
     This function differs from the DOM L2 specification, in the case, if the new
@@ -498,14 +498,14 @@ method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
 
 #| Inserts $new after $ref.
 method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
-    my anyNode $ref-native = .native with $ref;
-    $new.keep: $!native.insertAfter($new.native, $ref-native);
+    my anyNode $ref-raw = .raw with $ref;
+    $new.keep: self.raw.insertAfter($new.raw, $ref-raw);
 }
 =para If C<$refNode> is undefined, the newNode will be set as the new
     last child of the parent node.
 
 method removeChildNodes(--> LibXML::Node) {
-    &?ROUTINE.returns.box: $!native.removeChildNodes, :doc(LibXML::Node);
+    &?ROUTINE.returns.box: self.raw.removeChildNodes();
 }
 =begin pod
     =head3 method removeChildNodes
@@ -720,7 +720,7 @@ method canonicalize(
         my $nodes = $selector.findnodes($_)
             with $xpath;
 
-        $rv := $!native.xml6_node_to_str_C14N(
+        $rv := self.raw.xml6_node_to_str_C14N(
             +$comments, $mode, $prefix,
             do with $nodes { .native } else { xmlNodeSet },
         );
@@ -778,7 +778,7 @@ multi method Str(:$C14N! where .so, |c) {
 
 multi method Str(|c) is also<gist> is default {
     my $options = output-options(|c);
-    $!native.Str(:$options);
+    self.raw.Str(:$options);
 }
 =begin pod
     =head3 multi method Str() returns Str
@@ -800,7 +800,7 @@ multi method Str(|c) is also<gist> is default {
 
 method Blob(Str :$enc, |c) {
     my $options = output-options(|c);
-    $!native.Blob(:$enc, :$options);
+    self.raw.Blob(:$enc, :$options);
 }
 =begin pod
     =head3 method Blob() returns Blob
@@ -875,21 +875,21 @@ method protect(&action) {
 =head2 Namespace Methods
 
 #| Returns the local name of a tag.
-method localname returns Str { $!native.name.subst(/^.*':'/,'') }
+method localname returns Str { self.raw.name.subst(/^.*':'/,'') }
 =para This is the part after the colon.
 
 #| Returns the prefix of a tag
-method prefix    returns Str { do with $!native.ns {.prefix} // Str }
+method prefix    returns Str { do with self.raw.ns {.prefix} // Str }
 =para This is the part before the colon.
 
 method addNamespace(Str $uri, NCName $prefix?) {
     $.setNamespace($uri, $prefix, :!activate);
 }
 method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
-    ? $!native.setNamespace($uri, $prefix, :$activate);
+    ? self.raw.setNamespace($uri, $prefix, :$activate);
 }
 method clearNamespace {
-    ? $!native.setNamespace(Str, Str);
+    ? self.raw.setNamespace(Str, Str);
 }
 method localNS(--> LibXML::Namespace) is dom-native {...}
 method getNamespaces is also<namespaces> {
@@ -910,7 +910,7 @@ method getNamespaces is also<namespaces> {
 =end pod
 
 #| Returns the URI of the current namespace.
-method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.href} // Str }
+method namespaceURI(--> Str) is also<getNamespaceURI> { do with self.raw.ns {.href} // Str }
 
 # handled by native method
 =begin pod
@@ -961,7 +961,7 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with $!native.ns {.hr
 multi method AT-KEY(NCName:D $tag) {
     # special case to handle default namespaces without a prefix.
     # https://stackoverflow.com/questions/16717211/
-    iterate-set(LibXML::Node, $!native.getChildrenByLocalName($tag), :deref);
+    iterate-set(LibXML::Node, self.raw.getChildrenByLocalName($tag), :deref);
 }
 multi method AT-KEY(Str:D $xpath) is default {
     $.xpath-context.AT-KEY($xpath);

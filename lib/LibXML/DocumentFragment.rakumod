@@ -4,6 +4,7 @@ use LibXML::_ParentNode;
 
 #| LibXML's DOM L2 Document Fragment Implementation
 unit class LibXML::DocumentFragment
+    is repr('CPointer')
     is LibXML::Node
     does LibXML::_ParentNode;
 
@@ -75,14 +76,10 @@ class ParserContext is LibXML::Parser::Context {
 # a node-list; rather than the fragment itself
 method keep(|c) { LibXML::Node.box(|c) }
 
-# we should encounter document fragments in a DOM
-method box(|) { "can't box document frgaments" }
-
 method new(LibXML::Node :doc($_), xmlDocFrag :$native is copy) {
     my xmlDoc:D $doc = .native with $_;
     $native //= xmlDocFrag.new: :$doc;
-    $native.Reference;
-    self.bless: :$native;
+    self.box($native);
 }
 =begin pod
     =head3 method new
@@ -93,7 +90,9 @@ method new(LibXML::Node :doc($_), xmlDocFrag :$native is copy) {
     calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
 =end pod
 
-method native { callsame() // xmlDocFrag }
+method raw handles <encoding setCompression getCompression standalone URI wellFormed> {
+    nativecast(xmlDocFrag, self);
+}
 
 #| parses a balanced XML chunk
 method parse(
