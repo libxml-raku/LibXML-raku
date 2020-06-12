@@ -134,8 +134,6 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 ########################################################################
 =head2 Property Methods
 
-has LibXML::Node $.doc;
-
 has anyNode $.native handles <
     domCheck domFailure
     getNodeName getNodeValue
@@ -153,10 +151,10 @@ submethod DESTROY {
     .Unreference with $!native;
 }
 
-multi method box(anyNode:D $_, :$doc = $.get-doc) {
+multi method box(anyNode:D $_) {
     my anyNode:D $native := .delegate;
     $native.Reference;
-    box-class(.type).new: :$native, :$doc
+    box-class(.type).new: :$native;
 }
 
 method getName { self.getNodeName }
@@ -343,24 +341,19 @@ method getOwnerDocument is also<get-doc> returns LibXML::Node {
     my \doc-class = box-class(XML_DOCUMENT_NODE);
     do with self {
         with .native.doc -> xmlDoc $struct {
-            $!doc = doc-class.box($struct)
-                if ! ($!doc && !$!doc.native.isSameNode($struct));
+            doc-class.box($struct);
         }
-        else {
-            $!doc = Nil;
-        }
-        $!doc;
     } // doc-class;
+}
+
+submethod TWEAK(*%args) {
+    die if %args<doc>:exists;
 }
 
 #| Transfers a node to another document
 method setOwnerDocument( LibXML::Node $doc) {
-    with $doc {
-        unless ($!doc && $doc.isSameNode($!doc)) || $doc.isSameNode(self) {
-            $doc.adoptNode(self);
-        }
-    }
-    $!doc = $doc;
+    $doc.adoptNode(self);
+    $doc;
 }
 =para This method unbinds the node first, if it is already bound to another document.
 =para Calling `$node.setOwnerDocument($doc)` is equivalent to calling $doc.adoptNode($node)`.
@@ -415,12 +408,10 @@ method nonBlankChildNodes {
 #| Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
 method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
     $!native.Unlink;
-    $!doc = LibXML::Node;
     self;
 }
 =para If the node is not inserted into the DOM afterwards, it will be
-    lost after the program terminates. From a low level view, the unbound node is
-    stripped from the context it is and inserted into a (hidden) document-fragment.
+    lost after the program terminates.
 
 #| Unbind a child node from its parent
 method removeChild(LibXML::Node:D $node --> LibXML::Node) {

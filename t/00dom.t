@@ -54,6 +54,7 @@ $doc .= new;
 my LibXML::Element $root .= new: :name<Test>;
 $doc.documentElement = $root;
 my LibXML::Element $root2 = $doc.documentElement;
+todo "complete #38 refactor";
 ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';

@@ -120,7 +120,6 @@ subset HTML is export(:HTML) of LibXML::Document:D where .nodeType == XML_HTML_D
 subset DOCB is export(:DOCB) of LibXML::Document:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
 
 constant config = LibXML::Config;
-has LibXML::Element $!docElem;
 constant InputCompressed = 1;
 
 =begin pod
@@ -733,20 +732,18 @@ method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
 #| DOM compatible method to get the document element
 method getDocumentElement returns LibXML::Element {
     with $.native.getDocumentElement {
-        $!docElem = &?ROUTINE.returns.box($_)
-             unless $!docElem.defined && $!docElem.native.isSameNode($_);
+        &?ROUTINE.returns.box($_);
     }
     else {
-        $!docElem = Nil;
+        &?ROUTINE.returns;
     }
-    $!docElem;
 }
 
 #| DOM compatible method to set the document element
-method setDocumentElement(LibXML::Element $!docElem --> LibXML::Element) {
-    $!docElem.setOwnerDocument(self);
-    self.native.setDocumentElement($!docElem.native);
-    $!docElem;
+method setDocumentElement(LibXML::Element:D $elem --> LibXML::Element) {
+    $elem.setOwnerDocument(self);
+    self.native.setDocumentElement($elem.native);
+    $elem;
 }
 
 method insertProcessingInstruction(|c) {
