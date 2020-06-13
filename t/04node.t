@@ -477,7 +477,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
 {
     use NativeCall;
-    use LibXML::Native;
+    use LibXML::Raw;
     my $doc = LibXML::Document.new();
     my $attr = $doc.createAttribute('test','bar');
     my $ent = $doc.createEntityReference('foo');

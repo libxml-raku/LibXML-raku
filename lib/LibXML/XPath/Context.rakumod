@@ -97,7 +97,7 @@ unit class LibXML::XPath::Context;
 use LibXML::Config;
 use LibXML::Document;
 use LibXML::Item :box-class;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Namespace;
 use LibXML::Node :iterate-set, :NameVal;
 use LibXML::Node::List;
@@ -312,11 +312,11 @@ method registerFunction(QName:D $name, &func, |c) {
 method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
 
 method !findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
-    my anyNode $node = .native with $ref;
+    my anyNode $node = .raw with $ref;
     self!try: { $.native.findnodes( $xpath-expr.native, $node); }
 }
 method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
-    my anyNode $node = .native with $ref-node;
+    my anyNode $node = .raw with $ref-node;
     my xmlXPathObject $xo := self!try: {$!native.find( $xpath-expr.native, $node, :$bool);}
     do with $xo {
         my $v := .value;
@@ -498,7 +498,7 @@ method getContextNode {
 
 # defining the context node
 multi method setContextNode(LibXML::Node:D $!context-node) {
-    $!native.SetNode($!context-node.native);
+    $!native.SetNode($!context-node.raw);
     die $_ with $!context-node.domFailure;
     $!context-node;
 }
@@ -586,8 +586,8 @@ multi method park(NodeObj:D $node, xmlXPathParserContext :$ctxt --> xmlNodeSet:D
     # return a copied, or newly created native node-set
     self!stash: do given $node {
         when LibXML::Node::Set  { .native.copy }
-        when LibXML::Node::List { xmlNodeSet.new: node => .native, :list;}
-        when LibXML::Node       { xmlNodeSet.new: node => .native;}
+        when LibXML::Node::List { xmlNodeSet.new: node => .raw, :list;}
+        when LibXML::Node       { xmlNodeSet.new: node => .raw;}
         default { fail "unhandled node type: {.WHAT.perl}" }
     }, :$ctxt
 }
@@ -597,7 +597,7 @@ multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
     # create a node-set for a list of nodes
     my LibXML::Node:D @nodes = .List;
     my xmlNodeSet $set .= new;
-    $set.push(.native) for @nodes;
+    $set.push(.raw) for @nodes;
     self!stash: $set, :$ctxt;
 }
 # anything else (Bool, Numeric, Str)

@@ -1,13 +1,13 @@
 unit role LibXML::_StringyNode;
 
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node;
 
 method nodeValue { ... }
 method content {...}
 
 multi method new(LibXML::Node :doc($owner), Str() :$content!) {
-    my xmlDoc $doc = .native with $owner;
+    my xmlDoc $doc = .raw with $owner;
     my anyNode:D $raw = self.raw.new: :$content, :$doc;
     self.box: $raw;
 }

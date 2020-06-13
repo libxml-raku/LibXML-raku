@@ -4,7 +4,7 @@ unit class LibXML::Entity
     is repr('CPointer')
     is LibXML::Node;
 
-use LibXML::Native;
+use LibXML::Raw;
 use NativeCall;
 
 multi method new(Str:D :$name!, Str:D :$content!, Str :$external-id, Str :$internal-id, LibXML::Item :$doc) {

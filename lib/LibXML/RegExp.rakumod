@@ -26,7 +26,7 @@ unit class LibXML::RegExp;
 =end pod
 
 use LibXML::Enums;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node;
 use LibXML::ErrorHandling;
 use NativeCall;

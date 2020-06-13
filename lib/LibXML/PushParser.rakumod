@@ -1,6 +1,6 @@
 #| LibXML based push parser
 class LibXML::PushParser {
-    use LibXML::Native;
+    use LibXML::Raw;
     use LibXML::Parser::Context;
     use LibXML::Document;
     use Method::Also;
@@ -15,14 +15,14 @@ class LibXML::PushParser {
 
     multi submethod TWEAK(Blob :$chunk!, Str :$path, :$sax-handler, xmlEncodingStr :$enc, |c) {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
-        my xmlSAXHandler $sax = .native with $sax-handler;
-        my xmlParserCtxt:D $native = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
-        $!ctx .= new: :$native, |c;
+        my xmlSAXHandler $sax = .raw with $sax-handler;
+        my xmlParserCtxt:D $raw = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
+        $!ctx .= new: :$raw, |c;
     }
 
     method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
         $!ctx.try: :$recover, {
-            with $!ctx.native {
+            with $!ctx.raw {
                 .ParseChunk($chunk, $size, +$terminate);
                 $!ctx.close() if $terminate;
             }
@@ -45,8 +45,8 @@ class LibXML::PushParser {
         self!parse: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
-        my xmlDoc $native = $!ctx.native.myDoc;
-        my $doc := LibXML::Document.new( :$native, :$!ctx, :$URI);
+        my xmlDoc $raw = $!ctx.raw.myDoc;
+        my LibXML::Document $doc .= new( :$raw, :$!ctx, :$URI);
         $!ctx = Nil;
         with $sax-handler {
             .publish($doc)

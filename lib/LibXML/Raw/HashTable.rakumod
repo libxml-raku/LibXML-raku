@@ -1,7 +1,7 @@
-unit module LibXML::Native::HashTable;
+unit module LibXML::Raw::HashTable;
 
 use NativeCall;
-use LibXML::Native::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
+use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
 
 class xmlHashTable is repr(Opaque) is export {
     our sub New(int32 --> xmlHashTable) is native($XML2) is symbol('xmlHashCreate') {*}

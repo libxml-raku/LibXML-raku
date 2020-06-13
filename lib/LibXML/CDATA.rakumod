@@ -7,10 +7,10 @@ unit class LibXML::CDATA
     is LibXML::Node
     does LibXML::_StringyNode;
 
-use LibXML::Native;
+use LibXML::Raw;
 use NativeCall;
 method raw { nativecast(xmlCDataNode, self) }
-method content is rw handles<substr substr-rw> { $.native.content };
+method content is rw handles<substr substr-rw> { $.raw.content };
 
 =begin pod
 =head2 Synopsis

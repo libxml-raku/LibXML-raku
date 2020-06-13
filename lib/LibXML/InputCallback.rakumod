@@ -102,7 +102,7 @@ unit class LibXML::InputCallback;
 
 use LibXML::ErrorHandling;
 use LibXML::_Options;
-use LibXML::Native;
+use LibXML::Raw;
 
 my class CallbackGroup {
     has &.match is required;
@@ -114,7 +114,7 @@ my class CallbackGroup {
 
 my class Context {
     use NativeCall;
-    use LibXML::Native::Defs :$CLIB;
+    use LibXML::Raw::Defs :$CLIB;
     use Method::Also;
 
     has CallbackGroup $.cb is required;

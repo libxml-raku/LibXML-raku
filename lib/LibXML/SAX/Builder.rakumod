@@ -1,7 +1,7 @@
 #| Build DOM trees from SAX events.
 class LibXML::SAX::Builder {
-    use LibXML::Native;
-    use LibXML::Native::Defs :$CLIB;
+    use LibXML::Raw;
+    use LibXML::Raw::Defs :$CLIB;
     use NativeCall;
     use LibXML::ErrorHandling;
 
@@ -77,7 +77,7 @@ class LibXML::SAX::Builder {
                 sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     my LibXML::Entity $ent := callb($obj, $name, :$ctx);
-                    $ent.native;
+                    $ent.raw;
                 }
         },
         'entityDecl' =>
@@ -195,7 +195,7 @@ class LibXML::SAX::Builder {
     }
 
     method build-sax-handler($obj) {
-        $obj.native.init;
+        $obj.raw.init;
         self!build($obj, %SAXHandlerDispatch);
     }
 

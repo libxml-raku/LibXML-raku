@@ -772,10 +772,10 @@ subtest 'LibXML::XPath::Context' => {
 
 };
 
-subtest 'LibXML::Native' => {
+subtest 'LibXML::Raw' => {
     plan 1;
     do {
-        use LibXML::Native;
+        use LibXML::Raw;
         my xmlDoc:D $doc .= new;
         my xmlElem:D $root = $doc.new-node: :name<Hello>, :content<World!>;
         .Reference for $doc, $root;

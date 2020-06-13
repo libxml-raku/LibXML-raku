@@ -3,7 +3,7 @@ unit class LibXML::Node::List
     does Iterable
     does Iterator;
 
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Item;
 use Method::Also;
 
@@ -19,7 +19,7 @@ has Bool $!reified;
 has LibXML::Item $.parent is required;
 
 submethod TWEAK {
-    $!native = do given $!parent.native {
+    $!native = do given $!parent.raw {
         when $!of.isa("LibXML::Attr")      { .properties }
         when $!of.isa("LibXML::Namespace") { .nsDef }
         default { .first-child(+$!blank); }

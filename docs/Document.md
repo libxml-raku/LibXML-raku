@@ -156,7 +156,7 @@ Gets or sets the encoding of the document.
 ### method actualEncoding
 
 ```perl6
-method actualEncoding() returns LibXML::Native::xmlEncodingStr
+method actualEncoding() returns LibXML::Raw::xmlEncodingStr
 ```
 
 Returns the encoding in which the XML will be output by $doc.Blob() or $doc.write.
@@ -583,7 +583,7 @@ Create a new DTD
 ```perl6
 method importNode(
     LibXML::Node:D $node
-) returns LibXML::Element
+) returns LibXML::Node
 ```
 
 Imports a node from another DOM

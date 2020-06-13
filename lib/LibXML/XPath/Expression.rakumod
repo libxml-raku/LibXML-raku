@@ -1,7 +1,7 @@
 #| Interface to LibXML pre-compiled XPath Expressions
 unit class LibXML::XPath::Expression;
 
-use LibXML::Native;
+use LibXML::Raw;
 use Method::Also;
 
 has xmlXPathCompExpr $!native;

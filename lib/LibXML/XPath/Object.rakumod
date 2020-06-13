@@ -2,7 +2,7 @@ use v6;
 unit class LibXML::XPath::Object;
 
 use LibXML::Item;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node :iterate-set;
 use LibXML::Node::Set;
 

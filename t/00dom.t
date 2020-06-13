@@ -7,7 +7,7 @@ plan 55;
 use LibXML;
 use LibXML::Document;
 use LibXML::DocumentFragment;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node;
 
 my $string = "<a>    <b/> <c/> </a>";
@@ -59,15 +59,15 @@ ok $root === $root2, 'Unique root';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';
 ok $root.doc.isSameNode($doc);
-ok $doc.native.isSameNode($root.native.doc);
+ok $doc.raw.isSameNode($root.raw.doc);
 
 # attribute basics
 my $elem = $doc.createElement('foo');
 my LibXML::Attr $attr = $doc.createAttribute('attr', 'e & f');
 $elem.setAttributeNode($attr);
 is $attr, 'e & f', 'attr.Str';
-is $elem.native.properties, ' attr="e &amp; f"', 'elem properties linkage';
-is $attr.native.parent.properties, ' attr="e &amp; f"', 'attribute parent linkage';
+is $elem.raw.properties, ' attr="e &amp; f"', 'elem properties linkage';
+is $attr.raw.parent.properties, ' attr="e &amp; f"', 'attribute parent linkage';
 my $att2 = $elem.getAttributeNode('attr');
 is $att2.Str, 'e & f', 'att2.Str';
 ok $attr.isSameNode($att2);
@@ -110,10 +110,10 @@ is $elem<p>[0].tag, 'p';
 lives-ok  {$elem<@x:aaa> = 'BBB' };
 is $elem<@x:aaa>,'BBB';
 
-my $prefix = $elem.native.genNsPrefix;
+my $prefix = $elem.raw.genNsPrefix;
 is $prefix, '_ns0', 'first generated NS prefix';
 $elem.requireNamespace('http://ns2');
-$prefix = $elem.native.genNsPrefix;
+$prefix = $elem.raw.genNsPrefix;
 is $prefix, '_ns1', 'second generated NS prefix';
 
 my $elem-xpath-ctxt = $elem.xpath-context;

@@ -23,8 +23,8 @@ unit class LibXML::Item;
     =head2 Functions and Methods
 =end pod
 
-use LibXML::Native;
-use LibXML::Native::DOM::Node;
+use LibXML::Raw;
+use LibXML::Raw::DOM::Node;
 use LibXML::Enums;
  
 my constant @ClassMap = do {
@@ -178,13 +178,13 @@ multi sub ast-to-xml(*%p where .elems == 1) {
 =begin pod
     =para
     By convention native classes in the LibXML module are not directly exposed, but have a containing class
-    that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate
+    that holds the object in a `$.raw` attribute and provides an API interface for it. The `box` method is used to stantiate
     a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object
     to ensure that the underlying native object is not destroyed while it is still alive.
 
     For example to box xmlElem native object:
 
-     use LibXML::Native;
+     use LibXML::Raw;
      use LibXML::Node;
      use LibXML::Element;
 
@@ -198,24 +198,24 @@ multi sub ast-to-xml(*%p where .elems == 1) {
 
 =end pod
 
-method unbox { $.native }
+method unbox { $.raw }
 
 # api/native wrapper for simple DOM methods
 multi trait_mod:<is>(
     Method $m where {.yada && .count <= 1 }, #Rakudo 2019.03+: && .returns ~~ LibXML::Item},
     :$dom-native!) is export(:dom-native) {
     my $name := $dom-native ~~ Str:D ?? $dom-native !! $m.name;
-    $m.wrap: method () is hidden-from-backtrace { $m.returns.box: $.native."$name"(); }
+    $m.wrap: method () is hidden-from-backtrace { $m.returns.box: $.raw."$name"(); }
 }
 
 #| Utility method that verifies that `$native` is the same native struct as the current object.
-method keep(LibXML::Native::DOM::Node $native,
+method keep(LibXML::Raw::DOM::Node $native,
             :$doc = $.doc, # reusable document object
             --> LibXML::Item) {
     do with $native {
         do with self -> $obj {
             die "returned unexpected node: {.Str}"
-                unless $obj.native.isSameNode($_);
+                unless $obj.raw.isSameNode($_);
             $obj;
         } // self.box: $_, :$doc;
     } // self.WHAT;

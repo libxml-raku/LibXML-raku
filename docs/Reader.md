@@ -570,7 +570,7 @@ Returns a string containing the namespace URI to which the prefix maps or undef 
 ### method encoding
 
 ```perl6
-method encoding() returns LibXML::Native::xmlEncodingStr
+method encoding() returns LibXML::Raw::xmlEncodingStr
 ```
 
 Get the encoding of the document being read

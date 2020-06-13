@@ -14,7 +14,7 @@ use LibXML::Dtd::Attr;
 use LibXML::Element;
 use LibXML::Entity;
 use LibXML::Text;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node::Set;
 use LibXML::Node::List;
 use LibXML::XPath::Object;
@@ -124,7 +124,7 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 =item L<LibXML::Enums> - LibXML XML_* enumerated constants
 
-=item L<LibXML::Native> - LibXML native interface
+=item L<LibXML::Raw> - LibXML native interface
 
 =item L<LibXML::ErrorHandling> - LibXML class for Error handling
 

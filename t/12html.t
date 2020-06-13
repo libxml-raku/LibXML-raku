@@ -5,7 +5,7 @@ use LibXML;
 plan 55;
 
 use LibXML;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Document;
 
 constant CanDoIO = ? IO::Handle.can('do-not-close-automatically');
@@ -18,7 +18,7 @@ my $parser = LibXML.new();
 {
     my LibXML::Document::HTML $doc = $parser.parse: :html, :file($html);
     ok($doc, ' TODO : Add test name');
-    isa-ok($doc.native, htmlDoc, 'HTML, under the hood');
+    isa-ok($doc.raw, htmlDoc, 'HTML, under the hood');
     cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
     cmp-ok $doc, '!~~', LibXML::Document::XML, "isn't XML";
 }

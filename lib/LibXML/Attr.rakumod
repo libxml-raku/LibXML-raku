@@ -27,7 +27,7 @@ unit class LibXML::Attr
     the class relies on the W3C DOM documentation.
 =end pod
 
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Types :QName;
 use Method::Also;
 use NativeCall;
@@ -41,7 +41,7 @@ use NativeCall;
 =end pod
 
 method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!) {
-    my xmlDoc $doc = .native with $owner;
+    my xmlDoc $doc = .raw with $owner;
     my xmlAttr:D $raw := xmlAttr.new( :$name, :$value, :$doc );
     self.box: $raw;
 }
@@ -65,7 +65,7 @@ method value is rw returns Str { $.nodeValue }
 
 method Str is also<getValue> { $.nodeValue}
 method setValue(Str $_) { $.nodeValue = $_ }
-method gist(|c) { $.native.Str(|c).trim }
+method gist(|c) { $.raw.Str(|c).trim }
 method ast { self.nodeName => self.nodeValue }
 
 =begin pod

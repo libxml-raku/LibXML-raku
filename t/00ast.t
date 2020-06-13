@@ -21,7 +21,7 @@ is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'So
 
 $elem = ast-to-xml($elem.ast);
 my $comment := ast-to-xml("#comment" => " testing ");
-$comment.keep: $comment.native;
+$comment.keep: $comment.raw;
 is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'Some text.'];
 
 my $frag-ast = ['#comment' => ' testing ', :species["Camelid"], "xxx", '&foo' => [], ];

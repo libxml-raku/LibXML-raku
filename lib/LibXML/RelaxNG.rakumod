@@ -31,8 +31,8 @@ unit class LibXML::RelaxNG;
 use LibXML::Document;
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
-use LibXML::Native;
-use LibXML::Native::RelaxNG;
+use LibXML::Raw;
+use LibXML::Raw::RelaxNG;
 use LibXML::Parser::Context;
 use Method::Also;
 
@@ -62,7 +62,7 @@ my class Parser::Context {
         self.BUILD: :buf($string.encode);
     }
     multi submethod BUILD(LibXML::Document:D :doc($_)!) {
-        my xmlDoc:D $doc = .native;
+        my xmlDoc:D $doc = .raw;
         $!native .= new: :$doc;
     }
 
@@ -109,7 +109,7 @@ my class ValidContext {
     method validate(LibXML::Document:D $_, Bool() :$check) {
         my $rv;
         my $*XML-CONTEXT = self;
-        my xmlDoc:D $doc = .native;
+        my xmlDoc:D $doc = .raw;
         given xml6_gbl_save_error_handlers() {
             $!native.SetStructuredErrorFunc: &structured-error-cb;
             $rv := $!native.ValidateDoc($doc);

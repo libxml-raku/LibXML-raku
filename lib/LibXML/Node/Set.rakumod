@@ -1,7 +1,7 @@
 #| LibXML XPath Node Collections
 class LibXML::Node::Set does Iterable does Iterator does Positional {
     use LibXML::Enums;
-    use LibXML::Native;
+    use LibXML::Raw;
     use LibXML::Item :box-class;
     use Method::Also;
 
@@ -60,7 +60,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
             unless $node ~~ $!of;
         @!store[$!native.nodeNr] = $node;
         .{$node.xpath-key}.push: $node with $!hstore;
-        $!native.push: $node.native.ItemNode;
+        $!native.push: $node.raw.ItemNode;
         $node;
     }
     method pop {
@@ -81,7 +81,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $node;
     }
     multi method delete(LibXML::Item:D $node) {
-        my UInt $idx := $!native.delete($node.native.ItemNode);
+        my UInt $idx := $!native.delete($node.raw.ItemNode);
         if $idx >= 0 {
             @!store.slice($idx, 1) if @!store >= $idx;
             .{$node.xpath-key}.delete with $!hstore;

@@ -50,7 +50,7 @@ unit class LibXML::DocumentFragment
 
 use LibXML::Config;
 use LibXML::Element;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node;
 use NativeCall;
 use Method::Also;
@@ -77,7 +77,7 @@ class ParserContext is LibXML::Parser::Context {
 method keep(|c) { LibXML::Node.box(|c) }
 
 method new(LibXML::Node :doc($_), xmlDocFrag :$native is copy) {
-    my xmlDoc:D $doc = .native with $_;
+    my xmlDoc:D $doc = .raw with $_;
     $native //= xmlDocFrag.new: :$doc;
     self.box($native);
 }
@@ -111,10 +111,10 @@ method parse(
     $ctx.try: {
         # simple closures tend to leak on native callbacks. use dynamic variables
         my $ctx := $*XML-CONTEXT;
-        my xmlSAXHandler $sax = .native with $ctx.sax-handler;
-        my $doc = $ctx.doc-frag.native.doc;
+        my xmlSAXHandler $sax = .raw with $ctx.sax-handler;
+        my $doc = $ctx.doc-frag.raw.doc;
         my Pointer $user-data = $ctx.user-data;
-        temp LibXML::Native.KeepBlanksDefault = $ctx.keep-blanks;
+        temp LibXML::Raw.KeepBlanksDefault = $ctx.keep-blanks;
 
         $ctx.stat = ($doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
             ($sax // xmlSAXHandler), ($ctx.user-data // Pointer), 0, $ctx.string, $ctx.nodes, +$ctx.recover
@@ -123,7 +123,7 @@ method parse(
             if $ctx.stat && !$ctx.recover;
     };
 
-    $doc-frag.native.AddChildList($_) with $ctx.nodes.deref;
+    $doc-frag.raw.AddChildList($_) with $ctx.nodes.deref;
     $doc-frag;
 }
 =begin pod

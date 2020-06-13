@@ -1,11 +1,11 @@
-unit module LibXML::Native::TextReader;
+unit module LibXML::Raw::TextReader;
 
 use NativeCall;
-use LibXML::Native;
-use LibXML::Native::RelaxNG;
-use LibXML::Native::Schema;
+use LibXML::Raw;
+use LibXML::Raw::RelaxNG;
+use LibXML::Raw::Schema;
 use LibXML::Types :QName;
-use LibXML::Native::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
+use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
 
 sub xml6_config_have_libxml_reader(--> int32) is native($BIND-XML2) is export {*}
 

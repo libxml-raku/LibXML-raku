@@ -30,12 +30,12 @@ unit class LibXML::Namespace
     methods return what you would expect if you treated the namespace node as an attribute.
 =end pod
 
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Types :NCName;
 use NativeCall;
 use Method::Also;
 use LibXML::Enums;
-use LibXML::Native::Defs :XML_XMLNS_NS;
+use LibXML::Raw::Defs :XML_XMLNS_NS;
 method raw handles<type href Str> { nativecast(xmlNs, self) }
 method native is DEPRECATED<raw> { self.raw }
 

@@ -5,23 +5,23 @@ unit class LibXML::PI
     is repr('CPointer')
     is LibXML::Node;
 
-use LibXML::Native;
+use LibXML::Raw;
 use NativeCall;
 
 method new(:doc($owner)!, Str :$name!, Str :$content!) {
-    my xmlDoc:D $doc = .native with $owner;
+    my xmlDoc:D $doc = .raw with $owner;
     my xmlPINode:D $raw .= new: :$name, :$content, :$doc;
     self.box: $raw;
 }
 
 method raw { nativecast(xmlPINode, self) }
-method content is rw handles<substr substr-rw> { $.native.content };
+method content is rw handles<substr substr-rw> { $.raw.content };
 
 multi method setData(*%atts) {
     $.setData( %atts.sort.map({.key ~ '="' ~ .value ~ '"'}).join(' ') );
 }
 multi method setData(Str:D $string) {
-    $.native.setNodeValue($string);
+    $.raw.setNodeValue($string);
 }
 
 =begin pod

@@ -1,8 +1,8 @@
-unit module LibXML::Native::RelaxNG;
+unit module LibXML::Raw::RelaxNG;
 
 use NativeCall;
-use LibXML::Native;
-use LibXML::Native::Defs :$XML2, :Opaque;
+use LibXML::Raw;
+use LibXML::Raw::Defs :$XML2, :Opaque;
 
 class xmlRelaxNG is repr(Opaque) is export {
     method Free is symbol('xmlRelaxNGFree') is native($XML2) {*}

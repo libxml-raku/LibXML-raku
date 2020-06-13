@@ -32,11 +32,11 @@ unit class LibXML::Dtd
 
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
-my subset DocNode of LibXML::Node where {!.defined || .native ~~ xmlDoc};
+my subset DocNode of LibXML::Node where {!.defined || .raw ~~ xmlDoc};
 
 class ValidContext {
     has xmlValidCtxt $!native;
@@ -52,8 +52,8 @@ class ValidContext {
     }
 
     method validate(DocNode:D :doc($doc-obj)!, LibXML::Dtd :dtd($dtd-obj), Bool() :$check) {
-        my xmlDoc:D $doc = .native with $doc-obj;
-        my xmlDtd   $dtd = .native with $dtd-obj;
+        my xmlDoc:D $doc = .raw with $doc-obj;
+        my xmlDtd   $dtd = .raw with $dtd-obj;
         my $rv;
 
         my $*XML-CONTEXT = self;
@@ -89,7 +89,7 @@ multi method new(
     Str:D :$type!,
     LibXML::Node :doc($owner), Str:D :$name!,
     Str :$external-id, Str :$system-id, ) {
-    my xmlDoc $doc = .native with $owner;
+    my xmlDoc $doc = .raw with $owner;
     my xmlDtd:D $raw .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
     self.box: $raw;
 }
@@ -149,9 +149,9 @@ multi method parse(Str $external-id, Str $system-id) is default {
 method getPublicId { $.publicId }
 method getSystemId { $.systemId }
 method cloneNode(LibXML::Dtd:D: $?) {
-    my xmlDtd:D $native = self.native.copy;
-    $native.Reference;
-    self.clone: :$native;
+    my xmlDtd:D $raw = self.raw.copy;
+    $raw.Reference;
+    self.clone: :$raw;
 }
 
 method !valid-ctx { ValidContext.new: :schema(self) }

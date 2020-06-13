@@ -6,7 +6,7 @@ use Test;
 
 plan 578;
 use LibXML;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Namespace;
 use LibXML::Node;
 use LibXML::Enums;

@@ -1,4 +1,4 @@
-unit module LibXML::Native::Defs;
+unit module LibXML::Raw::Defs;
 
 our $XML2 is export(:XML2) = 'xml2';
 our $BIND-XML2 is export(:BIND-XML2) = %?RESOURCES<libraries/xml6>;

@@ -4,7 +4,7 @@ unit class LibXML::Dtd::Attr
     is repr('CPointer')
     is LibXML::Node;
 
-use LibXML::Native;
+use LibXML::Raw;
 use NativeCall;
 
 method new(|) { fail }

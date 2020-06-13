@@ -70,8 +70,8 @@ unit class LibXML::Reader
 use NativeCall;
 use LibXML::Config;
 use LibXML::Enums;
-use LibXML::Native;
-use LibXML::Native::TextReader;
+use LibXML::Raw;
+use LibXML::Raw::TextReader;
 use LibXML::Types :QName, :NCName;
 use LibXML::Document;
 use LibXML::Pattern;
@@ -149,7 +149,7 @@ multi submethod TWEAK( xmlTextReader:D :$!native! ) {
 multi submethod TWEAK(LibXML::Document:D :DOM($!document)!,
                       RelaxNG :$!RelaxNG, Schema :$!Schema,
                      ) {
-    my xmlDoc:D $doc = $!document.native;
+    my xmlDoc:D $doc = $!document.raw;
     $!native .= new: :$doc;
     self!setup: :!errors;
 }
@@ -470,7 +470,7 @@ method matchesPattern(LibXML::Pattern:D $pattern --> Bool) {
 
 #| Provides access to the document tree built by the reader.
 method document {
-    $!document //= LibXML::Document.new: :native($_)
+    $!document //= LibXML::Document.new: :raw($_)
         with $!native.currentDoc;
 }
 =item This function can be

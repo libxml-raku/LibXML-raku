@@ -7,13 +7,13 @@ unit class LibXML::Text
     is LibXML::Node
     does LibXML::_StringyNode;
 
-use LibXML::Native;
+use LibXML::Raw;
 use Method::Also;
 use NativeCall;
 
 method raw { nativecast(xmlTextNode, self) }
 
-method content is rw is also<text ast> handles<substr substr-rw> { $.native.content };
+method content is rw is also<text ast> handles<substr substr-rw> { $.raw.content };
 
 =begin pod
 

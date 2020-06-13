@@ -9,7 +9,7 @@ unit class LibXML::Config;
   =end code
 
 use LibXML::Enums;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::InputCallback;
 use NativeCall;
 
@@ -70,7 +70,7 @@ method skip-dtd returns Bool is rw { flag-proxy($skipDTD) }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 method tag-expansion is rw {
-    LibXML::Native.TagExpansion;
+    LibXML::Raw.TagExpansion;
 }
 
 =head2 Parsing Default Options

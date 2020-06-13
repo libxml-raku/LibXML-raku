@@ -1,12 +1,12 @@
-unit role LibXML::Native::DOM::Document;
+unit role LibXML::Raw::DOM::Document;
 
-use LibXML::Native::DOM::Node;
+use LibXML::Raw::DOM::Node;
 
 use LibXML::Enums;
 use LibXML::Types :QName, :NCName;
 use NativeCall;
 
-my constant Node = LibXML::Native::DOM::Node;
+my constant Node = LibXML::Raw::DOM::Node;
 my subset DocNode of Node where { !.defined || .type == XML_DOCUMENT_NODE } 
 my subset DtdNode of Node where { !.defined || .type == XML_DTD_NODE } 
 

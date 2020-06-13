@@ -1,7 +1,7 @@
 use v6;
 unit class LibXML::Dict does Associative;
 
-use LibXML::Native::Dict;
+use LibXML::Raw::Dict;
 has xmlDict $!native;
 
 multi submethod TWEAK(xmlDict:D :$!native!) { $!native.Reference }

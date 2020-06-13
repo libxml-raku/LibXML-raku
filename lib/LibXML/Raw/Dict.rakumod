@@ -1,7 +1,7 @@
-unit module LibXML::Native::Dict;
+unit module LibXML::Raw::Dict;
 
 use NativeCall;
-use LibXML::Native::Defs :$XML2, :Opaque;
+use LibXML::Raw::Defs :$XML2, :Opaque;
 
 class xmlDict is repr(Opaque) is export {
     our sub New(--> xmlDict) is native($XML2) is symbol('xmlDictCreate') {*};

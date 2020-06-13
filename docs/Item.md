@@ -72,11 +72,11 @@ Possible terms that can be used are:
 </tbody>
 </table>
 
-By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.native` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
+By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.raw` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
 
 For example to box xmlElem native object:
 
-    use LibXML::Native;
+    use LibXML::Raw;
     use LibXML::Node;
     use LibXML::Element;
 
@@ -92,7 +92,7 @@ A containing object of the correct type (LibXML::Element) has been created for t
 
 ```perl6
 method keep(
-    LibXML::Native::DOM::Node $native,
+    LibXML::Raw::DOM::Node $native,
     :$doc = Code.new
 ) returns LibXML::Item
 ```

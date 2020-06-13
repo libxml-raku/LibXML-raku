@@ -1,5 +1,5 @@
 class LibXML::SAX::Handler::SAX2::Locator {
-    use LibXML::Native;
+    use LibXML::Raw;
     use Method::Also;
     has xmlSAXLocator $.native .= default();
 

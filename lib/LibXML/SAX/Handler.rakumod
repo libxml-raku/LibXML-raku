@@ -2,9 +2,10 @@
 class LibXML::SAX::Handler {
     use LibXML::SAX::Builder;
 
-    use LibXML::Native;
-    has xmlSAXHandler $!native;
-    method native { $!native }
+    use LibXML::Raw;
+    has xmlSAXHandler $!raw;
+    method raw { $!raw }
+    method native is DEPRECATED<raw> { $.raw }
 
     has &.serror-cb is rw;      # structured errors
     has &.warning-cb is rw;     # unstructured warnings
@@ -14,7 +15,7 @@ class LibXML::SAX::Handler {
     has $.sax-builder = LibXML::SAX::Builder;
 
     submethod TWEAK {
-        $!native .= new;
+        $!raw .= new;
         $!sax-builder.build-sax-handler(self);
     }
 
@@ -31,7 +32,7 @@ class LibXML::SAX::Handler {
     # -------------
     # Remaining calls are all handled directly via a native SAX handler
     multi method set-sax-callback($name, &cb) is default {
-        $!native."$name"() = &cb;
+        $!raw."$name"() = &cb;
     }
 
 }

@@ -30,8 +30,8 @@ use LibXML::Document;
 use LibXML::Element;
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
-use LibXML::Native;
-use LibXML::Native::Schema;
+use LibXML::Raw;
+use LibXML::Raw::Schema;
 use LibXML::Parser::Context;
 use Method::Also;
 
@@ -61,7 +61,7 @@ my class Parser::Context {
         self.TWEAK: :buf($string.encode);
     }
     multi submethod TWEAK(LibXML::Document:D :doc($_)!) {
-        my xmlDoc:D $doc = .native;
+        my xmlDoc:D $doc = .raw;
         $!native .= new: :$doc;
     }
 
@@ -115,7 +115,7 @@ my class ValidContext {
 
     multi method validate(LibXML::Document:D $_, Bool() :$check) {
         my $*XML-CONTEXT = self;
-        my xmlDoc:D $doc = .native;
+        my xmlDoc:D $doc = .raw;
         my $rv;
         given xml6_gbl_save_error_handlers() {
         $!native.SetStructuredErrorFunc: &structured-error-cb;
@@ -129,7 +129,7 @@ my class ValidContext {
     }
 
     multi method validate(LibXML::Element:D $_, Bool() :$check) is default {
-        my xmlNode:D $node = .native;
+        my xmlNode:D $node = .raw;
         my $rv := $!native.ValidateElement($node);
 	$rv := self.is-valid
             if $check;

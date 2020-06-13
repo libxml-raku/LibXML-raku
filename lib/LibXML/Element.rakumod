@@ -97,7 +97,7 @@ use LibXML::Config;
 use LibXML::Enums;
 use LibXML::Item :box-class, :dom-native;
 use LibXML::Namespace;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Types :QName, :NCName, :NameVal;
 use XML::Grammar;
 use Method::Also;
@@ -107,8 +107,8 @@ multi method new(QName:D $name, LibXML::Namespace $ns?) {
     self.new(:$name, :$ns);
 }
 multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
-    my xmlDoc:D $doc = .native with $owner;
-    my xmlNs:D $ns = .native with $ns-obj;
+    my xmlDoc:D $doc = .raw with $owner;
+    my xmlNs:D $ns = .raw with $ns-obj;
     my $raw := xmlElem.new( :$name, :$doc, :$ns );
     self.box: $raw;
 }
@@ -157,7 +157,7 @@ multi method setAttributeNS(Str $uri, NameVal:D $_ --> LibXML::Attr) {
 }
 #| Namespace-aware version of of setAttribute()
 multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) {
-    &?ROUTINE.returns.box: $.native.setAttributeNS($uri, $name, $value);
+    &?ROUTINE.returns.box: $.raw.setAttributeNS($uri, $name, $value);
 }
 =begin pod
     =para  where
@@ -193,23 +193,23 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) 
 method setAttributeNode(LibXML::Attr:D $att, Bool :$ns --> LibXML::Attr) {
     $ns
         ?? self.setAttributeNodeNS($att)
-        !! $att.keep: $.native.setAttributeNode($att.native);
+        !! $att.keep: $.raw.setAttributeNode($att.raw);
 }
 #| Namespace aware version of setAttributeNode
 method setAttributeNodeNS(LibXML::Attr:D $att --> LibXML::Attr) {
-    $att.keep: $.native.setAttributeNodeNS($att.native);
+    $att.keep: $.raw.setAttributeNodeNS($att.raw);
 }
 
 #| Remove an attribute node from an element
 method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
-    $att.keep: $.native.removeAttributeNode($att.native), :doc(LibXML::Node);
+    $att.keep: $.raw.removeAttributeNode($att.raw), :doc(LibXML::Node);
 }
 
 method getAttributeNode(Str $att-name --> LibXML::Attr) is also<attribute> {
-    LibXML::Attr.box: $.native.getAttributeNode($att-name)
+    LibXML::Attr.box: $.raw.getAttributeNode($att-name)
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
-    LibXML::Attr.box: $.native.getAttributeNodeNS($uri, $att-name)
+    LibXML::Attr.box: $.raw.getAttributeNodeNS($uri, $att-name)
 }
 
 # handled by the native method
@@ -326,7 +326,7 @@ method properties {
 
 method !set-attributes(@atts) {
     # clear out old attributes
-    with $.native.properties -> anyNode:D $node is copy {
+    with $.raw.properties -> anyNode:D $node is copy {
         while $node.defined {
             my $next = $node.next;
             $node.Release
@@ -475,7 +475,7 @@ method appendWellBalancedChunk(Str:D $string --> LibXML::Node) {
 method requireNamespace(Str:D $uri where .so --> NCName) {
     $.lookupNamespacePrefix($uri)
     // do {
-        my NCName:D $prefix = self.native.genNsPrefix;
+        my NCName:D $prefix = self.raw.genNsPrefix;
         $.setNamespace($uri, $prefix, :!activate)
             && $prefix
     }

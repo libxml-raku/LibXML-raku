@@ -1,11 +1,11 @@
-unit role LibXML::Native::DOM::Element;
+unit role LibXML::Raw::DOM::Element;
 
-use LibXML::Native::DOM::Node;
+use LibXML::Raw::DOM::Node;
 use LibXML::Enums;
 use LibXML::Types :NCName, :QName;
-use LibXML::Native::Defs :XML_XMLNS_NS, :XML_XML_NS;
+use LibXML::Raw::Defs :XML_XMLNS_NS, :XML_XML_NS;
 
-my constant Node = LibXML::Native::DOM::Node;
+my constant Node = LibXML::Raw::DOM::Node;
 
 method domGetAttributeNode { ... }
 method domGetAttributeNodeNS { ... }

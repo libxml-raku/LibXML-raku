@@ -1,7 +1,7 @@
 use v6;
 
 #| Bindings to the libxml2 library
-unit class LibXML::Native;
+unit class LibXML::Raw;
 
 =begin pod
 
@@ -9,7 +9,7 @@ unit class LibXML::Native;
 
     do {
         # Create a document from scratch
-        use LibXML::Native;
+        use LibXML::Raw;
         my xmlDoc:D $doc .= new;
         my xmlElem:D $root = $doc.new-node: :name<Hello>, :content<World!>;
         .Reference for $doc, $root;
@@ -21,7 +21,7 @@ unit class LibXML::Native;
 
 =head2 Description
 
-The LibXML::Native module contains class definitions for native and bindings to the LibXML2 library.
+The LibXML::Raw module contains class definitions for native and bindings to the LibXML2 library.
 
 =head3 Low level native access
 
@@ -65,14 +65,14 @@ Otherwise, the object can usually be copied. That copy then needs to be freed, t
 
 use NativeCall;
 use LibXML::Enums;
-use LibXML::Native::Dict;
-use LibXML::Native::HashTable;
-use LibXML::Native::DOM::Attr;
-use LibXML::Native::DOM::Document;
-use LibXML::Native::DOM::Element;
-use LibXML::Native::DOM::Node;
+use LibXML::Raw::Dict;
+use LibXML::Raw::HashTable;
+use LibXML::Raw::DOM::Attr;
+use LibXML::Raw::DOM::Document;
+use LibXML::Raw::DOM::Element;
+use LibXML::Raw::DOM::Node;
 
-use LibXML::Native::Defs :$XML2, :$BIND-XML2, :$CLIB, :Opaque, :xmlCharP;
+use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :$CLIB, :Opaque, :xmlCharP;
 
 sub xmlParserVersion is export { cglobal($XML2, 'xmlParserVersion', Str); }
 sub xml6_config_have_threads(-->int32) is native($BIND-XML2) is export {*}
@@ -752,7 +752,7 @@ class xmlXPathParserContext is export {
     method valuePush(xmlXPathObject --> int32) is native($XML2) {*}
 }
 
-class anyNode is export does LibXML::Native::DOM::Node {
+class anyNode is export does LibXML::Raw::DOM::Node {
     has Pointer $._private; # application data
     has int32       $.type; # type number, must be second !
     has xmlCharP    $!name; # the name of the node, or the entity
@@ -897,7 +897,7 @@ class xmlNode is anyNode {
 
 
 #| xmlNode of type: XML_ELEMENT_NODE
-class xmlElem is xmlNode is export does LibXML::Native::DOM::Element {
+class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method NewNs(xmlCharP $href, xmlCharP $prefix --> xmlNs) is native($XML2) is symbol('xmlNewNs') {*};
     method SetProp(Str, Str --> xmlAttr) is native($XML2) is symbol('xmlSetProp') {*}
     method domGetAttributeNode(xmlCharP $qname --> xmlAttr) is native($BIND-XML2) {*}
@@ -979,7 +979,7 @@ class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
 }
 
 #| An attribute on an XML node (type: XML_ATTRIBUTE_NODE)
-class xmlAttr is anyNode does LibXML::Native::DOM::Attr is export {
+class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
     has xmlNs       $.ns; # the associated namespace
     has int32    $.atype; # the attribute type if validating
     has Pointer   $.psvi; # for type/PSVI informations
@@ -994,7 +994,7 @@ class xmlAttr is anyNode does LibXML::Native::DOM::Attr is export {
 }
 
 #| An XML document (type: XML_DOCUMENT_NODE)
-class xmlDoc is anyNode does LibXML::Native::DOM::Document is export {
+class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone is rw;  # standalone document (no external refs)
                                        # 1 if standalone="yes"

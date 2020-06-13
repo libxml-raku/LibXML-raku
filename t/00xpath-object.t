@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML;
 use LibXML::Document;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node::Set;
 use LibXML::Enums;
 
@@ -42,7 +42,7 @@ $xo .= coerce('Zsófia');
 is $xo.type, +XPATH_STRING;
 is $xo.select, 'Zsófia';
 
-my LibXML::Document $doc = LibXML.parse: :string("<a><b/><c/><d/></a>");
+my LibXML::Document $doc .= parse: :string("<a><b/><c/><d/></a>");
 my LibXML::Node::Set:D $nodes = $doc.find('*/*');
 is $nodes.size, 3;
 
@@ -50,7 +50,7 @@ $xo .= coerce($nodes.native);
 is  $xo.type, +XPATH_NODESET;
 is-deeply $xo.select, $nodes.native;
 
-$xo .= coerce($nodes[1].native);
+$xo .= coerce($nodes[1].raw);
 is  $xo.type, +XPATH_NODESET;
 my $val = $xo.select;
 isa-ok $val, xmlNodeSet;

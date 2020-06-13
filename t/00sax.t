@@ -5,7 +5,7 @@ use Test;
 plan 13;
 use NativeCall;
 use LibXML;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Parser;
 my \config = LibXML.config;
 
@@ -68,7 +68,7 @@ class SaxHandler is LibXML::SAX::Handler {
 @start-tags = ();
 @end-tags = ();
 %atts-seen = ();
-$sax-handler = SaxHandler.new.native;
+$sax-handler = SaxHandler.new.raw;
 
 $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -82,7 +82,7 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 use XML::Document;
 use LibXML::SAX::Handler::XML;
 my $handler = LibXML::SAX::Handler::XML.new;
-$sax-handler = $handler.native;
+$sax-handler = $handler.raw;
 
 $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
@@ -104,7 +104,7 @@ class SAXShouter is LibXML::SAX::Handler::SAX2 {
     }
 }
 
-$sax-handler = SAXShouter.new.native;
+$sax-handler = SAXShouter.new.raw;
 
 $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate

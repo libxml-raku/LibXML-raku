@@ -184,7 +184,7 @@ EOF
 
     $reader.finish;
     my $doc = $reader.document;
-    ok($doc, "document");
+    ok($doc.defined, "document");
     ok($doc.documentElement, "doc root element");
     is($doc.documentElement.Str, q{<root><EE baz="BAZ"><PP>preserved</PP></EE><x:ZZ xmlns:x="foo"/><QQ/></root>},
        "preserved content");

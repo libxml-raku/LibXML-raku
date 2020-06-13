@@ -1,5 +1,5 @@
-class LibXML::Native
---------------------
+class LibXML::Raw
+-----------------
 
 Bindings to the libxml2 library
 
@@ -8,7 +8,7 @@ Synopsis
 
     do {
         # Create a document from scratch
-        use LibXML::Native;
+        use LibXML::Raw;
         my xmlDoc:D $doc .= new;
         my xmlElem:D $root = $doc.new-node: :name<Hello>, :content<World!>;
         .Reference for $doc, $root;
@@ -21,7 +21,7 @@ Synopsis
 Description
 -----------
 
-The LibXML::Native module contains class definitions for native and bindings to the LibXML2 library.
+The LibXML::Raw module contains class definitions for native and bindings to the LibXML2 library.
 
 ### Low level native access
 
@@ -60,238 +60,238 @@ Otherwise, the object can usually be copied. That copy then needs to be freed, t
         $_ = Nil;
     }
 
-class LibXML::Native::xmlAutomata
----------------------------------
+class LibXML::Raw::xmlAutomata
+------------------------------
 
 A libxml automata description, It can be compiled into a regexp
 
-class LibXML::Native::xmlAutomataState
---------------------------------------
+class LibXML::Raw::xmlAutomataState
+-----------------------------------
 
 A state int the automata description,
 
-class LibXML::Native::xmlBuffer32
----------------------------------
+class LibXML::Raw::xmlBuffer32
+------------------------------
 
 old buffer struct limited to 32bit signed addressing (2Gb). xmlBuf is preferred, where available
 
-class LibXML::Native::xmlBuf
-----------------------------
+class LibXML::Raw::xmlBuf
+-------------------------
 
 New buffer structure, introduced in libxml 2.09.00, the actual structure internals are not public
 
-class LibXML::Native::xmlEnumeration
-------------------------------------
+class LibXML::Raw::xmlEnumeration
+---------------------------------
 
 List structure used when there is an enumeration in DTDs.
 
-class LibXML::Native::xmlElementContent
----------------------------------------
+class LibXML::Raw::xmlElementContent
+------------------------------------
 
 An XML Element content as stored after parsing an element definition in a DTD.
 
-class LibXML::Native::xmlLocationSet
-------------------------------------
+class LibXML::Raw::xmlLocationSet
+---------------------------------
 
 A Location Set
 
-class LibXML::Native::xmlParserInputDeallocate
-----------------------------------------------
+class LibXML::Raw::xmlParserInputDeallocate
+-------------------------------------------
 
 Callback for freeing some parser input allocations.
 
-class LibXML::Native::xmlParserNodeInfo
----------------------------------------
+class LibXML::Raw::xmlParserNodeInfo
+------------------------------------
 
 The parser can be asked to collect Node informations, i.e. at what place in the file they were detected.
 
-class LibXML::Native::xmlXPathCompExpr
---------------------------------------
+class LibXML::Raw::xmlXPathCompExpr
+-----------------------------------
 
 The structure of a compiled expression form is not public.
 
-class LibXML::Native::xmlPattern
---------------------------------
+class LibXML::Raw::xmlPattern
+-----------------------------
 
 A compiled (XPath based) pattern to select nodes
 
-class LibXML::Native::xmlRegexp
--------------------------------
+class LibXML::Raw::xmlRegexp
+----------------------------
 
 A libxml regular expression, they can actually be far more complex thank the POSIX regex expressions.
 
-class LibXML::Native::xmlXIncludeCtxt
--------------------------------------
+class LibXML::Raw::xmlXIncludeCtxt
+----------------------------------
 
 An XInclude context
 
-class LibXML::Native::xmlXPathAxis
-----------------------------------
+class LibXML::Raw::xmlXPathAxis
+-------------------------------
 
 A mapping of name to axis function
 
-class LibXML::Native::xmlXPathType
-----------------------------------
+class LibXML::Raw::xmlXPathType
+-------------------------------
 
 A mapping of name to conversion function
 
-class LibXML::Native::xmlValidState
------------------------------------
+class LibXML::Raw::xmlValidState
+--------------------------------
 
 Each xmlValidState represent the validation state associated to the set of nodes currently open from the document root to the current element.
 
-class LibXML::Native::xmlParserInput
-------------------------------------
+class LibXML::Raw::xmlParserInput
+---------------------------------
 
 Each entity parsed is associated an xmlParserInput (except the few predefined ones).
 
-class LibXML::Native::xmlNs
----------------------------
+class LibXML::Raw::xmlNs
+------------------------
 
 An XML namespace. Note that prefix == NULL is valid, it defines the default namespace within the subtree (until overridden).
 
-class LibXML::Native::xmlSAXLocator
------------------------------------
+class LibXML::Raw::xmlSAXLocator
+--------------------------------
 
 A SAX Locator.
 
-class LibXML::Native::xmlSAXHandler
------------------------------------
+class LibXML::Raw::xmlSAXHandler
+--------------------------------
 
 A SAX handler is bunch of callbacks called by the parser when processing of the input generate data or structure informations.
 
-class LibXML::Native::xmlError
-------------------------------
+class LibXML::Raw::xmlError
+---------------------------
 
 An XML Error instance.
 
-class LibXML::Native::xmlXPathContext
--------------------------------------
+class LibXML::Raw::xmlXPathContext
+----------------------------------
 
 Expression evaluation occurs with respect to a context. the context consists of: - a node (the context node) - a node list (the context node list) - a set of variable bindings - a function library - the set of namespace declarations in scope for the expression
 
-class LibXML::Native::xmlXPathParserContext
--------------------------------------------
+class LibXML::Raw::xmlXPathParserContext
+----------------------------------------
 
 An XPath parser context. It contains pure parsing informations, an xmlXPathContext, and the stack of objects.
 
-class LibXML::Native::xmlNode
------------------------------
+class LibXML::Raw::xmlNode
+--------------------------
 
 A node in an XML tree.
 
-class LibXML::Native::xmlElem
------------------------------
+class LibXML::Raw::xmlElem
+--------------------------
 
 xmlNode of type: XML_ELEMENT_NODE
 
-class LibXML::Native::xmlTextNode
----------------------------------
+class LibXML::Raw::xmlTextNode
+------------------------------
 
 xmlNode of type: XML_TEXT_NODE
 
-class LibXML::Native::xmlCommentNode
-------------------------------------
+class LibXML::Raw::xmlCommentNode
+---------------------------------
 
 xmlNode of type: XML_COMMENT_NODE
 
-class LibXML::Native::xmlCDataNode
-----------------------------------
+class LibXML::Raw::xmlCDataNode
+-------------------------------
 
 xmlNode of type: XML_CDATA_SECTION_NODE
 
-class LibXML::Native::xmlPINode
--------------------------------
+class LibXML::Raw::xmlPINode
+----------------------------
 
 xmlNode of type: XML_PI_NODE
 
-class LibXML::Native::xmlEntityRefNode
---------------------------------------
+class LibXML::Raw::xmlEntityRefNode
+-----------------------------------
 
 xmlNode of type: XML_ENTITY_REF_NODE
 
-class LibXML::Native::xmlAttr
------------------------------
+class LibXML::Raw::xmlAttr
+--------------------------
 
 An attribute on an XML node (type: XML_ATTRIBUTE_NODE)
 
-class LibXML::Native::xmlDoc
-----------------------------
+class LibXML::Raw::xmlDoc
+-------------------------
 
 An XML document (type: XML_DOCUMENT_NODE)
 
-class LibXML::Native::htmlDoc
------------------------------
+class LibXML::Raw::htmlDoc
+--------------------------
 
 xmlDoc of type: XML_HTML_DOCUMENT_NODE
 
-class LibXML::Native::xmlDocFrag
---------------------------------
+class LibXML::Raw::xmlDocFrag
+-----------------------------
 
 xmlNode of type: XML_DOCUMENT_FRAG_NODE
 
-class LibXML::Native::xmlDtd
-----------------------------
+class LibXML::Raw::xmlDtd
+-------------------------
 
 An XML DTD, as defined by <!DOCTYPE ... There is actually one for the internal subset and for the external subset (type: XML_DTD_NODE).
 
-class LibXML::Native::xmlAttrDecl
----------------------------------
+class LibXML::Raw::xmlAttrDecl
+------------------------------
 
 An Attribute declaration in a DTD (type: XML_ATTRIBUTE_DECL).
 
-class LibXML::Native::xmlEntity
--------------------------------
+class LibXML::Raw::xmlEntity
+----------------------------
 
 An unit of storage for an entity, contains the string, the value and the data needed for the linking in the hash table (type: XML_ENTITY_DECL).
 
-class LibXML::Native::xmlElementDecl
-------------------------------------
+class LibXML::Raw::xmlElementDecl
+---------------------------------
 
 An XML Element declaration from a DTD (type: XML_ELEMENT_DECL).
 
-class LibXML::Native::xmlNodeSet
---------------------------------
+class LibXML::Raw::xmlNodeSet
+-----------------------------
 
 A node-set (an unordered collection of nodes without duplicates)
 
-class LibXML::Native::xmlValidCtxt
-----------------------------------
+class LibXML::Raw::xmlValidCtxt
+-------------------------------
 
 An xmlValidCtxt is used for error reporting when validating.
 
-class LibXML::Native::xmlParserCtxt
------------------------------------
+class LibXML::Raw::xmlParserCtxt
+--------------------------------
 
 The parser context.
 
-class LibXML::Native::xmlFileParserCtxt
----------------------------------------
+class LibXML::Raw::xmlFileParserCtxt
+------------------------------------
 
 XML file parser context
 
-class LibXML::Native::xmlPushParserCtxt
----------------------------------------
+class LibXML::Raw::xmlPushParserCtxt
+------------------------------------
 
 an incremental XML push parser context. Determines encoding and reads data in binary chunks
 
-class LibXML::Native::htmlParserCtxt
-------------------------------------
+class LibXML::Raw::htmlParserCtxt
+---------------------------------
 
 a vanilla HTML parser context - can be used to read files or strings
 
-class LibXML::Native::htmlFileParserCtxt
-----------------------------------------
+class LibXML::Raw::htmlFileParserCtxt
+-------------------------------------
 
 HTML file parser context
 
-class LibXML::Native::htmlPushParserCtxt
-----------------------------------------
+class LibXML::Raw::htmlPushParserCtxt
+-------------------------------------
 
 an incremental HTMLpush parser context. Determines encoding and reads data in binary chunks
 
-class LibXML::Native::xmlMemoryParserCtxt
------------------------------------------
+class LibXML::Raw::xmlMemoryParserCtxt
+--------------------------------------
 
 a parser context for an XML in-memory document.
 

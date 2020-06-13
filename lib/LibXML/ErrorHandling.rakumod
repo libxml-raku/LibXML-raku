@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
-use LibXML::Native;
-use LibXML::Native::Defs :$XML2;
+use LibXML::Raw;
+use LibXML::Raw::Defs :$XML2;
 use LibXML::Enums;
 
 class X::LibXML is Exception {

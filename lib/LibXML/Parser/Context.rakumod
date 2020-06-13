@@ -4,10 +4,10 @@ use NativeCall;
 use LibXML::Config;
 use LibXML::Enums;
 use LibXML::ErrorHandling :&structured-error-cb;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::_Options;
 
-has xmlParserCtxt $!native handles <wellFormed valid>;
+has xmlParserCtxt $!raw handles <wellFormed valid>;
 has uint32 $.flags = LibXML::Config.parser-flags;
 multi method flags(LibXML::Parser::Context:D:) is default is rw { $!flags }
 multi method flags { LibXML::Config.parser-flags }
@@ -47,31 +47,31 @@ our constant %Opts = %(
 also does LibXML::_Options[%Opts];
 also does LibXML::ErrorHandling;
 
-method native { $!native }
+method raw { $!raw }
 method close {
     $!input-compressed = ? .Close()
-        with $!native;
+        with $!raw;
 }
 
-method set-native(xmlParserCtxt $native) {
-    .Reference with $native;
-    .Unreference with $!native;
+method set-raw(xmlParserCtxt $raw) {
+    .Reference with $raw;
+    .Unreference with $!raw;
 
-    with $native {
+    with $raw {
         .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
         .linenumbers = +?$!line-numbers;
-        $!native = $_;
-        $!native.sax = .native with $!sax-handler;
+        $!raw = $_;
+        $!raw.sax = .raw with $!sax-handler;
     }
 }
 
-submethod TWEAK(xmlParserCtxt :$native, *%opts) {
-    self.set-native($_) with $native;
+submethod TWEAK(xmlParserCtxt :$raw, *%opts) {
+    self.set-raw($_) with $raw;
     self.set-flags($!flags, :lax, |%opts);
 }
 
 submethod DESTROY {
-    with $!native {
+    with $!raw {
         .sax = Nil;
         .Unreference;
     }
@@ -81,14 +81,14 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
     my $rv;
     my $*XML-CONTEXT = self;
-    $_ = .new: :native(xmlParserCtxt.new)
+    $_ = .new: :raw(xmlParserCtxt.new)
         without $*XML-CONTEXT;
 
     my @input-contexts = .activate()
         with $*XML-CONTEXT.input-callbacks;
 
     given xml6_gbl_save_error_handlers() {
-        $*XML-CONTEXT.native.SetStructuredErrorFunc: &structured-error-cb;
+        $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
 
         &*chdir(~$*CWD);
 

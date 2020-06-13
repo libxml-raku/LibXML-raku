@@ -2,7 +2,7 @@
 unit class LibXML::Parser;
 
 use LibXML::Config;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Enums;
 use LibXML::Document;
 use LibXML::PushParser;
@@ -54,14 +54,14 @@ method get-flags(:$html, *%opts) {
     $flags;
 }
 
-method !make-handler(xmlParserCtxt :$native, :$line-numbers=$!line-numbers, :$input-callbacks=$!input-callbacks, :$sax-handler=$.sax-handler, *%opts) {
+method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input-callbacks=$!input-callbacks, :$sax-handler=$.sax-handler, *%opts) {
     my UInt $flags = self.get-flags(|%opts);
-    LibXML::Parser::Context.new: :$native, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
+    LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
 }
 
-method !publish(Str :$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$native = $ctx.native.myDoc) {
-    my LibXML::Document $doc .= new: :$ctx, :$URI, :native($_)
-        with $native;
+method !publish(Str :$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$raw = $ctx.raw.myDoc) {
+    my LibXML::Document $doc .= new: :$ctx, :$URI, :raw($_)
+        with $raw;
 
     if $.expand-xinclude {
         self.processXIncludes($_, :$ctx)
@@ -81,8 +81,8 @@ method processXIncludes (
     LibXML::Parser::Context :$ctx is copy,
     *%opts --> Int)
 is also<process-xincludes> {
-    my xmlDoc $doc = .native;
-    $ctx //= self!make-handler(:native(xmlParserCtxt.new));
+    my xmlDoc $doc = .raw;
+    $ctx //= self!make-handler(:raw(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);
     $ctx.try: { $doc.XIncludeProcessFlags($flags) }
 }
@@ -100,13 +100,13 @@ multi method parse(
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
     $ctx.try: {
-        my xmlParserCtxt:D $native = $html
+        my xmlParserCtxt:D $raw = $html
             ?? htmlMemoryParserCtxt.new: :$string
             !! xmlMemoryParserCtxt.new: :$string;
 
-        $native.input.filename = $_ with $URI;
-        $ctx.set-native: $native;
-        $native.ParseDocument;
+        $raw.input.filename = $_ with $URI;
+        $ctx.set-raw: $raw;
+        $raw.ParseDocument;
         $ctx.close();
     };
     self!publish: :$ctx;
@@ -121,15 +121,15 @@ multi method parse(
     *%opts,
 ) is hidden-from-backtrace {
 
-    my xmlParserCtxt:D $native = $html
+    my xmlParserCtxt:D $raw = $html
        ?? htmlMemoryParserCtxt.new(:$buf, :$enc)
        !! xmlMemoryParserCtxt.new(:$buf);
 
-    $native.input.filename = $_ with $URI;
+    $raw.input.filename = $_ with $URI;
 
-    my LibXML::Parser::Context $ctx = self!make-handler: :$native, :$html, |%opts;
+    my LibXML::Parser::Context $ctx = self!make-handler: :$raw, :$html, |%opts;
     $ctx.try: {
-        $native.ParseDocument;
+        $raw.ParseDocument;
         $ctx.close();
     };
     self!publish: :$ctx;
@@ -146,11 +146,11 @@ multi method parse(
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
     $ctx.try: {
-        my xmlParserCtxt $native = $html
+        my xmlParserCtxt $raw = $html
            ?? htmlFileParserCtxt.new(:$file, :$enc)
            !! xmlFileParserCtxt.new(:$file);
-        with $native {
-            $ctx.set-native: $_;
+        with $raw {
+            $ctx.set-raw: $_;
             .ParseDocument;
         }
         else {
@@ -174,18 +174,18 @@ multi method parse(
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
     my UInt $flags = self.get-flags(|%opts, :$html);
-    my xmlDoc $doc;
+    my xmlDoc $raw-doc;
 
     $ctx.try: {
-        my xmlParserCtxt $native = $html
+        my xmlParserCtxt $raw = $html
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
-        $ctx.set-native: $native;
-        $doc = $native.ReadFd($fd, $URI, $enc, $flags);
+        $ctx.set-raw: $raw;
+        $raw-doc = $raw.ReadFd($fd, $URI, $enc, $flags);
         $ctx.close();
     };
 
-    self!publish: :$ctx, :native($doc);
+    self!publish: :$ctx, :raw($raw-doc);
 }
 
 multi method parse(

@@ -3,7 +3,7 @@ use LibXML::SAX::Handler;
 
 class LibXML::SAX::Handler::SAX2
     is LibXML::SAX::Handler {
-    use LibXML::Native;
+    use LibXML::Raw;
     use NativeCall;
     use LibXML::SAX::Handler::SAX2::Locator;
     has LibXML::SAX::Handler::SAX2::Locator $.locator handles<line-number column-number> .= new;

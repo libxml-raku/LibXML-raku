@@ -17,7 +17,7 @@ use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
 use LibXML::Item :dom-native;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Parser::Context;
 use LibXML::PI;
 use LibXML::Text;
@@ -136,15 +136,18 @@ method new(
     Bool :$html,
     Int  :$compression,
     LibXML::Parser::Context :$ctx,
-    xmlDoc:D :$native = ($html ?? htmlDoc !! xmlDoc).new,
+    xmlDoc:D :$raw = ($html ?? htmlDoc !! xmlDoc).new,
+    :$native, # obselete
 ) {
 
-    $native.version = $_ with $version;
-    $native.encoding = $_ with $enc;
-    $native.URI = $_ with $URI;
-    $native.setCompression($_) with $compression;
+    die 'new(:$native) option is obselete. Please use :$raw'
+        with $native;
+    $raw.version = $_ with $version;
+    $raw.encoding = $_ with $enc;
+    $raw.URI = $_ with $URI;
+    $raw.setCompression($_) with $compression;
 
-    given self.box($native) {
+    given self.box($raw) {
         .set-flags(InputCompressed)
             if $ctx && $ctx.input-compressed;
         $_;
@@ -697,7 +700,7 @@ method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node(
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
 #| Imports a node from another DOM
-method importNode(LibXML::Node:D $node --> LibXML::Element) {
+method importNode(LibXML::Node:D $node --> LibXML::Node) {
     &?ROUTINE.returns.box: $.raw.importNode($node.raw);
 }
 =para If a node is not part of a document, it can be imported to another document. As

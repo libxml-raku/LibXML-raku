@@ -1,12 +1,12 @@
 use v6;
 use Test;
 
-use LibXML::Native::Defs :$XML2, :$BIND-XML2, :$CLIB;
+use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :$CLIB;
 use NativeCall;
 
 # some sanity checking on our native library configuration.
 # Check a few symbols $XML2, $BIND-XML2 and $CLIB libraries.
-# Useful test when doing porting work on META6.json, LibXML::Native::Defs etc
+# Useful test when doing porting work on META6.json, LibXML::Raw::Defs etc
 
 # sanity check our libraries
 lives-ok({ cglobal($XML2, "xmlParserVersion", Pointer) }, 'libxml2 sanity')

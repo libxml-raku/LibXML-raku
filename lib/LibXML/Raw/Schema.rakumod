@@ -1,8 +1,8 @@
-unit module LibXML::Native::Schema;
+unit module LibXML::Raw::Schema;
 
 use NativeCall;
-use LibXML::Native;
-use LibXML::Native::Defs :$XML2, :Opaque;
+use LibXML::Raw;
+use LibXML::Raw::Defs :$XML2, :Opaque;
 
 class xmlSchema is repr(Opaque) is export {
    method Free is symbol('xmlSchemaFree') is native($XML2) {*}

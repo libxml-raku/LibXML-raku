@@ -1,11 +1,11 @@
 #| low level undom-native/unsugared DOM. Works directly on native XML Nodes
-unit role LibXML::Native::DOM::Node;
+unit role LibXML::Raw::DOM::Node;
 
 use LibXML::Enums;
 use LibXML::Types :NCName, :QName;
 use NativeCall;
 
-my constant Node = LibXML::Native::DOM::Node;
+my constant Node = LibXML::Raw::DOM::Node;
 
 method doc { ... }
 method type { ... }

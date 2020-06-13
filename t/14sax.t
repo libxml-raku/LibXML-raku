@@ -303,7 +303,7 @@ EOF
 ########### Helper class #############
 
 use LibXML::SAX::Handler::SAX2;
-use LibXML::Native;
+use LibXML::Raw;
 
 class SAXTester
     is LibXML::SAX::Handler::SAX2 {

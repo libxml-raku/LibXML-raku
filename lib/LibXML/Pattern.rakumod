@@ -51,7 +51,7 @@ unit class LibXML::Pattern;
 =end pod
 
 use LibXML::Enums;
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Node;
 use LibXML::_Options;
 use NativeCall;
@@ -125,7 +125,7 @@ method !try-bool(Str:D $op, |c) {
 
 #| True if the node is matched by the compiled pattern
 multi method matchesNode(LibXML::Node $node --> Bool) {
-     self!try-bool('Match', $node.native);
+     self!try-bool('Match', $node.raw);
 }
 
 multi method matchesNode(anyNode $node) {

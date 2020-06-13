@@ -119,7 +119,7 @@ unit class LibXML::Node
 use Method::Also;
 use NativeCall;
 
-use LibXML::Native;
+use LibXML::Raw;
 use LibXML::Config;
 use LibXML::Enums;
 use LibXML::Namespace;
@@ -146,7 +146,7 @@ method raw handles<
     unique-key ast-key xpath-key
 > { ... }
 
-method native { self.raw }
+method native is DEPRECATED<raw> { self.raw }
 
 submethod DESTROY {
     self.raw.Unreference;
@@ -340,13 +340,16 @@ Gets or sets the owner document for the node
 method getOwnerDocument is also<get-doc> returns LibXML::Node {
     my \doc-class = box-class(XML_DOCUMENT_NODE);
     do with self {
-        with .native.doc -> xmlDoc $struct {
-            doc-class.box($struct);
+        with .raw.doc -> xmlDoc $raw {
+            doc-class.box($raw);
         }
     } // doc-class;
 }
 
-submethod TWEAK(*%args) {
+submethod TWEAK(:$native) {
+    die 'new(:$native) option is obselete. Please use :$raw'
+        with $native;
+
     die "no content" unless nativecast(Pointer, self).defined
 }
 
@@ -464,7 +467,7 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) {
 
 #| Replace a node
 method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
-    self.keep: self.raw.replaceNode($new.native); 
+    self.keep: self.raw.replaceNode($new.raw); 
 }
 =para This function is very similar to replaceChild(), but it replaces the node
     itself rather than a childnode. This is useful if a node found by any XPath
@@ -472,7 +475,7 @@ method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-    &?ROUTINE.returns.box(self.raw.addSibling($new.native));
+    &?ROUTINE.returns.box(self.raw.addSibling($new.raw));
 }
 
 #| Copy a node
