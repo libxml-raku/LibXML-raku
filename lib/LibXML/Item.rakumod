@@ -209,15 +209,14 @@ multi trait_mod:<is>(
 }
 
 #| Utility method that verifies that `$native` is the same native struct as the current object.
-method keep(LibXML::Raw::DOM::Node $native,
-            :$doc = $.doc, # reusable document object
+method keep(LibXML::Raw::DOM::Node $raw,
             --> LibXML::Item) {
-    do with $native {
+    do with $raw {
         do with self -> $obj {
             die "returned unexpected node: {.Str}"
                 unless $obj.raw.isSameNode($_);
             $obj;
-        } // self.box: $_, :$doc;
+        } // self.box: $_;
     } // self.WHAT;
 }
 

@@ -62,6 +62,24 @@ multi sub get-attribute(XML::Element:D $e) {
     }
 }
 
+multi sub unbox($e) {
+    for 1 .. 50 {
+       $e.unbox;
+    }
+}
+
+multi sub box($raw) {
+    for 1 .. 50 {
+       LibXML::Element.box($raw);
+    }
+}
+
+multi sub keep($e, $raw) {
+    for 1 .. 50 {
+       $e.keep: $raw;
+    }
+}
+
 sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
     my Bench $b .= new;
     
@@ -69,11 +87,13 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
     my LibXML::Document $libxml;
     my XML::Element $xml-root;
     my LibXML::Element $libxml-root;
+    my $raw;
 
     $b.timethese: 1, %(
         '00-load.libxml' => {
             $libxml = LibXML.parse: :$*file, :!blanks;
             $libxml-root = $libxml.root;
+            $raw = $libxml-root.unbox;
         },
         '00-load.xml' => {
             $xml = from-xml-file($*file);
@@ -103,6 +123,9 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '03-attribs.libxml' => -> { get-attribute($libxml-root)},
         '03-attribs.libxml-native' => -> { get-attribute-native($libxml-root)},
         '03-attribs.xml' => -> { get-attribute($xml-root)},
+        '04-box' => { box($raw) },
+        '04-unbox' => { unbox($libxml-root) },
+        '04-keep' => { keep($libxml-root, $raw) },
     );
 
 }
