@@ -2,6 +2,7 @@ use LibXML;
 use LibXML::Node;
 use LibXML::Document;
 use LibXML::Element;
+use LibXML::Raw;
 use XML;
 use LibXML::SAX::Handler::XML;
 use LibXML::XPath::Expression;
@@ -30,8 +31,8 @@ multi sub get-elems-local(LibXML::Element:D $e) {
 multi sub get-elems-assoc(LibXML::Element:D $e) {
     my @elems = $e<files>.list;
 }
-sub get-elems-native(LibXML::Element:D $e) {
-    $e.native.getElementsByTagName('files');
+sub get-elems-native(xmlElem:D $raw) {
+    $raw.getElementsByTagName('files');
 }
 sub find-elems(LibXML::Element:D $e) {
     $e.find($*kids-expr);
@@ -42,18 +43,17 @@ sub get-children(LibXML::Element:D $e) {
 sub get-children-array(LibXML::Element:D $e) {
     $e.childNodes.Array;
 }
-sub get-children-native(LibXML::Element:D $e) {
-    $e.native.children;
+sub get-children-native(xmlElem:D $raw) {
+    $raw.children;
 }
 multi sub get-attribute(LibXML::Element:D $e) {
     for 1 .. 5 {
        $e.getAttribute('name');
     }
 }
-multi sub get-attribute-native(LibXML::Element:D $e) {
-    my $native = $e.native;
+multi sub get-attribute-native(xmlElem:D $raw) {
     for 1 .. 5 {
-       $native.getAttribute('name');
+       $raw.getAttribute('name');
     }
 }
 multi sub get-attribute(XML::Element:D $e) {
@@ -114,18 +114,18 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '02-elems.libxml' => -> { get-elems($libxml-root)},
         '02-children.libxml' => -> { get-children($libxml-root)},
         '02-children-array.libxml' => -> { get-children-array($libxml-root)},
-        '02-elems.libxml-native' => -> { get-elems-native($libxml-root)},
+        '02-elems.libxml-native' => -> { get-elems-native($raw)},
         '02-find.libxml' => -> { find-elems($libxml-root)},
-        '02-children.libxml-native' => -> { get-children-native($libxml-root)},
+        '02-children.libxml-native' => -> { get-children-native($raw)},
         '02-elems.libxml-local' => -> { get-elems-local($libxml-root)},
         '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},
         '03-elems.xml' =>  -> { get-elems($xml-root)},
         '03-attribs.libxml' => -> { get-attribute($libxml-root)},
-        '03-attribs.libxml-native' => -> { get-attribute-native($libxml-root)},
+        '03-attribs.libxml-native' => -> { get-attribute-native($raw)},
         '03-attribs.xml' => -> { get-attribute($xml-root)},
-        '04-box' => { box($raw) },
-        '04-unbox' => { unbox($libxml-root) },
-        '04-keep' => { keep($libxml-root, $raw) },
+        '04-box.libxml' => { box($raw) },
+        '04-unbox.libxml' => { unbox($libxml-root) },
+        '04-keep.libxml' => { keep($libxml-root, $raw) },
     );
 
 }

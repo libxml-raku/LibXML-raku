@@ -96,7 +96,7 @@ unit class LibXML::XPath::Context;
 
 use LibXML::Config;
 use LibXML::Document;
-use LibXML::Item :box-class;
+use LibXML::Item;
 use LibXML::Raw;
 use LibXML::Namespace;
 use LibXML::Node :iterate-set, :NameVal;
@@ -365,11 +365,6 @@ multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) is default {
     The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 =end pod
 
-sub box(itemNode $elem) {
-    box-class(.type).box(.delegate)
-        with $elem;
-}
-
 proto method first($, $? --> LibXML::Item) {*}
 multi method first(Str:D $expr, LibXML::Node $ref?) {
     $.first(LibXML::XPath::Expression.new(:$expr), $ref);
@@ -377,7 +372,7 @@ multi method first(Str:D $expr, LibXML::Node $ref?) {
 multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
         my itemNode $node = $nodes.nodeTab[0] if $nodes.nodeNr;
-        my $rv := box($node);
+        my $rv := LibXML::Item.box: $node;
         $nodes.Free;
         $rv;
     } // LibXML::Node;
@@ -400,7 +395,7 @@ multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
         my $n := $nodes.nodeNr;
         my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
-        my $rv := box($node);
+        my $rv := LibXML::Item.box: $node;
         $nodes.Free;
         $rv;
     } // LibXML::Node;

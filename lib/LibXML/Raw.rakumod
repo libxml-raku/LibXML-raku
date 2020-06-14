@@ -809,6 +809,9 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domGetChildrenByLocalName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domGetChildrenByTagName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domGetChildrenByTagNameNS(Str, Str --> xmlNodeSet) is native($BIND-XML2) {*}
+    method domGetElementsByLocalName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
+    method domGetElementsByTagName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
+    method domGetElementsByTagNameNS(Str, Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domNormalize(--> int32) is native($BIND-XML2) {*}
     method domUniqueKey(--> xmlCharP) is native($BIND-XML2) {*}
     method domIsSameNode(anyNode --> int32) is native($BIND-XML2) {*}

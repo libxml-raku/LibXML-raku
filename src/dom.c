@@ -8,6 +8,7 @@
  */
 
 #include "dom.h"
+#include "domXPath.h"
 #include "xml6.h"
 #include "xml6_ref.h"
 #include <string.h>
@@ -1354,7 +1355,7 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }
                 else {
-                    xmlXPathNodeSetAdd( rv, cld );
+                    domPushNodeSet( rv, cld );
                 }
             }
             cld = cld->next;
@@ -1377,6 +1378,26 @@ static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
     return rv;
 }
 
+static xmlNodeSetPtr
+_domMergeNodeSet(xmlNodeSetPtr self, xmlNodeSetPtr nodes) {
+    int i;
+    xmlNodeSetPtr rv = self;
+
+    if (nodes != NULL) {
+        if (self != NULL) {
+            for (i = 0; i < nodes->nodeNr; i++) {
+                domPushNodeSet(self, nodes->nodeTab[i]);
+            }
+            xmlXPathFreeNodeSet(nodes);
+        }
+        else {
+            rv = nodes;
+        }
+    }
+    return rv;
+}
+
+
 DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
@@ -1393,7 +1414,7 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
                     rv = xmlXPathNodeSetCreate( cld ) ;
                 }
                 else {
-                    xmlXPathNodeSetAdd( rv, cld );
+                    domPushNodeSet( rv, cld );
                 }
             }
             cld = cld->next;
@@ -1425,8 +1446,105 @@ domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
                         rv = xmlXPathNodeSetCreate( cld ) ;
                     }
                     else {
-                        xmlXPathNodeSetAdd( rv, cld );
+                        domPushNodeSet( rv, cld );
                     }
+                }
+                cld = cld->next;
+            }
+        }
+    }
+
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr
+domGetElementsByLocalName( xmlNodePtr self, xmlChar* name ){
+    xmlNodeSetPtr rv = NULL;
+    xmlNodePtr cld = NULL;
+    int any_name;
+    xmlNodeSetPtr elems;
+
+    if ( self != NULL && name != NULL ) {
+        any_name =  xmlStrcmp( name, (unsigned char *) "*" ) == 0;
+        cld = self->children;
+        while ( cld != NULL ) {
+            if ( cld->type == XML_ELEMENT_NODE ) {
+                if (any_name || xmlStrcmp( cld->name, name ) == 0 ) {
+                    if ( rv == NULL ) {
+                        rv = xmlXPathNodeSetCreate( cld ) ;
+                    }
+                    else {
+                        domPushNodeSet( rv, cld );
+                    }
+                }
+                elems = domGetElementsByLocalName(cld, name);
+                rv = _domMergeNodeSet(rv, elems);
+            }
+            cld = cld->next;
+        }
+    }
+
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr
+domGetElementsByTagName( xmlNodePtr self, xmlChar* name ){
+    xmlNodeSetPtr rv = NULL;
+    xmlNodePtr cld = NULL;
+    int any_name;
+    xmlNodeSetPtr elems;
+
+    if ( self != NULL && name != NULL ) {
+        any_name =  xmlStrcmp( name, (unsigned char *) "*" ) == 0;
+        cld = self->children;
+        while ( cld != NULL ) {
+            if ( cld->type == XML_ELEMENT_NODE) {
+                if (any_name || _domNamecmp( cld, name ) == 0 ) {
+                    if ( rv == NULL ) {
+                        rv = xmlXPathNodeSetCreate( cld ) ;
+                    }
+                    else {
+                        domPushNodeSet( rv, cld );
+                    }
+                }
+                elems = domGetElementsByTagName(cld, name);
+                rv = _domMergeNodeSet(rv, elems);
+            }
+            cld = cld->next;
+        }
+    }
+
+    return rv;
+}
+
+DLLEXPORT xmlNodeSetPtr
+domGetElementsByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ){
+    xmlNodeSetPtr rv = NULL;
+    int any_name;
+    xmlNodePtr cld;
+    xmlNodeSetPtr elems;
+
+    if ( self != NULL && name != NULL && nsURI != NULL ) {
+        if ( xmlStrcmp( nsURI, (unsigned char *) "*" ) == 0) {
+            rv = domGetElementsByLocalName(self, name);
+        }
+        else {
+            any_name = xmlStrcmp( name, (unsigned char *) "*" ) == 0;
+            cld = self->children;
+            while ( cld != NULL ) {
+                if (cld->type == XML_ELEMENT_NODE) {
+                    if ((any_name || xmlStrcmp( name, cld->name ) == 0)
+                        && cld->ns != NULL
+                        && xmlStrcmp( nsURI, cld->ns->href ) == 0  ){
+                        if ( rv == NULL ) {
+                            rv = xmlXPathNodeSetCreate( cld ) ;
+                        }
+                        else {
+                            domPushNodeSet( rv, cld );
+                        }
+                    }
+                    elems = domGetElementsByTagNameNS(cld, nsURI, name);
+                    rv = _domMergeNodeSet(rv, elems);
                 }
                 cld = cld->next;
             }

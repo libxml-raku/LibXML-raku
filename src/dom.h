@@ -201,6 +201,15 @@ domGetChildrenByTagName( xmlNodePtr self, xmlChar* name );
 DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
+DLLEXPORT xmlNodeSetPtr
+domGetElementsByLocalName( xmlNodePtr self, xmlChar* name );
+
+DLLEXPORT xmlNodeSetPtr
+domGetElementsByTagName( xmlNodePtr self, xmlChar* name );
+
+DLLEXPORT xmlNodeSetPtr
+domGetElementsByTagNameNS( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
+
 DLLEXPORT xmlAttrPtr
 domGetAttributeNode( xmlNodePtr node, const xmlChar* qname);
 

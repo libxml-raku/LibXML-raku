@@ -39,6 +39,9 @@ method domSetNamespace { ... }
 method domGetChildrenByLocalName { ... }
 method domGetChildrenByTagName { ... }
 method domGetChildrenByTagNameNS { ... }
+method domGetElementsByLocalName { ... }
+method domGetElementsByTagName { ... }
+method domGetElementsByTagNameNS { ... }
 method domAddNewChild { ... }
 method domNormalize { ... }
 method domUniqueKey { ... }
@@ -102,35 +105,16 @@ method replaceNode(Node $new) {
         // self.dom-error // Node;
 }
 
-method !descendants(Str:D $expr = '') {
-   self.domXPathSelectStr("descendant::*" ~ $expr);
+method getElementsByTagName(Str:D $name) {
+    self.domGetElementsByTagName($name);
 }
 
-multi method getElementsByTagName('*') {
-    self!descendants;
-}
-multi method getElementsByTagName(Str:D $name) {
-    self!descendants: "[name()='$name']";
+method getElementsByLocalName(Str:D $name) {
+    self.domGetElementsByLocalName($name);
 }
 
-multi method getElementsByLocalName('*') {
-    self!descendants;
-}
-multi method getElementsByLocalName(Str:D $name) {
-    self!descendants: "[local-name()='$name']";
-}
-
-multi method getElementsByTagNameNS('*','*') {
-    self!descendants;
-}
-multi method getElementsByTagNameNS(Str() $URI, '*') {
-    self!descendants: "[namespace-uri()='$URI']";
-}
-multi method getElementsByTagNameNS('*', Str $name) {
-    self!descendants: "[local-name()='$name']";
-}
-multi method getElementsByTagNameNS(Str() $URI, Str $name) {
-    self!descendants: "[local-name()='$name' and namespace-uri()='$URI']";
+method getElementsByTagNameNS(Str() $URI, Str $name) {
+    self.domGetElementsByTagNameNS($URI, $name);
 }
 
 method getChildrenByLocalName(Str $name) {

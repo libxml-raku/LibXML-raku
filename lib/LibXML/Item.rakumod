@@ -63,10 +63,9 @@ multi sub box-class(UInt $_) is export(:box-class) {
     box-class(@ClassMap[$_] // 'LibXML::Item');
 }
 
-multi method box(itemNode:D $_) {
-    box-class(.type).box: .delegate;
+multi method box($_) {
+    .defined ?? box-class(.type).box(.delegate) !! self.WHAT;
 }
-multi method box(Any:U $_) { self.WHAT }
 
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
