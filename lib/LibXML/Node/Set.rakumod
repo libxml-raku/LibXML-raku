@@ -1,5 +1,8 @@
 #| LibXML XPath Node Collections
-class LibXML::Node::Set does Iterable does Iterator does Positional {
+class LibXML::Node::Set
+    does Iterable
+    does Positional {
+
     use LibXML::Enums;
     use LibXML::Raw;
     use LibXML::Item;
@@ -7,13 +10,11 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
     use NativeCall;
 
     has LibXML::Item $.of;
-    has xmlNodeSet $.raw;
-    has UInt $!idx = 0;
-    has Hash $!hstore;
     has Bool $.deref;
+    has xmlNodeSet $.raw;
+    has Hash $!hstore;
 
     submethod TWEAK(:$native) {
-        die "aah ahh" with $native;
         $!raw //= xmlNodeSet.new;
         .Reference given $!raw;
     }
@@ -98,19 +99,23 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $!hstore = Nil;
         self;
     }
-    method iterator {
-        $!idx = 0;
-        self;
-    }
-    method pull-one {
-        if $!idx < $!raw.nodeNr {
-            self.AT-POS($!idx++);
-        }
-        else {
-            IterationEnd;
-        }
-    }
     method ast { self.Array.map(*.ast) }
+
+    method iterator {
+        class Iteration does Iterator {
+            has UInt $!idx = 0;
+            has LibXML::Node::Set $.nodes is required;
+            method pull-one {
+                if $!idx < $!nodes.raw.nodeNr {
+                    $!nodes.AT-POS($!idx++);
+                }
+                else {
+                    IterationEnd;
+                }
+            }
+        }
+        Iteration.new: :nodes(self);
+    }
 }
 
 =begin pod

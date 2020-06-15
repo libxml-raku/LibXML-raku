@@ -1,7 +1,6 @@
 #| LibXML Sibling Node Lists
 unit class LibXML::Node::List
-    does Iterable
-    does Iterator;
+    does Iterable;
 
 use LibXML::Raw;
 use LibXML::Item;
@@ -9,12 +8,10 @@ use Method::Also;
 
 has Bool:D $.blank = False;
 has $!raw handles <string-value>;
-has $!cur;
 has $.of is required;
-has int $.idx = 0;
+has Bool $!reified;
 has LibXML::Item @!store;
 has Hash $!hstore;
-has Bool $!reified;
 has LibXML::Item $.parent is required;
 
 submethod TWEAK {
@@ -23,23 +20,16 @@ submethod TWEAK {
         when $!of.isa("LibXML::Namespace") { .nsDef }
         default { .first-child(+$!blank); }
     }
-    $!cur = $!raw;
-    $!idx = 0;
 }
 
-method Array handles<elems List list values map grep Numeric tail> {
-    self.pull-one until $!reified;
+method Array handles<AT-POS first elems List list values map grep Numeric tail> {
+    unless $!reified {
+        @!store = self;
+        $!reified = True;
+    }
     @!store;
 }
-method first {
-    self.AT-POS(0);
-}
 
-method AT-POS(UInt() $pos) {
-    self.pull-one
-        until $!reified // $!idx > $pos;
-    @!store[$pos] // $!of;
-}
 method Hash handles <AT-KEY> {
     $!hstore //= do {
         my $set-class := (require ::('LibXML::Node::Set'));
@@ -53,8 +43,7 @@ method Hash handles <AT-KEY> {
 
 method push(LibXML::Item:D $node) {
     $.parent.appendChild($node);
-    self.pull-one until $!reified;
-    @!store.push($node);
+    @!store.push($node) if $!reified;
     .{$node.xpath-key}.push: $node with $!hstore;
     $node;
 } 
@@ -62,18 +51,14 @@ method pop {
     do with self.Array.tail -> LibXML::Item $item {
         @!store.pop;
         .{$item.xpath-key}.pop with $!hstore;
-        if $!idx == @!store {
-            $!idx = 0;
-            $!cur = $!raw;
-        }
         $item.unbindNode;
     } // $!of;
 }
 method ASSIGN-POS(UInt() $pos, LibXML::Item:D $item) {
-    if $pos < $.elems {
+    self.Array unless $!reified;
+    if $pos < +@!store {
         $!hstore = Nil; # invalidate Hash cache
-        $.parent.replaceChild($item, $.Array[$pos]);
-        $!cur = $item.raw if $pos == $!idx;
+        $.parent.replaceChild($item, @!store[$pos]);
         @!store[$pos] = $item;
     }
     elsif $pos == $.elems {
@@ -87,21 +72,26 @@ method ASSIGN-POS(UInt() $pos, LibXML::Item:D $item) {
 multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
 multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
 method Str is also<gist> { $.Array.map(*.Str).join }
+
 method iterator {
-    $!cur = $!raw;
-    $!idx = 0;
-    self;
-}
-method pull-one {
-    with $!cur -> $this {
-        $!cur = $this.next-node($!blank);
-        @!store[$!idx++] //= $!of.box: $this;
+    class iterator does Iterator {
+        has Bool:D $.blank is required;
+        has $.of is required;
+        has $.cur is required;
+
+        method pull-one {
+            with $!cur -> $this {
+                $!cur = $this.next-node($!blank);
+                $!of.box: $this;
+            }
+            else {
+                IterationEnd;
+            }
+        }
     }
-    else {
-        $!reified = True;
-        IterationEnd;
-    }
+    iterator.new: :$!of, :$!blank, :cur($!raw);
 }
+
 method to-node-set {
     my xmlNodeSet:D $raw = $!raw.list-to-nodeset($!blank);
     (require ::('LibXML::Node::Set')).new: :$raw;

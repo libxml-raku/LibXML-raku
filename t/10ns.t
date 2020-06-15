@@ -74,7 +74,7 @@ print "# 2.    multiple namespaces \n";
     for :URI<http://kungfoo>, :localname<c>, :name<xmlns:c>, :prefix<xmlns>,  :declaredPrefix<c>, :type(+XML_NAMESPACE_DECL), :Str<xmlns:c="http://kungfoo"> , :unique-key<c|http://kungfoo> {
         is-deeply $ns1."{.key}"(), .value, "namespace {.key} accessor";
     }
-    is $elem.namespaces.pull-one.declaredPrefix, 'b', '$elem.namespaces.pull-one';
+    is $elem.namespaces.iterator.pull-one.declaredPrefix, 'b', '$elem.namespaces.pull-one';
 }
 
 print "# 3.   nested names \n";

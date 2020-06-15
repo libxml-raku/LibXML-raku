@@ -63,7 +63,7 @@ EOSTR
         is( +$result, 2, ' TODO : Add test name' );
 
 
-        ok( $doc.isSameNode($result.pull-one.ownerDocument), ' TODO : Add test name' );
+        ok( $doc.isSameNode($result.iterator.pull-one.ownerDocument), ' TODO : Add test name' );
 
         $result = $doc.find( LibXML::XPath::Expression.parse("/foo/bar") );
         ok( $result, ' TODO : Add test name' );
@@ -76,7 +76,7 @@ EOSTR
             is $node.find('ancestor-or-self::*').reverse.map(*.nodePath).join(','), '/foo/bar[2],/foo';
         }
 
-        ok( $doc.isSameNode($result.pull-one.ownerDocument), ' TODO : Add test name' );
+        ok( $doc.isSameNode($result.iterator.pull-one.ownerDocument), ' TODO : Add test name' );
 
         $result = $doc.find( "string(/foo/bar)" );
         ok( $result, ' TODO : Add test name' );

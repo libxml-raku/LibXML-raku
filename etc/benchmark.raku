@@ -36,7 +36,7 @@ sub get-elems-native(xmlElem:D $raw) {
     $raw.getElementsByTagName('files');
 }
 multi sub find-elems(xmlXPathContext:D $c) {
-    $c.find($*kids-expr.native, $c.node);
+    $c.find($*kids-expr.raw, $c.node);
 }
 multi sub find-elems(Any:D $c) {
     $c.find($*kids-expr);
@@ -123,7 +123,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '02-elems.libxml-native' => -> { get-elems-native($raw)},
         '02-find.libxml' => -> { find-elems($libxml-root)},
         '02-find-ctxt.libxml' => -> { find-elems($ctxt)},
-        '02-find-raw.libxml' => -> { find-elems($ctxt.native)},
+        '02-find-raw.libxml' => -> { find-elems($ctxt.raw)},
         '02-children.libxml-native' => -> { get-children-native($raw)},
         '02-elems.libxml-local' => -> { get-elems-local($libxml-root)},
         '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},
