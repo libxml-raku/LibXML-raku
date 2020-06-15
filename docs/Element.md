@@ -40,7 +40,7 @@ Synopsis
     my LibXML::Element @elems = $elem.getElementsByTagName($tagname);
     @elems = $elem.getElementsByTagNameNS($nsURI,$localname);
     @elems = $elem.getElementsByLocalName($localname);
-    @elems = $elem.elements; # all child elements
+    @elems = $elem.elements; # immediate child elements
 
     #-- DOM Manipulation Methods -- #
     $elem.addNewChild( $nsURI, $name );
@@ -311,6 +311,8 @@ In item context this function returns an [LibXML::Node::Set](https://libxml-raku
 ### method elements
 
     method elements() returns LibXML::Node::Set
+
+Returns all immediate child elements.
 
 Equivalent to `.getElementsByLocalName('*')`
 

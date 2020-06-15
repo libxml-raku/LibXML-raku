@@ -1,19 +1,28 @@
 use v6;
-unit class LibXML::XPath::Object;
+unit class LibXML::XPath::Object
+    is repr('CPointer');
 
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::Node :iterate-set;
 use LibXML::Node::Set;
+use NativeCall;
 
-has xmlXPathObject:D $.native is required handles<type>;
+method new(xmlXPathObject:D :$raw!) {
+    $raw.Reference;
+    nativecast(LibXML::XPath::Object, $raw);
+}
+
+method raw { nativecast(xmlXPathObject, self) }
+
+submethod DESTROY { self.raw.Unreference }
 
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
 my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Item;
 
-method coerce-to-native(XPathDomain $content is copy) {
+method !coerce-to-raw(XPathDomain $content is copy) {
     if $content ~~ LibXML::Item|LibXML::Node::Set {
-        $content .= native;
+        $content .= raw;
         # node-sets can't be multiply referenced
         $content .= copy if $content ~~ xmlNodeSet;
     }
@@ -21,14 +30,13 @@ method coerce-to-native(XPathDomain $content is copy) {
     xmlXPathObject.coerce($content);
 }
 
-
 method coerce($content) {
-    my xmlXPathObject:D $native = self.coerce-to-native($content);
-    self.new: :$native;
+    my xmlXPathObject:D $raw = self!coerce-to-raw($content);
+    self.new: :$raw;
 }
 
 method value(Bool :$literal,  --> XPathRange) {
-    given $!native.value {
+    given $.raw.value {
         when xmlNodeSet {
             given iterate-set(LibXML::Item, .copy) {
                 $literal ?? .to-literal !! $_;
@@ -38,5 +46,3 @@ method value(Bool :$literal,  --> XPathRange) {
     }
 }
 
-submethod TWEAK { $!native.Reference }
-submethod DESTROY { $!native.Unreference }

@@ -4,8 +4,8 @@ unit class LibXML::XPath::Expression;
 use LibXML::Raw;
 use Method::Also;
 
-has xmlXPathCompExpr $!native;
-method native { $!native }
+has xmlXPathCompExpr $!raw;
+method raw { $!raw }
 # for the LibXML::ErrorHandling role
 use LibXML::ErrorHandling;
 use LibXML::_Options;
@@ -16,13 +16,13 @@ also does LibXML::ErrorHandling;
 
 multi submethod TWEAK(Str:D :$expr!) {
     my $*XML-CONTEXT = self;
-    $!native .= new(:$expr);
+    $!raw .= new(:$expr);
     self.flush-errors;
     die "invalid xpath expression: $expr"
-        without $!native;
+        without $!raw;
 }
 submethod DESTROY {
-    .Free with $!native;
+    .Free with $!raw;
 }
 
 method compile(Str:D $expr) is also<parse> {

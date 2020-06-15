@@ -8,8 +8,7 @@ use LibXML::Item;
 use Method::Also;
 
 has Bool:D $.blank = False;
-has $.doc is required;
-has $!native handles <string-value>;
+has $!raw handles <string-value>;
 has $!cur;
 has $.of is required;
 has int $.idx = 0;
@@ -19,12 +18,12 @@ has Bool $!reified;
 has LibXML::Item $.parent is required;
 
 submethod TWEAK {
-    $!native = do given $!parent.raw {
+    $!raw = do given $!parent.raw {
         when $!of.isa("LibXML::Attr")      { .properties }
         when $!of.isa("LibXML::Namespace") { .nsDef }
         default { .first-child(+$!blank); }
     }
-    $!cur = $!native;
+    $!cur = $!raw;
     $!idx = 0;
 }
 
@@ -65,7 +64,7 @@ method pop {
         .{$item.xpath-key}.pop with $!hstore;
         if $!idx == @!store {
             $!idx = 0;
-            $!cur = $!native;
+            $!cur = $!raw;
         }
         $item.unbindNode;
     } // $!of;
@@ -74,7 +73,7 @@ method ASSIGN-POS(UInt() $pos, LibXML::Item:D $item) {
     if $pos < $.elems {
         $!hstore = Nil; # invalidate Hash cache
         $.parent.replaceChild($item, $.Array[$pos]);
-        $!cur = $item.native if $pos == $!idx;
+        $!cur = $item.raw if $pos == $!idx;
         @!store[$pos] = $item;
     }
     elsif $pos == $.elems {
@@ -89,7 +88,7 @@ multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
 multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
 method Str is also<gist> { $.Array.map(*.Str).join }
 method iterator {
-    $!cur = $!native;
+    $!cur = $!raw;
     $!idx = 0;
     self;
 }
@@ -104,8 +103,8 @@ method pull-one {
     }
 }
 method to-node-set {
-    my xmlNodeSet:D $native = $!native.list-to-nodeset($!blank);
-    (require ::('LibXML::Node::Set')).new: :$native;
+    my xmlNodeSet:D $raw = $!raw.list-to-nodeset($!blank);
+    (require ::('LibXML::Node::Set')).new: :$raw;
 }
 method ast { self.Array.map(*.ast) }
 

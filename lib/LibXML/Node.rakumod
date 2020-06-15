@@ -671,16 +671,16 @@ method xpath-context handles<find findnodes findvalue exists> {
     See L<LibXML::XPath::Context> for more details.
 =end pod
 
-sub iterate-list($parent, $of, Bool :$properties, :$doc = $of.get-doc, Bool :$blank = True) is export(:iterate-list) {
+sub iterate-list($parent, $of, Bool :$properties, Bool :$blank = True) is export(:iterate-list) {
     # follow a chain of .next links.
     require LibXML::Node::List;
-    LibXML::Node::List.new: :$of, :$properties, :$doc, :$blank, :$parent;
+    LibXML::Node::List.new: :$of, :$properties, :$blank, :$parent;
 }
 
-sub iterate-set($of, xmlNodeSet $native, Bool :$deref) is export(:iterate-set) {
+sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {
     # iterate through a set of nodes
     require LibXML::Node::Set;
-    LibXML::Node::Set.new( :$native, :$of, :$deref )
+    LibXML::Node::Set.new( :$raw, :$of, :$deref )
 }
 
 multi method ACCEPTS(LibXML::Node:D: LibXML::XPath::Expression:D $expr) {
@@ -725,7 +725,7 @@ method canonicalize(
 
         $rv := self.raw.xml6_node_to_str_C14N(
             +$comments, $mode, $prefix,
-            do with $nodes { .native } else { xmlNodeSet },
+            do with $nodes { .raw } else { xmlNodeSet },
         );
 
         die $_ with .domFailure;
@@ -896,7 +896,7 @@ method clearNamespace {
 }
 method localNS(--> LibXML::Namespace) is dom-native {...}
 method getNamespaces is also<namespaces> {
-    iterate-list(self, LibXML::Namespace, :$.doc);
+    iterate-list(self, LibXML::Namespace);
 }
 =begin pod
     =head3 method getNamespaces

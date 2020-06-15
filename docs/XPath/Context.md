@@ -39,7 +39,7 @@ Synopsis
 Description
 -----------
 
-The LibXML::XPath::Context class provides an almost complete interface to libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to evaluate XPath expressions in the context of arbitrary node, context size, and context position, with a user-defined namespace-prefix mapping, custom XPath functions written in Raku, and even a custom XPath variable resolver. 
+The LibXML::XPath::Context class provides an almost complete interface to libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to evaluate XPath expressions in the context of arbitrary node, context size, and context position, with a user-defined namespace-prefix mapping, custom XPath functions written in Raku, and even a custom XPath variable resolver.
 
 Examples
 --------
@@ -343,7 +343,7 @@ multi method exists(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) retur
 multi method exists(Str:D $expr, LibXML::Node $ref?) returns Bool;
 ```
 
-This method behaves like *find*, except that it only returns a Bool value (True if the expression matches a node, False otherwise) and may be faster than *find*, because the XPath evaluation may stop early on the first match. 
+This method behaves like *find*, except that it only returns a Bool value (True if the expression matches a node, False otherwise) and may be faster than *find*, because the XPath evaluation may stop early on the first match.
 
 For XPath expressions that do not return node-sets, the method returns True if the returned value is a non-zero number or a non-empty string.
 

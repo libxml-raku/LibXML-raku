@@ -2,32 +2,31 @@
 class LibXML::Node::Set does Iterable does Iterator does Positional {
     use LibXML::Enums;
     use LibXML::Raw;
-    use LibXML::Item :box-class;
+    use LibXML::Item;
     use Method::Also;
+    use NativeCall;
 
-    has Any:U $.of = LibXML::Item;
-    has xmlNodeSet $.native;
+    has LibXML::Item $.of;
+    has xmlNodeSet $.raw;
     has UInt $!idx = 0;
-    has @!store;
     has Hash $!hstore;
-    has Bool $!reified;
     has Bool $.deref;
 
-    submethod TWEAK {
-        $!native //= xmlNodeSet.new;
-        .Reference given $!native;
-        @!store[$!native.nodeNr - 1] = Mu
-            if $!native.nodeNr;
+    submethod TWEAK(:$native) {
+        die "aah ahh" with $native;
+        $!raw //= xmlNodeSet.new;
+        .Reference given $!raw;
     }
     submethod DESTROY {
-        .Unreference with $!native;
+        .Unreference with $!raw;
     }
 
-    method elems is also<size Numeric> { $!native.nodeNr }
-    method Array handles<List list values map grep> {
-        self.pull-one until $!reified;
-        @!store;
+    method elems is also<size Numeric> { $!raw.nodeNr }
+    method Seq returns Seq handles<Array list values map grep> {
+        my CArray $tab := $!raw.nodeTab;
+        (0 ..^ $!raw.nodeNr).map: { $!of.box: $tab[$_] };
     }
+
     sub deref(%h, $nodes is raw) {
         for $nodes {
             (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_
@@ -37,7 +36,7 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $!hstore //= do {
             my LibXML::Node::Set %h = ();
             if $!deref {
-                for self.Array {
+                for self.Seq {
                     if .nodeType == XML_ELEMENT_NODE {
                         deref(%h, .childNodes);
                         deref(%h, .properties);
@@ -51,25 +50,21 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
     }
     method AT-POS(UInt:D $pos) {
-        $pos >= $!native.nodeNr
+        $pos >= $!raw.nodeNr
             ?? $!of
-            !! (@!store[$pos] //= $!of.box: $!native.nodeTab[$pos]);
+            !! $!of.box($!raw.nodeTab[$pos]);
     }
     method add(LibXML::Item:D $node) is also<push> {
         fail "node has wrong type {$node.WHAT.perl} for node-set of type: {$!of.WHAT}"
             unless $node ~~ $!of;
-        @!store[$!native.nodeNr] = $node;
         .{$node.xpath-key}.push: $node with $!hstore;
-        $!native.push: $node.raw.ItemNode;
+        $!raw.push: $node.raw.ItemNode;
         $node;
     }
     method pop {
-        with $!native.pop -> $node {
+        with $!raw.pop -> $node {
             .{$node.xpath-key}.pop with $!hstore;
-            do {
-                @!store.pop
-                    if @!store > $!native.nodeNr
-            } // $!of.box: $node;
+            $!of.box: $node;
         }
         else {
             $!of;
@@ -81,10 +76,9 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         $node;
     }
     multi method delete(LibXML::Item:D $node) {
-        my UInt $idx := $!native.delete($node.raw.ItemNode);
+        my UInt $idx := $!raw.delete($node.raw.ItemNode);
         if $idx >= 0 {
-            @!store.slice($idx, 1) if @!store >= $idx;
-            .{$node.xpath-key}.delete with $!hstore;
+            $!hstore = Nil;
             $node;
         }
         else {
@@ -92,16 +86,15 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         }
     }
     method first { self.AT-POS(0) }
-    method tail  { my $n := $!native.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
+    method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
     method string-value { do with $.first { .string-value } // Str}
     multi method to-literal( :list($)! where .so ) { self.map({ .string-value }) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
     method Bool { self.defined && self.elems }
     method Str is also<gist> handles <Int Num trim chomp> { $.Array.map(*.Str).join }
-    method is-equiv(LibXML::Node::Set:D $_) { ? $!native.hasSameNodes(.native) }
+    method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
     method reverse {
-        $!native.reverse;
-        @!store .= reverse if @!store;
+        $!raw.reverse;
         $!hstore = Nil;
         self;
     }
@@ -110,11 +103,10 @@ class LibXML::Node::Set does Iterable does Iterator does Positional {
         self;
     }
     method pull-one {
-        if $!idx < $!native.nodeNr {
+        if $!idx < $!raw.nodeNr {
             self.AT-POS($!idx++);
         }
         else {
-            $!reified = True;
             IterationEnd;
         }
     }
@@ -151,13 +143,13 @@ This class is commonly used for handling result sets from XPath queries. It perf
 
     =head3 method new
 
-        method new(xmlNodeSet :$native, Bool :$deref) returns LibXML::Node::Set
+        method new(xmlNodeSet :$raw, Bool :$deref) returns LibXML::Node::Set
 
-        my xmlNodeSet $native .= new; # create a new object from scratch
+        my xmlNodeSet $raw .= new; # create a new object from scratch
         #-OR-
-        my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
-        my LibXML::Node::Set $nodes .= new: :$native;
-        $native = Nil; # best to avoid any further direct access to the native object
+        my xmlNodeSet $raw = $other-node-set.raw.copy; # take a copy
+        my LibXML::Node::Set $nodes .= new: :$raw;
+        $raw = Nil; # best to avoid any further direct access to the raw object
 
     The `:deref` option dereferences elements to their constituant child nodes and attributes. For example:
 

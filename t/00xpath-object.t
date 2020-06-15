@@ -46,16 +46,16 @@ my LibXML::Document $doc .= parse: :string("<a><b/><c/><d/></a>");
 my LibXML::Node::Set:D $nodes = $doc.find('*/*');
 is $nodes.size, 3;
 
-$xo .= coerce($nodes.native);
+$xo .= coerce($nodes.raw);
 is  $xo.type, +XPATH_NODESET;
-is-deeply $xo.select, $nodes.native;
+is-deeply $xo.select, $nodes.raw;
 
 $xo .= coerce($nodes[1].raw);
 is  $xo.type, +XPATH_NODESET;
-my $val = $xo.select;
-isa-ok $val, xmlNodeSet;
+my $raw = $xo.select;
+isa-ok $raw, xmlNodeSet;
 # expect a one-element set, that contains the node
-my  LibXML::Node::Set $set .= new: :range(LibXML::Node), :native($val);
+my  LibXML::Node::Set $set .= new: :range(LibXML::Node), :$raw;
 is $set.size, 1;
 isa-ok $set[0], LibXML::Node;
 is $set[0].Str, '<c/>';

@@ -40,7 +40,7 @@ unit class LibXML::XPath::Context;
     libxml2's XPath implementation. With LibXML::XPath::Context, it is possible to
     evaluate XPath expressions in the context of arbitrary node, context size, and
     context position, with a user-defined namespace-prefix mapping, custom XPath
-    functions written in Raku, and even a custom XPath variable resolver. 
+    functions written in Raku, and even a custom XPath variable resolver.
 
     =head2 Examples
 
@@ -110,8 +110,8 @@ use Method::Also;
 
 has $.query-handler is rw = LibXML::Config.query-handler;
 has LibXML::Node $!context-node;
-has xmlXPathContext $!native .= new;
-method native { $!native }
+has xmlXPathContext $!raw .= new;
+method raw { $!raw }
 
 # for the LibXML::ErrorHandling role
 use LibXML::ErrorHandling;
@@ -127,12 +127,12 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 multi submethod TWEAK(LibXML::Document:D :$doc!) {
     self.setContextNode($doc);
-    .Reference with $!native.node;
+    .Reference with $!raw.node;
 }
 
 multi submethod TWEAK(LibXML::Node :$node) {
     self.setContextNode($_) with $node;
-    .Reference with $!native.node;
+    .Reference with $!raw.node;
 }
 
 =head3 method new
@@ -143,7 +143,7 @@ multi submethod TWEAK(LibXML::Node :$node) {
   =para Creates a new LibXML::XPath::Context object with an optional context document or node.
 
   submethod DESTROY {
-      with $!native {
+      with $!raw {
           .Unreference with .node;
           .Free;
       }
@@ -156,7 +156,7 @@ sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:struct
 method !try(&action) {
     my $rv;
     given xml6_gbl_save_error_handlers() {
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
+        $!raw.SetStructuredErrorFunc: &structured-error-cb;
         my $*XPATH-CONTEXT = self;
         $rv := &action();
         xml6_gbl_restore_error_handlers($_);
@@ -173,8 +173,8 @@ multi method registerNs(QName:D :$prefix!, Str :$uri --> Zero) {
 multi method registerNs(QName:D $prefix!, Str $uri? --> Zero) {
     my $stat = self!try: {
         $uri
-            ?? $.native.RegisterNs($prefix, $uri)
-            !! $.native.RegisterNs($prefix, Str);
+            ?? $!raw.RegisterNs($prefix, $uri)
+            !! $!raw.RegisterNs($prefix, Str);
     }
     die "XPathContext: cannot {$uri ?? '' !! 'un'}register namespace"
        if $stat == -1;
@@ -214,13 +214,13 @@ multi method unregisterNs(LibXML::Namespace:D $_ --> 0) {
 
 #| Returns namespace URI registered with $prefix.
 method lookupNs(NCName:D $prefix --> Str) {
-    $!native.NsLookup($prefix);
+    $!raw.NsLookup($prefix);
 }
 =para If C<$prefix> is not registered to any namespace URI returns C<Str:U>.
 
 #| Registers a variable lookup function.
 method registerVarLookupFunc(&callback, |args) {
-    $!native.RegisterVariableLookup(
+    $!raw.RegisterVariableLookup(
         -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
             CATCH { default { xpath-callback-error($_); } }
             my $ret = &callback($name, $url, |args) // '';
@@ -254,12 +254,12 @@ method registerVarLookupFunc(&callback, |args) {
 
 #| Removes the variable lookup function. Disables variable lookup
 method unregisterVarLookupFunc {
-    $!native.RegisterVariableLookup(Pointer, Pointer);
+    $!raw.RegisterVariableLookup(Pointer, Pointer);
 }
 
 #| Gets the current variable lookup function
 method getVarLookupFunc returns Routine {
-    do with $!native.varLookupFunc {
+    do with $!raw.varLookupFunc {
         nativecast( :($ctxt, Str $name, Str $url --> xmlXPathObject:D), $_)
     } // Routine;
 }
@@ -275,7 +275,7 @@ method varLookupFunc returns Routine is rw {
 
 #| Registers an extension function $name in $uri namespace
 method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
-    $!native.RegisterFuncNS(
+    $!raw.RegisterFuncNS(
         $name, $uri,
         -> xmlXPathParserContext $ctxt, Int $n {
             CATCH { default { xpath-callback-error($_); } }
@@ -296,7 +296,7 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
 =para For convenience, types: List, Seq and Slip can also be returned, these shoulf contain only L<LibXML::Node> objects.
 
 #| Unregisters extension function $name in $uri namespace.
-method unregisterFunctionNS(QName:D $name, Str $uri) { $!native.RegisterFuncNS($name, $uri, Pointer) }
+method unregisterFunctionNS(QName:D $name, Str $uri) { $!raw.RegisterFuncNS($name, $uri, Pointer) }
 
 #| Like registerFunctionNS; same argument order as LibXSLT.register-function()
 method register-function(Str $url, QName:D $name, &func, |c) {
@@ -313,11 +313,11 @@ method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
 
 method !findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
     my anyNode $node = .raw with $ref;
-    self!try: { $.native.findnodes( $xpath-expr.native, $node); }
+    self!try: { $!raw.findnodes( $xpath-expr.raw, $node); }
 }
 method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
     my anyNode $node = .raw with $ref-node;
-    my xmlXPathObject $xo := self!try: {$!native.find( $xpath-expr.native, $node, :$bool);}
+    my xmlXPathObject $xo := self!try: {$!raw.find( $xpath-expr.raw, $node, :$bool);}
     do with $xo {
         my $v := .value;
         if $v ~~ xmlNodeSet {
@@ -417,11 +417,13 @@ method AT-KEY($_, Bool :$deref = True --> LibXML::Node::Set) {
     for $xpc<tr> -> LibXML::Element $row-elem {...}
     =end code
 
-sub get-value(xmlXPathObject $_, Bool :$literal) is export(:get-value) {
-    do with $_ -> $native {
-        my LibXML::XPath::Object $object .= new: :$native;
-        $object.value: :$literal;
-    } // fail "No value";
+proto sub get-value(xmlXPathObject, Bool :literal($)) is export(:get-value) {*}
+multi sub get-value(xmlXPathObject:D $raw, Bool :$literal) {
+    my LibXML::XPath::Object $object .= new: :$raw;
+    $object.value: :$literal;
+}
+multi sub get-value(xmlXPathObject:U $, Bool :literal($))  {
+    fail "No value";
 }
 
 multi method find(LibXML::XPath::Expression $expr, LibXML::Node $ref-node?, |c) {
@@ -463,7 +465,7 @@ multi method findvalue(Str:D $expr, LibXML::Node $ref-node?, |c) {
     Returns only a simple value as string, numeric or boolean.
 
     An expression that would return an L<LibXML::Node::Set> is coerced by calling `string-value()` on each of its members and joing the result.
- 
+
     This could be used as the equivalent of <xsl:value-of select=``some-xpath''/>.
 
     Optionally, a node may be passed in the second argument to set the context node
@@ -481,7 +483,7 @@ multi method exists(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) retur
 multi method exists(Str:D $expr, LibXML::Node $ref?) returns Bool;
 =end code
 =para This method behaves like I<find>, except that it only returns a Bool value (True if the expression matches a
-    node, False otherwise) and may be faster than I<find>, because the XPath evaluation may stop early on the first match. 
+    node, False otherwise) and may be faster than I<find>, because the XPath evaluation may stop early on the first match.
 
 =para For XPath expressions that do not return node-sets, the method returns True if
     the returned value is a non-zero number or a non-empty string.
@@ -493,14 +495,14 @@ method getContextNode {
 
 # defining the context node
 multi method setContextNode(LibXML::Node:D $!context-node) {
-    $!native.SetNode($!context-node.raw);
+    $!raw.SetNode($!context-node.raw);
     die $_ with $!context-node.domFailure;
     $!context-node;
 }
 
 # undefining the context node
 multi method setContextNode(LibXML::Node:U $!context-node) is default {
-    $!native.SetNode(anyNode);
+    $!raw.SetNode(anyNode);
     $!context-node;
 }
 
@@ -514,11 +516,11 @@ method contextNode is rw returns LibXML::Node {
     );
 }
 
-method getContextPosition { $!native.proximityPosition }
+method getContextPosition { $!raw.proximityPosition }
 method setContextPosition(Int:D $pos) {
     fail "XPathContext: invalid position"
-        unless -1 <= $pos <= $!native.contextSize; 
-    $!native.proximityPosition = $pos;
+        unless -1 <= $pos <= $!raw.contextSize;
+    $!raw.proximityPosition = $pos;
 }
 
 #| Set or get the current context position.
@@ -526,7 +528,7 @@ method contextPosition returns Int is rw {
     Proxy.new(
         FETCH => { self.getContextPosition },
         STORE => -> $, Int:D $pos {
-            self.setContextPosition($pos) 
+            self.setContextPosition($pos)
         }
     );
 }
@@ -536,12 +538,12 @@ method contextPosition returns Int is rw {
     given position when C<position()> XPath function is called.
 =para Setting this value to -1 restores the default behavior.
 
-method getContextSize { $!native.contextSize }
+method getContextSize { $!raw.contextSize }
 method setContextSize(Int:D $size) {
     fail "XPathContext: invalid size"
         unless -1 <= $size;
-    $!native.contextSize = $size;
-    $!native.proximityPosition = +($size <=> 0);
+    $!raw.contextSize = $size;
+    $!raw.proximityPosition = +($size <=> 0);
 }
 
 #| Set or get the current context size.
@@ -565,7 +567,7 @@ method contextSize returns Int is rw {
 
 has %!pool{UInt}; # Keep objects alive, while they are on the stack
 my subset NodeObj where LibXML::Node::Set|LibXML::Node::List|LibXML::Node;
-method !stash(xmlNodeSet:D $native, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
+method !stash(xmlNodeSet:D $raw, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
     my UInt $ctxt-addr = 0;
     with $ctxt {
         # scope to a particular parser/eval context
@@ -574,13 +576,13 @@ method !stash(xmlNodeSet:D $native, xmlXPathParserContext :$ctxt --> xmlNodeSet:
         %!pool{$ctxt-addr} = []
              if .valueNr == 0  && !.value.defined;
     }
-    %!pool{$ctxt-addr}.push: LibXML::Node::Set.new: :$native;
-    $native;
+    %!pool{$ctxt-addr}.push: LibXML::Node::Set.new: :$raw;
+    $raw;
 }
 multi method park(NodeObj:D $node, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {
-    # return a copied, or newly created native node-set
+    # return a copied, or newly created raw node-set
     self!stash: do given $node {
-        when LibXML::Node::Set  { .native.copy }
+        when LibXML::Node::Set  { .raw.copy }
         when LibXML::Node::List { xmlNodeSet.new: node => .raw, :list;}
         when LibXML::Node       { xmlNodeSet.new: node => .raw;}
         default { fail "unhandled node type: {.WHAT.perl}" }

@@ -713,7 +713,7 @@ class xmlXPathContext is repr('CStruct') is export {
     }
 
     method find(xmlXPathCompExpr:D $expr, anyNode $ref-node?, Bool :$bool) {
-        self.Find($expr, $ref-node, $bool);
+        self.Find($expr, $ref-node, $bool.so);
     }
     method RegisterNs(Str, Str --> int32) is symbol('xmlXPathRegisterNs') is native($XML2) {*}
     method NsLookup(xmlCharP --> xmlCharP) is symbol('xmlXPathNsLookup') is native($XML2) {*}

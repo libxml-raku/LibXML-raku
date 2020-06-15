@@ -44,7 +44,7 @@ unit class LibXML::Element
         my LibXML::Element @elems = $elem.getElementsByTagName($tagname);
         @elems = $elem.getElementsByTagNameNS($nsURI,$localname);
         @elems = $elem.getElementsByLocalName($localname);
-        @elems = $elem.elements; # all child elements
+        @elems = $elem.elements; # immediate child elements
 
         #-- DOM Manipulation Methods -- #
         $elem.addNewChild( $nsURI, $name );
@@ -426,6 +426,8 @@ method !set-attributes(@atts) {
 
         method elements() returns LibXML::Node::Set
 
+    Returns all immediate child elements.
+        
     Equivalent to `.getElementsByLocalName('*')`
 
 =end pod

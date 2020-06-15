@@ -34,13 +34,13 @@ Methods
 
 ### method new
 
-    method new(xmlNodeSet :$native, Bool :$deref) returns LibXML::Node::Set
+    method new(xmlNodeSet :$raw, Bool :$deref) returns LibXML::Node::Set
 
-    my xmlNodeSet $native .= new; # create a new object from scratch
+    my xmlNodeSet $raw .= new; # create a new object from scratch
     #-OR-
-    my xmlNodeSet $native = $other-node-set.native.copy; # take a copy
-    my LibXML::Node::Set $nodes .= new: :$native;
-    $native = Nil; # best to avoid any further direct access to the native object
+    my xmlNodeSet $raw = $other-node-set.raw.copy; # take a copy
+    my LibXML::Node::Set $nodes .= new: :$raw;
+    $raw = Nil; # best to avoid any further direct access to the raw object
 
 The `:deref` option dereferences elements to their constituant child nodes and attributes. For example:
 
