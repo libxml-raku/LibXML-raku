@@ -1380,20 +1380,26 @@ static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
 
 static xmlNodeSetPtr
 _domMergeNodeSet(xmlNodeSetPtr self, xmlNodeSetPtr nodes) {
-    int i;
-    xmlNodeSetPtr rv = self;
+    xmlNodeSetPtr rv = NULL;
 
-    if (nodes != NULL) {
-        if (self != NULL) {
-            for (i = 0; i < nodes->nodeNr; i++) {
-                domPushNodeSet(self, nodes->nodeTab[i]);
-            }
-            xmlXPathFreeNodeSet(nodes);
-        }
-        else {
-            rv = nodes;
-        }
+    if (nodes == NULL) {
+        rv = self;
     }
+    else if (self == NULL) {
+        rv = nodes;
+    } else if (nodes->nodeNr > self->nodeNr) {
+        // append the smaller to the larger set
+        rv = _domMergeNodeSet(nodes, self);
+    }
+    else {
+        int i;
+        rv = self;
+        for (i = 0; i < nodes->nodeNr; i++) {
+            domPushNodeSet(self, nodes->nodeTab[i]);
+        }
+        xmlXPathFreeNodeSet(nodes);
+    }
+
     return rv;
 }
 
