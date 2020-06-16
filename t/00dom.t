@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 55;
+plan 57;
 
 # bootstrapping tests for the DOM
 
@@ -9,6 +9,7 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Raw;
 use LibXML::Node;
+use NativeCall;
 
 my $string = "<a>    <b/> <c/> </a>";
 my $tstr = "<a><b/><c/></a>\n";
@@ -54,12 +55,13 @@ $doc .= new;
 my LibXML::Element $root .= new: :name<Test>;
 $doc.documentElement = $root;
 my LibXML::Element $root2 = $doc.documentElement;
-todo "complete #38 refactor";
-ok $root === $root2, 'Unique root';
+ok $root.unique-key eq $root2.unique-key, 'Unique root key';
+ok +nativecast(Pointer, $root) == +nativecast(Pointer, $root2), 'Unique root address';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';
 ok $root.doc.isSameNode($doc);
 ok $doc.raw.isSameNode($root.raw.doc);
+ok +nativecast(Pointer, $doc.raw) == +nativecast(Pointer, $root.raw.doc);
 
 # attribute basics
 my $elem = $doc.createElement('foo');

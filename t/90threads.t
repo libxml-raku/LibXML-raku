@@ -60,8 +60,7 @@ EOF
         @r.pick;
     };
     is +@roots, MAX_THREADS, 'document roots';
-    todo "complete #38 refactor";
-    is @roots.unique.elems, 1, 'document root reduction';
+    is @roots>>.unique-key.unique.elems, 1, 'document root reduction';
 }
 
 {

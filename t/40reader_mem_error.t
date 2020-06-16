@@ -24,13 +24,13 @@ class Test::XML::Ordered {
     has Bool $!got-end = False;
 
     method !read-got {
-        if $!got.native.read() <= 0 {
+        if $!got.raw.read() <= 0 {
             $!got-end = True;
         }
     }
 
     method !read-expected {
-        if $!expected.native.read() <= 0 {
+        if $!expected.raw.read() <= 0 {
             $!expected-end = True;
         }
     }

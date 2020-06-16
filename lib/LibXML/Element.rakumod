@@ -93,6 +93,7 @@ unit class LibXML::Element
 use NativeCall;
 
 use LibXML::Attr;
+use LibXML::Attr::Map;
 use LibXML::Config;
 use LibXML::Enums;
 use LibXML::Item :box-class, :dom-native;
@@ -264,7 +265,7 @@ method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
 method attributes is rw is also<attribs attr> {
     Proxy.new(
         FETCH => {
-            (require ::('LibXML::Attr::Map')).new: :node(self)
+            LibXML::Attr::Map.new: :node(self)
         },
         STORE => sub ($, %atts) {
             self!set-attributes: %atts.pairs.sort;

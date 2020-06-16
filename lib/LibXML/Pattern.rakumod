@@ -74,14 +74,14 @@ also does LibXML::_Options[
     )
 ];
 
-has xmlPattern $!native;
-method native { $!native }
+has xmlPattern $!raw;
+method raw { $!raw }
 has UInt $.flags;
 
 submethod TWEAK(Str:D :$pattern!, :%ns, *%opts) {
     self.set-flags($!flags, |%opts);
     my CArray[Str] $ns .= new: |(%ns.kv.sort), Str;
-    $!native .= new(:$pattern, :$!flags, :$ns)
+    $!raw .= new(:$pattern, :$!flags, :$ns)
         // die X::LibXML::OpFail.new(:what<Pattern>, :op<Compile>);
 }
 
@@ -113,11 +113,11 @@ method compile(Str:D $pattern, |c) {
 =end pod
 
 submethod DESTROY {
-    .Free with $!native;
+    .Free with $!raw;
 }
 
 method !try-bool(Str:D $op, |c) {
-    my $rv := $!native."$op"(|c);
+    my $rv := $!raw."$op"(|c);
     fail X::LibXML::OpFail.new(:what<Pattern>, :$op)
         if $rv < 0;
     $rv > 0;

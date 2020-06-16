@@ -25,25 +25,25 @@ The LibXML::Raw module contains class definitions for native and bindings to the
 
 ### Low level native access
 
-Other high level classes, by convention, have a `native()` accessor, which can be used, if needed, to gain access to native objects from this module.
+Other high level classes, by convention, have a `raw()` accessor, which can be used, if needed, to gain access to native objects from this module.
 
-Some care needs to be taken in keeping persistant references to native structures.
+Some care needs to be taken in keeping persistant references to raw structures.
 
 The following is unsafe:
 
     my LibXML::Element $elem .= new: :name<Test>;
-    my xmlElem:D $native = $elem.native;
+    my xmlElem:D $raw = $elem.raw;
     $elem = Nil;
-    say $native.Str; # could have been destroyed along with $elem
+    say $raw.Str; # could have been destroyed along with $elem
 
-If the native object supports the `Reference` and `Unreference` methods, the object can be reference counted and uncounted:
+If the raw object supports the `Reference` and `Unreference` methods, the object can be reference counted and uncounted:
 
     my LibXML::Element $elem .= new: :name<Test>;
-    my xmlElem:D $native = $elem.native;
-    $native.Reference; # add a reference to the object
+    my xmlElem:D $raw = $elem.raw;
+    $raw.Reference; # add a reference to the object
     $elem = Nil;
-    say $native.Str; # now safe
-    with $native {
+    say $raw.Str; # now safe
+    with $raw {
         .Unreference; # unreference, free if no more references
         $_ = Nil;
     }
@@ -51,11 +51,11 @@ If the native object supports the `Reference` and `Unreference` methods, the obj
 Otherwise, the object can usually be copied. That copy then needs to be freed, to avoid memory leaks:
 
     my LibXML::Namespace $ns .= new: :prefix<foo>, :URI<http://foo.org>;
-    my xmlNs:D $native = $ns.native;
-    $native .= Copy;
+    my xmlNs:D $raw = $ns.raw;
+    $raw .= Copy;
     $ns = Nil;
-    say $native.Str; # safe
-    with $native {
+    say $raw.Str; # safe
+    with $raw {
         .Free; # free the copy
         $_ = Nil;
     }

@@ -39,7 +39,7 @@ multi sub find-elems(xmlXPathContext:D $c) {
     $c.find($*kids-expr.raw, $c.node);
 }
 multi sub find-elems(Any:D $c) {
-    $c.find($*kids-expr);
+    my @ = $c.find($*kids-expr);
 }
 sub get-children(LibXML::Element:D $e) {
     $e.childNodes

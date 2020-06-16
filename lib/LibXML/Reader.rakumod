@@ -80,7 +80,7 @@ use LibXML::Schema;
 use LibXML::_Options;
 use LibXML::Parser::Context;
 
-has xmlTextReader $.native;
+has xmlTextReader $.raw;
 has xmlEncodingStr $!enc;
 method enc { $!enc }
 has Blob $!buf;
@@ -109,7 +109,7 @@ multi method recover is rw {
 multi method recover($v) { $.recover = $v }
 
 method !op(Str:D $op, |c) {
-    my $rv := $!native."$op"(|c);
+    my $rv := $!raw."$op"(|c);
     self.flush-errors;
     $rv;
 }
@@ -130,7 +130,7 @@ method !uint-op(Str:D $op, |c) {
 
 multi trait_mod:<is>(
     Method $m where {.yada && .count <= 1},
-    :$reader-native!) {
+    :$reader-raw!) {
     my $name := $m.name;
     $m.wrap: do given $m.returns {
         when Bool.isa($_) { method () is hidden-from-backtrace { self!bool-op($name) } }
@@ -144,13 +144,13 @@ multi trait_mod:<is>(
 
 has LibXML::Document $!document;
 
-multi submethod TWEAK( xmlTextReader:D :$!native! ) {
+multi submethod TWEAK( xmlTextReader:D :$!raw! ) {
 }
 multi submethod TWEAK(LibXML::Document:D :DOM($!document)!,
                       RelaxNG :$!RelaxNG, Schema :$!Schema,
                      ) {
     my xmlDoc:D $doc = $!document.raw;
-    $!native .= new: :$doc;
+    $!raw .= new: :$doc;
     self!setup: :!errors;
 }
 method !init-flags(%opts) {
@@ -161,7 +161,7 @@ multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes,
                       RelaxNG :$!RelaxNG, Schema :$!Schema,
                       :$!enc, *%opts) {
     self!init-flags(%opts);
-    $!native .= new: :$!buf, :$len, :$!enc, :$URI, :$!flags;
+    $!raw .= new: :$!buf, :$len, :$!enc, :$URI, :$!flags;
     self!setup;
 }
 multi submethod TWEAK(Str:D :$string!, xmlEncodingStr :$!enc = 'UTF-8', |c) {
@@ -172,7 +172,7 @@ multi submethod TWEAK(UInt:D :$fd!, Str :$URI,
                       RelaxNG :$!RelaxNG, Schema :$!Schema,
                       xmlEncodingStr :$!enc, *%opts) {
     self!init-flags(%opts);
-    $!native .= new: :$fd, :$!enc, :$URI, :$!flags;
+    $!raw .= new: :$fd, :$!enc, :$URI, :$!flags;
     self!setup;
 }
 multi submethod TWEAK(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
@@ -276,55 +276,55 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
 method !setup(Bool :$errors = True) {
     my Pair $call;
     if $errors {
-        $!native.setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
+        $!raw.setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
             self.structured-error($err);
         }
     }
     with $!RelaxNG {
         when Str { $call := :setRelaxNGFile($_); }
-        default  { $call := :setRelaxNGSchema(.native) }
+        default  { $call := :setRelaxNGSchema(.raw) }
     }
     with $!Schema {
         when Str { $call := :setXsdFile($_); }
-        default  { $call := :setXsdSchema(.native) }
+        default  { $call := :setXsdSchema(.raw) }
     }
     self!bool-op(.key, .value) with $call;
 }
 
 submethod DESTROY {
     self.close();
-    .Free with $!native;
+    .Free with $!raw;
 }
 
 ########################################################################
 =head2 Methods Controlling Parsing Progress
 
 #| Moves the position to the next node in the stream, exposing its properties.
-method read returns Bool is reader-native {...}
+method read returns Bool is reader-raw {...}
 =para Returns True if the node was read successfully, False if there is no more nodes
     to read, or Failure in case of error
 
 
 #| Parses an attribute value into one or more Text and EntityReference nodes.
-method readAttributeValue returns Bool is reader-native {...}
+method readAttributeValue returns Bool is reader-raw {...}
 =para Returns True in case of success, False if the reader was not positioned on an
     attribute node or all the attribute values have been read, or Failure in case
     of error.
 
 
 #| Gets the read state of the reader.
-method readState returns UInt is reader-native {...}
+method readState returns UInt is reader-raw {...}
 =para Returns the state value, or Failure in case of
     error. The module exports constants for the Reader states,
     see STATES below.
 
 
 #| The depth of the node in the tree, starts at 0 for the root node.
-method depth returns UInt is reader-native {...}
+method depth returns UInt is reader-raw {...}
 
 
 #| Skip to the node following the current one in the document order while avoiding the sub-tree if any.
-method next returns Bool is reader-native {...}
+method next returns Bool is reader-raw {...}
 =para Returns True if the node was read successfully, False if there is
     no more nodes to read, or Failure in case of error.
 
@@ -343,7 +343,7 @@ method nextElement(NCName $local-name?, Str $URI? --> Bool) {
 #| Skip nodes following the current one in the document order until an element
 #| matching a given compiled pattern is reached.
 method nextPatternMatch(LibXML::Pattern:D $pattern --> Bool) {
-    self!bool-op('nextPatternMatch', $pattern.native);
+    self!bool-op('nextPatternMatch', $pattern.raw);
 }
 =para See L<LibXML::Pattern> for information on compiled patterns. See also
     the C<matchesPattern> method.
@@ -353,7 +353,7 @@ method nextPatternMatch(LibXML::Pattern:D $pattern --> Bool) {
 
 #| Skip all nodes on the same or lower level until the first node on a higher
 #| level is reached. 
-method skipSiblings returns Bool is reader-native {...}
+method skipSiblings returns Bool is reader-raw {...}
 =para In particular, if the current node occurs in an element, the
     reader stops at the end tag of the parent element, otherwise it stops at a node
     immediately following the parent node.
@@ -363,7 +363,7 @@ method skipSiblings returns Bool is reader-native {...}
 
 #| Skips to the node following the current one in the document order while
 #| avoiding the sub-tree if any.
-method nextSibling returns Bool is reader-native {...}
+method nextSibling returns Bool is reader-raw {...}
 =para Returns True if the element was found, False if there is no more nodes to read,
     or Failure in case of error.
 
@@ -401,55 +401,55 @@ method close(--> Bool) {
 =head2 Methods Extracting Information
 
 #| Returns the qualified name of the current node.
-method name returns QName is reader-native {...}
+method name returns QName is reader-raw {...}
 =para Equal to (Prefix:)LocalName.
 
 
 #| Returns the type of the current node.
-method nodeType returns UInt is reader-native {...}
+method nodeType returns UInt is reader-raw {...}
 =para See NODE TYPES below.
 
 
 #| Returns he local name of the node.
-method localName returns NCName is reader-native {...}
+method localName returns NCName is reader-raw {...}
 
 
 #| Returns the prefix of the namespace associated with the node.
-method prefix returns NCName is reader-native {...}
+method prefix returns NCName is reader-raw {...}
 
 
 #| Returns the URI defining the namespace associated with the node.
-method namespaceURI returns Str is reader-native {...}
+method namespaceURI returns Str is reader-raw {...}
 
 
 #| Check if the current node is empty.
-method isEmptyElement returns Bool is reader-native {...}
+method isEmptyElement returns Bool is reader-raw {...}
 =para This is a bit bizarre in the sense that
     <a/> will be considered empty while <a></a> will not.
 
 
 #| Returns True if the node can have a text value.
-method hasValue returns Bool is reader-native {...}
+method hasValue returns Bool is reader-raw {...}
 
 
 #| Provides the text value of the node if present or Str:U if not available.
-method value returns Str is reader-native {...}
+method value returns Str is reader-raw {...}
 
 #| Reads the contents of the current node, including child nodes and markup.
-method readInnerXml returns Str is reader-native {...}
+method readInnerXml returns Str is reader-raw {...}
 =para Returns a string containing the XML of the node's content, or Str:U if the
     current node is neither an element nor attribute, or has no child nodes.
 
 
 #| Reads the contents of the current node, including child nodes and markup.
-method readOuterXml returns Str is reader-native {...}
+method readOuterXml returns Str is reader-raw {...}
 =para Returns a string containing the XML of the node including its content, or undef
     if the current node is neither an element nor attribute.
 
 #| Returns a canonical location path to the current element from the root node to
 #|the current node.
 method nodePath {
-    .GetNodePath with $!native.currentNode;
+    .GetNodePath with $!raw.currentNode;
 }
 =item Namespaced elements are matched by '*', because there is no
     way to declare prefixes within XPath patterns.
@@ -460,7 +460,7 @@ method nodePath {
 
 #| Returns a true value if the current node matches a compiled pattern.
 method matchesPattern(LibXML::Pattern:D $pattern --> Bool) {
-    ? $pattern.matchesNode($_) with $!native.currentNode;
+    ? $pattern.matchesNode($_) with $!raw.currentNode;
 }
 =item  See L<LibXML::Pattern> for information on compiled patterns.
 =item See also the C<nextPatternMatch> method.
@@ -471,7 +471,7 @@ method matchesPattern(LibXML::Pattern:D $pattern --> Bool) {
 #| Provides access to the document tree built by the reader.
 method document {
     $!document //= LibXML::Document.new: :raw($_)
-        with $!native.currentDoc;
+        with $!raw.currentDoc;
 }
 =item This function can be
 used to collect the preserved nodes (see C<preserveNode()> and preservePattern).
@@ -524,10 +524,10 @@ method preservePattern(Str:D $pattern, :%ns --> UInt) {
 =head2 Methods Processing Attributes
 
 #| Provides the number of attributes of the current node.
-method attributeCount returns UInt is reader-native {...}
+method attributeCount returns UInt is reader-raw {...}
 
 #| Whether the node has attributes.
-method hasAttributes returns Bool is reader-native {...}
+method hasAttributes returns Bool is reader-raw {...}
 
 #| Provides the value of the attribute with the specified qualified name.
 method getAttribute(QName $name --> Str) {
@@ -549,7 +549,7 @@ method getAttributeNo(UInt $i --> Str) {
 
 #| Returns True if the current attribute node was generated from the default value
 #| defined in the DTD.
-method isDefault returns Bool is reader-native {...}
+method isDefault returns Bool is reader-raw {...}
 
 #| Moves the position to the attribute with the specified name
 method moveToAttribute(QName $name) returns Bool {
@@ -573,20 +573,20 @@ method moveToAttributeNs(QName:D $name, Str $URI) {
 =para Returns True in case of success, Failure in case of error, False if not found
 
 #| Moves the position to the first attribute associated with the current node.
-method moveToFirstAttribute returns Bool is reader-native {...}
+method moveToFirstAttribute returns Bool is reader-raw {...}
 =para Returns True in case of success, Failure in case of error, False if not found
 
 #| Moves the position to the next attribute associated with the current node.
-method moveToNextAttribute returns Bool is reader-native {...}
+method moveToNextAttribute returns Bool is reader-raw {...}
 =para Returns True in case of success, Failure in case of error, False if not found
 
 #| Moves the position to the node that contains the current attribute node.
-method moveToElement returns Bool is reader-native {...}
+method moveToElement returns Bool is reader-raw {...}
 =para Returns True in case of success, Failure in case of error, False if not moved
 
 #| Determine whether the current node is a namespace declaration rather than a
 #| regular attribute.
-method isNamespaceDecl returns Bool is reader-native {...}
+method isNamespaceDecl returns Bool is reader-raw {...}
 =para Returns True if the current node is a namespace declaration, False if it is a regular
     attribute or other type of node, or Failure in case of error.
 
@@ -602,7 +602,7 @@ method lookupNamespace(Str $URI) returns NCName {
 
 
 #| Get the encoding of the document being read
-method encoding returns xmlEncodingStr { $.native.encoding }
+method encoding returns xmlEncodingStr { $.raw.encoding }
 #| Returns a string containing the encoding of the document or Str:U in case of
 #| error.
 
@@ -633,27 +633,27 @@ method xmlVersion returns Version {
 
 
 #| Returns the base URI of the current node.
-method baseURI returns Str is reader-native {...}
+method baseURI returns Str is reader-raw {...}
 
 
 #| Retrieve the validity status from the parser.
-method isValid returns Bool is reader-native {...}
+method isValid returns Bool is reader-raw {...}
 =para Returns True if valid, False if no, and Failure in case of error.
 
 #| The xml:lang scope within which the current node resides.
-method xmlLang returns Str is reader-native {...}
+method xmlLang returns Str is reader-raw {...}
 
 
 #| Provide the line number of the current parsing point.
-method lineNumber returns UInt is reader-native {...}
+method lineNumber returns UInt is reader-raw {...}
 
 
 #| Provide the column number of the current parsing point.
-method columnNumber returns UInt is reader-native {...}
+method columnNumber returns UInt is reader-raw {...}
 
 #| This function provides the current index of the parser relative to the start of
 #| the current entity.
-method byteConsumed returns UInt is reader-native {...}
+method byteConsumed returns UInt is reader-raw {...}
 =para This function is computed in bytes from the beginning
     starting at zero and finishing at the size in bytes of the file if parsing a
     file. The function is of constant cost if the input is UTF-8 but can be costly
@@ -671,8 +671,8 @@ constant %ParserProp = %(
 method setParserProp( *%props --> Hash) {
     for %props.sort {
         my $prop = %ParserProp{.key} // fail "Unknown parser property: {.key}";
-        $!native.setParserProp($prop, +.value);
-        self.set-flag($!flags, .key, $!native.getParserProp($prop));
+        $!raw.setParserProp($prop, +.value);
+        self.set-flag($!flags, .key, $!raw.getParserProp($prop));
     }
     %props;
 }

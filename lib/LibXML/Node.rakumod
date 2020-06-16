@@ -524,7 +524,8 @@ method removeChildNodes(--> LibXML::Node) {
 =head2 Searching Methods
 
 method xpath-context handles<find findnodes findvalue exists> {
-    (require ::('LibXML::XPath::Context')).new: :node(self);
+    state $ ||= { require LibXML::XPath::Context; True };
+    LibXML::XPath::Context.new: :node(self);
 }
 =begin pod
     =head3 method findnodes
@@ -673,13 +674,13 @@ method xpath-context handles<find findnodes findvalue exists> {
 
 sub iterate-list($parent, $of, Bool :$properties, Bool :$blank = True) is export(:iterate-list) {
     # follow a chain of .next links.
-    require LibXML::Node::List;
+    state $ ||= { require LibXML::Node::List; True; }
     LibXML::Node::List.new: :$of, :$properties, :$blank, :$parent;
 }
 
 sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {
     # iterate through a set of nodes
-    require LibXML::Node::Set;
+    state $ ||= { require LibXML::Node::Set; True; }
     LibXML::Node::Set.new( :$raw, :$of, :$deref )
 }
 

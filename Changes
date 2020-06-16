@@ -1,6 +1,13 @@
 0.5.0 2020-06-xx
-    - Convert all boxing classes to CPointer representations. This allows
-      for mememory thrifty and fast stantation of objects via nativecast.
+    - Convert node and XPath object classes to CPointer representations. This
+      allows for faster lower-memory thrifty stantation of objects via nativecast.
+    - .native methods and options have globally renamed to .raw ('native' no longer
+      makes sense as both the inner [CStruct] and outer [CPointer] classes are both
+      native variants.
+    - Optimised the getElementsByXxx() DOM methods. Changed from using XPath searches
+      to custom binding functions [dom.c]
+    - Fixed thread-saftey of LibXML::Node::List and LibXML::Node::Set iterators (see
+      also https://github.com/Raku/doc/issues/3477)
 0.4.0 2020-05-21
     - Fix $node.getOwner() method to return the root of the
       current node. Distinguish it from .getOwnerDocument

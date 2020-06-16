@@ -4,6 +4,7 @@ unit class LibXML::Node::List
 
 use LibXML::Raw;
 use LibXML::Item;
+use LibXML::Node::Set;
 use Method::Also;
 
 has Bool:D $.blank = False;
@@ -32,10 +33,9 @@ method Array handles<AT-POS first elems List list values map grep Numeric tail> 
 
 method Hash handles <AT-KEY> {
     $!hstore //= do {
-        my $set-class := (require ::('LibXML::Node::Set'));
         my %h = ();
         for self.Array {
-            (%h{.xpath-key} //= $set-class.new: :deref).add: $_;
+            (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_;
         }
         %h;
     }
@@ -94,7 +94,7 @@ method iterator {
 
 method to-node-set {
     my xmlNodeSet:D $raw = $!raw.list-to-nodeset($!blank);
-    (require ::('LibXML::Node::Set')).new: :$raw;
+    LibXML::Node::Set.new: :$raw;
 }
 method ast { self.Array.map(*.ast) }
 

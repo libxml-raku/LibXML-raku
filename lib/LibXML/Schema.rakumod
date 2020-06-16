@@ -35,10 +35,10 @@ use LibXML::Raw::Schema;
 use LibXML::Parser::Context;
 use Method::Also;
 
-has xmlSchema $.native;
+has xmlSchema $.raw;
 
 my class Parser::Context {
-    has xmlSchemaParserCtxt $!native;
+    has xmlSchemaParserCtxt $!raw;
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
@@ -46,28 +46,28 @@ my class Parser::Context {
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings, :network)];
     also does LibXML::ErrorHandling;
 
-    multi submethod TWEAK( xmlSchemaParserCtxt:D :$!native! ) {
+    multi submethod TWEAK( xmlSchemaParserCtxt:D :$!raw! ) {
     }
     multi submethod TWEAK(Str:D :$url!) {
-        $!native .= new: :$url;
+        $!raw .= new: :$url;
     }
     multi submethod TWEAK(Str:D :location($url)!) {
         self.TWEAK: :$url;
     }
     multi submethod TWEAK(Blob:D :$!buf!) {
-        $!native .= new: :$!buf;
+        $!raw .= new: :$!buf;
     }
     multi submethod TWEAK(Str:D :$string!) {
         self.TWEAK: :buf($string.encode);
     }
     multi submethod TWEAK(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .raw;
-        $!native .= new: :$doc;
+        $!raw .= new: :$doc;
     }
 
     submethod DESTROY {
         $!buf = Nil;
-        .Free with $!native;
+        .Free with $!raw;
     }
 
     method parse {
@@ -76,10 +76,10 @@ my class Parser::Context {
 
         my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
         given xml6_gbl_save_error_handlers() {
-            $!native.SetStructuredErrorFunc: &structured-error-cb;
-            $!native.SetParserErrorFunc: &structured-error-cb;
+            $!raw.SetStructuredErrorFunc: &structured-error-cb;
+            $!raw.SetParserErrorFunc: &structured-error-cb;
 
-            $rv := $!native.Parse;
+            $rv := $!raw.Parse;
 
             xml6_gbl_restore_error_handlers($_);
         }
@@ -95,7 +95,7 @@ my class Parser::Context {
 }
 
 my class ValidContext {
-    has xmlSchemaValidCtxt $!native;
+    has xmlSchemaValidCtxt $!raw;
     # for the LibXML::ErrorHandling role
     has $.sax-handler;
     method recover is also<suppress-errors suppress-warnings> { False }
@@ -103,14 +103,14 @@ my class ValidContext {
     also does LibXML::_Options[%( :sax-handler, :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
-    multi submethod TWEAK( xmlSchemaValidCtxt:D :$!native! ) { }
+    multi submethod TWEAK( xmlSchemaValidCtxt:D :$!raw! ) { }
     multi submethod TWEAK( LibXML::Schema:D :schema($_)! ) {
-        my xmlSchema:D $schema = .native;
-        $!native .= new: :$schema;
+        my xmlSchema:D $schema = .raw;
+        $!raw .= new: :$schema;
     }
 
     submethod DESTROY {
-        .Free with $!native;
+        .Free with $!raw;
     }
 
     multi method validate(LibXML::Document:D $_, Bool() :$check) {
@@ -118,8 +118,8 @@ my class ValidContext {
         my xmlDoc:D $doc = .raw;
         my $rv;
         given xml6_gbl_save_error_handlers() {
-        $!native.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!native.ValidateDoc($doc);
+        $!raw.SetStructuredErrorFunc: &structured-error-cb;
+            $rv := $!raw.ValidateDoc($doc);
 	    $rv := self.validity-check
                 if $check;
             xml6_gbl_restore_error_handlers($_)
@@ -130,7 +130,7 @@ my class ValidContext {
 
     multi method validate(LibXML::Element:D $_, Bool() :$check) is default {
         my xmlNode:D $node = .raw;
-        my $rv := $!native.ValidateElement($node);
+        my $rv := $!raw.ValidateElement($node);
 	$rv := self.is-valid
             if $check;
         self.flush-errors;
@@ -140,7 +140,7 @@ my class ValidContext {
 
 submethod TWEAK(|c) {
     my Parser::Context $parser-ctx .= new: |c;
-    $!native = $parser-ctx.parse;
+    $!raw = $parser-ctx.parse;
 }
 =begin pod
     =head3 method new
@@ -169,7 +169,7 @@ submethod TWEAK(|c) {
 =end pod
 
 submethod DESTROY {
-    .Free with $!native;
+    .Free with $!raw;
 }
 
 method !valid-ctx { ValidContext.new: :schema(self) }

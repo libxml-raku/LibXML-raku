@@ -36,10 +36,10 @@ use LibXML::Raw::RelaxNG;
 use LibXML::Parser::Context;
 use Method::Also;
 
-has xmlRelaxNG $.native;
+has xmlRelaxNG $.raw;
 
 my class Parser::Context {
-    has xmlRelaxNGParserCtxt $!native;
+    has xmlRelaxNGParserCtxt $!raw;
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
@@ -47,38 +47,38 @@ my class Parser::Context {
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
-    multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!native! ) {
+    multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!raw! ) {
     }
     multi submethod BUILD(Str:D :$url!) {
-        $!native .= new: :$url;
+        $!raw .= new: :$url;
     }
     multi submethod BUILD(Str:D :location($url)!) {
         self.BUILD: :$url;
     }
     multi submethod BUILD(Blob:D :$!buf!) {
-        $!native .= new: :$!buf;
+        $!raw .= new: :$!buf;
     }
     multi submethod BUILD(Str:D :$string!) {
         self.BUILD: :buf($string.encode);
     }
     multi submethod BUILD(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .raw;
-        $!native .= new: :$doc;
+        $!raw .= new: :$doc;
     }
 
     submethod DESTROY {
         $!buf = Nil;
-        .Free with $!native;
+        .Free with $!raw;
     }
 
     method parse {
         my $*XML-CONTEXT = self;
         my $rv;
         given xml6_gbl_save_error_handlers() {
-            $!native.SetStructuredErrorFunc: &structured-error-cb;
-            $!native.SetParserErrorFunc: &structured-error-cb;
+            $!raw.SetStructuredErrorFunc: &structured-error-cb;
+            $!raw.SetParserErrorFunc: &structured-error-cb;
 
-            $rv := $!native.Parse;
+            $rv := $!raw.Parse;
 
             xml6_gbl_restore_error_handlers($_);
         }
@@ -89,21 +89,21 @@ my class Parser::Context {
 }
 
 my class ValidContext {
-    has xmlRelaxNGValidCtxt $!native;
+    has xmlRelaxNGValidCtxt $!raw;
     # for the LibXML::ErrorHandling role
     has $.sax-handler;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
-    multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!native! ) { }
+    multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!raw! ) { }
     multi submethod BUILD( LibXML::RelaxNG:D :schema($_)! ) {
-        my xmlRelaxNG:D $schema = .native;
-        $!native .= new: :$schema;
+        my xmlRelaxNG:D $schema = .raw;
+        $!raw .= new: :$schema;
     }
 
     submethod DESTROY {
-        .Free with $!native;
+        .Free with $!raw;
     }
 
     method validate(LibXML::Document:D $_, Bool() :$check) {
@@ -111,8 +111,8 @@ my class ValidContext {
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .raw;
         given xml6_gbl_save_error_handlers() {
-            $!native.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!native.ValidateDoc($doc);
+            $!raw.SetStructuredErrorFunc: &structured-error-cb;
+            $rv := $!raw.ValidateDoc($doc);
 	    $rv := self.validity-check
                 if $check;
              xml6_gbl_restore_error_handlers($_);
@@ -129,7 +129,7 @@ my class ValidContext {
 
 submethod TWEAK(|c) {
     my Parser::Context $parser-ctx .= new: |c;
-    $!native = $parser-ctx.parse;
+    $!raw = $parser-ctx.parse;
 }
 =begin pod
     =head3 method new
@@ -193,7 +193,7 @@ multi method ACCEPTS(LibXML::RelaxNG:D: LibXML::Document:D $doc --> Bool) {
     =end code
 
 submethod DESTROY {
-    .Free with $!native;
+    .Free with $!raw;
 }
 
 =begin pod

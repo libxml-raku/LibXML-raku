@@ -416,6 +416,8 @@ dromeds.xml
         }
 }
 
+        summarise_mem();
+
 sub processMessage($msg, $xpath) {
       my $parser = LibXML.new();
 
@@ -463,11 +465,12 @@ sub make_doc2($docA) {
     $docA.setDocumentElement( $e1 );
 }
 
+our $units;
+
 sub check_mem($initialise?) {
     # Log Memory Usage
     my %mem;
     given '/proc/self/status'.IO.open -> $FH {
-        my $units;
         for $FH.lines {
             if (/^VmSize.*?(\d+)\W*(\w+)$/) {
                 %mem<Total> = $0;
@@ -480,6 +483,10 @@ sub check_mem($initialise?) {
         $FH.close;
         $LibXML::TOTALMEM //= 0;
 
+        if ($initialise) {
+            $LibXML::STARTMEM = %mem<Total>;
+        }
+
         if ($LibXML::TOTALMEM != %mem<Total>) {
             note("Change! : ", %mem<Total> - $LibXML::TOTALMEM, " $units") unless $initialise;
             $LibXML::TOTALMEM = %mem<Total>;
@@ -487,6 +494,10 @@ sub check_mem($initialise?) {
 
         note("# Mem Total: %mem<Total> $units, Resident: %mem<Resident> $units");
     }
+}
+
+sub summarise_mem() {
+    note("# Total Mem Increase: {$LibXML::TOTALMEM - $LibXML::STARTMEM} $units");
 }
 
 # some tests for document fragments
