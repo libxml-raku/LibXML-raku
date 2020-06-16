@@ -40,24 +40,32 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
         node = node->parent;
     }
 
-    if (node && node->type == XML_ENTITY_DECL) {
+    if (node != NULL) {
         xmlDocPtr doc = node->doc;
-        const xmlChar* name = node->name;
         if (doc != NULL) {
-            if ((doc->intSubset != NULL
-                 && xmlHashLookup(doc->intSubset->entities, name) == node)
-                ||
-                (doc->extSubset != NULL
-                 && xmlHashLookup(doc->extSubset->entities, name) == node)) {
-                node = (xmlNodePtr)doc;
+            if (node->type == XML_ENTITY_DECL) {
+                const xmlChar* name = node->name;
+                if ((doc->intSubset != NULL
+                     && xmlHashLookup(doc->intSubset->entities, name) == node)
+                    ||
+                    (doc->extSubset != NULL
+                     && xmlHashLookup(doc->extSubset->entities, name) == node)) {
+                    node = (xmlNodePtr)doc;
+                }
+            }
+            if (node->type == XML_DTD_NODE) {
+                xmlDtdPtr dtd = (xmlDtdPtr) node;
+                if (doc->intSubset == dtd || doc->extSubset == dtd) {
+                    node = (xmlNodePtr) doc;
+                }
             }
         }
-    }
 
-    if (node && node->prev) {
-        // Unexpected, if we're using the DOM properly. The node should
-        // either be unlinked, or parented to a unique xmlDoc/xmlDocFrag.
-        XML6_FAIL(self, "root node has multiple elements");
+        if (node->prev) {
+            // Unexpected, if we're using the DOM properly. The node should
+            // either be unlinked, or parented to a unique xmlDoc/xmlDocFrag.
+            XML6_FAIL(self, "root node has multiple elements");
+        }
     }
 
     return node;
