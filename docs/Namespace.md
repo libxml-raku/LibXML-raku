@@ -22,7 +22,7 @@ Description
 
 Namespace nodes are returned by both $element.findnodes('namespace::foo') or by $node.getNamespaces().
 
-The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not* a sub class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), however Namespace nodes act a lot like attribute nodes (both perform the [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item) role). Similarly named methods return what you would expect if you treated the namespace node as an attribute.
+The namespace node API is not part of any current DOM API, and so it is quite minimal. It should be noted that namespace nodes are *not* a sub class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), however Namespace nodes act a lot like attribute nodes (both are based on [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item)). Similarly named methods return what you would expect if you treated the namespace node as an attribute.
 
 Methods
 -------

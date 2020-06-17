@@ -149,7 +149,7 @@ This module requires the libxml2 library to be installed. Please follow the inst
 
 This Raku module:
 
-   =item is based on the Perl 5 XML::LibXML module; in particular, the test suite, and selected XS and C code.
+   =item is based on the Perl 5 XML::LibXML module; in particular, the test suite, selected XS and C code and documentation.
    =item derives SelectorQuery() and SelectorQueryAll() methods from the Perl 5 XML::LibXML::QuerySelector module.
    =item also draws on an earlier attempt at a Perl 6 (nee Raku) port (XML::LibXML).
 
@@ -161,7 +161,8 @@ Petr Pajas,
 Shlomi Fish,
 Toby Inkster,
 Tobias Leich,
-Xliff.
+Xliff,
+and others.
 
 =head1 VERSION
 

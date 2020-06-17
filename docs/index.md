@@ -128,13 +128,13 @@ ACKNOWLEDGEMENTS
 
 This Raku module:
 
-  * is based on the Perl 5 XML::LibXML module; in particular, the test suite, and selected XS and C code.
+  * is based on the Perl 5 XML::LibXML module; in particular, the test suite, selected XS and C code and documentation.
 
   * derives SelectorQuery() and SelectorQueryAll() methods from the Perl 5 XML::LibXML::QuerySelector module.
 
   * also draws on an earlier attempt at a Perl 6 (nee Raku) port (XML::LibXML).
 
-With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Toby Inkster, Tobias Leich, Xliff.
+With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Toby Inkster, Tobias Leich, Xliff, and others.
 
 VERSION
 =======
