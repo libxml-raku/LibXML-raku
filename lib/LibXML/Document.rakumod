@@ -3,7 +3,6 @@ use LibXML::_ParentNode;
 
 #| LibXML DOM Document Class
 unit class LibXML::Document
-    is repr('CPointer')
     is LibXML::Node
     does LibXML::_ParentNode;
 
@@ -16,7 +15,7 @@ use LibXML::Dtd;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
-use LibXML::Item :dom-native;
+use LibXML::Item :dom-boxed;
 use LibXML::Raw;
 use LibXML::Parser::Context;
 use LibXML::PI;
@@ -129,6 +128,7 @@ constant InputCompressed = 1;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
+has xmlDoc $.raw;
 method new(
     Str  :$version,
     xmlEncodingStr :$enc,
@@ -137,21 +137,20 @@ method new(
     Int  :$compression,
     LibXML::Parser::Context :$ctx,
     xmlDoc:D :$raw = ($html ?? htmlDoc !! xmlDoc).new,
-    :$native, # obselete
+    :$native, # obselete,
+    |c
 ) {
-
     die 'new(:$native) option is obselete. Please use :$raw'
         with $native;
     $raw.version = $_ with $version;
     $raw.encoding = $_ with $enc;
     $raw.URI = $_ with $URI;
     $raw.setCompression($_) with $compression;
+    $raw.Reference;
+    $raw.set-flags(InputCompressed)
+        if $ctx && $ctx.input-compressed;
 
-    given self.box($raw) {
-        .set-flags(InputCompressed)
-            if $ctx && $ctx.input-compressed;
-        $_;
-    }
+    self.bless(:$raw, |c);
 }
 =begin pod
     =head3 method new
@@ -204,8 +203,8 @@ implied.
         =end code
 =end pod
 
-method raw returns xmlDoc handles <encoding setCompression getCompression standalone URI wellFormed set-flags> {
-    nativecast(itemNode, self).delegate; # xmlDoc htmlDoc
+method raw handles <encoding setCompression getCompression standalone URI wellFormed set-flags> {
+    $!raw; # xmlDoc htmlDoc
 }
 =begin pod
     =head3 method URI
@@ -753,7 +752,7 @@ method insertProcessingInstruction(|c) {
 
 }
 
-method getInternalSubset(--> LibXML::Dtd) is dom-native {...}
+method getInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
 method setInternalSubset(LibXML::Dtd $dtd) {
@@ -762,7 +761,7 @@ method setInternalSubset(LibXML::Dtd $dtd) {
 =para I<EXPERIMENTAL!>
 
 #| This method removes an external, if defined, from the document
-method removeInternalSubset(--> LibXML::Dtd) is dom-native {...}
+method removeInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 =para I<EXPERIMENTAL!>
 =para If a document has an internal subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
@@ -782,7 +781,7 @@ method internalSubset is rw returns LibXML::Dtd {
     LibXML is still limited. In particular one may not want use common node
     function on doctype declaration nodes!
 
-method getExternalSubset(--> LibXML::Dtd) is dom-native {...}
+method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #| This method sets a DTD node as an external subset of the given document.
 method setExternalSubset(LibXML::Dtd $dtd) {
@@ -791,7 +790,7 @@ method setExternalSubset(LibXML::Dtd $dtd) {
 =para I<EXPERIMENTAL!>
 
 #| This method removes an external, if defined, from the document
-method removeExternalSubset(--> LibXML::Dtd) is dom-native {...}
+method removeExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 =para I<EXPERIMENTAL!>
 
 =para If a document has an external subset defined it can be removed from the

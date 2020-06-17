@@ -179,18 +179,18 @@ multi sub ast-to-xml(*%p where .elems == 1) {
     By convention native classes in the LibXML module are not directly exposed, but have a containing class
     that holds the object in a `$.raw` attribute and provides an API interface for it. The `box` method is used to stantiate
     a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object
-    to ensure that the underlying native object is not destroyed while it is still alive.
+    to ensure that the underlying raw object is not destroyed while it is still alive.
 
-    For example to box xmlElem native object:
+    For example to box xmlElem raw object:
 
      use LibXML::Raw;
      use LibXML::Node;
      use LibXML::Element;
 
-     my xmlElem $native .= new: :name<Foo>;
-     say $native.type; # 1 (element)
-     my LibXML::Element $elem .= box($native);
-     $!native := Nil;
+     my xmlElem $raw .= new: :name<Foo>;
+     say $raw.type; # 1 (element)
+     my LibXML::Element $elem .= box($raw);
+     $raw := Nil;
      say $elem.Str; # <Foo/>
 
     A containing object of the correct type (LibXML::Element) has been created for the native object.
@@ -202,8 +202,8 @@ method unbox { $.raw }
 # api/native wrapper for simple DOM methods
 multi trait_mod:<is>(
     Method $m where {.yada && .count <= 1 }, #Rakudo 2019.03+: && .returns ~~ LibXML::Item},
-    :$dom-native!) is export(:dom-native) {
-    my $name := $dom-native ~~ Str:D ?? $dom-native !! $m.name;
+    :$dom-boxed!) is export(:dom-boxed) {
+    my $name := $dom-boxed ~~ Str:D ?? $dom-boxed !! $m.name;
     $m.wrap: method () is hidden-from-backtrace { $m.returns.box: $.raw."$name"(); }
 }
 

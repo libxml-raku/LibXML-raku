@@ -72,18 +72,18 @@ Possible terms that can be used are:
 </tbody>
 </table>
 
-By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.raw` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying native object is not destroyed while it is still alive.
+By convention native classes in the LibXML module are not directly exposed, but have a containing class that holds the object in a `$.raw` attribute and provides an API interface for it. The `box` method is used to stantiate a containing object, of an appropriate class. The containing object will in-turn reference-count or copy the object to ensure that the underlying raw object is not destroyed while it is still alive.
 
-For example to box xmlElem native object:
+For example to box xmlElem raw object:
 
     use LibXML::Raw;
     use LibXML::Node;
     use LibXML::Element;
 
-    my xmlElem $native .= new: :name<Foo>;
-    say $native.type; # 1 (element)
-    my LibXML::Element $elem .= box($native);
-    $!native := Nil;
+    my xmlElem $raw .= new: :name<Foo>;
+    say $raw.type; # 1 (element)
+    my LibXML::Element $elem .= box($raw);
+    $raw := Nil;
     say $elem.Str; # <Foo/>
 
 A containing object of the correct type (LibXML::Element) has been created for the native object.

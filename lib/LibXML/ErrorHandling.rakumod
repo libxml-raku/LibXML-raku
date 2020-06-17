@@ -169,13 +169,13 @@ class X::LibXML::Parser is X::LibXML {
 
     Returns the actual libxml2 error code. The L<LibXML::Enums> module defines
     constants for individual error codes. Currently libxml2 uses over 480 different
-    error codes. 
+    error codes.
 
     =head3 method file
 
       method file() returns Str
 
-    Returns the filename of the file being processed while the error occurred. 
+    Returns the filename of the file being processed while the error occurred.
 
     =head3 method line
 

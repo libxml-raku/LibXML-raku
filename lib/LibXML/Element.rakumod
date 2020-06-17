@@ -96,7 +96,7 @@ use LibXML::Attr;
 use LibXML::Attr::Map;
 use LibXML::Config;
 use LibXML::Enums;
-use LibXML::Item :box-class, :dom-native;
+use LibXML::Item :box-class, :dom-boxed;
 use LibXML::Namespace;
 use LibXML::Raw;
 use LibXML::Types :QName, :NCName, :NameVal;

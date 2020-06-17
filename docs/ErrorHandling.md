@@ -97,13 +97,13 @@ The raw message text. This may include a trailing new line.
     method code() returns UInt
     if $err.code == XML_ERR_SPACE_REQUIRED { ... }
 
-Returns the actual libxml2 error code. The [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) module defines constants for individual error codes. Currently libxml2 uses over 480 different error codes. 
+Returns the actual libxml2 error code. The [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) module defines constants for individual error codes. Currently libxml2 uses over 480 different error codes.
 
 ### method file
 
     method file() returns Str
 
-Returns the filename of the file being processed while the error occurred. 
+Returns the filename of the file being processed while the error occurred.
 
 ### method line
 

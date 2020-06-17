@@ -125,7 +125,7 @@ use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::XPath::Expression;
 use LibXML::Types :NCName, :QName;
-use LibXML::Item :dom-native;
+use LibXML::Item :dom-boxed;
 
 constant config = LibXML::Config;
 my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
@@ -154,7 +154,9 @@ submethod DESTROY {
 
 multi method box(anyNode:D $_) {
     .Reference;
-    nativecast(box-class(.type), $_);
+    self.REPR.starts-with('C')
+        ?? nativecast(box-class(.type), $_)
+        !! self.bless: :raw($_);
 }
 
 method getName { self.getNodeName }
@@ -268,33 +270,33 @@ method line-number returns UInt  { self.raw.GetLineNo }
 =head2 Navigation Methods
 
 #| Returns the objects parent node
-method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is dom-native {...}
+method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is dom-boxed {...}
 
 #| Returns the next sibling if any.
-method nextSibling returns LibXML::Node is dom-native {...}
+method nextSibling returns LibXML::Node is dom-boxed {...}
 
 #| Returns the next non-blank sibling if any.
-method nextNonBlankSibling returns LibXML::Node is dom-native {...}
+method nextNonBlankSibling returns LibXML::Node is dom-boxed {...}
 =para A node is blank if it is a Text or CDATA node consisting of whitespace
     only. This method is not defined by DOM.
 
 #| Analogous to getNextSibling(). Returns the previous sibling if any.
-method previousSibling returns LibXML::Node is dom-native {...}
+method previousSibling returns LibXML::Node is dom-boxed {...}
 
 #| Returns the previous non-blank sibling, if any
-method previousNonBlankSibling returns LibXML::Node is dom-native {...}
+method previousNonBlankSibling returns LibXML::Node is dom-boxed {...}
 =para A node is blank if it is a Text or CDATA node consisting of whitespace
     only. This method is not defined by DOM.
 
 #| Return the first child node, if any
-method firstChild is also<getFirstChild> returns LibXML::Node is dom-native {...}
+method firstChild is also<getFirstChild> returns LibXML::Node is dom-boxed {...}
 
 #| Return the last child node, if any
-method lastChild is also<getLastChild> returns LibXML::Node is dom-native {...}
+method lastChild is also<getLastChild> returns LibXML::Node is dom-boxed {...}
 
-method firstNonBlankChild returns LibXML::Node is dom-native {...}
-method lastNonBlankChild returns LibXML::Node is dom-native {...}
-method prev returns LibXML::Node is dom-native {...}
+method firstNonBlankChild returns LibXML::Node is dom-boxed {...}
+method lastNonBlankChild returns LibXML::Node is dom-boxed {...}
+method prev returns LibXML::Node is dom-boxed {...}
 
 #| Returns True if the current node has child nodes, False otherwise.
 method hasChildNodes returns Bool {
@@ -350,7 +352,9 @@ submethod TWEAK(:$native) {
     die 'new(:$native) option is obselete. Please use :$raw'
         with $native;
 
-    die "no content" unless nativecast(Pointer, self).defined
+    die "no content"
+        if self.REPR eq 'CPointer'
+        && !nativecast(Pointer, self).defined;
 }
 
 #| Transfers a node to another document
@@ -363,7 +367,7 @@ method setOwnerDocument( LibXML::Node $doc) {
     Because of this it has the same limitations with Entity References as adoptNode().
 
 #| Get the root (owner) node
-method getOwner returns LibXML::Node is dom-native<root> {...}
+method getOwner returns LibXML::Node is dom-boxed<root> {...}
 =para This function returns the root node that the current node is associated with.
     In most cases this will be a document node or a document fragment node.
 
@@ -480,7 +484,7 @@ method addSibling(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Copy a node
 method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
-    &?ROUTINE.returns.box: self.raw.cloneNode($deep);
+    self.box: self.raw.cloneNode($deep);
 }
 =para When $deep is True the function will copy all child nodes as well.
     Otherwise the current node will be copied. Note that in case of
@@ -524,8 +528,7 @@ method removeChildNodes(--> LibXML::Node) {
 =head2 Searching Methods
 
 method xpath-context handles<find findnodes findvalue exists> {
-    state $ ||= { require LibXML::XPath::Context; True };
-    LibXML::XPath::Context.new: :node(self);
+    (require ::('LibXML::XPath::Context')).new: :node(self);
 }
 =begin pod
     =head3 method findnodes
@@ -895,7 +898,7 @@ method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
 method clearNamespace {
     ? self.raw.setNamespace(Str, Str);
 }
-method localNS(--> LibXML::Namespace) is dom-native {...}
+method localNS(--> LibXML::Namespace) is dom-boxed {...}
 method getNamespaces is also<namespaces> {
     iterate-list(self, LibXML::Namespace);
 }
