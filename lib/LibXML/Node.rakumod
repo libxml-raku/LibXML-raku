@@ -154,9 +154,10 @@ submethod DESTROY {
 
 multi method box(anyNode:D $_) {
     .Reference;
-    self.REPR.starts-with('C')
-        ?? nativecast(box-class(.type), $_)
-        !! self.bless: :raw($_);
+    my $class := box-class(.type);
+    $class.REPR.starts-with('C')
+        ?? nativecast($class, $_)
+        !! $class.bless: :raw(.delegate);
 }
 
 method getName { self.getNodeName }
