@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-plan 203;
+plan 204;
 
 use LibXML;
 use LibXML::Document;
@@ -446,4 +446,17 @@ EOF
     $elem.appendChild: $ent-ref;
     $elem.appendText('b');
     is $elem.Str, '<foo>a&bar;b</foo>';
+}
+
+subtest "issue #41 Traversion order" => {
+    plan 6;
+    use LibXML::Document;
+    my LibXML::Document $doc .= parse: :file<example/dromeds.xml>;
+    my @elems = $doc.getElementsByTagName('*');
+    is +@elems, 10;
+    is @elems[0].tagName, 'dromedaries', 'first element';
+    is @elems[1].tagName, 'species', 'second element';
+    is @elems[2].tagName, 'humps', 'third element';
+    is @elems[3].tagName, 'disposition', 'fourth element';
+    is @elems[4].tagName, 'species', 'the fifth element';
 }

@@ -1387,9 +1387,6 @@ _domMergeNodeSet(xmlNodeSetPtr self, xmlNodeSetPtr nodes) {
     }
     else if (self == NULL) {
         rv = nodes;
-    } else if (nodes->nodeNr > self->nodeNr) {
-        // append the smaller to the larger set
-        rv = _domMergeNodeSet(nodes, self);
     }
     else {
         int i;

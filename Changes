@@ -1,3 +1,5 @@
+0.5.0 2020-06-18
+    - fix #41 getElementsByXxxx() order scrambling (broken in 0.5.0)
 0.5.0 2020-06-17
     - #36 fixed install failure / Dtd premature free issue
     - #38 Performance improvements and bench-marking
