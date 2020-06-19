@@ -1,8 +1,9 @@
 use v6;
 use Test;
-plan 65;
+plan 66;
 
 use LibXML;
+use LibXML::Document;
 use LibXML::XPath::Expression;
 
 my $xmlstring = q:to<EOSTR>;
@@ -214,3 +215,10 @@ sub _utf16_content_test
     }
 }
 
+subtest '#42 root parent from xpath', {
+    plan 2;
+    my LibXML::Document $doc .= parse("<root/>");
+    my LibXML::Document $doc2;
+    lives-ok {$doc2 = .parent for $doc.find("//*");};
+    ok $doc.isSameNode($doc2);
+}
