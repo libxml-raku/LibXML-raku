@@ -23,6 +23,7 @@ my $x = LibXML.parse(string => q:to/ENDXML/);
 </xml>
 ENDXML
 
+$x .= xpath-context;
 # Don't set namespace prefixes - uses element context namespaces
 my $set;
 
@@ -46,16 +47,16 @@ dies-ok {$set = $x.find('//@attr:*');}
 ##is $set.elems, 1, 'found one attribute';
 
 # Set namespace prefixes
-$x.setNamespace('http://flubber.example.com', 'foo');
-$x.setNamespace('http://foobar.example.com', 'goo');
+$x.registerNs('goo', 'http://foobar.example.com');
+$x.registerNs('foo', 'http://flubber.example.com');
 
 # should find flubber.com foos
 $set = $x.find('//foo:foo');
-is $set.elems, 2, 'found 2 nodes';
+is $set.elems, 2, 'found 3 nodes';
 
 # should find foobar.com foos
 $set = $x.find('//goo:foo');
-is $set.elems, 3, 'found 3 nodes';
+is $set.elems, 3, 'found 0 nodes';
 
 # shouldn't find NS foos in flubber namespace
 $set = $x.find('/foo');
