@@ -115,7 +115,7 @@ my class ValidContext {
             $rv := $!raw.ValidateDoc($doc);
 	    $rv := self.validity-check
                 if $check;
-             xml6_gbl_restore_error_handlers($_);
+            xml6_gbl_restore_error_handlers($_);
         }
         self.flush-errors;
         $rv;

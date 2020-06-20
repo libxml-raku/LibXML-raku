@@ -1032,7 +1032,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
     method write(Str:D $filename, Int() :$format = 0) {
          xmlSaveFormatFile($filename, self, $format);
     }
-    method GetRootElement(--> xmlElem) is symbol('xmlDocGetRootElement') is native($XML2) { * }
+    method GetRootElement(--> xmlElem) handles<nsDef> is symbol('xmlDocGetRootElement') is native($XML2) { * }
     method SetRootElement(xmlElem --> xmlElem) is symbol('xmlDocSetRootElement') is native($XML2) { * }
     method Copy(int32 $deep --> xmlDoc) is symbol('xmlCopyDoc') is native($XML2) {*}
     method copy(Bool :$deep = True) { $.Copy(+$deep) }

@@ -205,7 +205,7 @@ role LibXML::ErrorHandling {
     }
 
     # SAX External Callback
-    sub structured-error-cb($ctx, xmlError $err) is export(:structured-error-cb) {
+    sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
         CATCH { default { warn "error handling XML structured error: $_" } }
         $*XML-CONTEXT.structured-error($err);
     }
@@ -237,7 +237,7 @@ role LibXML::ErrorHandling {
         self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
     }
 
-    method structured-error(xmlError $_) {
+    method structured-error(xmlError:D $_) {
         CATCH { default { warn "error handling failure: $_" } }
         my Int $level = .level;
         my Str $file = .file;
@@ -247,7 +247,6 @@ role LibXML::ErrorHandling {
         my UInt:D $domain-num = .domain;
         my Str $msg = .message;
         $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
-
         self.callback-error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num );
     }
 

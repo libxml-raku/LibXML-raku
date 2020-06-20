@@ -139,7 +139,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.5.1
+0.5.2
 
 COPYRIGHT
 =========

@@ -36,36 +36,33 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
     xmlNodePtr node = self;
     assert(node != NULL);
 
-    while (node && node->parent) {
+    while (node->parent != NULL) {
         node = node->parent;
     }
 
-    if (node != NULL) {
+    if (node->type == XML_ENTITY_DECL && node->doc != NULL) {
         xmlDocPtr doc = node->doc;
-        if (doc != NULL) {
-            if (node->type == XML_ENTITY_DECL) {
-                const xmlChar* name = node->name;
-                if ((doc->intSubset != NULL
-                     && xmlHashLookup(doc->intSubset->entities, name) == node)
-                    ||
-                    (doc->extSubset != NULL
-                     && xmlHashLookup(doc->extSubset->entities, name) == node)) {
-                    node = (xmlNodePtr)doc;
-                }
-            }
-            if (node->type == XML_DTD_NODE) {
-                xmlDtdPtr dtd = (xmlDtdPtr) node;
-                if (doc->intSubset == dtd || doc->extSubset == dtd) {
-                    node = (xmlNodePtr) doc;
-                }
-            }
+        const xmlChar* name = node->name;
+        if ((doc->intSubset != NULL
+             && xmlHashLookup(doc->intSubset->entities, name) == node)
+            ||
+            (doc->extSubset != NULL
+             && xmlHashLookup(doc->extSubset->entities, name) == node)) {
+            node = (xmlNodePtr) doc;
         }
+    }
+    else if (node->type == XML_DTD_NODE && node->doc != NULL) {
+        xmlDocPtr doc = node->doc;
+        xmlDtdPtr dtd = (xmlDtdPtr) node;
+        if (doc->intSubset == dtd || doc->extSubset == dtd) {
+            node = (xmlNodePtr) doc;
+        }
+    }
 
-        if (node->prev) {
-            // Unexpected, if we're using the DOM properly. The node should
-            // either be unlinked, or parented to a unique xmlDoc/xmlDocFrag.
-            XML6_FAIL(self, "root node has multiple elements");
-        }
+    if (node->prev) {
+        // Unexpected, if we're using the DOM properly. The node should
+        // either be unlinked, or parented to a unique xmlDoc/xmlDocFrag.
+        XML6_FAIL(self, "root node has multiple elements");
     }
 
     return node;
@@ -173,23 +170,23 @@ DLLEXPORT xmlChar* xml6_node_to_str(xmlNodePtr self, int options) {
 
 DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments,  xmlC14NMode mode, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist) {
     xmlChar *rv = NULL;
-    int stat;
 
     if ( self->doc == NULL ) {
         XML6_FAIL(self, "Node passed to toStringC14N must be part of a document");
     }
+    else {
+        int stat = xmlC14NDocDumpMemory( self->doc,
+                                         nodelist,
+                                         mode,
+                                         inc_prefix_list,
+                                         comments,
+                                         &rv );
 
-    stat = xmlC14NDocDumpMemory( self->doc,
-                                 nodelist,
-                                 mode,
-                                 inc_prefix_list,
-                                 comments,
-                                 &rv );
-
-    if (stat < 0) {
-        char msg[80];
-        sprintf(msg, "C14N serialization returned error status: %d", stat);
-        XML6_FAIL(self, msg);
+        if (stat < 0) {
+            char msg[80];
+            sprintf(msg, "C14N serialization returned error status: %d", stat);
+            XML6_FAIL(self, msg);
+        }
     }
 
     return rv;
