@@ -220,19 +220,23 @@ Gets or sets output compression
 
 ### method input-compressed
 
-    method input-compressed() returns Bool'
-    # get input compression
-    my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
-    # set output compression
-    if LibXML.have-compression {
-        $doc.compression = $zip-level;
-        $doc.write: :file<test.xml.gz>;
-    }
-    else {
-        $doc.write: :file<test.xml>;
-    }
+```perl6
+method input-compressed() returns Bool
+```
 
-detect whether input was compressed
+Detect whether input was compressed
+
+```raku
+my LibXML::Document $doc .= parse<mydoc.xml.gz>;
+if $doc.input-compressed {
+    my $zip-level = 5;
+    $doc.compression = $zip-level;
+    $doc.write: :file<test.xml.gz>;
+}
+else {
+    $doc.write: :file<test.xml>;
+}
+```
 
 libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
 

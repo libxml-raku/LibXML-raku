@@ -306,28 +306,23 @@ method compression is rw returns Int {
     );
 }
 
-#|
+#| Detect whether input was compressed
 method input-compressed returns Bool {
    ? ($.raw.get-flags +& InputCompressed);
 }
 =begin pod
-    =head3 method input-compressed
-
-        method input-compressed() returns Bool'
-        # get input compression
-        my LibXML::Document $doc .= :parse<mydoc.xml.gz>;
-        # set output compression
-        if LibXML.have-compression {
-            $doc.compression = $zip-level;
-            $doc.write: :file<test.xml.gz>;
-        }
-        else {
-            $doc.write: :file<test.xml>;
-        }
-
-    =para detect whether input was compressed
-
-    libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
+    =begin code :lang<raku>
+    my LibXML::Document $doc .= parse<mydoc.xml.gz>;
+    if $doc.input-compressed {
+        my $zip-level = 5;
+        $doc.compression = $zip-level;
+        $doc.write: :file<test.xml.gz>;
+    }
+    else {
+        $doc.write: :file<test.xml>;
+    }
+    =end code
+    =para libxml2 allows reading of documents directly from gzipped files. The input-compressed method returns True if the input file was compressed.
 
     If one intends to write the document directly to a file, it is possible to set
     the compression level for a given document. This level can be in the range from
