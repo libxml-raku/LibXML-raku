@@ -309,9 +309,8 @@ role LibXML::ErrorHandling {
     }
 
     my sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) is export(:unmarshal-varargs) {
-        my constant %Type = %( :f(num64), :d(int32), :s(Str), :l(long) );
         my int $n = 0;
-        $fmt.comb.map({ $argv[$n++]."$_"() });
+        $fmt.comb.map: { $argv[$n++]."$_"() };
     }
 
     sub set-generic-error-handler( &func (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer ) is native($XML2) is symbol('xmlSetGenericErrorFunc') {*}
