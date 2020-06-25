@@ -10,7 +10,7 @@ use NativeCall;
 
 method new(xmlXPathObject:D :$raw!) {
     $raw.Reference;
-    nativecast(LibXML::XPath::Object, $raw);
+    nativecast(self.WHAT, $raw);
 }
 
 method raw { nativecast(xmlXPathObject, self) }
@@ -21,12 +21,8 @@ my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node:
 my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Item;
 
 method coerce-to-raw(XPathDomain $content is copy) {
-    if $content ~~ LibXML::Item|LibXML::Node::Set {
-        $content .= raw;
-        # node-sets can't be multiply referenced
-        $content .= copy if $content ~~ xmlNodeSet;
-    }
-
+    $content .= raw()
+        if $content ~~ LibXML::Item|LibXML::Node::Set;
     xmlXPathObject.coerce($content);
 }
 
