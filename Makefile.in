@@ -12,9 +12,9 @@ debug :
 coverage :
 	%MAKE% "DBG=-fprofile-arcs -ftest-coverage" "LD_DBG=-coverage -lgcov" all
 
-resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O%  $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%
+resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O%  $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
-        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% \
+        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% \
         %LIB-LDFLAGS% $(LD_DBG) 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
@@ -37,6 +37,9 @@ $(SRC)/xml6_entity%O% : $(SRC)/xml6_entity.c $(SRC)/xml6_entity.h
 
 $(SRC)/xml6_gbl%O% : $(SRC)/xml6_gbl.c $(SRC)/xml6_gbl.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_gbl%O% $(SRC)/xml6_gbl.c %LIB-CFLAGS% $(DBG)
+
+$(SRC)/xml6_hash%O% : $(SRC)/xml6_hash.c $(SRC)/xml6_hash.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_hash%O% $(SRC)/xml6_hash.c %LIB-CFLAGS% $(DBG)
 
 $(SRC)/xml6_input%O% : $(SRC)/xml6_input.c $(SRC)/xml6_input.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_input%O% $(SRC)/xml6_input.c %LIB-CFLAGS% $(DBG)
@@ -75,7 +78,7 @@ realclean : clean
 	@rm -f Makefile docs/*.md docs/*/*.md
 
 doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Document.md docs/DocumentFragment.md\
-      docs/Dtd.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/Raw.md\
+      docs/Dtd.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/HashMap.md docs/Raw.md\
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
       docs/XPath/Context.md docs/XPath/Expression.md\
@@ -115,6 +118,8 @@ docs/Element.md : lib/LibXML/Element.rakumod
 docs/Enums.md : lib/LibXML/Enums.rakumod
 
 docs/ErrorHandling.md : lib/LibXML/ErrorHandling.rakumod
+
+docs/HashMap.md : lib/LibXML/HashMap.rakumod
 
 docs/InputCallback.md : lib/LibXML/InputCallback.rakumod
 

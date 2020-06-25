@@ -20,7 +20,7 @@ submethod DESTROY { self.raw.Unreference }
 my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
 my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Item;
 
-method !coerce-to-raw(XPathDomain $content is copy) {
+method coerce-to-raw(XPathDomain $content is copy) {
     if $content ~~ LibXML::Item|LibXML::Node::Set {
         $content .= raw;
         # node-sets can't be multiply referenced
@@ -31,12 +31,12 @@ method !coerce-to-raw(XPathDomain $content is copy) {
 }
 
 method coerce($content) {
-    my xmlXPathObject:D $raw = self!coerce-to-raw($content);
+    my xmlXPathObject:D $raw = self.coerce-to-raw($content);
     self.new: :$raw;
 }
 
-method value(Bool :$literal,  --> XPathRange) {
-    given $.raw.value {
+method value(xmlXPathObject :$raw = $.raw, Bool :$literal,  --> XPathRange) {
+    given $raw.value {
         when xmlNodeSet {
             given iterate-set(LibXML::Item, .copy) {
                 $literal ?? .to-literal !! $_;

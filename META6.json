@@ -35,6 +35,7 @@
     "LibXML::Enums": "lib/LibXML/Enums.rakumod",
     "LibXML::ErrorHandling": "lib/LibXML/ErrorHandling.rakumod",
     "LibXML::InputCallback": "lib/LibXML/InputCallback.rakumod",
+    "LibXML::HashMap": "lib/LibXML/HashMap.rakumod",
     "LibXML::Item": "lib/LibXML/Item.rakumod",
     "LibXML::Namespace": "lib/LibXML/Namespace.rakumod",
     "LibXML::Raw": "lib/LibXML/Raw.rakumod",
@@ -88,5 +89,5 @@
   ],
   "test-depends": [
   ],
-  "version": "0.5.2"
+  "version": "0.5.3"
 }

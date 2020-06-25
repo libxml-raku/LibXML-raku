@@ -20,7 +20,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.5.2>
+unit class LibXML:ver<0.5.3>
     is LibXML::Parser;
 
 method config handles <version config-version have-compression have-reader have-schemas have-threads skip-xml-declaration skip-dtd keep-blanks-default tag-expansion external-entity-loader> {
@@ -94,6 +94,8 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 =item L<LibXML::Node::Set> - XPath Node Sets
 
+=item L<LibXML::HashMap> - LibXML Hash Bindings (experimental)
+
 =head2 Parsing
 
 =item L<LibXML::Parser> - LibXML Parser bindings
@@ -166,7 +168,7 @@ and others.
 
 =head1 VERSION
 
-0.5.2
+0.5.3
 
 =head1 COPYRIGHT
 

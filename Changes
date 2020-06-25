@@ -1,7 +1,9 @@
+0.5.3 2020-07-xx
+    - Add LibXML::HashMap
 0.5.2 2020-06-18
-    - fix #42 .parent() on root element dieing
+    - Fix #42 .parent() on root element dieing
 0.5.1 2020-06-18
-    - fix #41 getElementsByXxxx() order scrambling (broken in 0.5.0)
+    - Fix #41 getElementsByXxxx() order scrambling (broken in 0.5.0)
 0.5.0 2020-06-17
     - #36 fixed install failure / Dtd premature free issue
     - #38 Performance improvements and bench-marking

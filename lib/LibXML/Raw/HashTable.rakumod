@@ -8,10 +8,14 @@ class xmlHashTable is repr(Opaque) is export {
     our sub DefaultDeallocator(Pointer, xmlCharP) is native($XML2) is symbol('xmlHashDefaultDeallocator') {*};
     our sub NullDeallocator(Pointer, xmlCharP) is native($BIND-XML2) is symbol('xml6_hash_null_deallocator') {*};
     method new(UInt :$size = 256) { New($size) }
-    method AddEntry(Str, Pointer --> int32)  is symbol('xmlHashAddEntry') is native($XML2) {*}
+    method AddEntry(Str, Pointer --> int32)  is symbol('xml6_hash_add_entry') is native($BIND-XML2) {*}
     method UpdateEntry(Str, Pointer, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashUpdateEntry') is native($XML2) {*}
     method Lookup(Str --> Pointer) is symbol('xmlHashLookup') is native($XML2) {*}
     method RemoveEntry(Str, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashRemoveEntry') is native($XML2) {*}
     method Size(--> int32) is symbol('xmlHashSize') is native($XML2) {*}
     method Free( &deallocator ( Pointer, xmlCharP ) ) is symbol('xmlHashFree') is native($XML2) {*}
+    method keys(CArray[Str]) is native($BIND-XML2) is symbol('xml6_hash_keys') {*}
+    method values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_values') {*}
+    method key-values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_key_values') {*}
+    method add-pairs(CArray, &deallocator ( Pointer, xmlCharP ) ) is native($BIND-XML2) is symbol('xml6_hash_add_pairs') {*}
 }
