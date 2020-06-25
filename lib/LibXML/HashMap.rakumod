@@ -186,21 +186,21 @@ method DELETE-KEY(Str() $key) { $.raw.RemoveEntry($key, $.deallocator) }
 =begin pod
 =head2 Name
 
-LibXML::HashMap - LibXML::HashMap Class for Mapped XPath Objects
+LibXML::HashMap - LibXML hash table bindings
 
 =head2 Synopsis
 
-my LibXML::HashMap[UInt] $int-hash .= new;
-my LibXML::HashMap[Str] $str-hash .= new;
-my LibXML::HashMap[LibXML::Node::Set] $set-hash .= new;
-my LibXML::HashMap[LibXML::XPath::Object] $obj-hash .= new;
+  my LibXML::HashMap[UInt] $int-hash .= new;
+  my LibXML::HashMap[Str] $str-hash .= new;
+  my LibXML::HashMap[LibXML::Node::Set] $set-hash .= new;
+  my LibXML::HashMap[LibXML::XPath::Object] $obj-hash .= new;
 
-$obj-hash<element> = LibXML::Element.new('test');
-$obj-hash<number> = 42e0;
-$obj-hash<string> = 'test';
-$obj-hash<bool> = True;
+  $obj-hash<element> = LibXML::Element.new('test');
+  $obj-hash<number> = 42e0;
+  $obj-hash<string> = 'test';
+  $obj-hash<bool> = True;
 
-say $obj-hash<element>.tagName;
+  say $obj-hash<element>.tagName;
 
 =head2 Description
 
