@@ -28,5 +28,5 @@ Description
 
 **Experimental**
 
-This module uses an xmlHashTable object as a raw store for several container types, include integers, strings, node sets and XPath objects (which may contain strings, floats, booleans or node-sets.
+This module uses an xmlHashTable object as a raw store for several container types, include integers, strings, node sets and XPath objects (which may contain strings, floats, booleans or node-sets).
 

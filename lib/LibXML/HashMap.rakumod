@@ -114,7 +114,7 @@ method deallocator { -> Pointer $p, xmlCharP $k { free($_) with $p } }
 
 method new(CArray :$pairs) {
     my xmlHashTable:D $raw .= new();
-    $raw.add-pairs($_, self.deallocator)
+    $raw.add-pairs($_, $pairs.elems, self.deallocator)
         with $pairs;
     nativecast(self.WHAT, $raw);
 }
@@ -206,6 +206,6 @@ LibXML::HashMap - LibXML hash table bindings
 
 **Experimental**
 
-This module uses an xmlHashTable object as a raw store for several container types, include integers, strings, node sets and XPath objects (which may contain strings, floats, booleans or node-sets.
+This module uses an xmlHashTable object as a raw store for several container types, include integers, strings, node sets and XPath objects (which may contain strings, floats, booleans or node-sets).
 
 =end pod

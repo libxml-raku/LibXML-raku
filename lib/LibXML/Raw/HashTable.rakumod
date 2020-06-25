@@ -17,5 +17,5 @@ class xmlHashTable is repr(Opaque) is export {
     method keys(CArray[Str]) is native($BIND-XML2) is symbol('xml6_hash_keys') {*}
     method values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_values') {*}
     method key-values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_key_values') {*}
-    method add-pairs(CArray, &deallocator ( Pointer, xmlCharP ) ) is native($BIND-XML2) is symbol('xml6_hash_add_pairs') {*}
+    method add-pairs(CArray, uint32, &deallocator ( Pointer, xmlCharP ) ) is native($BIND-XML2) is symbol('xml6_hash_add_pairs') {*}
 }
