@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML::HashMap;
 use LibXML::Element;
-use LibXML::XPath::Object :XPathDomain;
+use LibXML::XPath::Object :XPathRange;
 use NativeCall;
 
 plan 2;
@@ -28,18 +28,18 @@ subtest 'node-hash' => {
 subtest 'object-hash' => {
     plan 20;
 
-    my LibXML::HashMap[LibXML::XPath::Object] $h .= new;
-    is-deeply $h.of, XPathDomain;
+    my LibXML::HashMap[XPathRange] $h .= new;
+    is-deeply $h.of, XPathRange;
     is $h.elems, 0;
     lives-ok { $h<Xx> = 'Hi';};
     is $h.elems, 1;
     is $h<Xx>, 'Hi';
-    is-deeply $h<Yy>, XPathDomain;
+    is-deeply $h<Yy>, XPathRange;
     lives-ok {$h<Xx> = 'Again'};
     is $h.elems, 1;
     is $h<Xx>, 'Again';
     $h<Xx>:delete;
-    is $h<Xx>, XPathDomain;
+    is $h<Xx>, XPathRange;
     is $h.elems, 0;
     $h<Xx> = 42;
     is-deeply $h<Xx>, 42e0;
