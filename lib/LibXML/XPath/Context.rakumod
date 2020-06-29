@@ -108,15 +108,14 @@ use LibXML::XPath::Object :XPathRange;
 use NativeCall;
 use Method::Also;
 
+has $.sax-handler is rw;
 has $.query-handler is rw = LibXML::Config.query-handler;
-has LibXML::Node $!context-node;
 has xmlXPathContext $!raw .= new;
 method raw { $!raw }
 
 # for the LibXML::ErrorHandling role
 use LibXML::ErrorHandling;
 use LibXML::_Options;
-has $.sax-handler is rw;
 has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
 also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
 also does LibXML::ErrorHandling;
@@ -127,12 +126,10 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 multi submethod TWEAK(LibXML::Document:D :$doc!) {
     self.setContextNode($doc);
-    .Reference with $!raw.node;
 }
 
 multi submethod TWEAK(LibXML::Node :$node) {
     self.setContextNode($_) with $node;
-    .Reference with $!raw.node;
 }
 
 =head3 method new
@@ -490,20 +487,23 @@ multi method exists(Str:D $expr, LibXML::Node $ref?) returns Bool;
 
 
 method getContextNode {
-    $!context-node;
+    LibXML::Node.box: $!raw.node;
 }
 
 # defining the context node
-multi method setContextNode(LibXML::Node:D $!context-node) {
-    $!raw.SetNode($!context-node.raw);
-    die $_ with $!context-node.domFailure;
-    $!context-node;
+multi method setContextNode(LibXML::Node:D $node) {
+    $node.raw.Reference;
+    .Unreference with $!raw.node;
+    $!raw.SetNode($node.raw);
+    die $_ with $node.domFailure;
+    $node;
 }
 
 # undefining the context node
-multi method setContextNode(LibXML::Node:U $!context-node) is default {
+multi method setContextNode(LibXML::Node:U $node) {
+    .Unreference with $!raw.node;
     $!raw.SetNode(anyNode);
-    $!context-node;
+    $node;
 }
 
 #| Set or get the context node
