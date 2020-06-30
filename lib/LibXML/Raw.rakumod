@@ -812,6 +812,11 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domGetElementsByLocalName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domGetElementsByTagName(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domGetElementsByTagNameNS(Str, Str --> xmlNodeSet) is native($BIND-XML2) {*}
+    method !hash(int32 $keep-blanks --> xmlHashTable) is native($BIND-XML2) is symbol('xml6_hash_xpath_node_children') {*}
+    method Hash(:$blank) {
+        self!hash(+$blank.so);
+    }
+
     method domNormalize(--> int32) is native($BIND-XML2) {*}
     method domUniqueKey(--> xmlCharP) is native($BIND-XML2) {*}
     method domIsSameNode(anyNode --> int32) is native($BIND-XML2) {*}
@@ -1254,7 +1259,8 @@ class xmlNodeSet is export {
 
     our sub NewFromNode(anyNode --> xmlNodeSet) is export is native($XML2) is symbol('xmlXPathNodeSetCreate') {*}
     our sub NewFromList(itemNode, int32 --> xmlNodeSet) is native($BIND-XML2) is symbol('domCreateNodeSetFromList') {*}
-
+    method !hash(int32 $deref --> xmlHashTable) is native($BIND-XML2) is symbol('xml6_hash_xpath_nodeset') {*}
+    method Hash(:$deref) { self!hash(+$deref.so) }
     method Reference is native($BIND-XML2) is symbol('domReferenceNodeSet') {*}
     method Unreference is native($BIND-XML2) is symbol('domUnreferenceNodeSet') {*}
     method Free is native($XML2) is symbol('xmlXPathFreeNodeSet') {*}

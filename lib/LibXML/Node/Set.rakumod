@@ -5,6 +5,7 @@ class LibXML::Node::Set
 
     use LibXML::Enums;
     use LibXML::Raw;
+    use LibXML::Raw::HashTable;
     use LibXML::Item;
     use Method::Also;
     use NativeCall;
@@ -12,9 +13,9 @@ class LibXML::Node::Set
     has LibXML::Item $.of;
     has Bool $.deref;
     has xmlNodeSet $.raw;
-    has Hash $!hstore;
+    has $!hstore;
 
-    submethod TWEAK(:$native) {
+    submethod TWEAK {
         $!raw //= xmlNodeSet.new;
         .Reference given $!raw;
     }
@@ -28,26 +29,11 @@ class LibXML::Node::Set
         (0 ..^ $!raw.nodeNr).map: { $!of.box: $tab[$_] };
     }
 
-    sub deref(%h, $nodes is raw) {
-        for $nodes {
-            (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_
-        }
-    }
-    method Hash handles <AT-KEY keys> {
+    method Hash handles <AT-KEY keys pairs> {
         $!hstore //= do {
-            my LibXML::Node::Set %h = ();
-            if $!deref {
-                for self.Seq {
-                    if .nodeType == XML_ELEMENT_NODE {
-                        deref(%h, .childNodes);
-                        deref(%h, .properties);
-                    }
-                }
-            }
-            else {
-                deref(%h, self.Array)
-            }
-            %h;
+            my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
+            require LibXML::HashMap::NodeSet;
+            LibXML::HashMap::NodeSet.new: :$raw;
         }
     }
     method AT-POS(UInt:D $pos) {
@@ -58,13 +44,13 @@ class LibXML::Node::Set
     method add(LibXML::Item:D $node) is also<push> {
         fail "node has wrong type {$node.WHAT.perl} for node-set of type: {$!of.WHAT}"
             unless $node ~~ $!of;
-        .{$node.xpath-key}.push: $node with $!hstore;
+        $!hstore = Nil;
         $!raw.push: $node.raw.ItemNode;
         $node;
     }
     method pop {
         with $!raw.pop -> $node {
-            .{$node.xpath-key}.pop with $!hstore;
+            $!hstore = Nil;
             $!of.box: $node;
         }
         else {

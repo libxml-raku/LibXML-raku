@@ -43,8 +43,7 @@ method deallocator() {
     }
 }
 
-method new(CArray :$pairs) {
-    my xmlHashTable:D $raw .= new();
+method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
     $raw.add-pairs($_, $pairs.elems, self.deallocator)
         with $pairs;
     nativecast(self.WHAT, $raw);
@@ -144,7 +143,7 @@ role Assoc[LibXML::Node::Set $of] {
     }
     method thaw(Pointer $p) {
         my $raw = nativecast(xmlNodeSet, $p).copy;
-        LibXML::Node::Set.new: :$raw;
+        LibXML::Node::Set.new: :$raw, :deref;
     }
     method deallocator() {
         -> Pointer $p, Str $k {

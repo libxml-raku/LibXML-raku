@@ -445,11 +445,6 @@ method ast(Bool :$blank = LibXML::Config.keep-blanks) {
     self.tag => @content;
 }
 
-method Hash { # handles: keys, pairs, kv -- see LibXML::Node
-    my %h := callsame;
-    %h{.xpath-key } = $_ for self.properties;
-    %h;
-}
 multi method AT-KEY('@*') is rw { self.attributes }
 multi method AT-KEY('attributes::') is rw { self.attributes }
 multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Grammar::pident>':']?<name=.XML::Grammar::pident>$/) is rw {

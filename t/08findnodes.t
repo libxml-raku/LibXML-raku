@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 62;
+plan 64;
 
 use LibXML;
 use LibXML::Element;
@@ -89,8 +89,10 @@ if defined $dom {
 
     my $telem = $dom.createElement('test');
     $telem.appendWellBalancedChunk('<B>c</B>');
+    is $telem, '<test><B>c</B></test>';
     is $telem.keys, ("B",);
     is $telem<B>, '<B>c</B>';
+    is $telem<B>[0].keys, ("text()",);
     ok ! $telem<b>;
 
     finddoc($dom);

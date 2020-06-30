@@ -1,7 +1,13 @@
-#include "xml6.h"
+#include <libxml/xpath.h>
+#include <libxml/hash.h>
 #include <string.h>
 #include <assert.h>
+
+#include "xml6.h"
+#include "xml6_node.h"
 #include "xml6_hash.h"
+#include "dom.h"
+#include "domXPath.h"
 
 static void _xml6_get_key(void* value, const xmlChar*** keys, xmlChar* key) {
     *((*keys)++) = xmlStrdup(key);
@@ -50,4 +56,74 @@ DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, uint n, x
             xmlHashUpdateEntry(self, key, value, deallocator);
         }
     }
+}
+
+static void _hash_xpath_node(xmlHashTablePtr self, xmlNodePtr node) {
+    assert(self != NULL);
+
+    if (node != NULL) {
+        xmlChar* key = domGetXPathKey(node);
+        xmlNodeSetPtr bucket = (xmlNodeSetPtr) xmlHashLookup(self, key);
+
+        if (bucket == NULL) {
+            bucket = xmlXPathNodeSetCreate(NULL);
+            xmlHashAddEntry(self, key, (void*) bucket);
+        }
+
+        domPushNodeSet(bucket, node);
+    }
+}
+
+static void _hash_xpath_node_siblings(xmlHashTablePtr self, xmlNodePtr node, int keep_blanks) {
+    assert(self != NULL);
+
+    if (node != NULL) {
+        xmlChar* key = domGetXPathKey(node);
+        xmlNodeSetPtr bucket = (xmlNodeSetPtr) xmlHashLookup(self, key);
+        xmlNodePtr next = (node->type == XML_NAMESPACE_DECL)
+            ? (xmlNodePtr) ((xmlNsPtr) node)->next
+            : xml6_node_next(node, keep_blanks);
+
+        if (bucket == NULL) {
+            bucket = xmlXPathNodeSetCreate(NULL);
+            xmlHashAddEntry(self, key, (void*) bucket);
+        }
+
+        domPushNodeSet(bucket, node);
+
+        _hash_xpath_node_siblings(self, next, keep_blanks);
+    }
+}
+
+static void _hash_xpath_node_children(xmlHashTablePtr self, xmlNodePtr node, int keep_blanks) {
+    assert(self != NULL);
+    _hash_xpath_node_siblings(self, node->children, keep_blanks);
+    _hash_xpath_node_siblings(self, (xmlNodePtr) node->properties, keep_blanks);
+}
+
+DLLEXPORT xmlHashTablePtr xml6_hash_xpath_node_children(xmlNodePtr node, int keep_blanks) {
+    xmlHashTablePtr rv = xmlHashCreate(0);
+    assert(rv != NULL);
+    _hash_xpath_node_children(rv, node, keep_blanks);
+    return rv;
+}
+
+DLLEXPORT xmlHashTablePtr xml6_hash_xpath_nodeset(xmlNodeSetPtr nodes, int deref) {
+    xmlHashTablePtr rv = xmlHashCreate(0);
+    assert(rv != NULL);
+
+    if (nodes != NULL) {
+        int i;
+        for (i = 0; i < nodes->nodeNr; i++) {
+            xmlNodePtr node = nodes->nodeTab[i];
+
+            if (deref) {
+                _hash_xpath_node_children(rv, node, 1);
+            }
+            else {
+                _hash_xpath_node(rv, node);
+            }
+        }
+    }
+    return rv;
 }

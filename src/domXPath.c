@@ -495,7 +495,7 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
             ctxt->doc = doc;
         }
 
-        xmlNsPtr *ns = _domXPathCtxtRegisterNS(ctxt, node);
+        xmlNsPtr* ns = _domXPathCtxtRegisterNS(ctxt, node);
         if (ns != NULL) {
             xmlFree(ns);
         }

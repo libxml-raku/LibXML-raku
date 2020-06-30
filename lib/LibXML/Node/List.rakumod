@@ -3,6 +3,7 @@ unit class LibXML::Node::List
     does Iterable;
 
 use LibXML::Raw;
+use LibXML::Raw::HashTable;
 use LibXML::Item;
 use LibXML::Node::Set;
 use Method::Also;
@@ -12,7 +13,7 @@ has $!raw handles <string-value>;
 has $.of is required;
 has Bool $!reified;
 has LibXML::Item @!store;
-has Hash $!hstore;
+has $!hstore;
 has LibXML::Item $.parent is required;
 
 submethod TWEAK {
@@ -23,7 +24,7 @@ submethod TWEAK {
     }
 }
 
-method Array handles<AT-POS first elems List list values map grep Numeric tail> {
+method Array handles<AT-POS keys first elems List list values map grep Numeric tail> {
     unless $!reified {
         @!store = self;
         $!reified = True;
@@ -31,26 +32,23 @@ method Array handles<AT-POS first elems List list values map grep Numeric tail> 
     @!store;
 }
 
-method Hash handles <AT-KEY> {
+method Hash handles <AT-KEY pairs> {
     $!hstore //= do {
-        my %h = ();
-        for self.Array {
-            (%h{.xpath-key} //= LibXML::Node::Set.new: :deref).add: $_;
-        }
-        %h;
+        my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
+        (require ::('LibXML::HashMap::NodeSet')).new: :$raw;
     }
 }
 
 method push(LibXML::Item:D $node) {
     $.parent.appendChild($node);
     @!store.push($node) if $!reified;
-    .{$node.xpath-key}.push: $node with $!hstore;
+    $!hstore = Nil;
     $node;
 } 
 method pop {
     do with self.Array.tail -> LibXML::Item $item {
         @!store.pop;
-        .{$item.xpath-key}.pop with $!hstore;
+        $!hstore = Nil;
         $item.unbindNode;
     } // $!of;
 }

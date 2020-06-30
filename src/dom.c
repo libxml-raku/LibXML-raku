@@ -715,6 +715,9 @@ domGetXPathKey(xmlNodePtr node) {
         case XML_TEXT_NODE :
             rv = xmlStrdup( (xmlChar*) "text()");
             break;
+        case XML_NAMESPACE_DECL :
+            rv = xmlStrdup( (xmlChar*) "namespace()");
+            break;
         case XML_DOCUMENT_NODE :
         case XML_HTML_DOCUMENT_NODE :
         case XML_DOCB_DOCUMENT_NODE :
@@ -1186,7 +1189,7 @@ domGetNodeValue( xmlNodePtr n ) {
                 rv = xmlStrdup(n->content);
             }
             else if ( n->children != NULL ) {
-                xmlNodePtr cnode = n->children;
+                xmlNodePtr cnode = n->children;\
                 /* ok then toString in this case ... */
                 while (cnode) {
                     xmlBufferPtr buffer = xmlBufferCreate();

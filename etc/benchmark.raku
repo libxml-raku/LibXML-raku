@@ -105,7 +105,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
             $xml = from-xml-file($*file);
             $xml-root = $xml.root;
         },
-        '00-hybrid' => {
+        '00-load.hybrid' => {
             my $sax-handler = LibXML::SAX::Handler::XML.new;
             LibXML.parse: :$*file, :$sax-handler;
         },

@@ -1,5 +1,5 @@
 0.5.3 2020-07-xx
-    - Add LibXML::HashMap
+    - Add LibXML::HashMap bindings to xmlHashTable
 0.5.2 2020-06-18
     - Fix #42 .parent() on root element dieing
 0.5.1 2020-06-18
@@ -14,8 +14,8 @@
           native variants.
       -- Optimised the getElementsByXxx() DOM methods. Changed from using XPath searches
         to custom binding functions [dom.c]
-      --- Fixed thread-safety of LibXML::Node::List and LibXML::Node::Set iterators (see
-          also https://github.com/Raku/doc/issues/3477)
+      -- Fixed thread-safety of LibXML::Node::List and LibXML::Node::Set iterators (see
+         also https://github.com/Raku/doc/issues/3477)
 0.4.0 2020-05-21
     - Fix $node.getOwner() method to return the root of the
       current node. Distinguish it from .getOwnerDocument
