@@ -207,10 +207,10 @@ method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
 }
 
 method getAttributeNode(Str $att-name --> LibXML::Attr) is also<attribute> {
-    LibXML::Attr.box: $.raw.getAttributeNode($att-name)
+    LibXML::Attr.box: $.raw.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
-    LibXML::Attr.box: $.raw.getAttributeNodeNS($uri, $att-name)
+    LibXML::Attr.box: $.raw.getAttributeNodeNS($uri, $att-name);
 }
 
 # handled by the native method
@@ -448,21 +448,22 @@ method ast(Bool :$blank = LibXML::Config.keep-blanks) {
 multi method AT-KEY('@*') is rw { self.attributes }
 multi method AT-KEY('attributes::') is rw { self.attributes }
 multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Grammar::pident>':']?<name=.XML::Grammar::pident>$/) is rw {
-        my $ctx := $.xpath-context;
-        my Str:D $name := $<name>.Str;
-        my Str $href;
-        with $<pfx> {
-            fail "'xmlns' prefix is reserved"
-                when $_ eq 'xmlns';
-            $href = $ctx.lookupNs(.Str)
-                // fail "unknown namespace prefix $_";
+    my Str:D $name := $<name>.Str;
+    my Str $href;
+
+    with $<pfx> {
+        fail "'xmlns' prefix is reserved"
+            when $_ eq 'xmlns';
+        $href = self.xpath-context.lookupNs(.Str)
+            // fail "unknown namespace prefix $_";
+    }
+
+    Proxy.new(
+        FETCH => { $.getAttributeNodeNS($href, $name) },
+        STORE => sub ($, Str() $val) {
+            $.setAttributeNS($href, $name, $val);
         }
-        Proxy.new(
-            FETCH => { $.xpath-context.first($att-path) // LibXML::Attr },
-            STORE => sub ($, Str() $val) {
-                self.setAttributeNS($href, $name, $val);
-            }
-        )
+    );
 }
 
 method appendWellBalancedChunk(Str:D $string --> LibXML::Node) {

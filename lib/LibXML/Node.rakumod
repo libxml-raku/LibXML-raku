@@ -967,9 +967,10 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with self.raw.ns {.hr
 =end pod
 
 multi method AT-KEY(NCName:D $tag) {
-    # special case to handle default namespaces without a prefix.
-    # https://stackoverflow.com/questions/16717211/
     iterate-set(LibXML::Node, self.raw.getChildrenByLocalName($tag), :deref);
+}
+multi method AT-KEY(QName:D $tag) {
+    iterate-set(LibXML::Node, self.raw.getChildrenByTagName($tag), :deref);
 }
 multi method AT-KEY(Str:D $xpath) is default {
     $.xpath-context.AT-KEY($xpath);
