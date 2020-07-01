@@ -43,7 +43,7 @@ DLLEXPORT void xml6_hash_key_values(xmlHashTablePtr self, void** buf) {
     _xml6_scan(self, (xmlHashScanner) _xml6_get_pair, 2, buf);
 }
 
-DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, uint n, xmlHashDeallocator deallocator) {
+DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, unsigned int n, xmlHashDeallocator deallocator) {
     assert(self != NULL);
     assert((n % 2) == 0);
 

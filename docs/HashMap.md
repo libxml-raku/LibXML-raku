@@ -3,11 +3,6 @@ class LibXML::HashMap
 
 Bindings to xmlHashTable
 
-Name
-----
-
-LibXML::HashMap - LibXML hash table bindings
-
 Synopsis
 --------
 
@@ -17,6 +12,9 @@ Synopsis
     my LibXML::HashMap[Str] $str-hash .= new;
     my LibXML::HashMap[LibXML::Item] $item-hash .= new;
     my LibXML::HashMap[LibXML::Node::Set] $set-hash .= new;
+    $set-hash = $node.findnodes($expr).Hash;
+    $set-hash = $node.childNodes().Hash;
+    # etc...
 
     $obj-hash<element> = LibXML::Element.new('test');
     $obj-hash<number> = 42e0;
@@ -28,11 +26,33 @@ Synopsis
 Description
 -----------
 
-**Experimental**
+This module uses an xmlHashTable object as a raw hash-like store.
 
-This module uses an xmlHashTable object as a raw hash-like store. By default it uses include XPath objects to store strings, floats, booleans or node-sets.
+Both [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) and [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List) objects have a `Hash()` method that returns a `LibXML::HashMap[LibXML::Node::Set]` object. For example
 
-It also allows direct hash storage of types: Pointer, UInt, Str, LibXML::Item or LibXML::Node::Set.
+    use LibXML::HashMap;
+    use LibXML::Document;
+    use LibXML::Node::Set;
+
+    my LibXML::Document $doc .= parse: "example/dromeds.xml";
+    my LibXML::HashMap[LibXML::Node::Set] $nodes = $doc.findnodes('//*').Hash;
+    # -OR-
+    $nodes = $doc.getElementsByTagName('*').Hash;
+    say $nodes<species>[1]<@name>.Str;
+
+This is the nodes in the set or list collated by tag-name.
+
+Several container types are available: 
+
+  * `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans or node-sets`.
+
+  * `LibXML::HashMap[UInt]` - Positive integers
+
+  * `LibXML::HashMap[Str]` - Strings
+
+  * `LibXML::HashMap[LibXML::Node::Set]` - Sets of nodes
+
+  * `LibXML::HashMap[LibXML::Item]` - Individual nodes
 
 Methods
 -------
@@ -44,7 +64,7 @@ Methods
 
 By default XPath Objects to containerize and store strings, floats, booleans or node-sets.
 
-The other container types, `UInt`, `Str`, `Pointer`, `LibXML::Item` and `LibXML::Node::Set` store values directly, without using an intermediate XPath objects.
+The other container types, `UInt`, `Str`, `LibXML::Item` and `LibXML::Node::Set` store values directly, without using an intermediate XPath objects.
 
 ### method of
 
