@@ -216,15 +216,18 @@ static xmlNodeSetPtr _domResizeNodeSet(xmlNodeSetPtr rv, int nodeMax) {
 }
 
 DLLEXPORT void
-domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr item) {
+domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr item, int reference) {
     assert(self != NULL);
     assert(item != NULL);
+
+    item = _domNewItem(item);
+    if (reference) _domReferenceItem(item);
 
     if (self->nodeNr >= self->nodeMax) {
         _domResizeNodeSet(self, self->nodeMax * 2);
     }
 
-    self->nodeTab[self->nodeNr++] = _domReferenceItem(_domNewItem(item));
+    self->nodeTab[self->nodeNr++] = _domNewItem(item);
 }
 
 DLLEXPORT xmlNodeSetPtr

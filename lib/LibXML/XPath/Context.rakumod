@@ -592,9 +592,10 @@ multi method park(XPathRange:D $_) { $_ }
 subset Listy where List|Seq;
 multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
     # create a node-set for a list of nodes
+    constant NoRef = 0;
     my LibXML::Node:D @nodes = .List;
     my xmlNodeSet $set .= new;
-    $set.push(.raw) for @nodes;
+    $set.push(.raw, NoRef) for @nodes;
     self!stash: $set, :$ctxt;
 }
 # anything else (Bool, Numeric, Str)

@@ -32,7 +32,16 @@ method Array handles<AT-POS keys first elems List list values map grep Numeric t
     @!store;
 }
 
-method Hash handles <AT-KEY pairs> {
+method AT-KEY(Str() $key) {
+    with $!hstore {
+        .AT-KEY($key);
+    }
+    else {
+        $!parent.getChildrenByTagName($key);
+    }
+}
+
+method Hash handles <pairs> {
     $!hstore //= do {
         my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
         (require ::('LibXML::HashMap::NodeSet')).new: :$raw;

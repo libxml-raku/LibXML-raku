@@ -437,11 +437,9 @@ method !set-attributes(@atts) {
 =head2 DOM Manipulation Methods
 
 method ast(Bool :$blank = LibXML::Config.keep-blanks) {
-    my @content;
-    @content.push: .ast for self.namespaces;
-    @content.push: .ast for self.properties;
-    @content.push: .ast(:$blank)
-        for self.children(:$blank);
+    my @content = self.namespaces>>.ast;
+    @content.append: self.properties>>.ast;
+    @content.append: self.children(:$blank)>>.ast(:$blank);
     self.tag => @content;
 }
 

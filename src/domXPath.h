@@ -41,7 +41,7 @@ domReferenceNodeSet(xmlNodeSetPtr self);
 DLLEXPORT void
 domUnreferenceNodeSet(xmlNodeSetPtr self);
 
-DLLEXPORT void domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem);
+DLLEXPORT void domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr elem, int reference);
 
 DLLEXPORT xmlNodeSetPtr domCreateNodeSetFromList(xmlNodePtr elem, int keep_blanks);
 

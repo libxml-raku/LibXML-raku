@@ -42,10 +42,11 @@ class LibXML::Node::Set
             !! $!of.box($!raw.nodeTab[$pos]);
     }
     method add(LibXML::Item:D $node) is also<push> {
+        constant Ref = 1;
         fail "node has wrong type {$node.WHAT.perl} for node-set of type: {$!of.WHAT}"
             unless $node ~~ $!of;
         $!hstore = Nil;
-        $!raw.push: $node.raw.ItemNode;
+        $!raw.push($node.raw.ItemNode, Ref);
         $node;
     }
     method pop {
