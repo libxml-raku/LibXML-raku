@@ -176,9 +176,6 @@ method ^parameterize(Mu:U \p, OfType:U \t) {
 }
 
 =begin pod
-=head2 Name
-
-LibXML::HashMap - LibXML hash table bindings
 
 =head2 Synopsis
 
@@ -188,6 +185,9 @@ LibXML::HashMap - LibXML hash table bindings
   my LibXML::HashMap[Str] $str-hash .= new;
   my LibXML::HashMap[LibXML::Item] $item-hash .= new;
   my LibXML::HashMap[LibXML::Node::Set] $set-hash .= new;
+  $set-hash = $node.findnodes($expr).Hash;
+  $set-hash = $node.childNodes().Hash;
+  # etc...
 
   $obj-hash<element> = LibXML::Element.new('test');
   $obj-hash<number> = 42e0;
@@ -198,11 +198,30 @@ LibXML::HashMap - LibXML hash table bindings
 
 =head2 Description
 
-**Experimental**
+This module uses an xmlHashTable object as a raw hash-like store.
 
-This module uses an xmlHashTable object as a raw hash-like store. By default it uses include XPath objects to store strings, floats, booleans or node-sets.
+Both L<LibXML::Node::Set> and L<LibXML::Node::List> objects have a `Hash()` method that returns
+a `LibXML::HashMap[LibXML::Node::Set]` object. For example
 
-It also allows direct hash storage of types: Pointer, UInt, Str, LibXML::Item or LibXML::Node::Set.
+  use LibXML::HashMap;
+  use LibXML::Document;
+  use LibXML::Node::Set;
+
+  my LibXML::Document $doc .= parse: "example/dromeds.xml";
+  my LibXML::HashMap[LibXML::Node::Set] $nodes = $doc.findnodes('//*').Hash;
+  # -OR-
+  $nodes = $doc.getElementsByTagName('*').Hash;
+  say $nodes<species>[1]<@name>.Str;
+
+This is the nodes in the set or list collated by tag-name.
+
+Several container types are available:  
+
+  =item `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans or node-sets`.
+  =item `LibXML::HashMap[UInt]` - Positive integers
+  =item `LibXML::HashMap[Str]` - Strings
+  =item `LibXML::HashMap[LibXML::Node::Set]` - Sets of nodes
+  =item `LibXML::HashMap[LibXML::Item]` - Individual nodes
 
 =head2 Methods
 
@@ -213,7 +232,7 @@ It also allows direct hash storage of types: Pointer, UInt, Str, LibXML::Item or
 
 By default XPath Objects to containerize and store strings, floats, booleans or node-sets.
 
-The other container types, `UInt`, `Str`, `Pointer`, `LibXML::Item` and `LibXML::Node::Set` store values directly, without using an intermediate XPath objects.
+The other container types, `UInt`, `Str`, `LibXML::Item` and `LibXML::Node::Set` store values directly, without using an intermediate XPath objects.
 
 =head3 method of
 

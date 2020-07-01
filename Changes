@@ -11,9 +11,9 @@
     - #38 Performance improvements and bench-marking
       -- Convert node and XPath object classes to CPointer representations. This
          allows for faster lower-memory thrifty stantation of objects via nativecast.
-      -- .native methods and options have globally renamed to .raw ('native' no longer
+      -- .native() methods and options have globally renamed to .raw() ('native' no longer
           makes sense as both the inner [CStruct] and outer [CPointer] classes are both
-          native variants.
+          native variants).
       -- Optimised the getElementsByXxx() DOM methods. Changed from using XPath searches
         to custom binding functions [dom.c]
       -- Fixed thread-safety of LibXML::Node::List and LibXML::Node::Set iterators (see

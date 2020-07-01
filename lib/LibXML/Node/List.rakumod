@@ -44,7 +44,8 @@ method AT-KEY(Str() $key) {
 method Hash handles <pairs> {
     $!hstore //= do {
         my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
-        (require ::('LibXML::HashMap::NodeSet')).new: :$raw;
+        use LibXML::HashMap;
+        LibXML::HashMap[LibXML::Node::Set].new: :$raw;
     }
 }
 
