@@ -276,7 +276,7 @@ Returns alternating keys and values as a sequence.
 
 Coerces to a Raku Hash object.
 
-=head3 method EXITS-KEY
+=head3 method EXISTS-KEY
 
     method EXIST-KEY(Str() $key) returns Bool
     say $h.EXISTS-KEY('foo');

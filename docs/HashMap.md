@@ -108,7 +108,7 @@ Returns alternating keys and values as a sequence.
 
 Coerces to a Raku Hash object.
 
-### method EXITS-KEY
+### method EXISTS-KEY
 
     method EXIST-KEY(Str() $key) returns Bool
     say $h.EXISTS-KEY('foo');

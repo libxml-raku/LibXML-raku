@@ -1408,7 +1408,7 @@ DLLEXPORT xmlNodeSetPtr
 domGetChildrenByTagName( xmlNodePtr self, xmlChar* name ){
     xmlNodeSetPtr rv = NULL;
     xmlNodePtr cld = NULL;
-    uint any_elem;
+    unsigned int any_elem;
 
     if ( self != NULL && name != NULL ) {
         any_elem = (xmlStrcmp( name, (unsigned char *) "*" ) == 0);

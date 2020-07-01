@@ -94,7 +94,7 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 =item L<LibXML::Node::Set> - XPath Node Sets
 
-=item L<LibXML::HashMap> - LibXML Hash Bindings (experimental)
+=item L<LibXML::HashMap> - LibXML Hash Bindings
 
 =head2 Parsing
 

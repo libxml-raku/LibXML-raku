@@ -63,7 +63,7 @@ Container/Mapping classes
 
   * [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) - XPath Node Sets
 
-  * [LibXML::HashMap](https://libxml-raku.github.io/LibXML-raku/HashMap) - LibXML Hash Bindings (experimental)
+  * [LibXML::HashMap](https://libxml-raku.github.io/LibXML-raku/HashMap) - LibXML Hash Bindings
 
 Parsing
 -------

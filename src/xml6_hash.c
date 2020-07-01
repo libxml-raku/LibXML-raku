@@ -48,7 +48,7 @@ DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, unsigned 
     assert((n % 2) == 0);
 
     if (n) {
-        uint i = 0;
+        unsigned int i = 0;
         assert(pairs != NULL);
         for (i = 0; i < n; i += 2) {
             xmlChar* key = (xmlChar*) pairs[i];
