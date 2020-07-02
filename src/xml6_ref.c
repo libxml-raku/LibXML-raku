@@ -18,6 +18,11 @@ static xml6Ref ref_freed = {
     NULL, NULL, 0, 0, 0
 };
 
+static xmlMutexPtr _mutex = NULL;
+
+static int ref_current = 0;
+static int ref_total = 0;
+
 DLLEXPORT void* xml6_ref_freed() {
     return (void *) &ref_freed;
 }
@@ -32,7 +37,6 @@ _ref_new(void) {
     return ref;
 }
 
-static xmlMutexPtr _mutex = NULL;
 DLLEXPORT void
 xml6_ref_init(void) {
     if (_mutex == NULL) {
@@ -56,6 +60,8 @@ xml6_ref_add(void** self_ptr) {
         if ( *self_ptr == NULL ) {
             self = _ref_new();
             *self_ptr = (void*) self;
+            ref_current++;
+            ref_total++;
             init = 1;
         }
         xmlMutexUnlock(_mutex);
@@ -116,6 +122,7 @@ xml6_ref_remove(void** self_ptr, const char* name, void *obj) {
                     *self_ptr = NULL;
                     xmlFree((void*) self);
                     self = NULL;
+                    ref_current--;
                     released = 1;
                 }
                 else {
@@ -211,4 +218,13 @@ xml6_ref_unlock(void* _self) {
         return 1;
     }
     return 0;
+}
+
+DLLEXPORT int
+xml6_ref_current(void) {
+    return ref_current;
+}
+DLLEXPORT int
+xml6_ref_total(void) {
+    return ref_total;
 }

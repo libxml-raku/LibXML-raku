@@ -1610,6 +1610,9 @@ sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 ## xmlInitParser() should be called once at start-up
 sub xmlInitParser is native($XML2) is export {*}
 sub xml6_ref_init is native($BIND-XML2) {*}
+our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
+our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
+
 sub xml6_gbl_init_external_entity_loader() is native($BIND-XML2) {*}
 sub xml6_gbl_save_error_handlers(--> Pointer) is native($BIND-XML2) is export {*}
 sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}

@@ -24,7 +24,7 @@ if $skip {
 
 #todo: use Telemetry?
 
-constant TIMES_THROUGH = %*ENV<MEMORY_TIMES> || 1_000;
+constant TIMES_THROUGH = %*ENV<MEMORY_TIMES> || 5_000;
 
 diag "running tests {TIMES_THROUGH} times";
 
@@ -32,8 +32,6 @@ class sax_null {...}
 
 use LibXML;
 {
-
-        my $peek = 0;
 
         pass('Start.');
 
@@ -113,25 +111,8 @@ use LibXML;
         for (1..TIMES_THROUGH)        {
             my $elem = $doc.createElement('x');
 
-            if ($peek) {
-                warn("Doc before elem\n");
-                # Devel::Peek::Dump($doc);
-                warn("Elem alone\n");
-                # Devel::Peek::Dump($elem);
-            }
-
             $doc.setDocumentElement($elem);
 
-            if ($peek) {
-                warn("Elem after attaching\n");
-                # Devel::Peek::Dump($elem);
-                warn("Doc after elem\n");
-                # Devel::Peek::Dump($doc);
-            }
-        }
-        if ($peek) {
-            warn("Doc should be freed\n");
-            # Devel::Peek::Dump($doc);
         }
         pass('customDocs');
         check_mem();
@@ -470,6 +451,7 @@ our $units;
 sub check_mem($initialise?) {
     # Log Memory Usage
     my %mem;
+    $*VM.request-garbage-collection;
     given '/proc/self/status'.IO.open -> $FH {
         for $FH.lines {
             if (/^VmSize.*?(\d+)\W*(\w+)$/) {
@@ -492,12 +474,19 @@ sub check_mem($initialise?) {
             $LibXML::TOTALMEM = %mem<Total>;
         }
 
-        note("# Mem Total: %mem<Total> $units, Resident: %mem<Resident> $units");
+        my $live-objects = LibXML::Raw::ref-current;
+
+        note("# Mem Total: %mem<Total> $units, Resident: %mem<Resident> $units, Objects: $live-objects");
     }
 }
 
 sub summarise_mem() {
-    note("# Total Mem Increase: {$LibXML::TOTALMEM - $LibXML::STARTMEM} $units");
+    $*VM.request-garbage-collection;
+    my $total-objects = LibXML::Raw::ref-total();
+    my $lost-objects = LibXML::Raw::ref-current();
+    my $lost-pcnt = sprintf("%.02f", 100 * $lost-objects / $total-objects);
+
+    note("# Total Mem Increase: {$LibXML::TOTALMEM - $LibXML::STARTMEM} $units, Lost: $lost-objects/$total-objects Objects ($lost-pcnt\%)");
 }
 
 # some tests for document fragments
