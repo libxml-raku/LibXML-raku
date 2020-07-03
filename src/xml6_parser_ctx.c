@@ -17,6 +17,14 @@ DLLEXPORT void xml6_parser_ctx_set_sax(xmlParserCtxtPtr self, xmlSAXHandlerPtr s
     self->sax = sax;
 }
 
+DLLEXPORT void xml6_parser_ctx_set_myDoc(xmlParserCtxtPtr self, xmlDocPtr doc) {
+    assert(self != NULL);
+    if (self->myDoc && self->myDoc != doc) {
+        xml6_warn("possible memory leak in setting ctx->myDoc");
+    }
+    self->myDoc = doc;
+}
+
 DLLEXPORT htmlParserCtxtPtr
 xml6_parser_ctx_html_create_str(const xmlChar *str, const char *encoding) {
 

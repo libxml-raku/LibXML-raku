@@ -20,7 +20,10 @@ method get-flag(UInt $flags, Str:D $k is copy) {
     }
 }
 
-method set-flag(UInt $flags is rw, Str:D $k is copy, Bool() $v, Bool $lax?) {
+multi method set-flag(UInt $flags is rw, 'flags', UInt $v, $?) {
+    $flags +|= $v;
+}
+multi method set-flag(UInt $flags is rw, Str:D $k is copy, Bool() $v, Bool $lax?) {
     $k .= subst("_", "-", :g);
     $flags //= 0;
     with %OPTS{$k} {

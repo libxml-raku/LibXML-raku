@@ -135,20 +135,22 @@ method new(
     Str  :$URI,
     Bool :$html,
     Int  :$compression,
-    LibXML::Parser::Context :$ctx,
+    Bool :$input-compressed,
+    :$ctx,
     xmlDoc:D :$raw = ($html ?? htmlDoc !! xmlDoc).new,
     :$native, # obselete,
     |c
 ) {
     die 'new(:$native) option is obselete. Please use :$raw'
         with $native;
+    die 'new(:$ctx) option is obselete.' with $ctx;
     $raw.version = $_ with $version;
     $raw.encoding = $_ with $enc;
     $raw.URI = $_ with $URI;
     $raw.setCompression($_) with $compression;
     $raw.Reference;
     $raw.set-flags(InputCompressed)
-        if $ctx && $ctx.input-compressed;
+        if $input-compressed;
 
     self.bless(:$raw, |c);
 }

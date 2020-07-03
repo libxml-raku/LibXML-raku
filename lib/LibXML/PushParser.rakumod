@@ -45,8 +45,9 @@ class LibXML::PushParser {
         self!parse: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;
-        my xmlDoc $raw = $!ctx.raw.myDoc;
-        my LibXML::Document $doc .= new( :$raw, :$!ctx, :$URI);
+        my xmlDoc $raw = $!ctx.publish();
+        my $input-compressed = $!ctx.input-compressed;
+        my LibXML::Document $doc .= new: :$raw, :$URI, :$input-compressed;
         $!ctx = Nil;
         with $sax-handler {
             .publish($doc)

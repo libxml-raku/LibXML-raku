@@ -59,12 +59,16 @@ method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input
     LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
 }
 
-method !publish(Str :$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$raw = $ctx.raw.myDoc) {
-    my LibXML::Document $doc .= new: :$ctx, :$URI, :raw($_)
+method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
+
+    my xmlDoc $raw = $ctx.publish();
+    my $input-compressed = $ctx.input-compressed();
+    my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed
         with $raw;
 
     if $.expand-xinclude {
-        self.processXIncludes($_, :$ctx)
+        my $flags = $ctx.flags;
+        self.processXIncludes($_, :$flags)
             with $doc;
     }
 
@@ -77,14 +81,14 @@ method !publish(Str :$URI, LibXML::Parser::Context :$ctx!, xmlDoc :$raw = $ctx.r
 }
 
 method processXIncludes (
-    LibXML::Document $_,
-    LibXML::Parser::Context :$ctx is copy,
-    *%opts --> Int)
+    LibXML::Document $_, *%opts --> Int)
 is also<process-xincludes> {
     my xmlDoc $doc = .raw;
-    $ctx //= self!make-handler(:raw(xmlParserCtxt.new));
+    my $ctx = self!make-handler(:raw(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);
-    $ctx.try: { $doc.XIncludeProcessFlags($flags) }
+    my $rv := $ctx.try: { $doc.XIncludeProcessFlags($flags) }
+    $ctx.publish();
+    $rv;
 }
 
 proto method parse(|c) is also<load> {*}
@@ -97,13 +101,15 @@ multi method parse(
     *%opts 
 ) is hidden-from-backtrace {
 
-    my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
+    my LibXML::Parser::Context:D $ctx = self!make-handler: :$html, |%opts;
 
     $ctx.try: {
-        my xmlParserCtxt:D $raw = $html
-            ?? htmlMemoryParserCtxt.new: :$string
-            !! xmlMemoryParserCtxt.new: :$string;
-
+        my xmlParserCtxt $raw = (
+            $html
+                ?? htmlMemoryParserCtxt
+                !! xmlMemoryParserCtxt
+        );
+        $raw .= new: :$string;
         $raw.input.filename = $_ with $URI;
         $ctx.set-raw: $raw;
         $raw.ParseDocument;
@@ -181,11 +187,11 @@ multi method parse(
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;
         $ctx.set-raw: $raw;
-        $raw-doc = $raw.ReadFd($fd, $URI, $enc, $flags);
+        $raw.set-myDoc($raw.ReadFd($fd, $URI, $enc, $flags));
         $ctx.close();
     };
 
-    self!publish: :$ctx, :raw($raw-doc);
+    self!publish: :$ctx;
 }
 
 multi method parse(

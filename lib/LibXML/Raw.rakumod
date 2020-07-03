@@ -1332,7 +1332,8 @@ class xmlParserCtxt is export {
     has xmlSAXHandler          $.sax           # The SAX handler
         is rw-ptr(method xml6_parser_ctx_set_sax( xmlSAXHandler ) is native($BIND-XML2) {*} );
     has Pointer                $.userData;     # For SAX interface only, used by DOM build
-    has xmlDoc                 $.myDoc;        # the document being built
+    has xmlDoc                 $.myDoc         # the document being built
+       is rw-ptr(method set-myDoc( xmlDoc ) is symbol('xml6_parser_ctx_set_myDoc') is native($BIND-XML2) {*} );
     has int32                  $.wellFormed;   # is the document well formed
     has int32                  $.replaceEntities;     # shall we replace entities ?
     has xmlCharP               $.version;      #  the XML version string
@@ -1534,7 +1535,7 @@ class xmlPushParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 #| a vanilla HTML parser context - can be used to read files or strings
 class htmlParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 
-    method myDoc { nativecast(htmlDoc, callsame) }
+    method myDoc is rw { nativecast(htmlDoc, callsame) }
     method UseOptions(int32 --> int32) is native($XML2) is symbol('htmlCtxtUseOptions') { * }
 
     our sub New(--> htmlParserCtxt) is native($XML2) is symbol('htmlNewParserCtxt') {*};

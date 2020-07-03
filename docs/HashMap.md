@@ -110,7 +110,7 @@ Coerces to a Raku Hash object.
 
 ### method EXISTS-KEY
 
-    method EXIST-KEY(Str() $key) returns Bool
+    method EXISTS-KEY(Str() $key) returns Bool
     say $h.EXISTS-KEY('foo');
     say $h<foo>:exists;
 

@@ -49,32 +49,39 @@ also does LibXML::ErrorHandling;
 
 method raw { $!raw }
 method close {
-    $!input-compressed = ? .Close()
+    $!input-compressed //= ? .Close()
         with $!raw;
 }
 
-method set-raw(xmlParserCtxt $raw) {
-    .Reference with $raw;
-    .Unreference with $!raw;
-
-    with $raw {
+method set-raw(xmlParserCtxt $_) {
+    my $old = $!raw;
+    $!raw = $_;
+    with $!raw {
+        .Reference;
         .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
         .linenumbers = +?$!line-numbers;
-        $!raw = $_;
         $!raw.sax = .raw with $!sax-handler;
     }
-}
-
-submethod TWEAK(xmlParserCtxt :$raw, *%opts) {
-    self.set-raw($_) with $raw;
-    self.set-flags($!flags, :lax, |%opts);
-}
-
-submethod DESTROY {
-    with $!raw {
+    with $old {
         .sax = Nil;
         .Unreference;
     }
+}
+
+method publish {
+    my xmlDoc $doc = .myDoc with $!raw;;
+    $.close() without $!input-compressed;
+    self.set-raw(xmlParserCtxt);
+    $doc;
+}
+
+submethod TWEAK(xmlParserCtxt :$raw, *%opts) {
+    self.set-flags($!flags, :lax, |%opts);
+    self.set-raw($_) with $raw;
+}
+
+submethod DESTROY {
+    self.set-raw(xmlParserCtxt);
 }
 
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
@@ -103,6 +110,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
     .flush-errors for @input-contexts;
     $rv := $*XML-CONTEXT.is-valid if $check-valid;
     $*XML-CONTEXT.flush-errors: :$recover;
+    $*XML-CONTEXT.publish() without self;
 
     $rv;
 }

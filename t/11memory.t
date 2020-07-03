@@ -1,5 +1,8 @@
 use v6;
 use Test;
+use LibXML;
+use LibXML::Raw;
+use Telemetry;
 
 plan 25;
 my $skip;
@@ -15,6 +18,9 @@ elsif ! %*ENV<MEMORY_TEST>
 {
     $skip = "developers only (set MEMORY_TEST=1 to run these tests)";
 }
+elsif LibXML::Raw::ref-total() < 0 {
+    $skip = "please run '\$ make clean debug' to enable debugging";
+}
 
 if $skip {
     skip-rest($skip);
@@ -22,15 +28,12 @@ if $skip {
     exit(0);
 }
 
-#todo: use Telemetry?
-
 constant TIMES_THROUGH = %*ENV<MEMORY_TIMES> || 5_000;
 
 diag "running tests {TIMES_THROUGH} times";
 
 class sax_null {...}
 
-use LibXML;
 {
 
         pass('Start.');
@@ -78,14 +81,14 @@ use LibXML;
         LibXML.new(); # first parser
         check_mem(1);
 
-        for (1..TIMES_THROUGH) {
+        for 1..TIMES_THROUGH {
             my $parser = LibXML.new();
         }
         pass('Initialise multiple parsers.');
 
         check_mem();
         # multiple parses
-        for (1..TIMES_THROUGH) {
+        for 1..TIMES_THROUGH {
             my $parser = LibXML.new();
             my $dom = $parser.parse: :string("<sometag>foo</sometag>");
         }
@@ -95,7 +98,7 @@ use LibXML;
 
         # multiple failing parses
         # MULTIPLE FAILURES
-        for (1..TIMES_THROUGH) {
+        for 1..TIMES_THROUGH {
             # warn("$_\n") unless $_ % 100;
             my $parser = LibXML.new();
             try {
@@ -108,7 +111,7 @@ use LibXML;
 
         # building custom docs
         my $doc = LibXML::Document.new();
-        for (1..TIMES_THROUGH)        {
+        for 1..TIMES_THROUGH        {
             my $elem = $doc.createElement('x');
 
             $doc.setDocumentElement($elem);
@@ -119,7 +122,7 @@ use LibXML;
 
         {
             my $doc = LibXML.createDocument;
-            for (1..TIMES_THROUGH)        {
+            for 1..TIMES_THROUGH        {
                 make_doc2( $doc );
             }
         }
@@ -255,7 +258,7 @@ dromeds.xml
 
             my $doc = LibXML.new().parse: :string( $string );
 
-            for (1..TIMES_THROUGH) {
+            for 1..TIMES_THROUGH {
                 my @ns = $doc.documentElement().getNamespaces();
                 # warn "ns : " . $_.localname . "=>" . $_.href foreach @ns;
                 my $prefix = .localname for @ns;
@@ -285,7 +288,7 @@ dromeds.xml
 
             for %xmlStrings.keys.sort -> $key  {
                 print "# $key \n";
-                for (1..TIMES_THROUGH) {
+                for 1..TIMES_THROUGH {
                     my $doc = $parser.parse: :string( %xmlStrings{$key} );
                 }
 
@@ -314,7 +317,7 @@ dromeds.xml
        if (0) {
             for %xmlStrings.keys.sort -> $key  {
                 print "# $key \n";
-                for (1..TIMES_THROUGH) {
+                for 1..TIMES_THROUGH {
                     (@%xmlStrings{$key}).map: { $parser.push( $_ ) } ;
                     my $doc = $parser.finish-push();
                 }
@@ -335,7 +338,7 @@ dromeds.xml
             note('BAD PUSHED DATA');
             for ( "SIMPLE","SIMPLE2", "SIMPLE TEXT","SIMPLE CDATA","SIMPLE JUNK" ) -> $key  {
                 print "# $key \n";
-                for (1..TIMES_THROUGH) {
+                for 1..TIMES_THROUGH {
                     try {@(%xmlBadStrings{$key}).map: { $parser.push( $_ ) };};
                     try {my $doc = $parser.finish-push();};
                 }
@@ -365,7 +368,7 @@ dromeds.xml
 
             for %xmlStrings.keys.sort -> $key {
                 print "# $key \n";
-                for (1..TIMES_THROUGH) {
+                for 1..TIMES_THROUGH {
                     try { @(%xmlStrings{$key}).map: { $parser.push( $_ ) };};
                     try {my $doc = $parser.finish-push();};
                 }
@@ -386,7 +389,7 @@ dromeds.xml
 
             for %xmlBadStrings.keys.sort -> $key  {
                 print "# $key \n";
-                for (1..TIMES_THROUGH) {
+                for 1..TIMES_THROUGH {
                     try { @(%xmlBadStrings{$key}).map: { $parser.push( $_ ) };};
                     try {my $doc = $parser.finish-push();};
                 }
@@ -406,8 +409,6 @@ sub processMessage($msg, $xpath) {
       my $elm  = $doc.getDocumentElement;
       my $node = $doc.first($xpath);
       my $text = $node.to-literal;
-#      undef $doc;   # comment this line to make memory leak much worse
-#      undef $parser;
 }
 
 sub make_doc {
@@ -458,11 +459,11 @@ sub check_mem($initialise?) {
                 %mem<Total> = $0;
                 $units = $1;
             }
-            if (/^VmRSS:.*?(\d+)/) {
-                %mem<Resident> = $0;
-            }
         }
         $FH.close;
+
+        %mem<Resident> = T.max-rss;
+        
         $LibXML::TOTALMEM //= 0;
 
         if ($initialise) {
@@ -482,7 +483,7 @@ sub check_mem($initialise?) {
 
 sub summarise_mem() {
     $*VM.request-garbage-collection;
-    my $total-objects = LibXML::Raw::ref-total();
+    my $total-objects = LibXML::Raw::ref-total() || 1;
     my $lost-objects = LibXML::Raw::ref-current();
     my $lost-pcnt = sprintf("%.02f", 100 * $lost-objects / $total-objects);
 
