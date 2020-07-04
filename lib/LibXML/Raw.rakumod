@@ -769,6 +769,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method GetBase { self.doc.NodeGetBase(self) }
     method SetBase(xmlCharP) is native($XML2) is symbol('xmlNodeSetBase') {*}
     method Free() is native($XML2) is symbol('xmlFreeNode') {*}
+    method FreeList() is native($XML2) is symbol('xmlFreeNodeList') {*}
     method SetListDoc(xmlDoc) is native($XML2) is symbol('xmlSetListDoc') {*}
     method GetLineNo(--> long) is native($XML2) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native($XML2) is symbol('xmlIsBlankNode') {*}

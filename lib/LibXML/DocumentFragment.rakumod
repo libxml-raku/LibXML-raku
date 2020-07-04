@@ -64,6 +64,15 @@ class ParserContext is LibXML::Parser::Context {
     has Str $.string;
     has Pointer $.user-data;
     has Pointer[xmlNode] $.nodes is rw .= new();
+    submethod DESTROY {
+        .FreeList() with $!nodes.deref;
+    }
+    method publish {
+        callsame();
+        my xmlNode $rv = $!nodes.deref;
+        $!nodes .= new();
+        $rv;
+    }
 }
 
 =begin pod
@@ -123,7 +132,7 @@ method parse(
             if $ctx.stat && !$ctx.recover;
     };
 
-    $doc-frag.raw.AddChildList($_) with $ctx.nodes.deref;
+    $doc-frag.raw.AddChildList($_) with $ctx.publish;
     $doc-frag;
 }
 =begin pod

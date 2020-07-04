@@ -138,7 +138,7 @@ class sax_null {...}
 
         ok($dtdstr, '$dtdstr');
 
-        for ( 1..TIMES_THROUGH ) {
+        for 1..TIMES_THROUGH {
             my $dtd = LibXML::Dtd.parse: :string($dtdstr);
         }
         pass('after dtdstr');
@@ -146,7 +146,7 @@ class sax_null {...}
 
         # DTD URI parsing
         # parse a DTD from a SYSTEM ID
-        for ( 1..TIMES_THROUGH ) {
+        for 1..TIMES_THROUGH {
             my $dtd = LibXML::Dtd.new('ignore', 'example/test.dtd');
         }
         pass('DTD URI parsing.');
@@ -162,7 +162,7 @@ class sax_null {...}
                     $xml = LibXML.parse: :file('example/article_bad.xml');
                 }
             };
-            for ( 1..TIMES_THROUGH ) {
+            for 1..TIMES_THROUGH {
                 my $good;
                 try {
                     quietly { 
@@ -174,7 +174,7 @@ class sax_null {...}
             check_mem();
 
             print "# validate() \n";
-            for ( 1..TIMES_THROUGH ) {
+            for 1..TIMES_THROUGH {
                 try {
                     quietly {
                         $xml.validate($dtd);
@@ -209,7 +209,7 @@ dromeds.xml
             # my $str = "<foo><bar><foo/></bar></foo>";
             my $str = $xml;
             my $doc = LibXML.parse: :string( $str );
-            for ( 1..TIMES_THROUGH ) {
+            for 1..TIMES_THROUGH {
                 processMessage($xml, '/dromedaries/species' );
                 my @nodes = $doc.findnodes("/foo/bar/foo");
             }
@@ -221,7 +221,7 @@ dromeds.xml
         {
             my $str = "<foo><bar><foo/></bar></foo>";
             my $doc = LibXML.parse: :string( $str );
-            for ( 1..TIMES_THROUGH ) {
+            for 1..TIMES_THROUGH {
                 my $nodes = $doc.find("/foo/bar/foo");
             }
             pass('.find.');
@@ -233,19 +233,19 @@ dromeds.xml
 #            print "# ENCODING TESTS \n";
 #            my $string = "test � � is a test string to test iso encoding";
 #            my $encstr = encodeToUTF8( "iso-8859-1" , $string );
-#            for ( 1..TIMES_THROUGH ) {
+#            for 1..TIMES_THROUGH {
 #                my $str = encodeToUTF8( "iso-8859-1" , $string );
 #            }
 #            ok(1);
 #            check_mem();
 
-#            for ( 1..TIMES_THROUGH ) {
+#            for 1..TIMES_THROUGH {
 #                my $str = encodeToUTF8( "iso-8859-2" , "abc" );
 #            }
 #            ok(1);
 #            check_mem();
 #
-#            for ( 1..TIMES_THROUGH ) {
+#            for 1..TIMES_THROUGH {
 #                my $str = decodeFromUTF8( "iso-8859-1" , $encstr );
 #            }
 #            ok(1);
