@@ -89,7 +89,7 @@ static void _hash_xpath_node_siblings(xmlHashTablePtr self, xmlNodePtr node, int
             xmlHashAddEntry(self, key, (void*) bucket);
         }
 
-        domPushNodeSet(bucket, node, 0);
+        domPushNodeSet(bucket, node, 1);
         xmlFree(key);
 
         _hash_xpath_node_siblings(self, next, keep_blanks);

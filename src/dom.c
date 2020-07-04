@@ -1151,7 +1151,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
 	    domReleaseNode(nNode);
         }
         else {
-            xmlFreeNode(copy);
+            domReleaseNode(copy);
         }
     }
     else if (nNode->type == XML_DTD_NODE) {
