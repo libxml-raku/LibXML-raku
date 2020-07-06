@@ -17,7 +17,6 @@ use LibXML::EntityRef;
 use LibXML::Enums;
 use LibXML::Item :dom-boxed;
 use LibXML::Raw;
-use LibXML::Parser::Context;
 use LibXML::PI;
 use LibXML::Text;
 use LibXML::Types :QName, :NCName, :NameVal;

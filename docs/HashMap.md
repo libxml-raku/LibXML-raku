@@ -21,7 +21,7 @@ Synopsis
     $obj-hash<string> = 'test';
     $obj-hash<bool> = True;
 
-    say $obj-hash<element>[0].tagName;
+    say $obj-hash<element>.tagName;
 
 Description
 -----------

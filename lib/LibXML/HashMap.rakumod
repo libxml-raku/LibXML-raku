@@ -5,7 +5,7 @@ unit class LibXML::HashMap
 
 use LibXML::Item;
 use LibXML::Node::Set;
-use LibXML::XPath::Object :XPathDomain, :XPathRange;
+use LibXML::XPath::Object :XPathRange;
 use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
 use LibXML::Raw::HashTable;
@@ -19,7 +19,7 @@ sub cast-item(Pointer $p) { nativecast(itemNode, $p).delegate }
 
 method of {XPathRange}
 
-method freeze(XPathDomain $content) {
+method freeze(XPathRange $content) {
     given LibXML::XPath::Object.coerce-to-raw($content) {
         .Reference;
         nativecast(Pointer, $_);
@@ -32,7 +32,7 @@ method thaw(Pointer $p) {
         LibXML::XPath::Object.value: :$raw;
     }
     else {
-        Any;
+        Nil;
     }
 }
 
@@ -50,7 +50,7 @@ method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
 }
 submethod DESTROY { .Free(self.deallocator) with self.raw; }
 
-constant OfType = XPathDomain;
+constant OfType = XPathRange;
 
 method !CArray(Any:U $type = Pointer, UInt:D :$len = $.raw.Size ) {
     my $a := CArray[$type].new;
@@ -194,7 +194,7 @@ method ^parameterize(Mu:U \p, OfType:U \t) {
   $obj-hash<string> = 'test';
   $obj-hash<bool> = True;
 
-  say $obj-hash<element>[0].tagName;
+  say $obj-hash<element>.tagName;
 
 =head2 Description
 

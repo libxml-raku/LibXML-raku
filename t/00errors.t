@@ -3,7 +3,7 @@ use Test;
 use LibXML::XPath::Context;
 
 my $errors;
-LibXML::XPath::Context.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++ });
+LibXML::XPath::Context.SetGenericErrorFunc(-> |c { $errors++ });
 plan 5;
 {
     use LibXML::Pattern;

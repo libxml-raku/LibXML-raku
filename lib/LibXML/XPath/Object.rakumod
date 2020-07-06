@@ -17,10 +17,9 @@ method raw { nativecast(xmlXPathObject, self) }
 
 submethod DESTROY { self.raw.Unreference }
 
-my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set;
-my subset XPathDomain is export(:XPathDomain) where XPathRange|LibXML::Item;
+my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set|LibXML::Item;
 
-method coerce-to-raw(XPathDomain $content is copy) {
+method coerce-to-raw(XPathRange $content is copy) {
     $content .= raw()
         if $content ~~ LibXML::Item|LibXML::Node::Set;
     xmlXPathObject.coerce($content);
@@ -37,6 +36,9 @@ method value(xmlXPathObject :$raw = $.raw, Bool :$literal,  --> XPathRange) {
             given iterate-set(LibXML::Item, .copy) {
                 $literal ?? .to-literal !! $_;
             }
+        }
+        when anyNode {
+            $literal ?? .Str !! LibXML::Item.box: $_;
         }
         default { $_ }
     }

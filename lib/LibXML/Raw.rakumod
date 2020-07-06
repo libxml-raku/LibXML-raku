@@ -546,7 +546,7 @@ class xmlXPathObject is export {
         with self {
             .add-reference;
             with .value {
-                when xmlNodeSet { .Reference }
+                when xmlNodeSet|anyNode { .Reference }
             }
         }
     }
@@ -557,23 +557,25 @@ class xmlXPathObject is export {
                 .select; # detach value
                 .Free;
             }
-            $v.Unreference if $v ~~ xmlNodeSet:D;
+            $v.Unreference if $v ~~ xmlNodeSet:D|anyNode:D;
         }
     }
 
     method domXPathGetNodeSet(int32 $select --> xmlNodeSet) is native($BIND-XML2) {*}
+     method domXPathGetPoint(int32 $select --> anyNode) is native($BIND-XML2) {*}
     method Free is symbol('xmlXPathFreeObject') is native($XML2) {*}
 
     our sub NewString(xmlCharP --> xmlXPathObject) is native($XML2) is symbol('xmlXPathNewString') {*}
     our sub NewFloat(num64 --> xmlXPathObject) is native($XML2) is symbol('xmlXPathNewFloat') {*}
     our sub NewBoolean(int32 --> xmlXPathObject) is native($XML2) is symbol('xmlXPathNewBoolean') {*}
     our sub NewNodeSet(anyNode:D --> xmlXPathObject) is native($XML2) is symbol('xmlXPathNewNodeSet') {*}
+    our sub NewPoint(anyNode:D, int32 --> xmlXPathObject) is native($BIND-XML2) is symbol('domXPathNewPoint') {*}
     our sub WrapNodeSet(xmlNodeSet --> xmlXPathObject) is native($XML2) is symbol('xmlXPathWrapNodeSet') {*}
 
     multi method coerce(Bool $v)           { NewBoolean($v) }
     multi method coerce(Numeric $v)        { NewFloat($v.Num) }
     multi method coerce(Str $v)            { NewString($v) }
-    multi method coerce(anyNode:D $v)      { NewNodeSet($v) }
+    multi method coerce(anyNode:D $v, UInt :$index = 0)      { NewPoint($v, $index) }
     multi method coerce(xmlNodeSet:D $v)   { WrapNodeSet($v.copy) }
     multi method coerce($_) is default     { fail "unable to coerce to an XPath Object: {.perl}" }
 
@@ -602,7 +604,7 @@ class xmlXPathObject is export {
             }
             when XPATH_STRING { $!string }
             when XPATH_POINT {
-                fail "todo: XPath point values";
+                self.domXPathGetPoint(+$select);
             }
             when XPATH_LOCATIONSET {
                 fail "todo: location-set values";

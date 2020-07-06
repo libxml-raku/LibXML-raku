@@ -6,7 +6,7 @@ use LibXML::Raw;
 use LibXML::Node::Set;
 use LibXML::Enums;
 
-plan 27;
+plan 25;
 
 my xmlXPathObject $xo .= coerce(42);
 is $xo.type, +XPATH_NUMBER;
@@ -51,14 +51,12 @@ is  $xo.type, +XPATH_NODESET;
 is-deeply $xo.select, $nodes.raw;
 
 $xo .= coerce($nodes[1].raw);
-is  $xo.type, +XPATH_NODESET;
+is  $xo.type, +XPATH_POINT;
 my $raw = $xo.select;
-isa-ok $raw, xmlNodeSet;
+isa-ok $raw, anyNode;
 # expect a one-element set, that contains the node
-my  LibXML::Node::Set $set .= new: :range(LibXML::Node), :$raw;
-is $set.size, 1;
-isa-ok $set[0], LibXML::Node;
-is $set[0].Str, '<c/>';
+my  LibXML::Node $node .= box($raw);
+is $node.Str, '<c/>';
 
 done-testing();
 

@@ -11,6 +11,9 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs);
 DLLEXPORT xmlNodeSetPtr
 domXPathGetNodeSet(xmlXPathObjectPtr, int select);
 
+DLLEXPORT xmlXPathObjectPtr
+domXPathNewPoint(xmlNodePtr node, int);
+
 DLLEXPORT xmlNodeSetPtr
 domXPathSelectStr( xmlNodePtr refNode, xmlChar* xpathstring );
 

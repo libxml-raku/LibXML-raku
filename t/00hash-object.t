@@ -52,11 +52,10 @@ subtest 'object-hash' => {
 
     my LibXML::Element $node .= new('test');
 
-    lives-ok {$h<elems> = $node;};
-    is-deeply $h.keys.sort, ("Xx", "elems", "yy");
-    ok $node.isSame($h<elems>[0]);
-    todo 'refetch of node';
-    lives-ok { $h<elems>[0]; };
+    lives-ok {$h<elem> = $node;};
+    is-deeply $h.keys.sort, ("Xx", "elem", "yy");
+    ok $node.isSame($h<elem>);
+    ok $h<elem>.isSame($node);
 }
 
 done-testing;

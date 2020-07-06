@@ -551,7 +551,7 @@ domXPathFind( xmlNodePtr refNode, xmlXPathCompExprPtr comp, int to_bool ) {
 DLLEXPORT xmlNodeSetPtr
 domXPathGetNodeSet(xmlXPathObjectPtr xpath_obj, int select) {
     xmlNodeSetPtr rv = NULL;
-    if (xpath_obj != NULL) {
+    if (xpath_obj != NULL && (xpath_obj->type == XPATH_NODESET || xpath_obj->type == XPATH_XSLT_TREE)) {
         /* here we have to transfer the result from the internal
            structure to the return value */
         /* get the result from an xpath query */
@@ -565,6 +565,40 @@ domXPathGetNodeSet(xmlXPathObjectPtr xpath_obj, int select) {
     return _domVetNodeSet(rv);
 }
 
+DLLEXPORT xmlXPathObjectPtr
+domXPathNewPoint(xmlNodePtr node, int indx) {
+    xmlXPathObjectPtr rv;
+
+    if (node == NULL)
+	return(NULL);
+    if (indx < 0)
+	return(NULL);
+
+    rv = (xmlXPathObjectPtr) xmlMalloc(sizeof(xmlXPathObject));
+    if (rv == NULL) {
+        XML6_FAIL(node, "allocating point");
+	return(NULL);
+    }
+    memset(rv, 0 , (size_t) sizeof(xmlXPathObject));
+    rv->type = XPATH_POINT;
+    rv->user = (void *) node;
+    rv->index = indx;
+    return rv;
+}
+
+
+DLLEXPORT xmlNodePtr
+domXPathGetPoint(xmlXPathObjectPtr xpath_obj, int select) {
+    xmlNodePtr rv = NULL;
+    if (xpath_obj != NULL && xpath_obj->type == XPATH_POINT) {
+        rv = (xmlNodePtr)xpath_obj->user;
+        if (select) {
+            xpath_obj->user = NULL;
+        }
+    }
+    return rv;
+}
+
 static xmlNodeSetPtr
 _domSelect(xmlXPathObjectPtr xpath_obj) {
     return domXPathGetNodeSet(xpath_obj, 1);
@@ -572,7 +606,7 @@ _domSelect(xmlXPathObjectPtr xpath_obj) {
 
 DLLEXPORT xmlNodeSetPtr
 domXPathSelectStr( xmlNodePtr refNode, xmlChar* path ) {
-    return _domSelect( _domXPathFindStr( refNode, path ) );
+    return _domSelect(_domXPathFindStr( refNode, path ) );
 }
 
 

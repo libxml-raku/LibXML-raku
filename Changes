@@ -1,6 +1,10 @@
+0.5.5 2020-07-07
+    - Changed LibXML::HashMap[LibXML::XPath::Object] node handling:
+      -- Store nodes directly; avoid coercement to node-sets
+      -- Remove XPathDomain subset (now the same as XPathRange)
 0.5.4 2020-07-04
     - Add live object metrics to 11memory.t.
-    - Add LibXML::Parser::Context.publixh() method with early
+    - Add LibXML::Parser::Context.publish() method with early
       destruction of xmlParserCtxt objects. Reduce number of live
       objects and memory usage #
 0.5.3 2020-07-02
