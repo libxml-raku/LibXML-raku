@@ -51,7 +51,7 @@ class ValidContext {
         $!raw .= new;
     }
 
-    method validate(DocNode:D :doc($doc-obj)!, LibXML::Dtd :dtd($dtd-obj), Bool() :$check) {
+    method validate(DocNode:D :doc($doc-obj)!, LibXML::Dtd :dtd($dtd-obj), Bool() :$check) is hidden-from-backtrace {
         my xmlDoc:D $doc = .raw with $doc-obj;
         my xmlDtd   $dtd = .raw with $dtd-obj;
         my $rv;
@@ -156,7 +156,7 @@ method cloneNode(LibXML::Dtd:D: $?) {
 
 method !valid-ctx { ValidContext.new: :schema(self) }
 #| validate a parsed XML document against a DTD
-method validate(LibXML::Node:D $node --> UInt) {
+method validate(LibXML::Node:D $node --> UInt) is hidden-from-backtrace {
     self!valid-ctx.validate($node);
 }
   =begin pod

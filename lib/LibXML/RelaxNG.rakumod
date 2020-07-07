@@ -106,7 +106,7 @@ my class ValidContext {
         .Free with $!raw;
     }
 
-    method validate(LibXML::Document:D $_, Bool() :$check) {
+    method validate(LibXML::Document:D $_, Bool() :$check) is hidden-from-backtrace {
         my $rv;
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .raw;
@@ -155,7 +155,7 @@ submethod TWEAK(|c) {
 =end pod
 
 method !valid-ctx { ValidContext.new: :schema(self) }
-method validate(LibXML::Document:D $doc) {
+method validate(LibXML::Document:D $doc) is hidden-from-backtrace {
     self!valid-ctx.validate($doc);
 }
 =begin pod

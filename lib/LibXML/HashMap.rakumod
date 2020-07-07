@@ -217,7 +217,7 @@ This is the nodes in the set or list collated by tag-name.
 
 Several container types are available:  
 
-  =item `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans or node-sets`.
+  =item `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans, nodes or node-sets.
   =item `LibXML::HashMap[UInt]` - Positive integers
   =item `LibXML::HashMap[Str]` - Strings
   =item `LibXML::HashMap[LibXML::Node::Set]` - Sets of nodes

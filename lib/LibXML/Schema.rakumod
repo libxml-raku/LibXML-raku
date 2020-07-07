@@ -113,7 +113,7 @@ my class ValidContext {
         .Free with $!raw;
     }
 
-    multi method validate(LibXML::Document:D $_, Bool() :$check) {
+    multi method validate(LibXML::Document:D $_, Bool() :$check) is hidden-from-backtrace {
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .raw;
         my $rv;
@@ -128,7 +128,7 @@ my class ValidContext {
         $rv;
     }
 
-    multi method validate(LibXML::Element:D $_, Bool() :$check) is default {
+    multi method validate(LibXML::Element:D $_, Bool() :$check) is hidden-from-backtrace {
         my xmlNode:D $node = .raw;
         my $rv := $!raw.ValidateElement($node);
 	$rv := self.is-valid
@@ -173,7 +173,7 @@ submethod DESTROY {
 }
 
 method !valid-ctx { ValidContext.new: :schema(self) }
-method validate(LibXML::Node:D $node) {
+method validate(LibXML::Node:D $node) is hidden-from-backtrace {
     self!valid-ctx.validate($node);
 }
 =begin pod

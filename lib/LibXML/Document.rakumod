@@ -510,7 +510,7 @@ method was-valid returns Bool {
 method valid is DEPRECATED<was-valid> { $.was-valid }
 
 #| Assert that the current document is valid
-method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) {
+method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) is hidden-from-backtrace {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
     $valid-ctx.validate(:doc(self), :$dtd, :$check);
 }

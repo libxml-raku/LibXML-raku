@@ -1,5 +1,5 @@
 0.5.5 2020-07-07
-    - Changed LibXML::HashMap[LibXML::XPath::Object] node handling:
+    - Changed LibXML::HashMap node handling:
       -- Store nodes directly; avoid coercement to node-sets
       -- Remove XPathDomain subset (now the same as XPathRange)
 0.5.4 2020-07-04
