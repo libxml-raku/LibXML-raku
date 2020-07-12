@@ -19,8 +19,8 @@ EOF
 
 my $level;
 my $message;
-use LibXML::SAX::Handler;
-class SaxHandler is LibXML::SAX::Handler {
+use LibXML::SAX::Handler::SAX2;
+class SaxHandler is LibXML::SAX::Handler::SAX2 {
     use LibXML::SAX::Builder :sax-cb;
     method serror(X::LibXML $_) is sax-cb {
         $level = .level;

@@ -17,7 +17,7 @@ class LibXML::PushParser {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
         my xmlSAXHandler $sax = .raw with $sax-handler;
         my xmlParserCtxt:D $raw = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
-        $!ctx .= new: :$raw, |c;
+        $!ctx .= new: :$raw, :$sax-handler, |c;
     }
 
     method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
@@ -41,7 +41,7 @@ class LibXML::PushParser {
         self!parse($chunk, |c);
     }
 
-    method finish-push(Str :$URI, Bool :$recover, :$sax-handler, |c) {
+    method finish-push(Str :$URI, Bool :$recover, :$sax-handler = $!ctx.sax-handler, |c) {
         self!parse: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctx.wellFormed;

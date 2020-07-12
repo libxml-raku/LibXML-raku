@@ -72,7 +72,7 @@ method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
             with $doc;
     }
 
-    with $!sax-handler {
+    with $ctx.sax-handler {
         .publish($doc);
     }
     else {
@@ -220,9 +220,12 @@ multi method parse(
     $.parse(:$file, |c);
 }
 
+multi method parse(LibXML::Parser:U: *%opt) is hidden-from-backtrace is default {
+     self.new(:lax, |%opt).parse(|%opt);
+}
+
 # parse from a Miscellaneous source
 multi method parse(
-    LibXML::Parser:D:
     Any:D $src,
     |c) is hidden-from-backtrace {
     my Pair $in = do with $src {
@@ -233,10 +236,6 @@ multi method parse(
         default { fail "Unrecognised parser input: {.perl}"; }
     }
     $.parse( |$in, |c );
-}
-
-multi method parse(LibXML::Parser:U: |c) is hidden-from-backtrace is default {
-     self.new.parse(|c);
 }
 
 has LibXML::PushParser $!push-parser;
@@ -270,7 +269,7 @@ method finish-push (
 )
 {
     with $!push-parser {
-        my $doc := .finish-push(:$URI, :$recover, :$!sax-handler);
+        my $doc := .finish-push(:$URI, :$recover);
         $_ = Nil;
         $doc;
     }
