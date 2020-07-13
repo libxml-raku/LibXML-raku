@@ -1,3 +1,7 @@
+0.5.6 2020-07-xx
+    - Hide validate() methods from backtrace
+    - Tweak multi candidate parse(_U:) and parse($) candidates;
+      ensure all options are processed by the parser.
 0.5.5 2020-07-07
     - Changed LibXML::HashMap node handling:
       -- Store nodes directly; avoid coercement to node-sets
@@ -35,8 +39,8 @@
     - Overhaul of Pod documentation.
     - Rename .Str(), .Blob() options; :expand -> :tag-expansion,
       :skip-decl -> :skip-xml-declaration. Make them consistant
-      configuration defaults.
-    - implemented $node.last(:!blank) option
+      with configuration defaults.
+    - Implemented $node.last(:!blank) option
     - renamed role LibXML::_DOMNode -> LibXML::_ParentRole
     - Added 'dom-native' trait for native wrapping of simple methods
     - DOM method appendTextChild now returns the added element
