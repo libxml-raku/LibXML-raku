@@ -44,7 +44,7 @@ This is the nodes in the set or list collated by tag-name.
 
 Several container types are available: 
 
-  * `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans or node-sets`.
+  * `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans, nodes or node-sets.
 
   * `LibXML::HashMap[UInt]` - Positive integers
 
@@ -114,7 +114,7 @@ Coerces to a Raku Hash object.
     say $h.EXISTS-KEY('foo');
     say $h<foo>:exists;
 
-Returns True if the object exists
+Returns True if an object exists at the given key
 
 ### method AT-KEY
 
@@ -122,7 +122,7 @@ Returns True if the object exists
     say $h.AT-KEY('foo');
     say $h<foo>;
 
-Returns the object
+Returns the object at the given key
 
 ### method ASSIGN-KEY
 

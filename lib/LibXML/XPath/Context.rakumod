@@ -367,12 +367,13 @@ multi method first(Str:D $expr, LibXML::Node $ref?) {
     $.first(LibXML::XPath::Expression.new(:$expr), $ref);
 }
 multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-    do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
-        my itemNode $node = $nodes.nodeTab[0] if $nodes.nodeNr;
-        my $rv := LibXML::Item.box: $node;
-        $nodes.Free;
-        $rv;
-    } // LibXML::Node;
+    my $rv = LibXML::Node;
+    with self!findnodes($expr, $ref) -> xmlNodeSet $_ {
+        $rv = LibXML::Item.box: .nodeTab[0]
+           if .nodeNr;
+        .Free;
+    }
+    $rv;
 }
 =head3 method first
   =begin code :lang<raku>

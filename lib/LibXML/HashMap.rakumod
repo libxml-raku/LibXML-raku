@@ -282,7 +282,7 @@ Coerces to a Raku Hash object.
     say $h.EXISTS-KEY('foo');
     say $h<foo>:exists;
 
-Returns True if the object exists
+Returns True if an object exists at the given key
 
 =head3 method AT-KEY
 
@@ -290,7 +290,7 @@ Returns True if the object exists
     say $h.AT-KEY('foo');
     say $h<foo>;
 
-Returns the object
+Returns the object at the given key
 
 =head3 method ASSIGN-KEY
 
