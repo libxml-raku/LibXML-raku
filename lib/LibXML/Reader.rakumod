@@ -108,20 +108,20 @@ multi method recover is rw {
 }
 multi method recover($v) { $.recover = $v }
 
-method !op(Str:D $op, |c) {
+method !op(Str:D $op, |c) is hidden-from-backtrace {
     my $rv := $!raw."$op"(|c);
     self.flush-errors;
     $rv;
 }
 
-method !bool-op(Str:D $op, |c) {
+method !bool-op(Str:D $op, |c) is hidden-from-backtrace {
     my Int $rv := self!op($op, |c);
     fail X::LibXML::OpFail.new(:what<Read>, :$op)
         if $rv < 0;
     $rv > 0;
 }
 
-method !uint-op(Str:D $op, |c) {
+method !uint-op(Str:D $op, |c) is hidden-from-backtrace {
     my Int $rv := self!op($op, |c);
     fail X::LibXML::OpFail.new(:what<Read>, :$op)
         if $rv < 0;

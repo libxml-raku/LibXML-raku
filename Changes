@@ -1,5 +1,5 @@
 0.5.6 2020-07-xx
-    - Hide validate() methods from backtrace
+    - Hide validate() and reader op() methods from backtrace
     - Tweak multi candidate parse(_U:) and parse($) candidates;
       ensure all options are processed by the parser.
 0.5.5 2020-07-07
@@ -10,7 +10,7 @@
     - Add live object metrics to 11memory.t.
     - Add LibXML::Parser::Context.publish() method with early
       destruction of xmlParserCtxt objects. Reduce number of live
-      objects and memory usage #
+      objects and memory usage #45
 0.5.3 2020-07-02
     - Add LibXML::HashMap; bindings to xmlHashTable.
     - Use it for node lists and sets associative interfaces #43
