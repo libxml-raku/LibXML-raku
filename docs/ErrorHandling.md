@@ -160,7 +160,7 @@ The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wis
         # -OR-
         # handle all exceptions
         method serror(X::LibXML $error) is sax-cb {
-            note $error.nessage;
+            warn $error.message;
         }
     }
     my SaxHandler $sax-handler .= new();

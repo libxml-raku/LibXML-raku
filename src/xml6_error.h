@@ -5,6 +5,5 @@
 
 DLLEXPORT xmlChar*
 xml6_error_context_and_column( xmlErrorPtr, unsigned int*);
-    xmlParserInputPtr input;
 
 #endif /* __XML6_ERROR_H */

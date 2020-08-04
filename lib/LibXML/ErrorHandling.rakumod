@@ -151,7 +151,7 @@ class X::LibXML::Parser is X::LibXML {
         with $!context {
             $message ~= "\n" ~ $_;
             if $!column {
-                my $pad = .substr(0, $!column-1).subst(/<-[\t]>/, ' ', :g);
+                my $pad = .substr(0, $!column-1).subst(/<[\S]>/, ' ', :g);
                 $message ~= "\n" ~ $pad ~ '^'
             }
         }
