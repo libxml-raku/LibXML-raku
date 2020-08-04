@@ -522,6 +522,7 @@ class xmlError is export {
 
     our sub Last(--> xmlError) is native($XML2) is symbol('xmlGetLastError') {*}; 
     method Reset() is native($XML2) is symbol('xmlResetError') {*};
+    method context(uint32 is rw --> Str) is symbol('xml6_error_context_and_column') is native($BIND-XML2) {*}
 }
 
 class xmlXPathObject is export {

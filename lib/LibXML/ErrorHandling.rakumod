@@ -129,6 +129,7 @@ class X::LibXML::Parser is X::LibXML {
     has UInt $.column;
     has UInt $.code;
     has Str $.msg;
+    has Str $.context;
 
     method message returns Str {
         my @meta;
@@ -144,8 +145,18 @@ class X::LibXML::Parser is X::LibXML {
         my $where = ($!line
                      ?? join(':', ($!file//''), $!line,  ' ')
                      !! '');
-        my $message = chomp(@meta.join(' ') ~ ' : ' ~ $!msg);
-        $prev ~ $where ~ $message;
+        my $body = chomp(@meta.join(' ') ~ ' : ' ~ $!msg);
+        my $message = $prev ~ $where ~ $body;
+
+        with $!context {
+            $message ~= "\n" ~ $_;
+            if $!column {
+                my $pad = .substr(0, $!column-1).subst(/<-[\t]>/, ' ', :g);
+                $message ~= "\n" ~ $pad ~ '^'
+            }
+        }
+
+        $message;
     }
 =begin pod
     =head3 method message
@@ -200,13 +211,13 @@ role LibXML::ErrorHandling {
 
     # SAX External Callback
     sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {
-        CATCH { default { warn "error handling XML generic error: $_" } }
+        CATCH { default { note "error handling XML generic error: $_" } }
         $*XML-CONTEXT.generic-error($fmt, |args);
     }
 
     # SAX External Callback
     sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
-        CATCH { default { warn "error handling XML structured error: $_" } }
+        CATCH { default { note "error handling XML structured error: $_" } }
         $*XML-CONTEXT.structured-error($err);
     }
 
@@ -231,23 +242,24 @@ role LibXML::ErrorHandling {
     }
 
     method generic-error(Str $fmt, *@args) {
-        CATCH { default { warn "error handling failure: $_" } }
+        CATCH { default { note "error handling failure: $_" } }
         my $msg = sprintf($fmt, |@args);
         @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
         self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
     }
 
     method structured-error(xmlError:D $_) {
-        CATCH { default { warn "error handling failure: $_" } }
+        CATCH { default { note "error handling failure: $_" } }
         my Int $level = .level;
         my Str $file = .file;
         my UInt:D $line = .line;
-        my UInt:D $column = .column;
+        my Str $context = .context(my uint32 $column);
         my UInt:D $code = .code;
         my UInt:D $domain-num = .domain;
         my Str $msg = .message;
+        $column ||= .column;
         $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
-        self.callback-error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num );
+        self.callback-error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
     }
 
     method callback-error(X::LibXML $_) {
@@ -318,7 +330,7 @@ role LibXML::ErrorHandling {
     method SetGenericErrorFunc(&handler) {
         set-generic-error-handler(
             -> Str $msg, Str $fmt, Pointer[MsgArg] $argv {
-                CATCH { default { warn $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
+                CATCH { default { note $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @args = unmarshal-varargs($fmt, $argv);
                 &handler($msg, @args);
             },
@@ -367,7 +379,7 @@ The `:suppress-warnings` and `:suppress-errors` flags are also needed if you wis
         # -OR-
         # handle all exceptions
         method serror(X::LibXML $error) is sax-cb {
-            note $error.nessage;
+            warn $error.message;
         }
     }
     my SaxHandler $sax-handler .= new();

@@ -9,6 +9,7 @@ DLLEXPORT void xml6_parser_ctx_add_reference(xmlParserCtxtPtr self) {
 }
 
 DLLEXPORT int xml6_parser_ctx_remove_reference(xmlParserCtxtPtr self) {
+    assert(self != NULL);
     return xml6_ref_remove( &(self->_private), "parser context", (void*) self );
 }
 

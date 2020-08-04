@@ -24,14 +24,18 @@ is $err.level, +XML_ERR_FATAL;
 is $err.code, +XML_ERR_DOCUMENT_END, 'code is OK';
 todo "column() unreliable in libxml2.version < v2.09.02"
     if LibXML.version < v2.09.02;
-is $err.column(), 204, "Column is OK.";
+is $err.column(), 203, "Column is OK.";
 is $err.level, +XML_ERR_FATAL, 'level is OK';
 is $err.domain-num, +XML_FROM_PARSER;
 is $err.domain, 'parser';
 is $err.msg.chomp, 'Extra content at the end of the document';
-is-deeply $err.message.lines, (
-    'test.xml:1: parser error : attributes construct error',
-    "test.xml:1: parser error : Couldn't find end of Start Tag foo line 1",
-    'test.xml:1: parser error : Extra content at the end of the document');
+like $err.message, rx:s/
+    'test.xml:1: parser error : attributes construct error'
+    .*
+    "test.xml:1: parser error : Couldn't find end of Start Tag foo line 1"
+    .*
+    'test.xml:1: parser error : Extra content at the end of the document'
+/;
+
 is $err.prev.domain-num, +XML_FROM_PARSER;
 is $err.prev.prev.msg.chomp, 'attributes construct error';
