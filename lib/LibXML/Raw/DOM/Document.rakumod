@@ -78,12 +78,12 @@ method getExternalSubset {
     self.domGetExternalSubset;
 }
 
-method setInternalSubset(DtdNode $dtd) {
-    self.domSetInternalSubset($dtd);
+method setInternalSubset(DtdNode:D $dtd) {
+    self.domSetInternalSubset($dtd) // self.dom-error;
 }
 
-method setExternalSubset(DtdNode $dtd) {
-    self.domSetExternalSubset($dtd);
+method setExternalSubset(DtdNode:D $dtd) {
+    self.domSetExternalSubset($dtd) // self.dom-error;
 }
 
 method removeInternalSubset {

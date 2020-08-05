@@ -630,6 +630,13 @@ DOM compatible method to set the document element
 
 *EXPERIMENTAL!*
 
+The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
+
+```raku
+my LibXML::Dtd $dtd = $other-doc.getInternalSubset;
+$doc.setInternalSubset: $dtd.clone();
+```
+
 ### method removeInternalSubset
 
 ```perl6
@@ -650,19 +657,26 @@ method internalSubset() returns LibXML::Dtd
 
 Gets or sets the internal DTD for the document.
 
-*NOTE* Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want use common node function on doctype declaration nodes!
+*NOTE* Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want to use common node function on doctype declaration nodes!
 
 ### method setExternalSubset
 
 ```perl6
 method setExternalSubset(
     LibXML::Dtd $dtd
-) returns Mu
+) returns LibXML::Dtd
 ```
 
 This method sets a DTD node as an external subset of the given document.
 
 *EXPERIMENTAL!*
+
+The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
+
+```raku
+my LibXML::Dtd $dtd = $other-doc.getExternalSubset;
+$doc.setExternalSubset: $dtd.clone();
+```
 
 ### method removeExternalSubset
 

@@ -1089,8 +1089,8 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
     method domImportNode(anyNode, int32, int32 --> anyNode) is native($BIND-XML2) {*}
     method domGetInternalSubset(--> xmlDtd) is native($BIND-XML2) {*}
     method domGetExternalSubset(--> xmlDtd) is native($BIND-XML2) {*}
-    method domSetInternalSubset(xmlDtd) is native($BIND-XML2) {*}
-    method domSetExternalSubset(xmlDtd) is native($BIND-XML2) {*}
+    method domSetInternalSubset(xmlDtd --> xmlDtd) is native($BIND-XML2) {*}
+    method domSetExternalSubset(xmlDtd --> xmlDtd) is native($BIND-XML2) {*}
 
     method set-flags(int32 --> int32) is native($BIND-XML2) is symbol('xml6_doc_set_flags') {*}
     method get-flags(--> int32) is native($BIND-XML2) is symbol('xml6_doc_get_flags') {*}

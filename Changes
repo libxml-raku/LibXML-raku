@@ -1,6 +1,10 @@
 0.5.7 2020-07-xx
     - Indicate position of parsing errors (Perl port) #15
     - Hide reader op() methods from backtrace
+    - Make it illegal to insert a DTD owned by one document into
+      another. This prevents the subsequent memory management and
+      valgrind errors noted in #35. A cloned copy of the Dtd can be
+      inserted: $doc.setInternalSubset: $doc.getInternalSubset.clone();
 0.5.6 2020-07-13
     - Hide validate() methods from backtrace
     - Tweak multi candidate parse(_U:) and parse($) candidates;

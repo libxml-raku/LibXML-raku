@@ -54,10 +54,10 @@ domGetInternalSubset(xmlDocPtr self);
 DLLEXPORT xmlDtdPtr
 domGetExternalSubset(xmlDocPtr self);
 
-DLLEXPORT void
+DLLEXPORT xmlDtdPtr
 domSetInternalSubset(xmlDocPtr, xmlDtdPtr dtd);
 
-DLLEXPORT void
+DLLEXPORT xmlDtdPtr
 domSetExternalSubset(xmlDocPtr, xmlDtdPtr dtd);
 
 /**

@@ -425,8 +425,10 @@ method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
             |c  --> Blob) {
 
     my Blob $rv;
-    warn ':skip-decl option is deprecated, please use :skip-xml-declaration'
-            with $skip-decl;
+    with $skip-decl {
+        warn ':skip-decl option is deprecated, please use :skip-xml-declaration';
+        $skip-xml-declaration //= $_;
+    }
     if $skip-xml-declaration {
         # losing the declaration that includes the encoding scheme; we need
         # to switch to UTF-8 (default encoding) to stay conformant.
@@ -719,12 +721,7 @@ method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
 
 #| DOM compatible method to get the document element
 method getDocumentElement returns LibXML::Element {
-    with $.raw.getDocumentElement {
-        &?ROUTINE.returns.box($_);
-    }
-    else {
-        &?ROUTINE.returns;
-    }
+        &?ROUTINE.returns.box:  $.raw.getDocumentElement
 }
 
 #| DOM compatible method to set the document element
@@ -751,10 +748,16 @@ method insertProcessingInstruction(|c) {
 method getInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
-method setInternalSubset(LibXML::Dtd $dtd) {
-    self.raw.setInternalSubset: $dtd.raw;
+method setInternalSubset(LibXML::Dtd $dtd --> LibXML::Dtd) {
+    $dtd.keep: self.raw.setInternalSubset: $dtd.raw;
 }
 =para I<EXPERIMENTAL!>
+=para The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
+    =begin code :lang<raku>
+    my LibXML::Dtd $dtd = $other-doc.getInternalSubset;
+    $doc.setInternalSubset: $dtd.clone();
+    =end code
+
 
 #| This method removes an external, if defined, from the document
 method removeInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
@@ -774,16 +777,21 @@ method internalSubset is rw returns LibXML::Dtd {
              );
 }
 =para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
-    LibXML is still limited. In particular one may not want use common node
+    LibXML is still limited. In particular one may not want to use common node
     function on doctype declaration nodes!
 
 method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #| This method sets a DTD node as an external subset of the given document.
-method setExternalSubset(LibXML::Dtd $dtd) {
-    self.raw.setExternalSubset: $dtd.raw;
+method setExternalSubset(LibXML::Dtd $dtd --> LibXML::Dtd) {
+    $dtd.keep: self.raw.setExternalSubset: $dtd.raw;
 }
 =para I<EXPERIMENTAL!>
+=para The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
+    =begin code :lang<raku>
+    my LibXML::Dtd $dtd = $other-doc.getExternalSubset;
+    $doc.setExternalSubset: $dtd.clone();
+    =end code
 
 #| This method removes an external, if defined, from the document
 method removeExternalSubset(--> LibXML::Dtd) is dom-boxed {...}

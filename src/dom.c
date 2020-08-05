@@ -254,7 +254,7 @@ domGetExternalSubset(xmlDocPtr self) {
     return self->extSubset;
 }
 
-DLLEXPORT void
+DLLEXPORT xmlDtdPtr
 domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     xmlDtdPtr ext_dtd = NULL;
     xmlDtdPtr int_dtd = NULL;
@@ -265,7 +265,7 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     ext_dtd = domGetExternalSubset(self);
 
     if (int_dtd == dtd) {
-        return;
+        return dtd;
     }
 
     if (int_dtd != NULL) {
@@ -275,7 +275,8 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     if (dtd->doc == NULL) {
         xmlSetTreeDoc( (xmlNodePtr) dtd, self );
     } else if ( dtd->doc != self ) {
-        domImportNode( self, (xmlNodePtr) dtd, 1, 1);
+        fprintf(stderr, __FILE__ ":%d\n", __LINE__);
+        XML6_FAIL(self, "moving DTDs between documents is not supported.");
     }
 
     if (dtd != NULL && ext_dtd != NULL) {
@@ -289,9 +290,10 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     }
     self->intSubset = dtd;
     dtd->parent = self;
+    return dtd;
 }
 
-DLLEXPORT void
+DLLEXPORT xmlDtdPtr
 domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     xmlDtdPtr ext_dtd = NULL;
     xmlDtdPtr int_dtd = NULL;
@@ -302,7 +304,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     ext_dtd = domGetExternalSubset(self);
 
     if (ext_dtd == dtd) {
-        return;
+        return dtd;
     }
 
     if (ext_dtd != NULL) {
@@ -312,7 +314,8 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     if ( dtd->doc == NULL ) {
         xmlSetTreeDoc( (xmlNodePtr) dtd, self );
     } else if (dtd->doc != self) {
-        domImportNode( self, (xmlNodePtr) dtd, 1, 1);
+        fprintf(stderr, __FILE__ ":%d\n", __LINE__);
+        XML6_FAIL(self, "moving DTDs between documents is not supported");
     }
 
     if (dtd != NULL && int_dtd != NULL) {
@@ -326,6 +329,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     }
     self->extSubset = dtd;
     dtd->parent = self;
+    return dtd;
 }
 
 static xmlNodePtr
@@ -423,7 +427,7 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
     return NULL;
 }
 
-static xmlDtdPtr
+static xmlNodePtr
 _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
     xmlDtdPtr ext_dtd = domGetExternalSubset(doc);
     int replace_external = (old && old->type == XML_DTD_NODE ? (xmlDtdPtr)old : dtd) == ext_dtd;
@@ -435,12 +439,12 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
     if (old && old != (xmlNodePtr) dtd) xmlUnlinkNode(old);
 
     if (replace_external) {
-        domSetExternalSubset(doc, dtd);
+        dtd = domSetExternalSubset(doc, dtd);
     }
     else {
-        domSetInternalSubset(doc, dtd);
+        dtd = domSetInternalSubset(doc, dtd);
     }
-    return dtd;
+    return (xmlNodePtr) dtd;
 }
 
 /**
@@ -829,8 +833,7 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( newChild->type == XML_DTD_NODE ) {
-        _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)newChild, NULL);
-        return newChild;
+        return _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)newChild, NULL);
     }
     if (self->type == XML_ELEMENT_NODE) {
         if (newChild->type == XML_ATTRIBUTE_NODE) {
@@ -1009,8 +1012,7 @@ domInsertBefore( xmlNodePtr self,
     }
 
     if (newChild->type == XML_DTD_NODE) {
-        _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)newChild, NULL);
-        return newChild;
+        return _domSetDtd((xmlDocPtr)self, (xmlDtdPtr)newChild, NULL);
     }
 
     if ( !(domTestHierarchy( self, newChild )
@@ -1097,7 +1099,6 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
             _domAssimulate(head, tail);
         }
     }
-
     return self;
 }
 
@@ -1155,8 +1156,7 @@ domAddSibling( xmlNodePtr self, xmlNodePtr nNode ) {
         }
     }
     else if (nNode->type == XML_DTD_NODE) {
-        _domSetDtd((xmlDocPtr)self->parent, (xmlDtdPtr)nNode, NULL);
-        rv = nNode;
+        rv = _domSetDtd((xmlDocPtr)self->parent, (xmlDtdPtr)nNode, NULL);
     }
     else {
         rv = xmlAddSibling( self, nNode );

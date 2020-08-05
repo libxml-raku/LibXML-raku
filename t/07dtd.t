@@ -210,7 +210,7 @@ sub test_insert_dtd ($test_name, &insert_sub) {
 
     my $parser  = LibXML.new;
     my $src_doc = $parser.parse: :file('example/dtd.xml');
-    my $dtd     = $src_doc.internalSubset;
+    my $dtd     = $src_doc.internalSubset.clone;
     my $doc     = $parser.parse: :file('example/dtd.xml');
 
     insert_sub($doc, $dtd);
