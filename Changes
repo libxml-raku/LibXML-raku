@@ -1,8 +1,10 @@
-0.5.6 2020-07-xx
-    - Hide validate() and reader op() methods from backtrace
+0.5.7 2020-07-xx
+    - Indicate position of parsing errors (Perl port) #15
+    - Hide reader op() methods from backtrace
+0.5.6 2020-07-13
+    - Hide validate() methods from backtrace
     - Tweak multi candidate parse(_U:) and parse($) candidates;
       ensure all options are processed by the parser.
-    - Indicate position of parsing errors #15
 0.5.5 2020-07-07
     - Changed LibXML::HashMap node handling:
       -- Store nodes directly; avoid coercement to node-sets
