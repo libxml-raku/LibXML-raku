@@ -1,6 +1,6 @@
-0.5.8 2020-08-xx
-    - Add :%ns option to node find(), find-nodes(), find-value(), exists()
-      and xpath-context() methods; also added to xpath context new() method.
+0.5.8 2020-08-07
+    - Add :%ns option to node find(), find-nodes(), find-value(), exists(),
+      xpath-context(), and xpath context new() method.
 0.5.7 2020-08-06
     - Indicate position of parsing errors (Perl port) #15
     - Hide reader op() methods from backtrace

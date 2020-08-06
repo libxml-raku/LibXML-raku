@@ -7,8 +7,12 @@ unit class LibXML::XPath::Context;
       use LibXML::XPathContext;
       use LibXML::Node;
       my LibXML::XPath::Context $xpc .= new();
+
       $xpc .= new(:$node, :suppress-warnings, :suppress-errors);
       $xpc.registerNs($prefix, $namespace-uri);
+      # -OR-
+      $xpc .= new(:$node, :ns{ $prefix => $namespace-uri, });
+
       $xpc.unregisterNs($prefix);
       my Str $uri = $xpc.lookupNs($prefix);
       $xpc.registerVarLookupFunc(&get-variable);
@@ -141,10 +145,11 @@ multi submethod TWEAK(LibXML::Node :$node, :%ns) {
 
 =head3 method new
   =begin code :lang<raku>
-  multi method new(LibXML::Document :$doc!, *%opts) returns LibXML::XPath::Context;
-  multi method new(LibXML::Node :$node, *%opts) returns LibXML::XPath::Context;
+  multi method new(LibXML::Document :$doc!, :%ns) returns LibXML::XPath::Context;
+  multi method new(LibXML::Node :$node, :%ns) returns LibXML::XPath::Context;
   =end code
-  =para Creates a new LibXML::XPath::Context object with an optional context document or node.
+  =para Creates a new LibXML::XPath::Context object with an optional context document or node,
+      and `:%ns`, mapping of prefixes to namespace URI's.
 
   submethod DESTROY {
       with $!raw {
