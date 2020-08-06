@@ -503,10 +503,10 @@ Searching Methods
 
     multi method findnodes(Str $xpath-expr,
                            LibXML::Node $ref-node?,
-                           Bool :$deref) returns LibXML::Node::Set 
+                           Bool :$deref, :%ns) returns LibXML::Node::Set 
     multi method findnodes(LibXML::XPath::Expression:D $xpath-expr,
                            LibXML::Node $ref-node?,
-                           Bool :$deref) returns LibXML::Node::Set
+                           Bool :$deref, :%ns) returns LibXML::Node::Set
     # Examples:
     my LibXML::Node @nodes = $node.findnodes( $xpath-expr );
     my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expr, :deref );
@@ -516,7 +516,7 @@ Searching Methods
 
 The XPath expression can be passed either as a string, or as a [LibXML::XPath::Expression](https://libxml-raku.github.io/LibXML-raku/XPath/Expression) object.
 
-The `:deref` option has an effect on associatve indexing:
+The `:deref` option has an effect on associative indexing:
 
     my $humps = $node.findnodes("dromedaries/species")<species/humps>;
     my $humps = $node.findnodes("dromedaries/species", :deref)<humps>;
@@ -533,8 +533,13 @@ There are several possible ways to deal with namespaces in XPath:
 
   * The recommended way is to define a document independent prefix-to-namespace mapping. For example: 
 
-        $node.xpath-context.registerNs('x', 'http://www.w3.org/1999/xhtml');
-        $node.find('/x:html');
+        my %ns = 'x' => 'http://www.w3.org/1999/xhtml';
+        $node.find('/x:html', :%ns);
+
+    --OR--
+
+        my $xpath-context = $node.xpath-context: :%ns;
+        $xpath-context.find('/x:html');
 
   * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML` allows you to use the prefix in the XPath expression, e.g.: 
 
@@ -542,8 +547,8 @@ There are several possible ways to deal with namespaces in XPath:
 
 ### method find
 
-    multi method find( Str $xpath ) returns Any
-    multi method find( LibXML::XPath::Expression:D $xpath ) returns Any
+    multi method find( Str $xpath, :%ns) returns Any
+    multi method find( LibXML::XPath::Expression:D $xpath, :%ns) returns Any
 
 *find* evaluates the XPath 1.0 expression using the current node as the context of the expression, and returns the result depending on what type of result the XPath expression had. For example, the XPath "1 * 3 + 52" results in a [Numeric](Numeric) object being returned. Other expressions might return an [Bool](Bool) object, or a [Str](Str) object.
 
@@ -553,8 +558,8 @@ See also [LibXML::XPathContext](https://libxml-raku.github.io/LibXML-raku/XPathC
 
 ### method findvalue
 
-    multi method findvalue( Str $xpath ) returns Str
-    multi method findvalue( LibXML::XPath::Expression:D $xpath ) returns Str
+    multi method findvalue( Str $xpath, :%ns) returns Str
+    multi method findvalue( LibXML::XPath::Expression:D $xpath, :%ns) returns Str
 
 *findvalue* is equivalent to:
 
@@ -568,9 +573,9 @@ The xpath expression can be passed either as a string, or as a [LibXML::XPath::E
 
 ### method first
 
-    multi method first(Bool :$blank=True) returns LibXML::Node
-    multi method first(Str $xpath-expr) returns LibXML::Node
-    multi method first(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
+    multi method first(Bool :$blank=True, :%ns) returns LibXML::Node
+    multi method first(Str $xpath-expr, :%ns) returns LibXML::Node
+    multi method first(LibXML::XPath::Expression:D $xpath-expr, :%ns) returns LibXML::Node
     # Examples
     my $child = $node.first;          # first child
     my $child = $node.first: :!blank; # first non-blank child
@@ -580,8 +585,8 @@ This node returns the first child node, or descendant node that matches an optio
 
 ### method last
 
-    multi method last(Bool :$blank=True) returns LibXML::Node
-    multi method last(Str $xpath-expr) returns LibXML::Node
+    multi method last(Bool :$blank=True, :%ns) returns LibXML::Node
+    multi method last(Str $xpath-expr, :%ns) returns LibXML::Node
     multi method last(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
     # Examples
     my $child = $node.last;          # last child
@@ -592,8 +597,8 @@ This node returns the last child node, or descendant node that matches an option
 
 ### method exists
 
-    multi method exists(Str $xpath-expr) returns Bool
-    multi method exist(LibXML::XPath::Expression:D $xpath-expr) returns Bool
+    multi method exists(Str $xpath-expr, :%ns) returns Bool
+    multi method exist(LibXML::XPath::Expression:D $xpath-expr, :%ns) returns Bool
 
 This method behaves like *findnodes*, except that it only returns a boolean value (True if the expression matches a node, False otherwise) and may be faster than *findnodes*, because the XPath evaluation may stop early on the first match.
 

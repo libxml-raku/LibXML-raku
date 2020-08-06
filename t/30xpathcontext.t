@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 88;
+plan 101;
 
 use LibXML;
 use LibXML::XPath::Context;
@@ -64,46 +64,51 @@ XML
 
 # test registerNs()
 my $compiled = LibXML::XPath::Expression.parse('/xxx:foo');
-my $xc = LibXML::XPath::Context.new: :doc($doc1);
-$xc.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++; });
-$xc.registerNs('xxx', 'http://example.com/foobar');
+my $xc1 = LibXML::XPath::Context.new: :doc($doc1);
+$xc1.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++; });
+$xc1.registerNs('xxx', 'http://example.com/foobar');
 
-ok($xc.findnodes('/xxx:foo').pop.nodeName eq 'foo', ' TODO : Add test name');
+# test :%ns constructor
+my $xc2 = LibXML::XPath::Context.new: :doc($doc1), :ns{ xxx => 'http://example.com/foobar' };
 
-ok($xc.findnodes($compiled).pop.nodeName eq 'foo', ' TODO : Add test name');
+for $xc1, $xc2 -> $xc {
+    ok($xc.findnodes('/xxx:foo').pop.nodeName eq 'foo', ' TODO : Add test name');
 
-is($xc.lookupNs('xxx'), 'http://example.com/foobar', ' TODO : Add test name');
+    ok($xc.findnodes($compiled).pop.nodeName eq 'foo', ' TODO : Add test name');
 
-ok($xc.exists('//xxx:bar/@a'), ' TODO : Add test name');
+    is($xc.lookupNs('xxx'), 'http://example.com/foobar', ' TODO : Add test name');
 
-is($xc.exists('//xxx:bar/@b'), False, ' TODO : Add test name');
+    ok($xc.exists('//xxx:bar/@a'), ' TODO : Add test name');
 
-ok($xc.exists('xxx:bar', $doc1.getDocumentElement), ' TODO : Add test name');
+    is($xc.exists('//xxx:bar/@b'), False, ' TODO : Add test name');
 
-# test unregisterNs()
-$xc.unregisterNs('xxx');
-dies-ok { $xc.findnodes('/xxx:foo') }, 'Find unregistered NS';
+    ok($xc.exists('xxx:bar', $doc1.getDocumentElement), ' TODO : Add test name');
 
-ok(!defined($xc.lookupNs('xxx')), 'Lookup unregistered NS');
+    # test unregisterNs()
+    $xc.unregisterNs('xxx');
+    dies-ok { $xc.findnodes('/xxx:foo') }, 'Find unregistered NS';
 
-dies-ok { $xc.findnodes($compiled) }, ' TODO : Add test name';
+    ok(!defined($xc.lookupNs('xxx')), 'Lookup unregistered NS');
 
-ok(!defined($xc.lookupNs('xxx')), ' TODO : Add test name');
+    dies-ok { $xc.findnodes($compiled) }, ' TODO : Add test name';
 
-# test getContextNode and setContextNode
-ok($xc.getContextNode.isSameNode($doc1), ' TODO : Add test name');
+    ok(!defined($xc.lookupNs('xxx')), ' TODO : Add test name');
 
-$xc.setContextNode($doc1.getDocumentElement);
+    # test getContextNode and setContextNode
+    ok($xc.getContextNode.isSameNode($doc1), ' TODO : Add test name');
 
-ok($xc.getContextNode.isSameNode($doc1.getDocumentElement), 'Context node is document element');
+    $xc.setContextNode($doc1.getDocumentElement);
 
-ok($xc.findnodes('.').pop.isSameNode($doc1.getDocumentElement), 'First node is document element');
+    ok($xc.getContextNode.isSameNode($doc1.getDocumentElement), 'Context node is document element');
+
+    ok($xc.findnodes('.').pop.isSameNode($doc1.getDocumentElement), 'First node is document element');
+}
 
 # test xpath context preserves the document
 $doc = LibXML.parse: :string(q:to<XML>);
 <foo/>
 XML
-my $xc2 = LibXML::XPath::Context.new( :$doc );
+$xc2 = LibXML::XPath::Context.new( :$doc );
 is($xc2.findnodes('//*').pop.nodeName, 'foo', 'First node is root node');
 
 # test xpath context preserves context node

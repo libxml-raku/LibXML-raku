@@ -20,7 +20,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.5.7>
+unit class LibXML:ver<0.5.8>
     is LibXML::Parser;
 
 method config handles <
@@ -172,7 +172,7 @@ and others.
 
 =head1 VERSION
 
-0.5.7
+0.5.8
 
 =head1 COPYRIGHT
 

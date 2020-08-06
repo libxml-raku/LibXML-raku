@@ -304,15 +304,6 @@ method hasChildNodes returns Bool {
     ? self.raw.hasChildNodes();
 }
 
-multi method first(Bool :$blank = True) {
-    $blank ?? $.firstChild !! $.firstNonBlankChild;
-}
-multi method first($expr, |c) { $.xpath-context.first($expr, |c) }
-multi method last(Bool :$blank = True) {
-    $blank ?? $.lastChild !! $.lastNonBlankChild;
-}
-multi method last($expr, |c) { $.xpath-context.last($expr, |c) }
-
 #| Appends text directly to a node
 method appendText(Str:D $text) is also<appendTextNode> {
     self.raw.appendText($text);
@@ -528,18 +519,27 @@ method removeChildNodes(--> LibXML::Node) {
 ########################################################################
 =head2 Searching Methods
 
-method xpath-context handles<find findnodes findvalue exists> {
-    (require ::('LibXML::XPath::Context')).new: :node(self);
+method xpath-class {
+            require ::('LibXML::XPath::Context');
 }
+
+method xpath-context(|c) {
+    $.xpath-class.new: :node(self), |c;
+}
+
+method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
+    self.xpath-class.new(:$node, :%ns).findnodes($expr, :$deref);
+}
+
 =begin pod
     =head3 method findnodes
 
         multi method findnodes(Str $xpath-expr,
                                LibXML::Node $ref-node?,
-                               Bool :$deref) returns LibXML::Node::Set 
+                               Bool :$deref, :%ns) returns LibXML::Node::Set 
         multi method findnodes(LibXML::XPath::Expression:D $xpath-expr,
                                LibXML::Node $ref-node?,
-                               Bool :$deref) returns LibXML::Node::Set
+                               Bool :$deref, :%ns) returns LibXML::Node::Set
         # Examples:
         my LibXML::Node @nodes = $node.findnodes( $xpath-expr );
         my LibXML::Node::Set $nodes = $node.findnodes( $xpath-expr, :deref );
@@ -550,7 +550,7 @@ method xpath-context handles<find findnodes findvalue exists> {
 
     The XPath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
-    The `:deref` option has an effect on associatve indexing:
+    The `:deref` option has an effect on associative indexing:
 
         my $humps = $node.findnodes("dromedaries/species")<species/humps>;
         my $humps = $node.findnodes("dromedaries/species", :deref)<humps>;
@@ -575,8 +575,13 @@ method xpath-context handles<find findnodes findvalue exists> {
         The recommended way is to define a document
         independent prefix-to-namespace mapping. For example: 
 
-          $node.xpath-context.registerNs('x', 'http://www.w3.org/1999/xhtml');
-          $node.find('/x:html');
+          my %ns = 'x' => 'http://www.w3.org/1999/xhtml';
+          $node.find('/x:html', :%ns);
+
+        --OR--
+
+           my $xpath-context = $node.xpath-context: :%ns;
+           $xpath-context.find('/x:html');
 
         =end item
         =begin item
@@ -587,11 +592,16 @@ method xpath-context handles<find findnodes findvalue exists> {
           $node.find('/xhtml:html');
 
         =end item
+=end pod
 
+method find(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
+    self.xpath-class.new(:$node, :%ns).find($expr, :$deref);
+}
+=begin pod
     =head3 method find
 
-      multi method find( Str $xpath ) returns Any
-      multi method find( LibXML::XPath::Expression:D $xpath ) returns Any
+      multi method find( Str $xpath, :%ns) returns Any
+      multi method find( LibXML::XPath::Expression:D $xpath, :%ns) returns Any
 
     I<find> evaluates the XPath 1.0 expression using the current node as the context of the
     expression, and returns the result depending on what type of result the XPath
@@ -600,11 +610,16 @@ method xpath-context handles<find findnodes findvalue exists> {
     The XPath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
 
     See also L<LibXML::XPathContext>.find.
+=end pod
 
+method findvalue(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
+    self.xpath-class.new(:$node, :%ns).findvalue($expr);
+}
+=begin pod
     =head3 method findvalue
 
-      multi method findvalue( Str $xpath ) returns Str
-      multi method findvalue( LibXML::XPath::Expression:D $xpath ) returns Str
+      multi method findvalue( Str $xpath, :%ns) returns Str
+      multi method findvalue( LibXML::XPath::Expression:D $xpath, :%ns) returns Str
 
     I<findvalue> is equivalent to:
 
@@ -618,23 +633,41 @@ method xpath-context handles<find findnodes findvalue exists> {
     See also L<LibXML::XPathContext>.findvalue.
 
     The xpath expression can be passed either as a string, or as a L<LibXML::XPath::Expression> object.
+=end pod
 
+multi method first(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
+    self.xpath-class.new(:$node, :%ns).first($expr);
+}
+multi method first(Bool :$blank = True) {
+    $blank ?? $.firstChild !! $.firstNonBlankChild;
+}
+
+=begin pod
     =head3 method first
 
-        multi method first(Bool :$blank=True) returns LibXML::Node
-        multi method first(Str $xpath-expr) returns LibXML::Node
-        multi method first(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
+        multi method first(Bool :$blank=True, :%ns) returns LibXML::Node
+        multi method first(Str $xpath-expr, :%ns) returns LibXML::Node
+        multi method first(LibXML::XPath::Expression:D $xpath-expr, :%ns) returns LibXML::Node
         # Examples
         my $child = $node.first;          # first child
         my $child = $node.first: :!blank; # first non-blank child
         my $descendant = $node.first($xpath-expr);
 
     This node returns the first child node, or descendant node that matches an optional XPath expression.
+=end pod
 
+multi method last(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
+    self.xpath-class.new(:$node, :%ns).last($expr);
+}
+multi method last(Bool :$blank = True) {
+    $blank ?? $.lastChild !! $.lastNonBlankChild;
+}
+
+=begin pod
     =head3 method last
 
-        multi method last(Bool :$blank=True) returns LibXML::Node
-        multi method last(Str $xpath-expr) returns LibXML::Node
+        multi method last(Bool :$blank=True, :%ns) returns LibXML::Node
+        multi method last(Str $xpath-expr, :%ns) returns LibXML::Node
         multi method last(LibXML::XPath::Expression:D $xpath-expr) returns LibXML::Node
         # Examples
         my $child = $node.last;          # last child
@@ -642,11 +675,16 @@ method xpath-context handles<find findnodes findvalue exists> {
         my $descendant = $node.last($xpath-expr);
 
     This node returns the last child node, or descendant node that matches an optional XPath expression.
+=end pod
 
+method exists(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
+    self.xpath-class.new(:$node, :%ns).exists($expr);
+}
+=begin pod
     =head3 method exists
 
-        multi method exists(Str $xpath-expr) returns Bool
-        multi method exist(LibXML::XPath::Expression:D $xpath-expr) returns Bool
+        multi method exists(Str $xpath-expr, :%ns) returns Bool
+        multi method exist(LibXML::XPath::Expression:D $xpath-expr, :%ns) returns Bool
 
     This method behaves like I<findnodes>, except that it only returns a boolean value (True if the expression matches a
     node, False otherwise) and may be faster than I<findnodes>, because the XPath evaluation may stop early on the first match.

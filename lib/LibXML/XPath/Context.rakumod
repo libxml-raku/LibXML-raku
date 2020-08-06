@@ -53,6 +53,11 @@ unit class LibXML::XPath::Context;
       $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
       my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
+   Alternatively, namespaces can be defined on the constructor:
+
+      my LibXML::XPath::Context $xc .= new: doc($xhtml-doc), :ns{ xhtml => 'http://www.w3.org/1999/xhtml' };
+      my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
+                     
     =head3 2. Custom XPath functions
 
     This example demonstrates C<registerFunction()> method by defining a function filtering nodes based on a Raku regular expression:
@@ -124,12 +129,14 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 =head2 Methods
 
-multi submethod TWEAK(LibXML::Document:D :$doc!) {
+multi submethod TWEAK(LibXML::Document:D :$doc!, :%ns) {
     self.setContextNode($doc);
+    self.registerNs($_) for %ns.pairs;
 }
 
-multi submethod TWEAK(LibXML::Node :$node) {
+multi submethod TWEAK(LibXML::Node :$node, :%ns) {
     self.setContextNode($_) with $node;
+    self.registerNs($_) for %ns.pairs;
 }
 
 =head3 method new

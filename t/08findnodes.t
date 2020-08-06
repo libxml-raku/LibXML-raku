@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 64;
+plan 66;
 
 use LibXML;
 use LibXML::Element;
@@ -131,6 +131,9 @@ is(+@b, 1, ' TODO : Add test name');
 dies-ok {@b = $root.findnodes('//B:bar')};
 @b = $root.findnodes('//b:BAR');
 is(+@b, 0, ' TODO : Add test name');
+
+lives-ok {@b = $root.findnodes('//B:bar', :ns{ B => "http://bar.com" })};
+is(+@b, 1, ' TODO : Add test name');
 
 my @none = $root.findnodes('//b:foo');
 @none.push($_) for $root.findnodes('//foo');
