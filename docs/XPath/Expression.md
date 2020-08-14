@@ -41,9 +41,12 @@ The constructor takes an XPath 1.0 expression as a string and returns an object 
 
 ### method compile
 
-    method compile( Str $xpath ) returns LibXML::XPath::Expression;
+    method compile(
+        Str $xpath,
+        LibXML::Node :node($ref-node)
+    ) returns LibXML::XPath::Expression;
 
-Alternative constructor.
+Alternative constructor which takes a positional XPath expression as a string.
 
 Copyright
 ---------

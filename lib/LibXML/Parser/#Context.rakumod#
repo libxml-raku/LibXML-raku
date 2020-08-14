@@ -53,6 +53,7 @@ method close {
         with $!raw;
 }
 
+multi method set-raw($ where .isSameNode($!raw)) { }
 method set-raw(xmlParserCtxt $_) {
     my $old = $!raw;
     $!raw = $_;
@@ -69,7 +70,7 @@ method set-raw(xmlParserCtxt $_) {
 }
 
 method publish {
-    my xmlDoc $doc = .myDoc with $!raw;
+    my xmlDoc $doc = .myDoc with $!raw;;
     $.close() without $!input-compressed;
     self.set-raw(xmlParserCtxt);
     $doc;

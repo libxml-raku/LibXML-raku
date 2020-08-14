@@ -59,9 +59,9 @@ same XPath query is evaluated many times. C<<<<<<LibXML::XPath::Expression>>>>>>
 
 =head3 method new
 
-  method new(
-      Str :expr($xpath)!, LibXML::Node :node($ref-node)
-  ) returns LibXML::XPath::Expression
+   method new(
+       Str :expr($xpath)!, LibXML::Node :node($ref-node)
+   ) returns LibXML::XPath::Expression
 
 The constructor takes an XPath 1.0 expression as a string and returns an object
 representing the pre-compiled expressions (the actual data structure is
@@ -69,9 +69,12 @@ internal to libxml2).
 
 =head3 method compile
 
-  method compile( Str $xpath ) returns LibXML::XPath::Expression;
+   method compile(
+       Str $xpath,
+       LibXML::Node :node($ref-node)
+   ) returns LibXML::XPath::Expression;
 
-Alternative constructor.
+Alternative constructor which takes a positional XPath expression as a string.
 
 
 =head2 Copyright

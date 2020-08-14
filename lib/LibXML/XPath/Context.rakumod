@@ -159,7 +159,7 @@ multi submethod TWEAK(LibXML::Node :$node, :%ns) {
 }
 
 sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:structured-error-cb) {
-    CATCH { default { warn "error handling structured error: $_" } }
+    CATCH { default { note "error handling structured error: $_" } }
     $*XPATH-CONTEXT.structured-error($err);
 }
 method !try(&action) {
@@ -615,7 +615,7 @@ multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
 multi method park($_) is default { fail "unexpected return value: {.perl}"; }
 
 sub xpath-callback-error(Exception $error) {
-    CATCH { default { warn "error handling callback error: $_" } }
+    CATCH { default { note "error handling callback error: $_" } }
     $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :$error;
 }
 

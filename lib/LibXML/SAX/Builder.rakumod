@@ -1,12 +1,13 @@
 #| Build DOM trees from SAX events.
 class LibXML::SAX::Builder {
+
     use LibXML::Raw;
     use LibXML::Raw::Defs :$CLIB;
-    use NativeCall;
     use LibXML::ErrorHandling;
-
     use LibXML::Node;
     use LibXML::Entity;
+
+    use NativeCall;
 
     my role is-sax-cb[Str $name] is export(:is-sax-cb) {
         method sax-name { $name }
@@ -26,15 +27,14 @@ class LibXML::SAX::Builder {
         %atts
     }
 
-    sub handle-error(xmlParserCtxt $ctx, Exception $err, :$ret) {
-        CATCH { default { warn "error handling SAX error: $_" } }
+    sub handle-error(xmlParserCtxt $ctx, Exception $err) {
+        CATCH { default { note "error handling SAX error: $_" } }
         with $ctx {
             .ParserError($err.message ~ "\n");
         }
         else {
-            warn $err;
+            note "SAX errror: $err";
         }
-        $ret;
     }
 
     my %SAXHandlerDispatch = %(
@@ -61,7 +61,7 @@ class LibXML::SAX::Builder {
         'isStandalone'|'hasInternalSubset'|'hasExternalSubset' =>
             -> $obj, &callb {
                 sub (xmlParserCtxt $ctx --> UInt) {
-                    CATCH { default { handle-error($ctx, $_, :ret(UInt)) } }
+                    CATCH { default { handle-error($ctx, $_); UInt; } }
                     my UInt $ := callb($obj, :$ctx);
                 }
         },
@@ -140,7 +140,7 @@ class LibXML::SAX::Builder {
         'warning'|'error'|'fatalError' =>
             -> $obj, &callb {
                 sub (xmlParserCtxt $ctx, Str $text) {
-                    CATCH { default { warn "unable to handle error: $_" } }
+                    CATCH { default { note "error handling SAX error: $_" } }
                     callb($obj, $text, :$ctx);
                 }
         },
@@ -179,7 +179,8 @@ class LibXML::SAX::Builder {
         for $obj.^methods.grep(* ~~ is-sax-cb) -> &meth {
             my $name = &meth.sax-name;
             with %dispatches{$name} -> &dispatch {
-                %seen{$name} = True;
+                warn "duplicate SAX callback: $name"
+                    if %seen{$name}++;
                 $obj.set-sax-callback($name, &dispatch($obj, &meth));
             }
             else {

@@ -118,7 +118,7 @@ my class ValidContext {
         my xmlDoc:D $doc = .raw;
         my $rv;
         given xml6_gbl_save_error_handlers() {
-        $!raw.SetStructuredErrorFunc: &structured-error-cb;
+            $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $rv := $!raw.ValidateDoc($doc);
 	    $rv := self.validity-check
                 if $check;

@@ -52,13 +52,13 @@ Synopsis
 
     # -- Searching Methods -- #
     #    * XPath *
-    my LibXML::Node @found = $node.findnodes( $xpath-expression );
-    my LibXML::Node::Set $results = $node.find( $xpath-expression );
-    print $node.findvalue( $xpath-expression );
-    my Bool $found = $node.exists( $xpath-expression );
+    my LibXML::Node @found = $node.findnodes( $xpath-expr, :%ns );
+    my LibXML::Node::Set $results = $node.find( $xpath-expr, :%ns );
+    print $node.findvalue( $xpath-expr, :%ns );
+    my Bool $found = $node.exists( $xpath-expr, :%ns );
     $found = $xpath-expression ~~ $node;
-    my LibXML::Node $item = $node.first( $xpath-expression );
-    $item = $node.last( $xpath-expression );
+    my LibXML::Node $item = $node.first( $xpath-expr, :%ns );
+    $item = $node.last( $xpath-expr, :%ns );
     #    * CSS selectors *
     $node.query-handler = CSS::Selector::To::XPath.new; # setup a query selector handler
     $item = $node.querySelector($css-selector); # first match

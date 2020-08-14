@@ -125,7 +125,7 @@ my class Context {
     also does LibXML::ErrorHandling;
 
     method !catch(Exception $error) {
-        CATCH { default { warn "error handling callback error: $_" } }
+        CATCH { default { note "input callback error handling error: $_" } }
         self.callback-error: X::LibXML::IO::AdHoc.new: :$error;
     }
 
