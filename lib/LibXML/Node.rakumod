@@ -19,6 +19,7 @@ unit class LibXML::Node
         my Str $name = $node.nodeName;
         $node.nodeName = $newName;
         my Bool $same = $node.isSameNode( $other-node );
+        my Bool $blank = $node.isBlaNK;
         my Str $key = $node.unique-key;
         my Str $content = $node.nodeValue;
         $content = $node.textContent;
@@ -138,6 +139,7 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 method raw handles<
     domCheck domFailure
     getNodeName getNodeValue
+    isBlank
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue string-value
@@ -204,6 +206,12 @@ full name of the current node (C<prefix:localname>).
 
     This function is not specified for any DOM level: It returns a canonical
     structure based XPath for a given node.
+
+    =head3 method isBlank
+
+        method isBlank() returns Bool
+
+    True if this is a text node or processing instruction, and it contains only blank content
 
 =end pod
 

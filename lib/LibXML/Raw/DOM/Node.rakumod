@@ -263,3 +263,6 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
     $ok
 }
 
+method isBlank {
+    ? self.IsBlank;
+}

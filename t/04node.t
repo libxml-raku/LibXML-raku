@@ -7,7 +7,7 @@
 
 use v6;
 use Test;
-plan 198;
+plan 201;
 
 use LibXML;
 use LibXML::Enums;
@@ -23,7 +23,6 @@ my $doc    = $parser.parse: :string( $xmlstring );
 {
     my $node = $doc.documentElement;
     my $rnode;
-
 
     is($node, $xmlstring, ' TODO : Add test name');
     is($node.nodeType, +XML_ELEMENT_NODE, ' TODO : Add test name');
@@ -514,6 +513,7 @@ EOF
         is(join(',',@nonblank.map(*.ast-key)), 'a,b,#comment,#cdata,?foo,c,#text', 'ast-key' );
         is(join(',',@nonblank.map(*.xpath-key)), 'a,b,comment(),text(),processing-instruction(),c,text()', 'xpath-key' );
         is(join(',',@nonblank.map(*.nodeName)), 'a,b,#comment,#cdata-section,foo,c,#text', 'nodeName' );
+        is +@nonblank.grep(*.isBlank), 0, '*.isBlank';
         is($r.firstChild.nodeName, '#text', ' TODO : Add test name');
         is $r.getChildrenByTagName('foo').map(*.nodeName).join, 'foo';  
         is $r.getChildrenByLocalName('?foo').map(*.nodeName).join, 'foo';  
@@ -524,9 +524,12 @@ EOF
         my @all = $r.childNodes;
         is(join(',', @all.map(*.ast-key)), '#text,a,#text,b,#text,#cdata,#text,#comment,#text,#cdata,#text,?foo,#text,c,#text', ' TODO : Add test name' );
 
+        is-deeply $r.firstChild.isBlank, True, 'first blank child';
+
         my $f = $r.firstNonBlankChild;
         my $p;
         is($f.nodeName, 'a', ' TODO : Add test name');
+        is-deeply $f.isBlank, False, '.isBlank() on  non-blank node';
         is($f.nextSibling.nodeName, '#text', ' TODO : Add test name');
         is($f.previousSibling.nodeName, '#text', ' TODO : Add test name');
         ok( !$f.previousNonBlankSibling, ' TODO : Add test name' );

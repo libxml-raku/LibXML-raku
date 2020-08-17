@@ -13,6 +13,7 @@ Synopsis
     my Str $name = $node.nodeName;
     $node.nodeName = $newName;
     my Bool $same = $node.isSameNode( $other-node );
+    my Bool $blank = $node.isBlaNK;
     my Str $key = $node.unique-key;
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
@@ -142,6 +143,12 @@ The returned key value is useful as a key in hashes.
     method nodePath() returns Str
 
 This function is not specified for any DOM level: It returns a canonical structure based XPath for a given node.
+
+### method isBlank
+
+    method isBlank() returns Bool
+
+True if this is a text node or processing instruction thats contains only blank content
 
 ### method isSameNode
 
