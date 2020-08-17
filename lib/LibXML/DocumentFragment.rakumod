@@ -128,9 +128,11 @@ method parse(
         $ctx.stat = ($doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
             ($sax // xmlSAXHandler), ($ctx.user-data // Pointer), 0, $ctx.string, $ctx.nodes, +$ctx.recover
         );
-        die "balanced parse failed with status {$ctx.stat}"
-            if $ctx.stat && !$ctx.recover;
     };
+
+    # just in case, we didn't catch the error
+    die "balanced parse failed with status {$ctx.stat}"
+        if $ctx.stat && !$ctx.recover;
 
     $doc-frag.raw.AddChildList($_) with $ctx.publish;
     $doc-frag;

@@ -2,9 +2,10 @@ use v6;
 # ensure .column() and other error fields are correct
 use Test;
 use LibXML;
+use LibXML::DocumentFragment;
 use LibXML::Enums;
 
-plan 14;
+plan 28;
 
 try {
     LibXML.parse: :string(
@@ -39,3 +40,31 @@ like $err.message, rx:s/
 
 is $err.prev.domain-num, +XML_FROM_PARSER;
 is $err.prev.prev.msg.chomp, 'attributes construct error';
+
+
+try {
+    LibXML::DocumentFragment.parse: :string('<foo>XX</bar>'), :balanced,
+};
+$err = $!;
+ok $err.defined, 'got error';
+isa-ok $err, 'X::LibXML::Parser', 'error type';
+is $err.file, Str, 'File is OK.';
+is $err.line, 1, 'Line is OK';
+is $err.level, +XML_ERR_FATAL;
+is $err.code, +XML_ERR_NOT_WELL_BALANCED, 'code is OK';
+todo "column() unreliable in libxml2.version < v2.09.02"
+    if LibXML.version < v2.09.02;
+is $err.column(), 13, "Column is OK.";
+is $err.level, +XML_ERR_FATAL, 'level is OK';
+is $err.domain-num, +XML_FROM_PARSER;
+is $err.domain, 'parser';
+is $err.msg.chomp, 'chunk is not well balanced';
+like $err.message, rx:s/
+    ':1: parser error : Opening and ending tag mismatch: foo line 1 and bar'
+    .*
+    ':1: parser error : chunk is not well balanced'
+    .*
+/;
+
+is $err.prev.domain-num, +XML_FROM_PARSER;
+is $err.prev.msg.chomp, 'Opening and ending tag mismatch: foo line 1 and bar';
