@@ -1,6 +1,6 @@
-0.5.9 2020-08-xx
+0.5.9 2020-08-17
     - Add $node.isBlank() method; mapped to raw xmlIsBlankNode() method.
-    - Fix LibXML::DocumentFragment error handling to return structured
+    - Fix LibXML::DocumentFragment parse() error handling to return structured
       X::LibXML::Parser exceptions; similar to LibXML::Parser.
 0.5.8 2020-08-07
     - Add :%ns option to node find(), find-nodes(), find-value(), exists(),

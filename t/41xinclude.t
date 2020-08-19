@@ -3,8 +3,6 @@ use LibXML;
 use Test;
 plan 7;
 
-# tests for bug #24953: External entities not expanded in included file (XInclude)
-
 my $parser = LibXML.new;
 my $file = 'test/xinclude/test.xml';
 {
