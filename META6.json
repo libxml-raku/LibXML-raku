@@ -4,8 +4,7 @@
     "David Warring"
   ],
   "build-depends": [
-    "LibraryMake",
-    "Pod::To::Markdown"
+    "LibraryMake"
   ],
   "depends": [
     "XML",

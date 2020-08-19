@@ -488,6 +488,7 @@ static void _domXPathCtxtRemoveNS(xmlXPathContextPtr ctxt, xmlNsPtr *ns) {
 DLLEXPORT xmlNodePtr
 domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
     xmlNodePtr oldNode = ctxt->node;
+    xmlNsPtr* ns_list = NULL;
 
     if (node != oldNode) {
         xmlDocPtr doc = node ? node->doc : NULL;
@@ -498,9 +499,9 @@ domXPathCtxtSetNode(xmlXPathContextPtr ctxt, xmlNodePtr node) {
             ctxt->doc = doc;
         }
 
-        xmlNsPtr* ns = _domXPathCtxtRegisterNS(ctxt, node);
-        if (ns != NULL) {
-            xmlFree(ns);
+        ns_list = _domXPathCtxtRegisterNS(ctxt, node);
+        if (ns_list != NULL) {
+            xmlFree(ns_list);
         }
         ctxt->node = node;
     }
