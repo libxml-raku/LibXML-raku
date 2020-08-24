@@ -80,7 +80,7 @@ clean :
 realclean : clean
 	@rm -f Makefile docs/*.md docs/*/*.md
 
-doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Document.md docs/DocumentFragment.md\
+doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Dict.md docs/Document.md docs/DocumentFragment.md\
       docs/Dtd.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/HashMap.md docs/Raw.md\
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
@@ -109,6 +109,8 @@ docs/Comment.md : lib/LibXML/Comment.rakumod
 docs/Config.md : lib/LibXML/Config.rakumod
 
 docs/CDATA.md : lib/LibXML/CDATA.rakumod
+
+docs/Dict.md : lib/LibXML/Dict.rakumod
 
 docs/Document.md : lib/LibXML/Document.rakumod
 

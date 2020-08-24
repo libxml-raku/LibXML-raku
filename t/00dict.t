@@ -6,8 +6,9 @@ plan 12;
 my LibXML::Dict $dict .= new;
 
 is $dict.elems, 0, 'dict initial size';
-
-$dict{$_} = $_ for qw<a b c D>;
+$dict<a> = 'a';
+$dict.see('b');
+$dict.see: <c D>;
 
 is $dict.elems, 4, 'dict updated size';
 
@@ -26,3 +27,4 @@ is $dict.elems, 4, 'dict updated size';
 
 $dict<e> = $e;
 is $dict.elems, 5, 'dict updated size';
+
