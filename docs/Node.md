@@ -148,7 +148,7 @@ This function is not specified for any DOM level: It returns a canonical structu
 
     method isBlank() returns Bool
 
-True if this is a text node or processing instruction thats contains only blank content
+True if this is a text node or processing instruction, and it contains only blank content
 
 ### method isSameNode
 

@@ -12,7 +12,7 @@ class Build {
     sub make(Str $folder, Str $destfolder, IO() :$libname!) {
         my %vars = LibraryMake::get-vars($destfolder);
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
-        if $*VM.config<dll> ~~ /dll/ {
+        if Rakudo::Internals.IS-WIN {
             %vars<LIB-LDFLAGS> = '-llibxml2 -liconv -lz';
             %vars<LIB-CFLAGS> = '-I/usr/include/libxml2';
         }

@@ -1,5 +1,5 @@
 SRC=src
-TRAVIS=https://travis-ci.org/p6-xml/LibXML-raku
+TRAVIS=https://travis-ci.org/xml-raku/LibXML-raku
 
 all : lib
 
