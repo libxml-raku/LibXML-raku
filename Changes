@@ -1,5 +1,6 @@
 0.5.10 2020-08-xx
     - Add LibXML::Dict see() and seen() methods.
+    - Fix compiler warnings in dom.c
 0.5.9 2020-08-17
     - Add $node.isBlank() method; mapped to raw xmlIsBlankNode() method.
     - Fix LibXML::DocumentFragment parse() error handling to return structured

@@ -747,7 +747,7 @@ multi method ACCEPTS(LibXML::Node:D: Str:D $expr) {
 
 #| serialize to a string; canonicalized as per C14N specification
 method canonicalize(
-    Bool() :$comments,
+    Bool() :$comments = False,
     Bool() :$exclusive = False,
     Version :$v = v1.0,
     XPathExpr :$xpath is copy,

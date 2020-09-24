@@ -638,7 +638,7 @@ Serialization Methods
 
 ```perl6
 method canonicalize(
-    :$comments,
+    :$comments = Bool::False,
     :$exclusive = Bool::False,
     Version :$v = v1.0,
     :$xpath is copy where { ... },

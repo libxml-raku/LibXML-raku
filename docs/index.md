@@ -32,7 +32,7 @@ DOM Objects
 
 The nodes in the Document Object Model (DOM) are represented by the following classes (most of which "inherit" from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node)):
 
-  * [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) - LibXML DOM attribute class
+  * [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) - LibXML DOM document class
 
   * [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) - LibXML attribute class
 
@@ -110,7 +110,7 @@ PREREQUISITES
 
 This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
-Debian Linux
+Debian/Unbuntu Linux
 ------------
 
 ```shell

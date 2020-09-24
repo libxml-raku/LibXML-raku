@@ -1917,12 +1917,6 @@ static int _domPrefixMatch(const xmlChar *prefix, xmlChar *base) {
     return matched;
 }
 
-static void
-_domNullDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
-    // nothing to do
-}
-
-
 DLLEXPORT xmlChar*
 domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
     xmlChar *rv;
@@ -1961,7 +1955,7 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
             spare = xmlHashLookup(hash, (xmlChar*)rv) == NULL;
         }
 
-        xmlHashFree(hash, _domNullDeallocator);
+        xmlHashFree(hash, NULL);
     }
 
     return rv;
