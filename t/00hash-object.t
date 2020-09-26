@@ -8,7 +8,7 @@ use NativeCall;
 plan 2;
 
 subtest 'node-hash' => {
-    plan 6;
+    plan 4;
     my LibXML::HashMap[LibXML::Element] $elems .= new;
 
     for 1 .. 5 {
@@ -19,8 +19,7 @@ subtest 'node-hash' => {
     is-deeply [$elems.values.map(*.Str).sort], [(1..5).map({'<Elem'~$_~'/>'})], 'values';
 
     $elems<e5>:delete;
-    skip 'issue #12', 2;
-    ok ($elems<e5>:!exists), 'deleted element';
+    nok $elems<e5>:exists, 'deleted element';
     $elems<e4> .= new('Replaced');
     is $elems<e4>.Str, '<Replaced/>', 'replaced element';
 }
