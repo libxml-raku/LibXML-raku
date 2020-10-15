@@ -1,6 +1,7 @@
-0.5.10 2020-08-xx
+0.5.10 2020-10-16
     - Add LibXML::Dict see() and seen() methods.
     - Fix compiler warnings in dom.c
+    - Fix childNode() regression #47 (unbreak Spreadsheet::XLSX)
 0.5.9 2020-08-17
     - Add $node.isBlank() method; mapped to raw xmlIsBlankNode() method.
     - Fix LibXML::DocumentFragment parse() error handling to return structured
