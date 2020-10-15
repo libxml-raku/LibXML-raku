@@ -722,16 +722,14 @@ method exists(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
     See L<LibXML::XPath::Context> for more details.
 =end pod
 
-sub iterate-list($parent, $of, Bool :$properties, Bool :$blank = True) is export(:iterate-list) {
+sub iterate-list($parent, $of, Bool :$properties, :$doc = $of.doc, Bool :$blank = True) is export(:iterate-list) {
     # follow a chain of .next links.
-    state $ ||= { require LibXML::Node::List; True; }
-    LibXML::Node::List.new: :$of, :$properties, :$blank, :$parent;
+    (require ::('LibXML::Node::List')).new: :$of, :$properties, :$doc, :$blank, :$parent;
 }
 
-sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {
+sub iterate-set($of, xmlNodeSet $native, Bool :$deref) is export(:iterate-set) {
     # iterate through a set of nodes
-    state $ ||= { require LibXML::Node::Set; True; }
-    LibXML::Node::Set.new( :$raw, :$of, :$deref )
+    (require ::('LibXML::Node::Set')).new( :$native, :$of, :$deref );
 }
 
 multi method ACCEPTS(LibXML::Node:D: LibXML::XPath::Expression:D $expr) {
