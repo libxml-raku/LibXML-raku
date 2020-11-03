@@ -13,7 +13,7 @@ Synopsis
 Description
 -----------
 
-A LibXML::Dict bins to the xmlDict data structure, which can be used to collate strings.
+A LibXML::Dict bins to the xmlDict data structure, which is used to uniquely identify and store strings.
 
 Please see also [LibXML::HashMap](https://libxml-raku.github.io/LibXML-raku/HashMap), for a more general-purpose associative interface.
 

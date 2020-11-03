@@ -75,9 +75,12 @@ use LibXML::Raw::DOM::Node;
 use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :$CLIB, :Opaque, :xmlCharP;
 
 sub xmlParserVersion is export { cglobal($XML2, 'xmlParserVersion', Str); }
-sub xml6_config_have_threads(-->int32) is native($BIND-XML2) is export {*}
-sub xml6_config_have_compression(-->int32) is native($BIND-XML2) is export {*}
-sub xml6_config_version(--> Str) is native($BIND-XML2) is export {*};
+
+module xml6_config is export {
+    our sub have_threads(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_threads') is export {*}
+    our sub have_compression(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_compression') is export {*}
+    our sub version(--> Str) is native($BIND-XML2) is symbol('xml6_config_version') is export {*};
+}
 
 # forward declarations
 class anyNode        is repr('CStruct') is export {...}

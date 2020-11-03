@@ -21,7 +21,7 @@ method version returns Version {
 }
 
 #| Returns the version of the `libxml2` library that the LibXML module was built against
-method config-version { Version.new: xml6_config_version(); }
+method config-version { Version.new: xml6_config::version(); }
 
 #| Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
 method have-reader returns Bool {
@@ -36,10 +36,10 @@ method have-schemas returns Bool {
 }
 
 #| Returns True if the `libxml2` library supports threads
-method have-threads returns Bool { ? xml6_config_have_threads(); }
+method have-threads returns Bool { ? xml6_config::have_threads(); }
 
 #| Returns True if the `libxml2` library supports compression
-method have-compression returns Bool { ? xml6_config_have_compression(); }
+method have-compression returns Bool { ? xml6_config::have_compression(); }
 
 our @catalogs;
 method load-catalog(Str:D $filename) {
