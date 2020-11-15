@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/xml-raku/LibXML-raku.svg?branch=master)](https://travis-ci.org/xml-raku/LibXML-raku)
+[![Build Status](https://travis-ci.org/libxml-raku/LibXML-raku.svg?branch=master)](https://travis-ci.org/libxml-raku/LibXML-raku)
 
 NAME
 ====
@@ -110,8 +110,8 @@ PREREQUISITES
 
 This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
-Debian/Unbuntu Linux
-------------
+Debian/Ubuntu Linux
+-------------------
 
 ```shell
 sudo apt-get install libxml2-dev
@@ -141,7 +141,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.5.8
+0.5.10
 
 COPYRIGHT
 =========

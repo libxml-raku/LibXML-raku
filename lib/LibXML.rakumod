@@ -68,7 +68,7 @@ For further information, please check the following documentation:
 The nodes in the Document Object Model (DOM) are represented by the following
 classes (most of which "inherit" from L<LibXML::Node>):
 
-  =item L<LibXML::Document> - LibXML DOM attribute class
+  =item L<LibXML::Document> - LibXML DOM document class
 
   =item L<LibXML::Attr> - LibXML attribute class
 
@@ -140,7 +140,7 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
-=head2 Debian Linux
+=head2 Debian/Ubuntu Linux
     =begin code :lang<shell>
     sudo apt-get install libxml2-dev
     =end code
@@ -172,7 +172,7 @@ and others.
 
 =head1 VERSION
 
-0.5.8
+0.5.10
 
 =head1 COPYRIGHT
 
