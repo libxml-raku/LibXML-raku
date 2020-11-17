@@ -1,3 +1,6 @@
+0.5.11 2020-11-18
+    - Fix breakage on Rakudo 2020.10+ blead #48
+    - Add native xml6_config:: module
 0.5.10 2020-10-16
     - Add LibXML::Dict see() and seen() methods.
     - Fix compiler warnings in dom.c
