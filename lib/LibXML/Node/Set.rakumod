@@ -78,7 +78,7 @@ class LibXML::Node::Set
     method string-value { do with $.first { .string-value } // Str}
     multi method to-literal( :list($)! where .so ) { self.map({ .string-value }) }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-    method Bool { self.defined && self.elems }
+    method Bool { self.defined && so self.elems }
     method Str is also<gist> handles <Int Num trim chomp> { $.Array.map(*.Str).join }
     method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
     method reverse {
