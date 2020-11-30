@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [Item](https://libxml-raku.github.io/LibXML-raku/Item)
+
 class LibXML::Item
 ------------------
 

@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [Document](https://libxml-raku.github.io/LibXML-raku/Document)
+
 class LibXML::Document
 ----------------------
 
@@ -309,8 +313,8 @@ Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 
 ```perl6
 method Blob(
-    :$skip-xml-declaration is copy = Code.new,
-    :$skip-dtd = Code.new,
+    Bool(Any) :$skip-xml-declaration is copy = Code.new,
+    Bool(Any) :$skip-dtd = Code.new,
     Str:D :$enc where { ... } = Code.new,
     Bool :$force,
     :$skip-decl,
@@ -339,7 +343,7 @@ The option `:force` is needed to really allow the combination of a non-UTF8 enco
 
 ```perl6
 method write(
-    :$file!,
+    Str(Any) :$file!,
     Bool :$format = Bool::False
 ) returns UInt
 ```
@@ -350,7 +354,7 @@ Write to a name file
 
 ```perl6
 method save-as(
-    $file
+    Str(Any) $file
 ) returns UInt
 ```
 

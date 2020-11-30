@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [Node](https://libxml-raku.github.io/LibXML-raku/Node)
+
 class LibXML::Node
 ------------------
 
@@ -461,7 +465,7 @@ Add an additional node to the end of a nodelist
 
 ```perl6
 method cloneNode(
-    :$deep = Bool::False
+    Bool(Any) :$deep = Bool::False
 ) returns LibXML::Node
 ```
 
@@ -638,8 +642,8 @@ Serialization Methods
 
 ```perl6
 method canonicalize(
-    :$comments = Bool::False,
-    :$exclusive = Bool::False,
+    Bool(Any) :$comments = Bool::False,
+    Bool(Any) :$exclusive = Bool::False,
     Version :$v = v1.0,
     :$xpath is copy where { ... },
     :$selector = Code.new,

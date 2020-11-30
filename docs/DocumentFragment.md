@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment)
+
 class LibXML::DocumentFragment
 ------------------------------
 
@@ -55,7 +59,7 @@ Creates a new empty document fragment to which nodes can be added; typically by 
 
 ```perl6
 method parse(
-    :$string!,
+    Str(Any) :$string!,
     Bool :balanced($)! where { ... },
     NativeCall::Types::Pointer :$user-data,
     |c

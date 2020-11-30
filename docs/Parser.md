@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [Parser](https://libxml-raku.github.io/LibXML-raku/Parser)
+
 class LibXML::Parser
 --------------------
 

@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [Dict](https://libxml-raku.github.io/LibXML-raku/Dict)
+
 Synopsis
 --------
 
@@ -13,7 +17,7 @@ Synopsis
 Description
 -----------
 
-A LibXML::Dict bins to the xmlDict data structure, which is used to uniquely identify and store strings.
+[LibXML::Dict](https://libxml-raku.github.io/LibXML-raku/Dict) binds to the xmlDict data structure, which is used to uniquely identify and store strings.
 
 Please see also [LibXML::HashMap](https://libxml-raku.github.io/LibXML-raku/HashMap), for a more general-purpose associative interface.
 

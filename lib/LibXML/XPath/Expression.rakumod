@@ -14,7 +14,7 @@ has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
 also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
 also does LibXML::ErrorHandling;
 
-multi submethod TWEAK(Str:D :$expr!) {
+submethod TWEAK(Str:D :$expr!) {
     my $*XML-CONTEXT = self;
     $!raw .= new(:$expr);
     self.flush-errors;

@@ -1,5 +1,9 @@
 [![Build Status](https://travis-ci.org/libxml-raku/LibXML-raku.svg?branch=master)](https://travis-ci.org/libxml-raku/LibXML-raku)
 
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [](https://libxml-raku.github.io/LibXML-raku/)
+
 NAME
 ====
 

@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser)
+
 class LibXML::PushParser
 ------------------------
 

@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [HashMap](https://libxml-raku.github.io/LibXML-raku/HashMap)
+
 class LibXML::HashMap
 ---------------------
 
@@ -62,7 +66,7 @@ Methods
     my LibXML::HashMap $obj-hash .= new();
     my LibXML::HashMap[type] $type-hash .= new();
 
-By default XPath Objects to containerize and store strings, floats, booleans or node-sets.
+By default XPath Objects are used to containerize and store strings, floats, booleans or node-sets.
 
 The other container types, `UInt`, `Str`, `LibXML::Item` and `LibXML::Node::Set` store values directly, without using an intermediate XPath objects.
 

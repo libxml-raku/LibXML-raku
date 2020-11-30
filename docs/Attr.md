@@ -1,3 +1,7 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [Attr](https://libxml-raku.github.io/LibXML-raku/Attr)
+
 class LibXML::Attr
 ------------------
 

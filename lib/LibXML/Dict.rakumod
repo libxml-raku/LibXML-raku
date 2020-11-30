@@ -6,8 +6,9 @@ use Method::Also;
 
 has xmlDict $!native;
 
-multi submethod TWEAK(xmlDict:D :$!native!) { $!native.Reference }
-multi submethod TWEAK is default { $!native .= new; $!native.Reference }
+submethod TWEAK(xmlDict:D :$!native = xmlDict.new) {
+    $!native.Reference;
+}
 
 submethod DESTROY {
     .Unreference with $!native;
@@ -44,7 +45,7 @@ multi method see(@k) {
 
 =head2 Description
 
-A LibXML::Dict bins to the xmlDict data structure, which is used to uniquely identify
+L<LibXML::Dict> binds to the xmlDict data structure, which is used to uniquely identify
 and store strings.
 
 Please see also L<LibXML::HashMap>, for a more general-purpose associative interface.

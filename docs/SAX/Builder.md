@@ -1,3 +1,8 @@
+[[Raku LibXML Project]](https://libxml-raku.github.io)
+ / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
+ / [SAX](https://libxml-raku.github.io/LibXML-raku/SAX)
+ :: [Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder)
+
 class LibXML::SAX::Builder
 --------------------------
 

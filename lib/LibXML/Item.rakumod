@@ -102,7 +102,7 @@ multi sub ast-to-xml(Pair $_) {
 
     my UInt $node-type := itemNode::NodeType($name);
 
-    if $value ~~ Str:D {
+    when $value ~~ Str:D {
         when $name.starts-with('#') {
             box-class($node-type).new: :content($value);
         }
@@ -119,11 +119,12 @@ multi sub ast-to-xml(Pair $_) {
             box-class('LibXML::Attr').new: :$name, :$value;
         }
     }
-    else {
-        if $name.starts-with('&') {
-            $name .= substr(1);
-            $name .= chop() if $name.ends-with(';');
-        }
+    when $name.starts-with('&') {
+        $name .= substr(1);
+        $name .= chop() if $name.ends-with(';');
+        box-class('LibXML::EntityRef').new: :$name
+    }
+    default {
         my $node := box-class($node-type).new: :$name;
 
         for $value.List {
