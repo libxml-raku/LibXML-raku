@@ -28,7 +28,7 @@ method new-node { ... }
 method getDocumentElement { self.GetRootElement }
 method setDocumentElement(Node $e) { self.SetRootElement($e) }
 
-method createElementNS(Str $URI, QName:D $name is copy) {
+method createElementNS(Str $URI, Str:D $name is copy) {
     return self.createElement($name) without $URI;
     my Str $prefix;
     given $name.split(':', 2) {
@@ -41,11 +41,11 @@ method createElementNS(Str $URI, QName:D $name is copy) {
     self.new-node: :$name, :$ns;
 }
 
-method createElement(QName:D $name) {
+method createElement(Str:D $name) {
     self.new-node: :$name;
 }
 
-method createAttribute(NCName:D $name, Str $value = '') {
+method createAttribute(Str:D $name, Str $value = '') {
     self.domCreateAttribute($name, $value);
 }
 
@@ -61,7 +61,7 @@ multi method adoptNode(Node:D $node) is default {
     self.domImportNode($node, Move, 1);
 }
 
-method createAttributeNS(Str $URI, QName:D $name, Str:D $value = '') {
+method createAttributeNS(Str $URI, Str:D $name, Str:D $value = '') {
     if $URI {
         self.domCreateAttributeNS($URI, $name, $value);
     }

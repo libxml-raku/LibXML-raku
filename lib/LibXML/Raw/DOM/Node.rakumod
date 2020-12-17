@@ -178,7 +178,7 @@ method appendText(Str:D $text) {
     self.AddContent($text);
 }
 
-method appendTextChild(QName:D $name, Str $text) {
+method appendTextChild(Str:D $name, Str $text) {
     self.domAppendTextChild($name, $text);
 }
 
