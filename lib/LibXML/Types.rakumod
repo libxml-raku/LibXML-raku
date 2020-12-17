@@ -1,8 +1,13 @@
 unit module LibXML::Types;
 
-use XML::Grammar;
+my token pident {
+    <.ident> [ '-' [ \d+ <.ident>? || <.ident> ]* % '-' ]?
+}
 
-subset NCName of Str is export(:NCName) where !.defined || ?XML::Grammar.parse($_, :rule<pident>);
-subset QName of Str is export(:QName) where !.defined || ?XML::Grammar.parse($_, :rule<name>);
+my token name {
+    ^ <pident> [ ':' <pident> ]? $
+}
+
+subset NCName of Str is export(:NCName) where !.defined || /^<pident>$/;
+subset QName of Str is export(:QName) where !.defined || $_ ~~ &name;
 subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
-
