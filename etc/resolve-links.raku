@@ -5,7 +5,13 @@ multi sub resolve-class(@ ('LibXML', *@path)) {
 }
 
 multi sub resolve-class(@ ('LibXSLT', *@p)) {
-    %( :repo<LibXSTL-raku>, :path[] )
+    my @path;
+    with @p[1] {
+        when 'Stylesheet'|'Security' {
+            @path.push: $_;
+        }
+    }
+    %( :repo<LibXSLT-raku>, :@path)
 }
 
 sub link-to-url(Str() $class-name) {
@@ -18,7 +24,7 @@ sub link-to-url(Str() $class-name) {
 
 sub breadcrumb(Str $url is copy, @path, UInt $n = +@path, :$top) {
     my $name = $top ?? @path[0 ..^ $n].join('::') !! @path[$n-1];
-    $url ~= '/' ~ @path[0..^ $n].join('/');
+    $url ~= '/' ~ @path[0 ..^ $n].join('/');
     my $sep = $top ?? '/' !! '::';
     say " $sep [$name]($url)";
 }

@@ -66,19 +66,35 @@ multi sub get-attribute(XML::Element:D $e) {
     }
 }
 
-multi sub unbox($e) {
+sub att-edit($e) {
+    if $e.hasAttribute('name') {
+        my $v := $e.getAttribute('name');
+        $v :=  $e.getAttributeNS(Str, 'name');
+        $e.setAttribute('name', $v);
+        $e.setAttributeNS(Str, 'name', $v);
+    }
+    else {
+        die 'att-edit failed';
+    }
+}
+
+sub append-text-child($e) {
+    $e.appendTextChild('Foo', 'Bar').unbindNode();
+}
+
+sub unbox($e) {
     for 1 .. 50 {
        $e.unbox;
     }
 }
 
-multi sub box($raw) {
+sub box($raw) {
     for 1 .. 50 {
        LibXML::Element.box($raw);
     }
 }
 
-multi sub keep($e, $raw) {
+sub keep($e, $raw) {
     for 1 .. 50 {
        $e.keep: $raw;
     }
@@ -134,6 +150,8 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '04-box.libxml' => { box($raw) },
         '04-unbox.libxml' => { unbox($libxml-root) },
         '04-keep.libxml' => { keep($libxml-root, $raw) },
+        '05-att-edit.libxml' => {att-edit($libxml-root) },
+        '05-append-text-child.libxml' => {append-text-child($libxml-root) },
     );
 
 }

@@ -59,7 +59,7 @@ multi sub box-class(Str:D $class-name) {
     }
 }
 
-multi sub box-class(UInt $_) is export(:box-class) {
+multi sub box-class(Int:D $_) is export(:box-class) {
     box-class(@ClassMap[$_] // 'LibXML::Item');
 }
 

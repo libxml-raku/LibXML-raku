@@ -20,7 +20,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.5.11>
+unit class LibXML:ver<0.5.12>
     is LibXML::Parser;
 
 method config handles <
@@ -156,7 +156,7 @@ This module requires the libxml2 library to be installed. Please follow the inst
 This Raku module:
 
    =item is based on the Perl 5 XML::LibXML module; in particular, the test suite, selected XS and C code and documentation.
-   =item derives SelectorQuery() and SelectorQueryAll() methods from the Perl 5 XML::LibXML::QuerySelector module.
+   =item derives SelectorQuery() and SelectorQueryAll() methods from the Perl XML::LibXML::QuerySelector module.
    =item also draws on an earlier attempt at a Perl 6 (nee Raku) port (XML::LibXML).
 
 With thanks to:
@@ -172,7 +172,7 @@ and others.
 
 =head1 VERSION
 
-0.5.11
+0.5.12
 
 =head1 COPYRIGHT
 

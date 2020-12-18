@@ -19,7 +19,7 @@ method domGenNsPrefix { ... }
 
 my subset AttrNode of Node where {!.defined || .type == XML_ATTRIBUTE_NODE};
 
-method setAttribute(QName:D $name, Str:D $value --> UInt) {
+method setAttribute(Str:D $name, Str:D $value --> UInt) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {
         # user wants to set the special attribute for declaring XML namespace ...
 
@@ -56,19 +56,19 @@ method setAttributeNodeNS(AttrNode $att) {
     self.domSetAttributeNodeNS($att);
 }
 
-method getAttributeNode(QName:D $att-name) {
+method getAttributeNode(Str:D $att-name) {
     self.domGetAttributeNode($att-name);
 }
 
-method hasAttribute(QName:D $att-name --> Bool) {
+method hasAttribute(Str:D $att-name --> Bool) {
     self.getAttributeNode($att-name).defined;
 }
 
-method hasAttributeNS(Str $uri, QName:D $att-name --> Bool) {
+method hasAttributeNS(Str $uri, Str:D $att-name --> Bool) {
     ? self.domHasAttributeNS($uri, $att-name);
 }
 
-method removeAttribute(QName:D $attr-name) {
+method removeAttribute(Str:D $attr-name) {
     with self.getAttributeNode($attr-name) {
         .Release; True;
     }
@@ -97,15 +97,15 @@ method removeAttributeNS(Str $uri, Str $attr-name) {
     }
 }
 
-method getAttributeNodeNS(Str $uri, QName:D $att-name --> AttrNode) {
+method getAttributeNodeNS(Str $uri, Str:D $att-name --> AttrNode) {
     self.domGetAttributeNodeNS($uri, $att-name);
 }
 
-method getAttributeNS(Str $uri, QName:D $att-name --> Str) {
+method getAttributeNS(Str $uri, Str:D $att-name --> Str) {
     self.domGetAttributeNS($uri, $att-name);
 }
 
-method getAttribute(QName:D $name) {
+method getAttribute(Str:D $name) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {
         # user wants to get the special attribute for declaring XML namespace ...
 
@@ -120,7 +120,7 @@ method getAttribute(QName:D $name) {
     }
 }
 
-method setAttributeNS(Str $uri, QName:D $name, Str:D $value) {
+method setAttributeNS(Str $uri, Str:D $name, Str:D $value) {
     if $name ~~ /^xmlns[\:|$]/ {
         if $uri !~~ XML_XMLNS_NS {
             fail("NAMESPACE ERROR: Namespace declarations must have the prefix 'xmlns'");
