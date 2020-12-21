@@ -88,6 +88,7 @@ doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md 
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
       docs/XPath/Context.md docs/XPath/Expression.md\
+      docs/SAX/Handler/SAX2.md docs/SAX/Handler/XML.md\
       docs/SAX/Builder.md
 
 docs/index.md : lib/LibXML.rakumod
@@ -160,6 +161,10 @@ docs/Schema.md : lib/LibXML/Schema.rakumod
 docs/RelaxNG.md : lib/LibXML/RelaxNG.rakumod
 
 docs/SAX/Builder : lib/LibXML/SAX/Builder.rakumod
+
+docs/SAX/Handler/SAX2 : lib/LibXML/SAX/Handler/SAX2.rakumod
+
+docs/SAX/Handler/XML : lib/LibXML/SAX/Handler/XML.rakumod
 
 docs/Text.md : lib/LibXML/Text.rakumod
 

@@ -10,7 +10,7 @@ use LibXML::Node::Set;
 use LibXML::Attr;
 use LibXML::Element;
 
-my $parser = LibXML.new();
+my LibXML $parser .= new;
 
 my $xml1 = q:to<EOX>;
 <a xmlns:b="http://whatever"

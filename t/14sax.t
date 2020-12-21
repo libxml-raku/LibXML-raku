@@ -181,12 +181,13 @@ EOT
 
 {
     my @stack;
-    my $sax = SAXLocatorTester.new( cb => -> $sax, $name, :$ctx, |c {
+    my sub cb($sax, $name, :$ctx, |c) {
         push( @stack, $name => [
             $sax.line-number($ctx),
-            $sax.column-number($ctx)
-        ] );
-    } );
+            $sax.column-number($ctx),
+        ]);
+    };
+    my $sax = SAXLocatorTester.new( :&cb );
 
     ok($sax, 'Created SAX handler with document locator');
 

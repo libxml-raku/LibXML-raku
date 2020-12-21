@@ -1,4 +1,4 @@
-#| Build DOM trees from SAX events.
+#| Builds SAX callback sets
 class LibXML::SAX::Builder {
 
     use LibXML::Raw;
@@ -206,8 +206,9 @@ class LibXML::SAX::Builder {
 
 =head2 Description
 
-This module provides mappings from native SAX callbacks to Raku. It is
-usually used in conjunction with a L<LibXML::SAX::Handler> base-class.
+This class provides mappings from native SAX2 callbacks to Raku.
+
+It may be used in conjunction with L<LibXML::SAX::Handler::SAX2> base-class.
 
 =head2 Example
 
@@ -235,6 +236,8 @@ and attributes converted to uppercase.
     my $string = '<html><body><h1>Hello World</h1></body></html>'
     my LibXML::Document $doc .= parse: :$sax-hander;
     say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
+
+See L<LibXML::SAX::Handler::SAX2> for a description of callbacks
 
 =head2 Copyright
 

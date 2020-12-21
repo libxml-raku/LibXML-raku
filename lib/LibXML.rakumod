@@ -108,6 +108,12 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 =item L<LibXML::Reader> - LibXML Reader (pull parser) bindings
 
+=head3 Parsing SAX
+
+=item L<LibXML::SAX::Builder> - Builds SAX callback sets
+=item L<LibXML::SAX::Handler::SAX2> - SAX handler base clas
+=item L<LibXML::SAX::Handler::XML> - SAX Handler for XML
+
 =head2 XPath and Searching
 
 =item L<LibXML::XPath::Expression> - XPath Compiled Expressions
@@ -120,8 +126,8 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 =head2 Validation
 
+=item L<LibXML::DTD> - LibXML DTD validation class
 =item L<LibXML::Schema> - LibXML schema validation class
-
 =item L<LibXML::RelaxNG> - LibXML RelaxNG validation class
 
 =head2 Other

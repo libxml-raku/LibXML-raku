@@ -6,12 +6,14 @@
 class LibXML::SAX::Builder
 --------------------------
 
-Build DOM trees from SAX events.
+Builds SAX callback sets
 
 Description
 -----------
 
-This module provides mappings from native SAX callbacks to Raku. It is usually used in conjunction with a [LibXML::SAX::Handler](https://libxml-raku.github.io/LibXML-raku/SAX/Handler) base-class.
+This class provides mappings from native SAX2 callbacks to Raku.
+
+It may be used in conjunction with [LibXML::SAX::Handler::SAX2](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/SAX2) base-class.
 
 Example
 -------
@@ -39,6 +41,8 @@ The following example builds a modified DOM tree with all tags and attributes co
     my $string = '<html><body><h1>Hello World</h1></body></html>'
     my LibXML::Document $doc .= parse: :$sax-hander;
     say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
+
+See [LibXML::SAX::Handler::SAX2](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/SAX2) for a description of callbacks
 
 Copyright
 ---------

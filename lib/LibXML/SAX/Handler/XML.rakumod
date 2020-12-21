@@ -1,5 +1,6 @@
 use LibXML::SAX::Handler::SAX2;
 
+#| Build pure Raku XML documents using LibXML's SAX parser
 class LibXML::SAX::Handler::XML
     is LibXML::SAX::Handler::SAX2 {
 
@@ -67,3 +68,15 @@ class LibXML::SAX::Handler::XML
     }
 
 }
+=begin pod
+
+=head2 Description
+
+L<LibXML::SAX::Handler::XML> is a SAX handler that produce pure Raku L<XML>
+modules using the LIBXML SAX interface to parse the document.
+
+This class is an example of implementing a custom parser using the
+LibXML SAX interface, using L<LibXML::SAX::Builder> and  L<LibXML::SAX::Handler::SAX2>.
+
+
+=end pod

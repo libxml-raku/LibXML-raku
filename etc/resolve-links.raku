@@ -14,12 +14,18 @@ multi sub resolve-class(@ ('LibXSLT', *@p)) {
     %( :repo<LibXSLT-raku>, :@path)
 }
 
+multi sub resolve-class(@ ('XML', *@p)) {
+    %( :repo<XML>, :url<https://github.com/raku-community-modules/XML>)
+}
+
 sub link-to-url(Str() $class-name) {
     my %info = resolve-class($class-name.split('::'));
-    my @path = DocRoot;
-    @path.push: %info<repo>;
-    @path.append(.list) with %info<path>;
-    @path.join: '/';
+    %info<url> // do {
+        my @path = DocRoot;
+        @path.push: %info<repo>;
+        @path.append(.list) with %info<path>;
+        @path.join: '/';
+    }
 }
 
 sub breadcrumb(Str $url is copy, @path, UInt $n = +@path, :$top) {
@@ -32,11 +38,10 @@ sub breadcrumb(Str $url is copy, @path, UInt $n = +@path, :$top) {
 INIT {
     with %*ENV<TRAIL> {
         # build a simple breadcrumb trail
-        my $url = DocRoot;
-        say "[[Raku LibXML Project]]({$url})";
         my %info = resolve-class(.split('/'));
         my $repo = %info<repo>;
-        $url ~= '/' ~ $repo;
+        my $url = %info<url> // DocRoot ~ '/' ~ $repo;
+        say "[[Raku LibXML Project]]({$url})";
 
         my @mod = $repo.split('-');
         @mod.pop if @mod.tail ~~ 'raku';
@@ -54,4 +59,4 @@ INIT {
     }
 }
 
-s:g:s/ '](' (LibX[ML|SLT]['::'*%%<ident>]) ')'/{'](' ~ link-to-url($0) ~ ')'}/;
+s:g:s/ '](' ([Lib]?X[ML|SLT]['::'*%%<ident>]) ')'/{'](' ~ link-to-url($0) ~ ')'}/;

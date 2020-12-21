@@ -213,7 +213,7 @@ method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
     LibXML::Attr.box: $.raw.getAttributeNodeNS($uri, $att-name);
 }
 
-# handled by the native method
+# handled by the `raw` method
 =begin pod
     =head3 method getAttribute
 

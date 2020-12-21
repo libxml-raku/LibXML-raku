@@ -70,7 +70,7 @@ sub att-edit($e) {
     if $e.hasAttribute('name') {
         my $v := $e.getAttribute('name');
         $v :=  $e.getAttributeNS(Str, 'name');
-        $e.setAttribute('name', $v);
+        $e.setAttribute('name', 'xxx');
         $e.setAttributeNS(Str, 'name', $v);
     }
     else {

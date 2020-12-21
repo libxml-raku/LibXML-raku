@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/libxml-raku/LibXML-raku.svg?branch=master)](https://travis-ci.org/libxml-raku/LibXML-raku)
 
-[[Raku LibXML Project]](https://libxml-raku.github.io)
+[[Raku LibXML Project]](https://libxml-raku.github.io/LibXML-raku)
  / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
  / [](https://libxml-raku.github.io/LibXML-raku/)
 
@@ -78,6 +78,14 @@ Parsing
 
   * [LibXML::Reader](https://libxml-raku.github.io/LibXML-raku/Reader) - LibXML Reader (pull parser) bindings
 
+### Parsing SAX
+
+  * [LibXML::SAX::Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder) - Builds SAX callback sets
+
+  * [LibXML::SAX::Handler::SAX2](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/SAX2) - SAX handler base clas
+
+  * [LibXML::SAX::Handler::XML](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/XML) - SAX Handler for XML
+
 XPath and Searching
 -------------------
 
@@ -91,6 +99,8 @@ XPath and Searching
 
 Validation
 ----------
+
+  * [LibXML::DTD](https://libxml-raku.github.io/LibXML-raku/DTD) - LibXML DTD validation class
 
   * [LibXML::Schema](https://libxml-raku.github.io/LibXML-raku/Schema) - LibXML schema validation class
 
