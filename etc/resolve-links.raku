@@ -40,12 +40,12 @@ INIT {
         # build a simple breadcrumb trail
         my %info = resolve-class(.split('/'));
         my $repo = %info<repo>;
-        my $url = %info<url> // DocRoot ~ '/' ~ $repo;
-        say "[[Raku LibXML Project]]({$url})";
+        say "[[Raku LibXML Project]]({%info<url> // DocRoot})";
 
         my @mod = $repo.split('-');
         @mod.pop if @mod.tail ~~ 'raku';
         my $mod = @mod.join: '-';
+        my $url = %info<url> // DocRoot ~ '/' ~ $repo;
         say " / [[$mod Module]]({$url})";
 
         with %info<path> {

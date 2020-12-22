@@ -1,5 +1,6 @@
 <!DOCTYPE doc [
 <!ELEMENT doc (#PCDATA)>
+<!ATTLIST doc type CDATA #IMPLIED>
 <!ENTITY foo " test ">
 ]>
 <doc>This is a valid document &foo; !</doc>

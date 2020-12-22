@@ -76,15 +76,15 @@ class LibXML::SAX::Builder {
             -> $obj, &callb {
                 sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    my LibXML::Entity $ent := callb($obj, $name, :$ctx);
-                    $ent.raw;
+                    my $ent = callb($obj, $name, :$ctx);
+                    $ent ~~ LibXML::Entity ?? .raw !! $ent;
                 }
         },
         'entityDecl' =>
             -> $obj, &callb {
-                sub (xmlParserCtxt $ctx, Str $public-id, Str $system-id) {
+                sub (xmlParserCtxt $ctx, Str $name, Int $type, Str $public-id, Str $system-id, Str $content) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, :$ctx, :$public-id, :$system-id);
+                    callb($obj, $name, $content, :$ctx, :$public-id, :$system-id, :$type);
                 }
         },
         'attributeDecl' =>

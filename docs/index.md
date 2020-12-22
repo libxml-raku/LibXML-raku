@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/libxml-raku/LibXML-raku.svg?branch=master)](https://travis-ci.org/libxml-raku/LibXML-raku)
 
-[[Raku LibXML Project]](https://libxml-raku.github.io/LibXML-raku)
+[[Raku LibXML Project]](https://libxml-raku.github.io)
  / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
  / [](https://libxml-raku.github.io/LibXML-raku/)
 
@@ -78,7 +78,7 @@ Parsing
 
   * [LibXML::Reader](https://libxml-raku.github.io/LibXML-raku/Reader) - LibXML Reader (pull parser) bindings
 
-### Parsing SAX
+### SAX Parser
 
   * [LibXML::SAX::Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder) - Builds SAX callback sets
 
@@ -155,7 +155,7 @@ With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlom
 VERSION
 =======
 
-0.5.12
+0.5.13
 
 COPYRIGHT
 =========

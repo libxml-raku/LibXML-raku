@@ -1,25 +1,18 @@
 # a base class that provides a full set of SAX2 callbacks
 use LibXML::SAX::Handler;
+use LibXML::Raw;
 
-class LibXML::SAX::Handler::SAX2
-    is LibXML::SAX::Handler {
-    use LibXML::Raw;
-    use NativeCall;
-    use LibXML::SAX::Handler::SAX2::Locator;
-    has LibXML::SAX::Handler::SAX2::Locator $.locator handles<line-number column-number> .= new;
-
-    use LibXML::Document;
-    use LibXML::DocumentFragment;
+my role SAX2BaseClass {
+    # implement methods that call LibXML2's default SAX2 handlers,
+    # so that callsame(), etc will invoke them
     use LibXML::Types :QName, :NCName;
+    use NativeCall;
 
-    multi method publish(LibXML::Document $doc!) {
-        $doc;
-    }
-    multi method publish(LibXML::DocumentFragment $doc!) {
-        $doc;
-    }
+    my constant Ctx = xmlParserCtxt;
 
-    constant Ctx = xmlParserCtxt;
+    method setDocumentLocator(xmlSAXLocator $locator, Ctx :$ctx!) returns Bool {
+        ? $ctx.xmlSAX2SetDocumentLocator($locator);
+    }
 
     method isStandalone(Ctx :$ctx!) returns Bool {
         ? $ctx.xmlSAX2IsStandalone;
@@ -41,6 +34,14 @@ class LibXML::SAX::Handler::SAX2
         $ctx.xmlSAX2EndElement($name);
     }
 
+    method externalSubset(Str:D $name, Ctx :$ctx!, Str :$external-id, Str :$system-id) {
+        $ctx.xmlSAX2ExternalSubset($name, $external-id, $system-id);
+    }
+
+    method internalSubset(Str:D $name, Ctx :$ctx!, Str :$external-id, Str :$system-id) {
+        $ctx.xmlSAX2InternalSubset($name, $external-id, $system-id);
+    }
+
     method startElementNs($local-name, Str :$prefix!, Str :$uri!, UInt :$num-namespaces!, CArray :$namespaces!, UInt :$num-atts!, UInt :$num-defaulted!, CArray :$atts-raw!, Ctx :$ctx!) {
         $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts-raw);
     }
@@ -54,9 +55,60 @@ class LibXML::SAX::Handler::SAX2
         $ctx.xmlSAX2Characters($buf, +$buf);
     }
 
+    method processingInstruction(Str $target, Str $data, Ctx :$ctx!) {
+        $ctx.xmlSAX2ProcessingInstruction($target, $data);
+    }
+
+    method cdataBlock(Str $chars, Ctx :$ctx!) {
+        my Blob $buf = $chars.encode;
+        $ctx.xmlSAX2CDataBlock($buf, +$buf);
+    }
+
     method getEntity(Str $name, Ctx :$ctx!) {
         $ctx.xmlSAX2GetEntity($name);
     }
+
+    method entityDecl(Str $name, Str $content, Ctx :$ctx!, Int :$type, Str :$public-id, Str :$system-id) {
+        $ctx.xmlSAX2EntityDecl($name, $type, $public-id, $system-id, $content);
+    }
+
+    method reference(Str:D $text, Ctx :$ctx! ) {
+        $ctx.xmlSAX2Reference($text);
+    }
+
+    method attributeDecl($elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree) {
+        $ctx.xmlSAX2AttributeDecl($elem, $fullname, $type, $def, $default-value, $tree);
+    }
+
+    # unimplmented callbacks
+    method comment(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method elementDecl(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method error(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method fatalError(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method getParameterEntity(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method hasExternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method hasInternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method ignorableWhitespace(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method unparsedEntityDecl(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+    method warning(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+}
+
+class LibXML::SAX::Handler::SAX2
+    is LibXML::SAX::Handler
+    does SAX2BaseClass {
+    use LibXML::SAX::Handler::SAX2::Locator;
+    has LibXML::SAX::Handler::SAX2::Locator $.locator handles<line-number column-number> .= new;
+
+    use LibXML::Document;
+    use LibXML::DocumentFragment;
+
+    multi method publish(LibXML::Document $doc!) {
+        $doc;
+    }
+    multi method publish(LibXML::DocumentFragment $doc!) {
+        $doc;
+    }
+
 }
 
 =begin pod
@@ -87,23 +139,36 @@ Called when the document starts being processed.
 
 Called when the document end has been detected.
 
-=head4 method isStandalone
+=head4 method internalSubset
 
-    method isStandalone(
-        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)) returns Bool
+    method internalSubset(
+        Str $name,                # the root element name
+        Str :$external-id         # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
 
-Determine whether the document is considered standalone. I.e. any associated DTD is used for validation only.
+Callback on internal subset declaration
+
+=head4 method externalSubset
+
+    method externalSubset(
+        Str $name,                # the root element name
+        Str :$external-id         # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
+
+Callback on external subset declaration
 
 =head4 method attributeDecl
 
     method attributeDecl(
         Str $elem,                # the name of the element
-        Str $fullname,	      # the attribute name
-        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+        Str $fullname,	          # the attribute name
         UInt :$type,              # the attribute type
-        UInt :$def, 	      # the type of default value
+        UInt :$def, 	          # the type of default value
         Str  :$default-value,     # the attribute default value
         Uint :$tree,              # the tree of enumerated value set
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
 
 An attribute definition has been parsed.
@@ -174,15 +239,6 @@ Receive some characters from the parser.
 
 Receive a CDATA block from the parser.
 
-=head4 method ignorableWhitespace
-
-    method ignorableWhitespace(
-        Str $chars,               # the element name
-        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
-    )
-
-Receive ignorable whitespace from the parser.
-
 =head4 method getEntity
 
     method getEntity(
@@ -190,7 +246,7 @@ Receive ignorable whitespace from the parser.
         xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
 
-Get an entities data
+Get an entity's data
 
 =head4 method processingInstruction
 
@@ -204,11 +260,38 @@ Get a processing instruction
 
 =head4 method serror
 
-    method getEntity(
+    method serror(
         X::LibXML $error,         # the element name
     )
 
-Handle a structured error form the parser.
+Handle a structured error from the parser.
+
+=head4 method warning(Str $message)
+
+    method warn(
+        Str $message,
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+    )
+
+Handle a warning message.
+
+=head4 method error(Str $message)
+
+    method error(
+        Str $message,
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+    )
+
+Handle an error message.
+
+=head4 method fatalError(Str $message)
+
+    method fatalError(
+        Str $message,
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+    )
+
+Handle a fatal error message.
 
 =head4 method publish
 
@@ -220,6 +303,6 @@ I<Not part of the standard SAX interface>.
 
 As well as the standard SAX2 callbacks (as described in L<LibXML::SAX::Builder>). There is a `publish()` method that returns the completed LibXML document.
 
-The `publish()` can also be overridden to perform final document construction and possibly return non-LibXML document. See <LibXML::SAX::Handler::XML> for an example which uses SAX parsing but produces a pure Raku L<XML> document.
+The `publish()` can also be overridden to perform final document construction and possibly return non-LibXML document. See L<LibXML::SAX::Handler::XML> for an example which uses SAX parsing but produces a pure Raku L<XML> document.
 
 =end pod

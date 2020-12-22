@@ -1,4 +1,4 @@
-[[Raku LibXML Project]](https://libxml-raku.github.io/LibXML-raku)
+[[Raku LibXML Project]](https://libxml-raku.github.io)
  / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
  / [SAX](https://libxml-raku.github.io/LibXML-raku/SAX)
  :: [Handler](https://libxml-raku.github.io/LibXML-raku/SAX/Handler)
@@ -31,23 +31,36 @@ Called when the document starts being processed.
 
 Called when the document end has been detected.
 
-#### method isStandalone
+#### method internalSubset
 
-    method isStandalone(
-        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)) returns Bool
+    method internalSubset(
+        Str $name,                # the root element name
+        Str :$external-id         # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
 
-Determine whether the document is considered standalone. I.e. any associated DTD is used for validation only.
+Callback on internal subset declaration
+
+#### method externalSubset
+
+    method externalSubset(
+        Str $name,                # the root element name
+        Str :$external-id         # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
+
+Callback on external subset declaration
 
 #### method attributeDecl
 
     method attributeDecl(
         Str $elem,                # the name of the element
-        Str $fullname,	      # the attribute name
-        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+        Str $fullname,	          # the attribute name
         UInt :$type,              # the attribute type
-        UInt :$def, 	      # the type of default value
+        UInt :$def, 	          # the type of default value
         Str  :$default-value,     # the attribute default value
         Uint :$tree,              # the tree of enumerated value set
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
 
 An attribute definition has been parsed.
@@ -118,15 +131,6 @@ Receive some characters from the parser.
 
 Receive a CDATA block from the parser.
 
-#### method ignorableWhitespace
-
-    method ignorableWhitespace(
-        Str $chars,               # the element name
-        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
-    )
-
-Receive ignorable whitespace from the parser.
-
 #### method getEntity
 
     method getEntity(
@@ -134,7 +138,7 @@ Receive ignorable whitespace from the parser.
         xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
 
-Get an entities data
+Get an entity's data
 
 #### method processingInstruction
 
@@ -148,11 +152,38 @@ Get a processing instruction
 
 #### method serror
 
-    method getEntity(
+    method serror(
         X::LibXML $error,         # the element name
     )
 
-Handle a structured error form the parser.
+Handle a structured error from the parser.
+
+#### method warning(Str $message)
+
+    method warn(
+        Str $message,
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+    )
+
+Handle a warning message.
+
+#### method error(Str $message)
+
+    method error(
+        Str $message,
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+    )
+
+Handle an error message.
+
+#### method fatalError(Str $message)
+
+    method fatalError(
+        Str $message,
+        xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
+    )
+
+Handle a fatal error message.
 
 #### method publish
 
@@ -164,5 +195,5 @@ Handle a structured error form the parser.
 
 As well as the standard SAX2 callbacks (as described in [LibXML::SAX::Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder)). There is a `publish()` method that returns the completed LibXML document.
 
-The `publish()` can also be overridden to perform final document construction and possibly return non-LibXML document. See <LibXML::SAX::Handler::XML> for an example which uses SAX parsing but produces a pure Raku [XML](https://github.com/raku-community-modules/XML) document.
+The `publish()` can also be overridden to perform final document construction and possibly return non-LibXML document. See [LibXML::SAX::Handler::XML](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/XML) for an example which uses SAX parsing but produces a pure Raku [XML](https://github.com/raku-community-modules/XML) document.
 

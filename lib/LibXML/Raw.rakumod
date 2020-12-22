@@ -358,12 +358,12 @@ class xmlSAXLocator is repr('CStruct') is export {
     }
 
     method getPublicId(xmlParserCtxt $ctx) {
-        with nativecast(:(xmlParserCtxt $ctx --> int32), $!getPublicIdFunc) -> &cb {
+        with nativecast(:(xmlParserCtxt $ctx --> Str), $!getPublicIdFunc) -> &cb {
             &cb($ctx)
         }
     }
 
-    method getSystemId(xmlParserCtxt $ctx) {
+    method getSystemId(xmlParserCtxt $ctx --> Str) {
         with nativecast(:(xmlParserCtxt $ctx --> int32), $!getSystemIdFunc) -> &cb {
             &cb($ctx)
         }
@@ -416,7 +416,7 @@ class xmlSAXHandler is repr('CStruct') is export {
         method xml6_sax_set_getEntity( &cb (xmlParserCtxt $ctx, Str $name --> xmlEntity) ) is native($BIND-XML2) {*}
     );
     has Pointer   $.entityDecl is rw-ptr(
-        method xml6_sax_set_entityDecl( &cb (xmlParserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id) ) is native($BIND-XML2) {*}
+        method xml6_sax_set_entityDecl( &cb (xmlParserCtxt $ctx, Str $name, uint32 $type, Str $public-id, Str $system-id, Str $content) ) is native($BIND-XML2) {*}
     );
     has Pointer   $.notationDecl is rw-ptr(
         method xml6_sax_set_notationDecl( &cb (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id) ) is native($BIND-XML2) {*}

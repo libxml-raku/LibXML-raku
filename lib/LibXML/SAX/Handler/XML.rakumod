@@ -70,13 +70,22 @@ class LibXML::SAX::Handler::XML
 }
 =begin pod
 
+=head2 Synopsis
+
+    use LibXML;
+    use LibXML::SAX::Handler::XML;
+    use XML::Document;
+
+    my LibXML::SAX::Handler::XML $sax-handler .= new;
+    my XML::Document $doc = LibXML.parse: :file</tmp/ee.xml>, :$sax-handler;
+
 =head2 Description
 
-L<LibXML::SAX::Handler::XML> is a SAX handler that produce pure Raku L<XML>
-modules using the LIBXML SAX interface to parse the document.
+L<LibXML::SAX::Handler::XML> is a SAX handler that produce a pure Raku L<XML::Document>
+object using the LIBXML SAX interface to parse the document.
 
 This class is an example of implementing a custom parser using the
-LibXML SAX interface, using L<LibXML::SAX::Builder> and  L<LibXML::SAX::Handler::SAX2>.
+LibXML SAX interface, L<LibXML::SAX::Builder> and  L<LibXML::SAX::Handler::SAX2>.
 
 
 =end pod

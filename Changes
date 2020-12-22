@@ -1,3 +1,12 @@
+0.5.13 2020-12-23
+    - Fix return type of xmlSAXLocation getPublicId and getSystemId methods
+    - Fix LibXML::SAX::Builder entityDecl() method
+    - Add LibXML::SAX::Handler:SAX2 base methods for externalSubset(),
+      internalSubSet(), processingInstruction(), cdataBlock(),
+      entityDecl(), reference() and attributeDecl().
+    - Die if any of the remaining unimplemented callbacks are invoked:
+      comment(), elementDecl(), getParameterEntity(), hasExternalSubset(),
+      hasInternalSubset(), ignorableWhitespace(), unparsedEntityDecl()
 0.5.12 2020-12-19
     - Various performance improvments #49
 0.5.11 2020-11-18

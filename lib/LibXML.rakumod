@@ -20,7 +20,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.5.12>
+unit class LibXML:ver<0.5.13>
     is LibXML::Parser;
 
 method config handles <
@@ -108,7 +108,7 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
 =item L<LibXML::Reader> - LibXML Reader (pull parser) bindings
 
-=head3 Parsing SAX
+=head3 SAX Parser
 
 =item L<LibXML::SAX::Builder> - Builds SAX callback sets
 =item L<LibXML::SAX::Handler::SAX2> - SAX handler base clas
@@ -178,7 +178,7 @@ and others.
 
 =head1 VERSION
 
-0.5.12
+0.5.13
 
 =head1 COPYRIGHT
 

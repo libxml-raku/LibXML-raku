@@ -91,10 +91,10 @@ Many functions listed here are extensively documented in the DOM Level 3 specifi
 ### method new
 
     # DOMish
-    multi method new(QName:D $name,LibXML::Namespace :$ns
+    multi method new(QName:D $name, LibXML::Namespace :$ns
     ) returns LibXML::Element
     # Rakuish
-    multi method new(QName:D :$name,LibXML::Namespace :$ns
+    multi method new(QName:D :$name, LibXML::Namespace :$ns
     ) returns LibXML::Element
 
 Creates a new element node, unbound to any DOM

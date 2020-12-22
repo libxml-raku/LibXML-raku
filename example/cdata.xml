@@ -1,0 +1,6 @@
+<script>
+   <?foo bar?>
+   <![CDATA[
+      <message>Hi</message>
+   ]]>
+</script>

@@ -85,7 +85,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
 
     my $edcl = $entity.firstChild;
-    is( $edcl.previousSibling.nodeType, +XML_ELEMENT_DECL, ' TODO : Add test name' );
+    is( $edcl.previousSibling.nodeType, +XML_ATTRIBUTE_DECL, ' TODO : Add test name' );
 
     {
         my $doc2  = LibXML::Document.new;
