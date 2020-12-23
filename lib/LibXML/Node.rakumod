@@ -139,7 +139,7 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 method raw handles<
     domCheck domFailure
     getNodeName getNodeValue
-    isBlank
+    isBlank hasChildNodes
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue string-value
@@ -307,10 +307,13 @@ method firstNonBlankChild returns LibXML::Node is dom-boxed {...}
 method lastNonBlankChild returns LibXML::Node is dom-boxed {...}
 method prev returns LibXML::Node is dom-boxed {...}
 
-#| Returns True if the current node has child nodes, False otherwise.
-method hasChildNodes returns Bool {
-    ? self.raw.hasChildNodes();
-}
+=begin pod
+    =head3 hasChildNodes
+    =begin code :lang<raku>
+    method hasChildNodes() returns Bool
+    =end code
+    =para Returns True if the current node has child nodes, False otherwise.
+=end pod
 
 #| Appends text directly to a node
 method appendText(Str:D $text) is also<appendTextNode> {
@@ -528,7 +531,7 @@ method removeChildNodes(--> LibXML::Node) {
 =head2 Searching Methods
 
 method xpath-class {
-            require ::('LibXML::XPath::Context');
+    require ::('LibXML::XPath::Context');
 }
 
 method xpath-context(|c) {

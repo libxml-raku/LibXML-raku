@@ -696,16 +696,18 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
+multi method importNode(LibXML::Document $) { fail "Can't import Document nodes" }
 #| Imports a node from another DOM
-method importNode(LibXML::Node:D $node --> LibXML::Node) {
+multi method importNode(LibXML::Node:D $node --> LibXML::Node) {
     &?ROUTINE.returns.box: $.raw.importNode($node.raw);
 }
 =para If a node is not part of a document, it can be imported to another document. As
     specified in DOM Level 2 Specification the Node will not be altered or removed
     from its original document (C<$node.cloneNode(:deep)> will get called implicitly).
 
+multi method adoptNode(LibXML::Document $) { fail "Can't import Document nodes" }
 #| Adopts a node from another DOM
-method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
+multi method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
     $node.keep: $.raw.adoptNode($node.raw);
 }
 =para If a node is not part of a document, it can be adopted by another document. As

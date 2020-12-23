@@ -17,8 +17,6 @@ method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
 method domGenNsPrefix { ... }
 
-my subset AttrNode of Node where {!.defined || .type == XML_ATTRIBUTE_NODE};
-
 method setAttribute(Str:D $name, Str:D $value --> UInt) {
     if $name ~~ /^xmlns[\:(.*)|$]/ {
         # user wants to set the special attribute for declaring XML namespace ...
@@ -48,11 +46,11 @@ method setAttribute(Str:D $name, Str:D $value --> UInt) {
     }
 }
 
-method setAttributeNode(AttrNode $att) {
+method setAttributeNode($att is raw) {
     self.domSetAttributeNode($att);
 }
 
-method setAttributeNodeNS(AttrNode $att) {
+method setAttributeNodeNS($att is raw) {
     self.domSetAttributeNodeNS($att);
 }
 
@@ -77,7 +75,7 @@ method removeAttribute(Str:D $attr-name) {
     }
 }
 
-method removeAttributeNode(AttrNode:D $attr --> Node) {
+method removeAttributeNode($attr) {
     if $attr.type == XML_ATTRIBUTE_NODE
     && self.isSameNode($attr.parent) {
         $attr.Unlink;
@@ -97,7 +95,7 @@ method removeAttributeNS(Str $uri, Str $attr-name) {
     }
 }
 
-method getAttributeNodeNS(Str $uri, Str:D $att-name --> AttrNode) {
+method getAttributeNodeNS(Str $uri, Str:D $att-name) {
     self.domGetAttributeNodeNS($uri, $att-name);
 }
 

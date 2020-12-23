@@ -586,10 +586,10 @@ method createDTD(
 
 Create a new DTD
 
-### method importNode
+### multi method importNode
 
 ```perl6
-method importNode(
+multi method importNode(
     LibXML::Node:D $node
 ) returns LibXML::Node
 ```
@@ -598,10 +598,10 @@ Imports a node from another DOM
 
 If a node is not part of a document, it can be imported to another document. As specified in DOM Level 2 Specification the Node will not be altered or removed from its original document (`$node.cloneNode(:deep)` will get called implicitly).
 
-### method adoptNode
+### multi method adoptNode
 
 ```perl6
-method adoptNode(
+multi method adoptNode(
     LibXML::Node:D $node
 ) returns LibXML::Node
 ```

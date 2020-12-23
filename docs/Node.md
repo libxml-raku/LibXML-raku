@@ -295,9 +295,9 @@ method lastChild() returns LibXML::Node
 
 Return the last child node, if any
 
-### method hasChildNodes
+### hasChildNodes
 
-```perl6
+```raku
 method hasChildNodes() returns Bool
 ```
 

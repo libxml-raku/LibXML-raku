@@ -51,13 +51,11 @@ method createAttribute(Str:D $name, Str $value = '') {
 
 my enum <Copy Move>;
 
-multi method importNode(DocNode:D $) { fail "Can't import Document nodes" }
-multi method importNode(Node:D $node) is default {
+method importNode($node) is default {
     self.domImportNode($node, Copy, 1);
 }
 
-multi method adoptNode(DocNode:D $) { fail "Can't adopt Document nodes" }
-multi method adoptNode(Node:D $node) is default {
+method adoptNode($node) is default {
     self.domImportNode($node, Move, 1);
 }
 
@@ -98,7 +96,7 @@ method removeExternalSubset {
     $rv;
 }
 
-method getElementById(Str:D $id --> Node) {
+method getElementById(Str:D $id) {
     my Node $elem = self.GetID($id);
     with $elem {
         $_ .= parent

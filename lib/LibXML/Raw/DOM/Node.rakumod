@@ -86,21 +86,21 @@ method setNamespace(Str $uri, NCName $prefix, Bool :$activate) {
     self.domSetNamespace($uri, $prefix, $activate);
 }
 
-method removeChild(Node:D $child) {
+method removeChild($child) {
     self.domRemoveChild($child);
 }
 
-method replaceChild(Node $child, Node $old) {
+method replaceChild($child, $old) {
     self.domReplaceChild($child, $old)
         // self.dom-error // Node;
 }
 
-method addSibling(Node $new) {
+method addSibling($new) {
     self.domAddSibling($new)
         // self.dom-error // Node;
 }
 
-method replaceNode(Node $new) {
+method replaceNode($new) {
     self.domReplaceNode($new)
         // self.dom-error // Node;
 }
@@ -129,12 +129,12 @@ method getChildrenByTagNameNS(Str $URI, Str $name) {
     self.domGetChildrenByTagNameNS($URI, $name);
 }
 
-method insertBefore(Node:D $nNode, Node $oNode) {
+method insertBefore($nNode, $oNode) {
     self.domInsertBefore($nNode, $oNode)
         // self.dom-error // Node;
 }
 
-method insertAfter(Node:D $nNode, Node $oNode) {
+method insertAfter($nNode, $oNode) {
     self.domInsertAfter($nNode, $oNode)
         // self.dom-error // Node;
 }
@@ -167,12 +167,12 @@ method hasChildNodes returns Bool {
     ? (self.type != XML_ATTRIBUTE_NODE && self.children.defined)
 }
 
-method nextSibling returns Node { self.next-node(KeepBlanks); }
-method nextNonBlankSibling returns Node { self.next-node(SkipBlanks); }
+method nextSibling { self.next-node(KeepBlanks); }
+method nextNonBlankSibling { self.next-node(SkipBlanks); }
 
-method previousSibling returns Node { self.prev-node(KeepBlanks); }
+method previousSibling { self.prev-node(KeepBlanks); }
 
-method previousNonBlankSibling returns Node { self.prev-node(SkipBlanks); }
+method previousNonBlankSibling { self.prev-node(SkipBlanks); }
 
 method appendText(Str:D $text) {
     self.AddContent($text);
@@ -194,7 +194,7 @@ method lookupNamespaceURI(NCName $prefix --> Str) {
     } // Str;
 }
 
-method addNewChild(Str $uri, QName $name) {
+method addNewChild($uri, $name) {
     self.domAddNewChild($uri, $name);
 }
 
@@ -250,7 +250,7 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
         @subpath.tail++;
         with $next {
             oops($_, $ok, @subpath, "inconsistant prev link")
-                unless .prev.uninque.key eq $kid.unique-key;
+                unless .prev.unique.key eq $kid.unique-key;
         }
         $last = $kid;
         $kid = $next;

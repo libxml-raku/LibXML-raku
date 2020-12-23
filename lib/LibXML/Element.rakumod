@@ -206,7 +206,7 @@ method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
     $att.keep: $.raw.removeAttributeNode($att.raw), :doc(LibXML::Node);
 }
 
-method getAttributeNode(Str $att-name --> LibXML::Attr) is also<attribute> {
+method getAttributeNode(Str:D $att-name --> LibXML::Attr) is also<attribute> {
     LibXML::Attr.box: $.raw.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
