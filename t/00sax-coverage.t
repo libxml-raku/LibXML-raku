@@ -7,6 +7,7 @@ class SAXCoverage is LibXML::SAX::Handler::SAX2 {
     our %cov;
     our %ext-dtd;
     our %entity-decl;
+    our %element-decl;
     multi trait_mod:<is>(Method $m, :%metered!) {
         $m.wrap: method (|) {
             %metered{$m.name}++;
@@ -22,7 +23,14 @@ class SAXCoverage is LibXML::SAX::Handler::SAX2 {
         %entity-decl{$name} = %(%etc, %( :$content ));
         callsame();
     }
+    method elementDecl($name, $content, :ctx($), *%etc) is sax-cb is metered(%cov) {
+        %element-decl{$name} = %(%etc, %( :$content ));
+        callsame();
+    }
     method attributeDecl(|) is sax-cb is metered(%cov) {
+        callsame();
+    }
+    method notationDecl(|c) is sax-cb is metered(%cov) {
         callsame();
     }
     method internalSubset($name, :ctx($), *%etc) is sax-cb is metered(%cov) {
@@ -56,6 +64,12 @@ class SAXCoverage is LibXML::SAX::Handler::SAX2 {
     method processingInstruction(|c) is sax-cb is metered(%cov) {
         callsame();
     }
+    method comment(|c) is sax-cb is metered(%cov) {
+        callsame();
+    }
+    method unparsedEntityDecl(|c) is sax-cb is metered(%cov) {
+        callsame();
+    }
 }
 
 my SAXCoverage $sax-handler .= new;
@@ -68,9 +82,9 @@ $doc2 .= parse: :file<example/cdata.xml>, :$sax-handler;
 is $doc2.Str, $doc1.Str, 'document integrity';
 
 is-deeply %SAXCoverage::cov.keys.sort.List, qw<
-    attributeDecl cdataBlock characters endDocument endElement
-    entityDecl internalSubset processingInstruction reference
-    setDocumentLocator startDocument startElement>, 'sax coverage';
+    attributeDecl cdataBlock characters comment elementDecl endDocument
+    endElement entityDecl internalSubset notationDecl processingInstruction
+    reference setDocumentLocator startDocument startElement unparsedEntityDecl>, 'sax coverage';
 is-deeply %SAXCoverage::ext-dtd<doc>, %( :external-id(Str), :system-id(Str), ), 'external subset';
 is-deeply %SAXCoverage::entity-decl<foo>, %(:public-id(Str), :system-id(Str), :type(1), :content(" test ") ), 'entity declaration';
 done-testing;

@@ -141,10 +141,6 @@ my subset xmlEncodingStr of Str is export where {!.defined || xmlCharEncodingHan
 #| List structure used when there is an enumeration in DTDs.
 class xmlEnumeration is repr(Opaque) is export {}
 
-#| An XML Element content as stored after parsing an element definition
-#| in a DTD.
-class xmlElementContent is repr(Opaque) is export {}
-
 #| A Location Set
 class xmlLocationSet is repr(Opaque) is export {}
 
@@ -289,6 +285,17 @@ class xmlParserInput is repr('CStruct') is export {
     has int32                            $.id; # a unique identifier for the entity
 
     method Free is native($XML2) is symbol('xmlFreeInputStream') {*}
+}
+
+#| An XML Element content as stored after parsing an element definition
+#| in a DTD.
+class xmlElementContent is repr('CStruct') is export {
+    has int32             $.type;   # PCDATA, ELEMENT, SEQ or OR
+    has int32             $.ocur;   # ONCE, OPT, MULT or PLUS
+    has xmlCharP          $.name;   # Element name
+    has xmlElementContent $.c1;     # First child
+    has xmlElementContent $.c2;     # Second child
+    has xmlCharP          $.prefix; # Namespace prefix
 }
 
 #| An XML namespace.

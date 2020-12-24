@@ -55,7 +55,7 @@ Callback on external subset declaration
 
     method attributeDecl(
         Str $elem,                # the name of the element
-        Str $fullname,	          # the attribute name
+        Str $name,	          # the attribute name
         UInt :$type,              # the attribute type
         UInt :$def, 	          # the type of default value
         Str  :$default-value,     # the attribute default value
@@ -63,7 +63,39 @@ Callback on external subset declaration
         xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
 
-An attribute definition has been parsed.
+A DTD attribute definition has been parsed.
+
+#### method elementDecl
+
+    method elementDecl(
+        Str $name,	            # the element name
+        xmlElementContent $content, # description of allowed content
+        UInt :$type, 	            # the element type
+    )
+
+A DTD element definition has been parsed.
+
+#### method entityDecl
+
+    method entityDecl(
+        Str $name,                # the entity name
+        Str $content,             # the entity value
+        UInt :$type,              # the entity type
+        Str :$public-id           # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
+
+A DTD entity definition has been parsed
+
+#### method notationDecl
+
+    method notationDecl(
+        Str $name,                # the notation name
+        Str :$public-id         # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
+
+A DTD notation definition has been parsed
 
 #### method startElement
 

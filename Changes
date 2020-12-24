@@ -3,10 +3,11 @@
     - Fix LibXML::SAX::Builder entityDecl() method
     - Add LibXML::SAX::Handler:SAX2 base methods for externalSubset(),
       internalSubSet(), processingInstruction(), cdataBlock(),
-      entityDecl(), reference() and attributeDecl().
+      elementDecl(), entityDecl(), notationDecl(), reference(),
+      comment(), unparsedEntityDecl(), and attributeDecl()
     - Die if any of the remaining unimplemented callbacks are invoked:
-      comment(), elementDecl(), getParameterEntity(), hasExternalSubset(),
-      hasInternalSubset(), ignorableWhitespace(), unparsedEntityDecl()
+      getParameterEntity(), hasExternalSubset(), hasInternalSubset(),
+      ignorableWhitespace()
     - Move performance improvements
 0.5.12 2020-12-19
     - Various performance improvments #49

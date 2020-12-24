@@ -37,6 +37,10 @@ DLLEXPORT void xml6_sax_set_attributeDecl(xmlSAXHandlerPtr self, attributeDeclSA
     self->attributeDecl = func;
 }
 
+DLLEXPORT void xml6_sax_set_elementDecl(xmlSAXHandlerPtr self, elementDeclSAXFunc func) {
+    self->elementDecl = func;
+}
+
 DLLEXPORT void xml6_sax_set_unparsedEntityDecl(xmlSAXHandlerPtr self, unparsedEntityDeclSAXFunc func) {
     self->unparsedEntityDecl = func;
 }

@@ -2,5 +2,7 @@
 <!ELEMENT doc (#PCDATA)>
 <!ATTLIST doc type CDATA #IMPLIED>
 <!ENTITY foo " test ">
+<!ENTITY unparsed SYSTEM "http://example.org/blah" NDATA foo>
+<!NOTATION foo SYSTEM "bar">
 ]>
 <doc>This is a valid document &foo; !</doc>

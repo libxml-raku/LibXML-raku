@@ -98,7 +98,7 @@ class LibXML::SAX::Builder {
             -> $obj, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, :$ctx, :$type, :$content);
+                    callb($obj, $name, $content, :$ctx, :$type);
                 }
         },
         'unparsedEntityDecl' =>
@@ -106,6 +106,13 @@ class LibXML::SAX::Builder {
                 sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     callb($obj, $name, :$ctx, :$public-id, :$system-id, :$notation-name);
+                }
+        },
+        'notationDecl' =>
+            -> $obj, &callb {
+                sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id) {
+                    CATCH { default { handle-error($ctx, $_,) } }
+                    callb($obj, $name, :$ctx, :$public-id, :$system-id);
                 }
         },
         'setDocumentLocator' =>

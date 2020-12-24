@@ -72,6 +72,10 @@ my role SAX2BaseClass {
         $ctx.xmlSAX2EntityDecl($name, $type, $public-id, $system-id, $content);
     }
 
+    method elementDecl(Str $name, xmlElementContent $content, Ctx :$ctx!, Int :$type) {
+        $ctx.xmlSAX2ElementDecl($name, $type, $content);
+    }
+
     method reference(Str:D $text, Ctx :$ctx! ) {
         $ctx.xmlSAX2Reference($text);
     }
@@ -80,16 +84,25 @@ my role SAX2BaseClass {
         $ctx.xmlSAX2AttributeDecl($elem, $fullname, $type, $def, $default-value, $tree);
     }
 
+    method unparsedEntityDecl($name, :$ctx, :$public-id, :$system-id, :$notation-name) {
+        $ctx.xmlSAX2UnparsedEntityDecl($name, $public-id, $system-id, $notation-name);
+    }
+
+    method notationDecl($name, :$ctx, :$public-id, :$system-id) {
+        $ctx.xmlSAX2NotationDecl($name, $public-id, $system-id);
+    }
+
+    method comment(Str:D $text, Ctx :$ctx! ) {
+        $ctx.xmlSAX2Comment($text);
+    }
+
     # unimplmented callbacks
-    method comment(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method elementDecl(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method error(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method fatalError(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method getParameterEntity(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method hasExternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method hasInternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method ignorableWhitespace(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method unparsedEntityDecl(|) {die &?BLOCK.name ~ " SAX callback nyi"}
     method warning(|) {die &?BLOCK.name ~ " SAX callback nyi"}
 }
 
@@ -163,7 +176,7 @@ Callback on external subset declaration
 
     method attributeDecl(
         Str $elem,                # the name of the element
-        Str $fullname,	          # the attribute name
+        Str $name,	          # the attribute name
         UInt :$type,              # the attribute type
         UInt :$def, 	          # the type of default value
         Str  :$default-value,     # the attribute default value
@@ -171,7 +184,39 @@ Callback on external subset declaration
         xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
 
-An attribute definition has been parsed.
+A DTD attribute definition has been parsed.
+
+=head4 method elementDecl
+
+    method elementDecl(
+        Str $name,	            # the element name
+        xmlElementContent $content, # description of allowed content
+        UInt :$type, 	            # the element type
+    )
+
+A DTD element definition has been parsed.
+
+=head4 method entityDecl
+
+    method entityDecl(
+        Str $name,                # the entity name
+        Str $content,             # the entity value
+        UInt :$type,              # the entity type
+        Str :$public-id           # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
+
+A DTD entity definition has been parsed
+
+=head4 method notationDecl
+
+    method notationDecl(
+        Str $name,                # the notation name
+        Str :$public-id         # the external ID
+        Str :$system-id           # the system ID (e.g. filename or URL)
+    )
+
+A DTD notation definition has been parsed
 
 =head4 method startElement
 

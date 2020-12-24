@@ -17,6 +17,8 @@ DLLEXPORT void xml6_sax_set_getEntity(xmlSAXHandlerPtr, getEntitySAXFunc);
 
 DLLEXPORT void xml6_sax_set_entityDecl(xmlSAXHandlerPtr, entityDeclSAXFunc);
 
+DLLEXPORT void xml6_sax_set_elementDecl(xmlSAXHandlerPtr, elementDeclSAXFunc);
+
 DLLEXPORT void xml6_sax_set_notationDecl(xmlSAXHandlerPtr, notationDeclSAXFunc);
 
 DLLEXPORT void xml6_sax_set_attributeDecl(xmlSAXHandlerPtr, attributeDeclSAXFunc);

@@ -89,11 +89,6 @@ class LibXML::Raw::xmlEnumeration
 
 List structure used when there is an enumeration in DTDs.
 
-class LibXML::Raw::xmlElementContent
-------------------------------------
-
-An XML Element content as stored after parsing an element definition in a DTD.
-
 class LibXML::Raw::xmlLocationSet
 ---------------------------------
 
@@ -148,6 +143,11 @@ class LibXML::Raw::xmlParserInput
 ---------------------------------
 
 Each entity parsed is associated an xmlParserInput (except the few predefined ones).
+
+class LibXML::Raw::xmlElementContent
+------------------------------------
+
+An XML Element content as stored after parsing an element definition in a DTD.
 
 class LibXML::Raw::xmlNs
 ------------------------
