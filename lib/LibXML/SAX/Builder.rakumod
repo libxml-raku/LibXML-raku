@@ -241,7 +241,7 @@ and attributes converted to uppercase.
 
     my SAXShouter $sax-handler .= new();
     my $string = '<html><body><h1>Hello World</h1></body></html>'
-    my LibXML::Document $doc .= parse: :$sax-hander;
+    my LibXML::Document $doc .= parse: :$string, :$sax-handler;
     say $doc.Str;  # <HTML><BODY><H1>HELLO WORLD</H1></BODY></HTML>'
 
 See L<LibXML::SAX::Handler::SAX2> for a description of callbacks
