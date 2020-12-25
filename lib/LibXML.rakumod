@@ -78,7 +78,7 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
   =item L<LibXML::DocumentFragment> - LibXML's DOM L2 Document Fragment implementation
 
-  =item L<LibXML::Dtd> - LibXML frontend for DTD validation
+  =item L<LibXML::Dtd> - LibXML front-end for DTD validation
 
   =item L<LibXML::Element> - LibXML class for element nodes
 
@@ -111,7 +111,7 @@ classes (most of which "inherit" from L<LibXML::Node>):
 =head3 SAX Parser
 
 =item L<LibXML::SAX::Builder> - Builds SAX callback sets
-=item L<LibXML::SAX::Handler::SAX2> - SAX handler base clas
+=item L<LibXML::SAX::Handler::SAX2> - SAX handler base class
 =item L<LibXML::SAX::Handler::XML> - SAX Handler for XML
 
 =head2 XPath and Searching

@@ -46,7 +46,7 @@ The nodes in the Document Object Model (DOM) are represented by the following cl
 
   * [LibXML::DocumentFragment](https://libxml-raku.github.io/LibXML-raku/DocumentFragment) - LibXML's DOM L2 Document Fragment implementation
 
-  * [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) - LibXML frontend for DTD validation
+  * [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) - LibXML front-end for DTD validation
 
   * [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) - LibXML class for element nodes
 
@@ -82,7 +82,7 @@ Parsing
 
   * [LibXML::SAX::Builder](https://libxml-raku.github.io/LibXML-raku/SAX/Builder) - Builds SAX callback sets
 
-  * [LibXML::SAX::Handler::SAX2](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/SAX2) - SAX handler base clas
+  * [LibXML::SAX::Handler::SAX2](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/SAX2) - SAX handler base class
 
   * [LibXML::SAX::Handler::XML](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/XML) - SAX Handler for XML
 
