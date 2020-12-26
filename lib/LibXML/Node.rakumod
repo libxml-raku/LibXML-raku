@@ -146,7 +146,7 @@ method raw handles<
     type
     lock unlock
     unique-key ast-key xpath-key
-> { ... }
+> { nativecast(xmlNode, self) }
 
 method native is DEPRECATED<raw> { self.raw }
 
@@ -495,8 +495,7 @@ method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also
 
 #| Inserts $new before $ref.
 method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
-    my anyNode $ref-raw = .raw with $ref;
-    $new.keep: self.raw.insertBefore($new.raw, $ref-raw);
+    $new.keep: self.raw.insertBefore($new.raw, $ref.raw);
 }
 =para If `$ref` is undefined, the newNode will be set as the new last child of the parent node.
     This function differs from the DOM L2 specification, in the case, if the new
@@ -508,8 +507,7 @@ method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
 
 #| Inserts $new after $ref.
 method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
-    my anyNode $ref-raw = .raw with $ref;
-    $new.keep: self.raw.insertAfter($new.raw, $ref-raw);
+    $new.keep: self.raw.insertAfter($new.raw, $ref.raw);
 }
 =para If C<$refNode> is undefined, the newNode will be set as the new
     last child of the parent node.

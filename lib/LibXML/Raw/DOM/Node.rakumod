@@ -129,12 +129,12 @@ method getChildrenByTagNameNS(Str $URI, Str $name) {
     self.domGetChildrenByTagNameNS($URI, $name);
 }
 
-method insertBefore($nNode, $oNode) {
+method insertBefore($nNode, Node $oNode) {
     self.domInsertBefore($nNode, $oNode)
         // self.dom-error // Node;
 }
 
-method insertAfter($nNode, $oNode) {
+method insertAfter($nNode, Node $oNode) {
     self.domInsertAfter($nNode, $oNode)
         // self.dom-error // Node;
 }
