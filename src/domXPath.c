@@ -385,7 +385,7 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
         }
     }
 
-    xmlHashFree(hash, _domNodeSetDeallocator);
+    xmlHashFree(hash, (xmlHashDeallocator) _domNodeSetDeallocator);
     xmlFree(self);
 }
 
