@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 57;
+plan 58;
 
 # bootstrapping tests for the DOM
 
@@ -49,6 +49,7 @@ lives-ok {$frag.appendChild( $chk )}, 'appendChild lives';
 
 is( $frag.Str, '<C/><D/><A/><B/>', 'Parse/serialize fragment');
 is $frag.elements.Str, '<C/><D/><A/><B/>', 'Fragment elements';
+ok $frag<D>[0].addNewChild(Str, 'Bar').root.isSameNode($frag);
 
 # create a document from scratch
 $doc .= new;
