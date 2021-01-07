@@ -28,7 +28,8 @@ Synopsis
     my UInt $lineno = $node.line-number();
 
     # -- Navigation Methods -- #
-    $parent = $node.parentNode;
+    my LibXML::Node $parent = $node.parentNode;
+    my LibXML::Node $root = $node.root;
     my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
     my LibXML::Node $prev = $node.previousSibling();

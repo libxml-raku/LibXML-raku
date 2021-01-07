@@ -30,7 +30,8 @@ unit class LibXML::Node
         my UInt $lineno = $node.line-number();
 
         # -- Navigation Methods -- #
-        $parent = $node.parentNode;
+        my LibXML::Node $parent = $node.parentNode;
+        my LibXML::Node $root = $node.root;
         my LibXML::Node $next = $node.nextSibling();
         $next = $node.nextNonBlankSibling();
         my LibXML::Node $prev = $node.previousSibling();
@@ -280,6 +281,9 @@ method line-number returns UInt  { self.raw.GetLineNo }
 
 #| Returns the objects parent node
 method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is dom-boxed {...}
+
+#! Returns the root node of the tree
+method root returns LibXML::Node is dom-boxed {...}
 
 #| Returns the next sibling if any.
 method nextSibling returns LibXML::Node is dom-boxed {...}

@@ -1,7 +1,7 @@
 /* dom.h
  * $Id$
  * Author: Christian Glahn (2001)
- * Ported from Perl 5 to 6 by David Warring (2019)
+ * Ported from Perl to Raku by David Warring (2019)
  *
  * This header file provides some definitions for dom wrapper functions.
  *

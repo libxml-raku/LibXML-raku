@@ -368,7 +368,7 @@ subtest 'LibXML::Namespace' => {
 };
 
 subtest 'LibXML::Node' => {
-    plan 14;
+    plan 15;
     use LibXML::Node;
     use LibXML::Element;
     use LibXML::Namespace;
@@ -406,6 +406,7 @@ subtest 'LibXML::Node' => {
 
     # -- Navigation Methods -- #
     $parent = $node.parentNode;
+    ok $node.root.isSameNode: $parent;
     my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
     my LibXML::Node $prev = $node.previousSibling();

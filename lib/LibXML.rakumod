@@ -20,7 +20,7 @@ use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.5.14>
+unit class LibXML:ver<0.5.15>
     is LibXML::Parser;
 
 method config handles <

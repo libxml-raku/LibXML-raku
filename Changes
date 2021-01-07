@@ -1,3 +1,5 @@
+0.5.15
+    - Add $node.root() method
 0.5.14 2020-12-27
     - Fix circa Rakudo 2019.11 04node.t regression #50
 0.5.13 2020-12-23
@@ -10,7 +12,7 @@
     - Die if any of the remaining unimplemented callbacks are invoked:
       getParameterEntity(), hasExternalSubset(), hasInternalSubset(),
       ignorableWhitespace()
-    - Move performance improvements
+    - More performance improvements
 0.5.12 2020-12-19
     - Various performance improvments #49
 0.5.11 2020-11-18
