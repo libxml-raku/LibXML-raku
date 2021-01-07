@@ -284,6 +284,9 @@ method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::N
 
 #! Returns the root node of the tree
 method root returns LibXML::Node is dom-boxed {...}
+=para This is the absolute top of the tree for this node. It will likely be a LibXML::Document,
+or LibXML::DocumentFragment. An element may be returned If the node is unbound, or
+the member of an unbound sub-tree.
 
 #| Returns the next sibling if any.
 method nextSibling returns LibXML::Node is dom-boxed {...}

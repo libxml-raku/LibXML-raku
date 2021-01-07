@@ -244,6 +244,8 @@ method parent() returns LibXML::Node
 
 Returns the objects parent node
 
+This is the absolute top of the tree for this node. It will likely be a LibXML::Document, or LibXML::DocumentFragment. An element may be returned If the node is unbound, or the member of an unbound sub-tree.
+
 ### method nextSibling
 
 ```perl6

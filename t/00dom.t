@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 58;
+plan 62;
 
 # bootstrapping tests for the DOM
 
@@ -38,6 +38,11 @@ is $a.last('b'), '<b/>';
 is $a.last('c'), '<c/>';
 is $a.elements, '<b/><c/>', 'elements()';
 is-deeply $a.last('XX'), LibXML::Node;
+ok $a.root.isSameNode($doc);
+ok $a.first('b').root.isSameNode($doc);
+$a.unbindNode;
+ok $a.root.isSameNode($a);
+ok $a.first('b').root.isSameNode($a);
 
 $doc .= parse: :$string, :!keep-blanks;
 is $doc.Str,  $tstr, 'blanks discarded';
