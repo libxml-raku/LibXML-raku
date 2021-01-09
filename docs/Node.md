@@ -29,7 +29,6 @@ Synopsis
 
     # -- Navigation Methods -- #
     my LibXML::Node $parent = $node.parentNode;
-    my LibXML::Node $root = $node.root;
     my LibXML::Node $next = $node.nextSibling();
     $next = $node.nextNonBlankSibling();
     my LibXML::Node $prev = $node.previousSibling();
@@ -37,7 +36,7 @@ Synopsis
     my Bool $is-parent = $node.hasChildNodes();
     $child = $node.firstChild;
     $child = $node.lastChild;
-    $other-node = $node.getOwner;
+    $top-level-node = $node.getOwner;
     my LibXML::Node @kids = $node.childNodes();
     @kids = $node.nonBlankChildNodes();
 
@@ -243,8 +242,6 @@ method parent() returns LibXML::Node
 ```
 
 Returns the objects parent node
-
-This is the absolute top of the tree for this node. It will likely be a LibXML::Document, or LibXML::DocumentFragment. An element may be returned If the node is unbound, or the member of an unbound sub-tree.
 
 ### method nextSibling
 

@@ -38,11 +38,11 @@ is $a.last('b'), '<b/>';
 is $a.last('c'), '<c/>';
 is $a.elements, '<b/><c/>', 'elements()';
 is-deeply $a.last('XX'), LibXML::Node;
-ok $a.root.isSameNode($doc);
-ok $a.first('b').root.isSameNode($doc);
+ok $a.getOwner.isSameNode($doc);
+ok $a.first('b').getOwner.isSameNode($doc);
 $a.unbindNode;
-ok $a.root.isSameNode($a);
-ok $a.first('b').root.isSameNode($a);
+ok $a.getOwner.isSameNode($a);
+ok $a.first('b').getOwner.isSameNode($a);
 
 $doc .= parse: :$string, :!keep-blanks;
 is $doc.Str,  $tstr, 'blanks discarded';
@@ -54,7 +54,7 @@ lives-ok {$frag.appendChild( $chk )}, 'appendChild lives';
 
 is( $frag.Str, '<C/><D/><A/><B/>', 'Parse/serialize fragment');
 is $frag.elements.Str, '<C/><D/><A/><B/>', 'Fragment elements';
-ok $frag<D>[0].addNewChild(Str, 'Bar').root.isSameNode($frag);
+ok $frag<D>[0].addNewChild(Str, 'Bar').getOwner.isSameNode($frag);
 
 # create a document from scratch
 $doc .= new;

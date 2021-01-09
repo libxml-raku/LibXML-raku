@@ -31,7 +31,6 @@ unit class LibXML::Node
 
         # -- Navigation Methods -- #
         my LibXML::Node $parent = $node.parentNode;
-        my LibXML::Node $root = $node.root;
         my LibXML::Node $next = $node.nextSibling();
         $next = $node.nextNonBlankSibling();
         my LibXML::Node $prev = $node.previousSibling();
@@ -39,7 +38,7 @@ unit class LibXML::Node
         my Bool $is-parent = $node.hasChildNodes();
         $child = $node.firstChild;
         $child = $node.lastChild;
-        $other-node = $node.getOwner;
+        $top-level-node = $node.getOwner;
         my LibXML::Node @kids = $node.childNodes();
         @kids = $node.nonBlankChildNodes();
 
@@ -281,12 +280,6 @@ method line-number returns UInt  { self.raw.GetLineNo }
 
 #| Returns the objects parent node
 method parent is also<ownerElement getOwnerElement parentNode> returns LibXML::Node is dom-boxed {...}
-
-#! Returns the root node of the tree
-method root returns LibXML::Node is dom-boxed {...}
-=para This is the absolute top of the tree for this node. It will likely be a LibXML::Document,
-or LibXML::DocumentFragment. An element may be returned If the node is unbound, or
-the member of an unbound sub-tree.
 
 #| Returns the next sibling if any.
 method nextSibling returns LibXML::Node is dom-boxed {...}
