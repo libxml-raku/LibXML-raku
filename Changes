@@ -1,5 +1,7 @@
-0.5.15
-    - tba
+{{$NEXT}}
+    - Exported disused and bit rotted etc/libxml2-api.xml, etc/LibXML and
+      etc/generator.raku to https://github.com/libxml-raku/LibXML-Raw-Gen-raku
+      #51
 0.5.14 2020-12-27
     - Fix circa Rakudo 2019.11 04node.t regression #50
 0.5.13 2020-12-23
