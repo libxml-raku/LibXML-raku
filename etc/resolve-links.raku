@@ -6,7 +6,7 @@ multi sub resolve-class(@ ('LibXML', *@path)) {
 
 multi sub resolve-class(@ ('LibXSLT', *@p)) {
     my @path;
-    with @p[1] {
+    with @p[0] {
         when 'Stylesheet'|'Security' {
             @path.push: $_;
         }
@@ -50,10 +50,12 @@ INIT {
 
         with %info<path> {
             my @path = .list;
-            my $n = @path[0..^+@mod] == @mod ?? +@mod !! 2;
-            breadcrumb($url, @path, $n, :top);
-            breadcrumb($url, @path, $_)
-                for $n ^.. @path;
+            if @path {
+                my $n = @path[0..^+@mod] == @mod ?? +@mod !! 2;
+                breadcrumb($url, @path, $n, :top);
+                breadcrumb($url, @path, $_)
+                    for $n ^.. @path;
+            }
         }
         say '';
     }
