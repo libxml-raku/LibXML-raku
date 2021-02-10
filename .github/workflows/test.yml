@@ -28,7 +28,9 @@ jobs:
         run: |
           # install and test if need be (includes [test-depends])
           sudo apt-get install -y libxml2-dev
-          zef install .
+          zef install --deps-only .
           zef install --/test App::Prove6
       - name: Run Tests
         run: prove6 -l t
+      - name: Install Module
+        run: zef install --verbose .
