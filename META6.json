@@ -44,7 +44,6 @@
     "LibXML::PI": "lib/LibXML/PI.rakumod",
     "LibXML::Parser": "lib/LibXML/Parser.rakumod",
     "LibXML::Parser::Context": "lib/LibXML/Parser/Context.rakumod",
-    "LibXML::Parser::Input": "lib/LibXML/Parser/Input.pm6",
     "LibXML::Pattern": "lib/LibXML/Pattern.rakumod",
     "LibXML::PushParser": "lib/LibXML/PushParser.rakumod",
     "LibXML::Raw": "lib/LibXML/Raw.rakumod",
