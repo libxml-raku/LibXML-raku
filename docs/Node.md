@@ -315,10 +315,11 @@ Appends text directly to a node
 
 Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment, and DocumentFragment nodes.
 
-ownerDocument
+### method ownerDocument
 
-    method ownerDocument is rw returns LibXML::Document
-    my LibXML::Document $doc = $node.ownerDocument;
+```perl6
+method ownerDocument() returns Mu
+```
 
 Gets or sets the owner document for the node
 

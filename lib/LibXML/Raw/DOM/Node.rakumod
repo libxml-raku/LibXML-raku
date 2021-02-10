@@ -17,7 +17,6 @@ method lock { ... }
 method unlock { ... }
 method first-child { ... }
 method last-child { ... }
-method root { ... }
 
 method domAppendChild  { ... }
 method domAppendTextChild  { ... }

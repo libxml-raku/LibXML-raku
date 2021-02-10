@@ -172,14 +172,14 @@ method nodeName is rw is also<name tag tagName> returns Str {
     );
 }
 
-=begin pod
-    =para This method is aware of namespaces and returns the
+=para This method is aware of namespaces and returns the
 full name of the current node (C<prefix:localname>). 
 
-    It also returns the correct DOM names for node types with
-    constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`,
+=para It also returns the correct DOM names for node types with
+constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`,
 `#document-fragment`.
 
+=begin pod
     =head3 method setNodeName
 
         method setNodeName(QName $new-name)
@@ -322,7 +322,8 @@ method appendText(Str:D $text) is also<appendTextNode> {
 =para Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment,
     and DocumentFragment nodes.
 
-method doc is rw is also<ownerDocument> {
+#| Gets or sets the owner document for the node
+method ownerDocument is rw is also<doc> {
     Proxy.new(
         FETCH => {
             self.getOwnerDocument;
@@ -332,15 +333,6 @@ method doc is rw is also<ownerDocument> {
         },
     );
 }
-=begin pod
-ownerDocument
-
-      method ownerDocument is rw returns LibXML::Document
-      my LibXML::Document $doc = $node.ownerDocument;
-
-Gets or sets the owner document for the node
-=end pod
-
 
 method getOwnerDocument is also<get-doc> returns LibXML::Node {
     my \doc-class = box-class(XML_DOCUMENT_NODE);
@@ -906,12 +898,9 @@ sub output-options(UInt :$options is copy = 0,
         with $skip-decl;
     warn ':expand option is deprecated, please use :tag-expansion'
         with $expand;
-    $options +|= XML_SAVE_FORMAT
-        if $format;
-    $options +|= XML_SAVE_NO_DECL
-        if $skip-xml-declaration;
-    $options +|= XML_SAVE_NO_EMPTY
-       if $tag-expansion;
+    for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY {
+        $options +|= .value if .key;
+    }
 
     $options;
 }

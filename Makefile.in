@@ -1,8 +1,9 @@
 SRC=src
+HOST=https://github.com
+REPO=$(HOST)/libxml-raku/LibXML-raku
 DocProj=libxml-raku.github.io
-DocRepo=https://github.com/libxml-raku/$(DocProj)
+DocRepo=$(HOST)/libxml-raku/$(DocProj)
 DocLinker=etc/resolve-links.raku
-TRAVIS=https://travis-ci.org/libxml-raku/LibXML-raku
 
 all : lib
 
@@ -93,7 +94,7 @@ doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md 
 
 docs/index.md : lib/LibXML.rakumod
 	(\
-	    echo '[![Build Status]($(TRAVIS).svg?branch=master)]($(TRAVIS))'; \
+	    echo '[![Actions Status]($(REPO)/workflows/test/badge.svg)]($(REPO)/actions)'; \
             echo '';\
             raku -I . --doc=Markdown $< \
             | TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \

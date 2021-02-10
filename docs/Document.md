@@ -365,14 +365,10 @@ Write to a name file (equivalent to $.write: :$file)
 ```perl6
 method is-valid(
     LibXML::Dtd $dtd?
-) returns Mu
+) returns Bool
 ```
 
 Check that the current document is valid
-
-### method is-valid
-
-    my Bool $valid = $dom.is-valid();
 
 Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 

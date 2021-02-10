@@ -489,13 +489,9 @@ method write(Str() :$file!, Bool :$format = False --> UInt) {
 method save-as(Str() $file --> UInt) { $.write(:$file) }
 
 #| Check that the current document is valid
-method is-valid(LibXML::Dtd $dtd?) { $.validate($dtd, :check); }
+method is-valid(LibXML::Dtd $dtd? --> Bool) { $.validate($dtd, :check); }
 =begin pod
-    =head3 method is-valid
-
-        my Bool $valid = $dom.is-valid();
-
-    Returns either True or False depending on whether the DOM Tree is a valid Document or not.
+    =para Returns either True or False depending on whether the DOM Tree is a valid Document or not.
 
     You may also pass in a L<LibXML::Dtd> object, to validate against an external DTD:
 
