@@ -445,15 +445,24 @@ method ast(Bool :$blank = LibXML::Config.keep-blanks) {
 
 multi method AT-KEY('@*') is rw { self.attributes }
 multi method AT-KEY('attributes::') is rw { self.attributes }
-multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::'][<pfx=.XML::Grammar::pident>':']?<name=.XML::Grammar::pident>$/) is rw {
-    my Str:D $name := $<name>.Str;
+multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::']<name=.XML::Grammar::name>$/) is rw {
+    my Str:D $name = $<name>.Str;
     my Str $href;
 
-    with $<pfx> {
-        fail "'xmlns' prefix is reserved"
-            when $_ eq 'xmlns';
-        $href = self.xpath-context.lookupNs(.Str)
-            // fail "unknown namespace prefix $_";
+    if $name.contains(':') {
+        # Dissect namespace
+        my ($pfx, $local-name) = $name.split(':', 2);
+        given $pfx {
+            when 'xml'|'' { } # do nothing
+            when 'xmlns' {
+                fail "'xmlns' prefix is reserved"
+            }
+            default {
+                $href = self.xpath-context.lookupNs(.Str)
+                    // fail "unknown namespace prefix $_";
+                $name = $local-name;
+            }
+        }
     }
 
     Proxy.new(
