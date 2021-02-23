@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.5.15  2021-02-24T09:45:59+13:00
     - Exported disused and bit rotted etc/libxml2-api.xml, etc/LibXML and
       etc/generator.raku to https://github.com/libxml-raku/LibXML-Raw-Gen-raku
       #51
