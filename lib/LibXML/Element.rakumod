@@ -445,7 +445,7 @@ method ast(Bool :$blank = LibXML::Config.keep-blanks) {
 
 multi method AT-KEY('@*') is rw { self.attributes }
 multi method AT-KEY('attributes::') is rw { self.attributes }
-multi method AT-KEY(Str:D $att-path where /^['@'|'attribute::']<name=.XML::Grammar::name>$/) is rw {
+multi method AT-KEY(Str:D $ where /^['@'|'attribute::']<name=.XML::Grammar::name>$/) is rw {
     my Str:D $name = $<name>.Str;
     my Str $href;
 
