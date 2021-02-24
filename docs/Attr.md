@@ -51,6 +51,16 @@ Gets or sets the attribute stored for the value
 
 Str:U is returned if the attribute has no value
 
+### method isId
+
+```perl6
+method isId() returns Bool
+```
+
+Determine whether an attribute is of type ID.
+
+For documents with a DTD, this information is only available if DTD loading/validation has been requested. For HTML documents parsed with the HTML parser ID detection is done automatically. In XML documents, all "xml:id" attributes are considered to be of type ID.
+
 ### method getOwnerElement
 
     method getOwnerElement() returns LibXML::Element;
@@ -69,12 +79,6 @@ If you don't want the overheads of managing namespaces, a quick way of ensuring 
     # parent with a generated prefix
     my $prefix = $att.parent.requireNamespace($uri);
     $att.setNamespace($uri, $prefix);
-
-### method isId
-
-    method isId() returns Bool
-
-Determine whether an attribute is of type ID. For documents with a DTD, this information is only available if DTD loading/validation has been requested. For HTML documents parsed with the HTML parser ID detection is done automatically. In XML documents, all "xml:id" attributes are considered to be of type ID.
 
 ### method serializeContent
 

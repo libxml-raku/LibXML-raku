@@ -493,8 +493,6 @@ subtest 'LibXML::Node' => {
     $node.pop;
     $node.pop;
     is $node.Str, '<Test><A/></Test>';
-
-    # -- Associativve Interface
 }
 
 sub test-option($obj, Str $option, *@values, :$default) {

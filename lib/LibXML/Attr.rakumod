@@ -53,14 +53,21 @@ method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!) {
     Class constructor.
 =end pod
 
-method raw handles <atype isId name serializeContent> {
+method raw handles <atype name serializeContent> {
     nativecast(xmlAttr, self);
 }
 
-    #| Gets or sets the attribute stored for the value
+#| Gets or sets the attribute stored for the value
 method value is rw returns Str { $.nodeValue }
+=para Str:U is returned if the attribute has no value
+
+#| Determine whether an attribute is of type ID.
+method isId returns Bool { $.raw.isId.so }
 =begin pod
-    =para Str:U is returned if the attribute has no value
+    =para For documents with a DTD, this
+    information is only available if DTD loading/validation has been requested. For
+    HTML documents parsed with the HTML parser ID detection is done automatically.
+    In XML documents, all "xml:id" attributes are considered to be of type ID.
 =end pod
 
 method Str is also<getValue> { $.nodeValue}
@@ -98,15 +105,6 @@ method ast { self.nodeName => self.nodeValue }
         # parent with a generated prefix
         my $prefix = $att.parent.requireNamespace($uri);
         $att.setNamespace($uri, $prefix);
-
-    =head3 method isId
-
-        method isId() returns Bool
-
-    Determine whether an attribute is of type ID. For documents with a DTD, this
-    information is only available if DTD loading/validation has been requested. For
-    HTML documents parsed with the HTML parser ID detection is done automatically.
-    In XML documents, all "xml:id" attributes are considered to be of type ID.
 
     =head3 method serializeContent
 

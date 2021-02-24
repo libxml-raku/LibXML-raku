@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML;
 
-plan 42;
+plan 44;
 
 my $parser = LibXML.new;
 
@@ -37,6 +37,7 @@ for (0..1) -> $do-validate {
 
   $at = $n.getAttributeNode('id');
   ok( $at, ' TODO : Add test name' );
+  isa-ok( $at.isId, Bool:D, 'isId return type');
   ok( $at.isId, ' TODO : Add test name' );
 
   $at = $root.getAttributeNode('notid');
