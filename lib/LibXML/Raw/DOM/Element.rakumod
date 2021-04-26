@@ -6,6 +6,7 @@ use LibXML::Types :NCName, :QName;
 use LibXML::Raw::Defs :XML_XMLNS_NS, :XML_XML_NS;
 
 my constant Node = LibXML::Raw::DOM::Node;
+my subset XMLNS-Name of Str:D where /^xmlns[\:|$]/;
 
 method domGetAttributeNode { ... }
 method domGetAttributeNodeNS { ... }
@@ -17,33 +18,33 @@ method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
 method domGenNsPrefix { ... }
 
-method setAttribute(Str:D $name, Str:D $value --> UInt) {
-    if $name ~~ /^xmlns[\:(.*)|$]/ {
-        # user wants to set the special attribute for declaring XML namespace ...
+sub xmlns-prefix(XMLNS-Name $name) { $name.split(':')[1] // ''}
 
-        # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
-        # probably declare an attribute which looks like XML namespace declaration but isn't)
-        my NCName $prefix = ($0 // '').Str;
-        my QName $nn = self.getNodeName;
-        my $uri := $value;
+# user wants to set the special attribute for declaring XML namespace ...
+multi method setAttribute(XMLNS-Name $name, Str:D $value --> UInt) {
 
-	self.domSetNamespaceDeclURI($prefix, $uri)
-        || do {
-	    # activate, if the element has the same prefix
-            my Bool $activate = ? $nn.starts-with($prefix ~ ':');
-            ##
-            ## We set the namespace here.
-            ## This is helpful, as in:
-            ##
-            ## |  $e = LibXML::Element.new: :name<foo:bar>;
-            ## |  $e.setAttribute('xmlns:foo','http://yoyodine')
-            ##
-	    self.domSetNamespace($uri, $prefix, +$activate);
-        }
+    # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
+    # probably declare an attribute which looks like XML namespace declaration but isn't)
+    my NCName $prefix := xmlns-prefix($name);
+    my QName $nn = self.getNodeName;
+    my $uri := $value;
+
+    self.domSetNamespaceDeclURI($prefix, $uri)
+    || do {
+        # activate, if the element has the same prefix
+        my Bool $activate = ? $nn.starts-with($prefix ~ ':');
+        ##
+        ## We set the namespace here.
+        ## This is helpful, as in:
+        ##
+        ## |  $e = LibXML::Element.new: :name<foo:bar>;
+        ## |  $e.setAttribute('xmlns:foo','http://yoyodine')
+        ##
+        self.domSetNamespace($uri, $prefix, +$activate);
     }
-    else {
-        self.domSetAttribute($name, $value);
-    }
+}
+multi method setAttribute(Str:D $name, Str:D $value --> UInt) {
+    self.domSetAttribute($name, $value);
 }
 
 method setAttributeNode($att is raw) {
@@ -103,53 +104,50 @@ method getAttributeNS(Str $uri, Str:D $att-name --> Str) {
     self.domGetAttributeNS($uri, $att-name);
 }
 
-method getAttribute(Str:D $name) {
-    if $name ~~ /^xmlns[\:(.*)|$]/ {
-        # user wants to get the special attribute for declaring XML namespace ...
+# user wants to get the special attribute for declaring XML namespace ...
+multi method getAttribute(XMLNS-Name:D $name) {
 
-        # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
-        # probably declare an attribute which looks like XML namespace declaration
-        # but isn't)
-        my Str:D $prefix = ($0 // '').Str;
-        self.domGetNamespaceDeclURI($prefix);
-    }
-    else {
-        self.domGetAttribute($name);
-    }
+    # this is fine but not exactly DOM conformant behavior, btw (according to DOM we should
+    # probably declare an attribute which looks like XML namespace declaration
+    # but isn't)
+    my Str:D $prefix := xmlns-prefix($name);
+    self.domGetNamespaceDeclURI($prefix);
+}
+multi method getAttribute(Str:D $name) {
+    self.domGetAttribute($name);
 }
 
-method setAttributeNS(Str $uri, Str:D $name, Str:D $value) {
-    if $name ~~ /^xmlns[\:|$]/ {
-        if $uri !~~ XML_XMLNS_NS {
-            fail("NAMESPACE ERROR: Namespace declarations must have the prefix 'xmlns'");
-        }
-        self.setAttribute($name, $value); # see implementation above
-        self.domGetAttributeNode($name);
+multi method setAttributeNS(Str $uri, XMLNS-Name:D $name, Str:D $value) {
+    if $uri !~~ XML_XMLNS_NS {
+        fail("NAMESPACE ERROR: Namespace declarations must have the prefix 'xmlns'");
     }
-    else {
-        if $name.contains(':') and not $uri {
-            fail("NAMESPACE ERROR: Attribute without a prefix cannot be in a namespace");
-        }
-        if $uri ~~ XML_XMLNS_NS {
-            fail("NAMESPACE ERROR: 'xmlns' prefix and qualified-name are reserved for the namespace "~XML_XMLNS_NS);
-        }
-        if $name.starts-with('xml:') and not $uri ~~ XML_XML_NS {
-            fail("NAMESPACE ERROR: 'xml' prefix is reserved for the namespace "~XML_XML_NS);
-        }
+    self.setAttribute($name, $value); # see implementation above
+    self.domGetAttributeNode($name);
+}
 
-        self.domSetAttributeNS($uri, $name, $value) // self.dom-error // Node;
+multi method setAttributeNS(Str $uri, Str:D $name, Str:D $value) {
+    if $name.contains(':') and not $uri {
+        fail("NAMESPACE ERROR: Attribute without a prefix cannot be in a namespace");
     }
+    if $uri ~~ XML_XMLNS_NS {
+        fail("NAMESPACE ERROR: 'xmlns' prefix and qualified-name are reserved for the namespace "~XML_XMLNS_NS);
+    }
+    if $name.starts-with('xml:') and not $uri ~~ XML_XML_NS {
+        fail("NAMESPACE ERROR: 'xml' prefix is reserved for the namespace "~XML_XML_NS);
+    }
+
+    self.domSetAttributeNS($uri, $name, $value) // self.dom-error // Node;
 }
 
 method getNamespaces {
-    my @ns;
+    my @namespaces;
     my $ns = self.nsDef;
     while $ns.defined {
-        @ns.push: $ns
+        @namespaces.push: $ns
             if $ns.prefix.defined || $ns.href.defined;
         $ns .= next;
     }
-    @ns;
+    @namespaces;
 }
 
 method genNsPrefix(NCName $base-prefix?) {

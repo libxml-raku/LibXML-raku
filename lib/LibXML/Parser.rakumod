@@ -81,8 +81,7 @@ method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
 }
 
 method processXIncludes (
-    LibXML::Document $_, *%opts --> Int)
-is also<process-xincludes> {
+    LibXML::Document $_, *%opts --> Int) is also<process-xincludes> {
     my xmlDoc $doc = .raw;
     my $ctx = self!make-handler(:raw(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);

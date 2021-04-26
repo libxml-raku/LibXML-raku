@@ -1,4 +1,4 @@
-use LibXML::Node :output-options;
+use LibXML::Node;
 use LibXML::_ParentNode;
 
 #| LibXML DOM Document Class
@@ -46,12 +46,12 @@ use NativeCall;
         my Bool $is-compressed = $doc.input-compressed;
         my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
         $doc.compression = $zip-level;
-        my Str $html-tidy = $dom.Str(:$format, :$html);
+        my Str $html-tidy = $dom.Str: :$format, :$html;
         my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
-        my Str $xml-tidy = $doc.serialize(:$format);
+        my Str $xml-tidy = $doc.serialize: :$format;
         my Int $state = $doc.write: :$file, :$format;
         $state = $doc.save: :io($fh), :$format;
-        my Str $html = $doc.Str(:html);
+        my Str $html = $doc.Str: :html;
         $html = $doc.serialize-html();
         try { $dom.validate(); }
         if $dom.is-valid() { ... }
@@ -701,7 +701,7 @@ multi method importNode(LibXML::Node:D $node --> LibXML::Node) {
     specified in DOM Level 2 Specification the Node will not be altered or removed
     from its original document (C<$node.cloneNode(:deep)> will get called implicitly).
 
-multi method adoptNode(LibXML::Document $) { fail "Can't import Document nodes" }
+multi method adoptNode(LibXML::Document $) { fail "Can't adopt Document nodes" }
 #| Adopts a node from another DOM
 multi method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
     $node.keep: $.raw.adoptNode($node.raw);
