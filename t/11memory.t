@@ -260,7 +260,7 @@ dromeds.xml
 
             for 1..TIMES_THROUGH {
                 my @ns = $doc.documentElement().getNamespaces();
-                # warn "ns : " . $_.localname . "=>" . $_.href foreach @ns;
+                # warn "ns : " ~ .localname ~ "=>" ~ .href for @ns;
                 my $prefix = .localname for @ns;
                 my $name = $doc.documentElement.nodeName;
             }

@@ -83,7 +83,7 @@ print "# 3.   nested names \n";
     my $doc3 = $parser.parse: :string( $xml3 );
     my $elem = $doc3.documentElement;
     my @cn = $elem.childNodes;
-    my @xs = @cn.grep: { $_.nodeType == XML_ELEMENT_NODE };
+    my @xs = @cn.grep: { .nodeType == XML_ELEMENT_NODE };
 
     my @x1 = @xs[1].childNodes; my @x2 = @xs[2].childNodes;
 

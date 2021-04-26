@@ -42,7 +42,7 @@ if CanDoIO {
     ok($doc, ' TODO : Add test name');
 }
 else {
-    skip 'parse :$io tests need Rakudo > 2020.05';
+    skip 'parse :$io tests need Rakudo >= 2020.06';
 }
 
 

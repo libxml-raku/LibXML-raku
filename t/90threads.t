@@ -49,7 +49,7 @@ EOF
 }
 
 {
-    my $doc = LibXML::Document.new;
+    my LibXML::Document $doc .= new;
     $doc.setDocumentElement($doc.createElement('root'));
     $doc.getDocumentElement.setAttribute('foo','bar');
 
@@ -65,7 +65,7 @@ EOF
 
 {
     my LibXML::Document:D @docs = blat {
-        my $doc = LibXML::Document.new;
+        my LibXML::Document $doc .= new;
         $doc.setDocumentElement($doc.createElement('root'));
         $doc.getDocumentElement.setAttribute('foo','bar');
         $doc
@@ -93,7 +93,7 @@ pass("operating on different documents without lock");
 {
     my LibXML::Document $doc .= new;
     my LibXML::Document:D @docs = blat {
-        for (1..24) {
+        for 1..24 {
             $doc.protect: {
                 my $el = $doc.createElement('foo');
                 $el.setAttribute('foo','bar');
@@ -172,7 +172,7 @@ EOF
 
 {
     blat {
-        for (1..MAX_LOOP) {
+        for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
 	    die "no error" without $!;
@@ -192,7 +192,7 @@ EOF
 
 {
     blat {
-        for (1..MAX_LOOP) {
+        for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
 	    die "no error" without $!;
@@ -217,7 +217,7 @@ sub use_dom($d) {
 }
 
 {
-    blat { my $dom = do { $p.parse: :string($xml) }; use_dom($dom) for (1..5); };
+    blat { my $dom = do { $p.parse: :string($xml) }; use_dom($dom) for 1..5; };
     pass('Joined all threads.');
 }
 
@@ -233,7 +233,7 @@ sub use_dom($d) {
 	sax-handler=>MyHandler.new(),
     );
     ok($p.defined, 'LibXML::SAX was initted.');
-    blat { $p.parse: :string($xml) for (1..5); 1; }
+    blat { $p.parse: :string($xml) for 1..5; 1; }
     pass('After LibXML::SAX - join.');
 
     $p = LibXML.new(
@@ -267,49 +267,49 @@ sub use_dom($d) {
 }
 
 {
-my $e = LibXML::Element.new('foo');
-for(1..MAX_THREADS) {
-  threads.new(sub {
-		 if ($_[0]==1) {
-		   my $d = LibXML::Document.new();
-		   $d.setDocumentElement($d.createElement('root'));
-		   $d.documentElement.appendChild($e);
-		 }
-		 1;
-	       },$_);
-}
-$_.join for(threads.list);
-pass("docfrag");
-}
-
-{
-my $e = LibXML::Element.new('foo');
-my $d = LibXML::Document.new();
-$d.setDocumentElement($d.createElement('root'));
-for(1..MAX_THREADS) {
-  threads.new(sub {
-		 if ($_[0]==1) {
-		   $d.documentElement.appendChild($e);
-		 }
-		 1;
-	       },$_);
-}
-$_.join for(threads.list);
-pass("docfrag2");
+    my LibXML::Element $e =. new('foo');
+    for 1..MAX_THREADS {
+      threads.new(sub {
+                     if ($_[0]==1) {
+                       my LibXML::Document $d .= new();
+                       $d.setDocumentElement($d.createElement('root'));
+                       $d.documentElement.appendChild($e);
+                     }
+                     1;
+                   },$_);
+    }
+    .join for threads.list;
+    pass("docfrag");
 }
 
 {
-my $e = LibXML::Element.new('foo');
-for(1..MAX_THREADS) {
-  threads.new(sub {
-		 if ($_[0]==1) {
-		   LibXML::Element.new('root').appendChild($e);
-		 }
-		 1;
-	       },$_);
+    my LibXML::Element $e .= new('foo');
+    my LibXML::Document $d .= new();
+    $d.setDocumentElement: $d.createElement('root');
+    for 1..MAX_THREADS {
+        threads.new: sub {
+	    if ($_[0]==1) {
+	        $d.documentElement.appendChild($e);
+	    }
+	    1;
+        }, $_;
+    }
+    .join for threads.list;
+    pass("docfrag2");
 }
-$_.join for(threads.list);
-pass("docfrag3");
+
+{
+    my LibXML::Element $e .= new('foo');
+    for  1..MAX_THREADS {
+        threads.new: sub {
+            if ($_[0]==1) {
+	        LibXML::Element.new('root').appendChild($e);
+            }
+            1;
+        },$_;
+    }
+    .join for threads.list;
+    pass("docfrag3");
 }
 
 =end TODO

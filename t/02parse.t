@@ -10,6 +10,7 @@ use LibXML::Raw;
 use LibXML::Namespace;
 use LibXML::Node;
 use LibXML::Enums;
+use LibXML::SAX::Handler;
 use LibXML::SAX::Handler::SAX2;
 use LibXML::SAX::Handler::XML;
 my \config = LibXML.config;
@@ -18,43 +19,43 @@ constant XML_DECL = "<?xml version=\"1.0\"?>\n";
 
 # test values
 my @goodWFStrings = (
-'<foobar/>',
-'<foobar></foobar>',
-XML_DECL ~ "<foobar></foobar>",
-'<?xml version="1.0" encoding="UTF-8"?>' ~ "\n<foobar></foobar>",
-'<?xml version="1.0" encoding="ISO-8859-1"?>' ~ "\n<foobar></foobar>",
-XML_DECL ~ "<foobar> </foobar>\n",
-XML_DECL ~ '<foobar><foo/></foobar> ',
-XML_DECL ~ '<foobar> <foo/> </foobar> ',
-XML_DECL ~ '<foobar><![CDATA[<>&"\']]></foobar>',
-XML_DECL ~ '<foobar>&lt;&gt;&amp;&quot;&apos;</foobar>',
-XML_DECL ~ '<foobar>&#x20;&#160;</foobar>',
-XML_DECL ~ '<!--comment--><foobar>foo</foobar>',
-XML_DECL ~ '<foobar>foo</foobar><!--comment-->',
-XML_DECL ~ '<foobar>foo<!----></foobar>',
-XML_DECL ~ '<foobar foo="bar"/>',
-XML_DECL ~ '<foobar foo="\'bar>"/>',
-#XML_DECL ~ '<bar:foobar foo="bar"><bar:foo/></bar:foobar>',
-#'<bar:foobar/>'
-                    );
+    '<foobar/>',
+    '<foobar></foobar>',
+    XML_DECL ~ "<foobar></foobar>",
+    '<?xml version="1.0" encoding="UTF-8"?>' ~ "\n<foobar></foobar>",
+    '<?xml version="1.0" encoding="ISO-8859-1"?>' ~ "\n<foobar></foobar>",
+    XML_DECL ~ "<foobar> </foobar>\n",
+    XML_DECL ~ '<foobar><foo/></foobar> ',
+    XML_DECL ~ '<foobar> <foo/> </foobar> ',
+    XML_DECL ~ '<foobar><![CDATA[<>&"\']]></foobar>',
+    XML_DECL ~ '<foobar>&lt;&gt;&amp;&quot;&apos;</foobar>',
+    XML_DECL ~ '<foobar>&#x20;&#160;</foobar>',
+    XML_DECL ~ '<!--comment--><foobar>foo</foobar>',
+    XML_DECL ~ '<foobar>foo</foobar><!--comment-->',
+    XML_DECL ~ '<foobar>foo<!----></foobar>',
+    XML_DECL ~ '<foobar foo="bar"/>',
+    XML_DECL ~ '<foobar foo="\'bar>"/>',
+    #XML_DECL ~ '<bar:foobar foo="bar"><bar:foo/></bar:foobar>',
+    #'<bar:foobar/>'
+);
 
 my @goodWFNSStrings = (
-XML_DECL ~ '<foobar xmlns:bar="xml://foo" bar:foo="bar"/>'~"\n",
-XML_DECL ~ '<foobar xmlns="xml://foo" foo="bar"><foo/></foobar>'~"\n",
-XML_DECL ~ '<bar:foobar xmlns:bar="xml://foo" foo="bar"><foo/></bar:foobar>'~"\n",
-XML_DECL ~ '<bar:foobar xmlns:bar="xml://foo" foo="bar"><bar:foo/></bar:foobar>'~"\n",
-XML_DECL ~ '<bar:foobar xmlns:bar="xml://foo" bar:foo="bar"><bar:foo/></bar:foobar>'~"\n",
-                      );
+    XML_DECL ~ '<foobar xmlns:bar="xml://foo" bar:foo="bar"/>'~"\n",
+    XML_DECL ~ '<foobar xmlns="xml://foo" foo="bar"><foo/></foobar>'~"\n",
+    XML_DECL ~ '<bar:foobar xmlns:bar="xml://foo" foo="bar"><foo/></bar:foobar>'~"\n",
+    XML_DECL ~ '<bar:foobar xmlns:bar="xml://foo" foo="bar"><bar:foo/></bar:foobar>'~"\n",
+    XML_DECL ~ '<bar:foobar xmlns:bar="xml://foo" bar:foo="bar"><bar:foo/></bar:foobar>'~"\n",
+);
 
 my @goodWFDTDStrings = (
-XML_DECL ~ '<!DOCTYPE foobar ['~"\n"~'<!ENTITY foo " test ">'~"\n"~']>'~"\n"~'<foobar>&foo;</foobar>',
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar>&foo;</foobar>',
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar>&foo;&gt;</foobar>',
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar=&quot;foo&quot;">]><foobar>&foo;&gt;</foobar>',
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar>&foo;&gt;</foobar>',
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar foo="&foo;"/>',
-XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar foo="&gt;&foo;"/>',
-                       );
+    XML_DECL ~ '<!DOCTYPE foobar ['~"\n"~'<!ENTITY foo " test ">'~"\n"~']>'~"\n"~'<foobar>&foo;</foobar>',
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar>&foo;</foobar>',
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar>&foo;&gt;</foobar>',
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar=&quot;foo&quot;">]><foobar>&foo;&gt;</foobar>',
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar>&foo;&gt;</foobar>',
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar foo="&foo;"/>',
+    XML_DECL ~ '<!DOCTYPE foobar [<!ENTITY foo "bar">]><foobar foo="&gt;&foo;"/>',
+);
 
 my @badWFStrings = (
     "",                                        # totally empty document
@@ -407,8 +408,8 @@ my $badXInclude = q{
     }
 }
 
-# 3 SAX PARSER
 use LibXML::SAX;
+# 3 SAX PARSER
 {
     my LibXML::SAX::Handler::XML $sax-handler .= new;
     my LibXML::SAX $generator .= new: :$sax-handler;
@@ -578,7 +579,7 @@ use LibXML::SAX;
 
     # 5.1 DOM CHUNK PARSER
 
-    for ( 1..$MAX_WF_C ) -> $_ is copy {
+    for 1 .. $MAX_WF_C -> $_ is copy {
         my Str:D $string = %chunks{'wellformed' ~ $_};
         my $frag = $pparser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
@@ -596,7 +597,7 @@ use LibXML::SAX;
         fail("Unexpected fragment without child nodes");
     }
 
-    for ( 1..$MAX_WB_C ) -> $_ is copy {
+    for 1 .. $MAX_WB_C -> $_ is copy {
         my Str:D $string = %chunks{'wellbalance' ~ $_};
         my $frag = $pparser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
@@ -679,7 +680,7 @@ use LibXML::SAX;
     my LibXML::SAX::Handler::SAX2 $sax-handler .= new;
     my LibXML::SAX $parser .= new: :$sax-handler;
 
-    for ( 1..$MAX_WF_C ) -> $_ is copy {
+    for 1 .. $MAX_WF_C -> $_ is copy {
         my $string = %chunks{'wellformed' ~ $_};
         my $frag = $parser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
@@ -696,7 +697,7 @@ use LibXML::SAX;
         flunk("Couldn't pass well formed test since frag was bad");
     }
 
-    for ( 1..$MAX_WB_C ) -> $_ is copy {
+    for 1 .. $MAX_WB_C -> $_ is copy {
         my Str:D $string = %chunks{'wellbalance' ~ $_};
         my $frag = $parser.parse-balanced: :$string;
         isa-ok($frag, 'LibXML::DocumentFragment');
@@ -779,7 +780,7 @@ EOXML
     is( @kids[1].line-number(), 0, "line number is 0");
 }
 
-SKIP: {
+{
     my Str ( $xsDoc1, $xsDoc2 );
     my Str $fn1 = "example/xmlns/goodguy.xml";
     my Str $fn2 = "example/xmlns/badguy.xml";

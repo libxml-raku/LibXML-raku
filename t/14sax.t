@@ -230,7 +230,7 @@ EOT
         },
     );
 
-    $_.() for @tests;
+    .() for @tests;
 
 }
 
