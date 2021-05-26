@@ -1,9 +1,11 @@
 use LibXML::Node;
+use DOM;
 
 #| LibXML Attribute nodes
 unit class LibXML::Attr
     is repr('CPointer')
-    is LibXML::Node;
+    is LibXML::Node
+    does DOM::Attr;
 
 =begin pod
     =head2 Synopsis
@@ -115,6 +117,9 @@ method ast { self.nodeName => self.nodeValue }
     quoted and with raw entity references (except for entities expanded during
     parse time).
 =end pod
+
+#| DOM level-2 method NYI
+method specified { die X::NYI.new }
 
 =begin pod
 =head2 Copyright

@@ -1,12 +1,15 @@
 use LibXML::Node;
+use DOM;
 
 #| LibXML Processing Instructions
 unit class LibXML::PI
     is repr('CPointer')
-    is LibXML::Node;
+    is LibXML::Node
+    does DOM::ProcessingInstruction;
 
 use LibXML::Raw;
 use NativeCall;
+use Method::Also;
 
 method new(:doc($owner)!, Str :$name!, Str :$content!) {
     my xmlDoc:D $doc = .raw with $owner;
@@ -15,7 +18,8 @@ method new(:doc($owner)!, Str :$name!, Str :$content!) {
 }
 
 method raw { nativecast(xmlPINode, self) }
-method content is rw handles<substr substr-rw> { $.raw.content };
+method content is rw is also<data> handles<substr substr-rw> { $.raw.content };
+method target { self.nodeName }
 
 multi method setData(*%atts) {
     $.setData( %atts.sort.map({.key ~ '="' ~ .value ~ '"'}).join(' ') );

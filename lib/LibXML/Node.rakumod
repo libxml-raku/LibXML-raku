@@ -1,12 +1,14 @@
 use v6;
 use LibXML::Item :box-class, :ast-to-xml;
 use LibXML::_DomNode;
+use DOM;
 
 #| Abstract base class of LibXML Nodes
 unit class LibXML::Node
     is repr('CPointer')
     is LibXML::Item
-    does LibXML::_DomNode;
+    does LibXML::_DomNode
+    does DOM::Node;
 
 =begin pod
 
@@ -139,7 +141,7 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 method raw handles<
     domCheck domFailure
     getNodeName getNodeValue
-    isBlank hasChildNodes
+    isBlank hasAttributes hasChildNodes
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue string-value
@@ -347,7 +349,7 @@ submethod TWEAK(:$native) {
     die 'new(:$native) option is obselete. Please use :$raw'
         with $native;
 
-    die "no content"
+    die "undefined native node"
         if self.REPR eq 'CPointer'
         && !nativecast(Pointer, self).defined;
 }
@@ -524,8 +526,8 @@ method xpath-class {
     require ::('LibXML::XPath::Context');
 }
 
-method xpath-context(|c) {
-    $.xpath-class.new: :node(self), |c;
+method xpath-context($node: |c) {
+    $.xpath-class.new: :$node, |c;
 }
 
 method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
@@ -913,11 +915,17 @@ method protect(&action) {
     $rv;
 }
 
+#| DOM level-2 feature introspection
+method isSupported(Str:D() $feature, Version $v?) {
+    $feature ~~ /:i ^[xml|html|core]$ /;
+}
+=para e.g. `$doc.issupported('HTML');
+
 ########################################################################
 =head2 Namespace Methods
 
 #| Returns the local name of a tag.
-method localname returns Str { self.raw.name.subst(/^.*':'/,'') }
+method localName is also<localname> returns Str { self.raw.name.subst(/^.*':'/,'') }
 =para This is the part after the colon.
 
 #| Returns the prefix of a tag

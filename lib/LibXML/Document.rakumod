@@ -1,10 +1,12 @@
 use LibXML::Node;
 use LibXML::_ParentNode;
+use DOM;
 
 #| LibXML DOM Document Class
 unit class LibXML::Document
     is LibXML::Node
-    does LibXML::_ParentNode;
+    does LibXML::_ParentNode
+    does DOM::Document;
 
 use LibXML::Attr;
 use LibXML::CDATA;
@@ -135,8 +137,9 @@ method new(
     Bool :$html,
     Int  :$compression,
     Bool :$input-compressed,
+    xmlDoc :$raw = ($html ?? htmlDoc !! xmlDoc).new,
+    # obselete
     :$ctx,
-    xmlDoc:D :$raw = ($html ?? htmlDoc !! xmlDoc).new,
     :$native, # obselete,
     |c
 ) {
@@ -170,7 +173,8 @@ method new(
 multi method createDocument(Str() $version, xmlEncodingStr $enc) {
     self.new: :$version, :$enc;
 }
-multi method createDocument(Str $URI? is copy, QName $name?, Str $doc-type?, Str :URI($uri), *%opt) {
+
+multi method createDocument(Str $URI? is copy, QName $name?, LibXML::Dtd $doc-type?, Str :URI($uri), *%opt) {
     $URI //= $uri;
     my $doc = self.new: :$URI, |%opt;
     with $name {
@@ -508,9 +512,9 @@ method was-valid returns Bool {
 method valid is DEPRECATED<was-valid> { $.was-valid }
 
 #| Assert that the current document is valid
-method validate(LibXML::Dtd $dtd?, Bool :$check --> Bool) is hidden-from-backtrace {
+method validate($doc: LibXML::Dtd $dtd?, Bool :$check --> Bool) is hidden-from-backtrace {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
-    $valid-ctx.validate(:doc(self), :$dtd, :$check);
+    $valid-ctx.validate(:$doc, :$dtd, :$check);
 }
 =begin pod
     =para
@@ -589,28 +593,28 @@ multi method createAttributeNS(Str $href,
 }
 
 #| Creates a Document Fragment
-method createDocumentFragment(--> LibXML::DocumentFragment) {
-    &?ROUTINE.returns.new: :doc(self);
+method createDocumentFragment($doc: --> LibXML::DocumentFragment) {
+    &?ROUTINE.returns.new: :$doc;
 }
 
 #| Creates a Text Node bound to the DOM.
-method createTextNode(Str $content --> LibXML::Text) {
-    &?ROUTINE.returns.new: :doc(self), :$content;
+method createTextNode($doc: Str $content --> LibXML::Text) {
+    &?ROUTINE.returns.new: :$doc, :$content;
 }
 
 #| Create a Comment Node bound to the DOM
-method createComment(Str $content --> LibXML::Comment) {
-    &?ROUTINE.returns.new: :doc(self), :$content;
+method createComment($doc: Str $content --> LibXML::Comment) {
+    &?ROUTINE.returns.new: :$doc, :$content;
 }
 
 #| Create a CData Section bound to the DOM
-method createCDATASection(Str $content --> LibXML::CDATA) {
-    &?ROUTINE.returns.new: :doc(self), :$content;
+method createCDATASection($doc: Str $content --> LibXML::CDATA) {
+    &?ROUTINE.returns.new: :$doc, :$content;
 }
 
 #| Creates an Entity Reference
-method createEntityReference(Str $name --> LibXML::EntityRef) {
-    &?ROUTINE.returns.new: :doc(self), :$name;
+method createEntityReference($doc: Str $name --> LibXML::EntityRef) {
+    &?ROUTINE.returns.new: :$doc, :$name;
 }
 =begin pod
     =para
@@ -635,20 +639,20 @@ proto method createPI(|) is also<createProcessingInstruction> {*}
 multi method createPI(NameVal $_!, |c) {
     $.createPI(.key, .value, |c);
 }
-multi method createPI(NCName $name, Str $content? --> LibXML::PI) {
-    &?ROUTINE.returns.new: :doc(self), :$name, :$content;
+multi method createPI($doc: NCName $name, Str $content? --> LibXML::PI) {
+    &?ROUTINE.returns.new: :$doc, :$name, :$content;
 }
 
 #| Creates a new external subset
-method createExternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    &?ROUTINE.returns.new: :doc(self), :type<external>, :$name, :$external-id, :$system-id;
+method createExternalSubset($doc: Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
+    &?ROUTINE.returns.new: :$doc, :type<external>, :$name, :$external-id, :$system-id;
 }
 =para This function is similar to C<createInternalSubset()> but this DTD is considered to be external and is therefore not added to the
   document itself. Nevertheless it can be used for validation purposes.
 
 #| Creates a new Internal Subset
-method createInternalSubset(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    &?ROUTINE.returns.new: :doc(self), :type<internal>, :$name, :$external-id, :$system-id;
+method createInternalSubset($doc: Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
+    &?ROUTINE.returns.new: :$doc, :type<internal>, :$name, :$external-id, :$system-id;
 }
 =begin pod
     =head3 method createInternalSubset
@@ -723,8 +727,8 @@ method getDocumentElement returns LibXML::Element {
 }
 
 #| DOM compatible method to set the document element
-method setDocumentElement(LibXML::Element:D $elem --> LibXML::Element) {
-    $elem.setOwnerDocument(self);
+method setDocumentElement($doc: LibXML::Element:D $elem --> LibXML::Element) {
+    $elem.setOwnerDocument($doc);
     self.raw.setDocumentElement($elem.raw);
     $elem;
 }

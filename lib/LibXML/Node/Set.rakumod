@@ -88,7 +88,7 @@ class LibXML::Node::Set
     }
     method ast { self.Array.map(*.ast) }
 
-    method iterator {
+    method iterator($nodes:) {
         class Iteration does Iterator {
             has UInt $!idx = 0;
             has LibXML::Node::Set $.nodes is required;
@@ -101,7 +101,7 @@ class LibXML::Node::Set
                 }
             }
         }
-        Iteration.new: :nodes(self);
+        Iteration.new: :$nodes;
     }
 }
 

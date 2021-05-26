@@ -154,7 +154,7 @@ submethod TWEAK(|c) {
     constraints of the RelaxNG specification.
 =end pod
 
-method !valid-ctx { ValidContext.new: :schema(self) }
+method !valid-ctx($schema:) { ValidContext.new: :$schema }
 method validate(LibXML::Document:D $doc) is hidden-from-backtrace {
     self!valid-ctx.validate($doc);
 }

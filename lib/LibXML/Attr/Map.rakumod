@@ -1,7 +1,10 @@
-use LibXML::Attr;
+use DOM;
 
 #| LibXML Mapped Attributes
-class LibXML::Attr::Map does Associative {
+class LibXML::Attr::Map
+    does Associative
+    does DOM::NamedNodeMap {
+    use LibXML::Attr;
     use LibXML::Types :QName, :NCName;
     has LibXML::Node $.node handles<removeAttributeNode>;
     use Method::Also;
@@ -75,7 +78,7 @@ class LibXML::Attr::Map does Associative {
         }
     }
 
-    method elems is also<Numeric> { $!node.findvalue('count(@*)') }
+    method elems is also<Numeric length> { $!node.findvalue('count(@*)') }
     method Hash handles<keys pairs values kv> {
         my % = $!node.findnodes('@*').Array.map: {
             .tagName => $_;

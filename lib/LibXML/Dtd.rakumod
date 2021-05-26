@@ -1,9 +1,11 @@
 use LibXML::Node;
+use DOM;
 
 #| LibXML DTD Handling
 unit class LibXML::Dtd
     is repr('CPointer')
-    is LibXML::Node;
+    is LibXML::Node
+    does DOM::DocumentType;
 
   =begin pod
   =head2 Synopsis
@@ -154,7 +156,7 @@ method cloneNode(LibXML::Dtd:D: $?) {
     self.clone: :$raw;
 }
 
-method !valid-ctx { ValidContext.new: :schema(self) }
+method !valid-ctx($schema:) { ValidContext.new: :$schema }
 #| validate a parsed XML document against a DTD
 method validate(LibXML::Node:D $node --> UInt) is hidden-from-backtrace {
     self!valid-ctx.validate($node);
@@ -169,6 +171,11 @@ method validate(LibXML::Node:D $node --> UInt) is hidden-from-backtrace {
 #| Returns True if the passed document is valid against the DTD
 method is-valid(LibXML::Node:D $node --> Bool) {
     self!valid-ctx.validate($node, :check);
+}
+
+# NYI DOM Level-2 methods
+method entities(|) is also<notations internalSubset> {
+    die X::NYI.new
 }
 
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {

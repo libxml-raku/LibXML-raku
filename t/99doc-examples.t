@@ -155,7 +155,6 @@ subtest 'LibXML::Document' => {
     $node = $doc.getElementById('x');
     $doc.indexElements();
 
-    $doc = LibXML.createDocument;
     $doc = LibXML.createDocument( '1.0', "ISO-8859-15" );
     is $doc.encoding, 'ISO-8859-15';
     $doc .= parse(' <x>zzz</x>');

@@ -1111,6 +1111,10 @@ class htmlDoc is xmlDoc is repr('CStruct') is export {
     method DumpFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
     sub memcpy(Blob, Pointer, size_t) is native($CLIB) {*}
     sub free(Pointer) is native($CLIB) {*}
+    our sub New(xmlCharP $URI, xmlCharP $external-id --> htmlDoc) is native($XML2) is symbol('htmlNewDoc') {*}
+    method new(Str :$URI, Str :$external-id) {
+        New($URI, $external-id);
+    }
 
     method dump(Bool:D :$format = True) {
         my Pointer[uint8] $out .= new;
@@ -1163,7 +1167,7 @@ class xmlDtd is anyNode is export {
     multi method new(:type($)! where 'external', xmlDoc :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.NewDtd( $name, $external-id, $system-id);
     }
-    multi method new(|c) is default { fail c.perl }
+    multi method new(|c) is default { fail c.raku }
     multi method parse(Str:D :$string!, xmlSAXHandler :$sax-handler, xmlEncodingStr:D :$enc!) {
         my Int $encoding = xmlParseCharEncoding($enc);
         my xmlParserInputBuffer:D $buffer .= new: :$enc, :$string;

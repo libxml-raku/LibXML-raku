@@ -1,11 +1,13 @@
 use LibXML::Node;
 use LibXML::_StringyNode;
+use DOM;
 
 #| LibXML Text Nodes
 unit class LibXML::Text
     is repr('CPointer')
     is LibXML::Node
-    does LibXML::_StringyNode;
+    does LibXML::_StringyNode
+    does DOM::CharacterData;
 
 use LibXML::Raw;
 use Method::Also;
@@ -14,6 +16,8 @@ use NativeCall;
 method raw { nativecast(xmlTextNode, self) }
 
 method content is rw is also<text ast> handles<substr substr-rw> { $.raw.content };
+
+method splitText { die X::NYI.new }
 
 =begin pod
 

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 62;
+plan 64;
 
 # bootstrapping tests for the DOM
 
@@ -130,6 +130,9 @@ is $elem<@x:aaa>, 'BBB', 'registered namespace';
 lives-ok {$attr = ($elem<@x:aaa>:delete)[0]}, 'delete via ns';
 
 is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb="BBB" x:ccc="CCC"><p>some text</p></foo>', 'NS Elem after NS proxy deletion');
+
+ok $elem.isSupported('HTML');
+nok $elem.isSupported('LOLCODE');
 
 
 

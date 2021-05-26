@@ -1,5 +1,15 @@
 {{$NEXT}}
     - Fix attribute isId() method to return Bool, as documented.
+    - Integration with DOM interface defnitions. Add missing methods:
+      -- DOM::Implementation createDocumentType(), hasFeature()
+      -- DOM::Attr specified() [NYI]
+      -- DOM::Node isSupported(), localName() and hasAttributes (moved from Element)
+      -- DOM::NamedNodeMap length() method
+      -- DOM::CDATASection splitText() [NYI]
+      -- DOM::DocumentType entities(), notations() internalSubset [all NYI]
+      -- DOM::Entity publicId(), systemId() and notationName() methods
+      -- DOM::ProcessingInstruction data() method
+      -- DOM::Text splitText() method [NYI]
 
 0.5.15  2021-02-24T09:45:59+13:00
     - Exported disused and bit rotted etc/libxml2-api.xml, etc/LibXML and

@@ -117,7 +117,7 @@ multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns
 method raw handles<
         content
         getAttribute getAttributeNS getNamespaceDeclURI
-        hasAttributes hasAttribute hasAttributeNS
+        hasAttribute hasAttributeNS
         removeAttribute removeAttributeNS> {
     nativecast(xmlElem, self);
 }
@@ -262,10 +262,10 @@ method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
 
 =end pod
 
-method attributes is rw is also<attribs attr> {
+method attributes(LibXML::Element:D $node:) is rw is also<attribs attr> {
     Proxy.new(
         FETCH => {
-            LibXML::Attr::Map.new: :node(self)
+            LibXML::Attr::Map.new: :$node
         },
         STORE => sub ($, %atts) {
             self!set-attributes: %atts.pairs.sort;

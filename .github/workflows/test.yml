@@ -31,6 +31,7 @@ jobs:
           zef install --deps-only .
           zef build .
           zef install --/test App::Prove6
+          (git clone https://github.com/libxml-raku/DOM-raku && cd DOM-raku && zef install .)
       - name: Run Tests
         run: prove6 -l t
       - name: Install Module

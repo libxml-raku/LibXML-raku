@@ -1,4 +1,4 @@
-use v6;
+use DOM;
 use LibXML::Parser;
 use LibXML::Config;
 
@@ -21,7 +21,10 @@ use LibXML::XPath::Object;
 use LibXML::XPath::Context;
 
 unit class LibXML:ver<0.5.15>
-    is LibXML::Parser;
+    is LibXML::Parser
+    does DOM::Implementation;
+
+use LibXML::Types :QName;
 
 method config handles <
       version config-version
@@ -33,6 +36,17 @@ method config handles <
 
 method createDocument(|c) {
     LibXML::Document.createDocument(|c);
+}
+
+method createDocumentType(QName:D $name, Str:D $external-id, Str:D $system-id, |c) {
+    LibXML::Document
+      .new()
+      .createExternalSubset($name, $external-id, $system-id)
+      .clone();
+}
+
+method hasFeature(Str:D() $feature, $?) {
+    $feature ~~ /:i ^[xml|html|core]$ /;
 }
 
 =begin pod

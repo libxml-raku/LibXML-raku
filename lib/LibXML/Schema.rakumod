@@ -172,7 +172,7 @@ submethod DESTROY {
     .Free with $!raw;
 }
 
-method !valid-ctx { ValidContext.new: :schema(self) }
+method !valid-ctx($schema:) { ValidContext.new: :$schema }
 method validate(LibXML::Node:D $node) is hidden-from-backtrace {
     self!valid-ctx.validate($node);
 }

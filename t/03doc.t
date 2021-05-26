@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 176;
+plan 178;
 
 use LibXML;
 use LibXML::Enums;
@@ -285,10 +285,12 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         is($pi, '<?foo bar?>');
         is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
         is($pi.nodeName, "foo", 'PI nodeName');
+        is($pi.target, "foo", 'PI target');
         is($pi.ast-key, "?foo", 'PI ast-key');
         is($pi.xpath-key, "processing-instruction()", 'PI xpath-key');
         is($pi.string-value, "bar", 'PI string-value');
         is($pi.content, "bar", 'PI content');
+        is($pi.content, "bar", 'PI data');
     }
 
     {
