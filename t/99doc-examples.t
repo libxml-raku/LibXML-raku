@@ -196,6 +196,7 @@ subtest 'LibXML::Dtd' => {
         $dtd.getName();
         $dtd.publicId();
         $dtd.systemId();
+        $dtd.is-XHTML;
     }, 'new public';
 
 }

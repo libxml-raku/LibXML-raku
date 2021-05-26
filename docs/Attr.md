@@ -43,7 +43,7 @@ Class constructor.
 
 ### method value
 
-```perl6
+```raku
 method value() returns Str
 ```
 
@@ -53,7 +53,7 @@ Str:U is returned if the attribute has no value
 
 ### method isId
 
-```perl6
+```raku
 method isId() returns Bool
 ```
 
@@ -85,6 +85,14 @@ If you don't want the overheads of managing namespaces, a quick way of ensuring 
     method serializeContent() returns Bool
 
 This function is not part of DOM API. It returns attribute content in the form in which it serializes into XML, that is with all meta-characters properly quoted and with raw entity references (except for entities expanded during parse time).
+
+### method specified
+
+```raku
+method specified() returns Mu
+```
+
+DOM level-2 method NYI
 
 Copyright
 ---------

@@ -30,12 +30,12 @@ Synopsis
     my Bool $is-compressed = $doc.input-compressed;
     my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
     $doc.compression = $zip-level;
-    my Str $html-tidy = $dom.Str(:$format, :$html);
+    my Str $html-tidy = $dom.Str: :$format, :$html;
     my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
-    my Str $xml-tidy = $doc.serialize(:$format);
+    my Str $xml-tidy = $doc.serialize: :$format;
     my Int $state = $doc.write: :$file, :$format;
     $state = $doc.save: :io($fh), :$format;
-    my Str $html = $doc.Str(:html);
+    my Str $html = $doc.Str: :html;
     $html = $doc.serialize-html();
     try { $dom.validate(); }
     if $dom.is-valid() { ... }
@@ -159,7 +159,7 @@ Gets or sets the encoding of the document.
 
 ### method actualEncoding
 
-```perl6
+```raku
 method actualEncoding() returns LibXML::Raw::xmlEncodingStr
 ```
 
@@ -172,7 +172,7 @@ This is usually the original encoding of the document as declared in the XML dec
 
 ### method version
 
-```perl6
+```raku
 method version() returns Version
 ```
 
@@ -195,7 +195,7 @@ It returns
 
 ### method setStandalone
 
-```perl6
+```raku
 method setStandalone(
     Numeric $_
 ) returns Mu
@@ -216,7 +216,7 @@ Set it to
 
 ### method compression
 
-```perl6
+```raku
 method compression() returns Int
 ```
 
@@ -224,7 +224,7 @@ Gets or sets output compression
 
 ### method input-compressed
 
-```perl6
+```raku
 method input-compressed() returns Bool
 ```
 
@@ -250,7 +250,7 @@ Note that this feature will *only* work if libxml2 is compiled with zlib support
 
 ### method Str
 
-```perl6
+```raku
 method Str(
     Bool :$skip-dtd = Code.new,
     Bool :$html = Code.new,
@@ -299,7 +299,7 @@ Similar to Str(), but doesn't interpret `:skip-dtd`, `:html` or `:C14N` options.
 
 ### method serialize-html
 
-```perl6
+```raku
 method serialize-html(
     Bool :$format = Bool::True
 ) returns Str
@@ -311,7 +311,7 @@ Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 
 ### method Blob
 
-```perl6
+```raku
 method Blob(
     Bool(Any) :$skip-xml-declaration is copy = Code.new,
     Bool(Any) :$skip-dtd = Code.new,
@@ -341,7 +341,7 @@ The option `:force` is needed to really allow the combination of a non-UTF8 enco
 
 ### method write
 
-```perl6
+```raku
 method write(
     Str(Any) :$file!,
     Bool :$format = Bool::False
@@ -352,7 +352,7 @@ Write to a name file
 
 ### method save-as
 
-```perl6
+```raku
 method save-as(
     Str(Any) $file
 ) returns UInt
@@ -362,7 +362,7 @@ Write to a name file (equivalent to $.write: :$file)
 
 ### method is-valid
 
-```perl6
+```raku
 method is-valid(
     LibXML::Dtd $dtd?
 ) returns Bool
@@ -380,22 +380,11 @@ You may also pass in a [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/D
 
 ### method was-valid
 
-```perl6
+```raku
 method was-valid() returns Bool
 ```
 
 Whether the document was valid when it was parsed
-
-### method validate
-
-```perl6
-method validate(
-    LibXML::Dtd $dtd?,
-    Bool :$check
-) returns Bool
-```
-
-Assert that the current document is valid
 
 This is an exception throwing equivalent of is_valid. If the document is not valid it will throw an exception containing the error. This allows you much better error reporting than simply is_valid or not.
 
@@ -403,7 +392,7 @@ Again, you may pass in a DTD object
 
 ### method documentElement
 
-```perl6
+```raku
 method documentElement() returns LibXML::Element
 ```
 
@@ -413,7 +402,7 @@ A document can have just one root element to contain the documents data. If the 
 
 ### method createElement
 
-```perl6
+```raku
 method createElement(
     Str $name where { ... },
     Str :$href
@@ -424,7 +413,7 @@ Creates a new Element Node bound to the DOM with the given tag (name), Optionall
 
 ### method createElementNS
 
-```perl6
+```raku
 method createElementNS(
     Str:D $href,
     Str:D $name where { ... }
@@ -435,7 +424,7 @@ equivalent to .createElement($name, :$href)
 
 ### multi method createAttribute
 
-```perl6
+```raku
 multi method createAttribute(
     Str:D $qname where { ... },
     Str $value = "",
@@ -447,7 +436,7 @@ Creates a new Attribute node
 
 ### multi method createAttributeNS
 
-```perl6
+```raku
 multi method createAttributeNS(
     Str $href,
     Str:D $qname where { ... },
@@ -459,7 +448,7 @@ Creates an Attribute bound to a name-space.
 
 ### method createDocumentFragment
 
-```perl6
+```raku
 method createDocumentFragment() returns LibXML::DocumentFragment
 ```
 
@@ -467,7 +456,7 @@ Creates a Document Fragment
 
 ### method createTextNode
 
-```perl6
+```raku
 method createTextNode(
     Str $content
 ) returns LibXML::Text
@@ -477,7 +466,7 @@ Creates a Text Node bound to the DOM.
 
 ### method createComment
 
-```perl6
+```raku
 method createComment(
     Str $content
 ) returns LibXML::Comment
@@ -487,7 +476,7 @@ Create a Comment Node bound to the DOM
 
 ### method createCDATASection
 
-```perl6
+```raku
 method createCDATASection(
     Str $content
 ) returns LibXML::CDATA
@@ -497,7 +486,7 @@ Create a CData Section bound to the DOM
 
 ### method createEntityReference
 
-```perl6
+```raku
 method createEntityReference(
     Str $name
 ) returns LibXML::EntityRef
@@ -517,7 +506,7 @@ An entity reference is unique to a document and cannot be passed to other docume
 
 ### method createExternalSubset
 
-```perl6
+```raku
 method createExternalSubset(
     Str $name,
     Str $external-id,
@@ -531,7 +520,7 @@ This function is similar to `createInternalSubset()` but this DTD is considered 
 
 ### method createInternalSubset
 
-```perl6
+```raku
 method createInternalSubset(
     Str $name,
     Str $external-id,
@@ -572,7 +561,7 @@ will cause the following declaration to be created on the document:
 
 ### method createDTD
 
-```perl6
+```raku
 method createDTD(
     Str $name,
     Str $external-id,
@@ -584,7 +573,7 @@ Create a new DTD
 
 ### multi method importNode
 
-```perl6
+```raku
 multi method importNode(
     LibXML::Node:D $node
 ) returns LibXML::Node
@@ -596,7 +585,7 @@ If a node is not part of a document, it can be imported to another document. As 
 
 ### multi method adoptNode
 
-```perl6
+```raku
 multi method adoptNode(
     LibXML::Node:D $node
 ) returns LibXML::Node
@@ -612,7 +601,7 @@ After a document adopted a node, the node, its attributes and all its descendant
 
 ### method getDocumentElement
 
-```perl6
+```raku
 method getDocumentElement() returns LibXML::Element
 ```
 
@@ -620,7 +609,7 @@ DOM compatible method to get the document element
 
 ### method setDocumentElement
 
-```perl6
+```raku
 method setDocumentElement(
     LibXML::Element:D $elem
 ) returns LibXML::Element
@@ -639,7 +628,7 @@ $doc.setInternalSubset: $dtd.clone();
 
 ### method removeInternalSubset
 
-```perl6
+```raku
 method removeInternalSubset() returns LibXML::Dtd
 ```
 
@@ -651,7 +640,7 @@ If a document has an internal subset defined it can be removed from the document
 
 ### method internalSubset
 
-```perl6
+```raku
 method internalSubset() returns LibXML::Dtd
 ```
 
@@ -661,7 +650,7 @@ Gets or sets the internal DTD for the document.
 
 ### method setExternalSubset
 
-```perl6
+```raku
 method setExternalSubset(
     LibXML::Dtd $dtd
 ) returns LibXML::Dtd
@@ -680,7 +669,7 @@ $doc.setExternalSubset: $dtd.clone();
 
 ### method removeExternalSubset
 
-```perl6
+```raku
 method removeExternalSubset() returns LibXML::Dtd
 ```
 
@@ -692,7 +681,7 @@ If a document has an external subset defined it can be removed from the document
 
 ### method externalSubset
 
-```perl6
+```raku
 method externalSubset() returns LibXML::Dtd
 ```
 
@@ -708,7 +697,7 @@ Calling `LibXML::Document.parse(|c)` is equivalent to calling `LibXML.parse(|c)`
 
 ### method processXIncludes
 
-```perl6
+```raku
 method processXIncludes(
     |c
 ) returns Mu
@@ -739,7 +728,7 @@ This allows the fetching of all nodes from a given document with the given Local
 
 ### method getElementById
 
-```perl6
+```raku
 method getElementById(
     Str:D $id
 ) returns LibXML::Element
@@ -751,7 +740,7 @@ Note: the ID of an element may change while manipulating the document. For docum
 
 ### method indexElements
 
-```perl6
+```raku
 method indexElements() returns Int
 ```
 

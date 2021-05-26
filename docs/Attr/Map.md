@@ -64,7 +64,7 @@ Similar to the equivalent Raku Hash methods.
 
 ### method setNamedItem
 
-```perl6
+```raku
 method setNamedItem(
     LibXML::Attr:D $att
 ) returns LibXML::Attr
@@ -74,7 +74,7 @@ Adds or replaces node with the same name as $att
 
 ### method getNamedItem
 
-```perl6
+```raku
 method getNamedItem(
     Str:D $name where { ... }
 ) returns LibXML::Attr
@@ -84,7 +84,7 @@ Gets an attribute by name
 
 ### method removeNamedItem
 
-```perl6
+```raku
 method removeNamedItem(
     Str:D $name where { ... }
 ) returns LibXML::Attr
@@ -94,7 +94,7 @@ Remove the item with the name `$name`
 
 ### method setNamedItemNS
 
-```perl6
+```raku
 method setNamedItemNS(
     Str $uri,
     LibXML::Attr:D $att
@@ -105,7 +105,7 @@ Assigns $att name space to $uri. Adds or replaces an attribute with the same as 
 
 ### method getNamedItemNS
 
-```perl6
+```raku
 method getNamedItemNS(
     Str $uri,
     Str:D $name where { ... }
@@ -118,7 +118,7 @@ Lookup attribute by namespace and name
 
 ### method removeNamedItemNS
 
-```perl6
+```raku
 method removeNamedItemNS(
     Str $uri,
     Str:D $name where { ... }

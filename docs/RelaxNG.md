@@ -63,7 +63,7 @@ Returns either True or False depending on whether the passed Document is valid o
 
 ### multi method ACCEPTS
 
-```perl6
+```raku
 multi method ACCEPTS(
     LibXML::Document:D $doc
 ) returns Bool

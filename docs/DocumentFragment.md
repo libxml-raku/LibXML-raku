@@ -57,7 +57,7 @@ Creates a new empty document fragment to which nodes can be added; typically by 
 
 ### method parse
 
-```perl6
+```raku
 method parse(
     Str(Any) :$string!,
     Bool :balanced($)! where { ... },

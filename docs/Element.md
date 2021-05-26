@@ -104,7 +104,7 @@ Attribute Methods
 
 ### multi method setAttribute
 
-```perl6
+```raku
 multi method setAttribute(
     Str $name where { ... },
     Str:D $value
@@ -115,7 +115,7 @@ Sets or replaces the element's $name attribute to $value
 
 ### multi method setAttributeNS
 
-```perl6
+```raku
 multi method setAttributeNS(
     Str $uri,
     Str $name where { ... },
@@ -143,7 +143,7 @@ According to DOM Level 2 specification, this method can also be used to create o
 
 ### method setAttributeNode
 
-```perl6
+```raku
 method setAttributeNode(
     LibXML::Attr:D $att,
     Bool :$ns
@@ -154,7 +154,7 @@ Set an attribute node on an element
 
 ### method setAttributeNodeNS
 
-```perl6
+```raku
 method setAttributeNodeNS(
     LibXML::Attr:D $att
 ) returns LibXML::Attr
@@ -164,7 +164,7 @@ Namespace aware version of setAttributeNode
 
 ### method removeAttributeNode
 
-```perl6
+```raku
 method removeAttributeNode(
     LibXML::Attr:D $att
 ) returns LibXML::Attr

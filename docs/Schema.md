@@ -59,7 +59,7 @@ This function allows one to validate a document, or a root element against the g
 
 ### multi method ACCEPTS
 
-```perl6
+```raku
 multi method ACCEPTS(
     LibXML::Node:D $node
 ) returns Bool

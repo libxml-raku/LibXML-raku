@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 54;
+plan 58;
 
 use LibXML;
 use LibXML::Enums;
@@ -18,6 +18,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     is( $dtd.publicId, $htmlPublic, ' TODO : Add test name' );
     is( $dtd.systemId, $htmlSystem, ' TODO : Add test name' );
     is( $dtd.name, 'html', ' TODO : Add test name' );
+    ok( $dtd.is-XHTML, 'is-XHTML' );
 }
 
 {
@@ -73,6 +74,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     is( $dtd.name, 'doc', ' TODO : Add test name' );
     is( $dtd.publicId, Str, ' TODO : Add test name' );
     is( $dtd.systemId, Str, ' TODO : Add test name' );
+    nok( $dtd.is-XHTML, 'is-XHTML' );
 
     my $entity = $doc.createEntityReference( "foo" );
     ok($entity, ' TODO : Add test name');
@@ -115,8 +117,8 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 EOF
 
     ok($doc.validate(), ' TODO : Add test name');
-
     ok($doc.is-valid(), ' TODO : Add test name');
+    nok($doc.getInternalSubset.is-XHTML, 'is-XHTML');
 
 }
 
@@ -131,6 +133,7 @@ EOF
     }, ' TODO : Add test name';
 
     ok($doc.defined, ' TODO : Add test name');
+    ok($doc.getInternalSubset.is-XHTML, 'is-XHTML');
 }
 
 {

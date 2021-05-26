@@ -1161,6 +1161,9 @@ class xmlDtd is anyNode is export {
     method Copy(--> xmlDtd) is native($XML2) is symbol('xmlCopyDtd') {*}
     method copy() { $.Copy }
 
+    our sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native($XML2) {*}
+    method IsXHTML returns int32 { xmlIsXHTML($!SystemID, $!ExternalID) }
+
     multi method new(:type($)! where 'internal', xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.CreateIntSubset( $name, $external-id, $system-id);
     }

@@ -116,7 +116,7 @@ Property Methods
 
 ### method nodeName
 
-```perl6
+```raku
 method nodeName() returns Str
 ```
 
@@ -156,7 +156,7 @@ True if this is a text node or processing instruction, and it contains only blan
 
 ### method isSameNode
 
-```perl6
+```raku
 method isSameNode(
     LibXML::Item $other
 ) returns Bool
@@ -166,7 +166,7 @@ True if both objects refer to the same native structure
 
 ### method nodeValue
 
-```perl6
+```raku
 method nodeValue() returns Str
 ```
 
@@ -178,7 +178,7 @@ If the node has any content (such as stored in a `text node`) it can get request
 
 ### method textContent
 
-```perl6
+```raku
 method textContent() returns Str
 ```
 
@@ -186,7 +186,7 @@ this function returns the content of all text nodes in the descendants of the gi
 
 ### method nodeType
 
-```perl6
+```raku
 method nodeType() returns UInt
 ```
 
@@ -196,7 +196,7 @@ The module [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) by d
 
 ### method getBaseURI
 
-```perl6
+```raku
 method getBaseURI() returns Str
 ```
 
@@ -206,7 +206,7 @@ Searches for the base URL of the node. The method should work on both XML and HT
 
 ### method setBaseURI
 
-```perl6
+```raku
 method setBaseURI(
     Str $uri
 ) returns Mu
@@ -220,7 +220,7 @@ Note: For HTML documents this behaves as if the document was XML which may not b
 
 ### method line-number
 
-```perl6
+```raku
 method line-number() returns UInt
 ```
 
@@ -237,7 +237,7 @@ Navigation Methods
 
 ### method parent
 
-```perl6
+```raku
 method parent() returns LibXML::Node
 ```
 
@@ -245,7 +245,7 @@ Returns the objects parent node
 
 ### method nextSibling
 
-```perl6
+```raku
 method nextSibling() returns LibXML::Node
 ```
 
@@ -253,7 +253,7 @@ Returns the next sibling if any.
 
 ### method nextNonBlankSibling
 
-```perl6
+```raku
 method nextNonBlankSibling() returns LibXML::Node
 ```
 
@@ -263,7 +263,7 @@ A node is blank if it is a Text or CDATA node consisting of whitespace only. Thi
 
 ### method previousSibling
 
-```perl6
+```raku
 method previousSibling() returns LibXML::Node
 ```
 
@@ -271,7 +271,7 @@ Analogous to getNextSibling(). Returns the previous sibling if any.
 
 ### method previousNonBlankSibling
 
-```perl6
+```raku
 method previousNonBlankSibling() returns LibXML::Node
 ```
 
@@ -281,7 +281,7 @@ A node is blank if it is a Text or CDATA node consisting of whitespace only. Thi
 
 ### method firstChild
 
-```perl6
+```raku
 method firstChild() returns LibXML::Node
 ```
 
@@ -289,7 +289,7 @@ Return the first child node, if any
 
 ### method lastChild
 
-```perl6
+```raku
 method lastChild() returns LibXML::Node
 ```
 
@@ -305,7 +305,7 @@ Returns True if the current node has child nodes, False otherwise.
 
 ### method appendText
 
-```perl6
+```raku
 method appendText(
     Str:D $text
 ) returns Mu
@@ -317,7 +317,7 @@ Applicable to Element, Text, CData, Entity, EntityRef, PI, Comment, and Document
 
 ### method ownerDocument
 
-```perl6
+```raku
 method ownerDocument() returns Mu
 ```
 
@@ -325,7 +325,7 @@ Gets or sets the owner document for the node
 
 ### method setOwnerDocument
 
-```perl6
+```raku
 method setOwnerDocument(
     LibXML::Node $doc
 ) returns Mu
@@ -339,7 +339,7 @@ Calling `$node.setOwnerDocument($doc)` is equivalent to calling $doc.adoptNode($
 
 ### method getOwner
 
-```perl6
+```raku
 method getOwner() returns LibXML::Node
 ```
 
@@ -376,7 +376,7 @@ DOM Manipulation Methods
 
 ### method unbindNode
 
-```perl6
+```raku
 method unbindNode() returns LibXML::Node
 ```
 
@@ -386,7 +386,7 @@ If the node is not inserted into the DOM afterwards, it will be lost after the p
 
 ### method removeChild
 
-```perl6
+```raku
 method removeChild(
     LibXML::Node:D $node
 ) returns LibXML::Node
@@ -398,7 +398,7 @@ Fails if `$node` is not a child of this object
 
 ### method replaceChild
 
-```perl6
+```raku
 method replaceChild(
     LibXML::Node $new,
     LibXML::Node $old
@@ -413,7 +413,7 @@ This function differs from the DOM L2 specification, in the case, if the new nod
 
 ### method appendChild
 
-```perl6
+```raku
 method appendChild(
     LibXML::Item:D $new
 ) returns LibXML::Item
@@ -442,7 +442,7 @@ This function is very useful for DOM building, where a created node can be direc
 
 ### method replaceNode
 
-```perl6
+```raku
 method replaceNode(
     LibXML::Node:D $new
 ) returns LibXML::Node
@@ -454,7 +454,7 @@ This function is very similar to replaceChild(), but it replaces the node itself
 
 ### method addSibling
 
-```perl6
+```raku
 method addSibling(
     LibXML::Node:D $new
 ) returns LibXML::Node
@@ -464,7 +464,7 @@ Add an additional node to the end of a nodelist
 
 ### method cloneNode
 
-```perl6
+```raku
 method cloneNode(
     Bool(Any) :$deep = Bool::False
 ) returns LibXML::Node
@@ -476,7 +476,7 @@ When $deep is True the function will copy all child nodes as well. Otherwise the
 
 ### method insertBefore
 
-```perl6
+```raku
 method insertBefore(
     LibXML::Node:D $new,
     LibXML::Node $ref?
@@ -491,7 +491,7 @@ Note, that the reference node has to be a direct child of the node the function 
 
 ### method insertAfter
 
-```perl6
+```raku
 method insertAfter(
     LibXML::Node:D $new,
     LibXML::Node $ref?
@@ -641,7 +641,7 @@ Serialization Methods
 
 ### method canonicalize
 
-```perl6
+```raku
 method canonicalize(
     Bool(Any) :$comments = Bool::False,
     Bool(Any) :$exclusive = Bool::False,
@@ -707,7 +707,7 @@ Returns a binary representation of the XML node and its descendants encoded as `
 
 ### method ast
 
-```perl6
+```raku
 method ast() returns Pair
 ```
 
@@ -719,13 +719,26 @@ This method performs a deep data-serialization of the node. The [LibXML::Item](h
     my $ast = $node.ast;
     my LibXML::Node $copy = ast-to-xml($ast);
 
+### method isSupported
+
+```raku
+method isSupported(
+    Str:D(Any):D $feature,
+    Version $v?
+) returns Mu
+```
+
+DOM level-2 feature introspection
+
+e.g. `$doc.issupported('HTML');
+
 Namespace Methods
 -----------------
 
-### method localname
+### method localName
 
-```perl6
-method localname() returns Str
+```raku
+method localName() returns Str
 ```
 
 Returns the local name of a tag.
@@ -734,7 +747,7 @@ This is the part after the colon.
 
 ### method prefix
 
-```perl6
+```raku
 method prefix() returns Str
 ```
 
@@ -753,7 +766,7 @@ Although getNamespaces is available for all nodes, it only makes sense if used w
 
 ### method namespaceURI
 
-```perl6
+```raku
 method namespaceURI() returns Str
 ```
 

@@ -18,6 +18,7 @@ Synopsis
     my Str $publicId = $dtd.publicId();
     my Str $systemId = $dtd.systemId();
     try { $dtd.validate($doc) };
+    if $dtd.is-XHTML { ... }
     my Bool $valid = $dtd.is-valid($doc);
     if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
@@ -61,25 +62,29 @@ The same as new() above, except you can parse a DTD from a string. Note that par
 
 ### method validate
 
-```perl6
-method validate(
-    LibXML::Node:D $node
-) returns UInt
-```
-
-validate a parsed XML document against a DTD
+    method validate($node = $.ownerDocument --> UInt)
 
 This function allows one to validate a (parsed) document against the given XML Schema. The argument of this function should be a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) object. If this function succeeds, it will return 0, otherwise it will die() and report the errors found. Because of this validate() should be always evaluated.
 
 ### method is-valid
 
-```perl6
+```raku
 method is-valid(
     LibXML::Node:D $node
 ) returns Bool
 ```
 
 Returns True if the passed document is valid against the DTD
+
+### method is-XHTML
+
+```raku
+method is-XHTML() returns Bool
+```
+
+Returns True if the publicId or systemId match an XHTML identifier
+
+Returns False if the Id's don't match or Bool:U if the DtD lack either a publicId or systemId
 
 ### method getName
 

@@ -18,6 +18,7 @@ unit class LibXML::Dtd
       my Str $publicId = $dtd.publicId();
       my Str $systemId = $dtd.systemId();
       try { $dtd.validate($doc) };
+      if $dtd.is-XHTML { ... }
       my Bool $valid = $dtd.is-valid($doc);
       if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
@@ -134,7 +135,7 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
 
         method parse(Str :string) returns LibXML::Dtd;
 
-    The same as new() above, except you can parse a DTD from a string. Note that
+    =para The same as new() above, except you can parse a DTD from a string. Note that
     parsing from string may fail if the DTD contains external parametric-entity
     references with relative URLs.
 =end pod
@@ -157,12 +158,16 @@ method cloneNode(LibXML::Dtd:D: $?) {
 }
 
 method !valid-ctx($schema:) { ValidContext.new: :$schema }
-#| validate a parsed XML document against a DTD
-method validate(LibXML::Node:D $node --> UInt) is hidden-from-backtrace {
+
+method validate(LibXML::Node:D $node = $.ownerDocument --> UInt) is hidden-from-backtrace {
     self!valid-ctx.validate($node);
 }
   =begin pod
-  This function allows one to validate a (parsed) document against the given XML
+  =head3 method validate
+
+      method validate($node = $.ownerDocument --> UInt)
+
+  =para This function allows one to validate a (parsed) document against the given XML
   Schema. The argument of this function should be a L<LibXML::Document> object.  If this function succeeds, it will return 0, otherwise it will die()
   and report the errors found. Because of this validate() should be always
   evaluated.
@@ -172,6 +177,12 @@ method validate(LibXML::Node:D $node --> UInt) is hidden-from-backtrace {
 method is-valid(LibXML::Node:D $node --> Bool) {
     self!valid-ctx.validate($node, :check);
 }
+
+#| Returns True if the publicId or systemId match an XHTML identifier
+method is-XHTML(--> Bool) {
+    return [False, True][ $.raw.IsXHTML ] // Bool;
+}
+=para Returns False if the Id's don't match or Bool:U if the DtD lack either a publicId or systemId
 
 # NYI DOM Level-2 methods
 method entities(|) is also<notations internalSubset> {
