@@ -27,11 +27,12 @@ jobs:
       - name: Install Dependencies
         run: |
           # install and test if need be (includes [test-depends])
+          # run against DOM blead
+          (git clone https://github.com/libxml-raku/DOM-raku && cd DOM-raku && zef install .)
           sudo apt-get install -y libxml2-dev
           zef install --deps-only .
           zef build .
           zef install --/test App::Prove6
-          (git clone https://github.com/libxml-raku/DOM-raku && cd DOM-raku && zef install .)
       - name: Run Tests
         run: prove6 -l t
       - name: Install Module
