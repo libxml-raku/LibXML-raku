@@ -10,6 +10,11 @@
       -- DOM::Entity publicId(), systemId() and notationName() methods
       -- DOM::ProcessingInstruction data() method
       -- DOM::Text splitText() method [NYI]
+    - Fixes to DtD handling #54:
+      -- $doc.setExternalSubset now pre-validates by default. Also
+         no longer removes internal subset as a side-affect
+      -- Reimplement $doc.setInternalSubset using xmlCreateInSubset().
+         $doc.raw.setInternalSubset keeps the old behaviour
 
 0.5.15  2021-02-24T09:45:59+13:00
     - Exported disused and bit rotted etc/libxml2-api.xml, etc/LibXML and

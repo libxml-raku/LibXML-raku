@@ -275,17 +275,11 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     if (dtd->doc == NULL) {
         xmlSetTreeDoc( (xmlNodePtr) dtd, self );
     } else if ( dtd->doc != self ) {
-        fprintf(stderr, __FILE__ ":%d\n", __LINE__);
         XML6_FAIL(self, "moving DTDs between documents is not supported.");
     }
 
-    if (dtd != NULL && ext_dtd != NULL) {
-        if (ext_dtd == dtd) {
-            xmlUnlinkNode((xmlNodePtr) ext_dtd);
-        }
-        else {
-            domReleaseNode((xmlNodePtr) ext_dtd);
-        }
+    if (dtd != NULL && ext_dtd == dtd) {
+        xmlUnlinkNode((xmlNodePtr) ext_dtd);
         self->extSubset = NULL;
     }
     self->intSubset = dtd;
@@ -314,21 +308,15 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     if ( dtd->doc == NULL ) {
         xmlSetTreeDoc( (xmlNodePtr) dtd, self );
     } else if (dtd->doc != self) {
-        fprintf(stderr, __FILE__ ":%d\n", __LINE__);
         XML6_FAIL(self, "moving DTDs between documents is not supported");
     }
 
-    if (dtd != NULL && int_dtd != NULL) {
-        if (int_dtd == dtd) {
-            xmlUnlinkNode( (xmlNodePtr) int_dtd);
-        }
-        else {
-            domReleaseNode( (xmlNodePtr) int_dtd);
-        }
+    if (dtd != NULL && int_dtd == dtd) {
+        xmlUnlinkNode( (xmlNodePtr) int_dtd);
         self->intSubset = NULL;
     }
     self->extSubset = dtd;
-    dtd->parent = self;
+    dtd->parent = NULL;
     return dtd;
 }
 

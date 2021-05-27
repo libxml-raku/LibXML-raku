@@ -41,8 +41,7 @@ method createDocument(|c) {
 method createDocumentType(QName:D $name, Str:D $external-id, Str:D $system-id, |c) {
     LibXML::Document
       .new()
-      .createExternalSubset($name, $external-id, $system-id)
-      .clone();
+      .createInternalSubset($name, $external-id, $system-id);
 }
 
 method hasFeature(Str:D() $feature, $?) {

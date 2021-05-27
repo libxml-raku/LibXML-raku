@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 58;
+plan 64;
 
 use LibXML;
 use LibXML::Enums;
@@ -28,18 +28,22 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
                                           $htmlSystem
                                         );
     ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
+    ok(!defined($doc.externalSubset), ' TODO : Add test name' );
 
-    $doc.setExternalSubset( $dtd );
+    dies-ok {$doc.setExternalSubset( $dtd )}, 'setExternalSubset :validate';
+    ok(defined($doc.externalSubset), ' TODO : Add test name' );
+    ok(defined($doc.internalSubset), ' TODO : Add test name' );
+    lives-ok {$doc.setExternalSubset( $dtd, :!validate )}, 'setExternalSubset: :!validate';
+    ok( $dtd.isSameNode( $doc.externalSubset ), ' TODO : Add test name');
+    ok(defined($doc.externalSubset), ' TODO : Add test name' );
     ok(!defined($doc.internalSubset), ' TODO : Add test name' );
-    ok( $dtd.isSameNode( $doc.externalSubset ), ' TODO : Add test name' );
-
 
     is( $dtd.getPublicId, $htmlPublic, ' TODO : Add test name' );
     is( $dtd.getSystemId, $htmlSystem, ' TODO : Add test name' );
 
     $doc.setInternalSubset( $dtd );
-    ok(!defined($doc.externalSubset), ' TODO : Add test name' );
-    ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
+    ok(defined($doc.externalSubset), ' TODO : Add test name' );
+    nok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
     my $dtd2 = $doc.createDTD( "huhu",
                                 "-//W3C//DTD XHTML 1.0 Transitional//EN",
@@ -48,14 +52,14 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
     $doc.setInternalSubset( $dtd2 );
     ok( !defined($dtd.parentNode), ' TODO : Add test name' );
-    ok( $dtd2.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
+    nok( $dtd2.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
 
     my $dtd3 = $doc.removeInternalSubset;
-    ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
+    nok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
     ok( !defined($doc.internalSubset), ' TODO : Add test name' );
 
-    $doc.setExternalSubset( $dtd2 );
+    $doc.setExternalSubset( $dtd2, :!validate );
 
     $dtd3 = $doc.removeExternalSubset;
     ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
@@ -94,7 +98,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
         my $e = $doc2.createElement("foo");
         $doc2.setDocumentElement( $e );
 
-        my $dtd2 = $doc.internalSubset.cloneNode(:deep);
+        my $dtd2 = $doc.internalSubset;
         ok($dtd2, ' TODO : Add test name');
 
         $doc2.setInternalSubset( $dtd2 );

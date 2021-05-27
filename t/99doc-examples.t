@@ -143,8 +143,7 @@ subtest 'LibXML::Document' => {
     $doc.adoptNode( $node );
     $dtd = $doc.externalSubset;
     $dtd = $doc.internalSubset;
-    $doc.setExternalSubset($dtd);
-    $doc.externalSubset = $dtd;
+    $doc.setExternalSubset($dtd, :!validate);
     $doc.setInternalSubset($dtd);
     $doc.internalSubset = $dtd;
     $dtd = $doc.removeExternalSubset();
