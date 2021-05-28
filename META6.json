@@ -9,7 +9,7 @@
   "depends": [
     "File::Temp",
     "Method::Also",
-    "W3C::DOM",
+    "W3C::DOM:ver<0.0.2+>",
     "XML"
   ],
   "description": "Raku bindings to the libxml2 native library",

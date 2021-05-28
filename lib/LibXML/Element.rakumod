@@ -1,11 +1,13 @@
 use LibXML::Node :iterate-list, :iterate-set;
 use LibXML::_ParentNode;
+use W3C::DOM;
 
 #| LibXML Class for Element Nodes
 unit class LibXML::Element
     is repr('CPointer')
     is LibXML::Node
-    does LibXML::_ParentNode;
+    does LibXML::_ParentNode
+    does W3C::DOM::Element;
 
 =begin pod
     =head2 Synopsis

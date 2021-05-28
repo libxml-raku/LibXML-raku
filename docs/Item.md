@@ -29,7 +29,7 @@ Functions and Methods
 
 ### sub ast-to-xml
 
-```perl6
+```raku
 sub ast-to-xml(
     |
 ) returns LibXML::Item
@@ -94,7 +94,7 @@ A containing object of the correct type (LibXML::Element) has been created for t
 
 ### method keep
 
-```perl6
+```raku
 method keep(
     LibXML::Raw::DOM::Node $raw
 ) returns LibXML::Item

@@ -108,7 +108,7 @@ Methods Controlling Parsing Progress
 
 ### method read
 
-```perl6
+```raku
 method read() returns Bool
 ```
 
@@ -118,7 +118,7 @@ Returns True if the node was read successfully, False if there is no more nodes 
 
 ### method readAttributeValue
 
-```perl6
+```raku
 method readAttributeValue() returns Bool
 ```
 
@@ -128,7 +128,7 @@ Returns True in case of success, False if the reader was not positioned on an at
 
 ### method readState
 
-```perl6
+```raku
 method readState() returns UInt
 ```
 
@@ -138,7 +138,7 @@ Returns the state value, or Failure in case of error. The module exports constan
 
 ### method depth
 
-```perl6
+```raku
 method depth() returns UInt
 ```
 
@@ -146,7 +146,7 @@ The depth of the node in the tree, starts at 0 for the root node.
 
 ### method next
 
-```perl6
+```raku
 method next() returns Bool
 ```
 
@@ -156,7 +156,7 @@ Returns True if the node was read successfully, False if there is no more nodes 
 
 ### method nextElement
 
-```perl6
+```raku
 method nextElement(
     Str $local-name? where { ... },
     Str $URI?
@@ -171,7 +171,7 @@ Returns True if the element was found, False if there is no more nodes to read, 
 
 ### method nextPatternMatch
 
-```perl6
+```raku
 method nextPatternMatch(
     LibXML::Pattern:D $pattern
 ) returns Bool
@@ -185,7 +185,7 @@ Returns True if the element was found, False if there is no more nodes to read, 
 
 ### method skipSiblings
 
-```perl6
+```raku
 method skipSiblings() returns Bool
 ```
 
@@ -197,7 +197,7 @@ Returns True if successful, False if end of the document is reached, or Failure 
 
 ### method nextSibling
 
-```perl6
+```raku
 method nextSibling() returns Bool
 ```
 
@@ -207,7 +207,7 @@ Returns True if the element was found, False if there is no more nodes to read, 
 
 ### method nextSiblingElement
 
-```perl6
+```raku
 method nextSiblingElement(
     Str $name? where { ... },
     Str $URI?
@@ -220,7 +220,7 @@ Returns True if the element was found, False if there is no more nodes to read, 
 
 ### method finish
 
-```perl6
+```raku
 method finish() returns Bool
 ```
 
@@ -230,7 +230,7 @@ Returns True if successful, False in case of error.
 
 ### method close
 
-```perl6
+```raku
 method close() returns Bool
 ```
 
@@ -243,7 +243,7 @@ Methods Extracting Information
 
 ### method name
 
-```perl6
+```raku
 method name() returns LibXML::Types::QName
 ```
 
@@ -253,7 +253,7 @@ Equal to (Prefix:)LocalName.
 
 ### method nodeType
 
-```perl6
+```raku
 method nodeType() returns UInt
 ```
 
@@ -263,7 +263,7 @@ See NODE TYPES below.
 
 ### method localName
 
-```perl6
+```raku
 method localName() returns LibXML::Types::NCName
 ```
 
@@ -271,7 +271,7 @@ Returns he local name of the node.
 
 ### method prefix
 
-```perl6
+```raku
 method prefix() returns LibXML::Types::NCName
 ```
 
@@ -279,7 +279,7 @@ Returns the prefix of the namespace associated with the node.
 
 ### method namespaceURI
 
-```perl6
+```raku
 method namespaceURI() returns Str
 ```
 
@@ -287,7 +287,7 @@ Returns the URI defining the namespace associated with the node.
 
 ### method isEmptyElement
 
-```perl6
+```raku
 method isEmptyElement() returns Bool
 ```
 
@@ -297,7 +297,7 @@ This is a bit bizarre in the sense that <a/> will be considered empty while <a><
 
 ### method hasValue
 
-```perl6
+```raku
 method hasValue() returns Bool
 ```
 
@@ -305,7 +305,7 @@ Returns True if the node can have a text value.
 
 ### method value
 
-```perl6
+```raku
 method value() returns Str
 ```
 
@@ -313,7 +313,7 @@ Provides the text value of the node if present or Str:U if not available.
 
 ### method readInnerXml
 
-```perl6
+```raku
 method readInnerXml() returns Str
 ```
 
@@ -323,7 +323,7 @@ Returns a string containing the XML of the node's content, or Str:U if the curre
 
 ### method readOuterXml
 
-```perl6
+```raku
 method readOuterXml() returns Str
 ```
 
@@ -333,7 +333,7 @@ Returns a string containing the XML of the node including its content, or undef 
 
 ### method nodePath
 
-```perl6
+```raku
 method nodePath() returns Mu
 ```
 
@@ -345,7 +345,7 @@ Returns a canonical location path to the current element from the root node to
 
 ### method matchesPattern
 
-```perl6
+```raku
 method matchesPattern(
     LibXML::Pattern:D $pattern
 ) returns Bool
@@ -362,7 +362,7 @@ Methods Extracting DOM Nodes
 
 ### method document
 
-```perl6
+```raku
 method document() returns Mu
 ```
 
@@ -374,7 +374,7 @@ Provides access to the document tree built by the reader.
 
 ### method copyCurrentNode
 
-```perl6
+```raku
 method copyCurrentNode(
     Bool :$deep
 ) returns LibXML::Node
@@ -386,7 +386,7 @@ This function is similar a DOM function copyNode(). It returns a copy of the cur
 
 ### method preserveNode
 
-```perl6
+```raku
 method preserveNode() returns LibXML::Node
 ```
 
@@ -398,7 +398,7 @@ Returns the node or LibXML::Node:U in case of error.
 
 ### method preservePattern
 
-```perl6
+```raku
 method preservePattern(
     Str:D $pattern,
     :%ns
@@ -424,7 +424,7 @@ Methods Processing Attributes
 
 ### method attributeCount
 
-```perl6
+```raku
 method attributeCount() returns UInt
 ```
 
@@ -432,7 +432,7 @@ Provides the number of attributes of the current node.
 
 ### method hasAttributes
 
-```perl6
+```raku
 method hasAttributes() returns Bool
 ```
 
@@ -440,7 +440,7 @@ Whether the node has attributes.
 
 ### method getAttribute
 
-```perl6
+```raku
 method getAttribute(
     Str $name where { ... }
 ) returns Str
@@ -452,7 +452,7 @@ Returns a string containing the value of the specified attribute, or Str:U in ca
 
 ### method getAttributeNs
 
-```perl6
+```raku
 method getAttributeNs(
     Str $local-name where { ... },
     Str $namespace-URI
@@ -463,7 +463,7 @@ Provides the value of the specified attribute in a given namespace
 
 ### method getAttributeNo
 
-```perl6
+```raku
 method getAttributeNo(
     Int $i where { ... }
 ) returns Str
@@ -473,7 +473,7 @@ Provides the value of the attribute with the specified index relative to the con
 
 ### method isDefault
 
-```perl6
+```raku
 method isDefault() returns Bool
 ```
 
@@ -481,7 +481,7 @@ Returns True if the current attribute node was generated from the default value 
 
 ### method moveToAttribute
 
-```perl6
+```raku
 method moveToAttribute(
     Str $name where { ... }
 ) returns Bool
@@ -493,7 +493,7 @@ Returns True in case of success, Failure in case of error, False if not found
 
 ### method moveToAttributeNo
 
-```perl6
+```raku
 method moveToAttributeNo(
     Int $i
 ) returns Bool
@@ -505,7 +505,7 @@ Returns True in case of success, Failure in case of error, False if not found
 
 ### method moveToAttributeNs
 
-```perl6
+```raku
 method moveToAttributeNs(
     Str:D $name where { ... },
     Str $URI
@@ -518,7 +518,7 @@ Returns True in case of success, Failure in case of error, False if not found
 
 ### method moveToFirstAttribute
 
-```perl6
+```raku
 method moveToFirstAttribute() returns Bool
 ```
 
@@ -528,7 +528,7 @@ Returns True in case of success, Failure in case of error, False if not found
 
 ### method moveToNextAttribute
 
-```perl6
+```raku
 method moveToNextAttribute() returns Bool
 ```
 
@@ -538,7 +538,7 @@ Returns True in case of success, Failure in case of error, False if not found
 
 ### method moveToElement
 
-```perl6
+```raku
 method moveToElement() returns Bool
 ```
 
@@ -548,7 +548,7 @@ Returns True in case of success, Failure in case of error, False if not moved
 
 ### method isNamespaceDecl
 
-```perl6
+```raku
 method isNamespaceDecl() returns Bool
 ```
 
@@ -561,7 +561,7 @@ Other Methods
 
 ### method lookupNamespace
 
-```perl6
+```raku
 method lookupNamespace(
     Str $URI
 ) returns LibXML::Types::NCName
@@ -573,7 +573,7 @@ Returns a string containing the namespace URI to which the prefix maps or undef 
 
 ### method encoding
 
-```perl6
+```raku
 method encoding() returns LibXML::Raw::xmlEncodingStr
 ```
 
@@ -581,7 +581,7 @@ Get the encoding of the document being read
 
 ### method standalone
 
-```perl6
+```raku
 method standalone() returns Int
 ```
 
@@ -602,7 +602,7 @@ It returns
 
 ### method xmlVersion
 
-```perl6
+```raku
 method xmlVersion() returns Version
 ```
 
@@ -610,7 +610,7 @@ Determine the XML version of the document being read
 
 ### method baseURI
 
-```perl6
+```raku
 method baseURI() returns Str
 ```
 
@@ -618,7 +618,7 @@ Returns the base URI of the current node.
 
 ### method isValid
 
-```perl6
+```raku
 method isValid() returns Bool
 ```
 
@@ -628,7 +628,7 @@ Returns True if valid, False if no, and Failure in case of error.
 
 ### method xmlLang
 
-```perl6
+```raku
 method xmlLang() returns Str
 ```
 
@@ -636,7 +636,7 @@ The xml:lang scope within which the current node resides.
 
 ### method lineNumber
 
-```perl6
+```raku
 method lineNumber() returns UInt
 ```
 
@@ -644,7 +644,7 @@ Provide the line number of the current parsing point.
 
 ### method columnNumber
 
-```perl6
+```raku
 method columnNumber() returns UInt
 ```
 
@@ -652,7 +652,7 @@ Provide the column number of the current parsing point.
 
 ### method byteConsumed
 
-```perl6
+```raku
 method byteConsumed() returns UInt
 ```
 
@@ -662,7 +662,7 @@ This function is computed in bytes from the beginning starting at zero and finis
 
 ### method setParserProp
 
-```perl6
+```raku
 method setParserProp(
     *%props
 ) returns Hash
@@ -678,7 +678,7 @@ Returns True if the call was successful, or Failure in case of error
 
 ### multi method getParserProp
 
-```perl6
+```raku
 multi method getParserProp(
     Str:D $opt
 ) returns Bool
@@ -692,7 +692,7 @@ Returns the value, usually True, False, or Failure in case of error.
 
 ### method have-reader
 
-```perl6
+```raku
 method have-reader() returns Mu
 ```
 

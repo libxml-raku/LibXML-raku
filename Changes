@@ -1,18 +1,18 @@
 {{$NEXT}}
     - Fix attribute isId() method to return Bool, as documented.
-    - Integration with DOM interface defnitions. Add missing methods:
-      -- DOM::Implementation createDocumentType(), hasFeature()
-      -- DOM::Attr specified() [NYI]
-      -- DOM::Node isSupported(), localName() and hasAttributes (moved from Element)
-      -- DOM::NamedNodeMap length() method
-      -- DOM::CDATASection splitText() [NYI]
-      -- DOM::DocumentType entities(), notations() internalSubset [all NYI]
-      -- DOM::Entity publicId(), systemId() and notationName() methods
-      -- DOM::ProcessingInstruction data() method
-      -- DOM::Text splitText() method [NYI]
+    - Integration with W3C::DOM interface roles:
+      -- Implementation: add createDocumentType(), hasFeature()
+      -- Attr: add specified() [NYI]
+      -- Node: add isSupported(), localName()
+      -- Moved attributes() and hasAttributes from Element to Node
+      -- NamedNodeMap: add length() method
+      -- CDATASection: add splitText() [NYI]
+      -- DocumentType: add entities(), notations() internalSubset [all NYI]
+      -- Entity: add publicId(), systemId() and notationName() methods
+      -- ProcessingInstruction: add data() method
+      -- Text: add splitText() method [NYI]
     - Fixes to DtD handling #54:
-      -- $doc.setExternalSubset now pre-validates by default. Also
-         no longer removes internal subset as a side-affect
+      -- $doc.setExternalSubset no longer removes internal subset
       -- Reimplement $doc.setInternalSubset using xmlCreateInSubset().
          $doc.raw.setInternalSubset keeps the old behaviour
 

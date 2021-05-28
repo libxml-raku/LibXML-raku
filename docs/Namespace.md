@@ -42,7 +42,7 @@ Optionally you can pass the prefix to the namespace constructor. If `:$prefix` i
 
 ### method declaredURI
 
-```perl6
+```raku
 method declaredURI() returns Str
 ```
 
@@ -50,7 +50,7 @@ Returns the URI for this namespace
 
 ### method declaredPrefix
 
-```perl6
+```raku
 method declaredPrefix() returns LibXML::Types::NCName
 ```
 
@@ -58,7 +58,7 @@ Returns the prefix for this namespace
 
 ### method nodeName
 
-```perl6
+```raku
 method nodeName() returns Str
 ```
 
@@ -70,7 +70,7 @@ Alias for nodeName()
 
 ### method unique-key
 
-```perl6
+```raku
 method unique-key() returns Str
 ```
 
@@ -80,7 +80,7 @@ This method returns a key guaranteed to be unique for this namespace, and to alw
 
 ### method getNamespaceURI
 
-```perl6
+```raku
 method getNamespaceURI() returns Str
 ```
 
@@ -88,7 +88,7 @@ Returns the string "http://www.w3.org/2000/xmlns/"
 
 ### method prefix
 
-```perl6
+```raku
 method prefix() returns Str
 ```
 

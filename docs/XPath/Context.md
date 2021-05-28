@@ -142,7 +142,7 @@ Unregisters a namespace with the given prefix
 
 ### method lookupNs
 
-```perl6
+```raku
 method lookupNs(
     Str:D $prefix where { ... }
 ) returns Str
@@ -154,7 +154,7 @@ If `$prefix` is not registered to any namespace URI returns `Str:U`.
 
 ### method registerVarLookupFunc
 
-```perl6
+```raku
 method registerVarLookupFunc(
     &callback,
     |args
@@ -185,7 +185,7 @@ sub my-callback(Str $name, Str $uri, 'Xxx', :%vars!) {
 
 ### method unregisterVarLookupFunc
 
-```perl6
+```raku
 method unregisterVarLookupFunc() returns Mu
 ```
 
@@ -193,7 +193,7 @@ Removes the variable lookup function. Disables variable lookup
 
 ### method getVarLookupFunc
 
-```perl6
+```raku
 method getVarLookupFunc() returns Routine
 ```
 
@@ -201,7 +201,7 @@ Gets the current variable lookup function
 
 ### method registerFunctionNS
 
-```perl6
+```raku
 method registerFunctionNS(
     Str:D $name where { ... },
     Str $uri,
@@ -220,7 +220,7 @@ For convenience, types: List, Seq and Slip can also be returned, these shoulf co
 
 ### method unregisterFunctionNS
 
-```perl6
+```raku
 method unregisterFunctionNS(
     Str:D $name where { ... },
     Str $uri
@@ -231,7 +231,7 @@ Unregisters extension function $name in $uri namespace.
 
 ### method register-function
 
-```perl6
+```raku
 method register-function(
     Str $url,
     Str:D $name where { ... },
@@ -244,7 +244,7 @@ Like registerFunctionNS; same argument order as LibXSLT.register-function()
 
 ### method registerFunction
 
-```perl6
+```raku
 method registerFunction(
     Str:D $name where { ... },
     &func,
@@ -256,7 +256,7 @@ Same as registerFunctionNS but without a namespace.
 
 ### method unregisterFunction
 
-```perl6
+```raku
 method unregisterFunction(
     Str:D $name where { ... }
 ) returns Mu
@@ -302,7 +302,7 @@ The `last` method is similar to `first`, except it returns the last rather than 
 
 ### method AT-KEY
 
-```perl6
+```raku
 method AT-KEY(
     $_,
     Bool :$deref = Bool::True
@@ -363,7 +363,7 @@ For XPath expressions that do not return node-sets, the method returns True if t
 
 ### method contextNode
 
-```perl6
+```raku
 method contextNode() returns LibXML::Node
 ```
 
@@ -371,7 +371,7 @@ Set or get the context node
 
 ### method contextPosition
 
-```perl6
+```raku
 method contextPosition() returns Int
 ```
 
@@ -383,7 +383,7 @@ Setting this value to -1 restores the default behavior.
 
 ### method contextSize
 
-```perl6
+```raku
 method contextSize() returns Int
 ```
 

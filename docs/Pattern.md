@@ -73,7 +73,7 @@ Note that if the document has a default namespace, it must still be given an pre
 
 ### multi method matchesNode
 
-```perl6
+```raku
 multi method matchesNode(
     LibXML::Node $node
 ) returns Bool
@@ -83,7 +83,7 @@ True if the node is matched by the compiled pattern
 
 ### multi method ACCEPTS
 
-```perl6
+```raku
 multi method ACCEPTS(
     LibXML::Node:D $node
 ) returns Bool

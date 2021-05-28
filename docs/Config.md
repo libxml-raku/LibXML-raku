@@ -20,7 +20,7 @@ Configuration Methods
 
 ### method version
 
-```perl6
+```raku
 method version() returns Version
 ```
 
@@ -28,7 +28,7 @@ Returns the run-time version of the `libxml2` library.
 
 ### method config-version
 
-```perl6
+```raku
 method config-version() returns Mu
 ```
 
@@ -36,7 +36,7 @@ Returns the version of the `libxml2` library that the LibXML module was built ag
 
 ### method have-reader
 
-```perl6
+```raku
 method have-reader() returns Bool
 ```
 
@@ -44,7 +44,7 @@ Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) funct
 
 ### method have-schemas
 
-```perl6
+```raku
 method have-schemas() returns Bool
 ```
 
@@ -52,7 +52,7 @@ Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) funct
 
 ### method have-threads
 
-```perl6
+```raku
 method have-threads() returns Bool
 ```
 
@@ -60,7 +60,7 @@ Returns True if the `libxml2` library supports threads
 
 ### method have-compression
 
-```perl6
+```raku
 method have-compression() returns Bool
 ```
 
@@ -71,7 +71,7 @@ Serialization Default Options
 
 ### method skip-xml-declaration
 
-```perl6
+```raku
 method skip-xml-declaration() returns Bool
 ```
 
@@ -79,7 +79,7 @@ Whether to omit '<?xml ...>' preamble (default Fallse)
 
 ### method skip-dtd
 
-```perl6
+```raku
 method skip-dtd() returns Bool
 ```
 
@@ -87,7 +87,7 @@ Whether to omit internal DTDs (default False)
 
 ### method tag-expansion
 
-```perl6
+```raku
 method tag-expansion() returns Mu
 ```
 
@@ -98,7 +98,7 @@ Parsing Default Options
 
 ### method keep-blanks
 
-```perl6
+```raku
 method keep-blanks() returns Bool
 ```
 
@@ -106,7 +106,7 @@ Keep blank nodes (Default True)
 
 ### method parser-flags
 
-```perl6
+```raku
 method parser-flags() returns UInt
 ```
 
@@ -114,7 +114,7 @@ Low-level default parser flags (Read-only)
 
 ### method external-entity-loader
 
-```perl6
+```raku
 method external-entity-loader() returns Callable
 ```
 
@@ -140,7 +140,7 @@ $parser.input-callbacks($cb);
 
 ### method input-callbacks
 
-```perl6
+```raku
 method input-callbacks() returns Mu
 ```
 
@@ -153,7 +153,7 @@ Query Handler
 
 ### method query-handler
 
-```perl6
+```raku
 method query-handler() returns LibXML::Config::QueryHandler
 ```
 

@@ -17,7 +17,6 @@ my $doc = LibXML::Document.new();
     is( $textnode.nodeName(), '#text',  'creation 2');
     is( $textnode.nodeValue(), $foo,  'creation 3',);
 
-    warn $textnode.attributes().raku;
     nok $textnode.attributes(), 'Attributes NO-OP on text nodes';
 
     # 2. substring
