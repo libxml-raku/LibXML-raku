@@ -1,11 +1,11 @@
 use LibXML::Node;
-use DOM;
+use W3C::DOM;
 
 #| LibXML DTD Handling
 unit class LibXML::Dtd
     is repr('CPointer')
     is LibXML::Node
-    does DOM::DocumentType;
+    does W3C::DOM::DocumentType;
 
   =begin pod
   =head2 Synopsis

@@ -39,7 +39,7 @@ The new constructor takes a string containing a regular expression and return an
 
 ### method compile
 
-```perl6
+```raku
 method compile(
     Str:D $regexp
 ) returns LibXML::RegExp
@@ -51,7 +51,7 @@ Compile constructor
 
 ### multi method ACCEPTS
 
-```perl6
+```raku
 multi method ACCEPTS(
     Str:D $content
 ) returns Bool
@@ -61,7 +61,7 @@ multi method ACCEPTS(
 
 ### method isDeterministic
 
-```perl6
+```raku
 method isDeterministic() returns Bool
 ```
 

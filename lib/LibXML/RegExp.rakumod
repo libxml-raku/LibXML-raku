@@ -1,7 +1,6 @@
 #| interface to libxml2 regular expressions
 unit class LibXML::RegExp;
 
-
 =begin pod
 
     =head2 Synopsis

@@ -1,14 +1,14 @@
 use v6;
 use LibXML::Item :box-class, :ast-to-xml;
 use LibXML::_DomNode;
-use DOM;
+use W3C::DOM;
 
 #| Abstract base class of LibXML Nodes
 unit class LibXML::Node
     is repr('CPointer')
     is LibXML::Item
     does LibXML::_DomNode
-    does DOM::Node;
+    does W3C::DOM::Node;
 
 =begin pod
 

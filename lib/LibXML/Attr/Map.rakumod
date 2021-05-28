@@ -1,9 +1,10 @@
-use DOM;
+use W3C::DOM;
 
 #| LibXML Mapped Attributes
 class LibXML::Attr::Map
     does Associative
-    does DOM::NamedNodeMap {
+    does W3C::DOM::NamedNodeMap {
+
     use LibXML::Attr;
     use LibXML::Types :QName, :NCName;
     has LibXML::Node $.node handles<removeAttributeNode>;

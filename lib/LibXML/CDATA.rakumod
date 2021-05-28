@@ -1,13 +1,13 @@
 use LibXML::Node;
 use LibXML::_StringyNode;
-use DOM;
+use W3C::DOM;
 
 #| LibXML CDATA Section nodes
 unit class LibXML::CDATA
     is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode
-    does DOM::CDATASection;
+    does W3C::DOM::CDATASection;
 
 use LibXML::Raw;
 use NativeCall;

@@ -4,8 +4,8 @@ multi sub resolve-class(@ ('LibXML', *@path)) {
     %( :repo<LibXML-raku>, :@path )
 }
 
-multi sub resolve-class(@ ('DOM', *@)) {
-    %( :repo<DOM-raku>,  )
+multi sub resolve-class(@ ('W3C', 'DOM', *@)) {
+    %( :repo<W3C-DOM-raku>,  )
 }
 
 multi sub resolve-class(@ ('LibXSLT', *@p)) {
@@ -65,4 +65,4 @@ INIT {
     }
 }
 
-s:g:s/ '](' ([Lib]?X[ML|SLT]['::'*%%<ident>]) ')'/{'](' ~ link-to-url($0) ~ ')'}/;
+s:g:s/ '](' ([W3C|[Lib]?X[ML|SLT]]['::'*%%<ident>]) ')'/{'](' ~ link-to-url($0) ~ ')'}/;

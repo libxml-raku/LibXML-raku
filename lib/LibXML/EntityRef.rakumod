@@ -1,10 +1,10 @@
 use LibXML::Node;
-use DOM;
+use W3C::DOM;
 
 unit class LibXML::EntityRef
     is repr('CPointer')
     is LibXML::Node
-    does DOM::EntityReference;
+    does W3C::DOM::EntityReference;
 
 use LibXML::Raw;
 use NativeCall;

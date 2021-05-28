@@ -1,12 +1,12 @@
 use LibXML::Node;
 use LibXML::_ParentNode;
-use DOM;
+use W3C::DOM;
 
 #| LibXML DOM Document Class
 unit class LibXML::Document
     is LibXML::Node
     does LibXML::_ParentNode
-    does DOM::Document;
+    does W3C::DOM::Document;
 
 use LibXML::Attr;
 use LibXML::CDATA;
@@ -170,7 +170,7 @@ method new(
 
 =end pod
 
-method implementation returns DOM::Implementation {
+method implementation returns W3C::DOM::Implementation {
     require ::('LibXML');
 }
 
@@ -178,7 +178,7 @@ multi method createDocument(Str() $version, xmlEncodingStr $enc) {
     self.new: :$version, :$enc;
 }
 
-multi method createDocument(Str $URI? is copy, QName $name?, DOM::DocumentType $dtd?, Str :URI($uri), *%opt) {
+multi method createDocument(Str $URI? is copy, QName $name?, W3C::DOM::DocumentType $dtd?, Str :URI($uri), *%opt) {
     $URI //= $uri;
     with $dtd {
         %opt<html> //= .is-XHTML;

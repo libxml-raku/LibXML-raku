@@ -1,7 +1,7 @@
 #| Native enumerations
 unit module LibXML::Enums;
 
-use DOM :NodeType;
+use W3C::DOM :NodeType;
 
 enum xmlElementType is export (
    XML_ATTRIBUTE_DECL => 16,

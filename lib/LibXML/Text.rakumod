@@ -1,13 +1,13 @@
 use LibXML::Node;
 use LibXML::_StringyNode;
-use DOM;
+use W3C::DOM;
 
 #| LibXML Text Nodes
 unit class LibXML::Text
     is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode
-    does DOM::CharacterData;
+    does W3C::DOM::CharacterData;
 
 use LibXML::Raw;
 use Method::Also;

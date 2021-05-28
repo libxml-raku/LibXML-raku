@@ -7,10 +7,10 @@
     "LibraryMake"
   ],
   "depends": [
-    "DOM",
-    "XML",
+    "File::Temp",
     "Method::Also",
-    "File::Temp"
+    "W3C::DOM",
+    "XML"
   ],
   "description": "Raku bindings to the libxml2 native library",
   "license": "Artistic-2.0",

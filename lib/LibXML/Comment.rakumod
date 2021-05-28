@@ -1,13 +1,13 @@
 use LibXML::Node;
 use LibXML::_StringyNode;
-use DOM;
+use W3C::DOM;
 
 #| LibXML Comment nodes
 unit class LibXML::Comment
     is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode
-    does DOM::Comment;
+    does W3C::DOM::Comment;
 
 use LibXML::Raw;
 use NativeCall;

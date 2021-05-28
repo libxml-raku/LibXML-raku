@@ -1,4 +1,4 @@
-use DOM;
+use W3C::DOM;
 use LibXML::Parser;
 use LibXML::Config;
 
@@ -19,10 +19,9 @@ use LibXML::Node::Set;
 use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
-
 unit class LibXML:ver<0.5.15>
     is LibXML::Parser
-    does DOM::Implementation;
+    does W3C::DOM::Implementation;
 
 use LibXML::Types :QName;
 

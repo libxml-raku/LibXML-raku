@@ -3,9 +3,11 @@
 
 The L<W3C Level 2 Core DOM|https://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html> a platform and language independent interface for accessing and manipulating documents.
 
+L<LibXML> uses the L<W3C::DOM> module to map classes and methods.
+
 A quick summary of the Raku DOM implementation follows:
 =begin table
-DOM Class | DOM Parent | LibXML Class | L1 Methods | L2 Methods | NYI
+W3C::DOM Role | W3C::DOM Parent | LibXML Class | L1 Methods | L2 Methods | NYI
 ===========+========+===============+============+===========
 Node |  | LibXML::Node | nodeName nodeValue parentNode childNodes firstChild lastChild previousSibling nextSibling ownerDocument insertBefore replaceChild removeChild appendChild hasChildNodes cloneNode | normalize isSupported namespaceURI prefix localName hasAttributes |
 CharacterData | Node |  | data length substringData appendData insertData deleteData replaceData
@@ -22,7 +24,7 @@ Implementation |  | LibXML | createDocument createDocumentType hasFeature
 NamedNodeMap |  | LibXML::Attr::Map | getNamedItem setNamedItem removeNamedItem item length | getNamedItemNS setNamedItemNS removeNamedItemNS
 Notation | Node | NYI | publicId systemId
 ProcessingInstruction | Node | LibXML::PI | target data
-Text | CharacterData | LibXML::PI | splitText
+Text | CharacterData | LibXML::Text | splitText
 
 =end table
 =end pod

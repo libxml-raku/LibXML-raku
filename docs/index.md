@@ -58,8 +58,6 @@ The nodes in the Document Object Model (DOM) are represented by the following cl
 
   * [LibXML::PI](https://libxml-raku.github.io/LibXML-raku/PI) - LibXML DOM processing instruction nodes
 
-See also [LibXML::DOM](https://libxml-raku.github.io/LibXML-raku/DOM), for descript of DOM mappings and available methods.
-
 Container/Mapping classes
 -------------------------
 
