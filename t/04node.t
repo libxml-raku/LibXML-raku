@@ -7,7 +7,7 @@
 
 use v6;
 use Test;
-plan 201;
+plan 202;
 
 use LibXML;
 use LibXML::Enums;
@@ -396,6 +396,8 @@ my $doc    = $parser.parse: :string( $xmlstring );
     is( +$attributes, 1, ' TODO : Add test name');
     ok($attributes, ' TODO : Add test name');
     my $newAttr = $doc.createAttribute( "kung", "foo" );
+    # as mandated by W3C DOM
+    lives-ok {$newAttr.attributes}, 'node attributes';
     $attributes.setNamedItem( $newAttr );
     my %att := $root.attributes;
     ok(%att, ' TODO : Add test name');

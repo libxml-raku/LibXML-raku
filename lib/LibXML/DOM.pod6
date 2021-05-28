@@ -1,0 +1,28 @@
+=begin pod
+=head1 Raku LibXML DOM Interface
+
+The L<W3C Level 2 Core DOM|https://www.w3.org/TR/2000/REC-DOM-Level-2-Core-20001113/core.html> a platform and language independent interface for accessing and manipulating documents.
+
+A quick summary of the Raku DOM implementation follows:
+=begin table
+DOM Class | DOM Parent | LibXML Class | L1 Methods | L2 Methods | NYI
+===========+========+===============+============+===========
+Node |  | LibXML::Node | nodeName nodeValue parentNode childNodes firstChild lastChild previousSibling nextSibling ownerDocument insertBefore replaceChild removeChild appendChild hasChildNodes cloneNode | normalize isSupported namespaceURI prefix localName hasAttributes |
+CharacterData | Node |  | data length substringData appendData insertData deleteData replaceData
+Attr | Node | LibXML::Attr | name value | ownerElement | specified
+CDATASection | Text | LibXML::CDATA
+Comment | CharacterData | LibXML::Comment
+Document | Node | LibXML::Document | doctype implementation documentElement createElement createDocumentFragment createTextNode createComment createCDATASection createProcessingInstruction createAttribute createEntityReference getElementsByTagName | importNode createElementNS createAttributeNS getElementsByTagNameNS getElementById
+DocumentFragment | Node | LibXML::DocumentFragment
+DocumentType | Node | LibXML::Dtd | name publicId systemId |  | entities notations
+Element | Node | LibXML::Element | attributes getAttribute setAttribute removeAttribute getAttributeNode setAttributeNode removeAttributeNode getElementsByTagName | getAttributeNS setAttributeNS removeAttributeNS getAttributeNodeNS setAttributeNodeNS removeAttributeNodeNS getElementsByTagNameNS hasAttribute hasAttributeNS
+Entity | Node | LibXML::Entity | publicId systemId notationName
+EntityReference | Node | LibXML::EntityRef
+Implementation |  | LibXML | createDocument createDocumentType hasFeature
+NamedNodeMap |  | LibXML::Attr::Map | getNamedItem setNamedItem removeNamedItem item length | getNamedItemNS setNamedItemNS removeNamedItemNS
+Notation | Node | NYI | publicId systemId
+ProcessingInstruction | Node | LibXML::PI | target data
+Text | CharacterData | LibXML::PI | splitText
+
+=end table
+=end pod

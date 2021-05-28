@@ -38,7 +38,7 @@ method createDocument(|c) {
     LibXML::Document.createDocument(|c);
 }
 
-method createDocumentType(QName:D $name, Str:D $external-id, Str:D $system-id, |c) {
+method createDocumentType(QName $name, Str $external-id, Str $system-id) {
     LibXML::Document
       .new()
       .createInternalSubset($name, $external-id, $system-id);

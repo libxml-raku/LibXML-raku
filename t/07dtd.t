@@ -30,10 +30,10 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
     ok(!defined($doc.externalSubset), ' TODO : Add test name' );
 
-    dies-ok {$doc.setExternalSubset( $dtd )}, 'setExternalSubset :validate';
-    ok(defined($doc.externalSubset), ' TODO : Add test name' );
+    dies-ok {$doc.setExternalSubset( $dtd, :validate )}, 'setExternalSubset :validate';
+    ok(defined(!$doc.externalSubset), ' TODO : Add test name' );
     ok(defined($doc.internalSubset), ' TODO : Add test name' );
-    lives-ok {$doc.setExternalSubset( $dtd, :!validate )}, 'setExternalSubset: :!validate';
+    lives-ok {$doc.setExternalSubset( $dtd )}, 'setExternalSubset';
     ok( $dtd.isSameNode( $doc.externalSubset ), ' TODO : Add test name');
     ok(defined($doc.externalSubset), ' TODO : Add test name' );
     ok(!defined($doc.internalSubset), ' TODO : Add test name' );
@@ -59,7 +59,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     nok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
     ok( !defined($doc.internalSubset), ' TODO : Add test name' );
 
-    $doc.setExternalSubset( $dtd2, :!validate );
+    $doc.setExternalSubset( $dtd2 );
 
     $dtd3 = $doc.removeExternalSubset;
     ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
@@ -186,7 +186,7 @@ EOF
     my $dtd = $doc.internalSubset;
 
     nok $dtd.hasAttributes, 'hasAttributes';
-    dies-ok { $dtd.attributes }, 'attributes N/A to DTD nodes';
+    nok $dtd.attributes, 'attributes NO-OP on DTD nodes';
 }
 
 # Remove DTD nodes

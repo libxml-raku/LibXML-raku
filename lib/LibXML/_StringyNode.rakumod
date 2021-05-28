@@ -5,6 +5,8 @@ use LibXML::Node;
 
 method nodeValue { ... }
 method content {...}
+method substr {...}
+method substr-rw {...}
 
 multi method new(LibXML::Node :doc($owner), Str() :$content!) {
     my xmlDoc $doc = .raw with $owner;
@@ -16,6 +18,7 @@ multi method new(Str:D() $content, *%o) {
 }
 
 method data returns Str is rw { $.nodeValue }
+method length { $.content.chars }
 
 # DOM Boot-leather
 method substringData(UInt:D $off, UInt:D $len --> Str) { $.substr($off, $len) }

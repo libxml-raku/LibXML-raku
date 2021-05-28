@@ -69,12 +69,13 @@ is $level, +XML_ERR_WARNING;
 is $message, 'failed to load external entity "test.dtd"';
 
 subtest 'doc with internal dtd' => {
-    plan 7;
+    plan 8;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     nok $doc.getExternalSubset.defined, 'no external DtD';
     my LibXML::Dtd $dtd = $doc.getInternalSubset;
     ok $dtd.defined, 'has DtD';
     ok $dtd.validate, 'validate';
+    ok $doc.validate;
     is $dtd.name, "note", '.name';
     nok $dtd.systemId.defined, 'sans systemId';
     nok $dtd.publicId.defined, 'sans publicId';

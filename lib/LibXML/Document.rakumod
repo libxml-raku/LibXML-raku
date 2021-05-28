@@ -170,13 +170,17 @@ method new(
 
 =end pod
 
+method implementation returns DOM::Implementation {
+    require ::('LibXML');
+}
+
 multi method createDocument(Str() $version, xmlEncodingStr $enc) {
     self.new: :$version, :$enc;
 }
 
-multi method createDocument(Str $URI? is copy, QName $name?, LibXML::Dtd $doc-type?, Str :URI($uri), *%opt) {
+multi method createDocument(Str $URI? is copy, QName $name?, DOM::DocumentType $dtd?, Str :URI($uri), *%opt) {
     $URI //= $uri;
-    with $doc-type {
+    with $dtd {
         %opt<html> //= .is-XHTML;
     }
     my $doc = self.new: :$URI, |%opt;
@@ -184,7 +188,7 @@ multi method createDocument(Str $URI? is copy, QName $name?, LibXML::Dtd $doc-ty
         my LibXML::Node:D $elem = $doc.createElementNS($URI, $_);
         $doc.setDocumentElement($elem);
     }
-    $doc.setInternalSubset($_) with $doc-type;
+    $doc.setInternalSubset($_) with $dtd;
     $doc;
 }
 
@@ -553,7 +557,7 @@ method createElement(QName $name, Str :$href --> LibXML::Element) {
 }
 
 #| equivalent to .createElement($name, :$href)
-method createElementNS(Str:D $href, QName:D $name --> LibXML::Element) {
+method createElementNS(Str $href, QName:D $name --> LibXML::Element) {
     &?ROUTINE.returns.box: $.raw.createElementNS($href, $name);
 }
 
@@ -750,7 +754,7 @@ method insertProcessingInstruction(|c) {
 
 }
 
-method getInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
+method getInternalSubset(--> LibXML::Dtd) is dom-boxed is also<doctype> {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
 method setInternalSubset(LibXML::Dtd:D $dtd --> LibXML::Dtd) {
@@ -760,11 +764,31 @@ method setInternalSubset(LibXML::Dtd:D $dtd --> LibXML::Dtd) {
     }
 }
 =para I<EXPERIMENTAL!>
-=para A copy of the Dtd node is inserted into the document as its internal subset
+=para Inserts a copy of the Dtd node into the document as its internal subset
     =begin code :lang<raku>
     my $new-dtd = $doc.setInternalSubset: $other-doc.getInternalSubset;
     =end code
+=para Note: At this stage, only the `name`, `publicId` and `systemId` are copied.
 
+=para This method is currently most useful for setting the document-type of an XML or HTML document:
+
+=begin code :lang<raku>
+use LibXML;
+use LibXML::Dtd;
+use LibXML::Document;
+my $htmlPublic = "-//W3C//DTD XHTML 1.0 Transitional//EN";
+my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
+
+my LibXML::Dtd:D $dtd = LibXML.createDocumentType('xhtml', $htmlPublic, $htmlSystem);
+my Bool $html = $dtd.is-XHTML;
+my LibXML::Document $doc .= new: :$html;
+$doc.setInternalSubset: $dtd;
+$doc.setDocumentElement: $doc.createElement('xhtml');
+say $doc.Str;
+# <!DOCTYPE xhtml PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+# <xhtml></xhtml>
+
+=end code
 
 #| This method removes an external, if defined, from the document
 method removeInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
@@ -790,7 +814,7 @@ method internalSubset is rw returns LibXML::Dtd {
 method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #| This method sets a DTD node as an external subset of the given document.
-method setExternalSubset(LibXML::Dtd $dtd, Bool :$validate = True --> LibXML::Dtd) {
+method setExternalSubset(LibXML::Dtd $dtd, Bool :$validate --> LibXML::Dtd) {
     if $validate && $dtd.defined {
         $dtd.validate(self);
     }
@@ -802,7 +826,7 @@ method setExternalSubset(LibXML::Dtd $dtd, Bool :$validate = True --> LibXML::Dt
     my LibXML::Dtd $dtd = $other-doc.getExternalSubset;
     $doc.setExternalSubset: $dtd.clone();
     =end code
-=para Unless the :!validate option is passed, the document is first validated against the DTD.
+=para If the :validate option is passed, the document is first validated against the DTD.
 
 #| This method removes any external subset from the document
 method removeExternalSubset(--> LibXML::Dtd) is dom-boxed {...}

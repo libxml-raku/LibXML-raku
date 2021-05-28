@@ -17,7 +17,8 @@ my $doc = LibXML::Document.new();
     is( $textnode.nodeName(), '#text',  'creation 2');
     is( $textnode.nodeValue(), $foo,  'creation 3',);
 
-    dies-ok {$textnode.attributes();}, 'Attributes not applicable to text nodes';
+    warn $textnode.attributes().raku;
+    nok $textnode.attributes(), 'Attributes NO-OP on text nodes';
 
     # 2. substring
     my $tnstr = $textnode.substringData( 1,2 );

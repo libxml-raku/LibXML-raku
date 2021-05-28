@@ -309,6 +309,11 @@ method firstNonBlankChild returns LibXML::Node is dom-boxed {...}
 method lastNonBlankChild returns LibXML::Node is dom-boxed {...}
 method prev returns LibXML::Node is dom-boxed {...}
 
+# Fallback to LibXML::Attr::Map:U for non-element nodes
+method attributes(LibXML::Node:D $node:) {
+    require ::('LibXML::Attr::Map')
+}
+
 =begin pod
     =head3 hasChildNodes
     =begin code :lang<raku>

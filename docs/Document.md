@@ -415,7 +415,7 @@ Creates a new Element Node bound to the DOM with the given tag (name), Optionall
 
 ```raku
 method createElementNS(
-    Str:D $href,
+    Str $href,
     Str:D $name where { ... }
 ) returns LibXML::Element
 ```
@@ -619,11 +619,31 @@ DOM compatible method to set the document element
 
 *EXPERIMENTAL!*
 
-The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
+Inserts a copy of the Dtd node into the document as its internal subset
 
 ```raku
-my LibXML::Dtd $dtd = $other-doc.getInternalSubset;
-$doc.setInternalSubset: $dtd.clone();
+my $new-dtd = $doc.setInternalSubset: $other-doc.getInternalSubset;
+```
+
+Note: At this stage, only the `name`, `publicId` and `systemId` are copied.
+
+This method is currently most useful for setting the document-type of an XML or HTML document:
+
+```raku
+use LibXML;
+use LibXML::Dtd;
+use LibXML::Document;
+my $htmlPublic = "-//W3C//DTD XHTML 1.0 Transitional//EN";
+my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
+
+my LibXML::Dtd:D $dtd = LibXML.createDocumentType('xhtml', $htmlPublic, $htmlSystem);
+my Bool $html = $dtd.is-XHTML;
+my LibXML::Document $doc .= new: :$html;
+$doc.setInternalSubset: $dtd;
+$doc.setDocumentElement: $doc.createElement('xhtml');
+say $doc.Str;
+# <!DOCTYPE xhtml PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+# <xhtml></xhtml>
 ```
 
 ### method removeInternalSubset
@@ -652,7 +672,8 @@ Gets or sets the internal DTD for the document.
 
 ```raku
 method setExternalSubset(
-    LibXML::Dtd $dtd
+    LibXML::Dtd $dtd,
+    Bool :$validate
 ) returns LibXML::Dtd
 ```
 
@@ -667,13 +688,15 @@ my LibXML::Dtd $dtd = $other-doc.getExternalSubset;
 $doc.setExternalSubset: $dtd.clone();
 ```
 
+If the :validate option is passed, the document is first validated against the DTD.
+
 ### method removeExternalSubset
 
 ```raku
 method removeExternalSubset() returns LibXML::Dtd
 ```
 
-This method removes an external, if defined, from the document
+This method removes any external subset from the document
 
 *EXPERIMENTAL!*
 

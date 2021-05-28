@@ -4,6 +4,10 @@ multi sub resolve-class(@ ('LibXML', *@path)) {
     %( :repo<LibXML-raku>, :@path )
 }
 
+multi sub resolve-class(@ ('DOM', *@)) {
+    %( :repo<DOM-raku>,  )
+}
+
 multi sub resolve-class(@ ('LibXSLT', *@p)) {
     my @path;
     with @p[0] {
