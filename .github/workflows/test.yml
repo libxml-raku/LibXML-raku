@@ -27,8 +27,6 @@ jobs:
       - name: Install Dependencies
         run: |
           # install and test if need be (includes [test-depends])
-          # run against DOM blead
-          (git clone https://github.com/libxml-raku/W3C-DOM-raku && cd W3C-DOM-raku && zef install .)
           sudo apt-get install -y libxml2-dev
           zef install --deps-only .
           zef build .

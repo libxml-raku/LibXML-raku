@@ -50,13 +50,15 @@ The nodes in the Document Object Model (DOM) are represented by the following cl
 
   * [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) - LibXML class for element nodes
 
-  * [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) - LibXML DOM namespaces (Inherits from [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item))
+  * [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) - LibXML namespaces (Inherits from [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item))
 
   * [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) - LibXML DOM abstract base node class
 
   * [LibXML::Text](https://libxml-raku.github.io/LibXML-raku/Text) - LibXML text node class
 
   * [LibXML::PI](https://libxml-raku.github.io/LibXML-raku/PI) - LibXML DOM processing instruction nodes
+
+See also [LibXML::DOM](https://libxml-raku.github.io/LibXML-raku/DOM), which summarizes DOM classes and methods.
 
 Container/Mapping classes
 -------------------------

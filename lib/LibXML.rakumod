@@ -94,13 +94,15 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
   =item L<LibXML::Element> - LibXML class for element nodes
 
-  =item L<LibXML::Namespace> - LibXML DOM namespaces (Inherits from L<LibXML::Item>)
+  =item L<LibXML::Namespace> - LibXML namespaces (Inherits from L<LibXML::Item>)
 
   =item L<LibXML::Node> - LibXML DOM abstract base node class
 
   =item L<LibXML::Text> - LibXML text node class
 
   =item L<LibXML::PI> - LibXML DOM processing instruction nodes
+
+See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 
 =head2 Container/Mapping classes
 

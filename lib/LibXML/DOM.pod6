@@ -17,7 +17,7 @@ Comment | CharacterData | LibXML::Comment
 Document | Node | LibXML::Document | doctype implementation documentElement createElement createDocumentFragment createTextNode createComment createCDATASection createProcessingInstruction createAttribute createEntityReference getElementsByTagName | importNode createElementNS createAttributeNS getElementsByTagNameNS getElementById
 DocumentFragment | Node | LibXML::DocumentFragment
 DocumentType | Node | LibXML::Dtd | name publicId systemId |  | entities notations
-Element | Node | LibXML::Element | attributes getAttribute setAttribute removeAttribute getAttributeNode setAttributeNode removeAttributeNode getElementsByTagName | getAttributeNS setAttributeNS removeAttributeNS getAttributeNodeNS setAttributeNodeNS removeAttributeNodeNS getElementsByTagNameNS hasAttribute hasAttributeNS
+Element | Node | LibXML::Element | attributes getAttribute setAttribute removeAttribute getAttributeNode setAttributeNode removeAttributeNode getElementsByTagName | getAttributeNS setAttributeNS removeAttributeNS getAttributeNodeNS setAttributeNodeNS getElementsByTagNameNS hasAttribute hasAttributeNS
 Entity | Node | LibXML::Entity | publicId systemId notationName
 EntityReference | Node | LibXML::EntityRef
 Implementation |  | LibXML | createDocument createDocumentType hasFeature
