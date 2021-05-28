@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.6.0  2021-05-29T09:37:12+12:00
     - Fix attribute isId() method to return Bool, as documented.
     - Integration with W3C::DOM interface roles:
       -- Implementation: add createDocumentType(), hasFeature()

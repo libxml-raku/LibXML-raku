@@ -19,7 +19,7 @@ use LibXML::Node::Set;
 use LibXML::Node::List;
 use LibXML::XPath::Object;
 use LibXML::XPath::Context;
-unit class LibXML:ver<0.5.15>
+unit class LibXML:ver<0.6.0>
     is LibXML::Parser
     does W3C::DOM::Implementation;
 
