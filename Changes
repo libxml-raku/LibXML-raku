@@ -1,4 +1,5 @@
 {{$NEXT}}
+    - Removed some module loading workd-arounds for Rakudo < 2019.03
 
 0.6.0  2021-05-29T09:37:12+12:00
     - Fix attribute isId() method to return Bool, as documented.

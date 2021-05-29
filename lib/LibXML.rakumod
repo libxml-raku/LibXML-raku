@@ -1,28 +1,12 @@
-use W3C::DOM;
 use LibXML::Parser;
-use LibXML::Config;
+use W3C::DOM;
 
-# Preload stuff to avoid some Rakudo <= 2019.03 buglets
-use LibXML::Attr;
-use LibXML::Attr::Map;
-use LibXML::CDATA;
-use LibXML::Comment;
-use LibXML::Document;
-use LibXML::DocumentFragment;
-use LibXML::Dtd::Element;
-use LibXML::Dtd::Attr;
-use LibXML::Element;
-use LibXML::Entity;
-use LibXML::Text;
-use LibXML::Raw;
-use LibXML::Node::Set;
-use LibXML::Node::List;
-use LibXML::XPath::Object;
-use LibXML::XPath::Context;
 unit class LibXML:ver<0.6.0>
     is LibXML::Parser
     does W3C::DOM::Implementation;
 
+use LibXML::Config;
+use LibXML::Document;
 use LibXML::Types :QName;
 
 method config handles <

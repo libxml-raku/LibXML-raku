@@ -370,6 +370,7 @@ subtest 'LibXML::Namespace' => {
 subtest 'LibXML::Node' => {
     plan 14;
     use LibXML::Node;
+    use LibXML::Node::Set;
     use LibXML::Element;
     use LibXML::Namespace;
 

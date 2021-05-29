@@ -143,7 +143,7 @@ EOSTR
         my $root = $doc.root;
         is $root.findvalue('42'), 42;
         is $root.find('42'), 42;
-        isa-ok $root.findnodes('42'), LibXML::Node::Set;
+        isa-ok $root.findnodes('42'), 'LibXML::Node::Set';
         is-deeply $root.first('42'), LibXML::Node;
         is-deeply $root.last('42'), LibXML::Node;
     }
