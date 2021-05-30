@@ -3,7 +3,6 @@ use W3C::DOM;
 
 #| LibXML DTD Handling
 unit class LibXML::Dtd
-    is repr('CPointer')
     is LibXML::Node
     does W3C::DOM::DocumentType;
 
@@ -11,14 +10,21 @@ unit class LibXML::Dtd
   =head2 Synopsis
 
       use LibXML::Dtd;
+      use LibXML::Dtd::Notation;
 
       my LibXML::Dtd $dtd .= new($public-id, $system-id);
       my LibXML::Dtd $dtd .= parse: :string($dtd-str);
+
+      # Information retrieval
       my Str $dtdName = $dtd.getName();
       my Str $publicId = $dtd.publicId();
       my Str $systemId = $dtd.systemId();
+      my Bool $is-html = $dtd.is-XHTML;
+      my $notations = $dtd.notations;
+      my LibXML::Dtd::Notation $foo = $notations<foo>;
+
+      # Validation
       try { $dtd.validate($doc) };
-      if $dtd.is-XHTML { ... }
       my Bool $valid = $dtd.is-valid($doc);
       if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
@@ -36,10 +42,15 @@ unit class LibXML::Dtd
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
 use LibXML::Raw;
+use LibXML::Raw::HashTable;
 use LibXML::Parser::Context;
 use Method::Also;
 use NativeCall;
-my subset DocNode of LibXML::Node where {!.defined || .raw ~~ xmlDoc};
+use LibXML::HashMap;
+
+has xmlDtd $.raw is built handles <systemId publicId>;
+
+constant DocNode = W3C::DOM::Document;
 
 class ValidContext {
     has xmlValidCtxt $!raw;
@@ -86,10 +97,6 @@ class ValidContext {
 
 }
 
-method raw handles <publicId systemId> {
-    nativecast(xmlDtd, self);
-}
-
 =begin pod
     =head2 Methods
 =end pod
@@ -99,8 +106,8 @@ multi method new(
     LibXML::Node :doc($owner), Str:D :$name!,
     Str :$external-id, Str :$system-id, ) {
     my xmlDoc $doc = .raw with $owner;
-    my xmlDtd:D $raw .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
-    self.box: $raw;
+    my xmlDtd:D $new-dtd .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
+    self.box: $new-dtd;
 }
 
 # for Perl 5 compat
@@ -191,8 +198,14 @@ method is-XHTML(--> Bool) {
 =para Returns False if the Id's don't match or Bool:U if the DtD lack either a publicId or systemId
 
 # NYI DOM Level-2 methods
-method entities(|) is also<notations internalSubset> {
+method entities(|) is also<internalSubset> {
     die X::NYI.new
+}
+
+has LibXML::HashMap[LibXML::Dtd::Notation] $!notations;
+method notations {
+    $!notations //= LibXML::HashMap[LibXML::Dtd::Notation].new :raw($_)
+        with $!raw.notations;
 }
 
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {

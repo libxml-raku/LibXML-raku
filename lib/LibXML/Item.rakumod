@@ -32,6 +32,7 @@ my constant @ClassMap = do {
     for (
         'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
         'LibXML::Dtd::Attr'        => XML_ATTRIBUTE_DECL,
+        'LibXML::Dtd::Element'     => XML_ELEMENT_DECL,
         'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
         'LibXML::Comment'          => XML_COMMENT_NODE,
         'LibXML::Dtd'              => XML_DTD_NODE,

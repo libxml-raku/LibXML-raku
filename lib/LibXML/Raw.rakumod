@@ -1144,16 +1144,30 @@ class xmlDocFrag is xmlNode is export {
     }
 }
 
+class xmlNotation is export is repr('CStruct') {
+    has xmlCharP $.name;
+    has xmlCharP $.publicId;
+    has xmlCharP $.systemId;
+
+    our sub New(xmlCharP, xmlCharP, xmlCharP  --> xmlNotation) is native($BIND-XML2) is symbol('xm6_notation_create') {*}
+    method new(Str:D :$name!, Str :$publicId, Str :$systemId) {
+        New($name, $publicId, $systemId);
+    }
+    method Free is native($XML2) is symbol('xmlFreeNotation') {*}
+    method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
+    method copy { $.Copy }
+}
+
 #| An XML DTD, as defined by <!DOCTYPE ... There is actually one for
 #| the internal subset and for the external subset (type: XML_DTD_NODE).
 class xmlDtd is anyNode is export {
-    has Pointer   $.notations; # Hash table for notations if any
-    has Pointer    $.elements; # Hash table for elements if any
-    has Pointer  $.attributes; # Hash table for attributes if any
-    has Pointer    $.entities; # Hash table for entities if any
-    has xmlCharP $.ExternalID; # External identifier for PUBLIC DTD
-    has xmlCharP   $.SystemID; # URI for a SYSTEM or PUBLIC DTD
-    has Pointer   $.pentities; # Hash table for param entities if any
+    has xmlHashTable  $.notations; # Hash table for notations if any
+    has xmlHashTable   $.elements; # Hash table for elements if any
+    has xmlHashTable $.attributes; # Hash table for attributes if any
+    has xmlHashTable   $.entities; # Hash table for entities if any
+    has xmlCharP     $.ExternalID; # External identifier for PUBLIC DTD
+    has xmlCharP       $.SystemID; # URI for a SYSTEM or PUBLIC DTD
+    has xmlHashTable  $.pentities; # Hash table for param entities if any
 
     method publicId { $!ExternalID }
     method systemId { $!SystemID }
@@ -1163,7 +1177,7 @@ class xmlDtd is anyNode is export {
 
     our sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native($XML2) {*}
     method IsXHTML returns int32 { xmlIsXHTML($!SystemID, $!ExternalID) }
-
+    method getNotation(xmlCharP --> xmlNotation) is native($XML2) is symbol('xmlGetDtdNotationDesc') {*}
     multi method new(:type($)! where 'internal', xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.CreateIntSubset( $name, $external-id, $system-id);
     }

@@ -29,6 +29,7 @@
     "LibXML::Dtd": "lib/LibXML/Dtd.rakumod",
     "LibXML::Dtd::Attr": "lib/LibXML/Dtd/Attr.rakumod",
     "LibXML::Dtd::Element": "lib/LibXML/Dtd/Element.rakumod",
+    "LibXML::Dtd::Notation": "lib/LibXML/Dtd/Notation.rakumod",
     "LibXML::Element": "lib/LibXML/Element.rakumod",
     "LibXML::Entity": "lib/LibXML/Entity.rakumod",
     "LibXML::EntityRef": "lib/LibXML/EntityRef.rakumod",

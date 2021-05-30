@@ -22,9 +22,11 @@ Entity | Node | LibXML::Entity | publicId systemId notationName
 EntityReference | Node | LibXML::EntityRef
 Implementation |  | LibXML | createDocument createDocumentType hasFeature
 NamedNodeMap |  | LibXML::Attr::Map | getNamedItem setNamedItem removeNamedItem item length | getNamedItemNS setNamedItemNS removeNamedItemNS
-Notation | Node | NYI | publicId systemId
+Notation | Node | LibXML::Dtd::Notation | nodeName publicId systemId | N/A [1]
 ProcessingInstruction | Node | LibXML::PI | target data
 Text | CharacterData | LibXML::Text | splitText
 
 =end table
+
+=item [1] This object is stored in a LibXML hash-table, so most DOM manipulation methods are not applicable
 =end pod

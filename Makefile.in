@@ -16,9 +16,9 @@ debug :
 coverage :
 	%MAKE% "DBG=-fprofile-arcs -ftest-coverage" "LD_DBG=-coverage -lgcov" all
 
-resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% $(SRC)/xml6_error%O%
+resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_notation%O%  $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% $(SRC)/xml6_error%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
-        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%  $(SRC)/xml6_error%O% \
+        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O%  $(SRC)/xml6_notation%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%  $(SRC)/xml6_error%O% \
         %LIB-LDFLAGS% $(LD_DBG) 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
@@ -51,6 +51,9 @@ $(SRC)/xml6_input%O% : $(SRC)/xml6_input.c $(SRC)/xml6_input.h
 $(SRC)/xml6_node%O% : $(SRC)/xml6_node.c $(SRC)/xml6_node.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_node%O% $(SRC)/xml6_node.c %LIB-CFLAGS% $(DBG)
 
+$(SRC)/xml6_notation%O% : $(SRC)/xml6_notation.c $(SRC)/xml6_notation.h
+	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_notation%O% $(SRC)/xml6_notation.c %LIB-CFLAGS% $(DBG)
+
 $(SRC)/xml6_ns%O% : $(SRC)/xml6_ns.c $(SRC)/xml6_ns.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_ns%O% $(SRC)/xml6_ns.c %LIB-CFLAGS% $(DBG)
 
@@ -70,13 +73,13 @@ $(SRC)/xml6_error%O% : $(SRC)/xml6_error.c $(SRC)/xml6_error.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_error%O% $(SRC)/xml6_error.c %LIB-CFLAGS% $(DBG)
 
 test : all
-	@prove -e"perl6 -I ." t
+	@prove -e"raku -I ." t
 
 loudtest : all
-	@prove -e"perl6 -I ." -v t
+	@prove -e"raku -I ." -v t
 
 xtest : all
-	@prove -e"perl6 -I ." -r t xt
+	@prove -e"raku -I ." -r t xt
 
 clean :
 	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%
@@ -85,7 +88,7 @@ realclean : clean
 	@rm -f Makefile docs/*.md docs/*/*.md
 
 doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Dict.md docs/Document.md docs/DocumentFragment.md\
-      docs/Dtd.md docs/DOM.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/HashMap.md docs/Raw.md\
+      docs/Dtd.md docs/Dtd/Notation.md docs/DOM.md docs/Element.md docs/Enums.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/HashMap.md docs/Raw.md\
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
       docs/XPath/Context.md docs/XPath/Expression.md\
@@ -109,71 +112,3 @@ docs/%.md : lib/LibXML/%.pod6
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@
-
-docs/Attr.md : lib/LibXML/Attr.rakumod
-
-docs/Attr/Map.md : lib/LibXML/Attr/Map.rakumod
-
-docs/Comment.md : lib/LibXML/Comment.rakumod
-
-docs/Config.md : lib/LibXML/Config.rakumod
-
-docs/CDATA.md : lib/LibXML/CDATA.rakumod
-
-docs/Dict.md : lib/LibXML/Dict.rakumod
-
-docs/Document.md : lib/LibXML/Document.rakumod
-
-docs/DocumentFragment.md : lib/LibXML/DocumentFragment.rakumod
-
-docs/Dtd.md : lib/LibXML/Dtd.rakumod
-
-docs/Element.md : lib/LibXML/Element.rakumod
-
-docs/Enums.md : lib/LibXML/Enums.rakumod
-
-docs/ErrorHandling.md : lib/LibXML/ErrorHandling.rakumod
-
-docs/HashMap.md : lib/LibXML/HashMap.rakumod
-
-docs/InputCallback.md : lib/LibXML/InputCallback.rakumod
-
-docs/Item.md : lib/LibXML/Item.rakumod
-
-docs/Namespace.md : lib/LibXML/Namespace.rakumod
-
-docs/Raw.md : lib/LibXML/Raw.rakumod
-
-docs/Node.md : lib/LibXML/Node.rakumod
-
-docs/Node/List.md : lib/LibXML/Node/List.rakumod
-
-docs/Node/Set.md : lib/LibXML/Node/Set.rakumod
-
-docs/PI.md : lib/LibXML/PI.rakumod
-
-docs/Parser.md : lib/LibXML/Parser.rakumod
-
-docs/PushParser.md : lib/LibXML/PushParser.rakumod
-
-docs/Pattern.md : lib/LibXML/Pattern.rakumod
-
-docs/RegExp.md : lib/LibXML/RegExp.rakumod
-
-docs/Reader.md : lib/LibXML/Reader.rakumod
-
-docs/Schema.md : lib/LibXML/Schema.rakumod
-
-docs/RelaxNG.md : lib/LibXML/RelaxNG.rakumod
-
-docs/SAX/Builder : lib/LibXML/SAX/Builder.rakumod
-
-docs/SAX/Handler/SAX2 : lib/LibXML/SAX/Handler/SAX2.rakumod
-
-docs/SAX/Handler/XML : lib/LibXML/SAX/Handler/XML.rakumod
-
-docs/Text.md : lib/LibXML/Text.rakumod
-
-docs/XPath/Context.md : lib/LibXML/XPath/Context.rakumod
-
-docs/XPath/Expression.md : lib/LibXML/XPath/Expression.rakumod

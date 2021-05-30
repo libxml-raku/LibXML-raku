@@ -13,6 +13,7 @@ class xmlHashTable is repr(Opaque) is export {
     method Lookup(Str --> Pointer) is symbol('xmlHashLookup') is native($XML2) {*}
     method RemoveEntry(Str, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashRemoveEntry') is native($XML2) {*}
     method Size(--> int32) is symbol('xmlHashSize') is native($XML2) {*}
+    method Copy(xmlHashTable --> xmlHashTable) is native($XML2) is symbol('xmlHashCopy') {*}
     method Free( &deallocator ( Pointer, xmlCharP ) ) is symbol('xmlHashFree') is native($XML2) {*}
     method keys(CArray[Str]) is native($BIND-XML2) is symbol('xml6_hash_keys') {*}
     method values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_values') {*}

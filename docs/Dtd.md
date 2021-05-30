@@ -11,14 +11,21 @@ Synopsis
 --------
 
     use LibXML::Dtd;
+    use LibXML::Dtd::Notation;
 
     my LibXML::Dtd $dtd .= new($public-id, $system-id);
     my LibXML::Dtd $dtd .= parse: :string($dtd-str);
+
+    # Information retrieval
     my Str $dtdName = $dtd.getName();
     my Str $publicId = $dtd.publicId();
     my Str $systemId = $dtd.systemId();
+    my Bool $is-html = $dtd.is-XHTML;
+    my $notations = $dtd.notations;
+    my LibXML::Dtd::Notation $foo = $notations<foo>;
+
+    # Validation
     try { $dtd.validate($doc) };
-    if $dtd.is-XHTML { ... }
     my Bool $valid = $dtd.is-valid($doc);
     if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 
@@ -70,7 +77,7 @@ This function allows one to validate a (parsed) document against the given XML S
 
 ```raku
 method is-valid(
-    LibXML::Node:D $doc where { ... }
+    W3C::DOM::Document:D $doc
 ) returns Bool
 ```
 

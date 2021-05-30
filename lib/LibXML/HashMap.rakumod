@@ -10,6 +10,7 @@ use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
 use LibXML::Raw::HashTable;
 use LibXML::Enums;
+use LibXML::Dtd::Notation;
 use NativeCall;
 use Method::Also;
 
@@ -50,7 +51,7 @@ method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
 }
 submethod DESTROY { .Free(self.deallocator) with self.raw; }
 
-constant OfType = XPathRange;
+subset OfType where XPathRange|LibXML::Dtd::Notation;
 
 method !CArray(Any:U $type = Pointer, UInt:D :$len = $.raw.Size ) {
     my $a := CArray[$type].new;
@@ -169,6 +170,17 @@ role Assoc[Str $of] {
     method deallocator { -> Pointer $p, xmlCharP $k { free($_) with $p } }
 }
 
+role Assoc[LibXML::Dtd::Notation $of] {
+    method of {$of}
+    method freeze(LibXML::Dtd::Notation $_) { .raw.Copy }
+    method thaw(Pointer $p) { $of.box: nativecast(xmlNotation, $p) }
+    method deallocator() {
+         -> Pointer $p, Str $k {
+             nativecast(xmlNotation, $_).Free with $p;
+         }
+    }
+}
+
 method ^parameterize(Mu:U \p, OfType:U \t) {
     my $w := p.^mixin: Assoc[t];
     $w.^set_name: "{p.^name}[{t.^name}]";
@@ -222,6 +234,7 @@ Several container types are available:
   =item `LibXML::HashMap[Str]` - Strings
   =item `LibXML::HashMap[LibXML::Node::Set]` - Sets of nodes
   =item `LibXML::HashMap[LibXML::Item]` - Individual nodes
+  =item `LibXML::HashMap[LibXML::Dtd::Notation]` - Dtd notation table
 
 =head2 Methods
 

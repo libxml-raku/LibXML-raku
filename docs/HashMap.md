@@ -58,6 +58,8 @@ Several container types are available:
 
   * `LibXML::HashMap[LibXML::Item]` - Individual nodes
 
+  * `LibXML::HashMap[LibXML::Dtd::Notation]` - Dtd notation table
+
 Methods
 -------
 

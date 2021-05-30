@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 9;
+plan 10;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -8,6 +8,8 @@ use LibXML::Document;
 use LibXML::Element;
 use LibXML::Enums;
 use LibXML::ErrorHandling;
+use LibXML::HashMap;
+use LibXML::Dtd::Notation;
 
 my $string = q:to<EOF>;
     <!ELEMENT doc (head, descr)>
@@ -111,4 +113,18 @@ subtest 'doc with no dtd loaded' => {
     is $dtd.systemId, "note.dtd", 'systemId';
     nok $dtd.publicId.defined, 'sans publicId';
     is-deeply $dtd.is-XHTML, False, 'is-XHTML';
+}
+
+subtest 'dtd notations' => {
+    plan 6;
+    $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my LibXML::HashMap[LibXML::Dtd::Notation] $notations = $dtd.notations;
+    ok $notations.defined, 'DtD has notations';
+    is-deeply $notations.keys, ("foo",), 'notation keys';
+    my LibXML::Dtd::Notation $foo = $notations<foo>;
+    ok $foo.defined, "notation fetch";
+    is $foo.name, "foo", 'notation name';
+    is $foo.systemId, 'bar', 'notation system-Id';
+    is-deeply $foo.publicId, Str, 'notation public-Id';
 }
