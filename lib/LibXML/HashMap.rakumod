@@ -10,6 +10,7 @@ use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
 use LibXML::Raw::HashTable;
 use LibXML::Enums;
+use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Notation;
 use NativeCall;
 use Method::Also;
@@ -51,7 +52,7 @@ method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
 }
 submethod DESTROY { .Free(self.deallocator) with self.raw; }
 
-subset OfType where XPathRange|LibXML::Dtd::Notation;
+subset OfType where XPathRange|LibXML::Dtd::ElementDecl|LibXML::Dtd::Notation;
 
 method !CArray(Any:U $type = Pointer, UInt:D :$len = $.raw.Size ) {
     my $a := CArray[$type].new;
@@ -93,7 +94,7 @@ method kv {
 method Hash { %( self.pairs ) }
 method AT-KEY(Str() $key) is rw {
     Proxy.new(
-        FETCH => { with $.raw.Lookup($key) { self.thaw($_) } else { self.of } },
+        FETCH => {with $.raw.Lookup($key) { self.thaw($_) } else { self.of } },
         STORE => -> $, $val { self.ASSIGN-KEY($key, $val) },
     )
 }
@@ -138,7 +139,6 @@ role Assoc[LibXML::Node::Set $of] {
     method of {$of}
     method freeze(LibXML::Node::Set:D $n) {
         given $n.raw.copy {
-            .Reference;
             nativecast(Pointer, $_);
         }
     }
@@ -173,11 +173,29 @@ role Assoc[Str $of] {
 role Assoc[LibXML::Dtd::Notation $of] {
     method of {$of}
     method freeze(LibXML::Dtd::Notation $_) { .raw.Copy }
-    method thaw(Pointer $p) { $of.box: nativecast(xmlNotation, $p) }
+    method thaw(Pointer:D $p --> LibXML::Dtd::Notation:D) { $of.box: nativecast(xmlNotation, $p) }
     method deallocator() {
-         -> Pointer $p, Str $k {
-             nativecast(xmlNotation, $_).Free with $p;
-         }
+        -> Pointer $p, Str $k {
+            nativecast(xmlNotation, $_).Free with $p;
+        }
+    }
+}
+
+role Assoc[LibXML::Dtd::ElementDecl $of] {
+    method of {$of}
+    method freeze(LibXML::Dtd::ElementDecl $_) {
+        .Reference;
+        .raw;
+    }
+    method thaw(Pointer:D $p --> LibXML::Dtd::ElementDecl:D) {
+        $of.box: nativecast(xmlElementDecl, $p);
+    }
+    method deallocator() {
+        -> Pointer $p, Str {
+            with $p {
+                 nativecast(xmlElementDecl, $_).Unreference;
+            }
+        }
     }
 }
 
@@ -235,6 +253,7 @@ Several container types are available:
   =item `LibXML::HashMap[LibXML::Node::Set]` - Sets of nodes
   =item `LibXML::HashMap[LibXML::Item]` - Individual nodes
   =item `LibXML::HashMap[LibXML::Dtd::Notation]` - Dtd notation table
+  =item `LibXML::HashMap[LibXML::Dtd::ElementDecl]` - Dtd element declartion
 
 =head2 Methods
 

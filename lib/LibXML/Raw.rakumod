@@ -1153,7 +1153,7 @@ class xmlNotation is export is repr('CStruct') {
     method new(Str:D :$name!, Str :$publicId, Str :$systemId) {
         New($name, $publicId, $systemId);
     }
-    method Free is native($XML2) is symbol('xmlFreeNotation') {*}
+    method Free is native($BIND-XML2) is symbol('xml6_notation_free') {*}
     method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
     method copy { $.Copy }
 }
@@ -1162,8 +1162,8 @@ class xmlNotation is export is repr('CStruct') {
 #| the internal subset and for the external subset (type: XML_DTD_NODE).
 class xmlDtd is anyNode is export {
     has xmlHashTable  $.notations; # Hash table for notations if any
-    has xmlHashTable   $.elements; # Hash table for elements if any
-    has xmlHashTable $.attributes; # Hash table for attributes if any
+    has xmlHashTable   $.elements; # Hash table for element declarations if any
+    has xmlHashTable $.attributes; # Hash table for attribute declarations if any
     has xmlHashTable   $.entities; # Hash table for entities if any
     has xmlCharP     $.ExternalID; # External identifier for PUBLIC DTD
     has xmlCharP       $.SystemID; # URI for a SYSTEM or PUBLIC DTD

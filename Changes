@@ -1,8 +1,15 @@
 {{$NEXT}}
-    - Removed some module loading workd-arounds for Rakudo < 2019.03
-    - Support Dtd Notations. Added raw class xmlNotation, API class LibXML::Dtd::Notation
-      and LibXML::Dtd notations() method. Also changed LibXML::Dtd repr from 'CStruct'
-      to default, so that it may contain a $!notations attribute.
+    - Removed some module loading work-arounds for Rakudo < 2019.03
+    - Support Dtd Notations:
+      -- Added raw class xmlNotation,
+      -- Added API class LibXML::Dtd::Notation
+      -- Added LibXML::Dtd notations() method
+      -- Changed LibXML::Dtd repr from 'CStruct' to default, so that it
+         contain attributes, firstly, the $!notations attribute.
+    - Support Dtd Element declarations:
+      -- Rename classes LibXML::Dtd::Attr -> LibXML::Dtd::AttrDecl and
+         LibXML::Dtd::Element -> LibXML::Dtd::ElementDecl
+      -- Add  LibXML::Dtd elements() method
 
 0.6.0  2021-05-29T09:37:12+12:00
     - Fix attribute isId() method to return Bool, as documented.

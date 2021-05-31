@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 10;
+plan 11;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -127,4 +127,17 @@ subtest 'dtd notations' => {
     is $foo.name, "foo", 'notation name';
     is $foo.systemId, 'bar', 'notation system-Id';
     is-deeply $foo.publicId, Str, 'notation public-Id';
+}
+
+subtest 'dtd element declarations' => {
+    plan 5;
+    $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.elements;
+    ok $elements.defined, 'DtD has elements';
+    is-deeply $elements.keys, ("doc",), 'element decl keys';
+    my LibXML::Dtd::ElementDecl $doc-decl = $elements<doc>;
+    ok $doc-decl.defined, "element decl fetch";
+    is $doc-decl.name, 'doc', 'element decl name';
+    is $doc-decl.type, +XML_ELEMENT_DECL, 'element decl type';
 }

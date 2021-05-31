@@ -42,11 +42,12 @@ unit class LibXML::Dtd
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
 use LibXML::Raw;
-use LibXML::Raw::HashTable;
 use LibXML::Parser::Context;
+use LibXML::Dtd::Notation;
+use LibXML::Dtd::ElementDecl;
+use LibXML::HashMap;
 use Method::Also;
 use NativeCall;
-use LibXML::HashMap;
 
 has xmlDtd $.raw is built handles <systemId publicId>;
 
@@ -206,6 +207,12 @@ has LibXML::HashMap[LibXML::Dtd::Notation] $!notations;
 method notations {
     $!notations //= LibXML::HashMap[LibXML::Dtd::Notation].new :raw($_)
         with $!raw.notations;
+}
+
+has LibXML::HashMap[LibXML::Dtd::ElementDecl] $!elements;
+method elements {
+    $!elements //= LibXML::HashMap[LibXML::Dtd::ElementDecl].new :raw($_)
+        with $!raw.elements;
 }
 
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {

@@ -60,6 +60,8 @@ Several container types are available:
 
   * `LibXML::HashMap[LibXML::Dtd::Notation]` - Dtd notation table
 
+  * `LibXML::HashMap[LibXML::Dtd::ElementDecl]` - Dtd element declartion
+
 Methods
 -------
 

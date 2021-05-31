@@ -1,6 +1,6 @@
 use LibXML::Node;
 
-unit class LibXML::Dtd::Attr
+unit class LibXML::Dtd::AttrDecl
     is repr('CPointer')
     is LibXML::Node;
 
