@@ -9,7 +9,7 @@ unit class LibXML::Entity
 use LibXML::Raw;
 use NativeCall;
 
-multi method new(Str:D :$name!, Str:D :$content!, Str :$external-id, Str :$internal-id, LibXML::Item :$doc) {
+method new(Str:D :$name!, Str:D :$content!, Str :$external-id, Str :$internal-id, LibXML::Item :$doc) {
     my xmlEntity:D $native .= create: :$name, :$content, :$external-id, :$internal-id;
     self.box($native, :$doc);
 }

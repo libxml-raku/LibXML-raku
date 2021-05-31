@@ -130,14 +130,19 @@ subtest 'dtd notations' => {
 }
 
 subtest 'dtd element declarations' => {
-    plan 5;
-    $doc .= parse: :file<example/dtd.xml>;
+    plan 9;
+    $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.elements;
     ok $elements.defined, 'DtD has elements';
-    is-deeply $elements.keys, ("doc",), 'element decl keys';
-    my LibXML::Dtd::ElementDecl $doc-decl = $elements<doc>;
-    ok $doc-decl.defined, "element decl fetch";
-    is $doc-decl.name, 'doc', 'element decl name';
-    is $doc-decl.type, +XML_ELEMENT_DECL, 'element decl type';
+    is-deeply $elements.keys.sort, ("body", "from", "heading", "note", "to"), 'element decl keys';
+    my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
+    ok $note-decl.defined, "element decl fetch";
+    is $note-decl.name, 'note', 'element decl name';
+    is $note-decl.type, +XML_ELEMENT_DECL, 'element decl type';
+    is $note-decl.parent.type, +XML_DTD_NODE, 'element parent type';
+    my LibXML::Dtd::ElementDecl $to-decl = $elements<to>;
+    is $to-decl.name, 'to', 'element decl name';
+    is $to-decl.type, +XML_ELEMENT_DECL, 'element decl type';
+    is $to-decl.parent.type, +XML_DTD_NODE, 'element parent type';
 }

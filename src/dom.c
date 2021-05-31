@@ -356,63 +356,68 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
 static xmlNodePtr
 _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNodePtr *ptail) {
     xmlNodePtr head = NULL, tail = NULL, p = NULL, n = NULL;
-    if ( cur ) {
-        head = tail = cur;
-        if ( leader ) {
-            p = leader->parent;
-        }
-        else if ( followup ) {
-            p = followup->parent;
-        }
-        else {
-            return 0; /* can't insert */
-        }
+    assert(ptail != NULL);
 
-        if (leader && followup && p != followup->parent) {
-            warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
-        }
-
-        if (cur->type == XML_DTD_NODE) {
-            xml6_warn("_domAddNodeToList(..) called on a DTD node");
-        }
-
-        if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
-            head = _domExtractFrag(cur);
-
-            n = head;
-            while ( n ){
-                n->parent = p;
-                n->doc = p->doc;
-                tail = n;
-                n = n->next;
-            }
-        }
-        else {
-            cur->parent = p;
-        }
-
-        if (head && tail && head != leader) {
-            if ( leader ) {
-                leader->next = head;
-                head->prev = leader;
-            }
-            else if ( p ) {
-                p->children = head;
-            }
-
-            if ( followup ) {
-                followup->prev = tail;
-                tail->next = followup;
-            }
-            else if ( p ) {
-                p->last = tail;
-            }
-        }
-        *ptail = tail;
-        return head;
+    if (cur == NULL) {
+        *ptail = NULL;
+        return NULL;
     }
-    *ptail = NULL;
-    return NULL;
+
+    head = tail = cur;
+    if ( leader ) {
+        p = leader->parent;
+    }
+    else if ( followup ) {
+        p = followup->parent;
+    }
+    else {
+        *ptail = NULL;
+        return NULL; /* can't insert */
+    }
+
+    if (leader && followup && p != followup->parent) {
+        warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
+    }
+
+    if (cur->type == XML_DTD_NODE) {
+        xml6_warn("_domAddNodeToList(..) called on a DTD node");
+    }
+
+    if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
+        head = _domExtractFrag(cur);
+
+        n = head;
+        while ( n ){
+            n->parent = p;
+            n->doc = p->doc;
+            tail = n;
+            n = n->next;
+        }
+    }
+    else {
+        cur->parent = p;
+    }
+
+    if (head && tail && head != leader) {
+        if ( leader ) {
+            leader->next = head;
+            head->prev = leader;
+        }
+        else if ( p ) {
+            p->children = head;
+        }
+
+        if ( followup ) {
+            followup->prev = tail;
+            tail->next = followup;
+        }
+        else if ( p ) {
+            p->last = tail;
+        }
+    }
+
+    *ptail = tail;
+    return head;
 }
 
 static xmlNodePtr
@@ -522,6 +527,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     return 1;
 }
 
+// Determine if there's any API references to the node or its decendants
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr self) {
     xmlAttrPtr attr;
@@ -541,7 +547,10 @@ domNodeIsReferenced(xmlNodePtr self) {
     if (self->type == XML_ELEMENT_NODE) {
         // scan element attributes
         for (attr = self->properties; attr != NULL; attr = attr->next) {
-            if (attr->type == XML_ATTRIBUTE_NODE && attr->_private != NULL) {
+            void* ref = attr->type == XML_NAMESPACE_DECL
+                ? ((xmlNsPtr)attr)->_private
+                : attr->_private;
+            if (ref != NULL) {
                 return 1;
             }
         }

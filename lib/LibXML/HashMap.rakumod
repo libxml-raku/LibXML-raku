@@ -105,11 +105,6 @@ method ASSIGN-KEY(Str() $key, $val) is rw {
 }
 method DELETE-KEY(Str() $key) { $.raw.RemoveEntry($key, $.deallocator) }
 
-role Assoc[XPathRange $of] {
-    # default
-    method of { $of }
-}
-
 role Assoc[Pointer $of] {
     method of { $of }
     method key-of { Str }
@@ -181,22 +176,9 @@ role Assoc[LibXML::Dtd::Notation $of] {
     }
 }
 
-role Assoc[LibXML::Dtd::ElementDecl $of] {
-    method of {$of}
-    method freeze(LibXML::Dtd::ElementDecl $_) {
-        .Reference;
-        .raw;
-    }
-    method thaw(Pointer:D $p --> LibXML::Dtd::ElementDecl:D) {
-        $of.box: nativecast(xmlElementDecl, $p);
-    }
-    method deallocator() {
-        -> Pointer $p, Str {
-            with $p {
-                 nativecast(xmlElementDecl, $_).Unreference;
-            }
-        }
-    }
+role Assoc[XPathRange $of] {
+    # default
+    method of { $of }
 }
 
 method ^parameterize(Mu:U \p, OfType:U \t) {

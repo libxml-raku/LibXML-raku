@@ -1196,8 +1196,19 @@ class xmlDtd is anyNode is export {
 }
 
 class anyDtdNode is anyNode {
-    # All Nodes are immediate descendants of a Dtd
-    method parent(--> xmlDtd) { callsame }
+    # All Dtd Declaration Nodes have the Dtd as the parent.
+    # The Dtd indirectly references them via HashMaps which
+    # would get freed along with the Dtd. domIsReferenced() is
+    # currently not going to the trouble/expense of checking
+    # the HashMaps
+    method Reference {
+        callsame();
+        .Reference() with self.parent;
+    }
+    method Unreference {
+        callsame();
+        .Unreference() with self.parent;
+    }
 }
 
 #| An Attribute declaration in a DTD (type: XML_ATTRIBUTE_DECL).
