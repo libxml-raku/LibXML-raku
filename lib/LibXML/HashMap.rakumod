@@ -50,7 +50,8 @@ method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
         with $pairs;
     nativecast(self.WHAT, $raw);
 }
-submethod DESTROY { .Free(self.deallocator) with self.raw; }
+method cleanup { .Free(self.deallocator) with self.raw; }
+submethod DESTROY { self.cleanup }
 
 subset OfType where XPathRange|LibXML::Dtd::ElementDecl|LibXML::Dtd::Notation;
 
@@ -181,8 +182,15 @@ role Assoc[XPathRange $of] {
     method of { $of }
 }
 
-method ^parameterize(Mu:U \p, OfType:U \t) {
+my role read-only {
+    method DELETE-KEY($) { die X::NYI.new }
+    method ASSIGN-KEY($, $) { die X::NYI.new }
+    method cleanup {}
+}
+
+method ^parameterize(Mu:U \p, OfType:U \t, :$ro) {
     my $w := p.^mixin: Assoc[t];
+    $w := $w.^mixin: read-only if $ro;
     $w.^set_name: "{p.^name}[{t.^name}]";
     $w;
 }

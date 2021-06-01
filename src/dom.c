@@ -246,7 +246,7 @@ _domExtractFrag(xmlNodePtr frag) {
 
 DLLEXPORT xmlDtdPtr
 domGetInternalSubset(xmlDocPtr self) {
-    return xmlGetIntSubset(self);
+    return self->intSubset;
 }
 
 DLLEXPORT xmlDtdPtr
@@ -527,6 +527,21 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     return 1;
 }
 
+static void _domScanEntry(void* value, int* refs, xmlChar* key) {
+    if (value != NULL && ((xmlNodePtr)value)->_private != NULL) {
+        (*refs)++;
+    }
+}
+
+static int
+_domScanHashForRefs(xmlHashTablePtr self) {
+    int refs = 0;
+    if (self != NULL) {
+        xmlHashScan(self, (xmlHashScanner)_domScanEntry, (void*) &refs);
+    }
+    return refs;
+}
+
 // Determine if there's any API references to the node or its decendants
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr self) {
@@ -553,6 +568,15 @@ domNodeIsReferenced(xmlNodePtr self) {
             if (ref != NULL) {
                 return 1;
             }
+        }
+    }
+    else if (self->type == XML_DTD_NODE) {
+        xmlDtdPtr dtd = (xmlDtdPtr)self;
+        if (_domScanHashForRefs(dtd->elements)
+            || _domScanHashForRefs(dtd->attributes)
+            || _domScanHashForRefs(dtd->entities)) {
+            fprintf(stderr, __FILE__ ":%d ye gods!\n", __LINE__);
+            return 1;
         }
     }
     else if (_domIsDoc(self)) {

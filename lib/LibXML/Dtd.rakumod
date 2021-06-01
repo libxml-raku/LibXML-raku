@@ -43,8 +43,10 @@ use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
 use LibXML::Raw;
 use LibXML::Parser::Context;
-use LibXML::Dtd::Notation;
+use LibXML::Entity;
+use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::Notation;
 use LibXML::HashMap;
 use Method::Also;
 use NativeCall;
@@ -199,20 +201,32 @@ method is-XHTML(--> Bool) {
 =para Returns False if the Id's don't match or Bool:U if the DtD lack either a publicId or systemId
 
 # NYI DOM Level-2 methods
-method entities(|) is also<internalSubset> {
+method internalSubset {
     die X::NYI.new
 }
 
 has LibXML::HashMap[LibXML::Dtd::Notation] $!notations;
 method notations {
-    $!notations //= LibXML::HashMap[LibXML::Dtd::Notation].new :raw($_)
+    $!notations //= LibXML::HashMap[LibXML::Dtd::Notation, :ro].new :raw($_)
         with $!raw.notations;
 }
 
 has LibXML::HashMap[LibXML::Dtd::ElementDecl] $!elements;
-method elements {
-    $!elements //= LibXML::HashMap[LibXML::Dtd::ElementDecl].new :raw($_)
+method element-decls {
+    $!elements //= LibXML::HashMap[LibXML::Dtd::ElementDecl, :ro].new :raw($_)
         with $!raw.elements;
+}
+
+has LibXML::HashMap[LibXML::Dtd::AttrDecl] $!attributes;
+method attribute-decls {
+    $!attributes //= LibXML::HashMap[LibXML::Dtd::AttrDecl, :ro].new :raw($_)
+        with $!raw.attributes;
+}
+
+has LibXML::HashMap[LibXML::Entity] $!entities;
+method entities {
+    $!entities //= LibXML::HashMap[LibXML::Entity, :ro].new :raw($_)
+        with $!raw.entities;
 }
 
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {

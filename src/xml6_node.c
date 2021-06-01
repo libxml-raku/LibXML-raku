@@ -43,11 +43,12 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
     if (node->type == XML_ENTITY_DECL && node->doc != NULL) {
         xmlDocPtr doc = node->doc;
         const xmlChar* name = node->name;
-        if ((doc->intSubset != NULL
-             && xmlHashLookup(doc->intSubset->entities, name) == node)
-            ||
-            (doc->extSubset != NULL
-             && xmlHashLookup(doc->extSubset->entities, name) == node)) {
+        if (doc->intSubset != NULL
+            && xmlHashLookup(doc->intSubset->entities, name) == node) {
+            node = (xmlNodePtr) doc;
+        }
+        else if (doc->extSubset != NULL
+                 && xmlHashLookup(doc->extSubset->entities, name) == node) {
             node = (xmlNodePtr) doc;
         }
     }

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 11;
+plan 13;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -9,6 +9,8 @@ use LibXML::Element;
 use LibXML::Enums;
 use LibXML::ErrorHandling;
 use LibXML::HashMap;
+use LibXML::Entity;
+use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Notation;
 
 my $string = q:to<EOF>;
@@ -129,11 +131,30 @@ subtest 'dtd notations' => {
     is-deeply $foo.publicId, Str, 'notation public-Id';
 }
 
+subtest 'dtd entities' => {
+    plan 9;
+    $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my LibXML::HashMap[LibXML::Entity] $entities = $dtd.entities;
+    ok $entities.defined, 'DtD has entities';
+    is-deeply $entities.keys.sort, ("foo", "unparsed"), 'entity keys';
+    my LibXML::Entity $foo = $entities<foo>;
+    ok $foo.defined, "entity fetch";
+    is $foo.name, "foo", 'entity name';
+    is $foo.value, ' test ', 'entity value';
+    my LibXML::Entity $unparsed = $entities<unparsed>;
+    is-deeply $unparsed.systemId, 'http://example.org/blah', 'entity system-Id';
+    is-deeply $unparsed.publicId, Str, 'entity public-Id';
+    is $unparsed.notationName, "foo", 'notation name';
+    # no update support yet
+    throws-like {$entities<bar> = $foo}, X::NYI, 'entities hash update is nyi';
+}
+
 subtest 'dtd element declarations' => {
     plan 9;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.elements;
+    my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.element-decls;
     ok $elements.defined, 'DtD has elements';
     is-deeply $elements.keys.sort, ("body", "from", "heading", "note", "to"), 'element decl keys';
     my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
@@ -146,3 +167,17 @@ subtest 'dtd element declarations' => {
     is $to-decl.type, +XML_ELEMENT_DECL, 'element decl type';
     is $to-decl.parent.type, +XML_DTD_NODE, 'element parent type';
 }
+
+subtest 'dtd attribute declarations' => {
+    plan 4;
+    $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my LibXML::HashMap[LibXML::Dtd::AttrDecl] $attr-decls = $dtd.attribute-decls;
+    ok $attr-decls.defined, 'DtD has attributes';
+    is-deeply $attr-decls.keys, ("type",), 'attribute declarations keys';
+    my LibXML::Dtd::AttrDecl $type-decl = $attr-decls<type>;
+    todo "returning undef?", 2;
+    ok $type-decl.defined, "attribute declaration fetch";
+    is $type-decl.name, "type", 'attribute declaration name';
+}
+

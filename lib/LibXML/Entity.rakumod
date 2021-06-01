@@ -16,6 +16,6 @@ method new(Str:D :$name!, Str:D :$content!, Str :$external-id, Str :$internal-id
 
 method publicId { $.raw.ExternalID }
 method systemId { $.raw.SystemID }
-method notationName { $.nodeName }
+method notationName { $.raw.content }
 
 method raw { nativecast(xmlEntity, self) }
