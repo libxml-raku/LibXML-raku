@@ -60,6 +60,11 @@ domSetInternalSubset(xmlDocPtr, xmlDtdPtr dtd);
 DLLEXPORT xmlDtdPtr
 domSetExternalSubset(xmlDocPtr, xmlDtdPtr dtd);
 
+DLLEXPORT xmlEntityPtr
+domGetEntityFromDtd(xmlDtdPtr dtd, xmlChar *name);
+
+DLLEXPORT xmlEntityPtr
+domGetParameterEntityFromDtd(xmlDtdPtr dtd, xmlChar *name);
 /**
  * NAME domIsParent
  * TYPE function

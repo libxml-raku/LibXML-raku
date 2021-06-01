@@ -481,7 +481,7 @@ method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-    &?ROUTINE.returns.box(self.raw.addSibling($new.raw));
+    &?ROUTINE.returns.box: self.raw.addSibling($new.raw);
 }
 
 #| Copy a node

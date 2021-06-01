@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 13;
+plan 12;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -8,7 +8,6 @@ use LibXML::Document;
 use LibXML::Element;
 use LibXML::Enums;
 use LibXML::ErrorHandling;
-use LibXML::HashMap;
 use LibXML::Entity;
 use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Notation;
@@ -121,7 +120,7 @@ subtest 'dtd notations' => {
     plan 6;
     $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::HashMap[LibXML::Dtd::Notation] $notations = $dtd.notations;
+    my LibXML::Dtd::DeclMap $notations = $dtd.notations;
     ok $notations.defined, 'DtD has notations';
     is-deeply $notations.keys, ("foo",), 'notation keys';
     my LibXML::Dtd::Notation $foo = $notations<foo>;
@@ -135,7 +134,7 @@ subtest 'dtd entities' => {
     plan 9;
     $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::HashMap[LibXML::Entity] $entities = $dtd.entities;
+    my LibXML::Dtd::DeclMap $entities = $dtd.entities;
     ok $entities.defined, 'DtD has entities';
     is-deeply $entities.keys.sort, ("foo", "unparsed"), 'entity keys';
     my LibXML::Entity $foo = $entities<foo>;
@@ -151,10 +150,10 @@ subtest 'dtd entities' => {
 }
 
 subtest 'dtd element declarations' => {
-    plan 9;
+    plan 10;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.element-decls;
+    my LibXML::Dtd::DeclMap $elements = $dtd.element-declarations;
     ok $elements.defined, 'DtD has elements';
     is-deeply $elements.keys.sort, ("body", "from", "heading", "note", "to"), 'element decl keys';
     my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
@@ -162,22 +161,9 @@ subtest 'dtd element declarations' => {
     is $note-decl.name, 'note', 'element decl name';
     is $note-decl.type, +XML_ELEMENT_DECL, 'element decl type';
     is $note-decl.parent.type, +XML_DTD_NODE, 'element parent type';
+    ok $dtd.getNodeDeclaration($doc.documentElement).isSameNode($note-decl), 'getNodeDeclaration';
     my LibXML::Dtd::ElementDecl $to-decl = $elements<to>;
     is $to-decl.name, 'to', 'element decl name';
     is $to-decl.type, +XML_ELEMENT_DECL, 'element decl type';
     is $to-decl.parent.type, +XML_DTD_NODE, 'element parent type';
 }
-
-subtest 'dtd attribute declarations' => {
-    plan 4;
-    $doc .= parse: :file<example/dtd.xml>;
-    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::HashMap[LibXML::Dtd::AttrDecl] $attr-decls = $dtd.attribute-decls;
-    ok $attr-decls.defined, 'DtD has attributes';
-    is-deeply $attr-decls.keys, ("type",), 'attribute declarations keys';
-    my LibXML::Dtd::AttrDecl $type-decl = $attr-decls<type>;
-    todo "returning undef?", 2;
-    ok $type-decl.defined, "attribute declaration fetch";
-    is $type-decl.name, "type", 'attribute declaration name';
-}
-

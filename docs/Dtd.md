@@ -10,24 +10,26 @@ LibXML DTD Handling
 Synopsis
 --------
 
-    use LibXML::Dtd;
-    use LibXML::Dtd::Notation;
+```raku
+use LibXML::Dtd;
+use LibXML::Dtd::Notation;
 
-    my LibXML::Dtd $dtd .= new($public-id, $system-id);
-    my LibXML::Dtd $dtd .= parse: :string($dtd-str);
+my LibXML::Dtd $dtd .= new($public-id, $system-id);
+my LibXML::Dtd $dtd .= parse: :string($dtd-str);
 
-    # Information retrieval
-    my Str $dtdName = $dtd.getName();
-    my Str $publicId = $dtd.publicId();
-    my Str $systemId = $dtd.systemId();
-    my Bool $is-html = $dtd.is-XHTML;
-    my $notations = $dtd.notations;
-    my LibXML::Dtd::Notation $foo = $notations<foo>;
+# Information retrieval
+my Str $dtdName = $dtd.getName();
+my Str $publicId = $dtd.publicId();
+my Str $systemId = $dtd.systemId();
+my Bool $is-html = $dtd.is-XHTML;
+my $notations = $dtd.notations;
+my LibXML::Dtd::Notation $foo = $notations<foo>;
 
-    # Validation
-    try { $dtd.validate($doc) };
-    my Bool $valid = $dtd.is-valid($doc);
-    if $doc ~~ $dtd { ... } # if doc is valid against the DTD
+# Validation
+try { $dtd.validate($doc) };
+my Bool $valid = $dtd.is-valid($doc);
+if $doc ~~ $dtd { ... } # if doc is valid against the DTD
+```
 
 Description
 -----------
@@ -66,6 +68,57 @@ Parse a DTD from the system identifier, and return a DTD object that you can pas
     method parse(Str :string) returns LibXML::Dtd;
 
 The same as new() above, except you can parse a DTD from a string. Note that parsing from string may fail if the DTD contains external parametric-entity references with relative URLs.
+
+### method getNotation
+
+```raku
+method getNotation(
+    Str $name
+) returns LibXML::Dtd::Notation
+```
+
+Notation declaration lookup
+
+### method getEntity
+
+```raku
+method getEntity(
+    Str $name
+) returns LibXML::Entity
+```
+
+Entity declaration lookup
+
+### method getElementDeclaration
+
+```raku
+method getElementDeclaration(
+    Str $name
+) returns LibXML::Dtd::ElementDecl
+```
+
+Element declaration lookup
+
+### method getAttrDeclaration
+
+```raku
+method getAttrDeclaration(
+    Str $elem-name,
+    Str $attr-name
+) returns LibXML::Dtd::AttrDecl
+```
+
+Attribute declaration lookup
+
+### getNodeDeclaration
+
+```raku
+multi method getNodeDeclaration(LibXML::Element --> LibXML::Dtd::ElementDecl);
+multi method getNodeDeclaration(LibXML::Attr --> LibXML::Dtd::AttrDecl);
+multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::EntityRe);
+```
+
+Looks up a definition in the DtD for a DOM Element, Attribute or Entity-Reference node
 
 ### method validate
 

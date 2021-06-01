@@ -9,6 +9,7 @@ unit class LibXML::Dtd
   =begin pod
   =head2 Synopsis
 
+      =begin code :lang<raku>
       use LibXML::Dtd;
       use LibXML::Dtd::Notation;
 
@@ -27,6 +28,7 @@ unit class LibXML::Dtd
       try { $dtd.validate($doc) };
       my Bool $valid = $dtd.is-valid($doc);
       if $doc ~~ $dtd { ... } # if doc is valid against the DTD
+      =end code
 
   =head2 Description
 
@@ -42,8 +44,12 @@ unit class LibXML::Dtd
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::_Options;
 use LibXML::Raw;
+use LibXML::Raw::HashTable;
 use LibXML::Parser::Context;
+use LibXML::Attr;
+use LibXML::Element;
 use LibXML::Entity;
+use LibXML::EntityRef;
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Notation;
@@ -173,6 +179,38 @@ method cloneNode(LibXML::Dtd:D: $?) {
     self.clone: :$raw;
 }
 
+#| Notation declaration lookup
+method getNotation(Str $name --> LibXML::Dtd::Notation) { &?ROUTINE.returns.box: $.raw.getNotation($name) }
+
+#| Entity declaration lookup
+method getEntity(Str $name --> LibXML::Entity) { &?ROUTINE.returns.box: $.raw.getEntity($name) }
+
+#| Element declaration lookup
+method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) { &?ROUTINE.returns.box: $.raw.getElementDecl($name) }
+
+#| Attribute declaration lookup
+method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDecl) { &?ROUTINE.returns.box: $.raw.getAttrDecl($elem-name, $attr-name) }
+
+=head3 getNodeDeclaration
+=begin code :lang<raku>
+multi method getNodeDeclaration(LibXML::Element --> LibXML::Dtd::ElementDecl);
+multi method getNodeDeclaration(LibXML::Attr --> LibXML::Dtd::AttrDecl);
+multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::EntityRe);
+=end code
+=para Looks up a definition in the DtD for a DOM Element, Attribute or Entity-Reference node
+
+multi method getNodeDeclaration(LibXML::EntityRef:D $_) {
+    $.getEntity: .nodeName;
+}
+
+multi method getNodeDeclaration(LibXML::Element:D $_) {
+    $.getElementDeclaration: .nodeName;
+}
+
+multi method getNodeDeclaration(LibXML::Attr:D $_) {
+    $.getAttrDeclaration: .getOwnerElement.nodeName, .nodeName;
+}
+
 method !valid-ctx($schema:) { ValidContext.new: :$schema }
 
 method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument --> UInt) is hidden-from-backtrace {
@@ -205,27 +243,46 @@ method internalSubset {
     die X::NYI.new
 }
 
-has LibXML::HashMap[LibXML::Dtd::Notation] $!notations;
-method notations {
-    $!notations //= LibXML::HashMap[LibXML::Dtd::Notation, :ro].new :raw($_)
+class DeclMap {
+    my class HashMap is LibXML::HashMap is repr('CPointer') {
+        method of {LibXML::Node}
+        method freeze(LibXML::Node:D $node) { nativecast(Pointer, $node) }
+        method thaw(Pointer:D $p) { LibXML::HashMap::cast-item($_) }
+        method deallocator() {
+            -> Pointer $p, $ {
+                # Not needed, as nodes are linked to the DOM
+            }
+        }
+        method cleanup { }
+    }
+    has HashMap $.map is built handles<keys pairs values>;
+    has LibXML::Dtd $.dtd;
+    has Str $.fetcher;
+    submethod TWEAK(xmlHashTable:D :$raw!) {
+        $!map .= new: :$raw;
+    }
+    method DELETE-KEY($) { die X::NYI.new }
+    method ASSIGN-KEY($, $) { die X::NYI.new }
+    method AT-KEY(Str:D() $k) {
+        $!dtd."$!fetcher"($k);
+    }
+}
+
+has DeclMap $!notations;
+method notations(LibXML::Dtd:D $dtd:) {
+    $!notations //= DeclMap.new: :$dtd, :raw($_), :fetcher<getNotation>
         with $!raw.notations;
 }
 
-has LibXML::HashMap[LibXML::Dtd::ElementDecl] $!elements;
-method element-decls {
-    $!elements //= LibXML::HashMap[LibXML::Dtd::ElementDecl, :ro].new :raw($_)
+has DeclMap $!elements;
+method element-declarations(LibXML::Dtd:D $dtd:) {
+    $!elements //= DeclMap.new: :$dtd, :raw($_), :fetcher<getElementDeclaration>
         with $!raw.elements;
 }
 
-has LibXML::HashMap[LibXML::Dtd::AttrDecl] $!attributes;
-method attribute-decls {
-    $!attributes //= LibXML::HashMap[LibXML::Dtd::AttrDecl, :ro].new :raw($_)
-        with $!raw.attributes;
-}
-
-has LibXML::HashMap[LibXML::Entity] $!entities;
-method entities {
-    $!entities //= LibXML::HashMap[LibXML::Entity, :ro].new :raw($_)
+has DeclMap $!entities;
+method entities(LibXML::Dtd:D $dtd:) {
+    $!entities //= DeclMap.new: :$dtd, :raw($_), :fetcher<getEntity>
         with $!raw.entities;
 }
 

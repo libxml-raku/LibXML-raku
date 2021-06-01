@@ -17,7 +17,7 @@ use Method::Also;
 
 method raw { nativecast(xmlHashTable, self) }
 
-sub cast-item(Pointer $p) { nativecast(itemNode, $p).delegate }
+our sub cast-item(Pointer $p) { nativecast(itemNode, $p).delegate }
 
 method of {XPathRange}
 
@@ -122,7 +122,7 @@ role Assoc[LibXML::Item $of] {
         nativecast(Pointer, $n);
     }
     method thaw(Pointer $p) {
-        LibXML::Item.box: cast-item($p);
+        $of.box: cast-item($p);
     }
     method deallocator() {
         -> Pointer $p, Str $k {
@@ -140,7 +140,7 @@ role Assoc[LibXML::Node::Set $of] {
     }
     method thaw(Pointer $p) {
         my $raw = nativecast(xmlNodeSet, $p).copy;
-        LibXML::Node::Set.new: :$raw, :deref;
+        $of.new: :$raw, :deref;
     }
     method deallocator() {
         -> Pointer $p, Str $k {
@@ -182,15 +182,8 @@ role Assoc[XPathRange $of] {
     method of { $of }
 }
 
-my role read-only {
-    method DELETE-KEY($) { die X::NYI.new }
-    method ASSIGN-KEY($, $) { die X::NYI.new }
-    method cleanup {}
-}
-
-method ^parameterize(Mu:U \p, OfType:U \t, :$ro) {
+method ^parameterize(Mu:U \p, OfType:U \t) {
     my $w := p.^mixin: Assoc[t];
-    $w := $w.^mixin: read-only if $ro;
     $w.^set_name: "{p.^name}[{t.^name}]";
     $w;
 }

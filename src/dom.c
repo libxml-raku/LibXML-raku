@@ -320,6 +320,30 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     return dtd;
 }
 
+DLLEXPORT xmlEntityPtr
+domGetEntityFromDtd(xmlDtdPtr dtd, xmlChar *name) {
+    xmlEntitiesTablePtr table;
+
+    if((dtd != NULL) && (dtd->entities != NULL)) {
+	table = (xmlEntitiesTablePtr) dtd->entities;
+	return((xmlEntityPtr) xmlHashLookup(table, name));
+    }
+    return(NULL);
+}
+
+DLLEXPORT xmlEntityPtr
+domGetParameterEntityFromDtd(xmlDtdPtr dtd, xmlChar *name) {
+    xmlEntitiesTablePtr table;
+
+    if ((dtd != NULL) && (dtd->pentities != NULL)) {
+	table = (xmlEntitiesTablePtr) dtd->pentities;
+	return((xmlEntityPtr) xmlHashLookup(table, name));
+	/* return(xmlGetEntityFromTable(table, name)); */
+    }
+    return(NULL);
+}
+
+
 static xmlNodePtr
 _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
     xmlNodePtr cur = head;

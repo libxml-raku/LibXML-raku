@@ -86,10 +86,12 @@ module xml6_config is export {
 class anyNode        is repr('CStruct') is export {...}
 class itemNode       is repr('CStruct') is export {...}
 class xmlAttr        is repr('CStruct') is export {...}
+class xmlAttrDecl    is repr('CStruct') is export {...}
 class xmlDtd         is repr('CStruct') is export {...}
 class xmlDoc         is repr('CStruct') is export {...}
 class xmlDocFrag     is repr('CStruct') is export {...}
 class xmlElem        is repr('CStruct') is export {...}
+class xmlElementDecl is repr('CStruct') is export {...}
 class xmlEntity      is repr('CStruct') is export {...}
 class xmlError       is repr('CStruct') is export {...}
 class xmlNode        is repr('CStruct') is export {...}
@@ -1177,6 +1179,10 @@ class xmlDtd is anyNode is export {
 
     our sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native($XML2) {*}
     method IsXHTML returns int32 { xmlIsXHTML($!SystemID, $!ExternalID) }
+    method getAttrDecl(xmlCharP $elem, xmlCharP $name --> xmlAttrDecl) is native($XML2) is symbol('xmlGetDtdAttrDesc') {*}
+    method getElementDecl(xmlCharP --> xmlElementDecl) is native($XML2) is symbol('xmlGetDtdElementDesc') {*}
+    method getEntity(xmlCharP --> xmlEntity) is native($BIND-XML2) is symbol('domGetEntityFromDtd') {*}
+    method getParameterEntity(xmlCharP --> xmlEntity) is native($BIND-XML2) is symbol('domGetParameterEntityFromDtd') {*}
     method getNotation(xmlCharP --> xmlNotation) is native($XML2) is symbol('xmlGetDtdNotationDesc') {*}
     multi method new(:type($)! where 'internal', xmlDoc:D :$doc, Str :$name, Str :$external-id, Str :$system-id) {
         $doc.CreateIntSubset( $name, $external-id, $system-id);
@@ -1200,7 +1206,7 @@ class anyDtdNode is anyNode {
 }
 
 #| An Attribute declaration in a DTD (type: XML_ATTRIBUTE_DECL).
-class xmlAttrDecl is repr('CStruct') is anyDtdNode is export {
+class xmlAttrDecl is anyDtdNode is export {
     has xmlAttrDecl     $.nexth; # next in hash table
     has int32           $.atype; # the attribute type
     has int32             $.def; # default mode (enum xmlAttributeDefault)
@@ -1240,7 +1246,7 @@ class xmlEntity is anyDtdNode is export {
 }
 
 #| An XML Element declaration from a DTD (type: XML_ELEMENT_DECL).
-class xmlElementDecl is repr('CStruct') is anyDtdNode is export {
+class xmlElementDecl is anyDtdNode is export {
     has int32                $.etype; # The type */
     has xmlElementContent  $.content; # the allowed element content */
     has xmlAttrDecl     $.attributes; # List of the declared attributes */
