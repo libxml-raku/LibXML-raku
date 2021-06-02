@@ -96,6 +96,7 @@ class xmlEntity      is repr('CStruct') is export {...}
 class xmlError       is repr('CStruct') is export {...}
 class xmlNode        is repr('CStruct') is export {...}
 class xmlNodeSet     is repr('CStruct') is export {...}
+class xmlNotation    is repr('CStruct') is export {...}
 class xmlParserCtxt  is repr('CStruct') is export {...}
 class xmlXPathParserContext
                      is repr('CStruct') is export {...}
@@ -115,6 +116,7 @@ class xmlBuffer32 is repr(Opaque) is export {
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlNodeDump') {*};
     method Content(--> Str) is symbol('xmlBufferContent') is native($XML2) { * }
+    method NotationDump(xmlNotation) is native($XML2) is symbol('xmlDumpNotationDecl') {*};
     method Free() is native($XML2) is symbol('xmlBufferFree') {*};
     method new(--> xmlBuffer32:D) { New() }
 }
@@ -1147,7 +1149,7 @@ class xmlDocFrag is xmlNode is export {
     }
 }
 
-class xmlNotation is export is repr('CStruct') {
+class xmlNotation is export {
     has xmlCharP $.name;
     has xmlCharP $.publicId;
     has xmlCharP $.systemId;
@@ -1159,6 +1161,13 @@ class xmlNotation is export is repr('CStruct') {
     method Free is native($BIND-XML2) is symbol('xml6_notation_free') {*}
     method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
     method copy { $.Copy }
+    multi method Str(xmlNotation:D:){
+        my xmlBuffer32 $buf .= new;
+        $buf.NotationDump(self);
+        my str $content = $buf.Content;
+        $buf.Free;
+        $content;
+    }
 }
 
 #| An XML DTD, as defined by <!DOCTYPE ... There is actually one for

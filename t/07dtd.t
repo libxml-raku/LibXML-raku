@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 70;
+plan 73;
 
 use LibXML;
 use LibXML::Enums;
@@ -88,12 +88,15 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     is( $entity-ref.firstChild.nodeValue, " test ", ' TODO : Add test name' );
 
     my $edcl = $entity-ref.firstChild;
+    is $edcl.Str.chomp, '<!ENTITY foo " test ">';
     is( $edcl.previousSibling.nodeType, +XML_ATTRIBUTE_DECL, ' TODO : Add test name' );
+    is $edcl.previousSibling.Str.chomp, '<!ATTLIST doc type CDATA #IMPLIED>';
 
     my $entity = $doc.getEntity('foo');
     ok $entity.defined, 'got dtd entity';
     is $entity.nodeType, +XML_ENTITY_DECL, 'entity decl node type';
     is $entity.name, 'foo', 'entity decl name';
+    ok $entity-ref.firstChild.isSameNode($entity), 'entity reference checks out';
     nok $doc.getEntity('bar').defined, 'get on unknown entity';
 
     $entity = $doc.getEntity('lt');

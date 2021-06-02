@@ -45,6 +45,7 @@ my LibXML::Dtd $dtd = $doc.getInternalSubset;
 my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.element-decls;
 
 my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
+note $note-decl.Str; # <!ELEMENT note (to,from,heading,body)>
 
 =end code
 =end pod

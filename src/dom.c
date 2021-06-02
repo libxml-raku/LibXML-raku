@@ -598,7 +598,6 @@ domNodeIsReferenced(xmlNodePtr self) {
         if (_domScanHashForRefs(dtd->elements)
             || _domScanHashForRefs(dtd->attributes)
             || _domScanHashForRefs(dtd->entities)) {
-            fprintf(stderr, __FILE__ ":%d ye gods!\n", __LINE__);
             return 1;
         }
     }

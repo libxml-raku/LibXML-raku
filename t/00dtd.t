@@ -117,7 +117,7 @@ subtest 'doc with no dtd loaded' => {
 }
 
 subtest 'dtd notations' => {
-    plan 6;
+    plan 7;
     $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $notations = $dtd.notations;
@@ -128,10 +128,11 @@ subtest 'dtd notations' => {
     is $foo.name, "foo", 'notation name';
     is $foo.systemId, 'bar', 'notation system-Id';
     is-deeply $foo.publicId, Str, 'notation public-Id';
+    is $foo.Str.chomp, '<!NOTATION foo SYSTEM "bar" >', 'notation Str';
 }
 
 subtest 'dtd entities' => {
-    plan 9;
+    plan 10;
     $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $entities = $dtd.entities;
@@ -145,12 +146,13 @@ subtest 'dtd entities' => {
     is-deeply $unparsed.systemId, 'http://example.org/blah', 'entity system-Id';
     is-deeply $unparsed.publicId, Str, 'entity public-Id';
     is $unparsed.notationName, "foo", 'notation name';
+    is $unparsed.Str.chomp, '<!ENTITY unparsed SYSTEM "http://example.org/blah" NDATA foo>', 'entity Str';
     # no update support yet
     throws-like {$entities<bar> = $foo}, X::NYI, 'entities hash update is nyi';
 }
 
 subtest 'dtd element declarations' => {
-    plan 10;
+    plan 11;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $elements = $dtd.element-declarations;
@@ -161,6 +163,7 @@ subtest 'dtd element declarations' => {
     is $note-decl.name, 'note', 'element decl name';
     is $note-decl.type, +XML_ELEMENT_DECL, 'element decl type';
     is $note-decl.parent.type, +XML_DTD_NODE, 'element parent type';
+    is $note-decl.Str.chomp, '<!ELEMENT note (to , from , heading , body)>', 'element decl string';
     ok $dtd.getNodeDeclaration($doc.documentElement).isSameNode($note-decl), 'getNodeDeclaration';
     my LibXML::Dtd::ElementDecl $to-decl = $elements<to>;
     is $to-decl.name, 'to', 'element decl name';
