@@ -338,7 +338,6 @@ domGetParameterEntityFromDtd(xmlDtdPtr dtd, xmlChar *name) {
     if ((dtd != NULL) && (dtd->pentities != NULL)) {
 	table = (xmlEntitiesTablePtr) dtd->pentities;
 	return((xmlEntityPtr) xmlHashLookup(table, name));
-	/* return(xmlGetEntityFromTable(table, name)); */
     }
     return(NULL);
 }

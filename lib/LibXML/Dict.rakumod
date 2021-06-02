@@ -45,8 +45,7 @@ multi method see(@k) {
 
 =head2 Description
 
-L<LibXML::Dict> binds to the xmlDict data structure, which is used to uniquely identify
-and store strings.
+L<LibXML::Dict> binds to the xmlDict data structure, which is used to uniquely store strings.
 
 Please see also L<LibXML::HashMap>, for a more general-purpose associative interface.
 

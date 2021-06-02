@@ -692,10 +692,17 @@ method createInternalSubset($doc: Str $name, Str $external-id, Str $system-id --
         =end code
 =end pod
 
-#| Create a new DTD
+#| Create a new external DTD
 method createDTD(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
     &?ROUTINE.returns.new: :$name, :$external-id, :$system-id, :type<external>;
 }
+
+#| Lookup an entity in the document
+method getEntity(Str $name --> LibXML::Entity) {
+    &?ROUTINE.returns.box: $.raw.GetEntity($name);
+}
+=head
+=para Searches any internal subset, external subset, and predefined entities
 
 # don't allow more than one element in the document root
 method appendChild(LibXML::Node:D $node)    { self!check-new-node($node); nextsame; }

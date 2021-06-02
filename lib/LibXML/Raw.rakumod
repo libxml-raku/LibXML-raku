@@ -869,10 +869,10 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method copy(Bool :$deep) {
         my $extended := $deep ?? 1 !! 2;
         with $.doc {
-            $.xmlDocCopyNode($_, $extended);
+            $.xmlDocCopyNode($_, $extended).delegate;
         }
         else {
-            $.xmlCopyNode( $extended );
+            $.xmlCopyNode( $extended ).delegate;
         }
     }
 
@@ -1065,6 +1065,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
     method CreateIntSubset(Str, Str, Str --> xmlDtd) is native($XML2) is symbol('xmlCreateIntSubset') {*}
     method GetCompressMode(--> int32) is native($XML2) is symbol('xmlGetDocCompressMode') {*}
     method SetCompressMode(int32) is native($XML2) is symbol('xmlSetDocCompressMode') {*}
+    method GetEntity(Str --> xmlEntity) is native($XML2) is symbol('xmlGetDocEntity') {*}
 
     method new-node(Str:D :$name!, xmlNs :$ns, Str :$content --> xmlElem:D) {
         given self.NewNode($ns, $name, $content) -> xmlElem:D $node {
@@ -1239,7 +1240,10 @@ class xmlEntity is anyDtdNode is export {
     method get-predefined(Str :$name!) {
         GetPredefined($name);
     }
-    method Free is native($XML2) is symbol('xmlFreeEntity') {*}
+    method Free {
+        # nyi (libxml's xmlFreeEntity is private and doesn't
+        # distinguish predefined entities)
+    }
     method create(Str:D :$name!, Str:D :$content!, Int :$type = XML_INTERNAL_GENERAL_ENTITY, Str :$external-id, Str :$internal-id) {
         Create($name, $type, $external-id, $internal-id, $content );
     }

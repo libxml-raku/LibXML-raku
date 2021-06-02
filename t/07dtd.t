@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 64;
+plan 70;
 
 use LibXML;
 use LibXML::Enums;
@@ -80,18 +80,25 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     is( $dtd.systemId, Str, ' TODO : Add test name' );
     nok( $dtd.is-XHTML, 'is-XHTML' );
 
-    my $entity = $doc.createEntityReference( "foo" );
-    ok($entity, ' TODO : Add test name');
-    is($entity.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name' );
+    my $entity-ref = $doc.createEntityReference( "foo" );
+    ok($entity-ref, ' TODO : Add test name');
+    is($entity-ref.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name' );
+    ok( $entity-ref.hasChildNodes, ' TODO : Add test name' );
+    is( $entity-ref.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
+    is( $entity-ref.firstChild.nodeValue, " test ", ' TODO : Add test name' );
 
-
-    ok( $entity.hasChildNodes, ' TODO : Add test name' );
-    # We don't have explicit EntityDecl or ElementDecl classes yet
-    is( $entity.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
-    is( $entity.firstChild.nodeValue, " test ", ' TODO : Add test name' );
-
-    my $edcl = $entity.firstChild;
+    my $edcl = $entity-ref.firstChild;
     is( $edcl.previousSibling.nodeType, +XML_ATTRIBUTE_DECL, ' TODO : Add test name' );
+
+    my $entity = $doc.getEntity('foo');
+    ok $entity.defined, 'got dtd entity';
+    is $entity.nodeType, +XML_ENTITY_DECL, 'entity decl node type';
+    is $entity.name, 'foo', 'entity decl name';
+    nok $doc.getEntity('bar').defined, 'get on unknown entity';
+
+    $entity = $doc.getEntity('lt');
+    ok $entity.defined, 'got predefined entity';
+    is $entity.nodeType, +XML_ENTITY_DECL, 'predefined entity decl node type';
 
     {
         my $doc2  = LibXML::Document.new;

@@ -24,6 +24,8 @@ my Str $systemId = $dtd.systemId();
 my Bool $is-html = $dtd.is-XHTML;
 my $notations = $dtd.notations;
 my LibXML::Dtd::Notation $foo = $notations<foo>;
+my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getDeclaration($elem);
+my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getDeclaration($attr);
 
 # Validation
 try { $dtd.validate($doc) };

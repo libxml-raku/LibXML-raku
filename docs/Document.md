@@ -569,7 +569,24 @@ method createDTD(
 ) returns LibXML::Dtd
 ```
 
-Create a new DTD
+Create a new external DTD
+
+### method getEntity
+
+```raku
+method getEntity(
+    Str $name
+) returns LibXML::Entity
+```
+
+Lookup an entity in the document
+
+head
+====
+
+
+
+Searches any internal subset, external subset, and predefined entities
 
 ### multi method importNode
 
