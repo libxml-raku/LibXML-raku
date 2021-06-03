@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 12;
+plan 13;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -169,4 +169,16 @@ subtest 'dtd element declarations' => {
     is $to-decl.name, 'to', 'element decl name';
     is $to-decl.type, +XML_ELEMENT_DECL, 'element decl type';
     is $to-decl.parent.type, +XML_DTD_NODE, 'element parent type';
+}
+
+subtest 'dtd attribute declarations' => {
+    plan 3;
+    $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.element-attribute-declarations;
+    is-deeply $elem-attributes.keys, ("doc",), 'elem attribute keys';
+    my LibXML::Dtd::DeclMap $doc-attributes = $elem-attributes<doc>;
+    is-deeply $doc-attributes.keys, ("type",), 'attlist keys';
+    my LibXML::Dtd::AttrDecl $type-attr = $doc-attributes<type>;
+    is $type-attr.Str.chomp, '<!ATTLIST doc type CDATA #IMPLIED>', 'attlist Str';
 }

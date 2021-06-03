@@ -20,6 +20,7 @@ submethod TWEAK {
     $!raw = do given $!parent.raw {
         when $!of.isa("LibXML::Attr")      { .properties }
         when $!of.isa("LibXML::Namespace") { .nsDef }
+        when $!of.isa("LibXML::Dtd::AttrDecl") { .attributes }
         default { .first-child(+$!blank); }
     }
 }

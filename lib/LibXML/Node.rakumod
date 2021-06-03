@@ -356,7 +356,7 @@ submethod TWEAK(:$native) {
 
     die "undefined native node"
         if self.REPR eq 'CPointer'
-        && !nativecast(Pointer, self).defined;
+        && !self.defined;
 }
 
 #| Transfers a node to another document
@@ -722,9 +722,9 @@ method exists(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
     See L<LibXML::XPath::Context> for more details.
 =end pod
 
-sub iterate-list($parent, $of, Bool :$properties, Bool :$blank = True) is export(:iterate-list) {
+sub iterate-list($parent, $of, Bool :$blank = True) is export(:iterate-list) {
     # follow a chain of .next links.
-    (require ::('LibXML::Node::List')).new: :$of, :$properties, :$blank, :$parent;
+    (require ::('LibXML::Node::List')).new: :$of, :$blank, :$parent;
 }
 
 sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {

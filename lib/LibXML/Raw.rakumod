@@ -900,7 +900,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domSetNamespaceDeclPrefix(|c) { ... }
     method domSetNamespaceDeclURI(|c) { ... }
     method domGetNamespaceDeclURI(|c) { ... }
-    method ItemNode handles<delegate> { nativecast(itemNode, self) }
+    method ItemNode handles<delegate cast> { nativecast(itemNode, self) }
 }
 
 #| A node in an XML tree.
@@ -1211,12 +1211,8 @@ class xmlDtd is anyNode is export {
     }
 }
 
-class anyDtdNode is anyNode {
-
-}
-
 #| An Attribute declaration in a DTD (type: XML_ATTRIBUTE_DECL).
-class xmlAttrDecl is anyDtdNode is export {
+class xmlAttrDecl is anyNode is export {
     has xmlAttrDecl     $.nexth; # next in hash table
     has int32           $.atype; # the attribute type
     has int32             $.def; # default mode (enum xmlAttributeDefault)
@@ -1229,7 +1225,7 @@ class xmlAttrDecl is anyDtdNode is export {
 
 #| An unit of storage for an entity, contains the string, the value and
 #| the data needed for the linking in the hash table (type: XML_ENTITY_DECL).
-class xmlEntity is anyDtdNode is export {
+class xmlEntity is anyNode is export {
     has xmlCharP       $.orig; # content without ref substitution */
     has xmlCharP    $.content; # content or ndata if unparsed */
     has int32        $.length; # the content length */
@@ -1259,7 +1255,7 @@ class xmlEntity is anyDtdNode is export {
 }
 
 #| An XML Element declaration from a DTD (type: XML_ELEMENT_DECL).
-class xmlElementDecl is anyDtdNode is export {
+class xmlElementDecl is anyNode is export {
     has int32                $.etype; # The type */
     has xmlElementContent  $.content; # the allowed element content */
     has xmlAttrDecl     $.attributes; # List of the declared attributes */
@@ -1270,10 +1266,10 @@ class xmlElementDecl is anyDtdNode is export {
 # itemNodes are xmlNodeSet members; which can be either anyNode or xmlNs objects.
 # These have distinct structs, but have the second field, 'type' in common
 class itemNode is export {
-    has Pointer $._; # first field depends on type
+    has Pointer $!pad; # first field depends on type
     has int32 $.type;
     # + other fields, which also depend on type
-    my constant @ClassMap = do {
+    constant @ClassMap = do {
         my @map;
         for  (
             [XML_ATTRIBUTE_DECL, xmlAttrDecl],
@@ -1300,6 +1296,11 @@ class itemNode is export {
     method delegate {
         my $class := @ClassMap[$!type];
         nativecast($class, self);
+    }
+    method cast(Pointer:D $p) {
+        my $type := nativecast(itemNode, $p).type;
+        my $class := @ClassMap[$type];
+        nativecast($class, $p);
     }
     our sub NodeType(Str --> int32) is native($BIND-XML2) is symbol('domNodeType') {*}
 }

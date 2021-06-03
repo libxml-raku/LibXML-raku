@@ -1,4 +1,4 @@
-use LibXML::Node :iterate-list, :iterate-set;
+use LibXML::Node :&iterate-list;
 use LibXML::_ParentNode;
 use W3C::DOM;
 

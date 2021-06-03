@@ -154,9 +154,11 @@ method xpath-key { self.domGetXPathKey }
 method ast-key { self.domGetASTKey }
 
 method hasAttributes returns Bool {
-    ? (self.type != XML_ATTRIBUTE_NODE
-       && self.type != XML_DTD_NODE
-       && self.properties.defined)
+    given self.type {
+        when XML_ELEMENT_NODE { $.properties.defined }
+        when XML_ELEMENT_DECL { $.attributes.defined }
+        default { False }
+    }
 }
 
 method removeChildNodes {

@@ -1,12 +1,12 @@
-use LibXML::Node;
+use LibXML::Node :&iterate-list;
 
 #| LibXML DtD Element declaration introspection (experimental)
 unit class LibXML::Dtd::ElementDecl
     is repr('CPointer')
     is LibXML::Node;
 
+use LibXML::Dtd::AttrDecl;
 use LibXML::Enums;
-
 use LibXML::Raw;
 use NativeCall;
 

@@ -128,3 +128,43 @@ DLLEXPORT xmlHashTablePtr xml6_hash_xpath_nodeset(xmlNodeSetPtr nodes, int deref
     }
     return rv;
 }
+
+static void _xml6_build_hash_attrs(void* value, const void* _self, xmlChar* attr_name, xmlChar *attr_prefix, xmlChar *elem_name) {
+    xmlHashTablePtr self = (xmlHashTablePtr) _self;
+    xmlHashTablePtr bucket = (xmlHashTablePtr) xmlHashLookup(self, elem_name);
+
+    if (bucket == NULL) {
+        // Vivify sub-hash
+        bucket = xmlHashCreate(0);
+        xmlHashAddEntry(self, elem_name, (void*) bucket);
+    }
+
+    if (attr_prefix == NULL) {
+        xmlHashAddEntry(bucket, attr_name, value);
+    }
+    else {
+        xmlChar* key = xmlStrdup(attr_prefix);
+        key = xmlStrcat(key, (const xmlChar*) ":" );
+        key = xmlStrcat(key, attr_name );
+        xmlHashAddEntry(bucket, key, value);
+        xmlFree(key);
+    }
+}
+
+// Build a HoH mapping from the dtd->attributes hash
+DLLEXPORT xmlHashTablePtr xml6_hash_build_attr_decls(xmlHashTablePtr self) {
+    xmlHashTablePtr rv = xmlHashCreate(0);
+    assert(self != NULL);
+    assert(rv != NULL);
+
+    xmlHashScanFull(self, (xmlHashScannerFull) _xml6_build_hash_attrs, (void *) rv);
+    return rv;
+}
+
+// Free the hash, leave contents intact
+static void _keep_hash_contents(void *entry, const xmlChar *name ATTRIBUTE_UNUSED) {
+    // do nothing
+}
+DLLEXPORT void xml6_hash_discard(xmlHashTablePtr self) {
+    xmlHashFree(self, (xmlHashDeallocator) _keep_hash_contents );
+}

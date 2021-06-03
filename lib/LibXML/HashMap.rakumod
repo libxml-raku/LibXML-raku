@@ -10,14 +10,11 @@ use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
 use LibXML::Raw::HashTable;
 use LibXML::Enums;
-use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Notation;
 use NativeCall;
 use Method::Also;
 
 method raw { nativecast(xmlHashTable, self) }
-
-our sub cast-item(Pointer $p) { nativecast(itemNode, $p).delegate }
 
 method of {XPathRange}
 
@@ -53,7 +50,7 @@ method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
 method cleanup { .Free(self.deallocator) with self.raw; }
 submethod DESTROY { self.cleanup }
 
-subset OfType where XPathRange|LibXML::Dtd::ElementDecl|LibXML::Dtd::Notation;
+subset OfType where XPathRange|LibXML::Dtd::Notation|Pointer;
 
 method !CArray(Any:U $type = Pointer, UInt:D :$len = $.raw.Size ) {
     my $a := CArray[$type].new;
@@ -108,8 +105,6 @@ method DELETE-KEY(Str() $key) { $.raw.RemoveEntry($key, $.deallocator) }
 
 role Assoc[Pointer $of] {
     method of { $of }
-    method key-of { Str }
-
     method freeze(Pointer $p) { $p }
     method thaw(Pointer $p) { $p }
     method deallocator { -> | {} }
@@ -122,11 +117,11 @@ role Assoc[LibXML::Item $of] {
         nativecast(Pointer, $n);
     }
     method thaw(Pointer $p) {
-        $of.box: cast-item($p);
+        $of.box: itemNode.cast($p);
     }
     method deallocator() {
         -> Pointer $p, Str $k {
-            cast-item($_).Unreference with $p;
+            itemNode.cast($_).Unreference with $p;
         }
     }
 }

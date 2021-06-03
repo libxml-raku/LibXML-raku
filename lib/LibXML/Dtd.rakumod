@@ -246,46 +246,85 @@ method internalSubset {
 }
 
 class DeclMap {
-    my class HashMap is LibXML::HashMap is repr('CPointer') {
-        method of {LibXML::Node}
-        method freeze(LibXML::Node:D $node) { nativecast(Pointer, $node) }
-        method thaw(Pointer:D $p) { LibXML::HashMap::cast-item($_) }
-        method deallocator() {
-            -> Pointer $p, $ {
-                # Not needed, as nodes are linked to the DOM
-            }
-        }
-        method cleanup { }
-    }
-    has HashMap $.map is built handles<keys pairs values>;
-    has LibXML::Dtd $.dtd;
-    has Str $.fetcher;
+    has LibXML::Node $.of;
+    has LibXML::HashMap[Pointer] $.map is built handles<keys pairs values>;
+    has LibXML::Dtd $.dtd is required;
     submethod TWEAK(xmlHashTable:D :$raw!) {
         $!map .= new: :$raw;
     }
     method DELETE-KEY($) { die X::NYI.new }
     method ASSIGN-KEY($, $) { die X::NYI.new }
     method AT-KEY(Str:D() $k) {
-        $!dtd."$!fetcher"($k);
+        my anyNode $raw .= cast($_)
+            with $!map.AT-KEY($k);
+
+        $!of.box: $raw;
     }
 }
 
-has DeclMap $!notations;
+class DeclMapNotation is DeclMap {
+    method of {LibXML::Dtd::Notation}
+    method AT-KEY($k is raw) {
+        $.dtd.getNotation($k);
+    }
+}
+
+class AttrDeclMap {
+    my class HoHMap is LibXML::HashMap is repr('CPointer') {
+        method of {xmlHashTable}
+        method freeze($) { die X::NYI.new }
+        method thaw(Pointer:D $p) {
+            nativecast($.of, $p);
+        }
+        method deallocator() {
+            -> Pointer $p, $ {
+                nativecast($.of, $p).Discard;
+            }
+        }
+    }
+    has HoHMap $!map handles<keys>;
+    has LibXML::Dtd:D $.dtd is required;
+
+    submethod TWEAK(xmlHashTable:D :$raw! is copy) {
+        $raw .= BuildDtdAttrDeclTable();
+        $!map .= new: :$raw;
+    }
+    method AT-KEY($k) {
+        with $!map.AT-KEY($k) -> $raw {
+            DeclMap.new: :$raw, :$!dtd;
+        }
+        else {
+            DeclMap.of;
+        }
+    }
+    method values { $.keys.map: { $.AT-KEY($_) } }
+    method pairs  { $.keys.map: { $_ => $.AT-KEY($_) } }
+    method DELETE-KEY($) { die X::NYI.new }
+    method ASSIGN-KEY($, $) { die X::NYI.new }
+}
+
+has DeclMapNotation $!notations;
 method notations(LibXML::Dtd:D $dtd:) {
-    $!notations //= DeclMap.new: :$dtd, :raw($_), :fetcher<getNotation>
+    $!notations //= DeclMapNotation.new: :$dtd, :raw($_)
         with $!raw.notations;
 }
 
 has DeclMap $!elements;
 method element-declarations(LibXML::Dtd:D $dtd:) {
-    $!elements //= DeclMap.new: :$dtd, :raw($_), :fetcher<getElementDeclaration>
+    $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
         with $!raw.elements;
 }
 
 has DeclMap $!entities;
 method entities(LibXML::Dtd:D $dtd:) {
-    $!entities //= DeclMap.new: :$dtd, :raw($_), :fetcher<getEntity>
+    $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Entity)
         with $!raw.entities;
+}
+
+has AttrDeclMap $!element-attributes;
+method element-attribute-declarations(LibXML::Dtd:D $dtd:) {
+    $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
+        with $!raw.attributes;
 }
 
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {
