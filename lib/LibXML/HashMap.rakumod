@@ -99,9 +99,9 @@ method AT-KEY(Str() $key) is rw {
 method EXISTS-KEY(Str() $key) { $.raw.LookupNs($key).defined; }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     my Pointer $ptr := $.freeze($val);
-    $.raw.UpdateEntry($key, $ptr, $.deallocator); $val;
+    $.raw.UpdateEntryNs($key, $ptr, $.deallocator); $val;
 }
-method DELETE-KEY(Str() $key) { $.raw.RemoveEntry($key, $.deallocator) }
+method DELETE-KEY(Str() $key) { $.raw.RemoveEntryNs($key, $.deallocator) }
 
 role Assoc[Pointer $of] {
     method of { $of }

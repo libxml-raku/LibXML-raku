@@ -43,16 +43,16 @@ subtest 'object-hash' => {
     $h<Xx> = 42;
     is-deeply $h<Xx>, 42e0;
     is-deeply $h<Xx>, 42e0;
-    $h<yy> = "xx";
+    $h<x:y> = "xx";
 
-    is-deeply $h.keys.sort, ("Xx", "yy");
+    is-deeply $h.keys.sort, ("Xx", "x:y");
     is-deeply $h.values.sort, (42e0, "xx");
-    is-deeply $h.pairs.sort, (Xx => 42e0, yy => "xx");
+    is-deeply $h.pairs.sort, (Xx => 42e0, 'x:y' => "xx");
 
     my LibXML::Element $node .= new('test');
 
     lives-ok {$h<elem> = $node;};
-    is-deeply $h.keys.sort, ("Xx", "elem", "yy");
+    is-deeply $h.keys.sort, ("Xx", "elem", "x:y");
     ok $node.isSame($h<elem>);
     ok $h<elem>.isSame($node);
 }

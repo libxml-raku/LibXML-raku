@@ -24,13 +24,17 @@ DLLEXPORT xmlNotationPtr xml6_notation_copy(xmlNotationPtr self) {
 DLLEXPORT xmlChar* xml6_notation_unique_key(xmlNotationPtr self) {
     xmlChar *rv = NULL;
 
-    assert(self != NULL);
+    if (self == NULL) {
+        rv = xmlStrdup((xmlChar*)"||");
+    }
+    else {
+        if (self->name != NULL) rv = xmlStrdup(self->name);
+        rv = xmlStrcat(rv, (const xmlChar *) "|");
+        if (self->PublicID != NULL) rv = xmlStrdup(self->PublicID);
+        rv = xmlStrcat(rv, (const xmlChar *) "|");
+        if (self->SystemID != NULL) rv = xmlStrcat(rv, self->SystemID);
+    }
 
-    if (self->name != NULL) rv = xmlStrdup(self->name);
-    rv = xmlStrcat(rv, (const xmlChar *) "|");
-    if (self->PublicID != NULL) rv = xmlStrdup(self->PublicID);
-    rv = xmlStrcat(rv, (const xmlChar *) "|");
-    if (self->SystemID != NULL) rv = xmlStrcat(rv, self->SystemID);
     return rv;
 }
 

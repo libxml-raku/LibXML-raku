@@ -117,7 +117,7 @@ subtest 'doc with no dtd loaded' => {
 }
 
 subtest 'dtd notations' => {
-    plan 7;
+    plan 9;
     $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $notations = $dtd.notations;
@@ -129,6 +129,8 @@ subtest 'dtd notations' => {
     is $foo.systemId, 'bar', 'notation system-Id';
     is-deeply $foo.publicId, Str, 'notation public-Id';
     is $foo.Str.chomp, '<!NOTATION foo SYSTEM "bar" >', 'notation Str';
+    ok $foo.isSameNode($foo);
+    nok $foo.isSameNode(LibXML::Dtd::Notation.new: :name<bar>);
 }
 
 subtest 'dtd entities' => {
@@ -152,12 +154,14 @@ subtest 'dtd entities' => {
 }
 
 subtest 'dtd element declarations' => {
-    plan 11;
+    plan 13;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $elements = $dtd.element-declarations;
     ok $elements.defined, 'DtD has elements';
     is-deeply $elements.keys.sort, ("body", "from", "heading", "note", "to"), 'element decl keys';
+    isa-ok $elements.values[0], LibXML::Dtd::ElementDecl, 'values type';
+    isa-ok $elements.pairs[0].value, LibXML::Dtd::ElementDecl, 'pairs type';
     my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
     ok $note-decl.defined, "element decl fetch";
     is $note-decl.name, 'note', 'element decl name';
@@ -172,30 +176,38 @@ subtest 'dtd element declarations' => {
 }
 
 subtest 'dtd attribute declarations' => {
-    plan 3;
+    plan 4;
     $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.element-attribute-declarations;
     is-deeply $elem-attributes.keys, ("doc",), 'elem attribute keys';
     my LibXML::Dtd::DeclMap $doc-attributes = $elem-attributes<doc>;
     is-deeply $doc-attributes.keys, ("type",), 'attlist keys';
+    isa-ok $elem-attributes.values[0], LibXML::Dtd::DeclMap, 'values type';
     my LibXML::Dtd::AttrDecl $type-attr = $doc-attributes<type>;
     is $type-attr.Str.chomp, '<!ATTLIST doc type CDATA #IMPLIED>', 'attlist Str';
 }
 
 subtest 'dtd namespaces' => {
-    plan 6;
+    plan 10;
     $doc .= parse: :file<test/dtd/namespaces.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my $element-declarations = $dtd.element-declarations;
     is-deeply $element-declarations.keys.sort, ("foo:A", "foo:B"), "element decls";
-    my LibXML::Dtd::ElementDecl:D $foo:A = $element-declarations<foo:A>;
-    is $foo:A.Str.chomp, '<!ELEMENT foo:A (foo:B)>';
+    my LibXML::Dtd::ElementDecl:D $foo:A-decl = $element-declarations<foo:A>;
+    is $foo:A-decl.Str.chomp, '<!ELEMENT foo:A (foo:B)>';
     my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.element-attribute-declarations;
     is-deeply $elem-attributes.keys, ("foo:A",), 'elem attribute keys';
     my LibXML::Dtd::DeclMap $doc-attributes = $elem-attributes<foo:A>;
     is-deeply $doc-attributes.keys.sort, ("bar", "xmlns:foo"), 'attlist keys';
-    my LibXML::Dtd::AttrDecl:D $bar-attr = $doc-attributes<bar>;
-    is $bar-attr.Str.chomp, '<!ATTLIST foo:A bar CDATA #REQUIRED>';
-    is $doc-attributes<xmlns:foo>.Str.chomp, '<!ATTLIST foo:A xmlns:foo CDATA #FIXED "http://www.foo.org/">';
+    my LibXML::Dtd::AttrDecl:D $bar-attr-decl = $doc-attributes<bar>;
+    is $bar-attr-decl.Str.chomp, '<!ATTLIST foo:A bar CDATA #REQUIRED>';
+    my $xmlns:foo-attr-decl = $doc-attributes<xmlns:foo>;
+    is $xmlns:foo-attr-decl.Str.chomp, '<!ATTLIST foo:A xmlns:foo CDATA #FIXED "http://www.foo.org/">';
+    ok $bar-attr-decl.isSameNode($bar-attr-decl);
+    nok $bar-attr-decl.isSameNode($xmlns:foo-attr-decl);
+    my LibXML::Element:D $foo:A-elem = $doc.documentElement;
+    ok $foo:A-decl.isSameNode($dtd.getNodeDeclaration($foo:A-elem));
+    my LibXML::Attr:D $bar-attr = $foo:A-elem.getAttributeNode('bar');
+    ok $bar-attr-decl.isSameNode($dtd.getNodeDeclaration($bar-attr));
 }

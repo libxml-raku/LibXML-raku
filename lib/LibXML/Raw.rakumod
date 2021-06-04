@@ -1154,12 +1154,13 @@ class xmlNotation is export {
     has xmlCharP $.publicId;
     has xmlCharP $.systemId;
 
-    our sub New(xmlCharP, xmlCharP, xmlCharP  --> xmlNotation) is native($BIND-XML2) is symbol('xm6_notation_create') {*}
+    our sub New(xmlCharP, xmlCharP, xmlCharP  --> xmlNotation) is native($BIND-XML2) is symbol('xml6_notation_create') {*}
     method new(Str:D :$name!, Str :$publicId, Str :$systemId) {
         New($name, $publicId, $systemId);
     }
     method Free is native($BIND-XML2) is symbol('xml6_notation_free') {*}
     method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
+    method UniqueKey(--> Str) is native($BIND-XML2) is symbol('xml6_notation_unique_key') {*}
     method copy { $.Copy }
     multi method Str(xmlNotation:D:){
         my xmlBuffer32 $buf .= new;

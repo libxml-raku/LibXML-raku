@@ -56,6 +56,40 @@ DLLEXPORT void xml6_hash_key_values(xmlHashTablePtr self, void** buf) {
     _xml6_scan(self, (xmlHashScannerFull) _xml6_get_pair, 2, buf);
 }
 
+DLLEXPORT int xml6_hash_update_entry_ns(xmlHashTablePtr self, xmlChar* name, void* value, xmlHashDeallocator deallocator) {
+    xmlChar* pfx = NULL;
+    xmlChar* uqname = xmlSplitQName2(name, &pfx);
+    int rv = 0;
+
+    if (uqname != NULL) {
+        rv = xmlHashUpdateEntry2(self, uqname, pfx, value, deallocator);
+        xmlFree(uqname);
+        xmlFree(pfx);
+    }
+    else {
+        rv = xmlHashUpdateEntry(self, name, value, deallocator);
+    }
+
+    return rv;
+}
+
+DLLEXPORT int xml6_hash_remove_entry_ns(xmlHashTablePtr self, xmlChar* name, xmlHashDeallocator deallocator) {
+    xmlChar* pfx = NULL;
+    xmlChar* uqname = xmlSplitQName2(name, &pfx);
+    int rv = 0;
+
+    if (uqname != NULL) {
+        rv = xmlHashRemoveEntry2(self, uqname, pfx, deallocator);
+        xmlFree(uqname);
+        xmlFree(pfx);
+    }
+    else {
+        rv = xmlHashRemoveEntry(self, name, deallocator);
+    }
+
+    return rv;
+}
+
 DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, unsigned int n, xmlHashDeallocator deallocator) {
     assert(self != NULL);
     assert((n % 2) == 0);
@@ -66,16 +100,7 @@ DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, unsigned 
         for (i = 0; i < n; i += 2) {
             xmlChar* name = (xmlChar*) pairs[i];
             void* value  = pairs[i+1];
-            xmlChar* pfx = NULL;
-            xmlChar* uqname = xmlSplitQName2(name, &pfx);
-            if (uqname != NULL) {
-                xmlHashUpdateEntry2(self, uqname, pfx, value, deallocator);
-                xmlFree(uqname);
-                xmlFree(pfx);
-            }
-            else {
-                xmlHashUpdateEntry(self, name, value, deallocator);
-            }
+            xml6_hash_update_entry_ns(self, name, value, deallocator);
         }
     }
 }

@@ -125,7 +125,9 @@ method getNamespaceURI returns Str { XML_XMLNS_NS }
 #| Returns the string "xmlns"
 method prefix returns Str { 'xmlns' }
 
-method isSame(LibXML::Item $_) is also<isSameNode> { self.unique-key eq .unique-key }
+method isSame(LibXML::Item $_) is also<isSameNode> {
+    .isa($?CLASS) && self.unique-key eq .unique-key
+}
 method xpath-key { 'namespace()' }
 method ast { self.nodeName => self.nodeValue }
 

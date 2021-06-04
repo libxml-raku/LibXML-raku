@@ -11,7 +11,10 @@ unit class LibXML::Dtd
 
       =begin code :lang<raku>
       use LibXML::Dtd;
+      use LibXML::Entity;
       use LibXML::Dtd::Notation;
+      use LibXML::Dtd::ElementDecl;
+      use LibXML::Dtd::AttrDecl;
 
       my LibXML::Dtd $dtd .= new($public-id, $system-id);
       my LibXML::Dtd $dtd .= parse: :string($dtd-str);
@@ -21,10 +24,23 @@ unit class LibXML::Dtd
       my Str $publicId = $dtd.publicId();
       my Str $systemId = $dtd.systemId();
       my Bool $is-html = $dtd.is-XHTML;
-      my $notations = $dtd.notations;
-      my LibXML::Dtd::Notation $foo = $notations<foo>;
-      my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getDeclaration($elem);
-      my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getDeclaration($attr);
+
+      my LibXML::Entity = $dtd.getEntity("bar");
+      my LibXML::Dtd::Notation $foo = $dtd.getNotation("foo");
+      my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getElementDeclaration($elem-name);
+      my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getAttrDeclaration($elem-name, $attr-name);
+      # get declaration associated with an element or attribute
+      my LibXML::Node $node-decl = $dtd.getNodeDeclaration($node);
+
+      # Associate Interfaces
+      my LibXML::Dtd::DeclMap $entities = $dtd.entities;
+      $foo = $entities<foo>;
+      my LibXML::Dtd::DeclMap $notations = $dtd.notations;
+      $bar = $notations<bar>;
+      my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
+      $elem-decl = $elem-decls{$elem-name}
+      my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.element-attribute-declarations;
+      $attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
 
       # Validation
       try { $dtd.validate($doc) };
@@ -247,18 +263,18 @@ method internalSubset {
 
 class DeclMap {
     has LibXML::Node $.of;
-    has LibXML::HashMap[Pointer] $.map is built handles<keys pairs values>;
+    class HashMap::NoGC
+        is LibXML::HashMap[LibXML::Item]
+        is repr('CPointer') {
+        method DELETE-KEY($) { die X::NYI.new }
+        method ASSIGN-KEY($, $) { die X::NYI.new }
+        method freeze {...}
+        method deallocator { -> | {} }
+    }
+    has HashMap::NoGC $.map is built handles<AT-KEY DELETE-KEY ASSIGN-KEY keys pairs values>;
     has LibXML::Dtd $.dtd is required;
     submethod TWEAK(xmlHashTable:D :$raw!) {
         $!map .= new: :$raw;
-    }
-    method DELETE-KEY($) { die X::NYI.new }
-    method ASSIGN-KEY($, $) { die X::NYI.new }
-    method AT-KEY(Str:D() $k) {
-        my anyNode $raw .= cast($_)
-            with $!map.AT-KEY($k);
-
-        $!of.box: $raw;
     }
 }
 
@@ -309,16 +325,16 @@ method notations(LibXML::Dtd:D $dtd:) {
         with $!raw.notations;
 }
 
-has DeclMap $!elements;
-method element-declarations(LibXML::Dtd:D $dtd:) {
-    $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
-        with $!raw.elements;
-}
-
 has DeclMap $!entities;
 method entities(LibXML::Dtd:D $dtd:) {
     $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Entity)
         with $!raw.entities;
+}
+
+has DeclMap $!elements;
+method element-declarations(LibXML::Dtd:D $dtd:) {
+    $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
+        with $!raw.elements;
 }
 
 has AttrDeclMap $!element-attributes;

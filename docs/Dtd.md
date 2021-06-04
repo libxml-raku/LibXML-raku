@@ -12,7 +12,10 @@ Synopsis
 
 ```raku
 use LibXML::Dtd;
+use LibXML::Entity;
 use LibXML::Dtd::Notation;
+use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::AttrDecl;
 
 my LibXML::Dtd $dtd .= new($public-id, $system-id);
 my LibXML::Dtd $dtd .= parse: :string($dtd-str);
@@ -22,10 +25,23 @@ my Str $dtdName = $dtd.getName();
 my Str $publicId = $dtd.publicId();
 my Str $systemId = $dtd.systemId();
 my Bool $is-html = $dtd.is-XHTML;
-my $notations = $dtd.notations;
-my LibXML::Dtd::Notation $foo = $notations<foo>;
-my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getDeclaration($elem);
-my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getDeclaration($attr);
+
+my LibXML::Entity = $dtd.getEntity("bar");
+my LibXML::Dtd::Notation $foo = $dtd.getNotation("foo");
+my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getElementDeclaration($elem-name);
+my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getAttrDeclaration($elem-name, $attr-name);
+# get declaration associated with an element or attribute
+my LibXML::Node $node-decl = $dtd.getNodeDeclaration($node);
+
+# Associate Interfaces
+my LibXML::Dtd::DeclMap $entities = $dtd.entities;
+$foo = $entities<foo>;
+my LibXML::Dtd::DeclMap $notations = $dtd.notations;
+$bar = $notations<bar>;
+my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
+$elem-decl = $elem-decls{$elem-name}
+my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.element-attribute-declarations;
+$attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
 
 # Validation
 try { $dtd.validate($doc) };

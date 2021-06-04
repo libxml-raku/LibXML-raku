@@ -14,6 +14,10 @@ method new(Str:D :$name!, Str :$publicId, Str :$systemId) {
 multi method box(xmlNotation:D $raw --> LibXML::Dtd::Notation) {
     nativecast(self, $raw.Copy);
 }
+method unique-key returns Str { $.raw.UniqueKey }
+method isSame($_) is also<isSameNode> {
+    .isa($?CLASS) && self.unique-key eq .unique-key
+}
 
 method raw handles<name publicId systemId Str> { nativecast(xmlNotation, self) }
 
