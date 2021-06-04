@@ -92,11 +92,11 @@ method kv {
 method Hash { %( self.pairs ) }
 method AT-KEY(Str() $key) is rw {
     Proxy.new(
-        FETCH => {with $.raw.Lookup($key) { self.thaw($_) } else { self.of } },
+        FETCH => {with $.raw.LookupNs($key) { self.thaw($_) } else { self.of } },
         STORE => -> $, $val { self.ASSIGN-KEY($key, $val) },
     )
 }
-method EXISTS-KEY(Str() $key) { $.raw.Lookup($key).defined; }
+method EXISTS-KEY(Str() $key) { $.raw.LookupNs($key).defined; }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     my Pointer $ptr := $.freeze($val);
     $.raw.UpdateEntry($key, $ptr, $.deallocator); $val;

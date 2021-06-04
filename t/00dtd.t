@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 13;
+plan 14;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -181,4 +181,21 @@ subtest 'dtd attribute declarations' => {
     is-deeply $doc-attributes.keys, ("type",), 'attlist keys';
     my LibXML::Dtd::AttrDecl $type-attr = $doc-attributes<type>;
     is $type-attr.Str.chomp, '<!ATTLIST doc type CDATA #IMPLIED>', 'attlist Str';
+}
+
+subtest 'dtd namespaces' => {
+    plan 6;
+    $doc .= parse: :file<test/dtd/namespaces.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my $element-declarations = $dtd.element-declarations;
+    is-deeply $element-declarations.keys.sort, ("foo:A", "foo:B"), "element decls";
+    my LibXML::Dtd::ElementDecl:D $foo:A = $element-declarations<foo:A>;
+    is $foo:A.Str.chomp, '<!ELEMENT foo:A (foo:B)>';
+    my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.element-attribute-declarations;
+    is-deeply $elem-attributes.keys, ("foo:A",), 'elem attribute keys';
+    my LibXML::Dtd::DeclMap $doc-attributes = $elem-attributes<foo:A>;
+    is-deeply $doc-attributes.keys.sort, ("bar", "xmlns:foo"), 'attlist keys';
+    my LibXML::Dtd::AttrDecl:D $bar-attr = $doc-attributes<bar>;
+    is $bar-attr.Str.chomp, '<!ATTLIST foo:A bar CDATA #REQUIRED>';
+    is $doc-attributes<xmlns:foo>.Str.chomp, '<!ATTLIST foo:A xmlns:foo CDATA #FIXED "http://www.foo.org/">';
 }

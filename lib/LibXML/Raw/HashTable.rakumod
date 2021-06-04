@@ -10,6 +10,7 @@ class xmlHashTable is repr(Opaque) is export {
     method AddEntry(Str, Pointer --> int32)  is symbol('xml6_hash_add_entry') is native($BIND-XML2) {*}
     method UpdateEntry(Str, Pointer, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashUpdateEntry') is native($XML2) {*}
     method Lookup(Str --> Pointer) is symbol('xmlHashLookup') is native($XML2) {*}
+    method LookupNs(Str --> Pointer) is symbol('xml6_hash_lookup_ns') is native($BIND-XML2) {*}
     method RemoveEntry(Str, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashRemoveEntry') is native($XML2) {*}
     method Size(--> int32) is symbol('xmlHashSize') is native($XML2) {*}
     method Copy(xmlHashTable --> xmlHashTable) is native($XML2) is symbol('xmlHashCopy') {*}

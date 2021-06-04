@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<!DOCTYPE foo:A [
+  <!ELEMENT foo:A (foo:B)>
+  <!ATTLIST foo:A
+    xmlns:foo CDATA #FIXED "http://www.foo.org/"
+    bar CDATA #REQUIRED
+  >
+  <!ELEMENT foo:B (#PCDATA)>
+]>
+<foo:A xmlns:foo="http://www.foo.org/" bar="BAR">
+  <foo:B>abcd</foo:B>
+</foo:A>

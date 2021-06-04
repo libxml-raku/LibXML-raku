@@ -9,38 +9,51 @@
 #include "dom.h"
 #include "domXPath.h"
 
-static void _xml6_get_key(void* value, const xmlChar*** keys, xmlChar* key) {
-    *((*keys)++) = xmlStrdup(key);
+static xmlChar* _xml6_make_ns_key(xmlChar* name, xmlChar *pfx) {
+    xmlChar* key;
+    if (pfx != NULL && *pfx != 0) {
+        key = xmlStrdup(pfx);
+        key = xmlStrcat(key, (const xmlChar*) ":" );
+        key = xmlStrcat(key, name );
+    }
+    else {
+        key = xmlStrdup(name);
+    }
+    return key;
 }
 
-static void _xml6_get_value(void* value, const void*** values, xmlChar* key) {
+static void _xml6_get_key(void* value, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar* _) {
+    *((*keys)++) = _xml6_make_ns_key(name, pfx);
+}
+
+static void _xml6_get_value(void* value, const void*** values, xmlChar* _, xmlChar* _2, xmlChar* _3) {
     *((*values)++) = value;
 }
 
-static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* key) {
-    *((*pairs)++) = (void*) xmlStrdup(key);
+static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar* _3) {
+    *((*pairs)++) = (void*) _xml6_make_ns_key(name, pfx);
     *((*pairs)++) = value;
 }
 
-static void _xml6_scan(xmlHashTablePtr self, xmlHashScanner scanner, int n, void** buf) {
+static void _xml6_scan(xmlHashTablePtr self, xmlHashScannerFull scanner, int n, void** buf) {
     void** p;
     assert(self != NULL);
     assert(buf != NULL);
     p = buf;
-    xmlHashScan(self, scanner, (void*) &p);
+    xmlHashScanFull(self, scanner, (void*) &p);
     assert(p == &(buf[xmlHashSize(self) * n]));
 }
 
 DLLEXPORT void xml6_hash_keys(xmlHashTablePtr self, void** buf) {
-    _xml6_scan(self, (xmlHashScanner) _xml6_get_key, 1, buf);
+    _xml6_scan(self, (xmlHashScannerFull) _xml6_get_key, 1, buf);
 }
 
 DLLEXPORT void xml6_hash_values(xmlHashTablePtr self, void** buf) {
-    _xml6_scan(self, (xmlHashScanner) _xml6_get_value, 1, buf);
+    _xml6_scan(self, (xmlHashScannerFull) _xml6_get_value, 1, buf);
 }
 
 DLLEXPORT void xml6_hash_key_values(xmlHashTablePtr self, void** buf) {
-    _xml6_scan(self, (xmlHashScanner) _xml6_get_pair, 2, buf);
+    _xml6_scan(self, (xmlHashScannerFull) _xml6_get_pair, 2, buf);
 }
 
 DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, unsigned int n, xmlHashDeallocator deallocator) {
@@ -51,9 +64,18 @@ DLLEXPORT void xml6_hash_add_pairs(xmlHashTablePtr self, void** pairs, unsigned 
         unsigned int i = 0;
         assert(pairs != NULL);
         for (i = 0; i < n; i += 2) {
-            xmlChar* key = (xmlChar*) pairs[i];
+            xmlChar* name = (xmlChar*) pairs[i];
             void* value  = pairs[i+1];
-            xmlHashUpdateEntry(self, key, value, deallocator);
+            xmlChar* pfx = NULL;
+            xmlChar* uqname = xmlSplitQName2(name, &pfx);
+            if (uqname != NULL) {
+                xmlHashUpdateEntry2(self, uqname, pfx, value, deallocator);
+                xmlFree(uqname);
+                xmlFree(pfx);
+            }
+            else {
+                xmlHashUpdateEntry(self, name, value, deallocator);
+            }
         }
     }
 }
@@ -129,26 +151,26 @@ DLLEXPORT xmlHashTablePtr xml6_hash_xpath_nodeset(xmlNodeSetPtr nodes, int deref
     return rv;
 }
 
-static void _xml6_build_hash_attrs(void* value, const void* _self, xmlChar* attr_name, xmlChar *attr_prefix, xmlChar *elem_name) {
+static void _xml6_build_hash_attrs(void* value, const void* _self, xmlChar* attr_name, xmlChar *attr_pfx, xmlChar *elem_qname) {
     xmlHashTablePtr self = (xmlHashTablePtr) _self;
-    xmlHashTablePtr bucket = (xmlHashTablePtr) xmlHashLookup(self, elem_name);
+    xmlHashTablePtr bucket = (xmlHashTablePtr) xml6_hash_lookup_ns(self, elem_qname);
 
     if (bucket == NULL) {
+        xmlChar* pfx = NULL;
+        xmlChar* uqname = xmlSplitQName2(elem_qname, &pfx);
         // Vivify sub-hash
         bucket = xmlHashCreate(0);
-        xmlHashAddEntry(self, elem_name, (void*) bucket);
+        if (uqname != NULL) {
+            xmlHashAddEntry2(self, uqname, pfx, (void*) bucket);
+            xmlFree(uqname);
+            xmlFree(pfx);
+        }
+        else {
+            xmlHashAddEntry(self, elem_qname, (void*) bucket);
+        }
     }
 
-    if (attr_prefix == NULL) {
-        xmlHashAddEntry(bucket, attr_name, value);
-    }
-    else {
-        xmlChar* key = xmlStrdup(attr_prefix);
-        key = xmlStrcat(key, (const xmlChar*) ":" );
-        key = xmlStrcat(key, attr_name );
-        xmlHashAddEntry(bucket, key, value);
-        xmlFree(key);
-    }
+    xmlHashAddEntry2(bucket, attr_name, attr_pfx, value);
 }
 
 // Build a HoH mapping from the dtd->attributes hash
@@ -158,6 +180,23 @@ DLLEXPORT xmlHashTablePtr xml6_hash_build_attr_decls(xmlHashTablePtr self) {
     assert(rv != NULL);
 
     xmlHashScanFull(self, (xmlHashScannerFull) _xml6_build_hash_attrs, (void *) rv);
+    return rv;
+}
+
+DLLEXPORT void* xml6_hash_lookup_ns(xmlHashTablePtr self, xmlChar* name) {
+    xmlChar* pfx = NULL;
+    void* rv = NULL;
+    xmlChar* uqname = xmlSplitQName2(name, &pfx);
+
+    if (uqname != NULL) {
+        rv = xmlHashLookup2(self, uqname, pfx);
+        xmlFree(uqname);
+        xmlFree(pfx);
+    }
+    else {
+        rv = xmlHashLookup(self, name);
+    }
+
     return rv;
 }
 

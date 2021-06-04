@@ -1220,7 +1220,6 @@ class xmlAttrDecl is anyNode is export {
     has xmlEnumeration   $.tree; # or the enumeration tree if any
     has xmlCharP       $.prefix; # the namespace prefix if any
     has xmlCharP         $.elem; # Element holding the attribute
-
 }
 
 #| An unit of storage for an entity, contains the string, the value and
