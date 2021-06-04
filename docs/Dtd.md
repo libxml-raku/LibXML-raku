@@ -30,10 +30,10 @@ my LibXML::Entity = $dtd.getEntity("bar");
 my LibXML::Dtd::Notation $foo = $dtd.getNotation("foo");
 my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getElementDeclaration($elem-name);
 my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getAttrDeclaration($elem-name, $attr-name);
-# get declaration associated with an element or attribute
+# get declaration associated with an element, attribute or entity reference
 my LibXML::Node $node-decl = $dtd.getNodeDeclaration($node);
 
-# Associate Interfaces
+# Associative Interfaces
 my LibXML::Dtd::DeclMap $entities = $dtd.entities;
 $foo = $entities<foo>;
 my LibXML::Dtd::DeclMap $notations = $dtd.notations;
@@ -133,7 +133,7 @@ Attribute declaration lookup
 ```raku
 multi method getNodeDeclaration(LibXML::Element --> LibXML::Dtd::ElementDecl);
 multi method getNodeDeclaration(LibXML::Attr --> LibXML::Dtd::AttrDecl);
-multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::EntityRe);
+multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::Entity);
 ```
 
 Looks up a definition in the DtD for a DOM Element, Attribute or Entity-Reference node

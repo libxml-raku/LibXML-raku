@@ -742,6 +742,10 @@ method getDocumentElement returns LibXML::Element {
 
 #| DOM compatible method to set the document element
 method setDocumentElement($doc: LibXML::Element:D $elem --> LibXML::Element) {
+    # explicitly remove any old node, otherwise libxml will unlink
+    # it, but not free it.
+    LibXML::Node.box($_).unbindNode
+        with $.raw.getDocumentElement;
     $elem.setOwnerDocument($doc);
     self.raw.setDocumentElement($elem.raw);
     $elem;
