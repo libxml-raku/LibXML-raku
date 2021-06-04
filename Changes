@@ -10,6 +10,7 @@
       -- Rename classes LibXML::Dtd::Attr -> LibXML::Dtd::AttrDecl and
          LibXML::Dtd::Element -> LibXML::Dtd::ElementDecl
       -- Add  LibXML::Dtd elements() method
+    - Fixed memory leaks in $doc.setDocumentElement and document parse failure #55
 
 0.6.0  2021-05-29T09:37:12+12:00
     - Fix attribute isId() method to return Bool, as documented.

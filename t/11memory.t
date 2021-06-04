@@ -10,10 +10,6 @@ my $skip;
 if !( %*ENV<AUTHOR_TESTING> or %*ENV<RELEASE_TESTING> ) {
     $skip = "These tests are for authors only!";
 }
-elsif $*KERNEL.name !~~ 'linux'|'cygwin'
-{
-    $skip = 'These tests only run on Linux and Cygwin.';
-}
 elsif ! %*ENV<MEMORY_TEST>
 {
     $skip = "developers only (set MEMORY_TEST=1 to run these tests)";
@@ -505,43 +501,4 @@ class sax_null
     is LibXML::SAX::Handler::SAX2 {
 
     method finish($doc) { $doc }
-
-    #method startDocument(|) is sax-cb {
-    #}
-
-    #method xmlDecl(|) is sax-cb {
-    #}
-
-    #method startElement(|) is sax-cb {
-    #}
-
-    #method endElement(|) is sax-cb {
-    #}
-
-    #method startCData(|) is sax-cb {
-    #}
-
-    #method endCData(|) is sax-cb {
-    #}
-
-    #method startElementNS(|) is sax-cb {
-    #}
-
-    #method endElementNS(|) is sax-cb {
-    #}
-
-    #method characters(|) is sax-cb {
-    #}
-
-    #method comment(|) is sax-cb {
-    #}
-
-
-    #method endDocument(|) is sax-cb {
-    #}
-
-    #method error($ctx, $msg) is sax-cb {
-    #    die( $msg );
-    #}
-
- }
+}

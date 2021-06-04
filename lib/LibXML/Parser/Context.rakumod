@@ -4,6 +4,7 @@ use NativeCall;
 use LibXML::Config;
 use LibXML::Enums;
 use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::Item;
 use LibXML::Raw;
 use LibXML::_Options;
 
@@ -15,6 +16,7 @@ has Bool $.input-compressed;
 has Bool $.line-numbers;
 has $.input-callbacks;
 has $.sax-handler;
+has $!published;
 
 our constant %Opts = %(
     :clean-namespaces(XML_PARSE_NSCLEAN),
@@ -63,14 +65,20 @@ method set-raw(xmlParserCtxt $_) {
         $!raw.sax = .raw with $!sax-handler;
     }
     with $old {
+        unless $!published {
+            # Didn't get used
+            .Free with .myDoc;
+        }
         .sax = Nil;
         .Unreference;
     }
+    $!published = False;
 }
 
 method publish {
     my xmlDoc $doc = .myDoc with $!raw;
     $.close() without $!input-compressed;
+    $!published = True;
     self.set-raw(xmlParserCtxt);
     $doc;
 }
