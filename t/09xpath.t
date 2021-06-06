@@ -162,7 +162,7 @@ EOSTR
 }
 
 {
-    # from Perl 5 #36576
+    # from Perl #36576
     my $p = LibXML.new;
     my $doc = $p.parse: :html, :file("example/utf-16-1.html");
     ok($doc, ' TODO : Add test name');
@@ -173,7 +173,7 @@ EOSTR
 }
 
 {
-    # from Perl 5 #36576
+    # from Perl #36576
     my $p = LibXML.new;
     my $doc = $p.parse: :html, :file("example/utf-16-2.html");
     ok($doc, ' TODO : Add test name');
@@ -183,7 +183,7 @@ EOSTR
 }
 
 {
-    # from Perl 5 #69096
+    # from Perl #69096
     my $doc = LibXML::Document.createDocument();
     my $root = $doc.createElement('root');
     $doc.setDocumentElement($root);
@@ -206,13 +206,10 @@ sub _utf16_content_test
 
     my ($nodes_ref, $blurb) = @_;
 
-    SKIP:
-    {
-        is($nodes_ref[0].textContent,
-            "utf-16 test with umlauts: \x[e4]\x[f6]\x[fc]\x[c4]\x[d6]\x[dc]\x[df]",
-            $blurb,
-        );
-    }
+    is($nodes_ref[0].textContent,
+       "utf-16 test with umlauts: \x[e4]\x[f6]\x[fc]\x[c4]\x[d6]\x[dc]\x[df]",
+       $blurb,
+      );
 }
 
 subtest '#42 root parent from xpath', {

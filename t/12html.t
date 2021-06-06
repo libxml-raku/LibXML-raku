@@ -49,7 +49,6 @@ else {
 # parsing HTML's CGI calling links
 
 my $strhref = q:to<EOHTML>;
-
 <html>
     <body>
         <a href="http:/foo.bar/foobar.pl?foo=bar&bar=foo">
@@ -81,12 +80,12 @@ is +$body<InPut>, 1, "case sensitivity on assoc get";
     my $utf_str = "ěščř";
     # w/o 'meta' charset
     $strhref = qq:to<EOHTML>;
-<html>
-  <body>
-    <p>{$utf_str}</p>
-  </body>
-</html>
-EOHTML
+    <html>
+      <body>
+        <p>{$utf_str}</p>
+      </body>
+    </html>
+    EOHTML
 
     ok($strhref, ' TODO : Add test name' );
     $htmldoc = $parser.parse: :html, :string( $strhref );
@@ -107,16 +106,16 @@ EOHTML
 
     # w/ 'meta' charset
     $strhref = qq:to<EOHTML>;
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html;
-      charset=iso-8859-2">
-  </head>
-  <body>
-    <p>{$utf_str}</p>
-  </body>
-</html>
-EOHTML
+    <html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html;
+          charset=iso-8859-2">
+      </head>
+      <body>
+        <p>{$utf_str}</p>
+      </body>
+    </html>
+    EOHTML
 
     $htmldoc = $parser.parse: :html, :string( $strhref,);
     ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
@@ -216,20 +215,20 @@ skip "iso-8859-2 nyi", 2;
 
 {
     my $html = q:to<EOF>;
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<title>Test &amp; Test some more</title>
-</head>
-<body>
-<p>Meet you at the caf&eacute;?</p>
-<p>How about <a href="http://example.com?mode=cafe&id=1&ref=foo">this one</a>?
-</p>
-<input class="wibble" id="foo" value="working" />
-</body>
-</html>
-EOF
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    <title>Test &amp; Test some more</title>
+    </head>
+    <body>
+    <p>Meet you at the caf&eacute;?</p>
+    <p>How about <a href="http://example.com?mode=cafe&id=1&ref=foo">this one</a>?
+    </p>
+    <input class="wibble" id="foo" value="working" />
+    </body>
+    </html>
+    EOF
 
     my $parser = LibXML.new;
     $doc = Nil;
@@ -244,58 +243,53 @@ EOF
 
 
 {
-
     # HTML_PARSE_NODEFDTD
 
-    default {
-        my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
-        my $p = LibXML.new;
+    my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
+    my $p = LibXML.new;
         
-        like( $p.parse( :html, :string( $html),
-                        :recover,
-                        :!def-dtd,
-                        :enc<UTF-8>).Str, /^'<html>'/, 'do not add a default DOCTYPE' );
+    like( $p.parse( :html, :string( $html),
+                    :recover,
+                    :!def-dtd,
+                    :enc<UTF-8>).Str, /^'<html>'/, 'do not add a default DOCTYPE' );
 
-        like( $p.parse(:html, :string( $html),
-                        :recover,
-                        :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
-    }
+    like( $p.parse(:html, :string( $html),
+                   :recover,
+                   :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
 }
 
 {
 
- #  Case sensitivity
+    #  Case sensitivity
 
-my $strhref = q:to<EOHTML>;
+    my $strhref = q:to<EOHTML>;
+    <html>
+        <body>
+            <a href="http:/foo.bar/foobar.pl">foo</a>
+            <A href="http:/foo.bar/foobar.pl">bar</a>
+            <A HREF="http:/foo.bar/foobar.pl">BAZ</A>
+            <p>test
+            <P>test
+        </body>
+    </html>
+    EOHTML
 
-<html>
-    <body>
-        <a href="http:/foo.bar/foobar.pl">foo</a>
-        <A href="http:/foo.bar/foobar.pl">bar</a>
-        <A HREF="http:/foo.bar/foobar.pl">BAZ</A>
-        <p>test
-        <P>test
-    </body>
-</html>
-EOHTML
+    my $htmldoc;
 
-my $htmldoc;
+    quietly {
+        $htmldoc = $parser.parse: :html, :string( $strhref );
+    };
 
-quietly {
-    $htmldoc = $parser.parse: :html, :string( $strhref );
-};
+    my @as = $htmldoc.find('/html/body/a');
+    my @hrefs = $htmldoc.find('/html/body/a/@href');
 
-my @as = $htmldoc.find('/html/body/a');
-my @hrefs = $htmldoc.find('/html/body/a/@href');
+    is +@as, 3;
+    is @as.map(*.xpath-key).join(','), 'a,a,a';
+    is @as.map(*.tag).join(','), 'a,a,a';
+    is @as.map(*.ast-key).join(','), 'a,a,a';
 
-is +@as, 3;
-is @as.map(*.xpath-key).join(','), 'a,a,a';
-is @as.map(*.tag).join(','), 'a,a,a';
-is @as.map(*.ast-key).join(','), 'a,a,a';
-
-is +@hrefs, 3;
-is @hrefs.map(*.xpath-key).join(','), '@href,@href,@href';
-is @hrefs.map(*.tag).join(','), 'href,href,href';
-is @hrefs.map(*.ast-key).join(','), 'href,href,href';
-
+    is +@hrefs, 3;
+    is @hrefs.map(*.xpath-key).join(','), '@href,@href,@href';
+    is @hrefs.map(*.tag).join(','), 'href,href,href';
+    is @hrefs.map(*.ast-key).join(','), 'href,href,href';
 }

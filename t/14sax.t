@@ -128,7 +128,7 @@ my $parser;
     is($dom2.Str, $str, ' TODO : Add test name');
     # warn($dom2.toString);
 
-########### XML::SAX Replacement Tests ###########
+    ########### XML::SAX Replacement Tests ###########
     $parser = LibXML::SAX.new(sax-handler => $sax);
     ok($parser, ' TODO : Add test name');
     $parser.parse: :file("example/dromeds.xml"); # startElement*10
@@ -194,13 +194,13 @@ EOT
     my $parser = LibXML::SAX.new(sax-handler => $sax);
 
     $parser.parse: :string(q:to<EOT>.chomp);
-<?xml version="1.0" encoding="UTF-8"?>
-<root>
-1
-<!-- comment -->
-<![CDATA[ a < b ]]>
-</root>
-EOT
+    <?xml version="1.0" encoding="UTF-8"?>
+    <root>
+    1
+    <!-- comment -->
+    <![CDATA[ a < b ]]>
+    </root>
+    EOT
 
     my $expecting = [
         startDocument => [ 2, 1  ],
@@ -236,21 +236,20 @@ EOT
 
 ########### Error Handling ###########
 {
-  my $xml = '<foo><bar/><a>Text</b></foo>';
+    my $xml = '<foo><bar/><a>Text</b></foo>';
 
-  my $sax = SAXErrorTester.new;
+    my $sax = SAXErrorTester.new;
 
-  try {
-      LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
-  };
-  ok($!, ' TODO : Add test name'); # We got an error
-  ok $sax.errors, 'error handler called';
+    try {
+        LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
+    };
+    ok($!, ' TODO : Add test name'); # We got an error
+    ok $sax.errors, 'error handler called';
 
-  $sax = SAXErrorCallbackTester.new;
-  try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
-  ok($!, ' TODO : Add test name'); # We got an error
-  ok $sax.errors, 'error handler called';
-
+    $sax = SAXErrorCallbackTester.new;
+    try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
+    ok($!, ' TODO : Add test name'); # We got an error
+    ok $sax.errors, 'error handler called';
 }
 
  ########### LibXML::SAX::parse-chunk test ###########
@@ -260,43 +259,43 @@ skip("todo: port remaining tests", 29);
 
 
 {
-  my $chunk = '<app>LOGOUT</app><bar/>';
-  my $sax = LibXML::SAX::Handler::SAX2.new();
-  my $parser = LibXML::SAX.new(sax-handler => $sax );
-  $parser.startDocument();
-  $sax.startElement('foo');
-  $parser.parse-chunk($chunk);
-  $parser.parse-chunk($chunk);
-  $builder.endElement('foo');
-  $parser.endDocument();
-  is($builder.publish().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
+    my $chunk = '<app>LOGOUT</app><bar/>';
+    my $sax = LibXML::SAX::Handler::SAX2.new();
+    my $parser = LibXML::SAX.new(sax-handler => $sax );
+    $parser.startDocument();
+    $sax.startElement('foo');
+    $parser.parse-chunk($chunk);
+    $parser.parse-chunk($chunk);
+    $builder.endElement('foo');
+    $parser.endDocument();
+    is($builder.publish().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
 }
 
 {
 
-  package MySAXHandler;
-  use strict;
-  use warnings;
-  use parent 'XML::SAX::Base';
-  use Carp;
-  sub startElement {
-    my( $self, $elm) = @_;
-    if ( $elm.{LocalName} eq 'TVChannel' ) {
-      die bless({ Message => "My exception"},"MySAXException");
+    package MySAXHandler;
+    use strict;
+    use warnings;
+    use parent 'XML::SAX::Base';
+    use Carp;
+    sub startElement {
+        my( $self, $elm) = @_;
+        if ( $elm.{LocalName} eq 'TVChannel' ) {
+            die bless({ Message => "My exception"},"MySAXException");
+        }
     }
-  }
 }
 {
-  use strict;
-  use warnings;
-  my $parser = LibXML::SAX.new( Handler => MySAXHandler.new( )) ;
-  eval { $parser.parse_string(q:to<EOF> ) };
-<TVChannel TVChannelID="71" TVChannelName="ARD">
-        <Moin>Moin</Moin>
-</TVChannel>
-EOF
-  is(ref($@), 'MySAXException', ' TODO : Add test name');
-  is(ref($@) && $@.{Message}, "My exception", ' TODO : Add test name');
+    use strict;
+    use warnings;
+    my $parser = LibXML::SAX.new( Handler => MySAXHandler.new( )) ;
+    eval { $parser.parse_string(q:to<EOF> ) };
+    <TVChannel TVChannelID="71" TVChannelName="ARD">
+            <Moin>Moin</Moin>
+    </TVChannel>
+    EOF
+    is(ref($@), 'MySAXException', ' TODO : Add test name');
+    is(ref($@) && $@.{Message}, "My exception", ' TODO : Add test name');
 }
 
 =end TODO

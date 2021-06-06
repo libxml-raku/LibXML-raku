@@ -61,10 +61,8 @@ print "# 2.    multiple namespaces \n";
     is($elem.lookupNamespaceURI( "c" ), "http://kungfoo", ' TODO : Add test name');
     my @cn = $elem.childNodes;
 
-
     is(@cn[0].lookupNamespaceURI( "b" ), "http://whatever", ' TODO : Add test name' );
     is(@cn[0].lookupNamespaceURI( "c" ), "http://kungfoo", ' TODO : Add test name');
-
 
     is(@cn[1].namespaceURI, "http://whatever", ' TODO : Add test name' );
     is(@cn[2].namespaceURI, "http://kungfoo", ' TODO : Add test name' );
@@ -117,8 +115,8 @@ print "# 5. importing namespaces\n";
 
     my $doca = LibXML.createDocument;
     my $docb = LibXML.new().parse: :string( q:to<EOX>);
-<x:a xmlns:x="http://foo.bar"><x:b/></x:a>
-EOX
+    <x:a xmlns:x="http://foo.bar"><x:b/></x:a>
+    EOX
 
     my $b = $docb.documentElement.firstChild;
 
@@ -151,8 +149,8 @@ print "# 6. lossless setting of namespaces with setAttribute\n";
 print "# 7. namespaced attributes\n";
 {
     my $doc = LibXML.parse: :string(q:to<EOF>);
-<test xmlns:xxx="http://example.com"/>
-EOF
+    <test xmlns:xxx="http://example.com"/>
+    EOF
     my $root = $doc.getDocumentElement();
     # namespaced attributes
     $root.setAttribute('xxx:attr', 'value');
@@ -278,15 +276,12 @@ print "# 8. changing namespace declarations\n";
     is( $root.getAttributeNS(Str,'attr'), 'value', ' TODO : Add test name' );
     is-deeply( $root.getAttributeNode('attr').getNamespaceURI(), Str, ' TODO : Add test name');
 
-
     $strnode = $root.Str();
     ok( $strnode !~~ /'xmlns='/, ' TODO : Add test name' );
     ok( $strnode !~~ /'xmlns:xxx='/, ' TODO : Add test name' );
     ok( $strnode ~~ /'<foo'/, ' TODO : Add test name' );
 
-
     ok( $root.setNamespaceDeclPrefix('xxx', Str), ' TODO : Add test name' );
-
 
     is( $doc.findnodes('/document/foo').size(), 1, ' TODO : Add test name' );
     is( $doc.findnodes('/document[foo]').size(), 1, ' TODO : Add test name' );

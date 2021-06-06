@@ -55,34 +55,34 @@ my $netfile      = "test/schema/net.xsd";
 # 4 validate a node
 {
     my $doc = $xmlparser.load: string => q:to<EOF>;
-<shiporder orderid="889923">
-  <orderperson>John Smith</orderperson>
-  <shipto>
-    <name>Ola Nordmann</name>
-  </shipto>
-</shiporder>
-EOF
+    <shiporder orderid="889923">
+      <orderperson>John Smith</orderperson>
+      <shipto>
+        <name>Ola Nordmann</name>
+      </shipto>
+    </shiporder>
+    EOF
 
     my $schema = LibXML::Schema.new(string => q:to<EOF>);
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="shiporder">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="orderperson" type="xs:string"/>
-        <xs:element ref="shipto"/>
-      </xs:sequence>
-      <xs:attribute name="orderid" type="xs:string" use="required"/>
-    </xs:complexType>
-  </xs:element>
-  <xs:element name="shipto">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="name" type="xs:string"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-</xs:schema>
-EOF
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="shiporder">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="orderperson" type="xs:string"/>
+            <xs:element ref="shipto"/>
+          </xs:sequence>
+          <xs:attribute name="orderid" type="xs:string" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="shipto">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+    EOF
 
     my LibXML::Element:D $node = $doc.first('/shiporder/shipto');
     my $result = 1;
@@ -109,11 +109,11 @@ $input-callbacks.activate;
 }
 {
     my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :!network ) };
-<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
-</xsd:schema>
-EOF
+    <?xml version="1.0" encoding="UTF-8"?>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
+    </xsd:schema>
+    EOF
     like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from buffer with external import throws an exception.' );
     nok( defined($schema), 'Schema from buffer with external import and !network is not loaded.' );
 }
@@ -126,11 +126,11 @@ nok $net-access, 'no attempted network access';
 }
 {
     my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :network, :suppress-warnings ) };
-<?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
-</xsd:schema>
-EOF
+    <?xml version="1.0" encoding="UTF-8"?>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
+    </xsd:schema>
+    EOF
     like $!, /'Document is empty'/, 'string :network access';
 }
 

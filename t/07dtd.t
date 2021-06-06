@@ -4,6 +4,8 @@ plan 73;
 
 use LibXML;
 use LibXML::Enums;
+use LibXML::Document;
+use LibXML::Dtd;
 
 my $htmlPublic = "-//W3C//DTD XHTML 1.0 Transitional//EN";
 my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
@@ -122,13 +124,13 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     $parser.validation = True;
     $parser.keep-blanks = True;
     my $doc=$parser.parse: :string(q:to<EOF>);
-<?xml version='1.0'?>
-<!DOCTYPE test [
- <!ELEMENT test (#PCDATA)>
-]>
-<test>
-</test>
-EOF
+    <?xml version='1.0'?>
+    <!DOCTYPE test [
+     <!ELEMENT test (#PCDATA)>
+    ]>
+    <test>
+    </test>
+    EOF
 
     ok($doc.validate(), ' TODO : Add test name');
     ok($doc.is-valid(), ' TODO : Add test name');
@@ -184,15 +186,15 @@ EOF
 
     my $parser = LibXML.new();
     my $doc = $parser.parse: :string(q:to<EOF>);
-<!DOCTYPE test [
- <!ELEMENT test (#PCDATA)>
- <!ATTLIST test
-  attr CDATA #IMPLIED
- >
-]>
-<test>
-</test>
-EOF
+    <!DOCTYPE test [
+     <!ELEMENT test (#PCDATA)>
+     <!ATTLIST test
+      attr CDATA #IMPLIED
+     >
+    ]>
+    <test>
+    </test>
+    EOF
     my $dtd = $doc.internalSubset;
 
     nok $dtd.hasAttributes, 'hasAttributes';

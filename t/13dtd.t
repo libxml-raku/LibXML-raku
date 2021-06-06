@@ -1,6 +1,7 @@
 use v6;
 use Test;
 use LibXML;
+use LibXML::Dtd;
 
 plan 18;
 
@@ -71,7 +72,7 @@ ok($dtdstr, "DTD String read");
 }
 
 ##
-# Tests for ticket 2021
+# Tests for Perl ticket #2021
 {
     quietly { dies-ok { LibXML::Dtd.new("",""); } };
 }

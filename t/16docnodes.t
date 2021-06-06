@@ -9,18 +9,18 @@ use LibXML;
 # to handle the special case where the node was the document node
 
   my $input = q:to<EOD>;
-<doc>
-   <clean>   </clean>
-   <dirty>   A   B   </dirty>
-   <mixed>
-      A
-      <clean>   </clean>
-      B
-      <dirty>   A   B   </dirty>
-      C
-   </mixed>
-</doc>
-EOD
+    <doc>
+       <clean>   </clean>
+       <dirty>   A   B   </dirty>
+       <mixed>
+          A
+          <clean>   </clean>
+          B
+          <dirty>   A   B   </dirty>
+          C
+       </mixed>
+    </doc>
+    EOD
 
 for 1 .. 3 -> $time {
     my $parser = LibXML.new();

@@ -132,7 +132,7 @@ my LibXML $parser .= new();
 # 1.1.1 DEFAULT VALUES
 
 {
-    for flat ( @goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> Str $string {
+    for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> Str $string {
         my $doc = $parser.parse(:$string);
         isa-ok($doc, 'LibXML::Document');
     }
@@ -155,57 +155,49 @@ for @badWFStrings -> $string {
 }
 
 # 1.1.2 NO KEEP BLANKS
+{ 
+    temp $parser.keep-blanks = False;
 
-$parser.keep-blanks = False;
-
-{
-    for flat ( @goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> $string {
+    for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> $string {
 	my $doc = $parser.parse(:$string);
         isa-ok($doc, 'LibXML::Document');
     }
-}
 
-for @badWFStrings -> $string {
-    dies-ok({ $parser.parse: :$string; }, "keep-blanks error:'{shorten_string($string)}'");
+    for @badWFStrings -> $string {
+        dies-ok({ $parser.parse: :$string; }, "keep-blanks error:'{shorten_string($string)}'");
+    }
 }
-
-$parser.keep-blanks = True;
 
 # 1.1.3 EXPAND ENTITIES
-
-$parser.expand-entities = False;
-
 {
-    for flat ( @goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> $string {
+    temp $parser.expand-entities = False;
+
+    for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> $string {
         my $doc = $parser.parse: :$string;
         isa-ok($doc, 'LibXML::Document');
     }
+
+    dies-ok { $parser.parse: :string(Str); };
+
+    for @badWFStrings -> $string {
+        dies-ok { $parser.parse: :$string; }, "expand-entities error:'{shorten_string($string)}'";
+    }
+
 }
-
-dies-ok { $parser.parse: :string(Str); };
-
-for @badWFStrings -> $string {
-    dies-ok { $parser.parse: :$string; }, "expand-entities error:'{shorten_string($string)}'";
-}
-
-$parser.expand-entities = True;
 
 # 1.1.4 PEDANTIC
-
-$parser.pedantic-parser = True;
-
 {
-    for flat (@goodWFStrings,@goodWFNSStrings,@goodWFDTDStrings ) -> $string {
+    temp $parser.pedantic-parser = True;
+
+    for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> $string {
         my $doc = $parser.parse(:$string);
 	isa-ok($doc, 'LibXML::Document');
     }
-}
 
-for @badWFStrings -> $string {
-    dies-ok { $parser.parse(:$string); }, "pedantic-parser error:'{shorten_string($string)}'";
+    for @badWFStrings -> $string {
+        dies-ok { $parser.parse(:$string); }, "pedantic-parser error:'{shorten_string($string)}'";
+    }
 }
-
-$parser.pedantic-parser = 0;
 
 # 1.2 PARSE A FILE
 
@@ -248,7 +240,7 @@ throws-like
     { $parser.parse: :$io; },
     X::LibXML::Parser, :message(rx/:s Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
 {
-    $parser.expand-entities = True;
+    temp $parser.expand-entities = True;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
 
     my $root = $doc.documentElement;
@@ -265,7 +257,6 @@ throws-like
     $doc = $parser.parse: :file( "example/complex/complex2.xml" );
     @cn = $doc.documentElement.childNodes;
     is( +@cn, 1, "1 child node" );
-
 }
 
 
@@ -289,7 +280,7 @@ my $badXInclude = q{
 
 {
     $parser.URI = "example/";
-    $parser.keep-blanks = False;
+    temp $parser.keep-blanks = False;
     my $doc = $parser.parse: :string( $goodXInclude );
     isa-ok($doc, 'LibXML::Document');
 
@@ -306,7 +297,7 @@ my $badXInclude = q{
         "error parsing a bad include";
 
     # auto expand
-    $parser.expand-xinclude = True;
+    temp $parser.expand-xinclude = True;
     $doc = $parser.parse: :string( $goodXInclude );
     isa-ok($doc, 'LibXML::Document');
 
@@ -365,7 +356,7 @@ my $badXInclude = q{
 
     my LibXML $parser .= new;
     {
-        for ( @good_strings ) {
+        for @good_strings {
             $parser.parse-chunk( $_ );
         }
         my $doc = $parser.parse-chunk("",:terminate);
@@ -496,12 +487,12 @@ use LibXML::SAX;
 
     for @goodWFDTDStrings -> $string {
         my $doc = $generator.parse: :$string;
-        isa-ok( $doc , 'LibXML::Document', "dtd $string");
+        isa-ok $doc , 'LibXML::Document', "dtd $string";
     }
 
     # 3.5 PARSE FILE
     $doc = $generator.parse: :file("example/test.xml");
-    isa-ok($doc, 'LibXML::Document');
+    isa-ok $doc, 'LibXML::Document';
 
 
 }
@@ -582,11 +573,11 @@ use LibXML::SAX;
     for 1 .. $MAX_WF_C -> $_ is copy {
         my Str:D $string = %chunks{'wellformed' ~ $_};
         my $frag = $pparser.parse-balanced: :$string;
-        isa-ok($frag, 'LibXML::DocumentFragment');
+        isa-ok $frag, 'LibXML::DocumentFragment';
         if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes {
             if $frag.firstChild.isSameNode($frag.lastChild) {
-                if ( $string ~~ /'<A></A>'/ ) {
+                if $string ~~ /'<A></A>'/ {
                     $_--; # because we cannot distinguish between <a/> and <a></a>
                 }
 
@@ -603,7 +594,7 @@ use LibXML::SAX;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes {
-            if ( $string ~~ /'<A></A>'/ ) {
+            if $string ~~ /'<A></A>'/ {
                 $_--;
             }
             is($frag.Str, %chunks{'wellbalance' ~ $_}, $string ~ " is well balanced");
@@ -686,8 +677,8 @@ use LibXML::SAX;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if ( $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes ) {
-            if ( $frag.firstChild.isSameNode( $frag.lastChild ) ) {
-                if ( $string ~~ /'<A></A>'/ ) {
+            if $frag.firstChild.isSameNode( $frag.lastChild ) {
+                if $string ~~ /'<A></A>'/ {
                     $_--;
                 }
                 is($frag.Str, %chunks{'wellformed' ~ $_}, $string ~ ' is well formed');
@@ -703,7 +694,7 @@ use LibXML::SAX;
         isa-ok($frag, 'LibXML::DocumentFragment');
         if ( $frag.nodeType == XML_DOCUMENT_FRAG_NODE
              && $frag.hasChildNodes ) {
-            if ( $string ~~ /'<A></A>'/ ) {
+            if $string ~~ /'<A></A>'/ {
                 $_--;
             }
             is($frag.Str, %chunks{'wellbalance' ~ $_}, $string ~ " is well balanced");
@@ -730,17 +721,17 @@ use LibXML::SAX;
     # 7 LINE NUMBERS
 
     my $goodxml = q:to<EOXML>;
-<?xml version="1.0"?>
-<foo>
-    <bar/>
-</foo>
-EOXML
+    <?xml version="1.0"?>
+    <foo>
+        <bar/>
+    </foo>
+    EOXML
 
     my $badxml = q:to<EOXML>;
-<?xml version="1.0"?>
-<!DOCTYPE foo [<!ELEMENT foo EMPTY>]>
-<bar/>
-EOXML
+    <?xml version="1.0"?>
+    <!DOCTYPE foo [<!ELEMENT foo EMPTY>]>
+    <bar/>
+    EOXML
 
     my LibXML $parser .= new;
     $parser.validation = True;
@@ -835,63 +826,57 @@ EOXML
 # test if external subsets are loaded correctly
 
 {
-        my $xmldoc = q:to<EOXML>;
-<!DOCTYPE X SYSTEM "example/ext_ent.dtd">
-<X>&foo;</X>
-EOXML
-        my LibXML $parser .= new;
+    my $xmldoc = q:to<EOXML>;
+    <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
+    <X>&foo;</X>
+    EOXML
+    my LibXML $parser .= new;
 
-        $parser.load-ext-dtd = True;
+    $parser.load-ext-dtd = True;
 
-        # first time it should work
-        my $doc    = $parser.parse: :string( $xmldoc );
-        is( $doc.documentElement.string-value(), " test " );
+    # first time it should work
+    my $doc    = $parser.parse: :string( $xmldoc );
+    is( $doc.documentElement.string-value(), " test " );
 
-        # second time it must not fail.
-        my $doc2   = $parser.parse: :string( $xmldoc );
-        is( $doc2.documentElement().string-value(), " test " );
+    # second time it must not fail.
+    my $doc2   = $parser.parse: :string( $xmldoc );
+    is( $doc2.documentElement().string-value(), " test " );
 }
 
-##
-# Test ticket #7668 xinclude breaks entity expansion
-# [CG] removed again, since #7668 claims the spec is incorrect
-
-##
-# Test ticket #7913
 {
-        my $xmldoc = q:to<EOXML>;
-<!DOCTYPE X SYSTEM "example/ext_ent.dtd">
-<X>&foo;</X>
-EOXML
-        my LibXML $parser .= new();
+    my $xmldoc = q:to<EOXML>;
+    <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
+    <X>&foo;</X>
+    EOXML
+    my LibXML $parser .= new();
 
-        $parser.load-ext-dtd = True;
+    $parser.load-ext-dtd = True;
 
-        # first time it should work
-        my $doc    = $parser.parse: :string( $xmldoc );
-        is( $doc.documentElement.string-value(), " test " );
+    # first time it should work
+    my $doc    = $parser.parse: :string( $xmldoc );
+    is( $doc.documentElement.string-value(), " test " );
 
-        # lets see if load_ext_dtd = False works
-        $parser.load-ext-dtd = False;
-        my $doc2;
-        dies-ok {
-           $doc2    = $parser.parse: :string( $xmldoc );
-        };
+    # lets see if load_ext_dtd = False works
+    $parser.load-ext-dtd = False;
+    my $doc2;
+    dies-ok {
+       $doc2    = $parser.parse: :string( $xmldoc );
+    };
 
-        $parser.validation = False;
-        $parser.load-ext-dtd = False;
-        my $doc3;
-        lives-ok {
-           $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
-        };
+    $parser.validation = False;
+    $parser.load-ext-dtd = False;
+    my $doc3;
+    lives-ok {
+       $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
+    };
 
-        isa-ok( $doc3, 'LibXML::Document');
+    isa-ok( $doc3, 'LibXML::Document');
 
-        $parser.validation = True;
-        $parser.load-ext-dtd = True;
-        dies-ok {
-           $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
-        };
+    $parser.validation = True;
+    $parser.load-ext-dtd = True;
+    dies-ok {
+       $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
+    };
 
 }
 

@@ -491,21 +491,21 @@ my $doc    = $parser.parse: :string( $xmlstring );
 
 {
     my $string = q:to<EOF>;
-<r>
-  <a/>
-	  <b/>
-  <![CDATA[
+    <r>
+      <a/>
+              <b/>
+      <![CDATA[
 
-  ]]>
-  <!-- foo -->
-  <![CDATA[
-    x
-  ]]>
-  <?foo bar?>
-  <c/>
-  text
-</r>
-EOF
+      ]]>
+      <!-- foo -->
+      <![CDATA[
+        x
+      ]]>
+      <?foo bar?>
+      <c/>
+      text
+    </r>
+    EOF
 
     {
         my $doc = LibXML.load: :$string;

@@ -27,10 +27,8 @@ my @badnames= ("1A", "<><", "&", "-:");
     ok($elem, ' TODO : Add test name');
     is($elem.tagName, $foo, ' TODO : Add test name');
 
-    {
-        for @badnames -> $name {
-            dies-ok { $elem.setNodeName( $name ); }, "setNodeName throws an exception for $name";
-        }
+    for @badnames -> $name {
+        dies-ok { $elem.setNodeName( $name ); }, "setNodeName throws an exception for $name";
     }
 
     $elem.setAttribute( $attname1, $attvalue1 );
@@ -69,11 +67,8 @@ my @badnames= ("1A", "<><", "&", "-:");
     ok($elem.hasAttribute($attname3), ' TODO : Add test name' );
     is($elem.getAttribute($attname3), "", ' TODO : Add test name');
 
-    {
-        for @badnames -> $name {
-            dies-ok {$elem.setAttribute( $name, "X" );}, "setAttribute throws an exception for '$name'";
-        }
-
+    for @badnames -> $name {
+        dies-ok {$elem.setAttribute( $name, "X" );}, "setAttribute throws an exception for '$name'";
     }
 
 
@@ -136,10 +131,8 @@ my @badnames= ("1A", "<><", "&", "-:");
     ok( $elem.hasAttributeNS($nsURI,$attname1), ' TODO : Add test name' );
     # warn $elem.toString;
 
-    {
-        for @badnames -> $name {
-            dies-ok {$elem.setAttributeNS( Str, $name, "X" );}, "setAttributeNS throws an exception for '$name'";
-        }
+    for @badnames -> $name {
+        dies-ok {$elem.setAttributeNS( Str, $name, "X" );}, "setAttributeNS throws an exception for '$name'";
     }
 }
 
@@ -238,7 +231,6 @@ my @badnames= ("1A", "<><", "&", "-:");
     @cn = $e.childNodes;
     is( +@cn, 2, ' TODO : Add test name' );
 
-
     ok(! defined($t2.parentNode), ' TODO : Add test name');
     ok(! defined($t3.parentNode), ' TODO : Add test name');
 }
@@ -305,14 +297,14 @@ my @badnames= ("1A", "<><", "&", "-:");
 # 6. LibXML::Attr nodes
 {
     my $dtd = q:to<EOF>;
-<!DOCTYPE root [
-<!ELEMENT root EMPTY>
-<!ATTLIST root fixed CDATA  #FIXED "foo">
-<!ATTLIST root a:ns_fixed CDATA  #FIXED "ns_foo">
-<!ATTLIST root name NMTOKEN #IMPLIED>
-<!ENTITY ent "ENT">
-]>
-EOF
+    <!DOCTYPE root [
+    <!ELEMENT root EMPTY>
+    <!ATTLIST root fixed CDATA  #FIXED "foo">
+    <!ATTLIST root a:ns_fixed CDATA  #FIXED "ns_foo">
+    <!ATTLIST root name NMTOKEN #IMPLIED>
+    <!ENTITY ent "ENT">
+    ]>
+    EOF
     my $ns = 'urn:xx';
     my $xml_nons = '<root foo="&quot;bar&ent;&quot;" xmlns:a="%s"/>'.sprintf($ns);
     my $xml_ns = '<root xmlns="%s" xmlns:a="%s" foo="&quot;bar&ent;&quot;"/>'.sprintf($ns, $ns);
@@ -373,62 +365,61 @@ EOF
 
     {
     my @names = ("nons", "ns");
-    for ($xml_nons, $xml_ns) -> $xml {
-        my $n = shift(@names);
-        my $parser = LibXML.new;
-        $parser.complete-attributes = True;
-        $parser.expand-entities = True;
-        my $doc = $parser.parse: :string($dtd ~ $xml);
-        ok($doc, "Could parse document $n");
-        my $root = $doc.getDocumentElement;
-        {
-            my $attr = $root.getAttributeNode('foo');
-            ok($attr, "Attribute foo exists for $n");
-            isa-ok($attr, 'LibXML::Attr',
-                "Attribute is of type LibXML::Attr - $n");
-            ok($root.isSameNode($attr.ownerElement),
-                "attr owner element is root - $n");
-            is($attr.value, q{"barENT"},
-                "attr value is OK - $n");
-            is($attr.serializeContent,
-                '&quot;barENT&quot;',
-                "serializeContent - $n");
-            is($attr.gist, 'foo="&quot;barENT&quot;"',
-                "toString - $n");
-        }
-        # fixed values are defined
-        is($root.getAttribute('fixed'),'foo', ' TODO : Add test name');
-        is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', ' TODO : Add test name');
-        is($root.getAttribute('a:ns_fixed'),'ns_foo', ' TODO : Add test name');
+        for ($xml_nons, $xml_ns) -> $xml {
+            my $n = shift(@names);
+            my $parser = LibXML.new;
+            $parser.complete-attributes = True;
+            $parser.expand-entities = True;
+            my $doc = $parser.parse: :string($dtd ~ $xml);
+            ok($doc, "Could parse document $n");
+            my $root = $doc.getDocumentElement;
+            {
+                my $attr = $root.getAttributeNode('foo');
+                ok($attr, "Attribute foo exists for $n");
+                isa-ok($attr, 'LibXML::Attr',
+                    "Attribute is of type LibXML::Attr - $n");
+                ok($root.isSameNode($attr.ownerElement),
+                    "attr owner element is root - $n");
+                is($attr.value, q{"barENT"},
+                    "attr value is OK - $n");
+                is($attr.serializeContent,
+                    '&quot;barENT&quot;',
+                    "serializeContent - $n");
+                is($attr.gist, 'foo="&quot;barENT&quot;"',
+                    "toString - $n");
+            }
+            # fixed values are defined
+            is($root.getAttribute('fixed'),'foo', ' TODO : Add test name');
+            is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', ' TODO : Add test name');
+            is($root.getAttribute('a:ns_fixed'),'ns_foo', ' TODO : Add test name');
 
-        # and attribute nodes are created
-        {
-            my $attr = $root.getAttributeNode('fixed');
-            isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            is($attr.value,'foo', ' TODO : Add test name');
-            is($attr.gist, 'fixed="foo"', ' TODO : Add test name');
-        }
-        {
-            my $attr = $root.getAttributeNode('a:ns_fixed');
-            isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            is($attr.value,'ns_foo', ' TODO : Add test name');
-        }
-        {
-            my $attr = $root.getAttributeNodeNS($ns,'ns_fixed');
-            isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
-            is($attr.value,'ns_foo', ' TODO : Add test name');
-            is($attr.gist, 'a:ns_fixed="ns_foo"', ' TODO : Add test name');
-        }
+            # and attribute nodes are created
+            {
+                my $attr = $root.getAttributeNode('fixed');
+                isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
+                is($attr.value,'foo', ' TODO : Add test name');
+                is($attr.gist, 'fixed="foo"', ' TODO : Add test name');
+            }
+            {
+                my $attr = $root.getAttributeNode('a:ns_fixed');
+                isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
+                is($attr.value,'ns_foo', ' TODO : Add test name');
+            }
+            {
+                my $attr = $root.getAttributeNodeNS($ns,'ns_fixed');
+                isa-ok($attr, 'LibXML::Attr', ' TODO : Add test name');
+                is($attr.value,'ns_foo', ' TODO : Add test name');
+                is($attr.gist, 'a:ns_fixed="ns_foo"', ' TODO : Add test name');
+            }
 
-
-        ok(!defined($root.getAttributeNode('ns_fixed')), ' TODO : Add test name');
-        ok(!defined($root.getAttributeNode('name')), ' TODO : Add test name');
-        ok(!defined($root.getAttributeNode('baz')), ' TODO : Add test name');
-        ok(!defined($root.getAttributeNodeNS($ns,'foo')), ' TODO : Add test name');
-        ok(!defined($root.getAttributeNodeNS($ns,'fixed')), ' TODO : Add test name');
-        ok(!defined($root.getAttributeNodeNS(Str, 'name')), ' TODO : Add test name');
-        ok(!defined($root.getAttributeNodeNS(Str, 'baz')), ' TODO : Add test name');
-    }
+            ok(!defined($root.getAttributeNode('ns_fixed')), ' TODO : Add test name');
+            ok(!defined($root.getAttributeNode('name')), ' TODO : Add test name');
+            ok(!defined($root.getAttributeNode('baz')), ' TODO : Add test name');
+            ok(!defined($root.getAttributeNodeNS($ns,'foo')), ' TODO : Add test name');
+            ok(!defined($root.getAttributeNodeNS($ns,'fixed')), ' TODO : Add test name');
+            ok(!defined($root.getAttributeNodeNS(Str, 'name')), ' TODO : Add test name');
+            ok(!defined($root.getAttributeNodeNS(Str, 'baz')), ' TODO : Add test name');
+        }
     }
 }
 

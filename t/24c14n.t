@@ -117,24 +117,24 @@ EOX
 # exclusive canonicalization
 
 {
-  my $xml1 = q:to<EOX>;
-<n0:local xmlns:n0="http://something.org" xmlns:n3="ftp://example.org">
-  <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
-     <n3:stuff xmlns:n3="ftp://example.org"/>
-  </n1:elem2>
-</n0:local>
-EOX
+    my $xml1 = q:to<EOX>;
+    <n0:local xmlns:n0="http://something.org" xmlns:n3="ftp://example.org">
+      <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+         <n3:stuff xmlns:n3="ftp://example.org"/>
+      </n1:elem2>
+    </n0:local>
+    EOX
 
-  my $xml2 = q:to<EOX>;
-<n2:pdu xmlns:n1="http://example.com"
-           xmlns:n2="http://foo.example"
-           xml:lang="fr"
-           xml:space="preserve">
-  <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
-     <n3:stuff xmlns:n3="ftp://example.org"/>
-  </n1:elem2>
-</n2:pdu>
-EOX
+    my $xml2 = q:to<EOX>;
+    <n2:pdu xmlns:n1="http://example.com"
+               xmlns:n2="http://foo.example"
+               xml:lang="fr"
+               xml:space="preserve">
+      <n1:elem2 xmlns:n1="http://example.net" xml:lang="en">
+         <n3:stuff xmlns:n3="ftp://example.org"/>
+      </n1:elem2>
+    </n2:pdu>
+    EOX
     my $xpath = "(//. | //@* | //namespace::*)[ancestor-or-self::*[name()='n1:elem2']]";
     my $result = qq{<n1:elem2 xmlns:n1="http://example.net" xml:lang="en">\n     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>\n  </n1:elem2>};
     my $result_n0n2 = qq{<n1:elem2 xmlns:n1="http://example.net" xmlns:n2="http://foo.example" xml:lang="en">\n     <n3:stuff xmlns:n3="ftp://example.org"></n3:stuff>\n  </n1:elem2>};

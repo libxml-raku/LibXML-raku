@@ -15,9 +15,9 @@ my $doc = LibXML.parse: :string(q:to<XML>);
 XML
 
 my %variables = (
-	'a' => 2,
-	'b' => "b",
-	);
+    'a' => 2,
+    'b' => "b",
+);
 
 sub get_variable($name, $uri ) {
     %variables{$name};

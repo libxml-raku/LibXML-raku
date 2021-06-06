@@ -65,28 +65,27 @@ print "# 4 validate a document\n";
 
 print "# 5 re-validate a modified document\n";
 {
-  my $rng = LibXML::RelaxNG.new(location => $demo4);
-  my $seed_xml = q:to<EOXML>;
-<?xml version="1.0" encoding="UTF-8"?>
-<root/>
-EOXML
+    my $rng = LibXML::RelaxNG.new(location => $demo4);
+    my $seed_xml = q:to<EOXML>;
+    <?xml version="1.0" encoding="UTF-8"?>
+    <root/>
+    EOXML
 
-  my $doc = $xmlparser.parse: :string($seed_xml);
-  my $rootElem = $doc.documentElement;
-  my $bogusElem = $doc.createElement('bogus-element');
+    my $doc = $xmlparser.parse: :string($seed_xml);
+    my $rootElem = $doc.documentElement;
+    my $bogusElem = $doc.createElement('bogus-element');
 
-  dies-ok {$rng.validate($doc);}, 'unmodified (invalid) document dies';
+    dies-ok {$rng.validate($doc);}, 'unmodified (invalid) document dies';
 
-  $rootElem.setAttribute('name', 'rootElem');
-  lives-ok { $rng.validate($doc); }, 'modified (valid) document lives';
+    $rootElem.setAttribute('name', 'rootElem');
+    lives-ok { $rng.validate($doc); }, 'modified (valid) document lives';
 
-  $rootElem.appendChild($bogusElem);
-  dies-ok {$rng.validate($doc);}, 'modified (invalid) document dies';
+    $rootElem.appendChild($bogusElem);
+    dies-ok {$rng.validate($doc);}, 'modified (invalid) document dies';
 
-  $bogusElem.unlinkNode();
-  lives-ok {$rng.validate($doc);}, 'modified (fixed) document lives';
+    $bogusElem.unlinkNode();
+    lives-ok {$rng.validate($doc);}, 'modified (fixed) document lives';
 
-  $rootElem.removeAttribute('name');
-  dies-ok {$rng.validate($doc);}, 'modified (broken) document dies';
-
+    $rootElem.removeAttribute('name');
+    dies-ok {$rng.validate($doc);}, 'modified (broken) document dies';
 }

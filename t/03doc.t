@@ -37,17 +37,14 @@ sub _check_created_element(LibXML::Document $doc, Str $given-name, Str $name, St
     );
 }
 
-sub _multi_arg_generic_count(LibXML::Node $node, Str $method, List $params)
+sub _multi_arg_generic_count(LibXML::Node $node, Str $method, @ (List $meth_params, UInt $want_count, Str $blurb))
 {
-    my (List $meth_params, UInt $want_count, Str $blurb) = @$params;
     my @elems = $node."$method"( |$meth_params );
     return is(+(@elems), $want_count, $blurb);
 }
 
-sub _generic_count(LibXML::Node $node, Str $method, List $params)
+sub _generic_count(LibXML::Node $node, Str $method, @ (Str $name, UInt $want_count, Str $blurb))
 {
-    my (Str $name, UInt $want_count, Str $blurb) = @$params;
-
     return _multi_arg_generic_count(
         $node, $method, [[$name], $want_count, $blurb, ],
     );
@@ -345,7 +342,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     $doc.removeChild($doc[0]);
     is $doc.childNodes, '', 'addNewChild/removeChild';
     
-    for ( 1..2 ) {
+    for 1..2 {
         my $nodeA = $doc.createElement( "x" );
         $doc.documentElement = $nodeA;
     }
@@ -539,7 +536,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 {
     my $name = "Heydər Əliyev";
 
-    for ('UTF-16LE', 'UTF-16BE', 'UTF-16', 'ISO-8859-1') -> $enc {
+    for 'UTF-16LE', 'UTF-16BE', 'UTF-16', 'ISO-8859-1' -> $enc {
         my $name-enc = $enc eq 'ISO-8859-1'
             ?? $name.ords.map({32 <= $_ <= 127 ?? .chr !! sprintf("&#%d;", $_)}).join
             !! $name;

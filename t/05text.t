@@ -6,6 +6,7 @@ plan 65;
 
 use LibXML;
 use LibXML::Text;
+use LibXML::Document;
 
 my $doc = LibXML::Document.new();
 
@@ -219,7 +220,7 @@ my $doc = LibXML::Document.new();
 
 {
     # CDATA node name test
-
+    need LibXML::CDATA;
     my $node = LibXML::CDATA.new: :content<test>;
 
     is( $node.string-value(), "test", ' TODO : Add test name' );
@@ -229,7 +230,7 @@ my $doc = LibXML::Document.new();
 
 {
     # Comment node name test
-
+    need LibXML::Comment;
     my $node = LibXML::Comment.new: :content<test>;
 
     is( $node.string-value(), "test", ' TODO : Add test name' );

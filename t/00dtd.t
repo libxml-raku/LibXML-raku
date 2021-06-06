@@ -37,16 +37,16 @@ class SaxHandler is LibXML::SAX::Handler::SAX2 {
 }
 
 $string = qq:to<EOF>;
-    <!DOCTYPE doc [ $string ]>
-    <doc>
-        <head id="explicit">A Test</head>
-        <descr>
-            ^^ attribute "id" has been given a value, as required
-            ^^ attribute "a" has implied value CDATA
-            ^^ attribute "b" has default value 'bless'
-        </descr>
-    </doc>
-    EOF
+<!DOCTYPE doc [ $string ]>
+<doc>
+    <head id="explicit">A Test</head>
+    <descr>
+        ^^ attribute "id" has been given a value, as required
+        ^^ attribute "a" has implied value CDATA
+        ^^ attribute "b" has default value 'bless'
+    </descr>
+</doc>
+EOF
 
 my LibXML::Document $doc .= parse: :$string, :dtd;
 my LibXML::Element $head = $doc.documentElement.elements[0];

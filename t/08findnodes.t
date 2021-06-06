@@ -3,7 +3,7 @@ use Test;
 plan 68;
 
 use LibXML;
-use LibXML::Element;
+use LibXML::ErrorHandling;
 use LibXML::Node;
 
 my $file    = "example/dromeds.xml";
@@ -102,13 +102,13 @@ if defined $dom {
 ok( $dom, ' TODO : Add test name' );
 
 for 0..3 {
-    my $doc = LibXML.parse: :string(
-'<?xml version="1.0" encoding="UTF-8"?>
-<?xsl-stylesheet type="text/xsl" href="a.xsl"?>
-<a />');
+    my $doc = LibXML.parse: :string(q:to<EOT>);
+    <?xml version="1.0" encoding="UTF-8"?>
+    <?xsl-stylesheet type="text/xsl" href="a.xsl"?>
+    <a />
+    EOT
     my $pi = $doc.first("processing-instruction('xsl-stylesheet')");
     is $pi.xpath-key, 'processing-instruction()';
-
 }
 
 my $doc = $parser.parse: :string(q:to<EOT>);
@@ -169,14 +169,13 @@ my @badxpath = (
     'foo///bar',
     '...',
     '/-',
-               );
+);
 
 for @badxpath -> $xp {
     dies-ok { $root.findnodes( $xp ); }, "findnodes('$xp'); - dies";
     dies-ok { $root.find( $xp ); }, "find('$xp'); - dies";
     dies-ok { $root.findvalue( $xp ); }, "findvalue('$xp'); - dies";
 }
-
 
 {
     my $doc = LibXML.createDocument();

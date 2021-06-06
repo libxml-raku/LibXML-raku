@@ -17,7 +17,7 @@ my $version = $p.version;
 ok $version, 'LibXML.version is trueish';
 
 diag "Running libxml2 version: $version (module {LibXML.^ver})";
-with LibXML.config-version {
+given LibXML.config-version {
     diag "***NOTE was configured against libxml2 version $_ ***"
         unless $_ == LibXML.version
 }
@@ -29,7 +29,6 @@ for True, False -> $kb {
     lives-ok { config.keep-blanks = $kb }, 'set keep-blanks default';
     is-deeply config.keep-blanks, $kb, 'get keep-blanks default';
 }
-
 
 my Str $string = '<html><body><h1>Test</h1></body></html>';
 my $doc = $p.parse: :$string;

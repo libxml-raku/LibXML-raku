@@ -13,10 +13,10 @@ use LibXML;
 
 {
     my $doc = LibXML.load(string => q:to<EOT>);
-<root>
-    <item xml:id="id1">item1</item>
-</root>
-EOT
+    <root>
+        <item xml:id="id1">item1</item>
+    </root>
+    EOT
 
     my $elem = $doc.getElementById('id1');
     ok($elem, 'Orig doc has id1');

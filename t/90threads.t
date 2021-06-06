@@ -20,25 +20,25 @@ sub blat(&r, :$n = MAX_THREADS) {
 }
 
 subtest 'relaxng' => {
-  plan 3;
-  my $grammar = q:to<EOF>;
-<grammar xmlns="http://relaxng.org/ns/structure/1.0">
-<start>
-  <element name="foo"><empty/></element>
-</start>
-</grammar>
-EOF
-  my LibXML::Document $good .= parse: :string('<foo/>');
-  my LibXML::Document $bad .= parse: :string('<bar/>');
-  my LibXML::RelaxNG @schemas = blat {
-      LibXML::RelaxNG.new(string => $grammar);
-  }
-  my Bool @good = blat { @schemas[$_].is-valid($good); }
-  my Bool @bad = blat { @schemas[$_].is-valid($bad); }
+    plan 3;
+    my $grammar = q:to<EOF>;
+    <grammar xmlns="http://relaxng.org/ns/structure/1.0">
+    <start>
+      <element name="foo"><empty/></element>
+    </start>
+    </grammar>
+    EOF
+    my LibXML::Document $good .= parse: :string('<foo/>');
+    my LibXML::Document $bad .= parse: :string('<bar/>');
+    my LibXML::RelaxNG @schemas = blat {
+        LibXML::RelaxNG.new(string => $grammar);
+    }
+    my Bool @good = blat { @schemas[$_].is-valid($good); }
+    my Bool @bad = blat { @schemas[$_].is-valid($bad); }
 
-  is +@schemas, MAX_THREADS, 'relaxng schemas';
-  is-deeply (+@good, [@good.unique]), (MAX_THREADS, [True]), 'relax-ng valid';
-  is-deeply (+@bad, [@bad.unique]), (MAX_THREADS, [False]), 'relax-ng invalid';
+    is +@schemas, MAX_THREADS, 'relaxng schemas';
+    is-deeply (+@good, [@good.unique]), (MAX_THREADS, [True]), 'relax-ng valid';
+    is-deeply (+@bad, [@bad.unique]), (MAX_THREADS, [False]), 'relax-ng invalid';
 }
 
 

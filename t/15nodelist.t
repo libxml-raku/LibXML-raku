@@ -111,13 +111,13 @@ is(join('|',@reverse), '10|9|8|7|6|5|4|3|2|1', 'reverse works');
 =end TODO
 
 sub data {
-q:to<__DATA__>;
-<AAA>
-<BBB>OK</BBB>
-<CCC/>
-<BBB/>
-<DDD><BBB/></DDD>
-<CCC><DDD><BBB/><BBB>NOT OK</BBB></DDD></CCC>
-</AAA>
-__DATA__
+    q:to<__DATA__>;
+    <AAA>
+    <BBB>OK</BBB>
+    <CCC/>
+    <BBB/>
+    <DDD><BBB/></DDD>
+    <CCC><DDD><BBB/><BBB>NOT OK</BBB></DDD></CCC>
+    </AAA>
+    __DATA__
 }

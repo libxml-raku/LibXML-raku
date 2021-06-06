@@ -7,9 +7,7 @@ plan 3;
 
 my LibXML $p .= new;
 
-my $xmlstr = q:to<EOX>;
-<X></Y>
-EOX
+my $xmlstr = "<X></Y>\n";
 
 try {
     my $doc = $p.parse: :string( $xmlstr );

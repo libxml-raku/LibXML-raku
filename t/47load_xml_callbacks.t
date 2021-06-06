@@ -3,6 +3,7 @@
 # ensure operation of input callbacks with .load()
 
 use LibXML;
+use LibXML::InputCallback;
 use Test;
 plan 3;
 

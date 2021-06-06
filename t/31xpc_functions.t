@@ -6,7 +6,7 @@ use LibXML;
 use LibXML::Document;
 use LibXML::XPath::Context;
 
-my $doc = LibXML.parse: :string(q:to<XML>);
+my LibXML::Document $doc .= parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>
 XML
 ok($doc, ' TODO : Add test name');

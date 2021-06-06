@@ -11,11 +11,11 @@ plan 7;
 config.external-entity-loader = &handler;
 
 my $parser = LibXML.new(
-  expand_entities => 1,
+    expand_entities => 1,
 );
 
 sub handler(*@p) {
-  return @p.map({$_//''}).join: ',';
+    return @p.map({$_//''}).join: ',';
 }
 
 my $xml = q:to<EOF>;
@@ -46,14 +46,14 @@ is( $doc.Str(), $xml_out2, ' TODO : Add test name' );
 config.external-entity-loader = -> *@ { '' }
 
 $parser.set-options(
-  expand_entities => 0,
-  recover => 2,
+    expand_entities => 0,
+    recover => 2,
 );
 $doc = $parser.parse: :string($xml);
 is( $doc.Str(), $xml, ' TODO : Add test name' );
 
 for $doc.findnodes('/root/*') -> $el {
-  ok($el.hasChildNodes, ' TODO : Add test name');
-  is($el.firstChild.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name');
+    ok($el.hasChildNodes, ' TODO : Add test name');
+    is($el.firstChild.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name');
 }
 
