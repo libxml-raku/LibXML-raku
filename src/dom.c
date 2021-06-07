@@ -449,17 +449,21 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
     int replace_external = (old && old->type == XML_DTD_NODE ? (xmlDtdPtr)old : dtd) == ext_dtd;
 
     if (doc == NULL) XML6_FAIL(dtd, "DTD is not associated with a document");
-    if (_domIsDoc((xmlNodePtr)doc) == 0) {
+    if (_domIsDoc((xmlNodePtr)doc) == 0 || (dtd != NULL && dtd->type != XML_DTD_NODE)) {
         XML6_FAIL((xmlNodePtr)dtd, "SetDtd: HIERARCHY_REQUEST_ERR");
     }
-    if (old && old != (xmlNodePtr) dtd) xmlUnlinkNode(old);
 
-    if (replace_external) {
-        dtd = domSetExternalSubset(doc, dtd);
+    if (dtd != (xmlDtdPtr)old) {
+        if (old) xmlUnlinkNode(old);
+
+        if (replace_external) {
+            dtd = domSetExternalSubset(doc, dtd);
+        }
+        else {
+            dtd = domSetInternalSubset(doc, dtd);
+        }
     }
-    else {
-        dtd = domSetInternalSubset(doc, dtd);
-    }
+
     return (xmlNodePtr) dtd;
 }
 
