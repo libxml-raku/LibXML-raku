@@ -66,6 +66,28 @@ enum htmlParserOption is export (
    HTML_PARSE_IGNORE_ENC => 2097152
 );
 
+enum xmlElementContentType is export (
+    XML_ELEMENT_CONTENT_PCDATA => 1,
+    'XML_ELEMENT_CONTENT_ELEMENT',
+    'XML_ELEMENT_CONTENT_SEQ',
+    'XML_ELEMENT_CONTENT_OR'
+);
+
+enum xmlElementTypeVal is export (
+    XML_ELEMENT_TYPE_UNDEFINED => 0,
+    XML_ELEMENT_TYPE_EMPTY => 1,
+    'XML_ELEMENT_TYPE_ANY',
+    'XML_ELEMENT_TYPE_MIXED',
+    'XML_ELEMENT_TYPE_ELEMENT'
+);
+
+enum xmlElementContentOccur is export (
+    XML_ELEMENT_CONTENT_ONCE => 1,
+    'XML_ELEMENT_CONTENT_OPT',
+    'XML_ELEMENT_CONTENT_MULT',
+    'XML_ELEMENT_CONTENT_PLUS'
+);
+
 my enum xmlAttributeDefault is export (
     XML_ATTRIBUTE_NONE => 1,
     'XML_ATTRIBUTE_REQUIRED',

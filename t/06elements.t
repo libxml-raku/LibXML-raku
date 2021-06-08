@@ -337,10 +337,7 @@ my @badnames= ("1A", "<><", "&", "-:");
         # fixed values are defined
         is($root.getAttribute('fixed'),'foo', ' TODO : Add test name');
 
-        SKIP:
-        {
-            is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', 'ns_fixed is ns_foo')
-        }
+        is($root.getAttributeNS($ns,'ns_fixed'),'ns_foo', 'ns_fixed is ns_foo');
 
         is($root.getAttribute('a:ns_fixed'),'ns_foo', ' TODO : Add test name');
 

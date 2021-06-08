@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 73;
+plan 77;
 
 use LibXML;
 use LibXML::Enums;
@@ -123,7 +123,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     my $parser = LibXML.new();
     $parser.validation = True;
     $parser.keep-blanks = True;
-    my $doc=$parser.parse: :string(q:to<EOF>);
+    my $doc = $parser.parse: :string(q:to<EOF>);
     <?xml version='1.0'?>
     <!DOCTYPE test [
      <!ELEMENT test (#PCDATA)>
@@ -132,9 +132,13 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     </test>
     EOF
 
-    ok($doc.validate(), ' TODO : Add test name');
-    ok($doc.is-valid(), ' TODO : Add test name');
-    nok($doc.getInternalSubset.is-XHTML, 'is-XHTML');
+    ok $doc.validate(), 'validate()';
+    ok $doc.is-valid(), 'is-valid()';
+    ok $doc.is-valid(dtd => $doc.documentElement), 'is-valid($root)';
+    ok $doc.is-valid(dtd => $doc.getInternalSubset), 'is-valid($dtd)';
+    ok $doc.is-valid($doc.createElement('test')), 'is-valid($elem)';
+    nok $doc.is-valid($doc.createElement('crud')), '!is-valid($elem)';
+    nok $doc.getInternalSubset.is-XHTML, 'is-XHTML';
 
 }
 

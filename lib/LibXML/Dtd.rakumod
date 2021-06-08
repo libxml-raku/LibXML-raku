@@ -68,6 +68,7 @@ use LibXML::Attr;
 use LibXML::Element;
 use LibXML::Entity;
 use LibXML::EntityRef;
+use LibXML::Node;
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Notation;
@@ -92,21 +93,13 @@ class ValidContext {
         $!raw .= new;
     }
 
-    method validate(DocNode:D :doc($doc-obj)!, LibXML::Dtd :dtd($dtd-obj), Bool() :$check) is hidden-from-backtrace {
-        my xmlDoc:D $doc = .raw with $doc-obj;
-        my xmlDtd   $dtd = .raw with $dtd-obj;
-        with $dtd {
-            # redo internal validation
-            $_ = Nil
-               if .isSameNode($doc.getInternalSubset)
-               or .isSameNode($doc.getExternalSubset);
-        }
+    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, Bool :$check) is hidden-from-backtrace {
         my $rv;
 
         my $*XML-CONTEXT = self;
         given xml6_gbl_save_error_handlers() {
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!raw.validate(:$doc, :$dtd);
+            $rv := $!raw.validate(:$doc, :$dtd, :$elem);
 
 	    $rv := self.validity-check
                 if $check;
@@ -118,8 +111,34 @@ class ValidContext {
         ? $rv;
     }
 
-    method is-valid(|c) {
-        self.validate(:check, |c);
+    multi method validate(
+        DocNode:D $doc-obj,
+        LibXML::Dtd :dtd($dtd-obj),
+        Bool() :$check
+    ) is hidden-from-backtrace {
+        my xmlDoc:D $doc = .raw given $doc-obj;
+        my xmlDtd   $dtd = .raw with $dtd-obj;
+        with $dtd {
+            # redo internal validation
+            $_ = Nil
+               if .isSameNode($doc.getInternalSubset)
+               or .isSameNode($doc.getExternalSubset);
+        }
+        self!validate-raw(:$doc, :$dtd, :$check);
+    }
+
+    multi method validate(
+        LibXML::Element:D $_,
+        DocNode :doc($doc-obj) = .ownerDocument,
+        Bool() :$check
+    ) is hidden-from-backtrace {
+        my xmlElem:D $elem = .raw;
+        my xmlDoc:D $doc = $doc-obj.raw;
+        self!validate-raw(:$elem, :$doc, :$check);
+    }
+
+    method is-valid(LibXML::Node $node, |c) {
+        self.validate($node, :check, |c);
     }
 
 }
@@ -231,8 +250,8 @@ multi method getNodeDeclaration(LibXML::Attr:D $_) {
 
 method !valid-ctx($schema:) { ValidContext.new: :$schema }
 
-method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument --> UInt) is hidden-from-backtrace {
-    self!valid-ctx.validate(:$dtd, :$doc);
+method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument, Bool :$check --> UInt) is hidden-from-backtrace {
+    self!valid-ctx.validate($doc, :$dtd, :$check);
 }
   =begin pod
   =head3 method validate
@@ -240,14 +259,13 @@ method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument --> UInt) i
       method validate($doc = $.ownerDocument --> UInt)
 
   =para This function allows one to validate a (parsed) document against the given XML
-  Schema. The argument of this function should be a L<LibXML::Document> object.  If this function succeeds, it will return 0, otherwise it will die()
-  and report the errors found. Because of this validate() should be always
-  evaluated.
+  Schema. The argument of this function should be a L<LibXML::Document> object.  If this function succeeds, it will return 0, otherwise it will throw an exception
+  reporting the errors found.
   =end pod
 
 #| Returns True if the passed document is valid against the DTD
 method is-valid(LibXML::Dtd:D $dtd: DocNode:D $doc --> Bool) {
-    self!valid-ctx.validate(:$dtd, :$doc, :check);
+    self!valid-ctx.validate($doc, :$dtd, :check);
 }
 
 #| Returns True if the publicId or systemId match an XHTML identifier

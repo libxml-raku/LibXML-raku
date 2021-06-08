@@ -65,8 +65,10 @@ method set-raw(xmlParserCtxt $_) {
         $!raw.sax = .raw with $!sax-handler;
     }
     with $old {
-        with .myDoc {
-            .Free unless $!published || .is-referenced;
+        unless $!published {
+            with .myDoc {
+                .Free  unless .is-referenced;
+            }
         }
         .sax = Nil;
         .Unreference;

@@ -40,5 +40,12 @@ my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.element-decls;
 
 my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
 note $note-decl.Str; # <!ELEMENT note (to,from,heading,body)>
+note $note-decl.potential-children; # [to from heading body]
+
+=head2 Methods
+
+=head3 potential-children(UInt :$max = 255)
+
+=para Returns an array (up to size `$max`) of possible immediate child elements names, or '#PCDATA' if the element may have Text or CDATA content.
 ```
 

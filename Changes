@@ -3,7 +3,11 @@
     - Support Dtd Notations:
       -- Added raw class xmlNotation,
       -- Added API class LibXML::Dtd::Notation
-      -- Added LibXML::Dtd notations() method
+      -- Added LibXML::Dtd methods:
+         --- associative: notations() entities(), element-declarations(),
+             element-attribute-declarations()
+         --- retrieval: getNotation(), getEntity(), getElementDeclaration(),
+             getAttrDeclaration(), getNodeDeclaration()
       -- Changed LibXML::Dtd repr from 'CStruct' to default, so that it
          contain attributes, firstly, the $!notations attribute.
     - Support Dtd Element declarations:

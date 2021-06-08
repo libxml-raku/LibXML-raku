@@ -70,17 +70,18 @@ unit class LibXML::Element
 
         # -- Construction -- #
         use LibXML::Item :&ast-to-xml;
-        $elem = ast-to-xml('Test' => [
-                               'xmlns:mam' => 'urn:mammals', # name-space
-                               :foo<bar>,                    # attribute
-                               "\n  ",                       # white-space
-                               '#comment' => 'demo',         # comment
-                               :baz[],                       # sub-element
-                               '#cdata' => 'a&b',            # CData section
-                               "Some text.",                 # text content
-                               "\n"
-                           ]
-                          );
+        $elem = ast-to-xml(
+            'Test' => [
+                'xmlns:mam' => 'urn:mammals', # name-space
+                :foo<bar>,                    # attribute
+                "\n  ",                       # white-space
+                '#comment' => 'demo',         # comment
+                :baz[],                       # sub-element
+                '#cdata' => 'a&b',            # CData section
+                "Some text.",                 # text content
+                "\n"
+            ]
+        );
         say $elem;
         # <Test xmlns:mam="urn:mammals" foo="bar">
         #   <!--demo--><baz/><![CDATA[a&b]]>Some text.

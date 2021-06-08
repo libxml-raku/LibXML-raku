@@ -48,26 +48,27 @@ use NativeCall;
         my Bool $is-compressed = $doc.input-compressed;
         my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
         $doc.compression = $zip-level;
-        my Str $html-tidy = $dom.Str: :$format, :$html;
+        my Str $html-tidy = $doc.Str: :$format, :$html;
         my Str $xml-c14n = $doc.Str: :C14N, :$comments, :$xpath, :$exclusive, :$selector;
         my Str $xml-tidy = $doc.serialize: :$format;
         my Int $state = $doc.write: :$file, :$format;
         $state = $doc.save: :io($fh), :$format;
         my Str $html = $doc.Str: :html;
         $html = $doc.serialize-html();
-        try { $dom.validate(); }
-        if $dom.is-valid() { ... }
+        try { $doc.validate(); }
+        if $doc.is-valid() { ... }
+        if $doc.is-valid($elem) { ... }
 
-        my LibXML::Element $root = $dom.documentElement();
+        my LibXML::Element $root = $doc.documentElement();
         $dom.documentElement = $root;
-        my LibXML::Element $element = $dom.createElement( $nodename );
-        $element = $dom.createElementNS( $namespaceURI, $nodename );
-        my LibXML::Text $text = $dom.createTextNode( $content_text );
-        my LibXML::Comment $comment = $dom.createComment( $comment_text );
+        my LibXML::Element $element = $doc.createElement( $nodename );
+        $element = $doc.createElementNS( $namespaceURI, $nodename );
+        my LibXML::Text $text = $doc.createTextNode( $content_text );
+        my LibXML::Comment $comment = $doc.createComment( $comment_text );
         my LibXML::Attr $attr = $doc.createAttribute($name [,$value]);
         $attr = $doc.createAttributeNS( namespaceURI, $name [,$value] );
         my LibXML::DocumentFragment $fragment = $doc.createDocumentFragment();
-        my LibXML::CDATA $cdata = $dom.createCDATASection( $cdata_content );
+        my LibXML::CDATA $cdata = $doc.createCDATASection( $cdata_content );
         my LibXML::PI $pi = $doc.createProcessingInstruction( $target, $data );
         my LibXML::EntityRef $entref = $doc.createEntityReference($refname);
         my LibXML::Dtd $dtd = $doc.createInternalSubset( $rootnode, $public, $system);
@@ -499,16 +500,27 @@ method write(Str() :$file!, Bool :$format = False --> UInt) {
 #| Write to a name file (equivalent to $.write: :$file)
 method save-as(Str() $file --> UInt) { $.write(:$file) }
 
-#| Check that the current document is valid
-method is-valid(LibXML::Dtd $dtd? --> Bool) { $.validate($dtd, :check); }
+method is-valid(|c --> Bool) { $.validate(|c, :check); }
 =begin pod
-    =para Returns either True or False depending on whether the DOM Tree is a valid Document or not.
+=head3 is-valid
+=begin code :lang<raku>
+multi method is-valid(LibXML::Dtd :$dtd --> Bool)
+multi method is-valid(LibXML::Element $elem --> Bool)
+=end code
 
-    You may also pass in a L<LibXML::Dtd> object, to validate against an external DTD:
+Checks that the document, or a an element in the document, is valid
 
-        unless $dom.is-valid($dtd) {
-            warn("document is not valid!");
-        }
+Returns either True or False depending on whether the DOM Tree is a valid Document or not.
+
+Optionally accepts an Element to check. The element may be at any level in the document, and is checked as a sub-tree in isolation.
+
+You may also pass in a L<LibXML::Dtd> object, to validate the document against an external DTD:
+
+    =begin code :lang<raku>
+    unless $doc.is-valid(:$dtd) {
+        warn("document is not valid!");
+    }
+    =end code
 
 =end pod
 
@@ -518,19 +530,33 @@ method was-valid returns Bool {
 }
 method valid is DEPRECATED<was-valid> { $.was-valid }
 
-#| Assert that the current document is valid
-method validate($doc: LibXML::Dtd $dtd?, Bool :$check --> Bool) is hidden-from-backtrace {
+=head3 method validate
+=begin code :lang<raku>
+multi method validate(LibXML::Dtd :$dtd)
+multi method validate(LibXML::Element $elem)
+=end code
+multi method validate($doc: Bool :$check --> Bool) is hidden-from-backtrace {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
-    $valid-ctx.validate(:$doc, :$dtd, :$check);
+    $valid-ctx.validate($doc, :$check);
 }
+multi method validate($doc: LibXML::Dtd $dtd, Bool :$check --> Bool) is hidden-from-backtrace {
+    my LibXML::Dtd::ValidContext $valid-ctx .= new;
+    $valid-ctx.validate($doc, :$dtd, :$check);
+}
+multi method validate($doc: LibXML::Element:D $elem, Bool :$check --> Bool) is hidden-from-backtrace {
+    my LibXML::Dtd::ValidContext $valid-ctx .= new;
+    $valid-ctx.validate($elem, :$doc, :$check);
+}        
 =begin pod
+    =para Validates, either the entire document, or an individual element
     =para
-    This is an exception throwing equivalent of is_valid. If the document is not
+    This is an exception throwing equivalent of is-valid. If the document is not
     valid it will throw an exception containing the error. This allows you much
     better error reporting than simply is_valid or not.
 
     Again, you may pass in a DTD object
-=end pod  
+=end pod
+
 
 #| Gets or sets the root element of the Document.
 method documentElement is rw is also<root> returns LibXML::Element {

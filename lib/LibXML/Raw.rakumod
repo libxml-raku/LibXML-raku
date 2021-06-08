@@ -295,11 +295,22 @@ class xmlParserInput is repr('CStruct') is export {
 #| in a DTD.
 class xmlElementContent is repr('CStruct') is export {
     has int32             $.type;   # PCDATA, ELEMENT, SEQ or OR
-    has int32             $.ocur;   # ONCE, OPT, MULT or PLUS
+    has int32             $.arity;  # ONCE, OPT, MULT or PLUS
     has xmlCharP          $.name;   # Element name
     has xmlElementContent $.c1;     # First child
     has xmlElementContent $.c2;     # Second child
+    has xmlElementContent $.parent; # Parent
     has xmlCharP          $.prefix; # Namespace prefix
+    method PotentialChildren(CArray[Str], int32 $len is rw, int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetPotentialChildren') {*}
+    our sub Dump(Blob, int32, xmlElementContent, bool) is native($XML2) is symbol('xmlSnprintfElementContent') {*}
+    method Str(UInt :$max = 255, Bool:D :$paren = so ($!type == XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR)) {
+        my buf8 $buf .= allocate($max);
+        Dump($buf, $max, self, +$paren);
+        # null terminate
+        $buf .= subbuf(0, $_)
+            with (0 ..^ $max).first: {$buf[$_] == 0}, :k;
+        $buf.decode;
+    }
 }
 
 #| An XML namespace.
@@ -1368,12 +1379,16 @@ class xmlValidCtxt is repr('CStruct') is export {
     our sub New(--> xmlValidCtxt) is native($XML2) is symbol('xmlNewValidCtxt') {*}
     method ValidateDtd(xmlDoc, xmlDtd --> int32) is native($XML2) is symbol('xmlValidateDtd') {*}
     method ValidateDocument(xmlDoc --> int32) is native($XML2) is symbol('xmlValidateDocument') {*}
+    method ValidateElement(xmlDoc, xmlElem --> int32) is native($XML2) is symbol('xmlValidateElement') {*}
     method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Free is symbol('xmlFreeValidCtxt') is native($XML2) {*}
     method new { New() }
-    method validate(xmlDoc:D :$doc!, xmlDtd :$dtd) {
-        with $dtd {
-            self.ValidateDtd($doc, $_);
+    multi method validate(xmlDoc:D :$doc!, xmlDtd:D :$dtd!, xmlElem:U :$lem) {
+        self.ValidateDtd($doc, $dtd);
+    }
+    multi method validate(xmlDoc:D :$doc!, xmlElem :$elem) {
+        with $elem {
+            self.ValidateElement($doc, $_);
         }
         else {
             self.ValidateDocument($doc);
