@@ -15,7 +15,8 @@
          LibXML::Dtd::Element -> LibXML::Dtd::ElementDecl
       -- Add  LibXML::Dtd elements() method
     - Fixed memory leaks in $doc.setDocumentElement and document parse failure #55
-    - Fix valgrind errors in t/07dtd.t. Specifically, $dtd.replaceChild($dtd),, which
+    - Fixed segfault in unlinking DtD #56
+    - Fixed valgrind errors in t/07dtd.t. Specifically, $dtd.replaceChild($dtd),, which
       should be a no-op.
 
 0.6.0  2021-05-29T09:37:12+12:00

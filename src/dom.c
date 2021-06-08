@@ -618,12 +618,14 @@ domNodeIsReferenced(xmlNodePtr self) {
         }
     }
 
-    // scan siblings and children
-    for (cur = self; cur != NULL; cur = cur->next) {
-        xmlNodePtr kids = cur->children;
-        if (cur->_private != NULL
-            || (kids != NULL && domNodeIsReferenced(kids))) {
-            return 1;
+    if (self->type != XML_ENTITY_REF_NODE) {
+        // scan siblings and children
+        for (cur = self; cur != NULL; cur = cur->next) {
+            xmlNodePtr kids = cur->children;
+            if (cur->_private != NULL
+                || (kids != NULL && domNodeIsReferenced(kids))) {
+                return 1;
+            }
         }
     }
 
