@@ -702,7 +702,7 @@ Gets or sets the internal DTD for the document.
 
 ```raku
 method setExternalSubset(
-    LibXML::Dtd $dtd,
+    LibXML::Dtd $dtd is copy,
     Bool :$validate
 ) returns LibXML::Dtd
 ```
@@ -710,13 +710,6 @@ method setExternalSubset(
 This method sets a DTD node as an external subset of the given document.
 
 *EXPERIMENTAL!*
-
-The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
-
-```raku
-my LibXML::Dtd $dtd = $other-doc.getExternalSubset;
-$doc.setExternalSubset: $dtd.clone();
-```
 
 If the :validate option is passed, the document is first validated against the DTD.
 

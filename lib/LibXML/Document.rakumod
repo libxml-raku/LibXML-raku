@@ -794,11 +794,11 @@ method insertProcessingInstruction(|c) {
 method getInternalSubset(--> LibXML::Dtd) is dom-boxed is also<doctype> {...}
 
 #|This method sets a DTD node as an internal subset of the given document.
-method setInternalSubset(LibXML::Dtd:D $dtd --> LibXML::Dtd) {
-    self.removeInternalSubset;
-    given $dtd.raw {
-        $dtd.box: self.raw.CreateIntSubset(.name, .ExternalID, .SystemID);
+method setInternalSubset(LibXML::Dtd:D $dtd is copy --> LibXML::Dtd) {
+    with $dtd.raw.doc {
+        $dtd .= clone unless .isSameNode($.raw);
     }
+    $dtd.keep: self.raw.setInternalSubset: $dtd.raw;
 }
 =para I<EXPERIMENTAL!>
 =para Inserts a copy of the Dtd node into the document as its internal subset
@@ -851,18 +851,17 @@ method internalSubset is rw returns LibXML::Dtd {
 method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #| This method sets a DTD node as an external subset of the given document.
-method setExternalSubset(LibXML::Dtd $dtd, Bool :$validate --> LibXML::Dtd) {
+method setExternalSubset(LibXML::Dtd $dtd is copy, Bool :$validate --> LibXML::Dtd) {
+    with $dtd.raw.doc {
+        $dtd .= clone unless .isSameNode($.raw);
+    }
+
     if $validate && $dtd.defined {
         $dtd.validate(self);
     }
     $dtd.keep: self.raw.setExternalSubset: $dtd.raw;
 }
 =para I<EXPERIMENTAL!>
-=para The DTD should not be owned by another document. It can be cloned to create a stand-alone DTD.
-    =begin code :lang<raku>
-    my LibXML::Dtd $dtd = $other-doc.getExternalSubset;
-    $doc.setExternalSubset: $dtd.clone();
-    =end code
 =para If the :validate option is passed, the document is first validated against the DTD.
 
 #| This method removes any external subset from the document

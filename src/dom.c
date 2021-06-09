@@ -246,7 +246,7 @@ _domExtractFrag(xmlNodePtr frag) {
 
 DLLEXPORT xmlDtdPtr
 domGetInternalSubset(xmlDocPtr self) {
-    return self->intSubset;
+    return xmlGetIntSubset(self);
 }
 
 DLLEXPORT xmlDtdPtr
@@ -279,11 +279,14 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     }
 
     if (dtd != NULL && ext_dtd == dtd) {
-        xmlUnlinkNode((xmlNodePtr) ext_dtd);
         self->extSubset = NULL;
     }
     self->intSubset = dtd;
-    dtd->parent = self;
+    if (self->children == NULL)
+        xmlAddChild((xmlNodePtr) self, (xmlNodePtr) dtd);
+    else
+        xmlAddPrevSibling(self->children, (xmlNodePtr) dtd);
+
     return dtd;
 }
 
@@ -313,7 +316,6 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
 
     if (dtd != NULL && int_dtd == dtd) {
         xmlUnlinkNode( (xmlNodePtr) int_dtd);
-        self->intSubset = NULL;
     }
     self->extSubset = dtd;
     dtd->parent = NULL;
@@ -349,6 +351,10 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
     while ( cur ) {
         /* we must reconcile all nodes in the fragment */
         if (cur->type == XML_DTD_NODE) {
+            if (_domIsDoc(cur->parent) == 0) {
+                xml6_warn("non-root DTD node found");
+                xmlUnlinkNode(cur);
+            }
             if (cur->doc && domGetExternalSubset(cur->doc) != (xmlDtdPtr)cur) {
                 domSetInternalSubset(cur->doc, (xmlDtdPtr) cur);
             }
@@ -400,10 +406,6 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
 
     if (leader && followup && p != followup->parent) {
         warn("_domAddNodeToList(cur, prev, next, &frag) - 'prev' and 'next' have different parents");
-    }
-
-    if (cur->type == XML_DTD_NODE) {
-        xml6_warn("_domAddNodeToList(..) called on a DTD node");
     }
 
     if ( cur->type == XML_DOCUMENT_FRAG_NODE ) {
@@ -569,7 +571,7 @@ _domScanHashForRefs(xmlHashTablePtr self) {
     return refs;
 }
 
-// Determine if there's any API references to the node or its decendants
+// Determine if there's any API references to the node or its descendants
 DLLEXPORT int
 domNodeIsReferenced(xmlNodePtr self) {
     xmlAttrPtr attr;
@@ -914,7 +916,7 @@ domAppendChild( xmlNodePtr self,
         xmlUnlinkNode( newChild );
     }
     else {
-        domImportNode( self->doc, newChild, 1, 0 );
+        newChild = domImportNode( self->doc, newChild, 1, 0 );
     }
 
     if ( self->children != NULL ) {
@@ -1016,7 +1018,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
             xmlUnlinkNode( new );
         }
         else {
-            domImportNode( self->doc, new, 1, 1 );
+            new = domImportNode( self->doc, new, 1, 1 );
         }
 
         if( old == self->children && old == self->last ) {
@@ -1073,7 +1075,7 @@ domInsertBefore( xmlNodePtr self,
         xmlUnlinkNode( newChild );
     }
     else {
-        domImportNode( self->doc, newChild, 1, 0 );
+        newChild = domImportNode( self->doc, newChild, 1, 0 );
     }
 
     if ( refChild == NULL ) {
@@ -1141,7 +1143,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
                 xmlUnlinkNode( newNode );
             }
             else {
-                domImportNode( self->doc, newNode, 1, 0 );
+                newNode = domImportNode( self->doc, newNode, 1, 0 );
             }
 
             head = _domAddNodeToList( newNode, prev,  next, &tail );

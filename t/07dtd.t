@@ -44,8 +44,8 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     is( $dtd.getSystemId, $htmlSystem, ' TODO : Add test name' );
 
     $doc.setInternalSubset( $dtd );
-    ok(defined($doc.externalSubset), ' TODO : Add test name' );
-    nok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
+    ok( !defined($doc.externalSubset), ' TODO : Add test name' );
+    ok( $dtd.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
     my $dtd2 = $doc.createDTD( "huhu",
                                 "-//W3C//DTD XHTML 1.0 Transitional//EN",
@@ -54,11 +54,11 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
     $doc.setInternalSubset( $dtd2 );
     ok( !defined($dtd.parentNode), ' TODO : Add test name' );
-    nok( $dtd2.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
+    ok( $dtd2.isSameNode( $doc.internalSubset ), ' TODO : Add test name' );
 
 
     my $dtd3 = $doc.removeInternalSubset;
-    nok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
+    ok( $dtd3.isSameNode($dtd2), ' TODO : Add test name' );
     ok( !defined($doc.internalSubset), ' TODO : Add test name' );
 
     $doc.setExternalSubset( $dtd2 );
@@ -240,7 +240,7 @@ sub test_insert_dtd ($test_name, &insert_sub) {
 
     insert_sub($doc, $dtd);
 
-    ok( $doc.internalSubset.isSameNode($dtd), "insert DTD via $test_name" );
+    is $doc.internalSubset.Str, $dtd.Str, "insert DTD via $test_name";
 }
 
 test_insert_dtd( "insertBefore internalSubset", sub ($doc, $dtd) {
