@@ -86,10 +86,9 @@ class ParserContext is LibXML::Parser::Context {
 # a node-list; rather than the fragment itself
 method keep(|c) { LibXML::Node.box(|c) }
 
-method new(LibXML::Node :doc($_), xmlDocFrag :$native is copy) {
+method new(LibXML::Node :doc($_), xmlDocFrag :$native) {
     my xmlDoc:D $doc = .raw with $_;
-    $native //= xmlDocFrag.new: :$doc;
-    self.box($native);
+    self.box: $native // xmlDocFrag.new(:$doc);
 }
 =begin pod
     =head3 method new

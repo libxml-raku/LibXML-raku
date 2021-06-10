@@ -49,6 +49,10 @@ multi method box(itemNode:D $raw --> LibXML::Namespace) {
     nativecast(LibXML::Namespace, $raw.delegate.Copy);
 }
 
+method clone(Any:D: |c) {
+    self.new: :$.URI, :prefix($.declaredPrefix), |c;
+}
+
 method keep($_) {
     given .delegate -> xmlNs:D $ns {
         $ns.prefix ~~ $.declaredPrefix && $ns.href ~~ $.href

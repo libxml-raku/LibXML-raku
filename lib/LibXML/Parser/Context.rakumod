@@ -80,7 +80,7 @@ method publish {
     my xmlDoc $doc = .myDoc with $!raw;
     $.close() without $!input-compressed;
     $!published = True;
-    self.set-raw(xmlParserCtxt);
+    self.reset();
     $doc;
 }
 
@@ -89,9 +89,9 @@ submethod TWEAK(xmlParserCtxt :$raw, *%opts) {
     self.set-raw($_) with $raw;
 }
 
-submethod DESTROY {
-    self.set-raw(xmlParserCtxt);
-}
+method reset { self.set-raw(xmlParserCtxt); }
+
+submethod DESTROY { self.reset }
 
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 

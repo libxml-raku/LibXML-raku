@@ -15,7 +15,8 @@ class Content {
     submethod TWEAK(Any:D :$!decl) {}
     has xmlElementContent $.raw is required handles<type arity name prefix Str>;
     method !visit(xmlElementContent $raw) {
-        if $raw.defined {
+        my constant MagicTopLevel = 1; # as set by LibXML on top-level declarations
+        if $raw.defined && +nativecast(Pointer, $raw) != MagicTopLevel {
             $?CLASS.new: :$!decl, :$raw;
         }
         else {
@@ -33,7 +34,7 @@ class Content {
             &?ROUTINE.returns;
         }
     }
-    method gist { $.Str }
+    multi method gist(Any:D:) { $.Str }
     method firstChild {
         self!visit: $!raw.c1;
     }
