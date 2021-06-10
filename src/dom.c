@@ -233,7 +233,6 @@ static xmlNodePtr
 _domExtractFrag(xmlNodePtr frag) {
     xmlNodePtr fraglist = frag->children;
     xmlNodePtr cur = fraglist;
-
     // detach fragment list
     frag->children = frag->last = NULL;
     while ( cur ){
@@ -256,13 +255,11 @@ domGetExternalSubset(xmlDocPtr self) {
 
 DLLEXPORT xmlDtdPtr
 domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
-    xmlDtdPtr ext_dtd = NULL;
     xmlDtdPtr int_dtd = NULL;
 
     assert(self != NULL);
 
     int_dtd = domGetInternalSubset(self);
-    ext_dtd = domGetExternalSubset(self);
 
     if (int_dtd == dtd) {
         return dtd;
@@ -272,20 +269,20 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
         domReleaseNode((xmlNodePtr) int_dtd);
     }
 
-    if (dtd->doc == NULL) {
-        xmlSetTreeDoc( (xmlNodePtr) dtd, self );
-    } else if ( dtd->doc != self ) {
-        XML6_FAIL(self, "moving DTDs between documents is not supported.");
-    }
+    if (dtd != NULL) {
+        xmlUnlinkNode((xmlNodePtr)dtd);
+        if (dtd->doc == NULL) {
+            xmlSetTreeDoc( (xmlNodePtr) dtd, self );
+        } else if ( dtd->doc != self ) {
+            XML6_FAIL(self, "moving DTDs between documents is not supported.");
+        }
 
-    if (dtd != NULL && ext_dtd == dtd) {
-        self->extSubset = NULL;
+        if (self->children == NULL)
+            xmlAddChild((xmlNodePtr) self, (xmlNodePtr) dtd);
+        else
+            xmlAddPrevSibling(self->children, (xmlNodePtr) dtd);
     }
     self->intSubset = dtd;
-    if (self->children == NULL)
-        xmlAddChild((xmlNodePtr) self, (xmlNodePtr) dtd);
-    else
-        xmlAddPrevSibling(self->children, (xmlNodePtr) dtd);
 
     return dtd;
 }
@@ -293,11 +290,9 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
 DLLEXPORT xmlDtdPtr
 domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     xmlDtdPtr ext_dtd = NULL;
-    xmlDtdPtr int_dtd = NULL;
 
     assert(self != NULL);
 
-    int_dtd = domGetInternalSubset(self);
     ext_dtd = domGetExternalSubset(self);
 
     if (ext_dtd == dtd) {
@@ -308,17 +303,16 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
         domReleaseNode((xmlNodePtr) ext_dtd);
     }
 
-    if ( dtd->doc == NULL ) {
-        xmlSetTreeDoc( (xmlNodePtr) dtd, self );
-    } else if (dtd->doc != self) {
-        XML6_FAIL(self, "moving DTDs between documents is not supported");
+    if (dtd != NULL) {
+        xmlUnlinkNode( (xmlNodePtr) dtd);
+        if ( dtd->doc == NULL ) {
+            xmlSetTreeDoc( (xmlNodePtr) dtd, self );
+        } else if (dtd->doc != self) {
+            XML6_FAIL(self, "moving DTDs between documents is not supported");
+        }
     }
 
-    if (dtd != NULL && int_dtd == dtd) {
-        xmlUnlinkNode( (xmlNodePtr) int_dtd);
-    }
     self->extSubset = dtd;
-    dtd->parent = NULL;
     return dtd;
 }
 
@@ -455,9 +449,9 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
         XML6_FAIL((xmlNodePtr)dtd, "SetDtd: HIERARCHY_REQUEST_ERR");
     }
 
-    if (dtd != (xmlDtdPtr)old) {
-        if (old) xmlUnlinkNode(old);
+    if (old) xmlUnlinkNode(old);
 
+    if (dtd != (xmlDtdPtr)old) {
         if (replace_external) {
             dtd = domSetExternalSubset(doc, dtd);
         }
@@ -608,14 +602,9 @@ domNodeIsReferenced(xmlNodePtr self) {
         }
     }
     else if (_domIsDoc(self)) {
-        // scan document dtds
-        xmlDocPtr doc = (xmlDocPtr) self;
-        if (doc->intSubset != NULL
-            && domNodeIsReferenced((xmlNodePtr)doc->intSubset)) {
-            return 1;
-        }
-        if (doc->extSubset != NULL
-            && domNodeIsReferenced((xmlNodePtr)doc->extSubset)) {
+        // check external DtD
+        xmlDtdPtr dtd = ((xmlDocPtr) self)->extSubset;
+        if (dtd != NULL && domNodeIsReferenced((xmlNodePtr)dtd)) {
             return 1;
         }
     }

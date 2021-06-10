@@ -32,6 +32,8 @@ DLLEXPORT int xml6_node_unlock(xmlNodePtr self) {
     return xml6_ref_unlock( &(self->_private));
 }
 
+// Find the root of a sub-tree or document for referencing purposes
+// Note that declaration nodes have the DtD as their immediate parent
 DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
     xmlNodePtr node = self;
     assert(node != NULL);
@@ -40,19 +42,7 @@ DLLEXPORT xmlNodePtr xml6_node_find_root(xmlNodePtr self) {
         node = node->parent;
     }
 
-    if (node->type == XML_ENTITY_DECL && node->doc != NULL) {
-        xmlDocPtr doc = node->doc;
-        const xmlChar* name = node->name;
-        if (doc->intSubset != NULL
-            && xmlHashLookup(doc->intSubset->entities, name) == node) {
-            node = (xmlNodePtr) doc;
-        }
-        else if (doc->extSubset != NULL
-                 && xmlHashLookup(doc->extSubset->entities, name) == node) {
-            node = (xmlNodePtr) doc;
-        }
-    }
-    else if (node->type == XML_DTD_NODE && node->doc != NULL) {
+    if (node->type == XML_DTD_NODE && node->doc != NULL) {
         xmlDocPtr doc = node->doc;
         xmlDtdPtr dtd = (xmlDtdPtr) node;
         if (doc->intSubset == dtd || doc->extSubset == dtd) {

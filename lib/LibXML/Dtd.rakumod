@@ -210,10 +210,8 @@ multi method parse(Str $external-id, Str $system-id) is default {
 
 method getPublicId { $.publicId }
 method getSystemId { $.systemId }
-method cloneNode(LibXML::Dtd:D: $?) {
-    my xmlDtd:D $raw = self.raw.copy;
-    $raw.Reference;
-    self.clone: :$raw;
+method cloneNode(LibXML::Dtd:D: $?) is also<clone> {
+    self.box: self.raw.copy;
 }
 
 #| Notation declaration lookup
