@@ -18,29 +18,21 @@ use LibXML::HashMap;
 use LibXML::Dtd::ElementDecl;
 
 my $string = q:to<END>;
-<?xml version="1.0"?>
-<!DOCTYPE note [
 <!ELEMENT note (to,from,heading,body)>
+<!ATTLIST note id CDATA #IMPLIED>
 <!ELEMENT to (#PCDATA)>
 <!ELEMENT from (#PCDATA)>
 <!ELEMENT heading (#PCDATA)>
 <!ELEMENT body (#PCDATA)>
-]>
-<note>
-  <to>Tove</to>
-  <from>Jani</from>
-  <heading>Reminder</heading>
-  <body>Don't forget me this weekend!</body>
-</note>
 END
 
-my LibXML::Document $doc .= parse: :$string;
-my LibXML::Dtd $dtd = $doc.getInternalSubset;
+my LibXML::Dtd $dtd .= parse: :$string;
 my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.element-decls;
 
 my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
 note $note-decl.Str; # <!ELEMENT note (to,from,heading,body)>
 note $note-decl.potential-children; # [to from heading body]
+note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
 
 =head2 Methods
 
@@ -48,4 +40,44 @@ note $note-decl.potential-children; # [to from heading body]
 
 =para Returns an array (up to size `$max`) of possible immediate child elements names, or '#PCDATA' if the element may have Text or CDATA content.
 ```
+
+### method properties
+
+```raku
+method properties() returns Mu
+```
+
+return a read-only list of attribute declarations
+
+for example:
+
+```raku
+use LibXML::Dtd;
+my LibXML::Dtd $dtd .= parse: :string(q:to<X-X-X>);
+  <!ELEMENT A ANY>
+  <!ATTLIST A
+    foo CDATA #IMPLIED
+    bar CDATA #IMPLIED
+  >
+X-X-X
+
+my $A:decl = $dtd.element-declarations<A>;
+
+for $A:decl.properties {
+    print .Str;
+}
+```
+
+Produces:
+
+    <!ATTLIST A foo CDATA #IMPLIED>
+    <!ATTLIST A bar CDATA #IMPLIED>
+
+### method attributes
+
+```raku
+method attributes() returns Mu
+```
+
+return a read-only hash of attribute declarations
 

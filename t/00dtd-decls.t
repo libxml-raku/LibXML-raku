@@ -45,7 +45,7 @@ subtest 'dtd entities' => {
 }
 
 subtest 'dtd element declarations' => {
-    plan 14;
+    plan 15;
     my LibXML::Document $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $elements = $dtd.element-declarations;
@@ -60,6 +60,7 @@ subtest 'dtd element declarations' => {
     is $note-decl.parent.type, +XML_DTD_NODE, 'element parent type';
     is-deeply $note-decl.content.potential-children, ["to", "from", "heading", "body"];
     is $note-decl.Str.chomp, '<!ELEMENT note (to , from , heading , body)>', 'element decl string';
+    is $note-decl.attributes<id>.Str.chomp, '<!ATTLIST note id CDATA #IMPLIED>', 'attributes string';
     ok $dtd.getNodeDeclaration($doc.documentElement).isSameNode($note-decl), 'getNodeDeclaration';
     my LibXML::Dtd::ElementDecl $to-decl = $elements<to>;
     is $to-decl.name, 'to', 'element decl name';

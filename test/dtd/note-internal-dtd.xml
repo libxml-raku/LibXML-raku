@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE note [
 <!ELEMENT note (to,from,heading,body)>
+<!ATTLIST note id CDATA #IMPLIED>
 <!ELEMENT to (#PCDATA)>
 <!ELEMENT from (#PCDATA)>
 <!ELEMENT heading (#PCDATA)>
