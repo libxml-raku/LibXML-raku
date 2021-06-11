@@ -50,6 +50,8 @@ The nodes in the Document Object Model (DOM) are represented by the following cl
 
   * [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) - LibXML class for element nodes
 
+  * [LibXML::EntityRef](https://libxml-raku.github.io/LibXML-raku/EntityRef) - LibXML class for entity references
+
   * [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace) - LibXML namespaces (Inherits from [LibXML::Item](https://libxml-raku.github.io/LibXML-raku/Item))
 
   * [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) - LibXML DOM abstract base node class
@@ -103,6 +105,14 @@ Validation
 ----------
 
   * [LibXML::DTD](https://libxml-raku.github.io/LibXML-raku/DTD) - LibXML DTD validation class
+
+  * [LibXML::DTD::Entity](https://libxml-raku.github.io/LibXML-raku/DTD/Entity) - LibXML DTD entity declarations
+
+  * [LibXML::DTD::ElementDecl](https://libxml-raku.github.io/LibXML-raku/DTD/ElementDecl) - LibXML DTD element declarations
+
+  * [LibXML::DTD::AttrDecl](https://libxml-raku.github.io/LibXML-raku/DTD/AttrDecl) - LibXML DTD attribute declarations
+
+  * [LibXML::DTD::Notation](https://libxml-raku.github.io/LibXML-raku/DTD/Notation) - LibXML DTD notations
 
   * [LibXML::Schema](https://libxml-raku.github.io/LibXML-raku/Schema) - LibXML schema validation class
 

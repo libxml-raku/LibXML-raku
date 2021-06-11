@@ -12,7 +12,7 @@ Synopsis
 
 ```raku
 use LibXML::Dtd;
-use LibXML::Entity;
+use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::AttrDecl;
@@ -26,7 +26,7 @@ my Str $publicId = $dtd.publicId();
 my Str $systemId = $dtd.systemId();
 my Bool $is-html = $dtd.is-XHTML;
 
-my LibXML::Entity = $dtd.getEntity("bar");
+my LibXML::Dtd::Entity = $dtd.getEntity("bar");
 my LibXML::Dtd::Notation $foo = $dtd.getNotation("foo");
 my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getElementDeclaration($elem-name);
 my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getAttrDeclaration($elem-name, $attr-name);
@@ -102,7 +102,7 @@ Notation declaration lookup
 ```raku
 method getEntity(
     Str $name
-) returns LibXML::Entity
+) returns LibXML::Dtd::Entity
 ```
 
 Entity declaration lookup
@@ -133,7 +133,7 @@ Attribute declaration lookup
 ```raku
 multi method getNodeDeclaration(LibXML::Element --> LibXML::Dtd::ElementDecl);
 multi method getNodeDeclaration(LibXML::Attr --> LibXML::Dtd::AttrDecl);
-multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::Entity);
+multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::Dtd::Entity);
 ```
 
 Looks up a definition in the DtD for a DOM Element, Attribute or Entity-Reference node

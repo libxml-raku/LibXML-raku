@@ -589,7 +589,7 @@ Create a new external DTD
 ```raku
 method getEntity(
     Str $name
-) returns LibXML::Entity
+) returns LibXML::Dtd::Entity
 ```
 
 Lookup an entity in the document

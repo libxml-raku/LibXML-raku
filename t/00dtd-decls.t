@@ -4,8 +4,8 @@ use LibXML::Dtd;
 use LibXML::Document;
 use LibXML::Enums;
 use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
-use LibXML::Entity;
 
 subtest 'dtd notations' => {
     plan 9;
@@ -31,11 +31,11 @@ subtest 'dtd entities' => {
     my LibXML::Dtd::DeclMap $entities = $dtd.entities;
     ok $entities.defined, 'DtD has entities';
     is-deeply $entities.keys.sort, ("foo", "unparsed"), 'entity keys';
-    my LibXML::Entity $foo = $entities<foo>;
+    my LibXML::Dtd::Entity $foo = $entities<foo>;
     ok $foo.defined, "entity fetch";
     is $foo.name, "foo", 'entity name';
     is $foo.value, ' test ', 'entity value';
-    my LibXML::Entity $unparsed = $entities<unparsed>;
+    my LibXML::Dtd::Entity $unparsed = $entities<unparsed>;
     is-deeply $unparsed.systemId, 'http://example.org/blah', 'entity system-Id';
     is-deeply $unparsed.publicId, Str, 'entity public-Id';
     is $unparsed.notationName, "foo", 'notation name';

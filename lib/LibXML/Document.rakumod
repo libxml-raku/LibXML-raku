@@ -14,6 +14,7 @@ use LibXML::Config;
 use LibXML::Comment;
 use LibXML::DocumentFragment;
 use LibXML::Dtd;
+use LibXML::Dtd::Entity;
 use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
@@ -724,7 +725,7 @@ method createDTD(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
 }
 
 #| Lookup an entity in the document
-method getEntity(Str $name --> LibXML::Entity) {
+method getEntity(Str $name --> LibXML::Dtd::Entity) {
     &?ROUTINE.returns.box: $.raw.GetEntity($name);
 }
 =head

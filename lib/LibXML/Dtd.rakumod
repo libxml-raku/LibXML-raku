@@ -11,7 +11,7 @@ unit class LibXML::Dtd
 
       =begin code :lang<raku>
       use LibXML::Dtd;
-      use LibXML::Entity;
+      use LibXML::Dtd::Entity;
       use LibXML::Dtd::Notation;
       use LibXML::Dtd::ElementDecl;
       use LibXML::Dtd::AttrDecl;
@@ -25,7 +25,7 @@ unit class LibXML::Dtd
       my Str $systemId = $dtd.systemId();
       my Bool $is-html = $dtd.is-XHTML;
 
-      my LibXML::Entity = $dtd.getEntity("bar");
+      my LibXML::Dtd::Entity = $dtd.getEntity("bar");
       my LibXML::Dtd::Notation $foo = $dtd.getNotation("foo");
       my LibXML::Dtd::ElementDecl $elem-decl = $dtd.getElementDeclaration($elem-name);
       my LibXML::Dtd::AttrDecl $attr-decl = $dtd.getAttrDeclaration($elem-name, $attr-name);
@@ -66,11 +66,11 @@ use LibXML::Raw::HashTable;
 use LibXML::Parser::Context;
 use LibXML::Attr;
 use LibXML::Element;
-use LibXML::Entity;
 use LibXML::EntityRef;
 use LibXML::Node;
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 use LibXML::HashMap;
 use Method::Also;
@@ -218,7 +218,7 @@ method cloneNode(LibXML::Dtd:D: $?) is also<clone> {
 method getNotation(Str $name --> LibXML::Dtd::Notation) { &?ROUTINE.returns.box: $.raw.getNotation($name) }
 
 #| Entity declaration lookup
-method getEntity(Str $name --> LibXML::Entity) { &?ROUTINE.returns.box: $.raw.getEntity($name) }
+method getEntity(Str $name --> LibXML::Dtd::Entity) { &?ROUTINE.returns.box: $.raw.getEntity($name) }
 
 #| Element declaration lookup
 method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) { &?ROUTINE.returns.box: $.raw.getElementDecl($name) }
@@ -230,7 +230,7 @@ method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDe
 =begin code :lang<raku>
 multi method getNodeDeclaration(LibXML::Element --> LibXML::Dtd::ElementDecl);
 multi method getNodeDeclaration(LibXML::Attr --> LibXML::Dtd::AttrDecl);
-multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::Entity);
+multi method getNodeDeclaration(LibXML::EntityRef --> LibXML::Dtd::Entity);
 =end code
 =para Looks up a definition in the DtD for a DOM Element, Attribute or Entity-Reference node
 
@@ -343,7 +343,7 @@ method notations(LibXML::Dtd:D $dtd:) {
 
 has DeclMap $!entities;
 method entities(LibXML::Dtd:D $dtd:) {
-    $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Entity)
+    $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::Entity)
         with $!raw.entities;
 }
 

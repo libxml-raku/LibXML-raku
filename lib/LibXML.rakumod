@@ -78,6 +78,8 @@ classes (most of which "inherit" from L<LibXML::Node>):
 
   =item L<LibXML::Element> - LibXML class for element nodes
 
+  =item L<LibXML::EntityRef> - LibXML class for entity references
+
   =item L<LibXML::Namespace> - LibXML namespaces (Inherits from L<LibXML::Item>)
 
   =item L<LibXML::Node> - LibXML DOM abstract base node class
@@ -125,6 +127,10 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 =head2 Validation
 
 =item L<LibXML::DTD> - LibXML DTD validation class
+=item L<LibXML::DTD::Entity> - LibXML DTD entity declarations
+=item L<LibXML::DTD::ElementDecl> - LibXML DTD element declarations
+=item L<LibXML::DTD::AttrDecl> - LibXML DTD attribute declarations
+=item L<LibXML::DTD::Notation> - LibXML DTD notations
 =item L<LibXML::Schema> - LibXML schema validation class
 =item L<LibXML::RelaxNG> - LibXML RelaxNG validation class
 

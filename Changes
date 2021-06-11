@@ -11,8 +11,10 @@
       -- Changed LibXML::Dtd repr from 'CStruct' to default, so that it
          contain attributes, firstly, the $!notations attribute.
     - Support Dtd Element declarations:
-      -- Rename classes LibXML::Dtd::Attr -> LibXML::Dtd::AttrDecl and
-         LibXML::Dtd::Element -> LibXML::Dtd::ElementDecl
+      -- Rename classes:
+         --- LibXML::Dtd::Attr -> LibXML::Dtd::AttrDecl and
+         --- LibXML::Dtd::Element -> LibXML::Dtd::ElementDecl
+         --- LibXML::Entity -> LibXML::Dtd::Entity
       -- Add  LibXML::Dtd elements() method
     - Fixed memory leaks in $doc.setDocumentElement and document parse failure #55
     - Fixed segfault in unlinking DtD #56

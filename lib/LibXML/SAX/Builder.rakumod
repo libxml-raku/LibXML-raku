@@ -5,7 +5,7 @@ class LibXML::SAX::Builder {
     use LibXML::Raw::Defs :$CLIB;
     use LibXML::ErrorHandling;
     use LibXML::Node;
-    use LibXML::Entity;
+    use LibXML::Dtd::Entity;
 
     use NativeCall;
 
@@ -77,7 +77,7 @@ class LibXML::SAX::Builder {
                 sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
                     CATCH { default { handle-error($ctx, $_,) } }
                     my $ent = callb($obj, $name, :$ctx);
-                    $ent ~~ LibXML::Entity ?? .raw !! $ent;
+                    $ent ~~ LibXML::Dtd::Entity ?? .raw !! $ent;
                 }
         },
         'entityDecl' =>
