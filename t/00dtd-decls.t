@@ -4,6 +4,7 @@ use LibXML::Dtd;
 use LibXML::Document;
 use LibXML::Enums;
 use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::ElementContent;
 use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 
@@ -74,7 +75,7 @@ subtest 'dtd element declaration content' => {
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::ElementDecl:D $note-decl = $dtd.element-declarations<note>;
     my LibXML::Dtd::ElementDecl:D $to-decl = $dtd.element-declarations<to>;
-    given $note-decl.content -> LibXML::Dtd::ElementDecl::Content:D $_ {
+    given $note-decl.content -> LibXML::Dtd::ElementContent:D $_ {
         is .type, +XML_ELEMENT_CONTENT_SEQ, 'type';
         is .arity, 1, 'arity';
         is .Str, '(to , from , heading , body)', 'Str';

@@ -6,6 +6,7 @@ unit class LibXML::Dtd::ElementDecl
     is LibXML::Node;
 
 use LibXML::Dtd::AttrDecl;
+use LibXML::Dtd::ElementContent;
 use LibXML::Enums;
 use LibXML::Raw;
 use NativeCall;
@@ -47,52 +48,10 @@ note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
 =end code
 =end pod
 
-class Content {
-    has LibXML::Dtd::ElementDecl $!decl; # keep this alive
-    submethod TWEAK(Any:D :$!decl) {}
-    has xmlElementContent $.raw is required handles<type arity name prefix Str>;
-    method !visit(xmlElementContent $raw) {
-        my constant MagicTopLevel = 1; # as set by LibXML on top-level declarations
-        if $raw.defined && +nativecast(Pointer, $raw) != MagicTopLevel {
-            $?CLASS.new: :$!decl, :$raw;
-        }
-        else {
-            $?CLASS
-        }
-    }
-    subset ElementDeclRef of Content where .type == XML_ELEMENT_CONTENT_ELEMENT;
-    method getElementDecl(ElementDeclRef:D: --> LibXML::Dtd::ElementDecl) {
-        with  $!decl.raw.parent {
-            # xmlElementDecl nodes should always have the Dtd as immediate parent
-            my xmlDtd:D $dtd = .delegate;
-            &?ROUTINE.returns.box: $dtd.getElementDecl($.name);
-        }
-        else {
-            &?ROUTINE.returns;
-        }
-    }
-    multi method gist(Any:D:) { $.Str }
-    method firstChild {
-        self!visit: $!raw.c1;
-    }
-    method secondChild {
-        self!visit: $!raw.c2;
-    }
-    method parent {
-        self!visit: $!raw.parent;
-    }
-    method potential-children(UInt:D :$max = 255) {
-        my CArray[Str] $buf .= new;
-        my int32 $len = 0;
-        $buf[$max] = Str;
-        $!raw.PotentialChildren($buf, $len, $max);
-        my @ = (0 ..^ $len).map: {$buf[$_]}
-    }
-}
-
+#| return the parsed content expression for this element declaration
 method content(LibXML::Dtd::ElementDecl:D $decl:) {
     my xmlElementContent $raw = $decl.raw.content;
-    Content.new: :$decl, :$raw;
+    LibXML::Dtd::ElementContent.new: :$decl, :$raw;
 }
 
 #| return a read-only list of attribute declarations

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 79;
+plan 82;
 
 use LibXML;
 use LibXML::Enums;
@@ -100,12 +100,17 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     ok $entity.defined, 'got dtd entity';
     is $entity.nodeType, +XML_ENTITY_DECL, 'entity decl node type';
     is $entity.name, 'foo', 'entity decl name';
+    is $entity.entityType, +XML_INTERNAL_GENERAL_ENTITY, 'entity decl type';
     ok $entity-ref.firstChild.isSameNode($entity), 'entity reference checks out';
     nok $doc.getEntity('bar').defined, 'get on unknown entity';
 
     $entity = $doc.getEntity('lt');
     ok $entity.defined, 'got predefined entity';
-    is $entity.nodeType, +XML_ENTITY_DECL, 'predefined entity decl node type';
+    is $entity.nodeType, +XML_ENTITY_DECL, 'predefined entity node type';
+    is $entity.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity type';
+
+    $entity-ref = $doc.createEntityReference( "gt" );
+    is($entity-ref.nodeType, +XML_ENTITY_REF_NODE, 'predefined entity reference nodeType' );
 
     {
         my $doc2  = LibXML::Document.new;

@@ -110,6 +110,8 @@ Validation
 
   * [LibXML::DTD::ElementDecl](https://libxml-raku.github.io/LibXML-raku/DTD/ElementDecl) - LibXML DTD element declarations
 
+  * [LibXML::DTD::ElementContent](https://libxml-raku.github.io/LibXML-raku/DTD/ElementContent) - LibXML DTD element declaration content
+
   * [LibXML::DTD::AttrDecl](https://libxml-raku.github.io/LibXML-raku/DTD/AttrDecl) - LibXML DTD attribute declarations
 
   * [LibXML::DTD::Notation](https://libxml-raku.github.io/LibXML-raku/DTD/Notation) - LibXML DTD notations

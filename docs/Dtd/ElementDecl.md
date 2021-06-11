@@ -41,6 +41,14 @@ note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
 =para Returns an array (up to size `$max`) of possible immediate child elements names, or '#PCDATA' if the element may have Text or CDATA content.
 ```
 
+### method content
+
+```raku
+method content() returns Mu
+```
+
+return the parsed content expression for this element declaration
+
 ### method properties
 
 ```raku
