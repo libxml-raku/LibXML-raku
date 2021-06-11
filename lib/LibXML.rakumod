@@ -126,12 +126,12 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 
 =head2 Validation
 
-=item L<LibXML::DTD> - LibXML DTD validation class
-=item L<LibXML::DTD::Entity> - LibXML DTD entity declarations
-=item L<LibXML::DTD::ElementDecl> - LibXML DTD element declarations
-=item L<LibXML::DTD::ElementContent> - LibXML DTD element declaration content
-=item L<LibXML::DTD::AttrDecl> - LibXML DTD attribute declarations
-=item L<LibXML::DTD::Notation> - LibXML DTD notations
+=item L<LibXML::Dtd> - LibXML DTD validation class
+  =item2 L<LibXML::Dtd::Entity> - LibXML DTD entity declarations
+  =item2 L<LibXML::Dtd::ElementDecl> - LibXML DTD element declarations
+  =item2 L<LibXML::Dtd::ElementContent> - LibXML DTD element declaration content
+  =item2 L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations
+=item L<LibXML::Dtd::Notation> - LibXML DTD notations
 =item L<LibXML::Schema> - LibXML schema validation class
 =item L<LibXML::RelaxNG> - LibXML RelaxNG validation class
 

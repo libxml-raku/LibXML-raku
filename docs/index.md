@@ -104,17 +104,17 @@ XPath and Searching
 Validation
 ----------
 
-  * [LibXML::DTD](https://libxml-raku.github.io/LibXML-raku/DTD) - LibXML DTD validation class
+  * [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) - LibXML DTD validation class
 
-  * [LibXML::DTD::Entity](https://libxml-raku.github.io/LibXML-raku/DTD/Entity) - LibXML DTD entity declarations
+    * [LibXML::Dtd::Entity](https://libxml-raku.github.io/LibXML-raku/Dtd/Entity) - LibXML DTD entity declarations
 
-  * [LibXML::DTD::ElementDecl](https://libxml-raku.github.io/LibXML-raku/DTD/ElementDecl) - LibXML DTD element declarations
+    * [LibXML::Dtd::ElementDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementDecl) - LibXML DTD element declarations
 
-  * [LibXML::DTD::ElementContent](https://libxml-raku.github.io/LibXML-raku/DTD/ElementContent) - LibXML DTD element declaration content
+    * [LibXML::Dtd::ElementContent](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementContent) - LibXML DTD element declaration content
 
-  * [LibXML::DTD::AttrDecl](https://libxml-raku.github.io/LibXML-raku/DTD/AttrDecl) - LibXML DTD attribute declarations
+    * [LibXML::Dtd::AttrDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/AttrDecl) - LibXML DTD attribute declarations
 
-  * [LibXML::DTD::Notation](https://libxml-raku.github.io/LibXML-raku/DTD/Notation) - LibXML DTD notations
+  * [LibXML::Dtd::Notation](https://libxml-raku.github.io/LibXML-raku/Dtd/Notation) - LibXML DTD notations
 
   * [LibXML::Schema](https://libxml-raku.github.io/LibXML-raku/Schema) - LibXML schema validation class
 
