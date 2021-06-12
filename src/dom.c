@@ -609,7 +609,14 @@ domNodeIsReferenced(xmlNodePtr self) {
         }
     }
 
-    if (self->type != XML_ENTITY_REF_NODE) {
+    if (self->type == XML_ENTITY_DECL) {
+        xmlEntityPtr ent = (xmlEntityPtr) self;
+        if (ent->etype == XML_INTERNAL_PREDEFINED_ENTITY) {
+            // predefined entities are static. don't GC
+            return 1;
+        }
+    }
+    else if (self->type != XML_ENTITY_REF_NODE) {
         // scan siblings and children
         for (cur = self; cur != NULL; cur = cur->next) {
             xmlNodePtr kids = cur->children;

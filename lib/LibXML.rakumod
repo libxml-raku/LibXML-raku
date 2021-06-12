@@ -131,7 +131,7 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
   =item2 L<LibXML::Dtd::ElementDecl> - LibXML DTD element declarations
   =item2 L<LibXML::Dtd::ElementContent> - LibXML DTD element declaration content
   =item2 L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations
-=item L<LibXML::Dtd::Notation> - LibXML DTD notations
+  =item2 L<LibXML::Dtd::Notation> - LibXML DTD notations
 =item L<LibXML::Schema> - LibXML schema validation class
 =item L<LibXML::RelaxNG> - LibXML RelaxNG validation class
 

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 82;
+plan 84;
 
 use LibXML;
 use LibXML::Enums;
@@ -88,6 +88,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     ok( $entity-ref.hasChildNodes, ' TODO : Add test name' );
     is( $entity-ref.firstChild.nodeType, +XML_ENTITY_DECL, ' TODO : Add test name' );
     is( $entity-ref.firstChild.nodeValue, " test ", ' TODO : Add test name' );
+    is( $entity-ref.firstChild.entityType, +XML_INTERNAL_GENERAL_ENTITY, ' TODO : Add test name' );
     isa-ok $entity-ref[0], 'LibXML::Dtd::Entity';
     isa-ok $entity-ref[0].parent, 'LibXML::Dtd';
 
@@ -107,10 +108,11 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     $entity = $doc.getEntity('lt');
     ok $entity.defined, 'got predefined entity';
     is $entity.nodeType, +XML_ENTITY_DECL, 'predefined entity node type';
-    is $entity.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity type';
+    is $entity.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity entity-type';
 
-    $entity-ref = $doc.createEntityReference( "gt" );
+    $entity-ref = $doc.createEntityReference("gt");
     is($entity-ref.nodeType, +XML_ENTITY_REF_NODE, 'predefined entity reference nodeType' );
+    is($entity-ref.firstChild.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity reference entity-type');
 
     {
         my $doc2  = LibXML::Document.new;

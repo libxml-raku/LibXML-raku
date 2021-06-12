@@ -1256,10 +1256,6 @@ class xmlEntity is anyNode is export {
     method get-predefined(Str :$name!) {
         GetPredefined($name);
     }
-    method Free {
-        # nyi (libxml's xmlFreeEntity is private and doesn't
-        # distinguish predefined entities)
-    }
     method create(Str:D :$name!, Str:D :$content!, Int :$type = XML_INTERNAL_GENERAL_ENTITY, Str :$external-id, Str :$internal-id) {
         Create($name, $type, $external-id, $internal-id, $content );
     }
