@@ -295,7 +295,7 @@ class xmlParserInput is repr('CStruct') is export {
 #| in a DTD.
 class xmlElementContent is repr('CStruct') is export {
     has int32             $.type;   # PCDATA, ELEMENT, SEQ or OR
-    has int32             $.arity;  # ONCE, OPT, MULT or PLUS
+    has int32             $.occurs; # ONCE, OPT, MULT or PLUS
     has xmlCharP          $.name;   # Element name
     has xmlElementContent $.c1;     # First child
     has xmlElementContent $.c2;     # Second child
