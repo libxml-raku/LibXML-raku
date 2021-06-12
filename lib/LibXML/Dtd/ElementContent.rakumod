@@ -1,9 +1,66 @@
 #| DtD element content declaration (experimental)
 unit class LibXML::Dtd::ElementContent;
 
+use LibXML::Raw;
+use LibXML::Enums;
+use LibXML::Item :&box-class;
+use NativeCall;
+
+has $!decl; # element declaration (keep this alive to avoid GC)
+submethod TWEAK(Any:D :$!decl) {}
+has xmlElementContent $.raw is required handles<type occurs name prefix Str>;
+method !visit(xmlElementContent $raw) {
+    my constant MagicTopLevel = 1; # as set by LibXML on top-level declarations
+    if $raw.defined && +nativecast(Pointer, $raw) != MagicTopLevel {
+        $?CLASS.new: :$!decl, :$raw;
+    }
+    else {
+        $?CLASS
+    }
+}
+subset ElementDeclRef of  LibXML::Dtd::ElementContent where .type == XML_ELEMENT_CONTENT_ELEMENT;
+subset ElementDeclNode of  LibXML::Dtd::ElementContent where .type ~~ XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR;
+method getElementDecl(ElementDeclRef:D:) {
+    my $elem-decl-class = box-class(XML_ELEMENT_DECL);
+    with $!decl.raw.parent {
+        # xmlElementDecl nodes should always have the Dtd as immediate parent
+        my xmlDtd:D $dtd = .delegate;
+        $elem-decl-class.box: $dtd.getElementDecl($.name);
+    }
+    else {
+        $elem-decl-class;
+    }
+}
+method content(ElementDeclRef:D:) {
+    use trace;
+    with $!decl.raw.parent {
+        my xmlDtd:D $dtd = .delegate;
+        my xmlElementDecl:D $decl = $dtd.getElementDecl($.name);
+        my xmlElementContent:D $raw = $decl.content;
+        self.new: :$raw, :$!decl;
+    }
+}
+multi method gist(Any:D:) { $.Str }
+method firstChild(ElementDeclNode:D:) {
+    self!visit: $!raw.c1;
+}
+method secondChild(ElementDeclNode:D:) {
+    self!visit: $!raw.c2;
+}
+method parent {
+    self!visit: $!raw.parent;
+}
+method potential-children(UInt:D :$max = 255) {
+    my CArray[Str] $buf .= new;
+    my int32 $len = 0;
+    $buf[$max] = Str;
+    $!raw.PotentialChildren($buf, $len, $max);
+    my @ = (0 ..^ $len).map: {$buf[$_]}
+}
+
 =begin pod
 
-=head2 Synopsis
+=head2 Example
 
 =begin code :lang<raku>
 use LibXML::Dtd;
@@ -67,57 +124,19 @@ method getElementDecl returns LibXML::Dtd::ElementDecl
 =end code
 Returns the element declaration for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
 
-=head3 potential-children
+=head3 content
+=begin code :lang<raku>
+method content returns LibXML::Dtd::ElementContent
+=end code
+Returns child content for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
 
-Returns a unique list of names, summarizing possible content for the nodes and
+`$obj.content` is a shortcut for `$obj.getElementDecl.content`.
+
+=head3 potential-children(
+=begin code :lang<raku>
+method potential-children(UInt :$max = 255) returns Array
+=end code
+Returns an array (up to size `$max`) of names, summarizing possible content for the nodes and
 its immediate children.
 
 =end pod
-
-use LibXML::Raw;
-use LibXML::Enums;
-use LibXML::Item :&box-class;
-use NativeCall;
-
-has $!decl; # element declaration (keep this alive)
-submethod TWEAK(Any:D :$!decl) {}
-has xmlElementContent $.raw is required handles<type occurs name prefix Str>;
-method !visit(xmlElementContent $raw) {
-    my constant MagicTopLevel = 1; # as set by LibXML on top-level declarations
-    if $raw.defined && +nativecast(Pointer, $raw) != MagicTopLevel {
-        $?CLASS.new: :$!decl, :$raw;
-    }
-    else {
-        $?CLASS
-    }
-}
-subset ElementDeclRef of  LibXML::Dtd::ElementContent where .type == XML_ELEMENT_CONTENT_ELEMENT;
-method getElementDecl(ElementDeclRef:D:) {
-    my $elem-decl-class = box-class(XML_ELEMENT_DECL);
-    with  $!decl.raw.parent {
-        # xmlElementDecl nodes should always have the Dtd as immediate parent
-        my xmlDtd:D $dtd = .delegate;
-        $elem-decl-class.box: $dtd.getElementDecl($.name);
-    }
-    else {
-        $elem-decl-class;
-    }
-}
-multi method gist(Any:D:) { $.Str }
-method firstChild {
-    self!visit: $!raw.c1;
-}
-method secondChild {
-    self!visit: $!raw.c2;
-}
-method parent {
-    self!visit: $!raw.parent;
-}
-method potential-children(UInt:D :$max = 255) {
-    my CArray[Str] $buf .= new;
-    my int32 $len = 0;
-    $buf[$max] = Str;
-    $!raw.PotentialChildren($buf, $len, $max);
-    my @ = (0 ..^ $len).map: {$buf[$_]}
-}
-

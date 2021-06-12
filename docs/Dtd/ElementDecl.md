@@ -8,8 +8,8 @@ class LibXML::Dtd::ElementDecl
 
 LibXML DtD Element declaration introspection (experimental)
 
-Synopsis
---------
+Example
+-------
 
 ```raku
 use LibXML::Document;
@@ -33,13 +33,10 @@ my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
 note $note-decl.Str; # <!ELEMENT note (to,from,heading,body)>
 note $note-decl.potential-children; # [to from heading body]
 note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
-
-=head2 Methods
-
-=head3 potential-children(UInt :$max = 255)
-
-=para Returns an array (up to size `$max`) of possible immediate child elements names, or '#PCDATA' if the element may have Text or CDATA content.
 ```
+
+Methods
+-------
 
 ### method content
 

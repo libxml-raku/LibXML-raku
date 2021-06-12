@@ -8,8 +8,8 @@ class LibXML::Dtd::ElementContent
 
 DtD element content declaration (experimental)
 
-Synopsis
---------
+Example
+-------
 
 ```raku
 use LibXML::Dtd;
@@ -77,7 +77,21 @@ method getElementDecl returns LibXML::Dtd::ElementDecl
 
 Returns the element declaration for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
 
-### potential-children
+### content
 
-Returns a unique list of names, summarizing possible content for the nodes and its immediate children.
+```raku
+method content returns LibXML::Dtd::ElementContent
+```
+
+Returns child content for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
+
+`$obj.content` is a shortcut for `$obj.getElementDecl.content`.
+
+### potential-children(
+
+```raku
+method potential-children(UInt :$max = 255) returns Array
+```
+
+Returns an array (up to size `$max`) of names, summarizing possible content for the nodes and its immediate children.
 

@@ -70,19 +70,23 @@ subtest 'dtd element declarations' => {
 }
 
 subtest 'dtd element declaration content' => {
-    plan 7;
+    plan 9;
     my LibXML::Document $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::ElementDecl:D $note-decl = $dtd.element-declarations<note>;
     my LibXML::Dtd::ElementDecl:D $to-decl = $dtd.element-declarations<to>;
     given $note-decl.content -> LibXML::Dtd::ElementContent:D $_ {
         is .type, +XML_ELEMENT_CONTENT_SEQ, 'type';
-        is .arity, 1, 'arity';
+        is .occurs, +XML_ELEMENT_CONTENT_ONCE, 'occurs';
         is .Str, '(to , from , heading , body)', 'Str';
         given .firstChild {
             is .type, +XML_ELEMENT_CONTENT_ELEMENT, 'firstChild type';
             is .Str, 'to', 'firstChild Str';
-            ok $to-decl.isSameNode(.getElementDecl), 'firstChild getElementDecl';
+            my $first-child-decl = .getElementDecl;
+            ok $to-decl.isSameNode($first-child-decl), 'firstChild getElementDecl';
+            my $first-child-content = .content;
+            is $first-child-content.Str, '#PCDATA', 'content()';
+            is $first-child-decl.content.Str, '#PCDATA', 'content() via getElementDecl()';
         }
         is $to-decl.content.Str, '#PCDATA', 'to decl Str';
     }
