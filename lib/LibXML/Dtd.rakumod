@@ -287,6 +287,7 @@ class DeclMap {
         method freeze {...}
         method deallocator { -> | {} }
     }
+    method cleanup {}
     has HashMap::NoGC $.map is built handles<AT-KEY DELETE-KEY ASSIGN-KEY keys pairs values>;
     has LibXML::Dtd $.dtd is required;
     submethod TWEAK(xmlHashTable:D :$raw!) {
