@@ -280,14 +280,15 @@ method internalSubset {
 class DeclMap {
     has LibXML::Node $.of;
     class HashMap::NoGC
+        # Direct binding to a Dtd internal hash table
         is LibXML::HashMap[LibXML::Item]
         is repr('CPointer') {
         method DELETE-KEY($) { die X::NYI.new }
         method ASSIGN-KEY($, $) { die X::NYI.new }
         method freeze {...}
         method deallocator { -> | {} }
+        method cleanup { }
     }
-    method cleanup {}
     has HashMap::NoGC $.map is built handles<AT-KEY DELETE-KEY ASSIGN-KEY keys pairs values>;
     has LibXML::Dtd $.dtd is required;
     submethod TWEAK(xmlHashTable:D :$raw!) {
