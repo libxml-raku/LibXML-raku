@@ -16,9 +16,9 @@ debug :
 coverage :
 	%MAKE% "DBG=-fprofile-arcs -ftest-coverage" "LD_DBG=-coverage -lgcov" all
 
-resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_enumeration%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_notation%O%  $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% $(SRC)/xml6_error%O%
+resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_notation%O%  $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% $(SRC)/xml6_error%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
-        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O%  $(SRC)/xml6_enumeration%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O%  $(SRC)/xml6_notation%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%  $(SRC)/xml6_error%O% \
+        $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O%  $(SRC)/xml6_notation%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%  $(SRC)/xml6_error%O% \
         %LIB-LDFLAGS% $(LD_DBG) 
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
@@ -38,9 +38,6 @@ $(SRC)/xml6_doc%O% : $(SRC)/xml6_doc.c $(SRC)/xml6_doc.h
 
 $(SRC)/xml6_entity%O% : $(SRC)/xml6_entity.c $(SRC)/xml6_entity.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_entity%O% $(SRC)/xml6_entity.c %LIB-CFLAGS% $(DBG)
-
-$(SRC)/xml6_enumeration%O% : $(SRC)/xml6_enumeration.c $(SRC)/xml6_enumeration.h
-	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_enumeration%O% $(SRC)/xml6_enumeration.c %LIB-CFLAGS% $(DBG)
 
 $(SRC)/xml6_gbl%O% : $(SRC)/xml6_gbl.c $(SRC)/xml6_gbl.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_gbl%O% $(SRC)/xml6_gbl.c %LIB-CFLAGS% $(DBG)

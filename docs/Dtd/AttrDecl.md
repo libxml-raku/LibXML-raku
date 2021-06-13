@@ -41,13 +41,12 @@ Returns the default value, if any.
 
 ### enum
 
-    method enum returns LibXML::Dtd::AttrDecl::Enumeration
+    method values returns Array
+    say $attr-decl.values; # [a b c]
 
-    my $enum = $attr-decl.enum;
-    say $enum.Str; # (a|b|c)
-    say 'b' ~~ $enum; # True
+Returns an array of possible values, or Array:U , if there is no enumerations.
 
-Returns enumerations, if any.
+This method is applicable to enumerated attributes (AttrType `XML_ATTRIBUTE_ENUMERATION`).
 
 ### elemName
 

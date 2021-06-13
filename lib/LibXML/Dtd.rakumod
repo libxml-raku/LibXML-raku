@@ -61,10 +61,10 @@ unit class LibXML::Dtd
   A DTD may contain any of the following objects.
 
   =item L<LibXML::Dtd::Entity> - LibXML DTD entity declarations
-  =item L<LibXML::Dtd::ElementDecl> - LibXML DTD element declarations
-  =item L<LibXML::Dtd::ElementContent> - LibXML DTD element content declarations
-  =item L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations
   =item L<LibXML::Dtd::Notation> - LibXML DTD notations
+  =item L<LibXML::Dtd::ElementDecl> - LibXML DTD element declarations (experimental)
+  =item L<LibXML::Dtd::ElementContent> - LibXML DTD element content declarations (experimental)
+  =item L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations (experimental)
   =end  pod
 
 use LibXML::ErrorHandling :&structured-error-cb;

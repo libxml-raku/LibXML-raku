@@ -144,10 +144,9 @@ my subset xmlEncodingStr of Str is export where {!.defined || xmlCharEncodingHan
 
 
 #| List structure used when there is an enumeration in DTDs.
-class xmlEnumeration is repr(Opaque) is export {
-    method Str(--> Str) is native($BIND-XML2) is symbol('xml6_enumeration_to_string') {*}
-    method !accepts(Str $str --> int32) is native($BIND-XML2) is symbol('xml6_enumeration_accepts') {*}
-    multi method ACCEPTS(Any:D: Str $s) { so self!accepts($s) }
+class xmlEnumeration is repr('CStruct') is export {
+    has xmlEnumeration $.next;
+    has xmlCharP $.value;
 }
 
 #| A Location Set
@@ -1234,7 +1233,7 @@ class xmlAttrDecl is anyNode is export {
     has int32           $.atype; # the attribute type
     has int32             $.def; # default mode (enum xmlAttributeDefault)
     has xmlCharP $.defaultValue; # or the default value
-    has xmlEnumeration   $.enum; # or the enumeration tree if any
+    has xmlEnumeration  $.values; # or the enumeration tree if any
     has xmlCharP       $.prefix; # the namespace prefix if any
     has xmlCharP         $.elem; # Element holding the attribute
 }

@@ -17,17 +17,17 @@ method attrType returns UInt { $.raw.atype }
 method defaultMode returns UInt { $.raw.def }
 method elemName returns Str { $.raw.elem }
 
-class Enumeration {
-    has LibXML::Dtd::AttrDecl:D $.attr-decl is required;
-    has xmlEnumeration $.raw handles<Str ACCEPTS>;
-    multi method gist(Enumeration:D:) { $!raw.Str }
-}
-method enum(LibXML::Dtd::AttrDecl:D $attr-decl:) {
-    with $attr-decl.raw.enum {
-        Enumeration.new: :$attr-decl, :raw($_);
+method values {
+    with $.raw.values -> $cur is copy {
+        my @values;
+        while $cur.defined {
+            @values.push: $cur.value;
+            $cur .= next;
+        }
+        @values;
     }
     else {
-        Enumeration;
+        Array;
     }
 }
 
@@ -90,13 +90,12 @@ Returns the default value, if any.
 
 =head3 enum
 =begin code
-method enum returns LibXML::Dtd::AttrDecl::Enumeration
-
-my $enum = $attr-decl.enum;
-say $enum.Str; # (a|b|c)
-say 'b' ~~ $enum; # True
+method values returns Array
+say $attr-decl.values; # [a b c]
 =end code
-Returns an enumeration of possible values, if any.
+Returns an array of possible values, or Array:U , if there is no enumerations.
+
+This method is applicable to enumerated attributes (AttrType `XML_ATTRIBUTE_ENUMERATION`).
 
 =head3 elemName
 =para Returns the element holding the attribute.

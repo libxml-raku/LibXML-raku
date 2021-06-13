@@ -9,7 +9,7 @@ use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 
 subtest 'dtd notations' => {
-    plan 9;
+    plan 10;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $notations = $dtd.notations;
@@ -23,6 +23,8 @@ subtest 'dtd notations' => {
     is $foo.Str.chomp, '<!NOTATION foo SYSTEM "bar" >', 'notation Str';
     ok $foo.isSameNode($foo);
     nok $foo.isSameNode(LibXML::Dtd::Notation.new: :name<bar>);
+    my LibXML::Dtd::Notation $foo2 = $dtd.entities<unparsed>.notation;
+    ok $foo.isSameNode($foo2), 'entity notation';
 }
 
 subtest 'dtd entities' => {
@@ -93,7 +95,7 @@ subtest 'dtd element declaration content' => {
 }
 
 subtest 'dtd attribute declarations' => {
-    plan 11;
+    plan 9;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.attribute-declarations;
@@ -110,9 +112,7 @@ subtest 'dtd attribute declarations' => {
     my $system-id = "example/ProductCatalog.dtd";
     $dtd .= parse: :$system-id;
     my LibXML::Dtd::AttrDecl:D $Product-Category = $dtd.attribute-declarations<Product><Category>;
-    is $Product-Category.enum.Str, '(HandTool|Table|Shop-Professional)';
-    ok 'HandTool' ~~  $Product-Category.enum;
-    nok 'Chair' ~~  $Product-Category.enum;
+    is-deeply $Product-Category.values, ['HandTool', 'Table', 'Shop-Professional' ];
 }
 
 subtest 'dtd namespaces' => {

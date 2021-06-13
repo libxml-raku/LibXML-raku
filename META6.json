@@ -33,7 +33,6 @@
     "LibXML::Dtd::Entity": "lib/LibXML/Dtd/Entity.rakumod",
     "LibXML::Dtd::Notation": "lib/LibXML/Dtd/Notation.rakumod",
     "LibXML::Element": "lib/LibXML/Element.rakumod",
-    "LibXML::Entity": "lib/LibXML/Entity.rakumod",
     "LibXML::EntityRef": "lib/LibXML/EntityRef.rakumod",
     "LibXML::Enums": "lib/LibXML/Enums.rakumod",
     "LibXML::ErrorHandling": "lib/LibXML/ErrorHandling.rakumod",

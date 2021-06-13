@@ -62,13 +62,13 @@ A DTD may contain any of the following objects.
 
   * [LibXML::Dtd::Entity](https://libxml-raku.github.io/LibXML-raku/Dtd/Entity) - LibXML DTD entity declarations
 
-  * [LibXML::Dtd::ElementDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementDecl) - LibXML DTD element declarations
-
-  * [LibXML::Dtd::ElementContent](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementContent) - LibXML DTD element content declarations
-
-  * [LibXML::Dtd::AttrDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/AttrDecl) - LibXML DTD attribute declarations
-
   * [LibXML::Dtd::Notation](https://libxml-raku.github.io/LibXML-raku/Dtd/Notation) - LibXML DTD notations
+
+  * [LibXML::Dtd::ElementDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementDecl) - LibXML DTD element declarations (experimental)
+
+  * [LibXML::Dtd::ElementContent](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementContent) - LibXML DTD element content declarations (experimental)
+
+  * [LibXML::Dtd::AttrDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/AttrDecl) - LibXML DTD attribute declarations (experimental)
 
 Methods
 -------
