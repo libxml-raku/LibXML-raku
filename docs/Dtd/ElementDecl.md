@@ -58,13 +58,13 @@ for example:
 
 ```raku
 use LibXML::Dtd;
-my LibXML::Dtd $dtd .= parse: :string(q:to<X-X-X>);
+my LibXML::Dtd $dtd .= parse: :string(q:to<END>);
   <!ELEMENT A ANY>
   <!ATTLIST A
     foo CDATA #IMPLIED
     bar CDATA #IMPLIED
   >
-X-X-X
+  END
 
 my $A:decl = $dtd.element-declarations<A>;
 
@@ -85,4 +85,8 @@ method attributes() returns Mu
 ```
 
 return a read-only hash of attribute declarations
+
+### method prefix
+
+Returns a namespace prefix, if any.
 

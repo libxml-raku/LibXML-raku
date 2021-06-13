@@ -39,7 +39,7 @@ unit class LibXML::Dtd
       $bar = $notations<bar>;
       my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
       $elem-decl = $elem-decls{$elem-name}
-      my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.element-attribute-declarations;
+      my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.attribute-declarations;
       $attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
 
       # Validation
@@ -57,6 +57,14 @@ unit class LibXML::Dtd
 
   LibXML::Dtd is a sub-class of L<LibXML::Node>, so all the methods available to nodes (particularly Str()) are available
   to Dtd objects.
+
+  A DTD may contain any of the following objects.
+
+  =item L<LibXML::Dtd::Entity> - LibXML DTD entity declarations
+  =item L<LibXML::Dtd::ElementDecl> - LibXML DTD element declarations
+  =item L<LibXML::Dtd::ElementContent> - LibXML DTD element content declarations
+  =item L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations
+  =item L<LibXML::Dtd::Notation> - LibXML DTD notations
   =end  pod
 
 use LibXML::ErrorHandling :&structured-error-cb;
@@ -192,15 +200,16 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
 =begin pod
     =head3 method parse
 
-        method parse(Str :string) returns LibXML::Dtd;
+        multi method parse(Str :$string) returns LibXML::Dtd;
+        multi method parse(Str:D :$system-id!, Str :$external-id) returns LibXML::Dtd;
 
-    =para The same as new() above, except you can parse a DTD from a string. Note that
+    =para The same as new() above, except you can parse a DTD from a string or external-id. Note that
     parsing from string may fail if the DTD contains external parametric-entity
     references with relative URLs.
 =end pod
 
 
-multi method parse(Str:D :$external-id, Str:D :$system-id) {
+multi method parse(Str :$external-id, Str:D :$system-id!) {
     my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box($raw);
 }
@@ -356,7 +365,7 @@ method element-declarations(LibXML::Dtd:D $dtd:) {
 }
 
 has AttrDeclMap $!element-attributes;
-method element-attribute-declarations(LibXML::Dtd:D $dtd:) {
+method attribute-declarations(LibXML::Dtd:D $dtd:) {
     $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
         with $!raw.attributes;
 }

@@ -87,11 +87,15 @@ Returns child content for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
 
 `$obj.content` is a shortcut for `$obj.getElementDecl.content`.
 
-### potential-children(
+### potential-children
 
 ```raku
 method potential-children(UInt :$max = 255) returns Array
 ```
 
 Returns an array (up to size `$max`) of names, summarizing possible content for the nodes and its immediate children.
+
+### method prefix
+
+Returns a namespace prefix, if any.
 

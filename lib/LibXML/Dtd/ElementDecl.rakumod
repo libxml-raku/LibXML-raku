@@ -52,24 +52,24 @@ method content(LibXML::Dtd::ElementDecl:D $decl:) {
 
 #| return a read-only list of attribute declarations
 method properties {
-    my anyNode $att = $.raw.attributes;
+    my xmlAttrDecl $att = $.raw.attributes;
     my LibXML::Dtd::AttrDecl @props;
-    while $att.defined && $att.type == XML_ATTRIBUTE_DECL {
+    while $att.defined {
         @props.push: LibXML::Node.box($att);
-        $att .= next;
+        $att .= nexth;
     }
     @props;
 }
 =para for example:
 =begin code :lang<raku>
 use LibXML::Dtd;
-my LibXML::Dtd $dtd .= parse: :string(q:to<X-X-X>);
+my LibXML::Dtd $dtd .= parse: :string(q:to<END>);
   <!ELEMENT A ANY>
   <!ATTLIST A
     foo CDATA #IMPLIED
     bar CDATA #IMPLIED
   >
-X-X-X
+  END
 
 my $A:decl = $dtd.element-declarations<A>;
 
@@ -90,3 +90,7 @@ method attributes is also<attribs attr> {
 method new(|) { fail }
 method raw handles <etype prefix> { nativecast(xmlElementDecl, self) }
 
+=begin pod
+=head3 method prefix
+=para Returns a namespace prefix, if any.
+=end pod

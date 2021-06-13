@@ -93,16 +93,26 @@ subtest 'dtd element declaration content' => {
 }
 
 subtest 'dtd attribute declarations' => {
-    plan 4;
+    plan 11;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.element-attribute-declarations;
+    my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.attribute-declarations;
     is-deeply $elem-attributes.keys, ("doc",), 'elem attribute keys';
     my LibXML::Dtd::DeclMap $doc-attributes = $elem-attributes<doc>;
     is-deeply $doc-attributes.keys, ("type",), 'attlist keys';
     isa-ok $elem-attributes.values[0], LibXML::Dtd::DeclMap, 'values type';
-    my LibXML::Dtd::AttrDecl $type-attr = $doc-attributes<type>;
+    my LibXML::Dtd::AttrDecl:D $type-attr = $doc-attributes<type>;
     is $type-attr.Str.chomp, '<!ATTLIST doc type CDATA #IMPLIED>', 'attlist Str';
+    ok $type-attr.getElementDecl.isSameNode($dtd.element-declarations<doc>), 'getElementDecl';
+    is $type-attr.attrType, +XML_ATTRIBUTE_CDATA, 'attrType';
+    is $type-attr.defaultMode, +XML_ATTRIBUTE_IMPLIED, 'defaultMode';
+    is-deeply $type-attr.defaultValue, Str, 'defaultValue';
+    my $system-id = "example/ProductCatalog.dtd";
+    $dtd .= parse: :$system-id;
+    my LibXML::Dtd::AttrDecl:D $Product-Category = $dtd.attribute-declarations<Product><Category>;
+    is $Product-Category.enum.Str, '(HandTool|Table|Shop-Professional)';
+    ok 'HandTool' ~~  $Product-Category.enum;
+    nok 'Chair' ~~  $Product-Category.enum;
 }
 
 subtest 'dtd namespaces' => {
@@ -113,7 +123,7 @@ subtest 'dtd namespaces' => {
     is-deeply $element-declarations.keys.sort, ("foo:A", "foo:B"), "element decls";
     my LibXML::Dtd::ElementDecl:D $foo:A-decl = $element-declarations<foo:A>;
     is $foo:A-decl.Str.chomp, '<!ELEMENT foo:A (foo:B)>';
-    my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.element-attribute-declarations;
+    my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.attribute-declarations;
     is-deeply $elem-attributes.keys, ("foo:A",), 'elem attribute keys';
     my LibXML::Dtd::DeclMap $doc-attributes = $elem-attributes<foo:A>;
     is-deeply $doc-attributes.keys.sort, ("bar", "xmlns:foo"), 'attlist keys';

@@ -40,7 +40,7 @@ my LibXML::Dtd::DeclMap $notations = $dtd.notations;
 $bar = $notations<bar>;
 my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
 $elem-decl = $elem-decls{$elem-name}
-my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.element-attribute-declarations;
+my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.attribute-declarations;
 $attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
 
 # Validation
@@ -57,6 +57,18 @@ This class holds a DTD. You may parse a DTD from either a string, or from an ext
 No support is available as yet for parsing from a filehandle.
 
 LibXML::Dtd is a sub-class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), so all the methods available to nodes (particularly Str()) are available to Dtd objects.
+
+A DTD may contain any of the following objects.
+
+  * [LibXML::Dtd::Entity](https://libxml-raku.github.io/LibXML-raku/Dtd/Entity) - LibXML DTD entity declarations
+
+  * [LibXML::Dtd::ElementDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementDecl) - LibXML DTD element declarations
+
+  * [LibXML::Dtd::ElementContent](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementContent) - LibXML DTD element content declarations
+
+  * [LibXML::Dtd::AttrDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/AttrDecl) - LibXML DTD attribute declarations
+
+  * [LibXML::Dtd::Notation](https://libxml-raku.github.io/LibXML-raku/Dtd/Notation) - LibXML DTD notations
 
 Methods
 -------
@@ -83,9 +95,10 @@ Parse a DTD from the system identifier, and return a DTD object that you can pas
 
 ### method parse
 
-    method parse(Str :string) returns LibXML::Dtd;
+    multi method parse(Str :$string) returns LibXML::Dtd;
+    multi method parse(Str:D :$system-id!, Str :$external-id) returns LibXML::Dtd;
 
-The same as new() above, except you can parse a DTD from a string. Note that parsing from string may fail if the DTD contains external parametric-entity references with relative URLs.
+The same as new() above, except you can parse a DTD from a string or external-id. Note that parsing from string may fail if the DTD contains external parametric-entity references with relative URLs.
 
 ### method getNotation
 

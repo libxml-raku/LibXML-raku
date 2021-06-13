@@ -88,14 +88,27 @@ enum xmlElementContentOccur is export (
     'XML_ELEMENT_CONTENT_PLUS'
 );
 
-my enum xmlAttributeDefault is export (
+enum xmlAttributeDefault is export (
     XML_ATTRIBUTE_NONE => 1,
     'XML_ATTRIBUTE_REQUIRED',
     'XML_ATTRIBUTE_IMPLIED',
     'XML_ATTRIBUTE_FIXED'
 );
 
-my enum xmlXPathObjectType is export (
+enum xmlAttributeType is export (
+    XML_ATTRIBUTE_CDATA => 1,
+    'XML_ATTRIBUTE_ID',
+    'XML_ATTRIBUTE_IDREF',
+    'XML_ATTRIBUTE_IDREFS',
+    'XML_ATTRIBUTE_ENTITY',
+    'XML_ATTRIBUTE_ENTITIES',
+    'XML_ATTRIBUTE_NMTOKEN',
+    'XML_ATTRIBUTE_NMTOKENS',
+    'XML_ATTRIBUTE_ENUMERATION',
+    'XML_ATTRIBUTE_NOTATION',
+
+);
+enum xmlXPathObjectType is export (
     XPATH_UNDEFINED => 0,
     XPATH_NODESET => 1,
     XPATH_BOOLEAN => 2,

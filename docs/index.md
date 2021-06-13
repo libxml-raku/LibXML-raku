@@ -106,16 +106,6 @@ Validation
 
   * [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) - LibXML DTD validation class
 
-    * [LibXML::Dtd::Entity](https://libxml-raku.github.io/LibXML-raku/Dtd/Entity) - LibXML DTD entity declarations
-
-    * [LibXML::Dtd::ElementDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementDecl) - LibXML DTD element declarations
-
-    * [LibXML::Dtd::ElementContent](https://libxml-raku.github.io/LibXML-raku/Dtd/ElementContent) - LibXML DTD element declaration content
-
-    * [LibXML::Dtd::AttrDecl](https://libxml-raku.github.io/LibXML-raku/Dtd/AttrDecl) - LibXML DTD attribute declarations
-
-    * [LibXML::Dtd::Notation](https://libxml-raku.github.io/LibXML-raku/Dtd/Notation) - LibXML DTD notations
-
   * [LibXML::Schema](https://libxml-raku.github.io/LibXML-raku/Schema) - LibXML schema validation class
 
   * [LibXML::RelaxNG](https://libxml-raku.github.io/LibXML-raku/RelaxNG) - LibXML RelaxNG validation class
