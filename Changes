@@ -1,21 +1,21 @@
 {{$NEXT}}
-    - Removed some module loading work-arounds for Rakudo < 2019.03
-    - Support Dtd Notations:
+
+0.6.1  2021-06-14T13:16:33+12:00
+    - Improved Dtd Handling #30
       -- Added raw class xmlNotation,
       -- Added API class LibXML::Dtd::Notation
       -- Added LibXML::Dtd methods:
-         --- associative: notations() entities(), element-declarations(),
-             element-attribute-declarations()
-         --- retrieval: getNotation(), getEntity(), getElementDeclaration(),
+         --- notations() entities(), element-declarations(), attribute-declarations()
+             getNotation(), getEntity(), getElementDeclaration(),
              getAttrDeclaration(), getNodeDeclaration()
-      -- Changed LibXML::Dtd repr from 'CStruct' to default, so that it
-         contain attributes, firstly, the $!notations attribute.
-    - Support Dtd Element declarations:
+      -- Changed LibXML::Dtd repr from 'CStruct' to default, so that it may
+         contain additional attributes.
       -- Rename classes:
          --- LibXML::Dtd::Attr -> LibXML::Dtd::AttrDecl and
          --- LibXML::Dtd::Element -> LibXML::Dtd::ElementDecl
          --- LibXML::Entity -> LibXML::Dtd::Entity
       -- Add  LibXML::Dtd elements() method
+    - Removed some module loading work-arounds for Rakudo < 2019.03
     - Fixed memory leaks in $doc.setDocumentElement and document parse failure #55
     - Fixed segfault in unlinking DtD #56
     - Fixed valgrind errors in t/07dtd.t. Specifically, $doc.replaceChild($dtd), which

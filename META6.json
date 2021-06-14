@@ -28,8 +28,8 @@
     "LibXML::DocumentFragment": "lib/LibXML/DocumentFragment.rakumod",
     "LibXML::Dtd": "lib/LibXML/Dtd.rakumod",
     "LibXML::Dtd::AttrDecl": "lib/LibXML/Dtd/AttrDecl.rakumod",
-    "LibXML::Dtd::ElementDecl": "lib/LibXML/Dtd/ElementDecl.rakumod",
     "LibXML::Dtd::ElementContent": "lib/LibXML/Dtd/ElementContent.rakumod",
+    "LibXML::Dtd::ElementDecl": "lib/LibXML/Dtd/ElementDecl.rakumod",
     "LibXML::Dtd::Entity": "lib/LibXML/Dtd/Entity.rakumod",
     "LibXML::Dtd::Notation": "lib/LibXML/Dtd/Notation.rakumod",
     "LibXML::Element": "lib/LibXML/Element.rakumod",
@@ -92,5 +92,5 @@
   ],
   "test-depends": [
   ],
-  "version": "0.6.0"
+  "version": "0.6.1"
 }
