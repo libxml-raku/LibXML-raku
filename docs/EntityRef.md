@@ -7,35 +7,41 @@ class LibXML::EntityRef
 
 Entity Reference nodes
 
-Synopsis
---------
+    use LibXML::Document;
+    use LibXML::Element;
+    use LibXML::EntityRef;
+    use LibXML::Dtd::Entity;
+    use LibXML::Enums;
 
-```raku
-use LibXML::Document;
-use LibXML::EntityRef;
-use LibXML::Dtd::Entity;
+    my $string = q:to<END>;
+    <!DOCTYPE doc [
+    <!ENTITY foo "Foo ">
+    <!ENTITY bar " Bar">
+    ]>
+    <doc>&foo;example</doc>
+    END
 
-my LibXML::Document $doc .= parse: :string(q:to<E-NUFF!>);
-<!DOCTYPE doc [
-<!ELEMENT doc (#PCDATA)>
-<!ATTLIST doc type CDATA #IMPLIED>
-<!ENTITY foo " test ">
-]>
-<doc>Sample document </doc>
-E-NUFF!
+    my LibXML::Document $doc .= parse: :$string;
+    my LibXML::Element $root = $doc.root;
+    my LibXML::EntityRef $foo-ref = $root.firstChild;
+    my LibXML::EntityRef $bar-ref =  $doc.createEntityReference('bar');
 
-# add a referenced to a Dtd entity
-my LibXML::EntityRef $foo = $doc.createEntityReference("foo");
-my LibXML::Dtd::Entity $foo-decl = $foo.firstChild;
-say $foo-decl.Str; # <!ENTITY foo " test ">
-my $root = $doc.getDocumentElement;
-$root.appendChild: $foo;
+    # Reference to entity defined in DtD
+    say xmlEntityType($bar-ref.firstChild.entityType); # XML_INTERNAL_GENERAL_ENTITY
 
-# add a predefined entity reference
-$root.appendChild: $doc.createEntityReference("gt");
+    # Reference to unknown entity
+    my LibXML::EntityRef $baz-ref =  $doc.createEntityReference('baz');
+    say $baz-ref.firstChild.defined; # False
 
-say $root.Str; # <doc>Sample document &foo;&gt;</doc>
-```
+    # Reference to predefined entity
+    my LibXML::EntityRef $gt-ref =  $doc.createEntityReference('gt');
+    say xmlEntityType($gt-ref.firstChild.entityType); # XML_INTERNAL_PREDEFINED_ENTITY
+
+    $root.appendChild: $bar-ref;
+    $root.appendChild: $baz-ref;
+    $root.appendChild: $gt-ref;
+
+    note $root.Str; # <doc>&foo;example&bar;&baz;&gt;</doc>
 
 Description
 -----------
