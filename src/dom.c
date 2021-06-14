@@ -517,6 +517,10 @@ domTestHierarchy(xmlNodePtr cur, xmlNodePtr refNode) {
     switch ( refNode->type ){
     case XML_ATTRIBUTE_NODE:
     case XML_DOCUMENT_NODE:
+    case XML_ATTRIBUTE_DECL:
+    case XML_ENTITY_DECL:
+    case XML_ELEMENT_DECL:
+    case XML_NOTATION_NODE:
         return 0;
         break;
     default:
@@ -630,9 +634,39 @@ domNodeIsReferenced(xmlNodePtr self) {
     return 0;
 }
 
+static void _domRemoveEntityRefs(xmlNodePtr self, xmlDtdPtr dtd) {
+    xmlAttrPtr attr;
+    xmlNodePtr cur;
+    if (self == NULL) return;
+    if (self->type == XML_ENTITY_REF_NODE) {
+        if (self->children != NULL && self->children->parent == (xmlNodePtr) dtd) {
+            self->children = NULL;
+        }
+    }
+    else {
+        for (attr = self->properties; attr != NULL; attr = attr->next) {
+            for (cur = attr->children; cur != NULL; cur = cur->next) {
+                _domRemoveEntityRefs(cur, dtd);
+            }
+        }
+        for (cur = self->children; cur != NULL; cur = cur->next) {
+            _domRemoveEntityRefs(cur, dtd);
+        }
+    }
+}
+
 DLLEXPORT void
 domReleaseNode( xmlNodePtr node ) {
     xmlUnlinkNode(node);
+
+    if (node->type == XML_DTD_NODE) {
+        xmlDtdPtr dtd = (xmlDtdPtr)node;
+        if (dtd->doc != NULL && dtd->entities != NULL) {
+            xmlNodePtr root = xmlDocGetRootElement(dtd->doc);
+            _domRemoveEntityRefs(root, dtd);
+        }
+    }
+
     if ( domNodeIsReferenced(node) == 0 ) {
         node->_private = xml6_ref_freed();
         xmlFreeNode(node);

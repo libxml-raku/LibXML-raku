@@ -79,7 +79,7 @@ my $doc    = $parser.parse: :string( $xmlstring );
                 is( $attr.nodeName, "foo", ' TODO : Add test name' );
                 is( $attr.nodeValue, "foobar", ' TODO : Add test name' );
                 is-deeply( $attr.hasChildNodes, False, 'hasChildNodes');
-                }
+            }
         }
 
         {

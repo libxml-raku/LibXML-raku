@@ -1,4 +1,6 @@
 {{$NEXT}}
+    - Remove entity reference content when a DtD is unlinked
+    - Make it illegal to add declaration nodes to the general DOM
 
 0.6.1  2021-06-14T13:16:33+12:00
     - Improved Dtd Handling #30

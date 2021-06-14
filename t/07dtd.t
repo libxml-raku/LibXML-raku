@@ -123,8 +123,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
         ok($dtd2, ' TODO : Add test name');
 
         $doc2.setInternalSubset( $dtd2 );
-
-        $e.appendChild( $entity );
+        $e.appendChild( $entity-ref );
     }
 }
 
