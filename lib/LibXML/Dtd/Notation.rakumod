@@ -9,6 +9,37 @@ use LibXML::Raw;
 use NativeCall;
 use Method::Also;
 
+=begin pod
+
+=head3 Example
+
+=begin code :lang<raku>
+use LibXML::Dtd;
+use LibXML::Dtd::Notation;
+
+my $string = q:to<END>;
+<!NOTATION jpeg SYSTEM "image/jpeg">
+<!NOTATION png SYSTEM "image/png">
+<!ENTITY camelia-logo
+         SYSTEM "https://www.raku.org/camelia-logo.png"
+         NDATA png>
+END
+
+my LibXML::Dtd $dtd .= parse: :$string;
+my LibXML::Dtd::Notation $notation = $dtd.notations<jpeg>;
+$notation = $dtd.entities<camelia-logo>.notation;
+
+say $notation.name;     # png
+say $notation.systemId; # image/png
+say $notation.Str;      # <!NOTATION png SYSTEM "image/png" >
+=end code
+
+=head3 Description
+
+Notation declarations are an older mechanism that is sometimes used in a DTD to qualify the data contained within an external entity (non-xml) file.
+
+=end pod
+
 method new(Str:D :$name!, Str :$publicId, Str :$systemId) {
     self.box: xmlNotation.new(:$name, :$publicId, :$systemId);
 }
@@ -24,7 +55,7 @@ method isSame($_) is also<isSameNode> {
 method publicId(--> Str) { $.raw.publicId }
 
 #| Return the System ID
-method systemId(--> Str) { $.raw.systemID }
+method systemId(--> Str) { $.raw.systemId }
 
 #| Return the entity name
 method name(--> Str) { $.raw.name }

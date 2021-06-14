@@ -17,6 +17,48 @@ method new(Str:D :$name!, Str:D :$content!, Str :$external-id, Str :$internal-id
     self.box($native, :$doc);
 }
 
+=begin pod
+=head2 Example
+
+=begin code :lang<raku>
+use LibXML::Document;
+use LibXML::Element;
+use LibXML::EntityRef;
+use LibXML::Dtd::Entity;
+use LibXML::Enums;
+
+my $string = q:to<END>;
+<!DOCTYPE doc [
+<!ENTITY foo "Foo ">
+<!ENTITY bar " Bar">
+]>
+<doc>&foo;example</doc>
+END
+
+my LibXML::Document $doc .= parse: :$string;
+my LibXML::Element $root = $doc.root;
+my LibXML::EntityRef $foo-ref = $root.firstChild;
+my LibXML::EntityRef $bar-ref =  $doc.createEntityReference('bar');
+
+# Reference to entity defined in DtD
+say xmlEntityType($bar-ref.firstChild.entityType); # XML_INTERNAL_GENERAL_ENTITY
+
+# Reference to unknown entity
+my LibXML::EntityRef $baz-ref =  $doc.createEntityReference('baz');
+say $baz-ref.firstChild.defined; # False
+
+# Reference to predefined entity
+my LibXML::EntityRef $gt-ref =  $doc.createEntityReference('gt');
+say xmlEntityType($gt-ref.firstChild.entityType); # XML_INTERNAL_PREDEFINED_ENTITY
+
+$root.appendChild: $bar-ref;
+$root.appendChild: $baz-ref;
+$root.appendChild: $gt-ref;
+
+note $root.Str; # <doc>&foo;example&bar;&baz;&gt;</doc>
+=end code
+=end pod
+
 #| return the Public (External) ID
 method publicId(--> Str) { $.raw.ExternalID }
 

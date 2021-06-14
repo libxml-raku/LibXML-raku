@@ -3,6 +3,7 @@ plan 6;
 use LibXML::Dtd;
 use LibXML::Document;
 use LibXML::Enums;
+use LibXML::EntityRef;
 use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::ElementContent;
 use LibXML::Dtd::Entity;
@@ -28,7 +29,7 @@ subtest 'dtd notations' => {
 }
 
 subtest 'dtd entities' => {
-    plan 10;
+    plan 13;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $entities = $dtd.entities;
@@ -38,6 +39,10 @@ subtest 'dtd entities' => {
     ok $foo.defined, "entity fetch";
     is $foo.name, "foo", 'entity name';
     is $foo.value, ' test ', 'entity value';
+    my $foo-ref = $doc.root[1];
+    isa-ok $foo-ref, LibXML::EntityRef, 'entity reference';
+    is $foo-ref.Str, '&foo;', 'entity reference Str';
+    ok $foo-ref.firstChild.isSameNode($foo), 'entity reference dereference';
     my LibXML::Dtd::Entity $unparsed = $entities<unparsed>;
     is-deeply $unparsed.systemId, 'http://example.org/blah', 'entity system-Id';
     is-deeply $unparsed.publicId, Str, 'entity public-Id';
@@ -48,7 +53,7 @@ subtest 'dtd entities' => {
 }
 
 subtest 'dtd element declarations' => {
-    plan 15;
+    plan 16;
     my LibXML::Document $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $elements = $dtd.element-declarations;
@@ -61,6 +66,7 @@ subtest 'dtd element declarations' => {
     is $note-decl.name, 'note', 'element decl name';
     is $note-decl.type, +XML_ELEMENT_DECL, 'element decl type';
     is $note-decl.parent.type, +XML_DTD_NODE, 'element parent type';
+    ok $note-decl.parent.isSameNode($dtd);
     is-deeply $note-decl.content.potential-children, ["to", "from", "heading", "body"];
     is $note-decl.Str.chomp, '<!ELEMENT note (to , from , heading , body)>', 'element decl string';
     is $note-decl.attributes<id>.Str.chomp, '<!ATTLIST note id CDATA #IMPLIED>', 'attributes string';
@@ -95,7 +101,7 @@ subtest 'dtd element declaration content' => {
 }
 
 subtest 'dtd attribute declarations' => {
-    plan 9;
+    plan 10;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.attribute-declarations;
@@ -105,6 +111,7 @@ subtest 'dtd attribute declarations' => {
     isa-ok $elem-attributes.values[0], LibXML::Dtd::DeclMap, 'values type';
     my LibXML::Dtd::AttrDecl:D $type-attr = $doc-attributes<type>;
     is $type-attr.Str.chomp, '<!ATTLIST doc type CDATA #IMPLIED>', 'attlist Str';
+    ok $type-attr.parent.isSameNode($dtd);
     ok $type-attr.getElementDecl.isSameNode($dtd.element-declarations<doc>), 'getElementDecl';
     is $type-attr.attrType, +XML_ATTRIBUTE_CDATA, 'attrType';
     is $type-attr.defaultMode, +XML_ATTRIBUTE_IMPLIED, 'defaultMode';
