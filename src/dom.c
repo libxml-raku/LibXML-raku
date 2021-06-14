@@ -207,6 +207,39 @@ _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
     }
 }
 
+static void _domRemoveEntityRefs(xmlNodePtr self, xmlDtdPtr dtd) {
+    xmlAttrPtr attr;
+    xmlNodePtr cur;
+    if (self == NULL) return;
+    if (self->type == XML_ENTITY_REF_NODE) {
+        if (self->children != NULL && self->children->parent == (xmlNodePtr) dtd) {
+            self->children = NULL;
+        }
+    }
+    else {
+        for (attr = self->properties; attr != NULL; attr = attr->next) {
+            for (cur = attr->children; cur != NULL; cur = cur->next) {
+                _domRemoveEntityRefs(cur, dtd);
+            }
+        }
+        for (cur = self->children; cur != NULL; cur = cur->next) {
+            _domRemoveEntityRefs(cur, dtd);
+        }
+    }
+}
+
+DLLEXPORT void domUnlinkNode(xmlNodePtr self) {
+    xmlUnlinkNode(self);
+
+    if (self != NULL && self->type == XML_DTD_NODE) {
+        xmlDtdPtr dtd = (xmlDtdPtr)self;
+        if (dtd->doc != NULL && dtd->entities != NULL) {
+            xmlNodePtr root = xmlDocGetRootElement(dtd->doc);
+            _domRemoveEntityRefs(root, dtd);
+        }
+    }
+}
+
 DLLEXPORT void
 domReconcileNs(xmlNodePtr tree) {
     xmlNsPtr unused = NULL;
@@ -253,6 +286,7 @@ domGetExternalSubset(xmlDocPtr self) {
     return self->extSubset;
 }
 
+
 DLLEXPORT xmlDtdPtr
 domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     xmlDtdPtr int_dtd = NULL;
@@ -270,7 +304,7 @@ domSetInternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     }
 
     if (dtd != NULL) {
-        xmlUnlinkNode((xmlNodePtr)dtd);
+        domUnlinkNode((xmlNodePtr)dtd);
         if (dtd->doc == NULL) {
             xmlSetTreeDoc( (xmlNodePtr) dtd, self );
         } else if ( dtd->doc != self ) {
@@ -304,7 +338,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
     }
 
     if (dtd != NULL) {
-        xmlUnlinkNode( (xmlNodePtr) dtd);
+        domUnlinkNode( (xmlNodePtr) dtd);
         if ( dtd->doc == NULL ) {
             xmlSetTreeDoc( (xmlNodePtr) dtd, self );
         } else if (dtd->doc != self) {
@@ -347,7 +381,7 @@ _domAssimulate(xmlNodePtr head, xmlNodePtr tail) {
         if (cur->type == XML_DTD_NODE) {
             if (_domIsDoc(cur->parent) == 0) {
                 xml6_warn("non-root DTD node found");
-                xmlUnlinkNode(cur);
+                domUnlinkNode(cur);
             }
             if (cur->doc && domGetExternalSubset(cur->doc) != (xmlDtdPtr)cur) {
                 domSetInternalSubset(cur->doc, (xmlDtdPtr) cur);
@@ -449,7 +483,7 @@ _domSetDtd(xmlDocPtr doc, xmlDtdPtr dtd, xmlNodePtr old) {
         XML6_FAIL((xmlNodePtr)dtd, "SetDtd: HIERARCHY_REQUEST_ERR");
     }
 
-    if (old) xmlUnlinkNode(old);
+    if (old) domUnlinkNode(old);
 
     if (dtd != (xmlDtdPtr)old) {
         if (replace_external) {
@@ -634,38 +668,9 @@ domNodeIsReferenced(xmlNodePtr self) {
     return 0;
 }
 
-static void _domRemoveEntityRefs(xmlNodePtr self, xmlDtdPtr dtd) {
-    xmlAttrPtr attr;
-    xmlNodePtr cur;
-    if (self == NULL) return;
-    if (self->type == XML_ENTITY_REF_NODE) {
-        if (self->children != NULL && self->children->parent == (xmlNodePtr) dtd) {
-            self->children = NULL;
-        }
-    }
-    else {
-        for (attr = self->properties; attr != NULL; attr = attr->next) {
-            for (cur = attr->children; cur != NULL; cur = cur->next) {
-                _domRemoveEntityRefs(cur, dtd);
-            }
-        }
-        for (cur = self->children; cur != NULL; cur = cur->next) {
-            _domRemoveEntityRefs(cur, dtd);
-        }
-    }
-}
-
 DLLEXPORT void
 domReleaseNode( xmlNodePtr node ) {
-    xmlUnlinkNode(node);
-
-    if (node->type == XML_DTD_NODE) {
-        xmlDtdPtr dtd = (xmlDtdPtr)node;
-        if (dtd->doc != NULL && dtd->entities != NULL) {
-            xmlNodePtr root = xmlDocGetRootElement(dtd->doc);
-            _domRemoveEntityRefs(root, dtd);
-        }
-    }
+    domUnlinkNode(node);
 
     if ( domNodeIsReferenced(node) == 0 ) {
         node->_private = xml6_ref_freed();
@@ -678,7 +683,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
     xmlNodePtr imported_node = node;
     if ( move ) {
         imported_node = node;
-        xmlUnlinkNode( node );
+        domUnlinkNode( node );
     }
     else if (node != NULL) {
         if ( node->type == XML_DTD_NODE ) {
@@ -943,7 +948,7 @@ domAppendChild( xmlNodePtr self,
     }
 
     if ( newChild->doc == self->doc ){
-        xmlUnlinkNode( newChild );
+        domUnlinkNode( newChild );
     }
     else {
         newChild = domImportNode( self->doc, newChild, 1, 0 );
@@ -1008,7 +1013,7 @@ domRemoveChild( xmlNodePtr self, xmlNodePtr old ) {
         }
     }
 
-    xmlUnlinkNode( old );
+    domUnlinkNode( old );
     if ( old->type == XML_ELEMENT_NODE ) {
         domReconcileNs( old );
     }
@@ -1045,7 +1050,7 @@ domReplaceChild( xmlNodePtr self, xmlNodePtr new, xmlNodePtr old ) {
         }
 
         if ( new->doc == self->doc ) {
-            xmlUnlinkNode( new );
+            domUnlinkNode( new );
         }
         else {
             new = domImportNode( self->doc, new, 1, 1 );
@@ -1102,7 +1107,7 @@ domInsertBefore( xmlNodePtr self,
     }
 
     if ( self->doc == newChild->doc ){
-        xmlUnlinkNode( newChild );
+        domUnlinkNode( newChild );
     }
     else {
         newChild = domImportNode( self->doc, newChild, 1, 0 );
@@ -1162,7 +1167,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
         prev = self->prev;
         next = self->next;
 
-        xmlUnlinkNode( self );
+        domUnlinkNode( self );
 
         if (prev == NULL && next == NULL ) {
             /* self was the only child */
@@ -1170,7 +1175,7 @@ domReplaceNode( xmlNodePtr self, xmlNodePtr newNode ) {
         }
         else {
             if ( newNode->doc == self->doc ){
-                xmlUnlinkNode( newNode );
+                domUnlinkNode( newNode );
             }
             else {
                 newNode = domImportNode( self->doc, newNode, 1, 0 );

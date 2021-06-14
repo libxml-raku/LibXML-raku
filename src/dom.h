@@ -46,6 +46,9 @@ extern "C" {
 #define XML_XMLNS_NS (xmlChar*)"http://www.w3.org/2000/xmlns/"
 
 DLLEXPORT void
+domUnlinkNode(xmlNodePtr self);
+
+DLLEXPORT void
 domReconcileNS(xmlNodePtr tree);
 
 DLLEXPORT xmlDtdPtr

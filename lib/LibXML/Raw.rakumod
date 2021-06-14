@@ -894,7 +894,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     }
 
     method string-value(--> xmlCharP) is native($XML2) is symbol('xmlXPathCastNodeToString') {*}
-    method Unlink is native($XML2) is symbol('xmlUnlinkNode') {*}
+    method Unlink is native($BIND-XML2) is symbol('domUnlinkNode') {*}
     method Release is native($BIND-XML2) is symbol('domReleaseNode') {*}
     method Reference is native($BIND-XML2) is symbol('xml6_node_add_reference') {*}
     method remove-reference(--> int32) is native($BIND-XML2) is symbol('xml6_node_remove_reference') {*}
