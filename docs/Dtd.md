@@ -93,6 +93,24 @@ Parse a DTD from the system identifier, and return a DTD object that you can pas
     #-OR-
     $doc ~~ $dtd;
 
+### method getName
+
+    method getName() returns Str
+
+Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
+
+### method publicId
+
+    method publicId() returns Str
+
+Returns the public identifier of the external subset.
+
+### method systemId
+
+    method systemId() returns Str
+
+Returns the system identifier of the external subset.
+
 ### method parse
 
     multi method parse(Str :$string) returns LibXML::Dtd;
@@ -177,23 +195,52 @@ Returns True if the publicId or systemId match an XHTML identifier
 
 Returns False if the Id's don't match or Bool:U if the DtD lack either a publicId or systemId
 
-### method getName
+### method notations
 
-    method getName() returns Str
+```raku
+method notations() returns Mu
+```
 
-Returns the name of DTD; i.e., the name immediately following the DOCTYPE keyword.
+returns a hash-map of notation declarations
 
-### method publicId
+### method entities
 
-    method publicId() returns Str
+```raku
+method entities() returns Mu
+```
 
-Returns the public identifier of the external subset.
+returns a hash-map of entity declarations
 
-### method systemId
+### method element-declarations
 
-    method systemId() returns Str
+```raku
+method element-declarations() returns Mu
+```
 
-Returns the system identifier of the external subset.
+returns a hash-map of element declarations
+
+### method attribute-declarations
+
+```raku
+method attribute-declarations() returns Mu
+```
+
+returns a hash-map of attribute declarations
+
+param
+=====
+
+Actually returns a two dimensional hash of element declarations and element names
+
+### multi method ACCEPTS
+
+```raku
+multi method ACCEPTS(
+    LibXML::Node:D $node
+) returns Mu
+```
+
+True if the node is validated by the DtD
 
 Copyright
 ---------

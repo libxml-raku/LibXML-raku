@@ -191,6 +191,25 @@ multi method new($external-id, $system-id) {
         #-OR-
         $doc ~~ $dtd;
 
+    =head3 method getName
+
+        method getName() returns Str
+
+    Returns the name of DTD; i.e., the name immediately following the DOCTYPE
+    keyword.
+
+    =head3 method publicId
+
+        method publicId() returns Str
+
+    Returns the public identifier of the external subset.
+
+
+    =head3 method systemId
+
+        method systemId() returns Str
+
+    Returns the system identifier of the external subset.
 =end pod
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
@@ -347,54 +366,38 @@ class AttrDeclMap {
 }
 
 has DeclMapNotation $!notations;
+#| returns a hash-map of notation declarations
 method notations(LibXML::Dtd:D $dtd:) {
     $!notations //= DeclMapNotation.new: :$dtd, :raw($_)
         with $!raw.notations;
 }
 
 has DeclMap $!entities;
+#| returns a hash-map of entity declarations
 method entities(LibXML::Dtd:D $dtd:) {
     $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::Entity)
         with $!raw.entities;
 }
 
 has DeclMap $!elements;
+#| returns a hash-map of element declarations
 method element-declarations(LibXML::Dtd:D $dtd:) {
     $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
         with $!raw.elements;
 }
 
 has AttrDeclMap $!element-attributes;
+#| returns a hash-map of attribute declarations
 method attribute-declarations(LibXML::Dtd:D $dtd:) {
     $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
         with $!raw.attributes;
 }
+=param Actually returns a two dimensional hash of element declarations and element names
 
+#| True if the node is validated by the DtD
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {
     self.is-valid($node);
 }
-
-=begin pod
-    =head3 method getName
-
-        method getName() returns Str
-
-    Returns the name of DTD; i.e., the name immediately following the DOCTYPE
-    keyword.
-
-    =head3 method publicId
-
-        method publicId() returns Str
-
-    Returns the public identifier of the external subset.
-
-
-    =head3 method systemId
-
-        method systemId() returns Str
-
-    Returns the system identifier of the external subset.
-=end pod
 
 =begin pod
 =head2 Copyright

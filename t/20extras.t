@@ -1,9 +1,11 @@
 use v6;
 use Test;
 
-plan 12;
+plan 13;
 
 use LibXML;
+use LibXML::Attr;
+use LibXML::Document;
 
 my $string = "<foo><bar/></foo>\n";
 
@@ -41,4 +43,16 @@ my $parser = LibXML.new();
     $doc.getDocumentElement().unbindNode();
     # allow
     is($doc.Str, $clone.Str, "unbind of document element");
+}
+
+subtest 'attribute child nodes' => {
+    plan 3;
+    my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
+    my $elem = $doc.createElement: "Test";
+    my LibXML::Attr $att .= new: :name<att>, :value('xxx');
+    $att.addChild: $doc.createEntityReference('foo');
+    is $att.Str, "xxx test ";
+    isa-ok $att.childNodes[1], 'LibXML::EntityRef';
+    $elem.setAttributeNode($att);
+    is $elem.Str, '<Test att="xxx&foo;"/>';
 }
