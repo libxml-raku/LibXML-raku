@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 65;
+plan 67;
 
 # bootstrapping tests for the DOM
 
@@ -44,6 +44,8 @@ ok $a.first('b').getOwner.isSameNode($doc);
 $a.unbindNode;
 ok $a.getOwner.isSameNode($a);
 ok $a.first('b').getOwner.isSameNode($a);
+lives-ok {$a.validate}, 'validate elem without Dtd';
+ok $a.is-valid, 'is-valid elem without Dtd';
 
 $doc .= parse: :$string, :!keep-blanks;
 is $doc.Str,  $tstr, 'blanks discarded';

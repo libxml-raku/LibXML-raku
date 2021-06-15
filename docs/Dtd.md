@@ -46,6 +46,7 @@ $attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
 # Validation
 try { $dtd.validate($doc) };
 my Bool $valid = $dtd.is-valid($doc);
+$valid = $dtd.is-valid($node);
 if $doc ~~ $dtd { ... } # if doc is valid against the DTD
 ```
 

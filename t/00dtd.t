@@ -101,7 +101,7 @@ subtest 'doc with no dtd loaded' => {
     my LibXML::Document $other-doc .= parse: :file<test/dtd/note-external-dtd.xml>, :dtd;
     $doc .= parse: :file<test/dtd/note-no-dtd.xml>;
     lives-ok {$doc.setExternalSubset: $other-doc.getExternalSubset}, 'copt extrnal subset';
-    $doc.setExternalSubset: $other-doc.getExternalSubset.clone;
+    $doc.setExternalSubset: $other-doc.getExternalSubset;
     ok $doc.getExternalSubset.defined, 'external DtD';
     my LibXML::Dtd $dtd = $doc.getExternalSubset;
     ok $dtd.defined, 'has DtD';

@@ -1380,15 +1380,18 @@ class xmlValidCtxt is repr('CStruct') is export {
     method ValidateDtd(xmlDoc, xmlDtd --> int32) is native($XML2) is symbol('xmlValidateDtd') {*}
     method ValidateDocument(xmlDoc --> int32) is native($XML2) is symbol('xmlValidateDocument') {*}
     method ValidateElement(xmlDoc, xmlElem --> int32) is native($XML2) is symbol('xmlValidateElement') {*}
+    method ValidateOneAttribute(xmlDoc, xmlElem, xmlAttr, xmlCharP --> int32) is native($XML2) is symbol('xmlValidateOnAttribute') {*}
     method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Free is symbol('xmlFreeValidCtxt') is native($XML2) {*}
     method new { New() }
-    multi method validate(xmlDoc:D :$doc!, xmlDtd:D :$dtd!, xmlElem:U :$lem) {
+    multi method validate(xmlDoc:D :$doc!, xmlDtd:D :$dtd!, xmlNode:U :$lem) {
         self.ValidateDtd($doc, $dtd);
     }
-    multi method validate(xmlDoc:D :$doc!, xmlElem :$elem) {
-        with $elem {
-            self.ValidateElement($doc, $_);
+    multi method validate(xmlDoc:D :$doc!, xmlNode :$node) {
+        with $node {
+            when xmlElem { self.ValidateElement($doc, $_); }
+            when xmlAttr { self.ValidateOneAttribute($doc, .parent, $_, .domGetNodeValue); }
+            default { fail "validation of {.WHAT.raku} nodes is NYI" }
         }
         else {
             self.ValidateDocument($doc);

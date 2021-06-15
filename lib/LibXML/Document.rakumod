@@ -505,15 +505,14 @@ method is-valid(|c --> Bool) { $.validate(|c, :check); }
 =begin pod
 =head3 is-valid
 =begin code :lang<raku>
-multi method is-valid(LibXML::Dtd :$dtd --> Bool)
+multi method is-valid(LibXML::Dtd $dtd? --> Bool)
 multi method is-valid(LibXML::Element $elem --> Bool)
+multi method is-valid(LibXML::Attr $attr --> Bool)
 =end code
 
-Checks that the document, or a an element in the document, is valid
+Checks that the document, or a an element, or attribute in the document, is valid. Returns either True or False.
 
-Returns either True or False depending on whether the DOM Tree is a valid Document or not.
-
-Optionally accepts an Element to check. The element may be at any level in the document, and is checked as a sub-tree in isolation.
+Optionally accepts an element or attribute to check. The element may be at any level in the document, and is checked as a sub-tree in isolation.
 
 You may also pass in a L<LibXML::Dtd> object, to validate the document against an external DTD:
 
@@ -533,8 +532,9 @@ method valid is DEPRECATED<was-valid> { $.was-valid }
 
 =head3 method validate
 =begin code :lang<raku>
-multi method validate(LibXML::Dtd :$dtd)
+multi method validate(LibXML::Dtd $dtd?)
 multi method validate(LibXML::Element $elem)
+multi method validate(LibXML::Attr $attr)
 =end code
 multi method validate($doc: Bool :$check --> Bool) is hidden-from-backtrace {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
@@ -548,14 +548,18 @@ multi method validate($doc: LibXML::Element:D $elem, Bool :$check --> Bool) is h
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
     $valid-ctx.validate($elem, :$doc, :$check);
 }        
+multi method validate($doc: LibXML::Attr:D $attr, Bool :$check --> Bool) is hidden-from-backtrace {
+    my LibXML::Dtd::ValidContext $valid-ctx .= new;
+    $valid-ctx.validate($attr, :$doc, :$check);
+}        
+
 =begin pod
-    =para Validates, either the entire document, or an individual element
+    =para Validates, either the entire document, or an individual element, or attribute
     =para
     This is an exception throwing equivalent of is-valid. If the document is not
-    valid it will throw an exception containing the error. This allows you much
-    better error reporting than simply is_valid or not.
+    valid it will throw an exception containing the error.
 
-    Again, you may pass in a DTD object
+    It is also possible to write: `$node.validate` as a shortcut for `$node.ownerDocument.validate($node)` and `$node.is-valid` as a shortcut for `$node.ownerDocument.is-valid($node)`
 =end pod
 
 

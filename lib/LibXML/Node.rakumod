@@ -350,6 +350,9 @@ method getOwnerDocument is also<get-doc> returns LibXML::Node {
     } // doc-class;
 }
 
+method validate { self.ownerDocument.validate(self) }
+method is-valid { self.ownerDocument.is-valid(self) }
+
 submethod TWEAK(:$native) {
     die 'new(:$native) option is obselete. Please use :$raw'
         with $native;

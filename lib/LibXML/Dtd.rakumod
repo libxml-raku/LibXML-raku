@@ -45,6 +45,7 @@ unit class LibXML::Dtd
       # Validation
       try { $dtd.validate($doc) };
       my Bool $valid = $dtd.is-valid($doc);
+      $valid = $dtd.is-valid($node);
       if $doc ~~ $dtd { ... } # if doc is valid against the DTD
       =end code
 
@@ -101,13 +102,13 @@ class ValidContext {
         $!raw .= new;
     }
 
-    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, Bool :$check) is hidden-from-backtrace {
+    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlNode :$node, Bool :$check) is hidden-from-backtrace {
         my $rv;
 
         my $*XML-CONTEXT = self;
         given xml6_gbl_save_error_handlers() {
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!raw.validate(:$doc, :$dtd, :$elem);
+            $rv := $!raw.validate(:$doc, :$dtd, :$node);
 
 	    $rv := self.validity-check
                 if $check;
@@ -136,13 +137,13 @@ class ValidContext {
     }
 
     multi method validate(
-        LibXML::Element:D $_,
+        LibXML::Node:D $_,
         DocNode :doc($doc-obj) = .ownerDocument,
         Bool() :$check
     ) is hidden-from-backtrace {
-        my xmlElem:D $elem = .raw;
+        my xmlElem:D $node = .raw;
         my xmlDoc:D $doc = $doc-obj.raw;
-        self!validate-raw(:$elem, :$doc, :$check);
+        self!validate-raw(:$node, :$doc, :$check);
     }
 
     method is-valid(LibXML::Node $node, |c) {

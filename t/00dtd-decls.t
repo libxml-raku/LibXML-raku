@@ -29,7 +29,7 @@ subtest 'dtd notations' => {
 }
 
 subtest 'dtd entities' => {
-    plan 15;
+    plan 19;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $entities = $dtd.entities;
@@ -43,6 +43,10 @@ subtest 'dtd entities' => {
     isa-ok $foo-ref, LibXML::EntityRef, 'entity reference';
     is $foo-ref.Str, '&foo;', 'entity reference Str';
     ok $foo-ref.firstChild.isSameNode($foo), 'entity reference dereference';
+    ok $doc.root.is-valid, 'is-valid';
+    ok $doc.root.validate, 'validate';
+    ok $doc.createElement('doc').is-valid;
+    nok $doc.createElement('blah').is-valid;
     my LibXML::Dtd::Entity $unparsed = $entities<unparsed>;
     is-deeply $unparsed.systemId, 'http://example.org/blah', 'entity system-Id';
     is-deeply $unparsed.publicId, Str, 'entity public-Id';
@@ -52,7 +56,7 @@ subtest 'dtd entities' => {
     throws-like {$entities<bar> = $foo}, X::NYI, 'entities hash update is nyi';
     ok $foo-ref.firstChild.defined, 'entity ref with DtD intact';
     $dtd.unlink;
-    nok $foo-ref.firstChild.defined, 'entity refer with DtD removed';;
+    nok $foo-ref.firstChild.defined, 'entity refer with DtD removed';
 }
 
 subtest 'dtd element declarations' => {
