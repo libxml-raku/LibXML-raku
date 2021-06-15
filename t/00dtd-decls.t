@@ -29,7 +29,7 @@ subtest 'dtd notations' => {
 }
 
 subtest 'dtd entities' => {
-    plan 13;
+    plan 15;
     my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $entities = $dtd.entities;
@@ -50,6 +50,9 @@ subtest 'dtd entities' => {
     is $unparsed.Str.chomp, '<!ENTITY unparsed SYSTEM "http://example.org/blah" NDATA foo>', 'entity Str';
     # no update support yet
     throws-like {$entities<bar> = $foo}, X::NYI, 'entities hash update is nyi';
+    ok $foo-ref.firstChild.defined, 'entity ref with DtD intact';
+    $dtd.unlink;
+    nok $foo-ref.firstChild.defined, 'entity refer with DtD removed';;
 }
 
 subtest 'dtd element declarations' => {
