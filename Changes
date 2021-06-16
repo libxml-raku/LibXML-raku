@@ -1,7 +1,9 @@
 {{$NEXT}}
-    - Fixed performance problem in reference checking #58
-    - Refactor document Str and Buf method. :skip-dtd option 
-      now copies the document before mutating.
+    - Fixed t/02parser.t segfault on Rakudo 2020.05.1 introduced in 0.6.1 #59
+    - Fixed node over-visitation in reference checking #58
+    - Revised document Str and Buf method. :skip-dtd option to copy then
+      update the document rather than mutating it.
+
 0.6.2  2021-06-16T13:57:49+12:00
     - Remove entity reference content when a DtD is unlinked
     - Make it illegal to add declaration nodes to the general DOM
