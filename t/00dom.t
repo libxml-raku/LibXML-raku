@@ -1,7 +1,6 @@
 use v6;
 use Test;
-plan 67;
-
+plan 69;
 # bootstrapping tests for the DOM
 
 use LibXML;
@@ -75,6 +74,8 @@ ok +nativecast(Pointer, $doc.raw) == +nativecast(Pointer, $root.raw.doc);
 # attribute basics
 my $elem = $doc.createElement('foo');
 my LibXML::Attr $attr = $doc.createAttribute('attr', 'e & f');
+lives-ok {$attr.validate($elem)};
+ok $attr.is-valid($elem);
 $elem.setAttributeNode($attr);
 is $attr, 'e & f', 'attr.Str';
 is $elem.raw.properties, ' attr="e &amp; f"', 'elem properties linkage';

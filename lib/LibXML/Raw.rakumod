@@ -951,6 +951,7 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method domSetAttributeNodeNS(xmlAttr --> xmlAttr) is native($BIND-XML2) {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value --> xmlAttr) is native($BIND-XML2) {*}
     method domGenNsPrefix(Str $base-prefix --> Str) is native($BIND-XML2) {*}
+    method ValidElements(xmlElem, CArray[Str], int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetValidElements') {*}
 
     our sub New(xmlNs, Str $name --> xmlElem) is native($XML2) is symbol('xmlNewNode') {*}
     multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
@@ -1380,22 +1381,21 @@ class xmlValidCtxt is repr('CStruct') is export {
     method ValidateDtd(xmlDoc, xmlDtd --> int32) is native($XML2) is symbol('xmlValidateDtd') {*}
     method ValidateDocument(xmlDoc --> int32) is native($XML2) is symbol('xmlValidateDocument') {*}
     method ValidateElement(xmlDoc, xmlElem --> int32) is native($XML2) is symbol('xmlValidateElement') {*}
-    method ValidateOneAttribute(xmlDoc, xmlElem, xmlAttr, xmlCharP --> int32) is native($XML2) is symbol('xmlValidateOnAttribute') {*}
+    method ValidateOneAttribute(xmlDoc, xmlElem, xmlAttr, xmlCharP --> int32) is native($XML2) is symbol('xmlValidateOneAttribute') {*}
     method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Free is symbol('xmlFreeValidCtxt') is native($XML2) {*}
     method new { New() }
-    multi method validate(xmlDoc:D :$doc!, xmlDtd:D :$dtd!, xmlNode:U :$lem) {
+    multi method validate(xmlDoc:D :$doc!, xmlDtd:D :$dtd!) {
         self.ValidateDtd($doc, $dtd);
     }
-    multi method validate(xmlDoc:D :$doc!, xmlNode :$node) {
-        with $node {
-            when xmlElem { self.ValidateElement($doc, $_); }
-            when xmlAttr { self.ValidateOneAttribute($doc, .parent, $_, .domGetNodeValue); }
-            default { fail "validation of {.WHAT.raku} nodes is NYI" }
-        }
-        else {
-            self.ValidateDocument($doc);
-        }
+    multi method validate(xmlDoc:D :$doc!, xmlElem:D :$elem, xmlAttr:D :$attr) {
+        self.ValidateOneAttribute($doc, $elem, $attr, $attr.domGetNodeValue);
+    }
+    multi method validate(xmlDoc:D :$doc!, xmlElem:D :$elem) {
+        self.ValidateElement($doc, $elem);
+    }
+    multi method validate(xmlDoc:D :$doc!) {
+        self.ValidateDocument($doc);
     }
 }
 

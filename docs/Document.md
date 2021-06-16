@@ -366,12 +366,12 @@ Write to a name file (equivalent to $.write: :$file)
 ```raku
 multi method is-valid(LibXML::Dtd $dtd? --> Bool)
 multi method is-valid(LibXML::Element $elem --> Bool)
-multi method is-valid(LibXML::Attr $attr --> Bool)
+multi method is-valid(LibXML::Element $elem, LibXML::Attr $attr)
 ```
 
-Checks that the document, or a an element, or attribute in the document, is valid. Returns either True or False.
+Checks that the document, or a an element in the document, is valid. Returns either True or False.
 
-Optionally accepts an element or attribute to check. The element may be at any level in the document, and is checked as a sub-tree in isolation.
+Optionally accepts an element to check. The element may be at any level in the document, and is checked as a sub-tree in isolation.
 
 You may also pass in a [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) object, to validate the document against an external DTD:
 
@@ -394,14 +394,14 @@ Whether the document was valid when it was parsed
 ```raku
 multi method validate(LibXML::Dtd $dtd?)
 multi method validate(LibXML::Element $elem)
-multi method validate(LibXML::Attr $attr)
+multi method validate(LibXML::Element $elem, LibXML::Attr $attr)
 ```
 
-Validates, either the entire document, or an individual element, or attribute
+Validates, either the entire document, or an individual element.
 
 This is an exception throwing equivalent of is-valid. If the document is not valid it will throw an exception containing the error.
 
-It is also possible to write: `$node.validate` as a shortcut for `$node.ownerDocument.validate($node)` and `$node.is-valid` as a shortcut for `$node.ownerDocument.is-valid($node)`
+It is also possible to write: `$elem.validate` as a shortcut for `$elem.ownerDocument.validate($elem)` and `$elem.is-valid` as a shortcut for `$elem.ownerDocument.is-valid($elem)`
 
 ### method documentElement
 

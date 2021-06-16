@@ -77,6 +77,9 @@ method setValue(Str $_) { $.nodeValue = $_ }
 method gist(|c) { $.raw.Str(|c).trim }
 method ast { self.nodeName => self.nodeValue }
 
+method validate($elem) { self.ownerDocument.validate($elem, self) }
+method is-valid($elem) { self.ownerDocument.is-valid($elem, self) }
+
 =begin pod
     =head3 method getOwnerElement
 

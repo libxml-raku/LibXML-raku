@@ -98,6 +98,7 @@ use NativeCall;
 use LibXML::Attr;
 use LibXML::Attr::Map;
 use LibXML::Config;
+use LibXML::Dtd::ElementDecl;
 use LibXML::Enums;
 use LibXML::Item :box-class, :dom-boxed;
 use LibXML::Namespace;
@@ -489,6 +490,9 @@ method requireNamespace(Str:D $uri where .so --> NCName) {
             && $prefix
     }
 }
+
+method validate() { self.ownerDocument.validate(self) }
+method is-valid() { self.ownerDocument.is-valid(self) }
 
 =begin pod
 

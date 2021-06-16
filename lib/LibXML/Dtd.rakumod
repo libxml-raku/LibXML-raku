@@ -102,13 +102,13 @@ class ValidContext {
         $!raw .= new;
     }
 
-    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlNode :$node, Bool :$check) is hidden-from-backtrace {
+    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, xmlAttr :$attr, Bool :$check) is hidden-from-backtrace {
         my $rv;
 
         my $*XML-CONTEXT = self;
         given xml6_gbl_save_error_handlers() {
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!raw.validate(:$doc, :$dtd, :$node);
+            $rv := $!raw.validate(:$doc, :$dtd, :$elem);
 
 	    $rv := self.validity-check
                 if $check;
@@ -137,17 +137,19 @@ class ValidContext {
     }
 
     multi method validate(
-        LibXML::Node:D $_,
+        LibXML::Element:D $_,
+        LibXML::Attr $attr-obj?,
         DocNode :doc($doc-obj) = .ownerDocument,
         Bool() :$check
     ) is hidden-from-backtrace {
-        my xmlElem:D $node = .raw;
+        my xmlElem:D $elem = .raw;
         my xmlDoc:D $doc = $doc-obj.raw;
-        self!validate-raw(:$node, :$doc, :$check);
+        my xmlAttr $attr = .raw with $attr-obj;
+        self!validate-raw(:$doc, :$elem, :$attr, :$check);
     }
 
-    method is-valid(LibXML::Node $node, |c) {
-        self.validate($node, :check, |c);
+    method is-valid(LibXML::Element:D $elem, |c) {
+        self.validate($elem, :check, |c);
     }
 
 }

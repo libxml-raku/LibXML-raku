@@ -31,7 +31,7 @@ my LibXML::HashMap[LibXML::Dtd::ElementDecl] $elements = $dtd.element-decls;
 
 my LibXML::Dtd::ElementDecl $note-decl = $elements<note>;
 note $note-decl.Str; # <!ELEMENT note (to,from,heading,body)>
-note $note-decl.potential-children; # [to from heading body]
+note $note-decl.content.potential-children; # [to from heading body]
 note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
 ```
 
