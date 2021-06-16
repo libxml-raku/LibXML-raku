@@ -352,7 +352,6 @@ method Str(
     Bool :$html = $.raw.isa(htmlDoc),
     Bool :$C14N,
     |c --> Str) {
-    my Str $rv;
 
     if $skip-dtd && $doc.getInternalSubset.defined {
         $doc .= cloneNode: :deep;
@@ -428,7 +427,6 @@ method serialize-html(Bool :$format = True --> Str) {
         Bool :$force,
         |c  --> Blob) {
 
-    my Blob $rv;
     if $skip-xml-declaration {
         # losing the declaration that includes the encoding scheme; we need
         # to switch to UTF-8 (default encoding) to stay conformant.
