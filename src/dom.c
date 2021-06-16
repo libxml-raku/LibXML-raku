@@ -1458,11 +1458,6 @@ static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
     int rv;
     xmlChar* name = domGetNodeName(self);
     rv = xmlStrcmp( name, pname );
-    if (rv) {
-        xmlFree(name);
-        name = domGetNodeName(self);
-        rv = xmlStrcmp( name, pname );
-    }
     xmlFree(name);
     return rv;
 }
