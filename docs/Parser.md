@@ -285,7 +285,7 @@ They are defined globally, but can be overriden by options to the `Str` or `Blob
 
 If `skip-xml-declaration` is True, the XML declaration is omitted during serialization.
 
-If `skip-dtd` is defined is True, an existing DTD would not be serialized with the document.
+If `skip-dtd` is defined is True, the document is serialized with the internal DTD removed.
 
 If `tag-expansion` is True empty tags are displayed as open and closing tags rather than the shortcut. For example the empty tag *foo* will be rendered as *&lt;foo&gt;&lt;/foo&gt;* rather than *&lt;foo/&gt;*.
 

@@ -19,6 +19,7 @@ use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
 use LibXML::Item :dom-boxed;
+use LibXML::Node :&output-options;
 use LibXML::Raw;
 use LibXML::PI;
 use LibXML::Text;
@@ -345,30 +346,22 @@ method input-compressed returns Bool {
     Note that this feature will I<only> work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(...)` is used for input and `.write` is used for output.
 =end pod
 
-method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.raw.isa(htmlDoc), |c --> Str) {
+method Str(
+    LibXML::Document:D $doc is copy:
+    Bool :$skip-dtd = config.skip-dtd,
+    Bool :$html = $.raw.isa(htmlDoc),
+    Bool :$C14N,
+    |c --> Str) {
     my Str $rv;
 
-    with self.raw -> xmlDoc:D $doc {
-
-        my $skipped-dtd = $doc.getInternalSubset
-            if $skip-dtd;
-
-        with $skipped-dtd {
-            $doc.lock;
-            .Unlink;
-        }
-
-        $rv := $html
-            ?? self.serialize-html(|c)
-            !! callwith(|c);
-
-        with $skipped-dtd {
-            $doc.setInternalSubset($_);
-            $doc.unlock;
-        }
+    if $skip-dtd && $doc.getInternalSubset.defined {
+        $doc .= cloneNode: :deep;
+        $doc.getInternalSubset.unbindNode;
     }
 
-    $rv;
+    when $C14N { $doc.canonicalize(|c) }
+    when $html { $doc.serialize-html(|c) }
+    default { $doc.raw.Str: options => output-options(|c); }
 }
 =begin pod
     =head3 method Str
@@ -427,19 +420,15 @@ method serialize-html(Bool :$format = True --> Str) {
     =para Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 =end pod
 
-method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
-            Bool() :$skip-dtd = config.skip-dtd,
-            xmlEncodingStr:D :$enc = self.encoding // 'UTF-8',
-            Bool :$force,
-            # **DEPRECATED**
-            :$skip-decl,
-            |c  --> Blob) {
+    method Blob(
+        LibXML::Document:D $doc is copy:
+        Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
+        Bool() :$skip-dtd = config.skip-dtd,
+        xmlEncodingStr:D :$enc = self.encoding // 'UTF-8',
+        Bool :$force,
+        |c  --> Blob) {
 
     my Blob $rv;
-    with $skip-decl {
-        warn ':skip-decl option is deprecated, please use :skip-xml-declaration';
-        $skip-xml-declaration //= $_;
-    }
     if $skip-xml-declaration {
         # losing the declaration that includes the encoding scheme; we need
         # to switch to UTF-8 (default encoding) to stay conformant.
@@ -449,25 +438,13 @@ method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
         }
     }
 
-    with self.raw -> xmlDoc:D $doc {
-
-        my $skipped-dtd = $doc.getInternalSubset
-            if $skip-dtd;
-
-        with $skipped-dtd {
-            $doc.lock;
-            .Unlink;
-        }
-
-        $rv := callwith(:$enc, :$skip-xml-declaration, |c);
-
-        with $skipped-dtd {
-            $doc.setInternalSubset($_);
-            $doc.unlock;
-        }
+    if $skip-dtd && $doc.getInternalSubset.defined {
+        $doc .= cloneNode: :deep;
+        $doc.getInternalSubset.unbindNode;
     }
 
-    $rv;
+    my $options = output-options(:$skip-xml-declaration, |c);
+    $doc.raw.Blob: :$enc, :$options;
 }
 =begin pod
     =head3 method Blob() returns Blob
@@ -800,7 +777,6 @@ method setInternalSubset(LibXML::Dtd:D $dtd is copy --> LibXML::Dtd) {
     }
     $dtd.keep: self.raw.setInternalSubset: $dtd.raw;
 }
-=para I<EXPERIMENTAL!>
 =para Inserts a copy of the Dtd node into the document as its internal subset
     =begin code :lang<raku>
     my $new-dtd = $doc.setInternalSubset: $other-doc.getInternalSubset;
@@ -829,7 +805,6 @@ say $doc.Str;
 
 #| This method removes an external, if defined, from the document
 method removeInternalSubset(--> LibXML::Dtd) is dom-boxed {...}
-=para I<EXPERIMENTAL!>
 =para If a document has an internal subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
 
@@ -866,8 +841,6 @@ method setExternalSubset(LibXML::Dtd $dtd is copy, Bool :$validate --> LibXML::D
 
 #| This method removes any external subset from the document
 method removeExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
-=para I<EXPERIMENTAL!>
-
 =para If a document has an external subset defined it can be removed from the
     document by using this function. The removed dtd node will be returned.
 

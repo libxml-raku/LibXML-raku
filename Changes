@@ -1,5 +1,6 @@
 {{$NEXT}}
-
+    - Refactor document Str and Buf method. :skip-dtd option 
+      now copies the document before mutating.
 0.6.2  2021-06-16T13:57:49+12:00
     - Remove entity reference content when a DtD is unlinked
     - Make it illegal to add declaration nodes to the general DOM

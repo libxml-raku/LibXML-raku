@@ -642,8 +642,7 @@ They are defined globally, but can be overriden by options to the `Str` or `Blob
 If C<skip-xml-declaration> is True, the XML declaration is omitted
 during serialization.
 
-If C<skip-dtd> is defined is True, an existing DTD would not be serialized with
-the document.
+If C<skip-dtd> is defined is True, the document is serialized with the internal DTD removed.
 
 If C<tag-expansion> is True empty tags are displayed as open
 and closing tags rather than the shortcut. For example the empty tag I<foo> will be rendered as I<&lt;foo&gt;&lt;/foo&gt;> rather than I<&lt;foo/&gt;>.

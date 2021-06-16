@@ -49,13 +49,12 @@ note $root.Str; # <doc>&foo;example&bar;&baz;&gt;</doc>
 
 =head2 Description
 
-L<LibXML::EntityRef> objects represent entities in a document.
+L<LibXML::EntityRef> objects represent entity references in a document.
 These may be either a predefined entity such as `&lt;` or `&gt`,
 or a reference to an entity defined in an internal or external Dtd.
 
-In the latter case, the entity may contain one child node, which
-is a link back to the entity declaration in the Dtd, of type
-L<LibXML::Dtd::Entity>.
+If the reference resolves to a predefined or Dtd entity, then it contains
+one child node of type L<LibXML::Dtd::Entity>.
 
 As a LibXML extension, entity references in attribute nodes may be
 examined and manipulated via the attribute's child nodes. For example:

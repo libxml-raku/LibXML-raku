@@ -615,8 +615,6 @@ method setDocumentElement(
 
 DOM compatible method to set the document element
 
-*EXPERIMENTAL!*
-
 Inserts a copy of the Dtd node into the document as its internal subset
 
 ```raku
@@ -652,8 +650,6 @@ method removeInternalSubset() returns LibXML::Dtd
 
 This method removes an external, if defined, from the document
 
-*EXPERIMENTAL!*
-
 If a document has an internal subset defined it can be removed from the document by using this function. The removed dtd node will be returned.
 
 ### method internalSubset
@@ -688,8 +684,6 @@ method removeExternalSubset() returns LibXML::Dtd
 ```
 
 This method removes any external subset from the document
-
-*EXPERIMENTAL!*
 
 If a document has an external subset defined it can be removed from the document by using this function. The removed dtd node will be returned.
 
