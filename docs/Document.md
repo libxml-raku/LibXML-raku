@@ -251,19 +251,7 @@ Note that this feature will *only* work if libxml2 is compiled with zlib support
 
 ### method Str
 
-```raku
-method Str(
-    Bool :$skip-dtd = Code.new,
-    Bool :$html = Code.new,
-    |c
-) returns Str
-```
-
-Serialize to XML/HTML
-
-### method Str
-
-    proto method Str(Bool :$format) returns Str {*};
+#### multi `method Str(Bool :$skip-dtd, Bool :$html, Bool :$format)`;
 
 *Str* is a serializing function, so the DOM Tree is serialized into an XML string, ready for output.
 
@@ -279,14 +267,14 @@ If $format is True, libxml2 will add ignorable white spaces, so the nodes conten
 
 libxml2 uses a hard-coded indentation of 2 space characters per indentation level. This value can not be altered on run-time.
 
-#### method Str: :C14N option
+#### `multi method Str: :C14N($!)!, |c`
 
     my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
     my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 
 C14N Normalisation. See the documentation in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node).
 
-#### method Str: :html option
+#### `multi method Str: :$html!, |c`
 
     my Str $html = $document.Str: :html;
 
@@ -309,21 +297,6 @@ method serialize-html(
 Serialize to HTML.
 
 Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
-
-### method Blob
-
-```raku
-method Blob(
-    Bool(Any) :$skip-xml-declaration is copy = Code.new,
-    Bool(Any) :$skip-dtd = Code.new,
-    Str:D :$enc where { ... } = Code.new,
-    Bool :$force,
-    :$skip-decl,
-    |c
-) returns Blob
-```
-
-Serialize the XML to a Blob
 
 ### method Blob() returns Blob
 
@@ -593,11 +566,6 @@ method getEntity(
 ```
 
 Lookup an entity in the document
-
-head
-====
-
-
 
 Searches any internal subset, external subset, and predefined entities
 

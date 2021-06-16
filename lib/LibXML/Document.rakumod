@@ -345,7 +345,6 @@ method input-compressed returns Bool {
     Note that this feature will I<only> work if libxml2 is compiled with zlib support (`LibXML.have-compression` is True) ``and `.parse: :file(...)` is used for input and `.write` is used for output.
 =end pod
 
-#| Serialize to XML/HTML
 method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.raw.isa(htmlDoc), |c --> Str) {
     my Str $rv;
 
@@ -374,7 +373,7 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.raw.isa(htmlDoc), 
 =begin pod
     =head3 method Str
 
-        proto method Str(Bool :$format) returns Str {*};
+    =head4 multi `method Str(Bool :$skip-dtd, Bool :$html, Bool :$format)`;
 
     I<Str> is a serializing function, so the DOM Tree is serialized into an XML
     string, ready for output.
@@ -393,14 +392,14 @@ method Str(Bool :$skip-dtd = config.skip-dtd, Bool :$html = $.raw.isa(htmlDoc), 
     libxml2 uses a hard-coded indentation of 2 space characters per indentation
     level. This value can not be altered on run-time.
 
-    =head4 method Str: :C14N option
+    =head4 `multi method Str: :C14N($!)!, |c`
 
       my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
       my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
 
    C14N Normalisation. See the documentation in L<LibXML::Node>.
 
-    =head4 method Str: :html option
+    =head4 `multi method Str: :$html!, |c`
 
       my Str $html = $document.Str: :html;
 
@@ -428,7 +427,6 @@ method serialize-html(Bool :$format = True --> Str) {
     =para Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 =end pod
 
-#| Serialize the XML to a Blob
 method Blob(Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
             Bool() :$skip-dtd = config.skip-dtd,
             xmlEncodingStr:D :$enc = self.encoding // 'UTF-8',
@@ -728,7 +726,6 @@ method createDTD(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
 method getEntity(Str $name --> LibXML::Dtd::Entity) {
     &?ROUTINE.returns.box: $.raw.GetEntity($name);
 }
-=head
 =para Searches any internal subset, external subset, and predefined entities
 
 # don't allow more than one element in the document root
