@@ -15,18 +15,18 @@ my $parser = LibXML.new();
     my $doc = $parser.parse: :$string;
     ok($doc, ' TODO : Add test name');
     temp LibXML.skip-xml-declaration = 1;
-    is( $doc.Str(), $string, ' TODO : Add test name' );
+    is( $doc.Str(), $string, ':skip-xml-declaration' );
     temp LibXML.tag-expansion = True;
-    is( $doc.Str(), "<foo><bar></bar></foo>\n", ' TODO : Add test name' );
+    is( $doc.Str(), "<foo><bar></bar></foo>\n", ':skip-xml-declaration, :tag-expansion' );
 }
 
 {
     temp LibXML.skip-dtd = True;
     temp $parser.expand-entities = False;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
-    ok($doc, ' TODO : Add test name');
+    ok($doc.defined, ' TODO : Add test name');
     my $test = "<doc>This is a valid document &foo; !</doc>\n";
-    is( $doc.Str(:skip-xml-declaration), $test, 'DTD parse' );
+    is( $doc.Str(:skip-xml-declaration), $test, ':!expand-entities' );
 }
 
 {
