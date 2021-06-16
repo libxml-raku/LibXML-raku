@@ -1,7 +1,9 @@
 {{$NEXT}}
+
+0.6.2  2021-06-16T13:57:49+12:00
     - Remove entity reference content when a DtD is unlinked
     - Make it illegal to add declaration nodes to the general DOM
-    - Add $node.validate() and $node.is-valid() methods
+    - Add $elem.validate() and $elem.is-valid() methods
 
 0.6.1  2021-06-14T13:16:33+12:00
     - Improved Dtd Handling #30

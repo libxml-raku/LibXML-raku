@@ -569,10 +569,10 @@ Lookup an entity in the document
 
 Searches any internal subset, external subset, and predefined entities
 
-### multi method importNode
+### method importNode
 
 ```raku
-multi method importNode(
+method importNode(
     LibXML::Node:D $node
 ) returns LibXML::Node
 ```
@@ -581,10 +581,10 @@ Imports a node from another DOM
 
 If a node is not part of a document, it can be imported to another document. As specified in DOM Level 2 Specification the Node will not be altered or removed from its original document (`$node.cloneNode(:deep)` will get called implicitly).
 
-### multi method adoptNode
+### method adoptNode
 
 ```raku
-multi method adoptNode(
+method adoptNode(
     LibXML::Node:D $node
 ) returns LibXML::Node
 ```

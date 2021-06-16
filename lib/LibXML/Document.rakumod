@@ -734,8 +734,9 @@ method addChild(LibXML::Node:D $node)       { self!check-new-node($node); nextsa
 method insertBefore(LibXML::Node:D $node, LibXML::Node $) { self!check-new-node($node); nextsame; }
 method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node($node); nextsame; }
 
-multi method importNode(LibXML::Document $) { fail "Can't import Document nodes" }
 #| Imports a node from another DOM
+proto method importNode(LibXML::Node:D $node --> LibXML::Node) {*}
+multi method importNode(LibXML::Document $) { fail "Can't import Document nodes" }
 multi method importNode(LibXML::Node:D $node --> LibXML::Node) {
     &?ROUTINE.returns.box: $.raw.importNode($node.raw);
 }
@@ -743,8 +744,9 @@ multi method importNode(LibXML::Node:D $node --> LibXML::Node) {
     specified in DOM Level 2 Specification the Node will not be altered or removed
     from its original document (C<$node.cloneNode(:deep)> will get called implicitly).
 
-multi method adoptNode(LibXML::Document $) { fail "Can't adopt Document nodes" }
 #| Adopts a node from another DOM
+proto method adoptNode(LibXML::Node:D $node --> LibXML::Node) {*}
+multi method adoptNode(LibXML::Document $) { fail "Can't adopt Document nodes" }
 multi method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
     $node.keep: $.raw.adoptNode($node.raw);
 }

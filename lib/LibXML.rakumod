@@ -1,7 +1,7 @@
 use LibXML::Parser;
 use W3C::DOM;
 
-unit class LibXML:ver<0.6.1>
+unit class LibXML:ver<0.6.2>
     is LibXML::Parser
     does W3C::DOM::Implementation;
 
