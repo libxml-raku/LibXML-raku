@@ -655,11 +655,9 @@ domNodeIsReferenced(xmlNodePtr self) {
         }
     }
     else if (self->type != XML_ENTITY_REF_NODE) {
-        // scan siblings and children
-        for (cur = self; cur != NULL; cur = cur->next) {
-            xmlNodePtr kids = cur->children;
-            if (cur->_private != NULL
-                || (kids != NULL && domNodeIsReferenced(kids))) {
+        // scan children
+        for (cur = self->children; cur != NULL; cur = cur->next) {
+            if (cur->_private != NULL || domNodeIsReferenced(cur)) {
                 return 1;
             }
         }
