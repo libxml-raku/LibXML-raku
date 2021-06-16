@@ -603,9 +603,9 @@ _domScanHashForRefs(xmlHashTablePtr self) {
     return refs;
 }
 
-// Determine if there's any API references to the node or its descendants
-DLLEXPORT int
-domNodeIsReferenced(xmlNodePtr self) {
+// Determine if there's any API references to a node or its descendants
+static int
+_domItemIsReferenced(xmlNodePtr self) {
     xmlAttrPtr attr;
     xmlNodePtr cur;
     assert(self != NULL);
@@ -657,12 +657,24 @@ domNodeIsReferenced(xmlNodePtr self) {
     else if (self->type != XML_ENTITY_REF_NODE) {
         // scan children
         for (cur = self->children; cur != NULL; cur = cur->next) {
-            if (cur->_private != NULL || domNodeIsReferenced(cur)) {
+            if (_domItemIsReferenced(cur)) {
                 return 1;
             }
         }
     }
 
+    return 0;
+}
+
+// Determine if there's any API references to a top-level node/fragment or its descendants
+DLLEXPORT int
+domNodeIsReferenced(xmlNodePtr cur) {
+    assert(cur != NULL);
+    while (cur->prev) cur = cur->prev;
+    while (cur) {
+        if (_domItemIsReferenced(cur)) return 1;
+        cur = cur->next;
+    }
     return 0;
 }
 
