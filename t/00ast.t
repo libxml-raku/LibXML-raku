@@ -51,7 +51,7 @@ my $dromedaries = [
                    "a:xxx" => "foo", "4"]
 ];
 
-is-deeply $doc<dromedaries><species>.ast, (:species['Camelid'], );
+is-deeply $doc<dromedaries><species>.ast, [ :species['Camelid'] ];
 is-deeply $doc.ast, "#xml" => [ :$dromedaries ];
 
 $doc<dromedaries><species>[0].replaceNode: ast-to-xml('#comment' => 'youza');

@@ -96,7 +96,7 @@ Synopsis
     $node.push: LibXML::Element.new: :name<B>;
     say $node[1].Str; # <B/>
     $node[1] = LibXML::Element.new: :name<C>;
-    say $node.values.map(*.Str).join(':');  # <A/>:<C/>
+    say $node.values».Str.join(':');  # <A/>:<C/>
     $node.pop;  # remove last child
 
     # -- Associative interface -- #

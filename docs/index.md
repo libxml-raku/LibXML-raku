@@ -115,7 +115,7 @@ Other
 
   * [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) - LibXML global configuration
 
-  * [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) - LibXML XML_* enumerated constants
+  * [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums) - XML_* enumerated constants
 
   * [LibXML::Raw](https://libxml-raku.github.io/LibXML-raku/Raw) - LibXML native interface
 
