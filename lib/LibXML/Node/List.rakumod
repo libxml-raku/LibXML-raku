@@ -78,9 +78,9 @@ method ASSIGN-POS(UInt() $pos, LibXML::Item:D $item) {
         fail "array index out of bounds";
     }
 }
-multi method to-literal( :list($)! where .so ) { self.map(*.string-value) }
+multi method to-literal( :list($)! where .so ) { self».string-value }
 multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-method Str is also<gist> { $.Array.map(*.Str).join }
+method Str is also<gist> { $.Array».Str.join }
 
 method iterator {
     class iterator does Iterator {
@@ -105,7 +105,7 @@ method to-node-set {
     my xmlNodeSet:D $raw = $!raw.list-to-nodeset($!blank);
     LibXML::Node::Set.new: :$raw;
 }
-method ast { self.Array.map(*.ast) }
+method ast { self.Array».ast }
 
 =begin pod
 =head2 Synopsis

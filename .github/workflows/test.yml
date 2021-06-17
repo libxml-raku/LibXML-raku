@@ -30,16 +30,17 @@ jobs:
           # install and test if need be (includes [test-depends])
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install -y libxml2-dev
-          elif [ "$RUNNER_OS" == "macos" ]; then
+          elif [ "$RUNNER_OS" == "macOS" ]; then
               brew update
               brew install libxml2
           else
               echo "$RUNNER_OS not supported"
+              exit 1;
           fi
           zef install --deps-only .
           zef build .
           zef install --/test App::Prove6
       - name: Run Tests
-        run: prove6 -l t
+        run: prove6 -I. t
       - name: Install Module
         run: zef install --verbose .

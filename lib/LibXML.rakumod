@@ -137,7 +137,7 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 
 =item L<LibXML::Config> - LibXML global configuration
 
-=item L<LibXML::Enums> - LibXML XML_* enumerated constants
+=item L<LibXML::Enums> - XML_* enumerated constants
 
 =item L<LibXML::Raw> - LibXML native interface
 

@@ -76,17 +76,17 @@ class LibXML::Node::Set
     method first { self.AT-POS(0) }
     method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
     method string-value { do with $.first { .string-value } // Str}
-    multi method to-literal( :list($)! where .so ) { self.map({ .string-value }) }
+    multi method to-literal( :list($)! where .so ) { self».string-value }
     multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
     method Bool { self.defined && so self.elems }
-    method Str is also<gist> handles <Int Num trim chomp> { $.Array.map(*.Str).join }
+    method Str is also<gist> handles <Int Num trim chomp> { $.Array».Str.join }
     method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
     method reverse {
         $!raw.reverse;
         $!hstore = Nil;
         self;
     }
-    method ast { self.Array.map(*.ast) }
+    method ast { self.Array».ast }
 
     method iterator($nodes:) {
         class Iteration does Iterator {
