@@ -605,7 +605,7 @@ _domScanHashForRefs(xmlHashTablePtr self) {
 
 // Determine if there's any API references to a node or its descendants
 static int
-_domItemIsReferenced(xmlNodePtr self) {
+_domPeerIsReferenced(xmlNodePtr self) {
     assert(self != NULL);
 
     // cheap checks
@@ -635,7 +635,7 @@ _domItemIsReferenced(xmlNodePtr self) {
     else if (_domIsDoc(self)) {
         // check external DtD
         xmlDtdPtr dtd = ((xmlDocPtr) self)->extSubset;
-        if (dtd != NULL && _domItemIsReferenced((xmlNodePtr)dtd)) {
+        if (dtd != NULL && _domPeerIsReferenced((xmlNodePtr)dtd)) {
             return 1;
         }
     }
@@ -663,7 +663,7 @@ domNodeIsReferenced(xmlNodePtr cur) {
     if (cur == NULL) return 0;
     while (cur->prev) cur = cur->prev;
     while (cur) {
-        if (_domItemIsReferenced(cur)) return 1;
+        if (_domPeerIsReferenced(cur)) return 1;
         cur = cur->next;
     }
     return 0;
