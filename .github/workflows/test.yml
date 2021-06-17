@@ -27,7 +27,14 @@ jobs:
       - name: Install Dependencies
         run: |
           # install and test if need be (includes [test-depends])
-          sudo apt-get install -y libxml2-dev
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt-get install -y libxml2-dev
+          elif [ "$RUNNER_OS" == "macos" ]; then
+              brew update
+              brew install libxml2
+          else
+              echo "$RUNNER_OS not supported"
+          fi
           zef install --deps-only .
           zef build .
           zef install --/test App::Prove6
