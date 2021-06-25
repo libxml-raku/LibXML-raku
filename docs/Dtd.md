@@ -59,7 +59,7 @@ No support is available as yet for parsing from a filehandle.
 
 LibXML::Dtd is a sub-class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), so all the methods available to nodes (particularly Str()) are available to Dtd objects.
 
-A DTD may contain any of the following objects.
+A DTD may contain the following objects.
 
   * [LibXML::Dtd::Entity](https://libxml-raku.github.io/LibXML-raku/Dtd/Entity) - LibXML DTD entity declarations
 

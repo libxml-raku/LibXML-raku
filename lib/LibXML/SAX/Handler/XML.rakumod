@@ -10,19 +10,15 @@ class LibXML::SAX::Handler::XML
     use XML::Comment;
     use XML::Document;
     use XML::Element;
-    use XML::Entity;
     use XML::PI;
     use XML::Text;
     use NativeCall;
     use LibXML::Document;
     use LibXML::EntityRef;
+    use LibXML::SAX::Builder :sax-cb;
 
     has XML::Document $.doc;    # The document that we're really building
     has XML::Element  $!node;   # Current node
-    has XML::Entity   $.entity; # Entity declarations
-    method entity { $!entity //= XML::Entity.new }
-
-    use LibXML::SAX::Builder :sax-cb;
 
     method publish($) {
         # ignore SAX created document; replace with our own

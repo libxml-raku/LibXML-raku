@@ -59,7 +59,7 @@ unit class LibXML::Dtd
   LibXML::Dtd is a sub-class of L<LibXML::Node>, so all the methods available to nodes (particularly Str()) are available
   to Dtd objects.
 
-  A DTD may contain any of the following objects.
+  A DTD may contain the following objects.
 
   =item L<LibXML::Dtd::Entity> - LibXML DTD entity declarations
   =item L<LibXML::Dtd::Notation> - LibXML DTD notations

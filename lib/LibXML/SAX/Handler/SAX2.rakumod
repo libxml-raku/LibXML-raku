@@ -80,15 +80,15 @@ my role SAX2BaseClass {
         $ctx.xmlSAX2Reference($text);
     }
 
-    method attributeDecl($elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree) {
+    method attributeDecl($elem, $fullname, :$ctx!, :$type, :$def, :$default-value, :$tree) {
         $ctx.xmlSAX2AttributeDecl($elem, $fullname, $type, $def, $default-value, $tree);
     }
 
-    method unparsedEntityDecl($name, :$ctx, :$public-id, :$system-id, :$notation-name) {
+    method unparsedEntityDecl($name, :$ctx!, :$public-id, :$system-id, :$notation-name) {
         $ctx.xmlSAX2UnparsedEntityDecl($name, $public-id, $system-id, $notation-name);
     }
 
-    method notationDecl($name, :$ctx, :$public-id, :$system-id) {
+    method notationDecl($name, :$ctx!, :$public-id, :$system-id) {
         $ctx.xmlSAX2NotationDecl($name, $public-id, $system-id);
     }
 
