@@ -145,8 +145,12 @@ static void _hash_xpath_node_siblings(xmlHashTablePtr self, xmlNodePtr node, int
 
 static void _hash_xpath_node_children(xmlHashTablePtr self, xmlNodePtr node, int keep_blanks) {
     assert(self != NULL);
+
     _hash_xpath_node_siblings(self, node->children, keep_blanks);
-    _hash_xpath_node_siblings(self, (xmlNodePtr) node->properties, keep_blanks);
+
+    if (node->type == XML_ELEMENT_NODE) {
+        _hash_xpath_node_siblings(self, (xmlNodePtr) node->properties, keep_blanks);
+    }
 }
 
 DLLEXPORT xmlHashTablePtr xml6_hash_xpath_node_children(xmlNodePtr node, int keep_blanks) {
