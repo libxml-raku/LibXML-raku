@@ -220,14 +220,14 @@ domPushNodeSet(xmlNodeSetPtr self, xmlNodePtr item, int reference) {
     assert(self != NULL);
     assert(item != NULL);
 
-    item = _domNewItem(item);
-    if (reference) _domReferenceItem(item);
+    xmlNodePtr new_item = _domNewItem(item);
+    if (reference) _domReferenceItem(new_item);
 
     if (self->nodeNr >= self->nodeMax) {
         _domResizeNodeSet(self, self->nodeMax * 2);
     }
 
-    self->nodeTab[self->nodeNr++] = _domNewItem(item);
+    self->nodeTab[self->nodeNr++] = new_item;
 }
 
 DLLEXPORT xmlNodeSetPtr
