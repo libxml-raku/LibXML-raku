@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 108;
+plan 109;
 
 use LibXML;
 use LibXML::Reader;
@@ -320,3 +320,16 @@ else {
     }
 }
  
+subtest 'issue#60' => {
+    use LibXML::Reader;
+
+    my $string = '<foo>bar</foo>';
+
+    my LibXML::Reader $reader .= new(:$string);
+    todo "issue#60";
+    lives-ok {
+        while $reader.read {
+            say $reader.name;
+        }
+    }
+}
