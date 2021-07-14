@@ -817,7 +817,7 @@ method canonicalize(
 =end pod
 
 proto method Str(|) is also<serialize> handles <Int Num> {*}
-multi method Str(:$C14N! where .so, |c) {
+multi method Str(LibXML::Node:D: :$C14N! where .so, |c) {
     self.canonicalize(|c);
 }
 =begin pod
@@ -828,7 +828,7 @@ multi method Str(:$C14N! where .so, |c) {
     `$node.Str( :C14N, |%opts)` is equivalent to `$node.canonicalize(|%opts)`
 =end pod
 
-multi method Str(|c) is also<gist> is default {
+multi method Str(LibXML::Node:D: |c) is also<gist> is default {
     my $options = output-options(|c);
     self.raw.Str(:$options);
 }

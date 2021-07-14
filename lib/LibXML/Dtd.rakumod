@@ -15,7 +15,6 @@ unit class LibXML::Dtd
       use LibXML::Dtd::Notation;
       use LibXML::Dtd::ElementDecl;
       use LibXML::Dtd::AttrDecl;
-      use Method::Also;
 
       my LibXML::Dtd $dtd .= new($public-id, $system-id);
       my LibXML::Dtd $dtd .= parse: :string($dtd-str);
@@ -77,6 +76,7 @@ use LibXML::Parser::Context;
 use LibXML::Attr;
 use LibXML::Element;
 use LibXML::EntityRef;
+use LibXML::Enums;
 use LibXML::Node;
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementDecl;
@@ -253,7 +253,9 @@ method getNotation(Str $name --> LibXML::Dtd::Notation) { &?ROUTINE.returns.box:
 method getEntity(Str $name --> LibXML::Dtd::Entity) { &?ROUTINE.returns.box: $.raw.getEntity($name) }
 
 #| Element declaration lookup
-method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) { &?ROUTINE.returns.box: $.raw.getElementDecl($name) }
+method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) {
+    &?ROUTINE.returns.box: $.raw.getElementDecl($name);
+}
 
 #| Attribute declaration lookup
 method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDecl) { &?ROUTINE.returns.box: $.raw.getAttrDecl($elem-name, $attr-name) }

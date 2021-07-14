@@ -69,9 +69,15 @@ is $level, +XML_ERR_WARNING;
 is $message, 'failed to load external entity "test.dtd"';
 
 subtest 'doc with internal dtd' => {
-    plan 13;
+    plan 14;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     nok $doc.getExternalSubset.defined, 'no external DtD';
+    subtest 'Internal Dtd hidden from associative interface', {
+        plan 3;
+        is-deeply $doc.keys, ('note', ), 'doc keys';
+        is $doc<note>.elems, 1, 'doc root elems';
+        isa-ok $doc<note>[0], LibXML::Element, 'doc root dereference';
+    }
     my LibXML::Dtd $dtd = $doc.getInternalSubset;
     ok $dtd.defined, 'has DtD';
     ok $dtd.validate, 'validate';

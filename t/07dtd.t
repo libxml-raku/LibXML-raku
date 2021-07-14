@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 84;
+plan 83;
 
 use LibXML;
 use LibXML::Enums;
@@ -193,24 +193,53 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
     }
 }
 
-{
-    # RT #71076: https://rt.cpan.org/Public/Bug/Display.html?id=71076
-
+subtest 'Dtd DOM', {
     my $parser = LibXML.new();
-    my $doc = $parser.parse: :string(q:to<EOF>);
+    my $string =q:to<EOF>;
+    <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE test [
-     <!ELEMENT test (#PCDATA)>
-     <!ATTLIST test
-      attr CDATA #IMPLIED
-     >
+    <!ELEMENT test (#PCDATA)>
+    <!ATTLIST test attr CDATA #IMPLIED>
+    <!ATTLIST orphan attr2 CDATA #IMPLIED>
     ]>
     <test>
     </test>
     EOF
+    my $doc = $parser.parse: :$string;
     my $dtd = $doc.internalSubset;
 
     nok $dtd.hasAttributes, 'hasAttributes';
     nok $dtd.attributes, 'attributes NO-OP on DTD nodes';
+
+    my $elem-decls = $dtd.element-declarations;
+    is $elem-decls<test>.gist.chomp, '<!ELEMENT test (#PCDATA)>';
+    nok $elem-decls<orphan>.defined;
+    is-deeply $elem-decls.keys.sort, ("orphan", "test");
+    my $attr-decls = $dtd.attribute-declarations;
+
+    my $attr-decl = $attr-decls<test><attr>;
+    ok $attr-decl.defined;
+    is $attr-decl.gist.chomp, '<!ATTLIST test attr CDATA #IMPLIED>';
+    is $attr-decl.elemName, 'test';
+    ok $attr-decl.parent.isSameNode($dtd);
+
+    given $attr-decl.getElementDecl {
+        ok .defined;
+        is .gist.chomp, '<!ELEMENT test (#PCDATA)>';
+        .parent.isSameNode($dtd);
+    }
+
+    my $attr2-decl = $attr-decls<orphan><attr2>;
+    ok $attr2-decl.defined;
+    is $attr2-decl.gist.chomp, '<!ATTLIST orphan attr2 CDATA #IMPLIED>';
+    is $attr2-decl.elemName, 'orphan';
+    nok $attr2-decl.getElementDecl.defined;
+    given $dtd.getAttrDeclaration('orphan', 'attr2') {
+        ok .defined;
+        ok .isSameNode($attr2-decl);
+        nok .isSameNode($attr-decl);
+    }
+    is-deeply $doc.Str.lines, $string.lines;
 }
 
 # Remove DTD nodes

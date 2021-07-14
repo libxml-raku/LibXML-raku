@@ -20,6 +20,7 @@ method !visit(xmlElementContent $raw) {
 }
 subset ElementDeclRef of  LibXML::Dtd::ElementContent where .type == XML_ELEMENT_CONTENT_ELEMENT;
 subset ElementDeclNode of  LibXML::Dtd::ElementContent where .type ~~ XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR;
+
 method getElementDecl(ElementDeclRef:D:) {
     my $elem-decl-class = box-class(XML_ELEMENT_DECL);
     with $!decl.raw.parent {
@@ -31,8 +32,8 @@ method getElementDecl(ElementDeclRef:D:) {
         $elem-decl-class;
     }
 }
+
 method content(ElementDeclRef:D:) {
-    use trace;
     with $!decl.raw.parent {
         my xmlDtd:D $dtd = .delegate;
         my xmlElementDecl:D $decl = $dtd.getElementDecl($.name);

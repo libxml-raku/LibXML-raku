@@ -1,4 +1,8 @@
 {{$NEXT}}
+    - Handle undefined Element Declarations. LibXML handles DtD <!ATTLIST>
+      without a corresponding <!ELEMENT> declaration by creating a place-
+      holder element declaration record with `etype` 0 (undefined). Change
+      LibXML::Dtd::ElementDecl to no longer box these.
 
 0.6.4  2021-07-14T16:12:56+12:00
     - Add associative methods to LibXML::Dtd::ElementDecl, including keys(),

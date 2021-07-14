@@ -50,7 +50,15 @@ This method is applicable to enumerated attributes (AttrType `XML_ATTRIBUTE_ENUM
 
 ### elemName
 
-Returns the element holding the attribute.
+Returns the name of the element holding the attribute.
+
+### getElementDecl
+
+```raku
+method getElementDecl() returns LibXML::Dtd::ElementDecl
+```
+
+Returns the element declaration associated with this attribute.
 
 ### prefix
 

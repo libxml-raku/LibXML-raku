@@ -41,7 +41,7 @@ Methods
 ### method content
 
 ```raku
-method content() returns Mu
+method content() returns LibXML::Dtd::ElementContent
 ```
 
 return the parsed content expression for this element declaration
@@ -49,7 +49,7 @@ return the parsed content expression for this element declaration
 ### method properties
 
 ```raku
-method properties() returns Mu
+method properties() returns Array[LibXML::Dtd::AttrDecl]
 ```
 
 return a read-only list of attribute declarations

@@ -98,7 +98,13 @@ Returns an array of possible values, or Array:U , if there is no enumerations.
 This method is applicable to enumerated attributes (AttrType `XML_ATTRIBUTE_ENUMERATION`).
 
 =head3 elemName
-=para Returns the element holding the attribute.
+=para Returns the name of the element holding the attribute.
+
+=head3 getElementDecl
+=begin code :lang<raku>
+method getElementDecl() returns LibXML::Dtd::ElementDecl
+=end code
+=para Returns the element declaration associated with this attribute.
 
 =head3 prefix
 =para Returns the namespace prefix, if any.

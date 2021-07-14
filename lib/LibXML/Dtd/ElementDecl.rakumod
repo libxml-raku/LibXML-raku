@@ -44,14 +44,20 @@ note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
 
 =end pod
 
+method box(anyNode $_) {
+    !.defined || .delegate.etype == XML_ELEMENT_TYPE_UNDEFINED
+        ?? self.WHAT
+        !! nextsame();
+}
+
 #| return the parsed content expression for this element declaration
-method content(LibXML::Dtd::ElementDecl:D $decl:) {
+method content(LibXML::Dtd::ElementDecl:D $decl: --> LibXML::Dtd::ElementContent) {
     my xmlElementContent $raw = $decl.raw.content;
     LibXML::Dtd::ElementContent.new: :$decl, :$raw;
 }
 
 #| return a read-only list of attribute declarations
-method properties {
+method properties returns Array[LibXML::Dtd::AttrDecl] {
     my xmlAttrDecl $att = $.raw.attributes;
     my LibXML::Dtd::AttrDecl @props;
     while $att.defined {
