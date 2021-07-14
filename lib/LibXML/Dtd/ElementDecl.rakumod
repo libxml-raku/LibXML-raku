@@ -90,6 +90,28 @@ method attributes is also<attribs attr> {
 method new(|) { fail }
 method raw handles <etype prefix> { nativecast(xmlElementDecl, self) }
 
+method keys {
+    my @k = @.properties.map: { '@' ~ .nodeName };
+    @k.append: $.content.potential-children;
+}
+method values {
+    my $dtd := self.parent;
+    my @v := @.properties;
+    @v.push: $dtd.getElementDeclaration($_)
+        for $.content.potential-children;
+    @v;
+}
+method pairs {
+    my $dtd := self.parent;
+    my @p = @.properties.map: { '@' ~ .nodeName => $_ };
+    @p.push: ($_ => $dtd.getElementDeclaration($_))
+        for $.content.potential-children;
+    @p;
+}
+method Hash handles<AT-KEY> {
+    my % = @.pairs
+}
+
 =begin pod
 =head3 method prefix
 =para Returns a namespace prefix, if any.

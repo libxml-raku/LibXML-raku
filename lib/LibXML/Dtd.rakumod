@@ -15,6 +15,7 @@ unit class LibXML::Dtd
       use LibXML::Dtd::Notation;
       use LibXML::Dtd::ElementDecl;
       use LibXML::Dtd::AttrDecl;
+      use Method::Also;
 
       my LibXML::Dtd $dtd .= new($public-id, $system-id);
       my LibXML::Dtd $dtd .= parse: :string($dtd-str);
@@ -387,6 +388,10 @@ has DeclMap $!elements;
 method element-declarations(LibXML::Dtd:D $dtd:) {
     $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
         with $!raw.elements;
+}
+
+method Hash handles<AT-KEY keys pairs values> {
+    my % = .pairs with $.element-declarations;
 }
 
 has AttrDeclMap $!element-attributes;
