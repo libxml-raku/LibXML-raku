@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.6.4  2021-07-14T16:12:56+12:00
     - Add associative methods to LibXML::Dtd::ElementDecl, including keys(),
       values(), pairs(), AT-KEY)() and Hash
 

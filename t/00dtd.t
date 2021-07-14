@@ -69,7 +69,7 @@ is $level, +XML_ERR_WARNING;
 is $message, 'failed to load external entity "test.dtd"';
 
 subtest 'doc with internal dtd' => {
-    plan 8;
+    plan 13;
     $doc .= parse: :file<test/dtd/note-internal-dtd.xml>;
     nok $doc.getExternalSubset.defined, 'no external DtD';
     my LibXML::Dtd $dtd = $doc.getInternalSubset;
@@ -80,6 +80,13 @@ subtest 'doc with internal dtd' => {
     nok $dtd.systemId.defined, 'sans systemId';
     nok $dtd.publicId.defined, 'sans publicId';
     is-deeply $dtd.is-XHTML, Bool, 'is-XHTML';
+    is $dtd.keys.sort.join(' '), 'body from heading note to', 'keys';
+    my $note = $dtd<note>;
+    is $note.gist.chomp, '<!ELEMENT note (to , from , heading , body)>';
+    is $note.keys.join(' '), "@id to from heading body";
+    is $note<@id>.gist.chomp, '<!ATTLIST note id CDATA #IMPLIED>';
+    is $note<to>.gist.chomp, '<!ELEMENT to (#PCDATA)>';
+    
 }
 
 subtest 'doc with external dtd loaded' => {
