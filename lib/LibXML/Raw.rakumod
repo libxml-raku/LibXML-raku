@@ -1681,6 +1681,7 @@ module xmlInputCallbacks is export {
 sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 
 ## xmlInitParser() should be called once at start-up
+sub xmlStrdup(Pointer --> Str) is native($XML2) is export {*}
 sub xmlInitParser is native($XML2) is export {*}
 sub xml6_ref_init is native($BIND-XML2) {*}
 our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}

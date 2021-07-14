@@ -51,11 +51,11 @@ method parent {
     self!visit: $!raw.parent;
 }
 method potential-children(UInt:D :$max = 255) {
-    my CArray[Str] $buf .= new;
+    my CArray[Pointer] $kids .= new;
     my int32 $len = 0;
-    $buf[$max] = Str;
-    $!raw.PotentialChildren($buf, $len, $max);
-    my @ = (0 ..^ $len).map: {$buf[$_]}
+    $kids[$max] = Pointer;
+    $!raw.PotentialChildren($kids, $len, $max);
+    my @ = (0 ..^ $len).map: {xmlStrdup($kids[$_])}
 }
 
 =begin pod
