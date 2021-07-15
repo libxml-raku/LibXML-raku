@@ -73,6 +73,8 @@ use LibXML::Raw::DOM::Element;
 use LibXML::Raw::DOM::Node;
 use Method::Also;
 
+our @ClassMap;
+
 use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :$CLIB, :Opaque, :xmlCharP;
 
 sub xmlParserVersion is export { cglobal($XML2, 'xmlParserVersion', Str); }
@@ -321,6 +323,7 @@ class xmlElementContent is repr('CStruct') is export {
 #| Note that prefix == NULL is valid, it defines the default namespace
 #| within the subtree (until overridden).
 class xmlNs is export is repr('CStruct') {
+    BEGIN @ClassMap[XML_NAMESPACE_DECL] = $?CLASS;
     has xmlNs        $.next; # next Ns link for this node
     has int32        $.type; # global or local (enum xmlNsType)
     has xmlCharP     $.href; # URL for the namespace
@@ -939,6 +942,7 @@ class xmlNode is anyNode {
 
 #| xmlNode of type: XML_ELEMENT_NODE
 class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
+    BEGIN @ClassMap[XML_ELEMENT_NODE] = $?CLASS;
     method NewNs(xmlCharP $href, xmlCharP $prefix --> xmlNs) is native($XML2) is symbol('xmlNewNs') {*};
     method SetProp(Str, Str --> xmlAttr) is native($XML2) is symbol('xmlSetProp') {*}
     method domGetAttributeNode(xmlCharP $qname --> xmlAttr) is native($BIND-XML2) {*}
@@ -968,6 +972,7 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
 
 #| xmlNode of type: XML_TEXT_NODE
 class xmlTextNode is xmlNode is repr('CStruct') is export {
+    BEGIN @ClassMap[XML_TEXT_NODE] = $?CLASS;
     our sub New(Str $content --> xmlTextNode) is native($XML2) is symbol('xmlNewText') {*}
     method new(Str :$content!, xmlDoc :$doc) {
         given New($content) -> xmlTextNode:D $node {
@@ -980,6 +985,7 @@ class xmlTextNode is xmlNode is repr('CStruct') is export {
 
 #| xmlNode of type: XML_COMMENT_NODE
 class xmlCommentNode is xmlNode is repr('CStruct') is export {
+    BEGIN @ClassMap[XML_COMMENT_NODE] = $?CLASS;
     our sub New(Str $content --> xmlCommentNode) is native($XML2) is symbol('xmlNewComment') {*}
     method new(Str :$content!, xmlDoc :$doc) {
         given New($content) -> xmlCommentNode:D $node {
@@ -991,6 +997,7 @@ class xmlCommentNode is xmlNode is repr('CStruct') is export {
 
 #| xmlNode of type: XML_CDATA_SECTION_NODE
 class xmlCDataNode is xmlNode is repr('CStruct') is export {
+    BEGIN @ClassMap[XML_CDATA_SECTION_NODE] = $?CLASS;
     our sub New(xmlDoc, Blob $content, int32 $len --> xmlCDataNode) is native($XML2) is symbol('xmlNewCDataBlock') {*}
     multi method new(Str :content($string)!, xmlDoc :$doc --> xmlCDataNode:D) {
         my Blob $content = $string.encode;
@@ -1004,6 +1011,7 @@ class xmlCDataNode is xmlNode is repr('CStruct') is export {
 
 #| xmlNode of type: XML_PI_NODE
 class xmlPINode is xmlNode is repr('CStruct') is export {
+    BEGIN @ClassMap[XML_PI_NODE] = $?CLASS;
     our sub New(xmlCharP $name, xmlCharP $content) is native($XML2) is symbol('xmlNewPI') {*}
     multi method new(xmlDoc:D :$doc!, Str:D :$name!, Str :$content) {
         $doc.new-pi(:$name, :$content);
@@ -1015,6 +1023,7 @@ class xmlPINode is xmlNode is repr('CStruct') is export {
 
 #| xmlNode of type: XML_ENTITY_REF_NODE
 class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
+    BEGIN @ClassMap[XML_ENTITY_REF_NODE] = $?CLASS;
     multi method new(xmlDoc:D :$doc!, Str:D :$name!) {
         $doc.new-ent-ref(:$name);
     }
@@ -1022,6 +1031,7 @@ class xmlEntityRefNode is xmlNode is repr('CStruct') is export {
 
 #| An attribute on an XML node (type: XML_ATTRIBUTE_NODE)
 class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
+    BEGIN @ClassMap[XML_ATTRIBUTE_NODE] = $?CLASS;
     has xmlNs       $.ns; # the associated namespace
     has int32    $.atype; # the attribute type if validating
     has Pointer   $.psvi; # for type/PSVI informations
@@ -1037,6 +1047,7 @@ class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
 
 #| An XML document (type: XML_DOCUMENT_NODE)
 class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
+    BEGIN @ClassMap[XML_DOCUMENT_NODE] = $?CLASS;
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone is rw;  # standalone document (no external refs)
                                        # 1 if standalone="yes"
@@ -1129,6 +1140,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
 
 #| xmlDoc of type: XML_HTML_DOCUMENT_NODE
 class htmlDoc is xmlDoc is repr('CStruct') is export {
+    BEGIN @ClassMap[XML_HTML_DOCUMENT_NODE] = $?CLASS;
     method DumpFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
     sub memcpy(Blob, Pointer, size_t) is native($CLIB) {*}
     sub free(Pointer) is native($CLIB) {*}
@@ -1157,6 +1169,7 @@ class htmlDoc is xmlDoc is repr('CStruct') is export {
 
 #| xmlNode of type: XML_DOCUMENT_FRAG_NODE
 class xmlDocFrag is xmlNode is export {
+    BEGIN @ClassMap[XML_DOCUMENT_FRAG_NODE] = $?CLASS;
     our sub New(xmlDoc $doc --> xmlDocFrag) is native($XML2) is symbol('xmlNewDocFragment') {*}
     method new(xmlDoc :$doc, xmlNode :$nodes) {
         my xmlDocFrag:D $frag = New($doc);
@@ -1190,6 +1203,7 @@ class xmlNotation is export {
 #| An XML DTD, as defined by <!DOCTYPE ... There is actually one for
 #| the internal subset and for the external subset (type: XML_DTD_NODE).
 class xmlDtd is anyNode is export {
+    BEGIN @ClassMap[XML_DTD_NODE] = $?CLASS;
     has xmlHashTable  $.notations; # Hash table for notations if any
     has xmlHashTable   $.elements; # Hash table for element declarations if any
     has xmlHashTable $.attributes; # Hash table for attribute declarations if any
@@ -1230,6 +1244,7 @@ class xmlDtd is anyNode is export {
 
 #| An Attribute declaration in a DTD (type: XML_ATTRIBUTE_DECL).
 class xmlAttrDecl is anyNode is export {
+    BEGIN @ClassMap[XML_ATTRIBUTE_DECL] = $?CLASS;
     has xmlAttrDecl     $.nexth; # next in hash table
     has int32           $.atype; # the attribute type
     has int32             $.def; # default mode (enum xmlAttributeDefault)
@@ -1242,6 +1257,7 @@ class xmlAttrDecl is anyNode is export {
 #| An unit of storage for an entity, contains the string, the value and
 #| the data needed for the linking in the hash table (type: XML_ENTITY_DECL).
 class xmlEntity is anyNode is export {
+    BEGIN @ClassMap[XML_ENTITY_DECL] = $?CLASS;
     has xmlCharP       $.orig; # content without ref substitution */
     has xmlCharP    $.content; # content or ndata if unparsed */
     has int32        $.length; # the content length */
@@ -1268,6 +1284,7 @@ class xmlEntity is anyNode is export {
 
 #| An XML Element declaration from a DTD (type: XML_ELEMENT_DECL).
 class xmlElementDecl is anyNode is export {
+    BEGIN @ClassMap[XML_ELEMENT_DECL] = $?CLASS;
     has int32                $.etype; # The type */
     has xmlElementContent  $.content; # the allowed element content */
     has xmlAttrDecl     $.attributes; # List of the declared attributes */
@@ -1281,29 +1298,6 @@ class itemNode is export {
     has Pointer $!pad; # first field depends on type
     has int32 $.type;
     # + other fields, which also depend on type
-    constant @ClassMap = do {
-        my @map;
-        for  (
-            [XML_ATTRIBUTE_DECL, xmlAttrDecl],
-            [XML_ATTRIBUTE_NODE, xmlAttr],
-            [XML_CDATA_SECTION_NODE, xmlCDataNode],
-            [XML_COMMENT_NODE, xmlCommentNode],
-            [XML_DOCUMENT_FRAG_NODE, xmlDocFrag],
-            [XML_DOCUMENT_NODE, xmlDoc],
-            [XML_DTD_NODE, xmlDtd],
-            [XML_ELEMENT_DECL, xmlElementDecl],
-            [XML_ELEMENT_NODE, xmlElem],
-            [XML_ENTITY_DECL, xmlEntity],
-            [XML_ENTITY_REF_NODE, xmlEntityRefNode],
-            [XML_HTML_DOCUMENT_NODE, htmlDoc],
-            [XML_NAMESPACE_DECL, xmlNs],
-            [XML_PI_NODE, xmlPINode],
-            [XML_TEXT_NODE, xmlTextNode]
-        ) {
-            @map[ .[0] ] = .[1];
-        }
-        @map;
-    }
 
     method delegate {
         my $class := @ClassMap[$!type];
