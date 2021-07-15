@@ -400,10 +400,11 @@ method close(--> Bool) {
 ########################################################################
 =head2 Methods Extracting Information
 
-#| Returns the qualified name of the current node.
-method name returns QName is reader-raw {...}
-=para Equal to (Prefix:)LocalName.
-
+#| Returns the name of the current node.
+method name returns Str is reader-raw {...}
+=para Returns:
+=item an element name of the form [prefix:][name], or,
+=item a special-name begining with '#', such as `#text`, `#comment`, or `#cdata-section`.
 
 #| Returns the type of the current node.
 method nodeType returns UInt is reader-raw {...}
@@ -411,7 +412,7 @@ method nodeType returns UInt is reader-raw {...}
 
 
 #| Returns he local name of the node.
-method localName returns NCName is reader-raw {...}
+method localName returns Str is reader-raw {...}
 
 
 #| Returns the prefix of the namespace associated with the node.

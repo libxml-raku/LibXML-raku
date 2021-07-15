@@ -323,13 +323,28 @@ else {
 subtest 'issue#60' => {
     use LibXML::Reader;
 
-    my $string = '<foo>bar</foo>';
+    my $string = q:to<END>;
+    <foo>
+        <!--Comment-->Text<Pfx:Elem xmlns:Pfx="foo"/>
+        <![CDATA[Cdata]]>
+    </foo>
+    END
 
-    my LibXML::Reader $reader .= new(:$string);
-    todo "issue#60";
+    my @results;
+
+    my LibXML::Reader $reader .= new(:$string, :!blanks);
+
     lives-ok {
         while $reader.read {
-            say $reader.name;
+            @results.push([$reader.value, $reader.nodeType, $reader.name, $reader.localName, $reader.prefix]);
         }
     }
+    is-deeply @results, [
+        [Str, 1, "foo", "foo", Str],
+        ["Comment", 8, "#comment", "#comment", Str],
+        ["Text", 3, "#text", "#text", Str],
+        [Str, 1, "Pfx:Elem", "Elem", "Pfx"],
+        ["Cdata", 4, "#cdata-section", "#cdata-section", Str],
+        [Str, 15, "foo", "foo", Str]
+    ]
 }
