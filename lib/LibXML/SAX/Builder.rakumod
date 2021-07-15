@@ -44,9 +44,7 @@ class LibXML::SAX::Builder {
                     CATCH { default { handle-error($ctx, $_,) } }
                     # ensure null termination
                     sub memcpy(Blob $dest, CArray $chars, size_t $n) is native($CLIB) {*};
-                    my buf8 $char-buf .= new;
-                    $char-buf[$len-1] = 0
-                        if $len > 0;
+                    my buf8 $char-buf .= allocate($len);
                     memcpy($char-buf, $chars, $len);
                     callb($obj, $char-buf.decode, :$ctx);
                 }

@@ -137,7 +137,7 @@ my class Context {
     }
     has Handle %.handles{UInt};
 
-    sub memcpy(CArray[uint8], CArray[uint8], size_t --> CArray[uint8]) is native($CLIB) {*}
+    sub memcpy(CArray[uint8], Blob, size_t --> CArray[uint8]) is native($CLIB) {*}
 
     method match {
         -> Str:D $file --> Int {
@@ -187,8 +187,7 @@ my class Context {
                     }
 
                     note "$_\[{+$addr}\]: read $bytes --> $n-read" with $!cb.trace;
-                    my CArray[uint8] $io-arr := nativecast(CArray[uint8], $io-buf);
-                    memcpy($out-arr, $io-arr, $n-read)
+                    memcpy($out-arr, $io-buf, $n-read)
                 }
                 else {
                     note "$_\[{+$addr}\]: read $bytes --> EOF" with $!cb.trace;
