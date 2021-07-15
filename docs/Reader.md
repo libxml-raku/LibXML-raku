@@ -244,12 +244,16 @@ Methods Extracting Information
 ### method name
 
 ```raku
-method name() returns LibXML::Types::QName
+method name() returns Str
 ```
 
-Returns the qualified name of the current node.
+Returns the name of the current node.
 
-Equal to (Prefix:)LocalName.
+Returns:
+
+  * an element or attribute name of the form [prefix:][name], or
+
+  * a special-name begining with '#', such as `#text`, `#comment`, or `#cdata-section`.
 
 ### method nodeType
 
@@ -264,10 +268,12 @@ See NODE TYPES below.
 ### method localName
 
 ```raku
-method localName() returns LibXML::Types::NCName
+method localName() returns Str
 ```
 
-Returns he local name of the node.
+Returns the local name of the node.
+
+Either an element or attribute name of the form [prefix:][name], or a special-name begining with '#', such as `#text`, `#comment`, or `#cdata-section`.
 
 ### method prefix
 
@@ -579,13 +585,15 @@ method encoding() returns LibXML::Raw::xmlEncodingStr
 
 Get the encoding of the document being read
 
+Returns a string containing the encoding of the document or Str:U in case of error.
+
 ### method standalone
 
 ```raku
 method standalone() returns Int
 ```
 
-Returns a string containing the encoding of the document or Str:U in case of error. Determine the standalone status of the document being read.
+Determine the standalone status of the document being read.
 
     use LibXML::Document :XmlStandalone;
     if $reader.standalone == XmlStandaloneYes { ... }

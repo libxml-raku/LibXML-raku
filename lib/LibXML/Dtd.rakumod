@@ -76,7 +76,6 @@ use LibXML::Parser::Context;
 use LibXML::Attr;
 use LibXML::Element;
 use LibXML::EntityRef;
-use LibXML::Enums;
 use LibXML::Node;
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementDecl;

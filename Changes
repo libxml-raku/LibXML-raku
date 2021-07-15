@@ -1,8 +1,14 @@
 {{$NEXT}}
-    - Handle undefined Element Declarations. LibXML handles DtD <!ATTLIST>
-      without a corresponding <!ELEMENT> declaration by creating a place-
-      holder element declaration record with `etype` 0 (undefined). Change
-      LibXML::Dtd::ElementDecl to no longer box these.
+
+0.6.5  2021-07-15T13:05:19+12:00
+    - Fix for #60 type check error on reader values. Reader name() return
+      value was erroneously constrained to QName, whereas return value
+      could also be '#text', '#comment', etc. Relaxed to Str. Similar
+      fix to localName() method to return Str instead of NCName.
+    - Work in with LibXML's handling of missing element Declarations. If a
+      <!ATTLIST...> is seen without a corresponding <!ELEMENT...> declaration,
+      LibXML creates a place-holder record with `etype` 0 (undefined). Change
+      LibXML::Dtd::ElementDecl to no longer box and return these.
 
 0.6.4  2021-07-14T16:12:56+12:00
     - Add associative methods to LibXML::Dtd::ElementDecl, including keys(),

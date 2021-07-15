@@ -403,7 +403,7 @@ method close(--> Bool) {
 #| Returns the name of the current node.
 method name returns Str is reader-raw {...}
 =para Returns:
-=item an element name of the form [prefix:][name], or,
+=item an element or attribute name of the form [prefix:][name], or
 =item a special-name begining with '#', such as `#text`, `#comment`, or `#cdata-section`.
 
 #| Returns the type of the current node.
@@ -411,9 +411,10 @@ method nodeType returns UInt is reader-raw {...}
 =para See NODE TYPES below.
 
 
-#| Returns he local name of the node.
+#| Returns the local name of the node.
 method localName returns Str is reader-raw {...}
-
+=para Either an element or attribute name of the form [prefix:][name], or
+    a special-name begining with '#', such as `#text`, `#comment`, or `#cdata-section`.
 
 #| Returns the prefix of the namespace associated with the node.
 method prefix returns NCName is reader-raw {...}
@@ -604,9 +605,7 @@ method lookupNamespace(Str $URI) returns NCName {
 
 #| Get the encoding of the document being read
 method encoding returns xmlEncodingStr { $.raw.encoding }
-#| Returns a string containing the encoding of the document or Str:U in case of
-#| error.
-
+=para Returns a string containing the encoding of the document or Str:U in case of error.
 
 #| Determine the standalone status of the document being read. 
 method standalone returns Int {
