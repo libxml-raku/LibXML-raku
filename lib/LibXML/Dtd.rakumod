@@ -41,6 +41,8 @@ unit class LibXML::Dtd
       $elem-decl = $elem-decls{$elem-name}
       my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.attribute-declarations;
       $attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
+      # -- or --
+      $attr-decl = $elem-decls{$elem-name}{'@' ~ $attr-name};
 
       # Validation
       try { $dtd.validate($doc) };
@@ -246,10 +248,14 @@ method cloneNode(LibXML::Dtd:D: $?) is also<clone> {
 }
 
 #| Notation declaration lookup
-method getNotation(Str $name --> LibXML::Dtd::Notation) { &?ROUTINE.returns.box: $.raw.getNotation($name) }
+method getNotation(Str $name --> LibXML::Dtd::Notation) {
+    &?ROUTINE.returns.box: $.raw.getNotation($name);
+}
 
 #| Entity declaration lookup
-method getEntity(Str $name --> LibXML::Dtd::Entity) { &?ROUTINE.returns.box: $.raw.getEntity($name) }
+method getEntity(Str $name --> LibXML::Dtd::Entity) {
+    &?ROUTINE.returns.box: $.raw.getEntity($name);
+}
 
 #| Element declaration lookup
 method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) {
@@ -257,7 +263,9 @@ method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) {
 }
 
 #| Attribute declaration lookup
-method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDecl) { &?ROUTINE.returns.box: $.raw.getAttrDecl($elem-name, $attr-name) }
+method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDecl) {
+    &?ROUTINE.returns.box: $.raw.getAttrDecl($elem-name, $attr-name);
+}
 
 =head3 getNodeDeclaration
 =begin code :lang<raku>
@@ -372,21 +380,21 @@ class AttrDeclMap {
 
 has DeclMapNotation $!notations;
 #| returns a hash-map of notation declarations
-method notations(LibXML::Dtd:D $dtd:) {
+method notations(LibXML::Dtd:D $dtd: --> DeclMap) {
     $!notations //= DeclMapNotation.new: :$dtd, :raw($_)
         with $!raw.notations;
 }
 
 has DeclMap $!entities;
 #| returns a hash-map of entity declarations
-method entities(LibXML::Dtd:D $dtd:) {
+method entities(LibXML::Dtd:D $dtd: --> DeclMap) {
     $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::Entity)
         with $!raw.entities;
 }
 
 has DeclMap $!elements;
 #| returns a hash-map of element declarations
-method element-declarations(LibXML::Dtd:D $dtd:) {
+method element-declarations(LibXML::Dtd:D $dtd: --> DeclMap) {
     $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
         with $!raw.elements;
 }
@@ -397,14 +405,14 @@ method Hash handles<AT-KEY keys pairs values> {
 
 has AttrDeclMap $!element-attributes;
 #| returns a hash-map of attribute declarations
-method attribute-declarations(LibXML::Dtd:D $dtd:) {
+method attribute-declarations(LibXML::Dtd:D $dtd: --> AttrDeclMap) {
     $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
         with $!raw.attributes;
 }
 =param Actually returns a two dimensional hash of element declarations and element names
 
 #| True if the node is validated by the DtD
-multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node) {
+multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node --> Bool) {
     self.is-valid($node);
 }
 

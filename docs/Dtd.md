@@ -42,6 +42,8 @@ my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
 $elem-decl = $elem-decls{$elem-name}
 my LibXML::Dtd::AttrDeclMap $elem-attr-decls = $dtd.attribute-declarations;
 $attr-decl = $elem-attr-decls{$elem-name}{$attr-name};
+# -- or --
+$attr-decl = $elem-decls{$elem-name}{'@' ~ $attr-name};
 
 # Validation
 try { $dtd.validate($doc) };
@@ -199,7 +201,7 @@ Returns False if the Id's don't match or Bool:U if the DtD lack either a publicI
 ### method notations
 
 ```raku
-method notations() returns Mu
+method notations() returns LibXML::Dtd::DeclMap
 ```
 
 returns a hash-map of notation declarations
@@ -207,7 +209,7 @@ returns a hash-map of notation declarations
 ### method entities
 
 ```raku
-method entities() returns Mu
+method entities() returns LibXML::Dtd::DeclMap
 ```
 
 returns a hash-map of entity declarations
@@ -215,7 +217,7 @@ returns a hash-map of entity declarations
 ### method element-declarations
 
 ```raku
-method element-declarations() returns Mu
+method element-declarations() returns LibXML::Dtd::DeclMap
 ```
 
 returns a hash-map of element declarations
@@ -223,7 +225,7 @@ returns a hash-map of element declarations
 ### method attribute-declarations
 
 ```raku
-method attribute-declarations() returns Mu
+method attribute-declarations() returns LibXML::Dtd::AttrDeclMap
 ```
 
 returns a hash-map of attribute declarations
@@ -238,7 +240,7 @@ Actually returns a two dimensional hash of element declarations and element name
 ```raku
 multi method ACCEPTS(
     LibXML::Node:D $node
-) returns Mu
+) returns Bool
 ```
 
 True if the node is validated by the DtD
