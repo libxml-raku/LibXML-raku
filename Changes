@@ -1,5 +1,6 @@
 {{$NEXT}}
-    - Fix LibXML::Text role to W3C::DOM::Text 
+    - Fix LibXML::Text role to W3C::DOM::Text
+    - Factor tests into subtests. Remove most 'TODO' test descriptions.
 
 0.6.5  2021-07-15T13:05:19+12:00
     - Fix for #60 type check error on reader values. Reader name() return

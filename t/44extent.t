@@ -35,13 +35,13 @@ $xml_out .= subst('&b;', 'file:///dev/null,', :g);
 
 my $doc = $parser.parse: :string($xml);
 
-is( $doc.Str(), $xml_out, ' TODO : Add test name' );
+is $doc.Str(), $xml_out;
 
 my $xml_out2 = $xml; $xml_out2 .= subst(/'&'[a|b]';'/, '<!-- -->', :g);
 
 config.external-entity-loader = -> *@ { '<!-- -->' };
 $doc = $parser.parse: :string($xml);
-is( $doc.Str(), $xml_out2, ' TODO : Add test name' );
+is $doc.Str(), $xml_out2;
 
 config.external-entity-loader = -> *@ { '' }
 
@@ -50,10 +50,10 @@ $parser.set-options(
     recover => 2,
 );
 $doc = $parser.parse: :string($xml);
-is( $doc.Str(), $xml, ' TODO : Add test name' );
+is $doc.Str(), $xml;
 
 for $doc.findnodes('/root/*') -> $el {
-    ok($el.hasChildNodes, ' TODO : Add test name');
-    is($el.firstChild.nodeType, +XML_ENTITY_REF_NODE, ' TODO : Add test name');
+    ok $el.hasChildNodes;
+    is $el.firstChild.nodeType, +XML_ENTITY_REF_NODE;
 }
 

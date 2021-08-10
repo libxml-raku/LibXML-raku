@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 34;
+plan 16;
 
 use LibXML;
 use LibXML::Enums;
@@ -9,51 +9,49 @@ use LibXML::Node::List;
 use LibXML::Node::Set;
 use LibXML::HashMap;
 
-pass(' TODO : Add test name');
-
 my $dom = LibXML.parse: :string(data());
 
-ok($dom, ' TODO : Add test name');
-
-{
+subtest 'from childNodes()', {
     my LibXML::Node::List $nodelist = $dom.documentElement.childNodes;
     # 0 is #text
-    is($nodelist[1].nodeName, 'BBB', 'item is 0-indexed');
-    is($nodelist<CCC>[0].nodeName, 'CCC', 'AT-KEY sanity');
+    is $nodelist[1].nodeName, 'BBB', 'item is 0-indexed';
+    is $nodelist<CCC>[0].nodeName, 'CCC', 'AT-KEY sanity';
     is $nodelist.head.nodeType, +XML_TEXT_NODE;
     is $nodelist.tail.nodeType, +XML_TEXT_NODE;
     my LibXML::HashMap[LibXML::Node::Set] $hash = $nodelist.Hash;
     is $hash.keys.sort.join(','), 'BBB,CCC,DDD,text()';
 }
 
-my LibXML::Node @nodes = $dom.findnodes('//BBB');
+subtest 'from findnodes()', {
+    my LibXML::Node @nodes = $dom.findnodes('//BBB');
 
-is(+@nodes, 5, ' TODO : Add test name');
+    is +@nodes, 5, 'node count';
 
-my LibXML::Node::Set $nodeset = $dom.findnodes('//BBB');
-is($nodeset.size, 5, ' TODO : Add test name');
-is($nodeset.Str, '<BBB>OK</BBB><BBB/><BBB/><BBB/><BBB>NOT OK</BBB>', ' TODO : Add test name');
-is($nodeset<BBB>[0].textContent, 'OK', 'AT-KEY sanity');
-is($nodeset.string-value, "OK", ' TODO : Add test name'); # first node in set
+    my LibXML::Node::Set $nodeset = $dom.findnodes('//BBB');
+    is $nodeset.size, 5, 'size()';
+    is $nodeset.Str, '<BBB>OK</BBB><BBB/><BBB/><BBB/><BBB>NOT OK</BBB>', 'Str()';
+    is $nodeset<BBB>[0].textContent, 'OK', 'AT-KEY sanity';
+    is $nodeset.string-value, "OK", 'string-value()'; # first node in set
 
-is($nodeset.to-literal, "OKNOT OK", ' TODO : Add test name');
+    is $nodeset.to-literal, "OKNOT OK", 'to-literal()';
 
-is($nodeset.to-literal(:delimiter<,>), "OK,,,,NOT OK", 'TODO : Add test name');
+    is $nodeset.to-literal(:delimiter<,>), "OK,,,,NOT OK", 'to-literal(:$delimiter)';
 
-is-deeply([$nodeset.to-literal(:list)], ['OK', '', '', '', 'NOT OK'], 'TODO : Add test name');
+    is-deeply [$nodeset.to-literal(:list)], ['OK', '', '', '', 'NOT OK'], 'to-literal(:list)';
 
-is($dom.findvalue("//BBB"), "OKNOT OK", ' TODO : Add test name');
+    is $dom.findvalue("//BBB"), "OKNOT OK", 'findvalue()';
 
-isa-ok($dom.find("1 and 2"), Bool, ' TODO : Add test name');
+    isa-ok $dom.find("1 and 2"), Bool, 'find --> Bool';
 
-isa-ok($dom.find("'Hello World'"), Str, ' TODO : Add test name');
+    isa-ok $dom.find("'Hello World'"), Str, 'find --> Str';
 
-isa-ok($dom.find("32 + 13"), Num, ' TODO : Add test name');
+    isa-ok $dom.find("32 + 13"), Num, 'find --> Num';
 
-isa-ok($dom.find("//CCC"), "LibXML::Node::Set", ' TODO : Add test name');
+    isa-ok $dom.find("//CCC"), "LibXML::Node::Set", 'find --> LibXML::Node::Set';
+}
 
 skip("port remaining tests", 14);
-
+    
 =begin TODO
 my $numbers = LibXML::Node::List.new(1..10);
 my $oddify  = sub { $_ + ($_%2?0:9) }; # add 9 to even numbers

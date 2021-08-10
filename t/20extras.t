@@ -1,7 +1,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 7;
 
 use LibXML;
 use LibXML::Attr;
@@ -13,36 +13,36 @@ my $parser = LibXML.new();
 
 {
     my $doc = $parser.parse: :$string;
-    ok($doc, ' TODO : Add test name');
+    ok $doc.defined;
     temp LibXML.skip-xml-declaration = 1;
-    is( $doc.Str(), $string, ':skip-xml-declaration' );
+    is $doc.Str(), $string, ':skip-xml-declaration';
     temp LibXML.tag-expansion = True;
-    is( $doc.Str(), "<foo><bar></bar></foo>\n", ':skip-xml-declaration, :tag-expansion' );
+    is $doc.Str(), "<foo><bar></bar></foo>\n", ':skip-xml-declaration, :tag-expansion';
 }
 
 {
     temp LibXML.skip-dtd = True;
     temp $parser.expand-entities = False;
     my $doc = $parser.parse: :file( "example/dtd.xml" );
-    ok($doc.defined, ' TODO : Add test name');
+    ok $doc.defined;
     my $test = "<doc>This is a valid document &foo; !</doc>\n";
-    is( $doc.Str(:skip-xml-declaration), $test, ':!expand-entities' );
+    is $doc.Str(:skip-xml-declaration), $test, ':!expand-entities';
 }
 
-{
+subtest 'cloneNode', {
     my $doc = $parser.parse: :$string;
-    ok($doc.defined, 'string parse sanity');
+    ok $doc.defined, 'string parse sanity';
     my $dclone = $doc.cloneNode(:deep);
-    ok( ! $dclone.isSameNode($doc), '.isSameNode() on cloned node' );
-    ok( $dclone.getDocumentElement(), ' TODO : Add test name' );
-    ok( $doc.Str() eq $dclone.Str(), ' TODO : Add test name' );
+    ok ! $dclone.isSameNode($doc), '.isSameNode() on cloned node';
+    ok $dclone.getDocumentElement();
+    ok $doc.Str() eq $dclone.Str();
 
     my $clone = $doc.cloneNode(:!deep); # shallow
-    ok( ! $clone.isSameNode($doc), ' TODO : Add test name' );
-    ok( ! $clone.getDocumentElement().defined, ' TODO : Add test name' );
+    ok ! $clone.isSameNode($doc);
+    ok ! $clone.getDocumentElement().defined;
     $doc.getDocumentElement().unbindNode();
     # allow
-    is($doc.Str, $clone.Str, "unbind of document element");
+    is $doc.Str, $clone.Str, "unbind of document element";
 }
 
 subtest 'attribute child nodes' => {

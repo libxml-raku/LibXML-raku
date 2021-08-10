@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 68;
+plan 14;
 
 use LibXML;
 use LibXML::ErrorHandling;
@@ -11,55 +11,55 @@ my $file    = "example/dromeds.xml";
 # init the file parser
 my $parser = LibXML.new();
 my $dom    = $parser.parse: :$file;
+ok $dom.defined;
+
 
 LibXML::ErrorHandling.SetGenericErrorFunc(-> $fmt, |c { });
 
-if defined $dom {
+subtest 'findnodes basic', {
     # get the root document
     my LibXML::Element $elem = $dom.getDocumentElement();
 
     # first very simple path starting at root
     my LibXML::Node @list = $elem.findnodes( "species" );
-    is( +@list, 3, ' TODO : Add test name' );
+    is +@list, 3;
     # a simple query starting somewhere ...
     my LibXML::Node $node = @list[0];
     my LibXML::Node @slist = $node.find( "humps" );
-    is( +@slist, 1, ' TODO : Add test name' );
+    is +@slist, 1;
     @slist = $node.findnodes( "HUMPS" );
-    is( +@slist, 0, 'case sensitivity');
+    is +@slist, 0, 'case sensitivity';
     ok $node.ACCEPTS('self::species');
     ok 'self::species' ~~ $node, '.ACCEPTS()';
     ok 'humps' ~~ $node, '.ACCEPTS()';
     ok 'HUMPS' !~~ $node, '.ACCEPTS()';
 
     @slist = $node.findnodes('/dromedaries/species/humps');
-    is( +@slist, 3, 'absolute path on relative node' );
+    is +@slist, 3, 'absolute path on relative node';
 
     @slist = $node.findnodes('./humps');
-    is( +@slist, 1, 'self path on relative name' );
+    is +@slist, 1, 'self path on relative name';
 
     # find a single node
     @list   = $elem.findnodes( "species[\@name='Llama']" );
-    is( +@list, 1, ' TODO : Add test name' );
+    is +@list, 1;
 
     # find with not conditions
     @list   = $elem.findnodes( "species[\@name!='Llama']/disposition" );
-    is( +@list, 2, ' TODO : Add test name' );
+    is +@list, 2;
 
 
     @list   = $elem.findnodes( 'species/@name' );
-    # warn $elem.Str();
-
 
     if @list {
-        is(@list[0].gist, 'name="Camel"', 'Attribute selection' )
+        is @list[0].gist, 'name="Camel"', 'Attribute selection';
     }
     else {
         flunk('Attribute selection');
     }
     @list   = $elem<species/@name>;
     if @list {
-        is(@list[0].gist, 'name="Camel"', 'Attribute selection' )
+        is @list[0].gist, 'name="Camel"', 'Attribute selection';
     }
     else {
         flunk('Attribute selection (AT-KEY)');
@@ -99,8 +99,6 @@ if defined $dom {
     pass(' TODO : Add test name');
 }
 
-ok( $dom, ' TODO : Add test name' );
-
 for 0..3 {
     my $doc = LibXML.parse: :string(q:to<EOT>);
     <?xml version="1.0" encoding="UTF-8"?>
@@ -118,40 +116,40 @@ my $doc = $parser.parse: :string(q:to<EOT>);
  </b:bar>
 </a:foo>
 EOT
-
 my $root = $doc.getDocumentElement;
-my @a = $root.findnodes('//a:foo');
 
-is(+@a, 1, ' TODO : Add test name');
+subtest 'ns findnodes', {
+    my @a = $root.findnodes('//a:foo');
 
-my @b = $root.findnodes('//b:bar');
+    is +@a, 1;
 
-is(+@b, 1, ' TODO : Add test name');
+    my @b = $root.findnodes('//b:bar');
 
-dies-ok {@b = $root.findnodes('//B:bar')};
-@b = $root.findnodes('//b:BAR');
-is(+@b, 0, ' TODO : Add test name');
+    is +@b, 1;
 
-lives-ok {@b = $root.findnodes('//B:bar', :ns{ B => "http://bar.com" })};
-is(+@b, 1, ' TODO : Add test name');
+    dies-ok {@b = $root.findnodes('//B:bar')};
+    @b = $root.findnodes('//b:BAR');
+    is +@b, 0;
 
-lives-ok {@b = $root.findnodes('//b:foo', :ns{ b => "http://foo.com" })};
-is(+@b, 1, ' TODO : Add test name');
+    lives-ok {@b = $root.findnodes('//B:bar', :ns{ B => "http://bar.com" })};
+    is +@b, 1;
 
-my @none = $root.findnodes('//b:foo');
-@none.push($_) for $root.findnodes('//foo');
+    lives-ok {@b = $root.findnodes('//b:foo', :ns{ b => "http://foo.com" })};
+    is +@b, 1;
 
-is(+@none, 0, ' TODO : Add test name');
+    my @none = $root.findnodes('//b:foo');
+    @none.push($_) for $root.findnodes('//foo');
+
+    is +@none, 0;
+}
 
 my @doc = $root.findnodes('document("example/test.xml")');
-
-ok(+@doc, ' TODO : Add test name');
-# warn($doc[0].Str);
+ok +@doc;
 
 # this query should result an empty array!
 my @nodes = $root.findnodes( "/humpty/dumpty" );
 
-is( +@nodes, 0, 'Empty array' );
+is +@nodes, 0, 'empty result';
 
 my $docstring = q{
 <foo xmlns="http://kungfoo" xmlns:bar="http://foo"/>
@@ -161,23 +159,24 @@ my $docstring = q{
 
 my @ns = $root.findnodes('namespace::*');
 
-is(+@ns, 2, 'Find namespace nodes' );
+is +@ns, 2, 'Find namespace nodes';
 
-# bad xpaths
-my @badxpath = (
-    'abc:::def',
-    'foo///bar',
-    '...',
-    '/-',
-);
+subtest  'bad xpaths', {
+    my @badxpath = (
+        'abc:::def',
+        'foo///bar',
+        '...',
+        '/-',
+    );
 
-for @badxpath -> $xp {
-    dies-ok { $root.findnodes( $xp ); }, "findnodes('$xp'); - dies";
-    dies-ok { $root.find( $xp ); }, "find('$xp'); - dies";
-    dies-ok { $root.findvalue( $xp ); }, "findvalue('$xp'); - dies";
+    for @badxpath -> $xp {
+        dies-ok { $root.findnodes( $xp ); }, "findnodes('$xp'); - dies";
+        dies-ok { $root.find( $xp ); }, "find('$xp'); - dies";
+        dies-ok { $root.findvalue( $xp ); }, "findvalue('$xp'); - dies";
+    }
 }
 
-{
+subtest 'dom interaaction', {
     my $doc = LibXML.createDocument();
     my $root= $doc.createElement( "A" );
     $doc.setDocumentElement($root);
@@ -203,7 +202,7 @@ for @badxpath -> $xp {
     ok( @list[0].isSameNode( $b ), ' TODO : Add test name' );
 }
 
-{
+subtest 'findnode/unbindNoode', {
     # test potential unbinding-segfault-problem
     my $doc = LibXML.createDocument();
     my $root= $doc.createElement( "A" );
@@ -227,7 +226,7 @@ for @badxpath -> $xp {
     }
 }
 
-{
+subtest 'findnode/remove', {
     my $xmlstr = "<a><b><c>1</c><c>2</c></b></a>";
 
     my $doc       = $parser.parse: :string( $xmlstr );

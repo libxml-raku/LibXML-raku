@@ -1,5 +1,6 @@
 use v6;
 use Test;
+plan 14;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
@@ -42,13 +43,12 @@ subtest 'relaxng' => {
 }
 
 
-{
+subtest 'parse strings', {
     my X::LibXML::Parser:D @err = blat { try { LibXML.parse: :string('foo'); } for 1..100; $! };
     is @err.elems, MAX_THREADS, 'parse errors';
-    pass("XML error");
 }
 
-{
+subtest 'create element/attribute', {
     my LibXML::Document $doc .= new;
     $doc.setDocumentElement($doc.createElement('root'));
     $doc.getDocumentElement.setAttribute('foo','bar');
@@ -63,7 +63,7 @@ subtest 'relaxng' => {
     is @roots>>.unique-key.unique.elems, 1, 'document root reduction';
 }
 
-{
+subtest 'operating on different documents without lock', {
     my LibXML::Document:D @docs = blat {
         my LibXML::Document $doc .= new;
         $doc.setDocumentElement($doc.createElement('root'));
@@ -87,10 +87,8 @@ subtest 'relaxng' => {
     is +@values, MAX_THREADS, 'att values';
     is @values.unique.elems, 1, 'att values reduction';
 }
-pass("operating on different documents without lock");
 
-# operating on the same document with a lock
-{
+subtest 'operating on the same document with a lock', {
     my LibXML::Document $doc .= new;
     my LibXML::Document:D @docs = blat {
         for 1..24 {
@@ -111,7 +109,7 @@ my $xml = q:to<EOF>;
 <root><node><leaf/></node></root>
 EOF
 
-{
+subtest 'access leaf nodes', {
     my LibXML::Element @nodes;
     {
         my $doc = $p.parse: :string($xml);
@@ -122,7 +120,7 @@ EOF
     is @nodes.pick.Str, '<leaf/>', 'sampled node';
 }
 
-{
+subtest 'multiple documents', {
     my LibXML::Document @docs = blat { $p.parse: :string($xml) };
     is @docs.elems, MAX_THREADS, 'document leaf nodes';
     is @docs.map(*.unique-key).unique.elems, MAX_THREADS, 'document leaf nodes reduced by unique keys';
@@ -198,7 +196,7 @@ EOF
 	    die "no error" without $!;
         }
     }
-    pass("test Schema validation errors thread safe sanity");
+    pass "test Schema validation errors thread safe sanity";
 }
 
 skip "port remaining tests";
@@ -216,13 +214,13 @@ sub use_dom($d) {
     die unless @nodes[0].tag eq 'files';
 }
 
-{
+subtest 'dom access', {
     blat { my $dom = do { $p.parse: :string($xml) }; use_dom($dom) for 1..5; };
-    pass('Joined all threads.');
+    pass 'Joined all threads.';
 }
 
 
-{
+subtest 'check parsing', {
     use LibXML::SAX::Handler::SAX2;
     class MyHandler is LibXML::SAX::Handler::SAX2 {
 

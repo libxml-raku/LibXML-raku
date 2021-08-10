@@ -9,7 +9,7 @@ use Test;
 
 # since all tests are run on a preparsed
 
-plan 178;
+plan 9;
 
 use LibXML;
 use LibXML::Enums;
@@ -22,9 +22,9 @@ sub is-empty-str(Str $s)
 sub _check_element_node(LibXML::Node $node, Str $name, Str $blurb)
 {
 
-     ok($node, "$blurb - node was initialised");
-     is($node.nodeType, +XML_ELEMENT_NODE, "$blurb - node is an element node");
-     is($node.nodeName, $name, "$blurb - node has the right name.");
+     ok $node, "$blurb - node was initialised";
+     is $node.nodeType, +XML_ELEMENT_NODE, "$blurb - node is an element node";
+     is $node.nodeName, $name, "$blurb - node has the right name.";
 }
 
 
@@ -40,7 +40,7 @@ sub _check_created_element(LibXML::Document $doc, Str $given-name, Str $name, St
 sub _multi_arg_generic_count(LibXML::Node $node, Str $method, @ (List $meth_params, UInt $want_count, Str $blurb))
 {
     my @elems = $node."$method"( |$meth_params );
-    return is(+(@elems), $want_count, $blurb);
+    return is +(@elems), $want_count, $blurb;
 }
 
 sub _generic_count(LibXML::Node $node, Str $method, @ (Str $name, UInt $want_count, Str $blurb))
@@ -84,52 +84,49 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     );
 }
 
-{
-    # Document Attributes
+subtest 'document attributes', {
 
     my LibXML::Document $doc .= createDocument();
-    ok($doc, 'document creation');
+    ok $doc.defined, 'document creation';
 
-    ok( ! defined($doc.encoding), 'doc.encoding');
-    is( $doc.version,  "1.0", 'doc.version' );
-    is( $doc.standalone, -1, 'doc.standalone' );  # is the value we get for undefined,
+    ok ! defined($doc.encoding), 'doc.encoding';
+    is $doc.version,  "1.0", 'doc.version';
+    is $doc.standalone, -1, 'doc.standalone';  # is the value we get for undefined,
                                  # actually the same as 0 but just not set.
-    ok( !defined($doc.URI), 'doc.URI');  # should be set by default.
-    is( $doc.compression, -1, 'doc.compression' ); # -1 indicates NO compression at all!
+    ok !defined($doc.URI), 'doc.URI';  # should be set by default.
+    is $doc.compression, -1, 'doc.compression'; # -1 indicates NO compression at all!
                                  # while 0 indicates just no zip compression
                                  # (big difference huh?)
 
     $doc.encoding = "iso-8859-1";
-    is( $doc.encoding, "iso-8859-1", 'Encoding was set.' );
+    is $doc.encoding, "iso-8859-1", 'Encoding was set.';
 
     $doc.version = "12.5";
-    is( $doc.version, "12.5", 'Version was set.' );
+    is $doc.version, "12.5", 'Version was set.';
 
     $doc.standalone = 1;
-    is( $doc.standalone, 1, 'Standalone was set.' );
+    is $doc.standalone, 1, 'Standalone was set.';
 
     $doc.baseURI = "localhost/here.xml";
-    is( $doc.URI, "localhost/here.xml", 'URI is set.' );
+    is $doc.URI, "localhost/here.xml", 'URI is set.';
 
     my $doc2 = LibXML::Document.createDocument(:version<1.1>, :enc<iso-8859-2>);
-    is( $doc2.encoding, "iso-8859-2", 'doc2 encoding was set.' );
-    is( $doc2.version,  "1.1", 'doc2 version was set.' );
-    is( $doc2.standalone,  -1, 'doc2 standalone' );
+    is $doc2.encoding, "iso-8859-2", 'doc2 encoding was set.';
+    is $doc2.version,  "1.1", 'doc2 version was set.';
+    is $doc2.standalone,  -1, 'doc2 standalone';
 }
 
-{
-    # 2. Creating Elements
+subtest 'creating elements', {
     my LibXML::Document $doc .= new();
-    {
+    subtest 'document fragments', {
         my $node = $doc.createDocumentFragment();
-        ok($node, '$doc.createDocumentFragment');
-        is($node.nodeType, +XML_DOCUMENT_FRAG_NODE, 'document fragment type');
+        ok $node.defined, '$doc.createDocumentFragment';
+        is $node.nodeType, +XML_DOCUMENT_FRAG_NODE, 'document fragment type';
     }
 
     _check_created_element($doc, 'foo', 'foo', 'Simple Element');
 
-    {
-        # document with encoding
+    subtest 'document with encoding', {
         my LibXML::Document $encdoc .= new;
         $encdoc.encoding = "iso-8859-1";
 
@@ -151,20 +148,18 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         );
     }
 
-    {
-        # namespaced element test
+    subtest 'namespaced elements', {
         my $node = $doc.createElementNS( "http://kungfoo", "foo:bar" );
         is $node.raw.nsDef, 'xmlns:foo="http://kungfoo"', 'Node namespace';
         is $node, '<foo:bar xmlns:foo="http://kungfoo"/>', '$doc.createElement';
-        is($node.nodeType, +XML_ELEMENT_NODE, '$node.nodeType');
-        is($node.nodeName, "foo:bar", '$node.nodeName');
-        is($node.prefix, "foo", '$node.prefix');
-        is($node.localname, "bar", '$node.localname');
-        is($node.namespaceURI, "http://kungfoo", '$node.namespaceURI');
+        is $node.nodeType, +XML_ELEMENT_NODE, '$node.nodeType';
+        is $node.nodeName, "foo:bar", '$node.nodeName';
+        is $node.prefix, "foo", '$node.prefix';
+        is $node.localname, "bar", '$node.localname';
+        is $node.namespaceURI, "http://kungfoo", '$node.namespaceURI';
     }
 
-    {
-        # bad element creation
+    subtest 'bad element creation', {
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
         for @badnames -> $name {
@@ -173,48 +168,46 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     }
 
-    {
+    subtest 'text nodes', {
         need LibXML::Text;
         my LibXML::Text:D $node = $doc.createTextNode( "foo" );
-        is($node, 'foo', 'text Str');
-        is($node.nodeType, +XML_TEXT_NODE, 'text node type' );
-        is($node.nodeValue, "foo", 'text node value' );
+        is $node, 'foo', 'text Str';
+        is $node.nodeType, +XML_TEXT_NODE, 'text node type';
+        is $node.nodeValue, "foo", 'text node value';
     }
 
-    {
+    subtest 'comments', {
         need LibXML::Comment;
         my LibXML::Comment:D $node = $doc.createComment( "foo" );
-        is($node, '<!--foo-->', 'comment Str');
-        is($node.nodeType, +XML_COMMENT_NODE, 'comment node type' );
-        is($node.nodeValue, "foo", 'comment node value' );
-        is($node.Str, "<!--foo-->", 'Comment node string');
+        is $node, '<!--foo-->', 'comment Str';
+        is $node.nodeType, +XML_COMMENT_NODE, 'comment node type';
+        is $node.nodeValue, "foo", 'comment node value';
+        is $node.Str, "<!--foo-->", 'Comment node string';
     }
 
-    {
+    subtest 'cdata', {
         need LibXML::CDATA;
         my LibXML::CDATA:D $node = $doc.createCDATASection( "foo" );
-        ok($node, '$doc.createCDATASection');
-        is($node.nodeType, +XML_CDATA_SECTION_NODE, 'CDATA node type' );
-        is($node.nodeValue, "foo", 'CDATA node value' );
-        is($node.Str, "<![CDATA[foo]]>", 'CDATA node string');
+        is $node.nodeType, +XML_CDATA_SECTION_NODE, 'CDATA node type';
+        is $node.nodeValue, "foo", 'CDATA node value';
+        is $node.Str, "<![CDATA[foo]]>", 'CDATA node string';
     }
 
-    # -> Create Attributes
-    {
+    subtest 'attributes', {
         need LibXML::Attr;
         need LibXML::Text;
         my LibXML::Attr:D $attr = $doc.createAttribute("foo", "bar");
-        is($attr, 'bar', 'attr Str');
-        is($attr.nodeType, +XML_ATTRIBUTE_NODE, 'attr nodeType' );
-        is($attr.name, "foo", 'attr name');
-        is($attr.value, "bar", 'attr value' );
-        is-deeply($attr.hasChildNodes, False, 'att hasChildNodes');
+        is $attr, 'bar', 'attr Str';
+        is $attr.nodeType, +XML_ATTRIBUTE_NODE, 'attr nodeType';
+        is $attr.name, "foo", 'attr name';
+        is $attr.value, "bar", 'attr value';
+        is-deeply $attr.hasChildNodes, False, 'att hasChildNodes';
         my  LibXML::Text:D $content = $attr.firstChild;
-        is( $content, 'bar', 'attr content Str' );
-        is( $content.nodeType, +XML_TEXT_NODE, 'attribute content is a text node' );
+        is  $content, 'bar', 'attr content Str';
+        is  $content.nodeType, +XML_TEXT_NODE, 'attribute content is a text node';
     }
 
-    {
+    subtest 'bad attributes', {
         # bad attribute creation
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
@@ -224,7 +217,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     }
 
-    {
+    subtest 'element attributes', {
       need LibXML::Element;
       need LibXML::Attr;
       my LibXML::Element:D $elem = $doc.createElement('foo');
@@ -236,19 +229,20 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
       $elem.addChild($attr);
       is $elem, '<foo attr2="a &amp; b"/>', 'Elem replace attributes';
     }
-    {
+
+    subtest 'attributes with namespaces', {
         my $attr;
         lives-ok {
             $attr = $doc.createAttributeNS("http://kungfoo", "kung:foo","bar");
         }, '$doc.createAttributeNS without root element - dies';
 
-        ok($attr, '$doc.createAttributeNS');
-        is($attr.nodeName, "kung:foo", '$doc.createAttributeNS nodeName');
-        is($attr.name,"foo", 'attr ns name' );
-        is($attr.value, "bar", 'attr ns value' );
+        ok $attr, '$doc.createAttributeNS';
+        is $attr.nodeName, "kung:foo", '$doc.createAttributeNS nodeName';
+        is $attr.name,"foo", 'attr ns name';
+        is $attr.value, "bar", 'attr ns value';
 
         $attr.value = 'bar&amp;';
-        is($attr.value, 'bar&amp;', 'attr ns value updated' );
+        is $attr.value, 'bar&amp;', 'attr ns value updated';
 
         my $root = $doc.createElement( "foo" );
         $doc.documentElement = $root;
@@ -256,8 +250,7 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         is $root, '<foo kung:foo="bar&amp;amp;"/>', 'Can use attribute created before document root';
     }
 
-    {
-        # good attribute creation
+    subtest 'good attribute creation', {
         my @goodnames = ( "foo", "bar:baz");
 
         for @goodnames -> $name {
@@ -265,7 +258,8 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         }
 
     }
-    {
+
+    subtest 'bad attribute creation', {
         # bad attribute creation
         my @badnames = ( ";", "&", "<><", "/", "1A");
 
@@ -275,38 +269,37 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     }
 
-    # -> Create PIs
-    {
+    subtest 'create PI, two arguments', {
         need LibXML::PI;
         my LibXML::PI:D $pi = $doc.createProcessingInstruction( "foo", "bar" );
-        is($pi, '<?foo bar?>');
-        is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
-        is($pi.nodeName, "foo", 'PI nodeName');
-        is($pi.target, "foo", 'PI target');
-        is($pi.ast-key, "?foo", 'PI ast-key');
-        is($pi.xpath-key, "processing-instruction()", 'PI xpath-key');
-        is($pi.string-value, "bar", 'PI string-value');
-        is($pi.content, "bar", 'PI content');
-        is($pi.content, "bar", 'PI data');
+        is $pi, '<?foo bar?>';
+        is $pi.nodeType, +XML_PI_NODE, 'PI nodeType';
+        is $pi.nodeName, "foo", 'PI nodeName';
+        is $pi.target, "foo", 'PI target';
+        is $pi.ast-key, "?foo", 'PI ast-key';
+        is $pi.xpath-key, "processing-instruction()", 'PI xpath-key';
+        is $pi.string-value, "bar", 'PI string-value';
+        is $pi.content, "bar", 'PI content';
+        is $pi.content, "bar", 'PI data';
     }
 
-    {
+    subtest 'create PI, single argument', {
         my $pi = $doc.createProcessingInstruction( "foo" );
-        is($pi, '<?foo?>');
-        is($pi.nodeType, +XML_PI_NODE, 'PI nodeType');
-        is($pi.nodeName, "foo", 'PI nodeName');
+        is $pi, '<?foo?>';
+        is $pi.nodeType, +XML_PI_NODE, 'PI nodeType';
+        is $pi.nodeName, "foo", 'PI nodeName';
         my $data = $pi.content;
         # undef or "" depending on libxml2 version
-        ok( is-empty-str($data), 'PI content (empty)' );
+        ok is-empty-str($data), 'PI content (empty)';
         $data = $pi.string-value;
-        ok( is-empty-str($data), 'PI string-value (empty)' );
+        ok is-empty-str($data), 'PI string-value (empty)';
         $pi.nodeValue = 'bar&amp;';
-        is($pi.content, 'bar&amp;', 'PI content updated');
+        is $pi.content, 'bar&amp;', 'PI content updated';
         is $pi, '<?foo bar&amp;?>';
     }
 }
 
-{
+subtest 'document manipulation', {
     # Document Manipulation
     # -> Document Elements
 
@@ -350,27 +343,26 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     $doc.documentElement = $node2;
     @cn = $doc.childNodes;
-    is( +@cn, 1, 'Replaced root element');
-    ok(@cn[0].isSameNode($node2), 'Replaced root element');
+    is +@cn, 1, 'Replaced root element';
+    ok @cn[0].isSameNode($node2), 'Replaced root element';
 
     my $node3 = $doc.createElementNS( "http://foo", "bar" );
     is($node3, '<bar xmlns="http://foo"/>', '$doc.createElementNS');
 
-    # . Processing Instructions
-    {
+    subtest "processing instructions", {
         my $pi = $doc.createProcessingInstruction( "foo", "bar" );
         $doc.appendChild( $pi );
         @cn = $doc.childNodes;
-        ok( $pi.isSameNode(@cn.tail), 'Append processing instruction to document root' );
+        ok $pi.isSameNode(@cn.tail), 'Append processing instruction to document root';
         $pi.nodeValue = 'bar="foo"';
-        is( $pi.content, 'bar="foo"', 'Appended processing instruction');
+        is $pi.content, 'bar="foo"', 'Appended processing instruction';
         $pi.nodeValue = foo=>"foo";
-        todo("check test valid?");
-        is( $pi.content, 'foo="foo"', 'Append Pair as processing instruction');
+        todo "check test valid?";
+        is $pi.content, 'foo="foo"', 'Append Pair as processing instruction';
     }
 }
 
-{
+subtest 'document storing', {
     need LibXML::Document;
     # Document Storing
     my LibXML $parser .= new;
@@ -379,38 +371,37 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
 
     is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );
 
-    # . to file handle
 
-    {
+    subtest 'to file handle', {
         my IO::Handle $io = 'example/testrun.xml'.IO.open(:w);
 
-        $doc.save: :$io;
-        $io.close;
-        pass(' TODO : Add test name');
+        lives-ok {
+            $doc.save: :$io;
+            $io.close;
+        }
+
         # now parse the file to check, if succeeded
         my $tdoc = $parser.parse: :file( "example/testrun.xml" );
-        is-deeply( $tdoc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>' , '<foo>bar</foo>'), ' TODO : Add test name' );
-        is( $tdoc.documentElement, '<foo>bar</foo>', ' TODO : Add test name' );
-        is( $tdoc.documentElement.nodeName, "foo", ' TODO : Add test name' );
-        is( $tdoc.documentElement.string-value, "bar", ' TODO : Add test name' );
+        is-deeply $tdoc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>' , '<foo>bar</foo>');
+        is $tdoc.documentElement, '<foo>bar</foo>';
+        is $tdoc.documentElement.nodeName, "foo";
+        is $tdoc.documentElement.string-value, "bar";
         unlink "example/testrun.xml" ;
     }
 
-    # -> to named file
-    {
+    subtest 'to named file', {
         $doc.save: :file( "example/testrun.xml" );
         pass(' TODO : Add test name');
         # now parse the file to check, if succeeded
         my $tdoc = $parser.parse: :file( "example/testrun.xml" );
         ok( $tdoc, ' TODO : Add test name' );
-        ok( $tdoc.documentElement, ' TODO : Add test name' );
-        is( $tdoc.documentElement.nodeName, "foo", ' TODO : Add test name' );
-        is( $tdoc.documentElement.string-value, "bar", ' TODO : Add test name' );
+        ok $tdoc.documentElement;
+        is $tdoc.documentElement.nodeName, "foo";
+        is $tdoc.documentElement.string-value, "bar";
         unlink "example/testrun.xml" ;
     }
 
-    # ELEMENT LIKE FUNCTIONS
-    {
+    subtest 'element like functions', {
         my $parser2 = LibXML.new();
         my $string1 = "<A><A><B/></A><A><B/></A></A>";
         my $string2 = '<C:A xmlns:C="xml://D"><C:A><C:B/></C:A><C:A><C:B/></C:A></C:A>';
@@ -481,46 +472,42 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
     }
 }
 
-{
-    {
+subtest 'Nil-ing nodes', {
+    lives-ok {
        my $doc=LibXML.createDocument(); # create a doc
        my $x=$doc.createPI('foo'=>"bar");      # create a PI
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the PI
-       pass(' TODO : Add test name');
     }
-    {
+    lives-ok {
        my $doc=LibXML.createDocument(); # create a doc
        my $x=$doc.createAttribute('foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
-       pass(' TODO : Add test name');
     }
-    {
+    lives-ok {
        my $doc=LibXML.createDocument(); # create a doc
        my $x=$doc.createAttributeNS(Str,'foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
-       pass(' TODO : Add test name');
     }
-    {
+    lives-ok {
        my $doc=LibXML.parse: :string('<foo xmlns:x="http://foo.bar"/>');
        my $x=$doc.createAttributeNS('http://foo.bar','x:foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
-       pass(' TODO : Add test name');
     }
-    {
+    do {
       my $object = LibXML::Element.new( :name<object> );
       my $xml = qq{<?xml version="1.0" encoding="UTF-8"?>\n<lom/>};
       my $lom_doc = LibXML.parse: :string($xml);
       my $lom_root = $lom_doc.getDocumentElement();
       $object.appendChild( $lom_root );
-      ok(!defined($object.firstChild.ownerDocument), ' TODO : Add test name');
+      ok !defined($object.firstChild.ownerDocument);
     }
 }
 
-{
+subtest 'Nil-ing encoding', {
   my $xml = q{<?xml version="1.0" encoding="UTF-8"?>
 <test/>
 };
@@ -530,10 +517,10 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
   todo "unreliable on Rakudo <= 2019.07"
       unless $*PERL.compiler.version > v2019.07;
   is-deeply($dom.encoding, Str, 'Document encoding cleared');
-  is($dom.Str, $xml, ' TODO : Add test name');
+  is $dom.Str, $xml;
 }
 
-{
+subtest 'various encodings', {
     my $name = "Heydər Əliyev";
 
     for 'UTF-16LE', 'UTF-16BE', 'UTF-16', 'ISO-8859-1' -> $enc {
@@ -551,8 +538,8 @@ sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want
         is $dom.encoding, $enc, "$enc encoding";
         my $root = $dom.getDocumentElement;
         is $root.getAttribute('foo'), $name, "$enc encoding getAttribute";
-        is $root.firstChild.nodeValue, $name, 'node value';
-        is-deeply $dom.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', $xml-root-pretty), '.Str method';
+        is $root.firstChild.nodeValue, $name, "$enc node value";
+        is-deeply $dom.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', $xml-root-pretty), "$enc .Str method";
         # peek at the first few bytes
         my $dom-blob = $dom.Blob;
         my $start-bytes = $dom-blob.subbuf(0, 4).List;

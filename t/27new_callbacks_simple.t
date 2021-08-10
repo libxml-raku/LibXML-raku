@@ -122,7 +122,7 @@ my $icb = LibXML::InputCallback.new: :callbacks{
     read => $read_file_counter.cb(),
     close => $close_file_counter.cb() };
 
-ok($icb, ' TODO : Add test name');
+ok $icb.defined;
 
 
 my $parser = LibXML.new;
@@ -138,9 +138,9 @@ $read_file_counter.test(2, 'read_file called twice.');
 
 $close_file_counter.test(1, 'close_file called once.');
 
-ok($doc, ' TODO : Add test name');
+ok $doc.defined, 'doc defined';
 
-is($doc.string-value(), "test..", ' TODO : Add test name');
+is $doc.string-value(), "test..", 'string-value';
 
 my $icb2  = LibXML::InputCallback.new: :callbacks{
     match =>  $match_hash_counter.cb(),
@@ -148,7 +148,7 @@ my $icb2  = LibXML::InputCallback.new: :callbacks{
     read  => $read_hash_counter.cb(),
     close => $close_hash_counter.cb()};
 
-ok($icb2, ' TODO : Add test name');
+ok $icb2.defined;
 
 $parser.input-callbacks = $icb2;
 $doc = $parser.parse: :$string;
@@ -161,7 +161,6 @@ $read_hash_counter.test(6, 'read_hash called six times.');
 
 $close_hash_counter.test(1, 'close_hash called once.');
 
-ok($doc, ' TODO : Add test name');
+ok $doc.defined, 'doc defined';
 
-
-is($doc.string-value(), "testbar..", ' TODO : Add test name');
+is $doc.string-value(), "testbar..", 'string-value';

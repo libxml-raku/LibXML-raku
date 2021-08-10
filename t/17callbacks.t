@@ -1,7 +1,7 @@
 use v6;
 use Test;
 
-plan 25;
+plan 4;
 
 use LibXML;
 use LibXML::InputCallback;
@@ -128,7 +128,7 @@ my ($read1_non_global_counter, $read1_global_counter) =
         },
     );
 
-{
+subtest 'single callback', {
     # first test checks if local callbacks work
     my LibXML::InputCallback $input-callbacks .= new: :callbacks{
         :match($match1_non_global_counter.cb.() ),
@@ -150,23 +150,23 @@ my ($read1_non_global_counter, $read1_global_counter) =
 
     $open1_non_global_counter.test(2, 'expand_include open1 worked.');
 
-    ok($dom, 'DOM was returned.');
+    ok $dom.defined, 'DOM was returned.';
     # warn $dom.toString();
 
     my $root = $dom.getDocumentElement();
 
     my @nodes = $root.findnodes( 'xml/xsl' );
-    ok( +@nodes, 'Found nodes.' );
+    ok +@nodes, 'Found nodes.';
 }
 
-{
+subtest 'per parser callbacks', {
     # test per parser callbacks. These tests must not fail!
 
     my $parser = LibXML.new();
     my $parser2 = LibXML.new();
 
-    ok($parser, '$parser was init.');
-    ok($parser2, '$parser2 was init.');
+    ok $parser.defined, '$parser was init.';
+    ok $parser2.defined, '$parser2 was init.';
 
     my LibXML::InputCallback $input-callbacks .= new: :callbacks{
         :match($match1_non_global_counter.cb.() ),
@@ -197,8 +197,8 @@ my ($read1_non_global_counter, $read1_global_counter) =
     $match1_non_global_counter.test(2, 'match1 for $parser out of ($parser,$parser2)');
     $open1_non_global_counter.test(2, 'expand_include for $parser out of ($parser,$parser2)');
     $open2_counter.test(2, 'expand_include for $parser2 out of ($parser,$parser2)');
-    ok($dom1, '$dom1 was returned');
-    ok($dom2, '$dom2 was returned');
+    ok $dom1.defined, '$dom1 was returned';
+    ok $dom2.defined, '$dom2 was returned';
 
     my $val1  = ( $dom1.first( "/x/xml/text()") ).string-value();
     my $val2  = ( $dom2.first( "/x/xml/text()") ).string-value();
@@ -207,8 +207,8 @@ my ($read1_non_global_counter, $read1_global_counter) =
     $val2 .= trim;
 
 
-    is( $val1, "test", ' TODO : Add test name' );
-    is( $val2, "test 4", ' TODO : Add test name' );
+    is $val1, "test", 'first parser result';
+    is $val2, "test 4", 'second parser result';
 }
 
 chdir("example/complex");
@@ -230,8 +230,7 @@ my $input-callbacks = LibXML::InputCallback.new: :callbacks{
         :close( $close1_global_counter.cb.() ),
 };
 
-{
-    # tests if global callbacks are working
+subtest 'global callbacks', {
     my $parser = LibXML.new: :$input-callbacks;
     $parser.dtd = True;
     ok($parser, '$parser was init');

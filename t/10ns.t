@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 154;
+plan 11;
 
 use LibXML;
 use LibXML::Enums;
@@ -41,32 +41,28 @@ my $xml3 = q:to<EOX>;
 </a>
 EOX
 
-print "# 1.   single namespace \n";
-
-{
+subtest 'single namespace', {
     my $doc1 = $parser.parse: :string( $xml1 );
     my $elem = $doc1.documentElement;
-    is($elem.lookupNamespaceURI( "b" ), "http://whatever", ' TODO : Add test name' );
+    is $elem.lookupNamespaceURI( "b" ), "http://whatever";
     my @cn = $elem.childNodes;
-    is(@cn[0].lookupNamespaceURI( "b" ), "http://whatever", ' TODO : Add test name' );
-    is(@cn[1].namespaceURI, "http://whatever", ' TODO : Add test name' );
+    is @cn[0].lookupNamespaceURI( "b" ), "http://whatever";
+    is @cn[1].namespaceURI, "http://whatever";
 }
 
-print "# 2.    multiple namespaces \n";
-
-{
+subtest 'multiple namespaces', {
     my $doc2 = $parser.parse: :string( $xml2 );
 
     my $elem = $doc2.documentElement;
-    is($elem.lookupNamespaceURI( "b" ), "http://whatever", ' TODO : Add test name');
-    is($elem.lookupNamespaceURI( "c" ), "http://kungfoo", ' TODO : Add test name');
+    is $elem.lookupNamespaceURI( "b" ), "http://whatever";
+    is $elem.lookupNamespaceURI( "c" ), "http://kungfoo";
     my @cn = $elem.childNodes;
 
-    is(@cn[0].lookupNamespaceURI( "b" ), "http://whatever", ' TODO : Add test name' );
-    is(@cn[0].lookupNamespaceURI( "c" ), "http://kungfoo", ' TODO : Add test name');
+    is @cn[0].lookupNamespaceURI( "b" ), "http://whatever";
+    is @cn[0].lookupNamespaceURI( "c" ), "http://kungfoo";
 
-    is(@cn[1].namespaceURI, "http://whatever", ' TODO : Add test name' );
-    is(@cn[2].namespaceURI, "http://kungfoo", ' TODO : Add test name' );
+    is @cn[1].namespaceURI, "http://whatever";
+    is @cn[2].namespaceURI, "http://kungfoo";
 
     my $namespaces = $elem.findnodes("namespace::*");
     my LibXML::Namespace:D $ns1 = $namespaces[0];
@@ -80,27 +76,22 @@ print "# 2.    multiple namespaces \n";
     is $elem.namespaces.iterator.pull-one.declaredPrefix, 'b', '$elem.namespaces.pull-one';
 }
 
-print "# 3.   nested names \n";
-
-{
+subtest 'nested names', {
     my $doc3 = $parser.parse: :string( $xml3 );
     my $elem = $doc3.documentElement;
     my @cn = $elem.childNodes;
     my @xs = @cn.grep: { .nodeType == XML_ELEMENT_NODE };
 
     my @x1 = @xs[1].childNodes; my @x2 = @xs[2].childNodes;
-
-
-    is( @x1[1].namespaceURI , "http://kungfoo", ' TODO : Add test name' );
-    is( @x2[1].namespaceURI , "http://foobar", ' TODO : Add test name' );
+    is @x1[1].namespaceURI , "http://kungfoo";
+    is @x2[1].namespaceURI , "http://foobar";
 
     # namespace scoping
-    ok( !defined($elem.lookupNamespacePrefix( "http://kungfoo" )), ' TODO : Add test name' );
-    ok( !defined($elem.lookupNamespacePrefix( "http://foobar" )), ' TODO : Add test name' );
+    ok !defined($elem.lookupNamespacePrefix( "http://kungfoo" ));
+    ok !defined($elem.lookupNamespacePrefix( "http://foobar" ));
 }
 
-print "# 4. post creation namespace setting\n";
-{
+subtest 'post creation namespace setting', {
     my $e1 = LibXML::Element.new: :name("foo");
     my $e2 = LibXML::Element.new: :name("bar:foo");
     my $e3 = LibXML::Element.new: :name("foo");
@@ -109,14 +100,12 @@ print "# 4. post creation namespace setting\n";
 
     $e1.appendChild($e2);
     $e2.appendChild($e3);
-    ok( $e2.setNamespace("http://kungfoo", "bar"), ' TODO : Add test name' );
-    ok( $a.setNamespace("http://kungfoo", "bar"), ' TODO : Add test name' );
-    is( $a.nodeName, "bar:kung", ' TODO : Add test name' );
+    ok $e2.setNamespace("http://kungfoo", "bar");
+    ok $a.setNamespace("http://kungfoo", "bar");
+    is $a.nodeName, "bar:kung";
 }
 
-print "# 5. importing namespaces\n";
-
-{
+subtest 'importing namespaces', {
 
     my $doca = LibXML.createDocument;
     my $docb = LibXML.new().parse: :string( q:to<EOX>);
@@ -127,20 +116,18 @@ print "# 5. importing namespaces\n";
 
     my $c = $doca.importNode( $b );
     my LibXML::Item @attra = flat $c.properties, $c.namespaces;
-    is( +@attra, 1, ' TODO : Add test name' );
-    is( @attra[0].nodeType, 18, ' TODO : Add test name' );
+    is +@attra, 1;
+    is @attra[0].nodeType, 18;
+
     my $d = $doca.adoptNode($b);
-
-
-    ok( $d.isSameNode( $b ), ' TODO : Add test name' );
+    ok $d.isSameNode( $b );
     my LibXML::Item @attrb = flat $d.properties, $c.namespaces;
-    is( +@attrb, 1, ' TODO : Add test name' );
-    is( @attrb[0].nodeType, 18, ' TODO : Add test name' );
+    is +@attrb, 1;
+    is @attrb[0].nodeType, 18;
 }
 
-print "# 6. lossless setting of namespaces with setAttribute\n";
-# reported by Kurt George Gjerde
-{
+subtest 'lossless setting of namespaces with setAttribute',  {
+    # Perl report by Kurt George Gjerde
     my $doc = LibXML.createDocument;
     my $root = $doc.createElementNS('http://example.com', 'document');
     $root.setAttribute('xmlns:xxx', 'http://example.com');
@@ -148,38 +135,35 @@ print "# 6. lossless setting of namespaces with setAttribute\n";
     $doc.setDocumentElement( $root );
 
     my $strnode = $root.Str();
-    ok( ($strnode ~~ /'xmlns:xxx'/ and $strnode ~~ /'xmlns='/), ' TODO : Add test name' );
+    ok ($strnode ~~ /'xmlns:xxx'/ and $strnode ~~ /'xmlns='/);
 }
 
-print "# 7. namespaced attributes\n";
-{
+subtest 'namespaced attributes', {
     my $doc = LibXML.parse: :string(q:to<EOF>);
     <test xmlns:xxx="http://example.com"/>
     EOF
     my $root = $doc.getDocumentElement();
     # namespaced attributes
     $root.setAttribute('xxx:attr', 'value');
-    ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
-    is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
-    is( $root.getAttributeNS('http://example.com','attr'), 'value', ' TODO : Add test name' );
-    is( $root.getAttributeNode('xxx:attr').getNamespaceURI(), 'http://example.com', ' TODO : Add test name');
+    ok $root.getAttributeNode('xxx:attr');
+    is $root.getAttribute('xxx:attr'), 'value';
+    ok $root.getAttributeNodeNS('http://example.com','attr');
+    is $root.getAttributeNS('http://example.com','attr'), 'value';
+    is $root.getAttributeNode('xxx:attr').getNamespaceURI(), 'http://example.com';
 
     #change encoding to UTF-8 and retest
     $doc.encoding = 'UTF-8';
     # namespaced attributes
     $root.setAttribute('xxx:attr', 'value');
-    ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
-    is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
-    is( $root.getAttributeNS('http://example.com','attr'), 'value', ' TODO : Add test name' );
-    is( $root.getAttributeNode('xxx:attr').getNamespaceURI(),
-        'http://example.com', ' TODO : Add test name');
+    ok $root.getAttributeNode('xxx:attr');
+    is $root.getAttribute('xxx:attr'), 'value';
+    ok $root.getAttributeNodeNS('http://example.com','attr');
+    is $root.getAttributeNS('http://example.com','attr'), 'value';
+    is $root.getAttributeNode('xxx:attr').getNamespaceURI(), 'http://example.com';
 }
 
 
-print "# 8. changing namespace declarations\n";
-{
+subtest 'Namespace Declarations', {
     my $xmlns = 'http://www.w3.org/2000/xmlns/';
 
     my $doc = LibXML.createDocument;
@@ -188,127 +172,136 @@ print "# 8. changing namespace declarations\n";
     $root.setAttribute('xmlns:yyy', 'http://yonder.com');
     $doc.setDocumentElement( $root );
 
-    # can we get the namespaces ?
-    is( $root.getAttribute('xmlns:xxx'), 'http://example.com', ' TODO : Add test name');
-    is( $root.getAttributeNS($xmlns,'xmlns'), 'http://example.com', ' TODO : Add test name' );
-    is( $root.getAttribute('xmlns:yyy'), 'http://yonder.com', ' TODO : Add test name');
-    is( $root.lookupNamespacePrefix('http://yonder.com'), 'yyy', ' TODO : Add test name');
-    is( $root.lookupNamespaceURI('yyy'), 'http://yonder.com', ' TODO : Add test name');
+    subtest 'get namespace', {
+        is  $root.getAttribute('xmlns:xxx'), 'http://example.com';
+        is $root.getAttributeNS($xmlns,'xmlns'), 'http://example.com';
+        is  $root.getAttribute('xmlns:yyy'), 'http://yonder.com';
+        is  $root.lookupNamespacePrefix('http://yonder.com'), 'yyy';
+        is  $root.lookupNamespaceURI('yyy'), 'http://yonder.com';
+    }
 
-    # can we change the namespaces ?
-    ok( $root.setAttribute('xmlns:yyy', 'http://newyonder.com'), ' TODO : Add test name' );
-    is( $root.getAttribute('xmlns:yyy'), 'http://newyonder.com', ' TODO : Add test name');
-    is( $root.lookupNamespacePrefix('http://newyonder.com'), 'yyy', ' TODO : Add test name');
-    is( $root.lookupNamespaceURI('yyy'), 'http://newyonder.com', ' TODO : Add test name');
+    subtest 'changing namespace', {
+        ok $root.setAttribute('xmlns:yyy', 'http://newyonder.com');
+        is  $root.getAttribute('xmlns:yyy'), 'http://newyonder.com';
+        is  $root.lookupNamespacePrefix('http://newyonder.com'), 'yyy';
+        is  $root.lookupNamespaceURI('yyy'), 'http://newyonder.com';
+    }
 
-    # can we change the default namespace ?
-    $root.setAttribute('xmlns', 'http://other.com' );
-    is( $root.getAttribute('xmlns'), 'http://other.com', ' TODO : Add test name' );
-    is( $root.lookupNamespacePrefix('http://other.com'), "", ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI(''), 'http://other.com', ' TODO : Add test name' );
+    subtest 'changing default namespace', {
+        $root.setAttribute('xmlns', 'http://other.com' );
+        is $root.getAttribute('xmlns'), 'http://other.com';
+        is $root.lookupNamespacePrefix('http://other.com'), "";
+        is $root.lookupNamespaceURI(''), 'http://other.com';
+    }
 
-    # non-existent namespaces
-    is-deeply( $root.lookupNamespaceURI('foo'), Str, ' TODO : Add test name' );
-    is-deeply( $root.lookupNamespacePrefix('foo'), Str, ' TODO : Add test name' );
-    is-deeply( $root.getAttribute('xmlns:foo'), Str, ' TODO : Add test name' );
+    subtest 'non-existent namespaces', {
+        is-deeply $root.lookupNamespaceURI('foo'), Str;
+        is-deeply $root.lookupNamespacePrefix('foo'), Str;
+        is-deeply $root.getAttribute('xmlns:foo'), Str;
+    }
 
-    # changing namespace declaration URI and prefix
-    ok( $root.setNamespaceDeclURI('yyy', 'http://changed.com'), ' TODO : Add test name' );
-    is( $root.getAttribute('xmlns:yyy'), 'http://changed.com', ' TODO : Add test name');
-    is( $root.lookupNamespaceURI('yyy'), 'http://changed.com', ' TODO : Add test name');
-    dies-ok { $root.setNamespaceDeclPrefix('yyy','xxx'); }, 'prefix occupied';
-    dies-ok { $root.setNamespaceDeclPrefix('yyy',''); };
-    ok( $root.setNamespaceDeclPrefix('yyy', 'zzz'), ' TODO : Add test name' );
-    is-deeply( $root.lookupNamespaceURI('yyy'), Str, ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI('zzz'), 'http://changed.com', ' TODO : Add test name' );
-    ok( $root.setNamespaceDeclURI('zzz', Str ), ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI('zzz'), Str, ' TODO : Add test name' );
+    subtest 'changing namespace declaration URI and prefix', {
+        ok $root.setNamespaceDeclURI('yyy', 'http://changed.com');
+        is  $root.getAttribute('xmlns:yyy'), 'http://changed.com';
+        is  $root.lookupNamespaceURI('yyy'), 'http://changed.com';
+        dies-ok { $root.setNamespaceDeclPrefix('yyy','xxx'); }, 'prefix occupied';
+        dies-ok { $root.setNamespaceDeclPrefix('yyy',''); };
+        ok $root.setNamespaceDeclPrefix('yyy', 'zzz');
+        is-deeply $root.lookupNamespaceURI('yyy'), Str;
+        is $root.lookupNamespaceURI('zzz'), 'http://changed.com';
+        ok $root.setNamespaceDeclURI('zzz', Str );
+        is $root.lookupNamespaceURI('zzz'), Str;
 
-    my $strnode = $root.Str();
-    ok( $strnode !~~ /'xmlns:zzz'/, ' TODO : Add test name' );
+        my $strnode = $root.Str();
+        ok $strnode !~~ /'xmlns:zzz'/;
+    }
 
-    # changing the default namespace declaration
-    ok( $root.setNamespaceDeclURI('','http://test'), ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI(''), 'http://test', ' TODO : Add test name' );
-    is( $root.getNamespaceURI(), 'http://test', ' TODO : Add test name' );
+    subtest 'changing the default namespace declaration', {
+        ok $root.setNamespaceDeclURI('','http://test');
+        is $root.lookupNamespaceURI(''), 'http://test';
+        is $root.getNamespaceURI(), 'http://test';
+    }
 
-    # changing prefix of the default ns declaration
-    ok( $root.setNamespaceDeclPrefix('','foo'), ' TODO : Add test name' );
-    is-deeply( $root.lookupNamespaceURI(''), Str, ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI('foo'), 'http://test', ' TODO : Add test name' );
-    is( $root.getNamespaceURI(),  'http://test', ' TODO : Add test name' );
-    is( $root.prefix(),  'foo', ' TODO : Add test name' );
+    subtest 'changing prefix of the default ns declaration', {
+        ok $root.setNamespaceDeclPrefix('','foo');
+        is-deeply $root.lookupNamespaceURI(''), Str;
+        is $root.lookupNamespaceURI('foo'), 'http://test';
+        is $root.getNamespaceURI(),  'http://test';
+        is $root.prefix(),  'foo';
+    }
 
-    # turning a ns declaration to a default ns declaration
-    ok( $root.setNamespaceDeclPrefix('foo',''), ' TODO : Add test name' );
-    is-deeply( $root.lookupNamespaceURI('foo'), Str, ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI(''), 'http://test', ' TODO : Add test name' );
-    is( $root.lookupNamespaceURI(Str), 'http://test', ' TODO : Add test name' );
-    is( $root.getNamespaceURI(),  'http://test', ' TODO : Add test name' );
-    is-deeply( $root.prefix(), Str, ' TODO : Add test name' );
+    subtest 'turning a ns declaration to a default ns declaration', {
+        ok $root.setNamespaceDeclPrefix('foo','');
+        is-deeply $root.lookupNamespaceURI('foo'), Str;
+        is $root.lookupNamespaceURI(''), 'http://test';
+        is $root.lookupNamespaceURI(Str), 'http://test';
+        is $root.getNamespaceURI(),  'http://test';
+        is-deeply $root.prefix(), Str;
+    }
 
-    # removing the default ns declaration
-    ok( $root.setNamespaceDeclURI('',Str), ' TODO : Add test name' );
-    is-deeply( $root.lookupNamespaceURI(''), Str, ' TODO : Add test name' );
-    is-deeply( $root.getNamespaceURI(), Str, ' TODO : Add test name' );
+    subtest 'removing the default ns declaration', {
+        ok $root.setNamespaceDeclURI('',Str);
+        is-deeply $root.lookupNamespaceURI(''), Str;
+        is-deeply $root.getNamespaceURI(), Str;
 
-    $strnode = $root.Str();
-    ok( $strnode !~~ /'xmlns='/, ' TODO : Add test name' );
+        my $strnode = $root.Str();
+        ok $strnode !~~ /'xmlns='/;
+    }
 
-    # namespaced attributes
-    $root.setAttribute('xxx:attr', 'value');
-    ok( $root.getAttributeNode('xxx:attr'), ' TODO : Add test name' );
-    is( $root.getAttribute('xxx:attr'), 'value', ' TODO : Add test name' );
-    ok( $root.getAttributeNodeNS('http://example.com','attr'), ' TODO : Add test name' );
-    is( $root.getAttributeNS('http://example.com','attr'), 'value', ' TODO : Add test name' );
-    is( $root.getAttributeNode('xxx:attr').getNamespaceURI(), 'http://example.com', ' TODO : Add test name');
+    subtest 'namespaced attributes', {
+        $root.setAttribute('xxx:attr', 'value');
+        ok $root.getAttributeNode('xxx:attr');
+        is $root.getAttribute('xxx:attr'), 'value';
+        ok $root.getAttributeNodeNS('http://example.com','attr');
+        is $root.getAttributeNS('http://example.com','attr'), 'value';
+        is $root.getAttributeNode('xxx:attr').getNamespaceURI(), 'http://example.com';
+    }
 
-    # removing other xmlns declarations
-    $root.addNewChild('http://example.com', 'xxx:foo');
-    ok( $root.setNamespaceDeclURI('xxx',Str), ' TODO : Add test name' );
-    is-deeply( $root.lookupNamespaceURI('xxx'), Str, ' TODO : Add test name' );
-    is-deeply( $root.getNamespaceURI(), Str, ' TODO : Add test name' );
-    is-deeply( $root.firstChild.getNamespaceURI(), Str, ' TODO : Add test name' );
-    is-deeply( $root.prefix(), Str, ' TODO : Add test name' );
-    is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
+    subtest 'removing other xmlns declarations', {
+        $root.addNewChild('http://example.com', 'xxx:foo');
+        ok $root.setNamespaceDeclURI('xxx',Str);
+        is-deeply $root.lookupNamespaceURI('xxx'), Str;
+        is-deeply $root.getNamespaceURI(), Str;
+        is-deeply $root.firstChild.getNamespaceURI(), Str;
+        is-deeply $root.prefix(), Str;
+        is-deeply $root.firstChild.prefix(), Str;
+    }
 
-    # check namespaced attributes
-    is-deeply( $root.getAttributeNode('xxx:attr'), LibXML::Attr, ' TODO : Add test name' );
-    is-deeply( $root.getAttributeNodeNS('http://example.com', 'attr'), LibXML::Attr, ' TODO : Add test name' );
-    ok( $root.getAttributeNode('attr'), ' TODO : Add test name' );
-    is( $root.getAttribute('attr'), 'value', ' TODO : Add test name' );
-    ok( $root.getAttributeNodeNS(Str,'attr'), ' TODO : Add test name' );
-    is( $root.getAttributeNS(Str,'attr'), 'value', ' TODO : Add test name' );
-    is-deeply( $root.getAttributeNode('attr').getNamespaceURI(), Str, ' TODO : Add test name');
+    subtest 'check namespaced attributes', {
+        is-deeply $root.getAttributeNode('xxx:attr'), LibXML::Attr;
+        is-deeply $root.getAttributeNodeNS('http://example.com', 'attr'), LibXML::Attr;
+        ok $root.getAttributeNode('attr');
+        is $root.getAttribute('attr'), 'value';
+        ok $root.getAttributeNodeNS(Str,'attr');
+        is $root.getAttributeNS(Str,'attr'), 'value';
+        is-deeply $root.getAttributeNode('attr').getNamespaceURI(), Str;
 
-    $strnode = $root.Str();
-    ok( $strnode !~~ /'xmlns='/, ' TODO : Add test name' );
-    ok( $strnode !~~ /'xmlns:xxx='/, ' TODO : Add test name' );
-    ok( $strnode ~~ /'<foo'/, ' TODO : Add test name' );
+        my $strnode = $root.Str();
+        ok $strnode !~~ /'xmlns='/;
+        ok $strnode !~~ /'xmlns:xxx='/;
+        ok $strnode ~~ /'<foo'/,;
 
-    ok( $root.setNamespaceDeclPrefix('xxx', Str), ' TODO : Add test name' );
+        ok $root.setNamespaceDeclPrefix('xxx', Str);
 
-    is( $doc.findnodes('/document/foo').size(), 1, ' TODO : Add test name' );
-    is( $doc.findnodes('/document[foo]').size(), 1, ' TODO : Add test name' );
-    is( $doc.findnodes('/document[*]').size(), 1, ' TODO : Add test name' );
-    is( $doc.findnodes('/document[@attr and foo]').size(), 1, ' TODO : Add test name' );
-    is( $doc.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
+        is $doc.findnodes('/document/foo').size(), 1;
+        is $doc.findnodes('/document[foo]').size(), 1;
+        is $doc.findnodes('/document[*]').size(), 1;
+        is $doc.findnodes('/document[@attr and foo]').size(), 1;
+        is $doc.findvalue('/document/@attr'), 'value';
 
-    my LibXML::XPath::Context $xp .= new: :$doc;
-    is( $xp.findnodes('/document/foo').size(), 1, ' TODO : Add test name' );
-    is( $xp.findnodes('/document[foo]').size(), 1, ' TODO : Add test name' );
-    is( $xp.findnodes('/document[*]').size(), 1, ' TODO : Add test name' );
+        my LibXML::XPath::Context $xp .= new: :$doc;
+        is $xp.findnodes('/document/foo').size(), 1;
+        is $xp.findnodes('/document[foo]').size(), 1;
+        is $xp.findnodes('/document[*]').size(), 1;
 
+        is $xp.findnodes('/document[@attr and foo]').size(), 1;
+        is $xp.findvalue('/document/@attr'), 'value';
 
-    is( $xp.findnodes('/document[@attr and foo]').size(), 1, ' TODO : Add test name' );
-    is( $xp.findvalue('/document/@attr'), 'value', ' TODO : Add test name' );
-
-
-    is-deeply( $root.firstChild.prefix(), Str, ' TODO : Add test name' );
+        is-deeply $root.firstChild.prefix(), Str;
+    }
 }
 
-print "# 9. namespace reconciliation\n";
-{
+subtest 'namespace reconciliation', {
     my $doc = LibXML.createDocument( 'http://default', 'root' );
     my $root = $doc.documentElement;
     $root.addNamespace( 'http://children', 'child');
@@ -316,23 +309,23 @@ print "# 9. namespace reconciliation\n";
     $root.appendChild( my $n = $doc.createElementNS( 'http://default', 'branch' ));
     # appending an element in the same namespace will
     # strip its declaration
-    ok( !defined($n.getAttribute( 'xmlns' )), ' TODO : Add test name' );
+    ok !defined($n.getAttribute( 'xmlns' ));
 
     $n.appendChild( my $a = $doc.createElementNS( 'http://children', 'child:a' ));
     $n.appendChild( my $b = $doc.createElementNS( 'http://children', 'child:b' ));
 
     $n.appendChild( my $c = $doc.createElementNS( 'http://children', 'child:c' ));
     # appending $c strips the declaration
-    ok( !defined($c.getAttribute('xmlns:child')), ' TODO : Add test name' );
+    ok !defined($c.getAttribute('xmlns:child'));
 
     # add another prefix for children
     $c.setAttribute( 'xmlns:foo', 'http://children' );
-    is( $c.getAttribute( 'xmlns:foo' ), 'http://children', ' TODO : Add test name' );
+    is $c.getAttribute( 'xmlns:foo' ), 'http://children';
 
     $n.appendChild( my $d = $doc.createElementNS( 'http://other', 'branch' ));
     # appending an element with a new default namespace
     # will leave it declared
-    is( $d.getAttribute( 'xmlns' ), 'http://other', ' TODO : Add test name' );
+    is $d.getAttribute( 'xmlns' ), 'http://other';
 
     my $doca = LibXML.createDocument( 'http://default/', 'root' );
     $doca.adoptNode( $a );
@@ -342,8 +335,8 @@ print "# 9. namespace reconciliation\n";
 
     # Because the child namespace isn't defined in $doca
     # it should get declared on both child nodes $a and $b
-    is( $a.getAttribute( 'xmlns:child' ), 'http://children', ' TODO : Add test name' );
-    is( $b.getAttribute( 'xmlns:child' ), 'http://children', ' TODO : Add test name' );
+    is $a.getAttribute( 'xmlns:child' ), 'http://children';
+    is $b.getAttribute( 'xmlns:child' ), 'http://children';
 
     $doca = LibXML.createDocument( 'http://children', 'child:root' );
     $doca.adoptNode( $a );
@@ -351,19 +344,18 @@ print "# 9. namespace reconciliation\n";
 
     # $doca declares the child namespace, so the declaration
     # should now get stripped from $a
-    ok( !defined($a.getAttribute( 'xmlns:child' )), ' TODO : Add test name' );
+    ok !defined($a.getAttribute( 'xmlns:child' ));
 
     $doca.documentElement.removeChild( $a );
 
     # $a should now have its namespace re-declared
-    is( $a.getAttribute( 'xmlns:child' ), 'http://children', ' TODO : Add test name' );
+    is $a.getAttribute( 'xmlns:child' ), 'http://children';
 
     $doca.documentElement.appendChild( $a );
 
     # $doca declares the child namespace, so the declaration
     # should now get stripped from $a
-    ok( !defined($a.getAttribute( 'xmlns:child' )), ' TODO : Add test name' );
-
+    ok !defined($a.getAttribute( 'xmlns:child' ));
 
     $doc = LibXML::Document.new;
     $n = $doc.createElement( 'didl' );
@@ -377,12 +369,12 @@ print "# 9. namespace reconciliation\n";
     $n.appendChild( $a );
 
     # the declaration for xsi should be stripped
-    ok( !defined($a.getAttribute( 'xmlns:xsi' )), ' TODO : Add test name' );
+    ok !defined($a.getAttribute( 'xmlns:xsi' ));
 
     $n.removeChild( $a );
 
     # should be a new declaration for xsi in $a
-    is( $a.getAttribute( 'xmlns:xsi' ), 'http://www.w3.org/2001/XMLSchema-instance', ' TODO : Add test name' );
+    is $a.getAttribute( 'xmlns:xsi' ), 'http://www.w3.org/2001/XMLSchema-instance';
 
     $b = $doc.createElement( 'foo' );
     $b.setAttribute( 'xsi:bar', 'bar' );
@@ -391,30 +383,29 @@ print "# 9. namespace reconciliation\n";
 
     # a prefix without a namespace can't be reliably compared,
     # so $b doesn't acquire a declaration from $n!
-    ok( !defined($b.getAttribute( 'xmlns:xsi' )), ' TODO : Add test name' );
+    ok !defined($b.getAttribute( 'xmlns:xsi' ));
 
     # tests for reconciliation during setAttributeNodeNS
     my $attr = $doca.createAttributeNS(
         'http://children', 'child:attr', 'value'
     );
-    ok($attr, ' TODO : Add test name');
-    my $child= $doca.documentElement.firstChild;
-    ok($child, ' TODO : Add test name');
+    ok $attr.defined;
+    my $child = $doca.documentElement.firstChild;
+    ok $child.defined;
     $child.setAttributeNodeNS($attr);
-    ok( !defined($child.getAttribute( 'xmlns:child' )), ' TODO : Add test name' );
+    ok !defined($child.getAttribute( 'xmlns:child' ));
 
     # due to libxml2 limitation, LibXML declares the namespace
     # on the root element
     $attr = $doca.createAttributeNS('http://other','other:attr','value');
-    ok($attr, ' TODO : Add test name');
+    ok $attr.defined;
     $child.setAttributeNodeNS($attr);
     #
-    ok( !defined($child.getAttribute( 'xmlns:other' )), ' TODO : Add test name' );
-    ok( defined($doca.documentElement.getAttribute( 'xmlns:other' )), ' TODO : Add test name' );
+    ok !defined($child.getAttribute( 'xmlns:other' ));
+    ok defined($doca.documentElement.getAttribute( 'xmlns:other' ));
 }
 
-print "# 10. xml namespace\n";
-{
+subtest 'xml namespace', {
     my $docOne = LibXML.parse: :string(
         '<foo><inc xml:id="test"/></foo>'
     );
@@ -425,12 +416,11 @@ print "# 10. xml namespace\n";
     my $inc = $docOne.getElementById('test');
     my $rep = $docTwo.getElementById('foo');
     $inc.parentNode.replaceChild($rep, $inc);
-    is($inc.getAttributeNS('http://www.w3.org/XML/1998/namespace','id'),'test', ' TODO : Add test name');
-    ok($inc.isSameNode($docOne.getElementById('test')), ' TODO : Add test name');
+    is $inc.getAttributeNS('http://www.w3.org/XML/1998/namespace','id'), 'test';
+    ok $inc.isSameNode($docOne.getElementById('test'));
 }
 
-print "# 11. empty namespace\n";
-{
+subtest 'empty namespace', {
     my $doc = LibXML.load: string => $xml1;
     my LibXML::Element $node = $doc.first('/a/b:c');
 

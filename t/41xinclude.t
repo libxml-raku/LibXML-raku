@@ -8,26 +8,26 @@ my $file = 'test/xinclude/test.xml';
 {
     $parser.expand-xinclude = False;
     $parser.expand-entities = True;
-    unlike($parser.parse(:$file).Str, /'IT WORKS'/, ' TODO : Add test name');
+    unlike $parser.parse(:$file).Str, /'IT WORKS'/, 'parse: :!expand-xinclude, :expand-entities';;
 }
 {
     $parser.expand-xinclude = True;
     $parser.expand-entities = False;
-    unlike($parser.parse(:$file).Str, /'IT WORKS'/, ' TODO : Add test name');
+    unlike $parser.parse(:$file).Str, /'IT WORKS'/, 'parse: :expand-xinclude, :!expand-entities';;
 }
 {
     $parser.expand-xinclude = True;
     $parser.expand-entities = True;
-    like($parser.parse(:$file).Str, /'IT WORKS'/, ' TODO : Add test name');
+    like $parser.parse(:$file).Str, /'IT WORKS'/, 'parse: :expand-xinclude, :expand-entities';;
 }
 {
     $parser.expand-xinclude = False;
     my $doc = $parser.parse: :$file;
-    ok( $doc.process-xincludes(:!expand-entities), ' TODO : Add test name' );
-    unlike($doc.Str, /'IT WORKS'/, ' TODO : Add test name' );
+    ok  $doc.process-xincludes(:!expand-entities), 'process-xincludes: :!expand-xinclude, :!expand-entities';
+    unlike $doc.Str, /'IT WORKS'/, 'process-xincludes: :!expand-xinclude, :!expand-entities';
 }
 {
     my $doc = $parser.parse :$file;
-    ok( $doc.process-xincludes(:expand-entities), ' TODO : Add test name' );
-    like($doc.Str, /'IT WORKS'/, ' TODO : Add test name' );
+    ok $doc.process-xincludes(:expand-entities), 'process-xincludes: :!expand-xinclude, :expand-entities';
+    like $doc.Str, /'IT WORKS'/,  'process-xincludes: :!expand-xinclude, :expand-entities';
 }

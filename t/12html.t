@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML;
 
-plan 55;
+plan 11;
 
 use LibXML;
 use LibXML::Raw;
@@ -10,15 +10,13 @@ use LibXML::Document;
 
 constant CanDoIO = ? IO::Handle.can('do-not-close-automatically');
 
-pass(' TODO : Add test name');
-
 my $html = "example/test.html";
 
 my $parser = LibXML.new();
-{
+subtest 'parse :html and :file options', {
     my LibXML::Document::HTML $doc = $parser.parse: :html, :file($html);
-    ok($doc, ' TODO : Add test name');
-    isa-ok($doc.raw, htmlDoc, 'HTML, under the hood');
+    ok $doc.defined;
+    isa-ok $doc.raw, htmlDoc, 'HTML, under the hood';
     cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
     cmp-ok $doc, '!~~', LibXML::Document::XML, "isn't XML";
 }
@@ -29,17 +27,16 @@ my $io = $html.IO.open(:r);
 my Str:D $string = $io.slurp;
 $io.seek(0, SeekFromBeginning );
 
-
-ok($string, ' TODO : Add test name');
+ok $string;
 
 my $doc = $parser.parse: :html, :$string;
 
 
-ok($doc, ' TODO : Add test name');
+ok $doc.defined;
 
 if CanDoIO {
     $doc = $parser.parse: :html, :$io;
-    ok($doc, ' TODO : Add test name');
+    ok $doc.defined, 'parse :html and :io options';
 }
 else {
     skip 'parse :$io tests need Rakudo >= 2020.06';
@@ -61,22 +58,21 @@ EOHTML
 
 my $htmldoc;
 
-$parser.recover = True;
-quietly {
-    $htmldoc = $parser.parse: :html, :string( $strhref );
-};
+subtest 'html recovery parse', { 
+    $parser.recover = True;
+    quietly {
+        $htmldoc = $parser.parse: :html, :string( $strhref );
+    };
 
-# ok( not $@ );
-ok( $htmldoc, ' TODO : Add test name' );
-my $body = $htmldoc<html/body>.first;
-$body.addNewChild(Str, 'InPut');
-is $body.lastChild.tagName, 'InPut';
-is-deeply $body.keys.sort, ('InPut', 'a', 'p', 'text()');
-is +$body<InPut>, 1, "case sensitivity on assoc get";
+    ok $htmldoc.defined;
+    my $body = $htmldoc<html/body>.first;
+    $body.addNewChild(Str, 'InPut');
+    is $body.lastChild.tagName, 'InPut';
+    is-deeply $body.keys.sort, ('InPut', 'a', 'p', 'text()');
+    is +$body<InPut>, 1, "case sensitivity on assoc get";
+}
 
-# parse_html_string with encoding
-# encodings
-{
+subtest 'html with encodings', {
     my $utf_str = "ěščř";
     # w/o 'meta' charset
     $strhref = qq:to<EOHTML>;
@@ -87,22 +83,22 @@ is +$body<InPut>, 1, "case sensitivity on assoc get";
     </html>
     EOHTML
 
-    ok($strhref, ' TODO : Add test name' );
+    ok $strhref.defined;
     $htmldoc = $parser.parse: :html, :string( $strhref );
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     $htmldoc = $parser.parse: :html, :string($strhref);
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     my $enc = 'iso-8859-2';
     my $iso_8859_str = buf8.new(0xEC, 0xB9, 0xE8, 0xF8).decode("latin-1");
     my Blob $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
     
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
-    ok( $htmldoc && $htmldoc.getDocumentElement.defined, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     # w/ 'meta' charset
     $strhref = qq:to<EOHTML>;
@@ -118,37 +114,35 @@ is +$body<InPut>, 1, "case sensitivity on assoc get";
     EOHTML
 
     $htmldoc = $parser.parse: :html, :string( $strhref,);
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     $htmldoc = $parser.parse: :html, :$buf, :$enc, :URI<foo>;
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
-    is($htmldoc.URI, 'foo', ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
+    is $htmldoc.URI, 'foo';
 }
 
-# parse example/enc_latin2.html
-# w/ 'meta' charset
-{
+subtest 'latin2 encoding', {
 
     my $utf_str = "ěščř";
     my $test_file = 'example/enc_latin2.html';
     my $fh;
 
     $htmldoc = $parser.parse: :html, :file( $test_file );
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
 
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>, :URI<foo>;
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
-    is($htmldoc.URI, 'foo', ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
+    is $htmldoc.URI, 'foo';
 
     if CanDoIO {
         my $io = $test_file.IO;
@@ -159,8 +153,8 @@ is +$body<InPut>, 1, "case sensitivity on assoc get";
         $doc = $parser.parse: :html, :file($html);
     }
 
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     if CanDoIO {
         my $io = $test_file.IO.open(:r);
@@ -170,9 +164,9 @@ is +$body<InPut>, 1, "case sensitivity on assoc get";
         note 'parse :$io tests need Rakudo > 2020.05';
         $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>, :URI<foo>;
     }
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.URI, 'foo', ' TODO : Add test name');
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.URI, 'foo';
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
 # iso-8859-2 encoding is NYI Rakudo.
 skip "iso-8859-2 nyi", 2;
@@ -189,16 +183,14 @@ skip "iso-8859-2 nyi", 2;
 =end TODO
 }
 
-# parse example/enc2_latin2.html
-# w/o 'meta' charset
-{
+subtest 'latin2 w/o meta charset', {
     my $utf_str = "ěščř";
     my $test_file = 'example/enc2_latin2.html';
     my $fh;
 
     $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>;
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     $io = $test_file.IO;
     if CanDoIO {
@@ -208,12 +200,11 @@ skip "iso-8859-2 nyi", 2;
         note 'parse :$io tests need Rakudo > 2020.05';
         $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>;
     }
-    ok( $htmldoc && $htmldoc.getDocumentElement, ' TODO : Add test name' );
-    is($htmldoc.findvalue('//p/text()'), $utf_str, ' TODO : Add test name');
-
+    ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
+    is $htmldoc.findvalue('//p/text()'), $utf_str;
 }
 
-{
+subtest 'recover', {
     my $html = q:to<EOF>;
     <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -235,14 +226,14 @@ skip "iso-8859-2 nyi", 2;
     quietly lives-ok {
         $doc = $parser.parse: :html, :string($html), :recover, :suppress-errors;
     };
-    ok ($doc.defined, ' Parsing was successful.');
+    ok  $doc.defined, ' Parsing was successful.';
     my $root = $doc && $doc.documentElement;
     my $val = $root && $root.findvalue('//input[@id="foo"]/@value');
-    is($val, 'working', 'XPath');
+    is $val, 'working', 'XPath';
 }
 
 
-{
+subtest 'parse :def-dtd', {
     # HTML_PARSE_NODEFDTD
 
     my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
@@ -258,9 +249,7 @@ skip "iso-8859-2 nyi", 2;
                    :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
 }
 
-{
-
-    #  Case sensitivity
+subtest 'case sensitivity', {
 
     my $strhref = q:to<EOHTML>;
     <html>

@@ -4,7 +4,7 @@ use LibXML;
 use LibXML::Raw;
 use Telemetry;
 
-plan 26;
+plan 17;
 my $skip;
 
 if !( %*ENV<AUTHOR_TESTING> or %*ENV<RELEASE_TESTING> ) {
@@ -41,119 +41,114 @@ class sax_null {...}
     # BASELINE
     check_mem(1);
 
-    # MAKE DOC IN SUB
-    {
+    subtest 'make doc in sub', {
         my $doc = make_doc();
-        ok($doc, 'Make doc in sub 1.');
-        ok($doc.Str.defined, 'Make doc in sub 1 - Str().');
+        ok $doc.defined;
+        ok $doc.Str.defined, 'Str()';
+        check_mem();
     }
-    check_mem();
-    # MAKE DOC IN SUB II
-    # same test as the first one. if this still leaks, it's
-    # our problem, otherwise it's perl :/
-    {
+
+    subtest 'make doc in sub II', {
+        # same test as the first one. if this still leaks, it's
+        # our problem, otherwise it's perl :/
         my $doc = make_doc();
-        ok($doc, 'Make doc in sub 2 - doc.');
+        $doc.defined;
 
-        ok($doc.Str.defined, 'Make doc in sub 2 - Str()');
+        ok $doc.Str.defined, 'Str()';
+        check_mem();
     }
-    check_mem();
 
-    {
+    subtest 'appendChild',{
         my $elem = LibXML::Element.new("foo");
         my $elem2= LibXML::Element.new("bar");
         $elem.appendChild($elem2);
-        ok( $elem.Str, 'appendChild.' );
+        ok $elem.Str;
+        check_mem();
     }
-    check_mem();
 
-    # SET DOCUMENT ELEMENT
-    {
+    subtest 'set document element', {
         my $doc2 = LibXML::Document.new();
         make_doc_elem( $doc2 );
-        ok( $doc2, 'SetDocElem');
-        ok( $doc2.documentElement, 'SetDocElem documentElement.' );
+        ok $doc2.defined;
+        ok $doc2.documentElement.defined, 'documentElement';
+        check_mem();
     }
-    check_mem();
 
-    # multiple parsers:
-    # MULTIPLE PARSERS
-    LibXML.new(); # first parser
-    check_mem(1);
+    subtest 'multiple parsers', {
+        LibXML.new(); # first parser
+        check_mem(1);
 
-    for 1..TIMES_THROUGH {
-        my $parser = LibXML.new();
-    }
-    pass('Initialise multiple parsers.');
-
-    check_mem();
-    # multiple parses
-    for 1..TIMES_THROUGH {
-        my $parser = LibXML.new();
-        my $dom = $parser.parse: :string("<sometag>foo</sometag>");
-    }
-    pass('multiple parses');
-
-    check_mem();
-
-    # multiple failing parses
-    # MULTIPLE FAILURES
-    for 1..TIMES_THROUGH {
-        # warn("$_\n") unless $_ % 100;
-        my $parser = LibXML.new();
-        try {
-            my $dom = $parser.parse: :string("<sometag>foo</somtag>"); # Thats meant to be an error, btw!
-        };
-    }
-    pass('Multiple failures.');
-
-    check_mem();
-
-    # building custom docs
-    my $doc = LibXML::Document.new();
-    for 1..TIMES_THROUGH        {
-        my $elem = $doc.createElement('x');
-
-        $doc.setDocumentElement($elem);
-
-    }
-    pass('customDocs');
-    check_mem();
-
-    {
-        my $doc = LibXML.createDocument;
-        for 1..TIMES_THROUGH        {
-            make_doc2( $doc );
+        for 1..TIMES_THROUGH {
+            my $parser = LibXML.new();
         }
-    }
-    pass('customDocs No. 2');
-    check_mem();
+        pass 'Initialise multiple parsers.';
+        check_mem();
+        # multiple parses
+        for 1..TIMES_THROUGH {
+            my $parser = LibXML.new();
+            my $dom = $parser.parse: :string("<sometag>foo</sometag>");
+        }
+        pass('multiple parses');
 
-    # DTD string parsing
+        check_mem();
+    }
+
+    subtest 'multiple failing parses', {
+        for 1..TIMES_THROUGH {
+            # warn("$_\n") unless $_ % 100;
+            my $parser = LibXML.new();
+            try {
+                my $dom = $parser.parse: :string("<sometag>foo</somtag>"); # Thats meant to be an error, btw!
+            };
+        }
+        pass('Multiple failures.');
+
+        check_mem();
+    }
+
+    subtest 'building custom docs', {
+        my $doc = LibXML::Document.new();
+        for 1..TIMES_THROUGH        {
+            my $elem = $doc.createElement('x');
+            $doc.setDocumentElement($elem);
+
+        }
+        pass('customDocs');
+        check_mem();
+
+        {
+            my $doc = LibXML.createDocument;
+            for 1..TIMES_THROUGH        {
+                make_doc2( $doc );
+            }
+        }
+        pass('customDocs No. 2');
+        check_mem();
+    }
 
     my $dtdstr = 'example/test.dtd'.IO.slurp;
-    $dtdstr ~~ s:g/\r//;
-    $dtdstr ~~ s/<[\r\n]>*$//;
+    subtest 'DTD string parsing', {
+        $dtdstr ~~ s:g/\r//;
+        $dtdstr ~~ s/<[\r\n]>*$//;
 
+        ok $dtdstr;
 
-    ok($dtdstr, '$dtdstr');
-
-    for 1..TIMES_THROUGH {
-        my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+        for 1..TIMES_THROUGH {
+            my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+        }
+        pass('after dtdstr');
+        check_mem();
     }
-    pass('after dtdstr');
-    check_mem();
 
-    # DTD URI parsing
-    # parse a DTD from a SYSTEM ID
-    for 1..TIMES_THROUGH {
-        my $dtd = LibXML::Dtd.new('ignore', 'example/test.dtd');
+    subtest 'DTD URI parsing', {
+        for 1..TIMES_THROUGH {
+            my $dtd = LibXML::Dtd.new('ignore', 'example/test.dtd');
+        }
+        pass('after URI parsing.');
+        check_mem();
     }
-    pass('DTD URI parsing.');
-    check_mem();
 
-    # Document validation
-    {
+    subtest 'document validation', {
         # is_valid()
         my $dtd = LibXML::Dtd.parse: :string($dtdstr);
         my $xml;
@@ -183,10 +178,8 @@ class sax_null {...}
         }
         pass('validate()');
         check_mem();
-
     }
 
-    print "# FIND NODES \n";
     my $xml=q:to<dromeds.xml>;
     <?xml version="1.0" encoding="UTF-8"?>
     <dromedaries>
@@ -205,7 +198,7 @@ class sax_null {...}
     </dromedaries>
     dromeds.xml
 
-    {
+    subtest 'findnodes', {
         # my $str = "<foo><bar><foo/></bar></foo>";
         my $str = $xml;
         my $doc = LibXML.parse: :string( $str );
@@ -218,7 +211,7 @@ class sax_null {...}
 
     }
 
-    {
+    subtest 'find', {
         my $str = "<foo><bar><foo/></bar></foo>";
         my $doc = LibXML.parse: :string( $str );
         for 1..TIMES_THROUGH {
@@ -251,9 +244,8 @@ class sax_null {...}
 #            ok(1);
 #            check_mem();
 #        }
-    {
-        note("NAMESPACE TESTS");
 
+    subtest 'namespace tests', {
         my $string = '<foo:bar xmlns:foo="bar"><foo:a/><foo:b/></foo:bar>';
 
         my $doc = LibXML.new().parse: :string( $string );
@@ -268,9 +260,7 @@ class sax_null {...}
         pass('namespace tests.');
     }
 
-    {
-        note('SAX PARSER');
-
+    subtest 'SAX parser', {
         my %xmlStrings = (
             "SIMPLE"      => '<xml1><xml2><xml3></xml3></xml2></xml1>',
             "SIMPLE TEXT" => '<xml1> <xml2>some text some text some text </xml2> </xml1>',
@@ -297,8 +287,7 @@ class sax_null {...}
         ok (1, 'SAX PARSER');
     }
 
-    {
-        note('PUSH PARSER');
+    subtest 'push parser', {
 
         my %xmlStrings = (
             "SIMPLE"      => ["<xml1>", "<xml2><xml3></xml3></xml2>", "</xml1>"],
@@ -324,7 +313,7 @@ class sax_null {...}
             check_mem();
         }
         # Cancelled TEST
-        pass(' TODO : Add test name');
+        pass('good pushed data');
 
         my %xmlBadStrings = (
             "SIMPLE"      => ["<xml1>"],
@@ -334,7 +323,6 @@ class sax_null {...}
             "SIMPLE JUNK" => ["<xml1/> ", "junk"],
         );
 
-        note('BAD PUSHED DATA');
         for ( "SIMPLE", "SIMPLE2", "SIMPLE TEXT", "SIMPLE CDATA", "SIMPLE JUNK" ) -> $key  {
             print "# $key \n";
             for 1..TIMES_THROUGH {
@@ -344,11 +332,10 @@ class sax_null {...}
 
             check_mem();
         }
-        pass('BAD PUSHED DATA');
+        pass('bad pushed data');
     }
 
-    {
-        note('SAX PUSH PARSER');
+    subtest 'SAX push parser', {
 
         my $sax-handler = sax_null.new;
         my $parser  = LibXML.new: :$sax-handler;
@@ -375,26 +362,27 @@ class sax_null {...}
         }
         pass('SAX PUSH PARSER');
 
-        note('BAD PUSHED DATA');
+        subtest 'bad pushed data', {
 
-        my %xmlBadStrings = (
-            "SIMPLE "      => ["<xml1>"],
-            "SIMPLE2"      => ["<xml1>", "</xml2>", "</xml1>"],
-            "SIMPLE TEXT"  => ["<xml1> ", "some text some text some text", "</xml2>"],
-            "SIMPLE CDATA" => ["<xml1> ", "<!", "[CDATA[some text some text some text]", "</xml1>"],
-            "SIMPLE JUNK"  => ["<xml1/> ", "junk"],
-        );
+            my %xmlBadStrings = (
+                "SIMPLE "      => ["<xml1>"],
+                "SIMPLE2"      => ["<xml1>", "</xml2>", "</xml1>"],
+                "SIMPLE TEXT"  => ["<xml1> ", "some text some text some text", "</xml2>"],
+                "SIMPLE CDATA" => ["<xml1> ", "<!", "[CDATA[some text some text some text]", "</xml1>"],
+                "SIMPLE JUNK"  => ["<xml1/> ", "junk"],
+            );
 
-        for %xmlBadStrings.keys.sort -> $key  {
-            print "# $key \n";
-            for 1..TIMES_THROUGH {
-                try { %xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
-                try {my $doc = $parser.finish-push();};
+            for %xmlBadStrings.keys.sort -> $key  {
+                print "# $key \n";
+                for 1..TIMES_THROUGH {
+                    try { %xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
+                    try {my $doc = $parser.finish-push();};
+                }
+
+                check_mem();
             }
-
-            check_mem();
+            pass('BAD PUSHED DATA');
         }
-        pass('BAD PUSHED DATA');
     }
 }
 

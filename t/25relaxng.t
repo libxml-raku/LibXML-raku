@@ -4,7 +4,7 @@ use Test;
 use LibXML;
 use LibXML::RelaxNG;
 
-plan 16;
+plan 5;
 
 sub slurp(Str $_) { .IO.slurp }
 
@@ -16,46 +16,42 @@ my $validfile    = "test/relaxng/demo.xml";
 my $invalidfile  = "test/relaxng/invaliddemo.xml";
 my $demo4        = "test/relaxng/demo4.rng";
 
-# 1 parse schema from a file
-{
+subtest 'parse schema from a file', {
     my $rngschema = LibXML::RelaxNG.new( location => $file );
-    ok ( $rngschema, ' TODO : Add test name' );
+    ok $rngschema.defined;
 
     dies-ok { $rngschema = LibXML::RelaxNG.new( location => $badfile ); }, 'parse of bad file';
 
 }
 
-print "# 2 parse schema from a string\n";
-{
+subtest 'parse schema from a string', {
     my $string = slurp($file);
 
     my $rngschema = LibXML::RelaxNG.new( string => $string );
-    ok ( $rngschema, ' TODO : Add test name' );
+    ok $rngschema.defined;
 
     $string = slurp($badfile);
 
     dies-ok { $rngschema = LibXML::RelaxNG.new( string => $string ); }, 'bad rng schema dies';
 }
 
-print "# 3 parse schema from a document\n";
-{
+subtest 'parse schema from a document', {
     my LibXML::Document:D $doc       = $xmlparser.parse: :file( $file );
     my $rngschema = LibXML::RelaxNG.new( :$doc );
-    ok ( $rngschema, ' TODO : Add test name' );
+    ok $rngschema.defined;
 
     $doc       = $xmlparser.parse: :file( $badfile );
     dies-ok { $rngschema = LibXML::RelaxNG.new( :$doc ); }, 'parse of invalid doc dies';
 }
 
-print "# 4 validate a document\n";
-{
+subtest 'validate a document', {
     my $doc       = $xmlparser.parse: :file( $validfile );
     my $rngschema = LibXML::RelaxNG.new( location => $file );
 
     is-deeply $rngschema.is-valid( $doc ), True, 'is-valid on valid doc';
     my $valid = 0;
     lives-ok { $valid = $rngschema.validate( $doc ); }, 'validate valid document';
-    is( $valid, 0, ' TODO : Add test name' );
+    is $valid, 0;
 
     $doc       = $xmlparser.parse: :file( $invalidfile );
     $valid     = 0;
@@ -63,8 +59,7 @@ print "# 4 validate a document\n";
      is-deeply $rngschema.is-valid( $doc ), False, 'is-valid on invalid doc';
 }
 
-print "# 5 re-validate a modified document\n";
-{
+subtest 're-validate a modified document', {
     my $rng = LibXML::RelaxNG.new(location => $demo4);
     my $seed_xml = q:to<EOXML>;
     <?xml version="1.0" encoding="UTF-8"?>

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 332;
+plan 5;
 
 use LibXML;
 use LibXML::InputCallback;
@@ -27,45 +27,49 @@ my @all = qw<
     oldsax
 >;
 
-{
+subtest 'setting options', {
     my $p = LibXML.new();
     for @all -> $opt {
-        is(? $p.get-option($opt), False, "Testing option $opt");
+        is ?$p.get-option($opt), False, "option $opt default";
     }
-    ok(! $p.option-exists('foo'), ' TODO : Add test name');
+    ok ! $p.option-exists('foo'), 'non-existant option';
 
-    is-deeply( $p.keep-blanks(), True, ' TODO : Add test name' );
-    is-deeply( $p.set-option(no_blanks => 1), True, 'Get no_blanks');
-    ok( ! $p.keep-blanks(), 'Get keep-blanks' );
-    is-deeply( $p.keep-blanks(1), True, 'Set keep-blanks to True' );
-    ok( ! $p.get-option('no_blanks'), ' TODO : Add test name' );
+    is-deeply $p.keep-blanks(), True, 'keep--blanks default' ;
+    is-deeply $p.set-option(no_blanks => 1), True, 'set no_blanks';
+    ok ! $p.keep-blanks(), 'Get keep-blanks';
+    is-deeply $p.keep-blanks(1), True, 'Set keep-blanks to True';
+    ok ! $p.get-option('no_blanks'), 'Get no_blanks again';
 
     my $uri = 'http://foo/bar';
-    is( $p.set-option(URI => $uri), $uri, 'Set URI');
-    is( $p.get-option('URI'), $uri, 'Get URI');
-    is( $p.URI, $uri, 'Get URI');
+    is $p.set-option(URI => $uri), $uri, 'Set URI';
+    is $p.get-option('URI'), $uri, 'Get URI';
+    is $p.URI, $uri, 'Get URI';
 
-    ok( ! $p.recover_silently(), ' TODO : Add test name' );
-    $p.set-option(recover => 1);
-    is-deeply( $p.recover_silently(), False, ' TODO : Add test name' );
-    $p.set-option(recover => 2);
-    is-deeply( $p.recover_silently(), True, ' TODO : Add test name' );
-    is-deeply( $p.recover_silently(0), False, ' TODO : Add test name' );
-    is-deeply( $p.get-option('recover'), False, ' TODO : Add test name' );
-    is-deeply( $p.recover_silently(1), True, ' TODO : Add test name' );
-    is( $p.get-option('recover'), 2, ' TODO : Add test name' );
+    subtest 'recover, recover_silently', {
+        ok ! $p.recover_silently();
+        $p.set-option(recover => 1);
+        is-deeply $p.recover_silently(), False;
+        $p.set-option(recover => 2);
+        is-deeply $p.recover_silently(), True;
+        is-deeply $p.recover_silently(0), False;
+        is-deeply $p.get-option('recover'), False;
+        is-deeply $p.recover_silently(1), True;
+        is $p.get-option('recover'), 2;
+    }
 
-    is-deeply( $p.expand_entities(), False, ' TODO : Add test name' );
-    is-deeply( $p.load_ext_dtd(), False, ' TODO : Add test name' );
-    $p.load_ext_dtd(0);
-    is-deeply( $p.load_ext_dtd(), False, ' TODO : Add test name' );
-    $p.expand_entities(0);
-    is-deeply( $p.expand_entities(), False, ' TODO : Add test name' );
-    $p.expand_entities(1);
-    is-deeply( $p.expand_entities(), True, ' TODO : Add test name' );
+    subtest 'expand_entities, load_ext_dtd', {
+        is-deeply $p.expand_entities(), False;
+        is-deeply $p.load_ext_dtd(), False;
+        $p.load_ext_dtd(0);
+        is-deeply $p.load_ext_dtd(), False;
+        $p.expand_entities(0);
+        is-deeply $p.expand_entities(), False;
+        $p.expand_entities(1);
+        is-deeply $p.expand_entities(), True;
+    }
 }
 
-{
+subtest 'network options', {
     my $XML = q:to<EOT>;
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE title [ <!ELEMENT title ANY >
@@ -127,43 +131,45 @@ my @all = qw<
 
 }
 
-{
+subtest 'setting all options', {
     my %opts = (map { $_ => True }, @all);
     my $p = LibXML.new: |%opts;
     for @all -> $opt {
-        is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
-        is-deeply(?$p."$opt"(), True, ' TODO : Add test name')
+        is-deeply ?$p.get-option($opt), True, $opt;
+        is-deeply ?$p."$opt"(), True, $opt;
     }
 
     for @all -> $opt {
-        ok($p.option-exists($opt), ' TODO : Add test name');
-        is-deeply($p.set-option($opt,0), False, ' TODO : Add test name');
-        is-deeply($p.get-option($opt), False, ' TODO : Add test name');
-        is-deeply($p.set-option($opt,1), True, ' TODO : Add test name');
-        # accessors
-        is-deeply(? $p.get-option($opt), True, ' TODO : Add test name');
-        is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
-        is-deeply($p."$opt"(0), False, ' TODO : Add test name');
-        is-deeply($p."$opt"(), False, ' TODO : Add test name');
-        is-deeply($p."$opt"(1), True, ' TODO : Add test name');
+        subtest "setting $opt", {
+            ok $p.option-exists($opt);
+            is-deeply $p.set-option($opt,0), False;
+            is-deeply $p.get-option($opt), False;
+            is-deeply $p.set-option($opt,1), True;
+            # accessors
+            is-deeply ?$p.get-option($opt), True;
+            is-deeply ?$p."$opt"(), True;
+            is-deeply $p."$opt"(0), False;
+            is-deeply $p."$opt"(), False;
+            is-deeply $p."$opt"(1), True;
+        }
     }
 }
 
-{
+subtest 'initialize options to False', {
     my %opts = (map { $_ => False }, @all);
     my $p = LibXML.new: |%opts;
     for @all -> $opt {
-        is-deeply($p.get-option($opt), False, ' TODO : Add test name');
-        is-deeply($p."$opt"(), False, ' TODO : Add test name');
+        is-deeply $p.get-option($opt), False, $opt;
+        is-deeply $p."$opt"(), False, $opt;
     }
 }
 
-{
+subtest 'initialize options to True', {
     my %opts = (map { $_ => True }, @all);
     my $p = LibXML.new: |%opts;
     for @all -> $opt {
-        is-deeply(?$p.get-option($opt), True, ' TODO : Add test name');
-        is-deeply(?$p."$opt"(), True, ' TODO : Add test name');
+        is-deeply ?$p.get-option($opt), True, $opt;
+        is-deeply ?$p."$opt"(), True, $opt;
     }
 }
 

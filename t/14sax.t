@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 56;
+plan 35;
 
 use LibXML;
 use LibXML::SAX;
@@ -100,16 +100,16 @@ my $SAXNSTester_start_prefix_mapping_stacker = _create_urn_stacker();
 my $SAXNSTester_end_prefix_mapping_stacker = _create_urn_stacker();
 
 my $parser;
-{
+subtest 'callback basic', {
     my SAXTester $sax .= new;
-    ok($sax, ' TODO : Add test name');
+    ok $sax.defined;
 
     my $str = "example/dromeds.xml".IO.slurp;
     my $doc = LibXML.parse: :string($str);
-    ok($doc, ' TODO : Add test name');
+    ok $doc.defined;
 
     my $generator = LibXML::SAX.new(sax-handler => $sax);
-    ok($generator, ' TODO : Add test name');
+    ok $generator.defined;
 
     $generator.reparse($doc); # startElement*10
 
@@ -123,14 +123,14 @@ my $parser;
 
     my $gen2 = LibXML::SAX.new;
     my $dom2 = $gen2.reparse($doc);
-    ok($dom2, ' TODO : Add test name');
+    ok $dom2.defined;
 
-    is($dom2.Str, $str, ' TODO : Add test name');
+    is $dom2.Str, $str;
     # warn($dom2.toString);
 
     ########### XML::SAX Replacement Tests ###########
     $parser = LibXML::SAX.new(sax-handler => $sax);
-    ok($parser, ' TODO : Add test name');
+    ok $parser.defined;
     $parser.parse: :file("example/dromeds.xml"); # startElement*10
 
     $SAXTester_startElement_stacker.test(
@@ -152,9 +152,9 @@ EOT
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 }
 
-{
+subtest 'Ns callbacks', {
     my $sax = SAXNSTester.new;
-    ok($sax, ' TODO : Add test name');
+    ok $sax.defined;
 
     $parser.sax-handler = $sax;
     $parser.parse: :file("example/ns.xml");
@@ -179,7 +179,7 @@ EOT
     );
 }
 
-{
+subtest 'callback metrics', {
     my @stack;
     my sub cb($sax, $name, :$ctx, |c) {
         push( @stack, $name => [
@@ -189,7 +189,7 @@ EOT
     };
     my $sax = SAXLocatorTester.new( :&cb );
 
-    ok($sax, 'Created SAX handler with document locator');
+    ok $sax.defined, 'Created SAX handler with document locator';
 
     my $parser = LibXML::SAX.new(sax-handler => $sax);
 
@@ -214,13 +214,11 @@ EOT
         endDocument   => [ 6, 8  ],
     ];
 
-    is-deeply( @stack, $expecting, "Check locator positions" );
+    is-deeply @stack, $expecting, "Check locator positions";
 }
 
 
-########### Namespace test ( empty namespaces ) ########
-
-{
+subtest 'namespaces, empty', {
     my SAXNS2Tester $sax .= new;
     my $xml = "<a xmlns='xml://A'><b/></a>";
     my @tests = (
@@ -234,21 +232,23 @@ EOT
 
 }
 
-########### Error Handling ###########
-{
+subtest 'error handling', {
     my $xml = '<foo><bar/><a>Text</b></foo>';
 
     my $sax = SAXErrorTester.new;
-
-    try {
-        LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
-    };
-    ok($!, ' TODO : Add test name'); # We got an error
+    do {
+        try {
+            LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
+        };
+        ok $!, 'we got an error';
+    }
     ok $sax.errors, 'error handler called';
 
     $sax = SAXErrorCallbackTester.new;
-    try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
-    ok($!, ' TODO : Add test name'); # We got an error
+    do {
+        try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
+        ok $!, 'we got another error';
+    }
     ok $sax.errors, 'error handler called';
 }
 
