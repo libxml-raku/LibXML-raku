@@ -7,7 +7,7 @@ unit class LibXML::Text
     is repr('CPointer')
     is LibXML::Node
     does LibXML::_StringyNode
-    does W3C::DOM::CharacterData;
+    does W3C::DOM::Text;
 
 use LibXML::Raw;
 use Method::Also;

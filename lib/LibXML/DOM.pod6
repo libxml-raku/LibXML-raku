@@ -24,7 +24,7 @@ Implementation |  | LibXML | createDocument createDocumentType hasFeature
 NamedNodeMap |  | LibXML::Attr::Map | getNamedItem setNamedItem removeNamedItem item length | getNamedItemNS setNamedItemNS removeNamedItemNS
 Notation | Node | LibXML::Dtd::Notation | nodeName publicId systemId | N/A [1]
 ProcessingInstruction | Node | LibXML::PI | target data
-Text | CharacterData | LibXML::Text | splitText
+Text | CharacterData | LibXML::Text |  |  | splitText
 
 =end table
 

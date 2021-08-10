@@ -1,4 +1,5 @@
 {{$NEXT}}
+    - Fix LibXML::Text role to W3C::DOM::Text 
 
 0.6.5  2021-07-15T13:05:19+12:00
     - Fix for #60 type check error on reader values. Reader name() return
