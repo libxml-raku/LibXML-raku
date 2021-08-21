@@ -138,7 +138,7 @@ subtest 'single callback', {
     };
 
     my $parser = LibXML.new: :$input-callbacks;
-    ok($parser, 'Parser was initted.');
+    ok defined($parser), 'Parser was initted.';
 
     $parser.expand-xinclude = True;
 
@@ -220,7 +220,7 @@ my $str = 'complex.xml'.IO.slurp;
     my $parser2 = LibXML.new();
     $parser2.expand-xinclude = True;
     my $dom = $parser2.parse: :string($str);
-    ok($dom, '$dom was init.');
+    ok defined($dom), '$dom was init.';
 }
 
 my $input-callbacks = LibXML::InputCallback.new: :callbacks{
@@ -233,9 +233,9 @@ my $input-callbacks = LibXML::InputCallback.new: :callbacks{
 subtest 'global callbacks', {
     my $parser = LibXML.new: :$input-callbacks;
     $parser.dtd = True;
-    ok($parser, '$parser was init');
+    ok defined($parser), '$parser was init';
 
-    ok($parser.parse(:string($str)), 'parse: :string returns a true value.');
+    ok $parser.parse(:string($str)), 'parse: :string returns a true value.';
 
     $open1_global_counter.test(3, 'open1 for global counter.');
 

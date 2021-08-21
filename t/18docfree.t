@@ -9,5 +9,5 @@ for 1 .. 1000 {
   $doc.documentElement = $doc.createElement("node" ~ $_);
   $doc .= new;
 }
-pass('doc new/free sanity');
+pass 'doc new/free sanity';
 

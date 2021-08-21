@@ -6,7 +6,7 @@ use LibXML::Schema;
 use LibXML::InputCallback;
 use LibXML::Element;
 
-plan 18;
+plan 5;
 
 sub slurp(Str $_) { .IO.slurp }
 
@@ -18,16 +18,14 @@ my $validfile    = "test/schema/demo.xml";
 my $invalidfile  = "test/schema/invaliddemo.xml";
 my $netfile      = "test/schema/net.xsd";
 
-# 1 parse schema from a file
-{
+subtest 'parse schema from a file', {
     my $schema = LibXML::Schema.new( location => $file );
     ok ( $schema.defined, 'Good LibXML::Schema was initialised' );
 
     dies-ok { $schema = LibXML::Schema.new( location => $badfile ); },  'Bad LibXML::Schema throws an exception.';
 }
 
-# 2 parse schema from a string
-{
+subtest 'parse schema from a string', {
     my $string = slurp($file);
 
     my $schema = LibXML::Schema.new( string => $string );
@@ -37,8 +35,7 @@ my $netfile      = "test/schema/net.xsd";
     dies-ok { $schema = LibXML::Schema.new( string => $string ); }, 'Bad string schema throws an exception.';
 }
 
-# 3 validate a document
-{
+subtest 'validate a document', {
     my $doc       = $xmlparser.parse: :file( $validfile );
     my $schema = LibXML::Schema.new( location => $file );
 
@@ -52,8 +49,7 @@ my $netfile      = "test/schema/net.xsd";
     dies-ok { $valid = $schema.validate( $doc ); }, 'Invalid file throws an excpetion.';
 }
 
-# 4 validate a node
-{
+subtest 'validate a node', {
     my $doc = $xmlparser.load: string => q:to<EOF>;
     <shiporder orderid="889923">
       <orderperson>John Smith</orderperson>
@@ -90,50 +86,49 @@ my $netfile      = "test/schema/net.xsd";
     is( $result, 0, 'validate() with element returns 0' );
 }
 
-# 5 check that :network works
+subtest 'schema :network option', {
+    #  guard against actual network access attempts
+    my Bool $net-access = False;
+    my LibXML::InputCallback $input-callbacks .= new: :callbacks{
+        :match(sub ($f) {True}),
+        :open(sub ($_) { (/^http[s?]':'/ ?? do { $net-access++; 'test/empty.txt' }  !! $_).IO.open(:r); }),
+        :read(sub ($fh, $n) {$fh.read($n)}),
+        :close(sub ($fh) {$fh.close}),
+    };
+    $input-callbacks.activate;
 
-#  guard against actual network access attempts
-my Bool $net-access = False;
-my LibXML::InputCallback $input-callbacks .= new: :callbacks{
-    :match(sub ($f) {True}),
-    :open(sub ($_) { (/^http[s?]':'/ ?? do { $net-access++; 'test/empty.txt' }  !! $_).IO.open(:r); }),
-    :read(sub ($fh, $n) {$fh.read($n)}),
-    :close(sub ($fh) {$fh.close}),
-};
-$input-callbacks.activate;
+    {
+        my $schema = try { LibXML::Schema.new( location => $netfile ); };
+        like $!, /'I/O error : Attempt to load network entity'/, 'Schema from file location with external import throws an exception.';
+        nok defined($schema), 'Schema from file location with external import and !network is not loaded.' ;
+    }
+    {
+        my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :!network ) };
+        <?xml version="1.0" encoding="UTF-8"?>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
+        </xsd:schema>
+        EOF
+        like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from buffer with external import throws an exception.' );
+        nok( defined($schema), 'Schema from buffer with external import and !network is not loaded.' );
+    }
 
-{
-    my $schema = try { LibXML::Schema.new( location => $netfile ); };
-    like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from file location with external import throws an exception.' );
-    nok( defined($schema), 'Schema from file location with external import and !network is not loaded.' );
+    nok $net-access, 'no attempted network access';
+
+    {
+        my $schema = try { LibXML::Schema.new( location => $netfile, :network, :suppress-warnings ); };
+        like $!, /'Document is empty'/, 'location :network access';
+    }
+    {
+        my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :network, :suppress-warnings ) };
+        <?xml version="1.0" encoding="UTF-8"?>
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+          <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
+        </xsd:schema>
+        EOF
+        like $!, /'Document is empty'/, 'string :network access';
+    }
+
+    ok $net-access, 'attempted network access';
+    $input-callbacks.deactivate;
 }
-{
-    my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :!network ) };
-    <?xml version="1.0" encoding="UTF-8"?>
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-      <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
-    </xsd:schema>
-    EOF
-    like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from buffer with external import throws an exception.' );
-    nok( defined($schema), 'Schema from buffer with external import and !network is not loaded.' );
-}
-
-nok $net-access, 'no attempted network access';
-
-{
-    my $schema = try { LibXML::Schema.new( location => $netfile, :network, :suppress-warnings ); };
-    like $!, /'Document is empty'/, 'location :network access';
-}
-{
-    my $schema = try { LibXML::Schema.new( string => q:to<EOF>, :network, :suppress-warnings ) };
-    <?xml version="1.0" encoding="UTF-8"?>
-    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-      <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
-    </xsd:schema>
-    EOF
-    like $!, /'Document is empty'/, 'string :network access';
-}
-
-ok $net-access, 'attempted network access';
-
-$input-callbacks.deactivate;

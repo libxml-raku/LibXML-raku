@@ -1,7 +1,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 4;
 
 use LibXML;
 use LibXML::Attr;
@@ -11,16 +11,16 @@ my $string = "<foo><bar/></foo>\n";
 
 my $parser = LibXML.new();
 
-{
+subtest ':skip-xml-declaration, :tag-expansion', {
     my $doc = $parser.parse: :$string;
     ok $doc.defined;
     temp LibXML.skip-xml-declaration = 1;
     is $doc.Str(), $string, ':skip-xml-declaration';
     temp LibXML.tag-expansion = True;
-    is $doc.Str(), "<foo><bar></bar></foo>\n", ':skip-xml-declaration, :tag-expansion';
+    is $doc.Str(), "<foo><bar></bar></foo>\n", ':tag-expansion';
 }
 
-{
+subtest ':exand-entities', {
     temp LibXML.skip-dtd = True;
     temp $parser.expand-entities = False;
     my $doc = $parser.parse: :file( "example/dtd.xml" );

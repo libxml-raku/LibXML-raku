@@ -11,7 +11,7 @@ my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo ba
 my LibXML $parser .= new();
 my LibXML::Document $doc = $parser.parse: :string( $xmlstring );
 
-my  LibXML::Element $foo = $doc.documentElement;
+my LibXML::Element $foo = $doc.documentElement;
 
 my LibXML::Node @children_1 = $foo.childNodes;
 my LibXML::Node @children_2 = $foo.childNodes;
@@ -35,10 +35,10 @@ for 0..4 -> $c1 {
     }
 }
 
-my $foo_default_ns = LibXML::Namespace.new('foo.com');
-my $foo_ns = LibXML::Namespace.new('foo.com','foo');
-my $bar_default_ns = LibXML::Namespace.new('bar.com');
-my $bar_ns = LibXML::Namespace.new('bar.com','bar');
+my LibXML::Namespace $foo_default_ns .= new('foo.com');
+my LibXML::Namespace $foo_ns .= new('foo.com','foo');
+my LibXML::Namespace $bar_default_ns .= new('bar.com');
+my LibXML::Namespace$bar_ns .= new('bar.com','bar');
 ok $foo_ns.isSameNode($foo_ns);
 nok $foo_ns.isSameNode($bar_ns);
 nok $foo_ns.isSameNode($doc);

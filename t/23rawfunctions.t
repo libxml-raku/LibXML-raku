@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 2;
+plan 1;
 use LibXML;
 
 my $doc = LibXML.createDocument;
@@ -13,5 +13,3 @@ $t1.addChild( $t2 );
 lives-ok {
     my Str:D $v = $t2.nodeValue;
 };
-
-pass('End');

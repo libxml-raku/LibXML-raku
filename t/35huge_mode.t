@@ -7,6 +7,7 @@ use v6;
 
 use Test;
 use LibXML;
+use LibXML::Document;
 
 plan 4;
 
@@ -35,20 +36,19 @@ my $evil_xml = q:to<EOF>;
 <lolz>&lol9;</lolz>
 EOF
 
-my ($parser, $doc);
-
-$parser = LibXML.new;
+my LibXML $parser .= new;
 #$parser->set_option(huge => 0);
-ok(!$parser.get-option('huge'), "huge mode disabled by default");
+ok !$parser.get-option('huge'), "huge mode disabled by default";
 
 throws-like { $parser.parse: :string($evil_xml); }, X::LibXML::Parser, :message(/entity.*loop/), "exception thrown during parse";
 
 $parser .= new;
 
+my LibXML::Document $doc;
 lives-ok { $doc = $parser.parse: :string($benign_xml); }, "no exception thrown during parse";
 
 my $body = $doc.findvalue( '/lolz' );
-is($body, 'haha', 'entity was parsed and expanded correctly');
+is $body, 'haha', 'entity was parsed and expanded correctly';
 
 exit;
 

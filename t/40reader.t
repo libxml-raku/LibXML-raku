@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 109;
+plan 11;
 
 use LibXML;
 use LibXML::Reader;
@@ -18,8 +18,8 @@ pass "loaded LibXML::Reader";
 
 
 my $file = "test/textReader/countries.xml";
-{
-    my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
+subtest 'basic', {
+    my $reader = LibXML::Reader.new(location => $file, expand-entities => 1);
     isa-ok($reader, "LibXML::Reader");
 
     is-deeply($reader.getParserProp('expand-entities'), True, "getParserProp");
@@ -86,28 +86,28 @@ my $file = "test/textReader/countries.xml";
     ok($reader.close, "close");
 }
 
-# FD interface
-my IO::Handle:D $io = $file.IO.open: :r;
-my UInt:D $fd = $io.native-descriptor;
-for 1 .. 2 {
-    for :$fd, :$io -> Pair:D $how {
-        $io.seek(0, SeekFromBeginning );
-        my $reader = LibXML::Reader.new(|$how,);
-        isa-ok($reader, "LibXML::Reader");
-        $reader.read;
-        $reader.read;
-        is($reader.name, "countries","name in fd");
-        $reader.read;
-        $reader.read;
-        $reader.read;
-        $reader.finish;
-        $reader.close;
+subtest 'FD interface', {
+    my IO::Handle:D $io = $file.IO.open: :r;
+    my UInt:D $fd = $io.native-descriptor;
+    for 1 .. 2 {
+        for :$fd, :$io -> Pair:D $how {
+            $io.seek(0, SeekFromBeginning );
+            my $reader = LibXML::Reader.new(|$how,);
+            isa-ok($reader, "LibXML::Reader");
+            $reader.read;
+            $reader.read;
+            is($reader.name, "countries","name in fd");
+            $reader.read;
+            $reader.read;
+            $reader.read;
+            $reader.finish;
+            $reader.close;
+        }
     }
+    close $io;
 }
-close $io;
 
-# string interface
-{
+subtest 'string interface', {
     my Str $doc = $file.IO.slurp;
     my $reader = LibXML::Reader.new(string => $doc, URI => $file);
     isa-ok($reader, "LibXML::Reader");
@@ -116,8 +116,7 @@ close $io;
     is($reader.name, "countries","name in string");
 }
 
-# DOM
-{
+subtest 'DOM', {
   my LibXML::Document:D $DOM = LibXML.parse: :file($file);
   my $reader = LibXML::Reader.new(:$DOM);
   isa-ok($reader, "LibXML::Reader");
@@ -128,8 +127,7 @@ close $io;
   ok($reader.document.isSameNode($DOM),"document is DOM");
 }
 
-# Expand
-{
+subtest 'Expand', {
     my LibXML::Node ($node1,$node2, $node3);
     my $xml = q:to<EOF>;
     <root>
@@ -197,7 +195,7 @@ close $io;
     is($node3.Str(),q{<QQ/>});
 }
 
-{
+subtest 'error', {
     my $bad_xml = q:to<EOF>;
     <root>
       <foo/>
@@ -218,7 +216,7 @@ close $io;
     'caught the error';
 }
 
-{
+subtest 'RelaxNG', {
     my $rng = "test/relaxng/demo.rng";
     for $rng, LibXML::RelaxNG.new(location => $rng) -> $RelaxNG {
         {
@@ -238,31 +236,33 @@ close $io;
     }
 }
 
-if !LibXML.have-schemas {
-    skip "https://github.com/shlomif/libxml2-2.9.4-reader-schema-regression", 4;
-}
-else {
-    my $xsd = "test/schema/schema.xsd";
-    for $xsd, LibXML::Schema.new(location => $xsd) -> $Schema {
-        {
-            my $reader = LibXML::Reader.new(
-	        location => "test/schema/demo.xml",
-	        :$Schema,
-            );
-            ok($reader.finish, "validate using "~($Schema.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
-        }
-        {
-            my $reader = LibXML::Reader.new(
-	        location => "test/schema/invaliddemo.xml",
-	        :$Schema,
-            );
-            throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Schemas validity error'/);
+subtest 'XMLSchema', {
+    if !LibXML.have-schemas {
+        skip "https://github.com/shlomif/libxml2-2.9.4-reader-schema-regression", 4;
+    }
+    else {
+        my $xsd = "test/schema/schema.xsd";
+
+        for $xsd, LibXML::Schema.new(location => $xsd) -> $Schema {
+            {
+                my $reader = LibXML::Reader.new(
+	            location => "test/schema/demo.xml",
+	            :$Schema,
+                );
+                ok($reader.finish, "validate using "~($Schema.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
+            }
+            {
+                my $reader = LibXML::Reader.new(
+	            location => "test/schema/invaliddemo.xml",
+	            :$Schema,
+                );
+                throws-like { $reader.finish }, X::LibXML::Parser, :message(/'Schemas validity error'/);
+            }
         }
     }
 }
 
-# Patterns
-{
+subtest 'Patterns', {
     my ($node1,$node2, $node3);
     my $xml = q:to<EOF>;
     <root>

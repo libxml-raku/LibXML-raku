@@ -8,28 +8,28 @@ use Test;
 plan 3;
 
 {
-    my $got_open = 0;
-    my $got_read = 0;
-    my $got_close = 0;
+    my $got-open = 0;
+    my $got-read = 0;
+    my $got-close = 0;
 
-    my $input_callbacks = LibXML::InputCallback.new();
-    $input_callbacks.register-callbacks(
+    my LibXML::InputCallback $input-callbacks .= new();
+    $input-callbacks.register-callbacks(
             -> $ { 1 },
-            -> $file { $got_open = 1; $file.IO.open(:r) },
-            -> $fh, $n { $got_read = 1; $fh.read($n); },
-            -> $fh { $got_close = 1; $fh.close },
+            -> $file { $got-open = 1; $file.IO.open(:r) },
+            -> $fh, $n { $got-read = 1; $fh.read($n); },
+            -> $fh { $got-close = 1; $fh.close },
         );
 
-    my $xml_parser = LibXML.new();
-    $xml_parser.input-callbacks($input_callbacks);
+    my $xml-parser = LibXML.new();
+    $xml-parser.input-callbacks($input-callbacks);
 
-    my $TEST_FILENAME = 'example/dromeds.xml';
+    my $location = 'example/dromeds.xml';
 
-    $xml_parser.load: location => $TEST_FILENAME;
+    $xml-parser.load: :$location;
 
-    ok($got_open, 'load_xml() encountered the open InputCallback');
+    ok $got-open, 'load_xml() encountered the open InputCallback';
 
-    ok($got_read, 'load_xml() encountered the read InputCallback');
+    ok $got-read, 'load_xml() encountered the read InputCallback';
 
-    ok($got_close, 'load_xml() encountered the close InputCallback');
+    ok $got-close, 'load_xml() encountered the close InputCallback';
 }

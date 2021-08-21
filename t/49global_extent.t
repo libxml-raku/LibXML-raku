@@ -33,4 +33,4 @@ $xml_out ~~ s|'&b;'|ENTITY:file:///dev/null,|;
 
 my $doc = $parser.parse: :string($xml);
 
-is( $doc.Str, $xml_out );
+is $doc.Str, $xml_out;
