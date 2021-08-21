@@ -1,15 +1,14 @@
 use v6;
 use Test;
-plan 14;
+plan 19;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
 use LibXML::Parser;
-constant MAX_THREADS = 24;
+constant MAX_THREADS = 10;
 constant MAX_LOOP = 50;
-# use constant PLAN => 24;
 
 pass 'Loaded';
 
@@ -199,13 +198,6 @@ EOF
     pass "test Schema validation errors thread safe sanity";
 }
 
-skip "port remaining tests";
-done-testing();
-=begin TODO
-
-my $bigfile = "etc/libxml2-api.xml";
-$xml = $bigfile.IO.slurp;
-ok($xml, 'bigfile was slurped fine.');
 sub use_dom($d) {
     my @nodes = $d.getElementsByTagName("files");
     for @nodes {
@@ -214,11 +206,14 @@ sub use_dom($d) {
     die unless @nodes[0].tag eq 'files';
 }
 
+my $bigfile = "etc/libxml2-api.xml";
+
 subtest 'dom access', {
+    $xml = $bigfile.IO.slurp;
+    ok($xml, 'bigfile was slurped fine.');
     blat { my $dom = do { $p.parse: :string($xml) }; use_dom($dom) for 1..5; };
     pass 'Joined all threads.';
 }
-
 
 subtest 'check parsing', {
     use LibXML::SAX::Handler::SAX2;
@@ -227,7 +222,7 @@ subtest 'check parsing', {
     }
 
     use LibXML::SAX;
-    $p = LibXML::SAX.new(
+    $p .= new(
 	sax-handler=>MyHandler.new(),
     );
     ok($p.defined, 'LibXML::SAX was initted.');
@@ -250,64 +245,43 @@ subtest 'check parsing', {
     $p = LibXML.new();
     # parse a big file using the same parser
     blat {
-        my $fh = $bigfile.IO.open(:r);
-        $p.parse: :$fh;
-        $fh.close;
+        my IO::Handle $io = $bigfile.IO.open(:r);
+        $p.parse: :$io;
+        $io.close;
     }
 
     pass('threads.join after opening bigfile.');
 }
 
-# create elements
-{
-    blat { my @n = map LibXML::Element.new('bar'.$_), 1..100 }
-    pass('create elements');
+subtest 'create elements', {
+    blat { my @n = map {LibXML::Element.new('bar'~$_)}, 1..100 }
+    pass;
 }
 
-{
-    my LibXML::Element $e =. new('foo');
-    for 1..MAX_THREADS {
-      threads.new(sub {
-                     if ($_[0]==1) {
-                       my LibXML::Document $d .= new();
-                       $d.setDocumentElement($d.createElement('root'));
-                       $d.documentElement.appendChild($e);
-                     }
-                     1;
-                   },$_);
+subtest 'docfrag', {
+    my LibXML::Element $e .= new('foo');
+    blat {
+        my LibXML::Document $d .= new();
+        $d.setDocumentElement($d.createElement('root'));
+        $d.documentElement.appendChild($e);
     }
-    .join for threads.list;
     pass("docfrag");
 }
 
-{
+subtest 'docfrag2', {
     my LibXML::Element $e .= new('foo');
     my LibXML::Document $d .= new();
     $d.setDocumentElement: $d.createElement('root');
-    for 1..MAX_THREADS {
-        threads.new: sub {
-	    if ($_[0]==1) {
-	        $d.documentElement.appendChild($e);
-	    }
-	    1;
-        }, $_;
+    blat {
+	$d.documentElement.appendChild($e);
     }
-    .join for threads.list;
-    pass("docfrag2");
+    pass;
 }
 
-{
+subtest 'docfrag3', {
     my LibXML::Element $e .= new('foo');
-    for  1..MAX_THREADS {
-        threads.new: sub {
-            if ($_[0]==1) {
-	        LibXML::Element.new('root').appendChild($e);
-            }
-            1;
-        },$_;
+    blat {
+	LibXML::Element.new('root').appendChild($e);
     }
-    .join for threads.list;
-    pass("docfrag3");
+    pass;
 }
-
-=end TODO
