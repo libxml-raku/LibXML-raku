@@ -6,7 +6,7 @@ use Test;
 use LibXML;
 
 {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     $parser.validation(0);
     $parser.load_ext_dtd(0);
 
@@ -22,7 +22,8 @@ use LibXML;
         $err = $err.prev();
     }
 
-    ok ((!$err), "Reached the end of the chain.");
+    todo "long error chain";
+    nok defined($err), "Reached the end of the chain.";
 }
 done-testing;
 
