@@ -18,6 +18,8 @@ has $.input-callbacks;
 has $.sax-handler;
 has $!published;
 
+my Lock $lock = BEGIN Lock.new;
+
 our constant %Opts = %(
     :clean-namespaces(XML_PARSE_NSCLEAN),
     :complete-attributes(XML_PARSE_DTDATTR),
@@ -97,29 +99,35 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
     my $rv;
     my $*XML-CONTEXT = self;
-    $_ = .new: :raw(xmlParserCtxt.new)
-        without $*XML-CONTEXT;
+    my @input-contexts;
+    my Pointer $handlers;
+    use trace;
 
-    my @input-contexts = .activate()
-        with $*XML-CONTEXT.input-callbacks;
+    $lock.protect: {
+        $_ = .new: :raw(xmlParserCtxt.new)
+            without $*XML-CONTEXT;
 
-    given xml6_gbl_save_error_handlers() {
+        @input-contexts = .activate()
+            with $*XML-CONTEXT.input-callbacks;
+
+        $handlers = xml6_gbl_save_error_handlers();
         $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
-
         &*chdir(~$*CWD);
+    }
 
-        $rv := action();
+    $rv := action();
 
+    $lock.protect: {
         .deactivate
             with $*XML-CONTEXT.input-callbacks;
 
-        xml6_gbl_restore_error_handlers($_);
-    }
+        xml6_gbl_restore_error_handlers($handlers);
 
-    .flush-errors for @input-contexts;
-    $rv := $*XML-CONTEXT.is-valid if $check-valid;
-    $*XML-CONTEXT.flush-errors: :$recover;
-    $*XML-CONTEXT.publish() without self;
+        .flush-errors for @input-contexts;
+        $rv := $*XML-CONTEXT.is-valid if $check-valid;
+        $*XML-CONTEXT.flush-errors: :$recover;
+        $*XML-CONTEXT.publish() without self;
+    }
 
     $rv;
 }
