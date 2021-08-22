@@ -18,8 +18,6 @@ has $.input-callbacks;
 has $.sax-handler;
 has $!published;
 
-my Lock $lock = BEGIN Lock.new;
-
 our constant %Opts = %(
     :clean-namespaces(XML_PARSE_NSCLEAN),
     :complete-attributes(XML_PARSE_DTDATTR),
@@ -101,7 +99,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
     my $*XML-CONTEXT = self;
     my @input-contexts;
     my Pointer $handlers;
-    use trace;
+    my $lock := LibXML::Config.lock;
 
     $lock.protect: {
         $_ = .new: :raw(xmlParserCtxt.new)
@@ -117,7 +115,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
     $rv := action();
 
-    $lock.protect: {
+    $lock.protect: sub () is hidden-from-backtrace {
         .deactivate
             with $*XML-CONTEXT.input-callbacks;
 
@@ -128,7 +126,6 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
         $*XML-CONTEXT.flush-errors: :$recover;
         $*XML-CONTEXT.publish() without self;
     }
-
     $rv;
 }
 

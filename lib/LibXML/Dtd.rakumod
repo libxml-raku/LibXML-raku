@@ -84,6 +84,7 @@ use LibXML::Dtd::ElementDecl;
 use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 use LibXML::HashMap;
+use LibXML::Config;
 use Method::Also;
 use NativeCall;
 
@@ -106,18 +107,23 @@ class ValidContext {
 
     method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, xmlAttr :$attr, Bool :$check) is hidden-from-backtrace {
         my $rv;
+        my $lock = LibXML::Config.lock;
+        my $handlers;
 
         my $*XML-CONTEXT = self;
-        given xml6_gbl_save_error_handlers() {
+        $lock.protect: {
+            $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!raw.validate(:$doc, :$dtd, :$elem);
+        }
 
+        $rv := $!raw.validate(:$doc, :$dtd, :$elem);
+
+        $lock.protect: sub () is hidden-from-backtrace {
+            xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
-
-            xml6_gbl_restore_error_handlers($_);
+            self.flush-errors;
         }
-        self.flush-errors;
 
         ? $rv;
     }

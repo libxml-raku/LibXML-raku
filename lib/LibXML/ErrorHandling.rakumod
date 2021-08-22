@@ -262,7 +262,7 @@ role LibXML::ErrorHandling {
         }
         elsif @!errors == $!max-errors {
             @!errors.push: X::LibXML::TooManyErrors.new( :level(XML_ERR_FATAL), :$.max-errors );
-            self!sax-error-cb-unstructured(XML_ERR_FATAL, @!errors.tail.message);
+            self!sax-error-cb-unstructured(XML_ERR_FATAL, @!errors.tail.msg);
         }
     }
 

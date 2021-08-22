@@ -1,6 +1,6 @@
 {{$NEXT}}
-    - Introduce locks into the setup and finalization stages of the
-      LibXML::Parser::Context try() method.
+    - Lock protect global context setup and finalization stages in parser and
+      validation contexts.
     - Add maximum error limit of 100 #61. Configurable via XML::Config.max-errors().
     - Fix LibXML::Text role to W3C::DOM::Text
     - Factor tests into subtests. Remove most 'TODO' test descriptions.

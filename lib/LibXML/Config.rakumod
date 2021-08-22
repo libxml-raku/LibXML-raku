@@ -181,6 +181,10 @@ our $queryHandler = class NoQueryHandler {
     }
 }
 
+method lock {
+    BEGIN Lock.new;
+}
+
 #| Default query handler to service querySelector() and querySelectorAll() methods
 method query-handler returns QueryHandler is rw {
     Proxy.new(

@@ -34,6 +34,7 @@ use LibXML::_Options;
 use LibXML::Raw;
 use LibXML::Raw::RelaxNG;
 use LibXML::Parser::Context;
+use LibXML::Config;
 use Method::Also;
 
 has xmlRelaxNG $.raw;
@@ -74,15 +75,20 @@ my class Parser::Context {
     method parse {
         my $*XML-CONTEXT = self;
         my $rv;
-        given xml6_gbl_save_error_handlers() {
+        my $handlers;
+        my $lock := LibXML::Config.lock;
+        $lock.protect: {
+            $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $!raw.SetParserErrorFunc: &structured-error-cb;
-
-            $rv := $!raw.Parse;
-
-            xml6_gbl_restore_error_handlers($_);
         }
-        self.flush-errors;
+
+        $rv := $!raw.Parse;
+
+        $lock.protect: sub () is hidden-from-backtrace {
+            xml6_gbl_restore_error_handlers($handlers);
+            self.flush-errors;
+        }
         $rv;
     }
 
@@ -110,14 +116,23 @@ my class ValidContext {
         my $rv;
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .raw;
-        given xml6_gbl_save_error_handlers() {
+        my $lock = LibXML::Config.lock;
+        my $handlers;
+
+        $lock.protect: {
+            $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!raw.ValidateDoc($doc);
+        }
+
+        $rv := $!raw.ValidateDoc($doc);
+
+        $lock.protect: sub () is hidden-from-backtrace {
+            xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
-            xml6_gbl_restore_error_handlers($_);
+            self.flush-errors;
         }
-        self.flush-errors;
+
         $rv;
     }
 

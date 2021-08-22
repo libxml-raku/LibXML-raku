@@ -34,6 +34,7 @@ use LibXML::Raw;
 use LibXML::Raw::Schema;
 use LibXML::Parser::Context;
 use Method::Also;
+use LibXML::Config;
 
 has xmlSchema $.raw;
 
@@ -73,22 +74,28 @@ my class Parser::Context {
     method parse {
         my $*XML-CONTEXT = self;
         my $rv;
+        my $lock = LibXML::Config.lock;
+        my $handlers;
+        my $ext-loader-changed;
 
-        my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
-        given xml6_gbl_save_error_handlers() {
+        $lock.protect: {
+            $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
+            $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $!raw.SetParserErrorFunc: &structured-error-cb;
-
-            $rv := $!raw.Parse;
-
-            xml6_gbl_restore_error_handlers($_);
         }
 
-        if $ext-loader-changed {
-            xmlExternalEntityLoader::set-networked(+!$!network.so);
+        $rv := $!raw.Parse;
+
+        $lock.protect: sub () is hidden-from-backtrace {
+            xml6_gbl_restore_error_handlers($handlers);
+
+            if $ext-loader-changed {
+                xmlExternalEntityLoader::set-networked(+!$!network.so);
+            }
+            self.flush-errors;
         }
 
-        self.flush-errors;
         $rv;
     }
 
@@ -116,15 +123,23 @@ my class ValidContext {
     multi method validate(LibXML::Document:D $_, Bool() :$check) is hidden-from-backtrace {
         my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .raw;
+        my $lock = LibXML::Config.lock;
+        my $handlers;
         my $rv;
-        given xml6_gbl_save_error_handlers() {
+        $lock.protect: {
+            $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $rv := $!raw.ValidateDoc($doc);
+        }
+
+        $rv := $!raw.ValidateDoc($doc);
+
+        $lock.protect: sub () is hidden-from-backtrace {
+            xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
-            xml6_gbl_restore_error_handlers($_)
+            self.flush-errors;
         }
-        self.flush-errors;
+
         $rv;
     }
 
