@@ -4,6 +4,10 @@
 use v6;
 use Test;
 use LibXML;
+use LibXML::Config;
+use LibXML::Enums;
+
+LibXML::Config.max-errors = 100;
 
 {
     my LibXML $parser .= new();
@@ -15,6 +19,9 @@ use LibXML;
     };
 
     my $err = $!;
+    isa-ok $err, 'X::LibXML::TooManyErrors';
+    isa-ok $err.prev, 'X::LibXML::Parser';
+    is-deeply $err.level, XML_ERR_FATAL;
     my $count = 0;
 
     while defined($err) && $count < 200 {
@@ -22,7 +29,6 @@ use LibXML;
         $err = $err.prev();
     }
 
-    todo "long error chain";
     nok defined($err), "Reached the end of the chain.";
 }
 done-testing;

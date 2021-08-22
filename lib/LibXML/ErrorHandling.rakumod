@@ -115,33 +115,42 @@ class X::LibXML::IO::AdHoc is X::LibXML::AdHoc {
 }
 
 #| LibXML Reader exceptions
-class X::LibXML::OpFail is Exception {
+class X::LibXML::OpFail is X::LibXML {
     has Str:D $.what = 'Read';
     has Str:D $.op is required;
     method message { "XML $!what $!op operation failed" }
 }
 
+class X::LibXML::TooManyErrors is X::LibXML {
+    has UInt:D $.max-errors is required;
+    method msg { "Limit of $.max-errors warnings + errors reached" }
+    method message {
+        my $prev := do with $.prev { .message ~ "\n" } // '';
+        $prev ~ $.msg;
+    }
+}
+
 #| LibXML Parser exceptions
 class X::LibXML::Parser is X::LibXML {
 
-    has Str $.file;
+    has Str  $.file;
     has UInt $.line;
     has UInt $.column;
     has UInt $.code;
-    has Str $.msg;
-    has Str $.context;
+    has Str  $.msg;
+    has Str  $.context;
 
     method message returns Str {
         my @meta;
         @meta.push: $_ with $.domain;
-        if $.level ~~ XML_ERR_ERROR|XML_ERR_FATAL  {
+        if $.level >= XML_ERR_ERROR {
             @meta.push: 'error';
         }
         elsif $.level == XML_ERR_WARNING {
             @meta.push: 'warning';
         }
 
-        my $prev = do with $.prev { .message ~ "\n" } // '';
+        my $prev := do with $.prev { .message ~ "\n" } // '';
         my $where = ($!line
                      ?? join(':', ($!file//''), $!line,  ' ')
                      !! '');
@@ -207,7 +216,9 @@ class X::LibXML::Parser is X::LibXML {
 #| LibXML Exceptions and Error Handling
 role LibXML::ErrorHandling {
 
+    use LibXML::Config;
     has X::LibXML @!errors;
+    has UInt $.max-errors = LibXML::Config.max-errors;
 
     # SAX External Callback
     sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {
@@ -242,30 +253,45 @@ role LibXML::ErrorHandling {
     }
 
     method generic-error(Str $fmt, *@args) {
-        CATCH { default { note "error handling failure: $_" } }
+        CATCH { default { note "error handling generic error: $_" } }
         my $msg = sprintf($fmt, |@args);
-        @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
-        self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
+
+        if @!errors < $!max-errors {
+            @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
+            self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
+        }
+        elsif @!errors == $!max-errors {
+            @!errors.push: X::LibXML::TooManyErrors.new( :level(XML_ERR_FATAL), :$.max-errors );
+            self!sax-error-cb-unstructured(XML_ERR_FATAL, @!errors.tail.message);
+        }
     }
 
     method structured-error(xmlError:D $_) {
-        CATCH { default { note "error handling failure: $_" } }
-        my Int $level = .level;
-        my Str $file = .file;
-        my UInt:D $line = .line;
-        my Str $context = .context(my uint32 $column);
-        my UInt:D $code = .code;
-        my UInt:D $domain-num = .domain;
-        my Str $msg = .message;
-        $column ||= .column;
-        $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
-        self.callback-error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
+        CATCH { default { note "error handling structured error: $_" } }
+
+        if @!errors <= $!max-errors {
+            my Int $level = .level;
+            my Str $file = .file;
+            my UInt:D $line = .line;
+            my Str $context = .context(my uint32 $column);
+            my UInt:D $code = .code;
+            my UInt:D $domain-num = .domain;
+            my Str $msg = .message;
+            $column ||= .column;
+            $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
+            self.callback-error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
+        }
     }
 
-    method callback-error(X::LibXML $_) {
-        @!errors.push: $_;
-        self!sax-error-cb-structured($_);
-        self!sax-error-cb-unstructured(.level, .message);
+    method callback-error(X::LibXML $err is copy) {
+        unless @!errors > $!max-errors {
+            $err = X::LibXML::TooManyErrors.new( :level(XML_ERR_FATAL), :$.max-errors )
+                if @!errors == $!max-errors;
+
+            @!errors.push: $err;
+            self!sax-error-cb-structured($err);
+            self!sax-error-cb-unstructured($err.level, $err.message);
+        }
     }
 
     my subset ValidityError of X::LibXML where .domain-num ~~ XML_FROM_VALID|XML_FROM_SCHEMASV|XML_FROM_RELAXNGV|XML_FROM_SCHEMATRONV;

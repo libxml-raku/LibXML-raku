@@ -10,7 +10,6 @@ unit class LibXML::Config;
 
 use LibXML::Enums;
 use LibXML::Raw;
-use LibXML::InputCallback;
 use NativeCall;
 
 =head2 Configuration Methods
@@ -61,6 +60,7 @@ our $inputCallbacks;
 
 our $skipXMLDeclaration = Bool;
 our $skipDTD = Bool;
+our $maxErrors = 100;
 
 #| Whether to omit '<?xml ...>' preamble (default Fallse)
 method skip-xml-declaration returns Bool is rw { flag-proxy($skipXMLDeclaration) }
@@ -69,8 +69,13 @@ method skip-xml-declaration returns Bool is rw { flag-proxy($skipXMLDeclaration)
 method skip-dtd returns Bool is rw { flag-proxy($skipDTD) }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
-method tag-expansion is rw {
+method tag-expansion is rw returns Bool {
     LibXML::Raw.TagExpansion;
+}
+
+#| Maximum errors before throwing a fatal X::LibXML::TooManyErrors
+method max-errors is rw returns UInt:D {
+    $maxErrors;
 }
 
 =head2 Parsing Default Options
@@ -159,7 +164,7 @@ method external-entity-loader returns Callable is rw {
 method input-callbacks is rw {
     Proxy.new(
         FETCH => sub ($) { $inputCallbacks },
-        STORE => sub ($, LibXML::InputCallback $callbacks) {
+        STORE => sub ($, $callbacks) {
             $inputCallbacks = $callbacks;
         }
     );

@@ -88,10 +88,18 @@ Whether to omit internal DTDs (default False)
 ### method tag-expansion
 
 ```raku
-method tag-expansion() returns Mu
+method tag-expansion() returns Bool
 ```
 
 Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
+
+### method max-errors
+
+```raku
+method max-errors() returns UInt:D
+```
+
+Maximum errors before throwing a fatal X::LibXML::TooManyErrors
 
 Parsing Default Options
 -----------------------
