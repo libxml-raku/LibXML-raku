@@ -209,13 +209,15 @@ sub use_dom($d) {
 my $bigfile = "etc/libxml2-api.xml";
 
 subtest 'dom access', {
-    $xml = $bigfile.IO.slurp;
-    ok($xml, 'bigfile was slurped fine.');
-    blat { my $dom = do { $p.parse: :string($xml) }; use_dom($dom) for 1..5; };
+    my $string = $bigfile.IO.slurp;
+    ok $string , 'bigfile was slurped fine.';
+    blat { my $dom = do { $p.parse: :$string }; use_dom($dom) for 1..5; };
     pass 'Joined all threads.';
 }
 
 subtest 'check parsing', {
+    my $string = $bigfile.IO.slurp;
+    ok $string , 'bigfile was slurped fine.';
     use LibXML::SAX::Handler::SAX2;
     class MyHandler is LibXML::SAX::Handler::SAX2 {
 
@@ -226,17 +228,17 @@ subtest 'check parsing', {
 	sax-handler=>MyHandler.new(),
     );
     ok($p.defined, 'LibXML::SAX was initted.');
-    blat { $p.parse: :string($xml) for 1..5; 1; }
+    blat { $p.parse: :$string for 1..5; 1; }
     pass('After LibXML::SAX - join.');
 
     $p = LibXML.new(
 	sax-handler => MyHandler.new(),
     );
-    $p.parse: :chunk($xml);
+    $p.parse: :chunk($string);
     $p.parse: :terminate;
 
     blat {
-        $p.parse: :chunk($xml);
+        $p.parse: :chunk($string);
         use_dom($p.parse( :terminate));
     }
     pass('LibXML thread.');
