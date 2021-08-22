@@ -236,7 +236,6 @@ subtest 'check parsing', {
     $p.parse: :terminate;
 
     blat {
-        $p = LibXML.new();
         $p.parse: :chunk($xml);
         use_dom($p.parse( :terminate));
     }
@@ -265,23 +264,27 @@ subtest 'docfrag', {
         $d.setDocumentElement($d.createElement('root'));
         $d.documentElement.appendChild($e);
     }
-    pass("docfrag");
+    pass;
 }
+
+# ported from Perl
 
 subtest 'docfrag2', {
     my LibXML::Element $e .= new('foo');
     my LibXML::Document $d .= new();
     $d.setDocumentElement: $d.createElement('root');
+    my Lock $l .= new;
     blat {
-	$d.documentElement.appendChild($e);
+	$l.protect: { $d.documentElement.appendChild($e); }
     }
     pass;
 }
 
 subtest 'docfrag3', {
     my LibXML::Element $e .= new('foo');
+    my Lock $l .= new;
     blat {
-	LibXML::Element.new('root').appendChild($e);
+	$l.protect: { LibXML::Element.new('root').appendChild($e); }
     }
     pass;
 }
