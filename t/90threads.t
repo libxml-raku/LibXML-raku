@@ -259,34 +259,32 @@ subtest 'create elements', {
     pass;
 }
 
+# ported from Perl
+
 subtest 'docfrag', {
     my LibXML::Element $e .= new('foo');
     blat {
         my LibXML::Document $d .= new();
         $d.setDocumentElement($d.createElement('root'));
-        $d.documentElement.appendChild($e);
+        $e.protect: { $d.documentElement.appendChild($e); }
     }
     pass;
 }
-
-# ported from Perl
 
 subtest 'docfrag2', {
     my LibXML::Element $e .= new('foo');
     my LibXML::Document $d .= new();
     $d.setDocumentElement: $d.createElement('root');
-    my Lock $l .= new;
     blat {
-	$l.protect: { $d.documentElement.appendChild($e); }
+	$d.protect: { $d.documentElement.appendChild($e); }
     }
     pass;
 }
 
 subtest 'docfrag3', {
     my LibXML::Element $e .= new('foo');
-    my Lock $l .= new;
     blat {
-	$l.protect: { LibXML::Element.new('root').appendChild($e); }
+	$e.protect: { LibXML::Element.new('root').appendChild($e); }
     }
     pass;
 }
