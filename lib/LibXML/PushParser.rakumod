@@ -8,7 +8,7 @@ class LibXML::PushParser {
     has Bool $.html;
     has LibXML::Parser::Context $!ctx;
 
-    multi submethod TWEAK(Str :chunk($str), |c) {
+    multi submethod TWEAK(Str :chunk($str)!, |c) {
         my $chunk = $str.encode;
         self.TWEAK(:$chunk, |c);
     }

@@ -164,17 +164,15 @@ sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:struct
 }
 method !try(&action) {
     my $rv;
-    my $lock = LibXML::Config.lock;
-    my $handlers;
-    $lock.protect: {
-        $handlers = xml6_gbl_save_error_handlers();
+
+    LibXML::Config.protect: sub () is hidden-from-backtrace {
+        my $handlers = xml6_gbl_save_error_handlers();
         $!raw.SetStructuredErrorFunc: &structured-error-cb;
-    }
-    my $*XPATH-CONTEXT = self;
 
-    $rv := &action();
+        my $*XPATH-CONTEXT = self;
 
-    $lock.protect: sub () is hidden-from-backtrace {
+        $rv := &action();
+
         xml6_gbl_restore_error_handlers($handlers);
         temp self.recover //= $rv.defined;
         self.flush-errors;

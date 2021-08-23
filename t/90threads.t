@@ -10,8 +10,6 @@ use LibXML::Parser;
 constant MAX_THREADS = 10;
 constant MAX_LOOP = 50;
 
-pass 'Loaded';
-
 my LibXML::Parser $p = LibXML.new();
 ok($p.defined, 'Parser initted.');
 
@@ -285,5 +283,14 @@ subtest 'docfrag3', {
     blat {
 	$e.protect: { LibXML::Element.new('root').appendChild($e); }
     }
+    pass;
+}
+
+subtest 'xinclude', {
+    my $file = 'test/xinclude/test.xml';
+    my $parser = LibXML.new;
+    $parser.expand-xinclude = True;
+    $parser.expand-entities = True;
+    blat { $parser.parse(:$file) for 1..10 }
     pass;
 }

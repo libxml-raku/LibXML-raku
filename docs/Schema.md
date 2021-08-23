@@ -42,7 +42,7 @@ The `:network` flag effects processing of `xsd:import` directives. By default th
 
 The string parameter will parse the schema from the given XML string.
 
-Note that the constructor will die() if the schema does not meed the constraints of the XML Schema specification.
+Note that the constructor will die() if the schema does not meet the constraints of the XML Schema specification.
 
 ### method validate
 

@@ -96,26 +96,21 @@ submethod DESTROY { self.reset }
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
-    my $*XML-CONTEXT = self;
-    my @input-contexts;
-    my Pointer $handlers;
-    my $lock := LibXML::Config.lock;
 
-    $lock.protect: {
+    LibXML::Config.protect: sub () is hidden-from-backtrace {
+        my $*XML-CONTEXT = self;
         $_ = .new: :raw(xmlParserCtxt.new)
             without $*XML-CONTEXT;
 
-        @input-contexts = .activate()
+        my @input-contexts = .activate()
             with $*XML-CONTEXT.input-callbacks;
 
-        $handlers = xml6_gbl_save_error_handlers();
+        my $handlers = xml6_gbl_save_error_handlers();
         $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
         &*chdir(~$*CWD);
-    }
 
-    $rv := action();
+        $rv := action();
 
-    $lock.protect: sub () is hidden-from-backtrace {
         .deactivate
             with $*XML-CONTEXT.input-callbacks;
 

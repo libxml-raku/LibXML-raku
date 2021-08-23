@@ -181,7 +181,7 @@ our $queryHandler = class NoQueryHandler {
     }
 }
 
-method lock {
+method lock handles<protect> {
     BEGIN Lock.new;
 }
 

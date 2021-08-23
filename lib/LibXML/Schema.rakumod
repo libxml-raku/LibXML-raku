@@ -72,22 +72,17 @@ my class Parser::Context {
     }
 
     method parse {
-        my $*XML-CONTEXT = self;
         my $rv;
-        my $lock = LibXML::Config.lock;
-        my $handlers;
-        my $ext-loader-changed;
 
-        $lock.protect: {
-            $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
-            $handlers = xml6_gbl_save_error_handlers();
+        LibXML::Config.protect: sub () is hidden-from-backtrace {
+            my $*XML-CONTEXT = self;
+            my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
+            my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $!raw.SetParserErrorFunc: &structured-error-cb;
-        }
 
-        $rv := $!raw.Parse;
+            $rv := $!raw.Parse;
 
-        $lock.protect: sub () is hidden-from-backtrace {
             xml6_gbl_restore_error_handlers($handlers);
 
             if $ext-loader-changed {
@@ -121,19 +116,16 @@ my class ValidContext {
     }
 
     multi method validate(LibXML::Document:D $_, Bool() :$check) is hidden-from-backtrace {
-        my $*XML-CONTEXT = self;
         my xmlDoc:D $doc = .raw;
-        my $lock = LibXML::Config.lock;
-        my $handlers;
         my $rv;
-        $lock.protect: {
-            $handlers = xml6_gbl_save_error_handlers();
+
+        LibXML::Config.protect: sub () is hidden-from-backtrace {
+            my $*XML-CONTEXT = self;
+            my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-        }
 
-        $rv := $!raw.ValidateDoc($doc);
+            $rv := $!raw.ValidateDoc($doc);
 
-        $lock.protect: sub () is hidden-from-backtrace {
             xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
@@ -179,7 +171,7 @@ submethod TWEAK(|c) {
 
     The string parameter will parse the schema from the given XML string.
 
-    Note that the constructor will die() if the schema does not meed the
+    Note that the constructor will die() if the schema does not meet the
     constraints of the XML Schema specification.
 =end pod
 
