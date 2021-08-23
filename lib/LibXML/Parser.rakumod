@@ -238,44 +238,45 @@ multi method parse(
 }
 
 has LibXML::PushParser $!push-parser;
-method init-push { $!push-parser = Nil }
-multi method push(Str() $chunk) {
-    with $!push-parser {
-        .push($chunk);
-    }
-    else {
-        $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
-    }
-}
-multi method push(@chunks) is default is DEPRECATED<append> {
-    $.append(@chunks);
-}
-multi method parse(:$chunk!, |c) {
-   $.parse-chunk($chunk, |c);
-}
-multi method parse(:$terminate!, |c) {
-   $.parse-chunk(:$terminate, |c);
-}
+has Lock $!push-lock .= new;
+method init-push { $!push-lock.protect: {$!push-parser = Nil} }
 method append(@chunks) { self.push($_) for @chunks }
-method parse-chunk($chunk?, :$terminate, |c) {
-    $.push($_) with $chunk;
-    $.finish-push(|c)
-        if $terminate;
-}
 method finish-push (
     Str :$URI = $!URI,
     Bool :$recover = $.recover,
-)
-{
-    with $!push-parser {
-        my $doc := .finish-push(:$URI, :$recover);
-        $_ = Nil;
-        $doc;
-    }
-    else {
-        die "no active push parser";
+) {
+    $.push: :terminate, :$URI, :$recover;
+}
+
+method push(
+    $chunk?,
+    Str :$URI,
+    Bool :$terminate,
+    Bool :$recover) is also<parse-chunk> {
+
+    $!push-lock.protect: {
+        if $chunk.defined {
+            with $!push-parser {
+                .push($chunk);
+            }
+            else {
+                $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
+            }
+        }
+        if $terminate {
+            with $!push-parser {
+                my $doc := .finish-push(:$URI, :$recover);
+                $_ = Nil;
+                $doc;
+            }
+            else {
+                die "no active push parser";
+            }
+        }
     }
 }
+multi method parse(:$chunk!, |c) { $.push($chunk, |c); }
+multi method parse(Bool :$terminate!, |c) { $.push(:$terminate, |c); }
 
 method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     use LibXML::DocumentFragment;

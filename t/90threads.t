@@ -238,8 +238,7 @@ subtest 'check parsing', {
     $p.parse: :terminate;
 
     blat {
-        $p.parse: :chunk($string);
-        use_dom($p.parse( :terminate));
+        use_dom($p.parse: :chunk($string), :terminate);
     }
     pass('LibXML thread.');
 
@@ -276,7 +275,7 @@ subtest 'docfrag2', {
     my LibXML::Document $d .= new();
     $d.setDocumentElement: $d.createElement('root');
     blat {
-	$d.protect: { $d.documentElement.appendChild($e); }
+	$e.protect: {$d.protect: { $d.documentElement.appendChild($e); }}
     }
     pass;
 }
