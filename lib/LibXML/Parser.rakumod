@@ -254,7 +254,7 @@ method push(
     Bool :$terminate,
     Bool :$recover) is also<parse-chunk> {
 
-    $!push-lock.protect: {
+    $!push-lock.protect: sub () is hidden-from-backtrace {
         if $chunk.defined {
             with $!push-parser {
                 .push($chunk);

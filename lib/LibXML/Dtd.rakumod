@@ -108,8 +108,8 @@ class ValidContext {
     method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, xmlAttr :$attr, Bool :$check) is hidden-from-backtrace {
         my $rv;
 
-        my $*XML-CONTEXT = self;
         LibXML::Config.protect: sub () is hidden-from-backtrace {
+            my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
 

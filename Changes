@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.6.7  2021-08-24T08:14:25+12:00
+    - protect all parse and validation contexts. These require global
+      state setup and are not reentrant or thread-safe.
+
 0.6.6  2021-08-23T13:10:48+12:00
     - Complete porting of t/90threads.t from Perl. This involved adding:
       -- protection locks in setup and finalization stages in

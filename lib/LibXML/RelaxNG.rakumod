@@ -109,16 +109,15 @@ my class ValidContext {
         .Free with $!raw;
     }
 
-    method validate(LibXML::Document:D $_, Bool() :$check) is hidden-from-backtrace {
+    method validate(LibXML::Document:D $doc, Bool() :$check) is hidden-from-backtrace {
         my $rv;
-        my $*XML-CONTEXT = self;
-        my xmlDoc:D $doc = .raw;
 
         LibXML::Config.protect: sub () is hidden-from-backtrace {
+            my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
 
-            $rv := $!raw.ValidateDoc($doc);
+            $rv := $!raw.ValidateDoc($doc.raw);
 
             xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
