@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 69;
+plan 68;
 # bootstrapping tests for the DOM
 
 use LibXML;
@@ -137,5 +137,3 @@ is($elem.Str, '<foo xmlns:x="http://ns" xmlns:_ns0="http://ns2" foo="bar" x:bbb=
 
 ok $elem.isSupported('HTML');
 nok $elem.isSupported('LOLCODE');
-
-subtest 'dom-document-basic' => { W3C::DOM::Test::document-basic(LibXML) };

@@ -462,11 +462,11 @@ method addSibling(
 
 Add an additional node to the end of a nodelist
 
-### method cloneNode
+### multi method cloneNode
 
 ```raku
-method cloneNode(
-    Bool(Any) :$deep = Bool::False
+multi method cloneNode(
+    Bool(Any) :$deep!
 ) returns LibXML::Node
 ```
 

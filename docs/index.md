@@ -156,6 +156,11 @@ This Raku module:
 
 With thanks to: Christian Glahn, Ilya Martynov, Matt Sergeant, Petr Pajas, Shlomi Fish, Toby Inkster, Tobias Leich, Xliff, and others.
 
+VERSION
+=======
+
+0.5.14
+
 COPYRIGHT
 =========
 

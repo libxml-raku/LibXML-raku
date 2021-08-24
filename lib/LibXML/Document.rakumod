@@ -177,12 +177,15 @@ method implementation returns W3C::DOM::Implementation {
     require ::('LibXML');
 }
 
-multi method createDocument(Str() $version, xmlEncodingStr $enc) {
+# Perl compatibility
+multi method createDocument(Str:D() $version where /^\d'.'\d$/, xmlEncodingStr $enc) {
     self.new: :$version, :$enc;
 }
 
+# DOM compatibility
 multi method createDocument(Str $URI? is copy, QName $name?, W3C::DOM::DocumentType $dtd?, Str :URI($uri), *%opt) {
     $URI //= $uri;
+
     with $dtd {
         %opt<html> //= .is-XHTML;
     }
