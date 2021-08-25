@@ -154,7 +154,7 @@ EOSTR
 
 subtest 'Perl #39178', {
     my $p = LibXML.new;
-    my $doc = $p.parse: :file("example/utf-16-2.xml");
+    my $doc = $p.parse: :file("samples/utf-16-2.xml");
     ok $doc.defined;
     my @nodes = $doc.findnodes("/cml/*");
     is +@nodes, 2;
@@ -163,7 +163,7 @@ subtest 'Perl #39178', {
 
 subtest 'Perl #36576', {
     my $p = LibXML.new;
-    my $doc = $p.parse: :html, :file("example/utf-16-1.html");
+    my $doc = $p.parse: :html, :file("samples/utf-16-1.html");
     ok $doc.defined;
     my @nodes = $doc.findnodes("//p");
     is +@nodes, 1;
@@ -173,7 +173,7 @@ subtest 'Perl #36576', {
 
 subtest 'Perl #36576', {
     my $p = LibXML.new;
-    my $doc = $p.parse: :html, :file("example/utf-16-2.html");
+    my $doc = $p.parse: :html, :file("samples/utf-16-2.html");
     ok $doc.defined;
     my @nodes = $doc.findnodes("//p");
     is +@nodes, 1, 'Found one p';

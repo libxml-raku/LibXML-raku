@@ -416,7 +416,7 @@ subtest 'Entity Reference construction', {
 subtest "issue #41 Traversion order" => {
     plan 6;
     use LibXML::Document;
-    my LibXML::Document $doc .= parse: :file<example/dromeds.xml>;
+    my LibXML::Document $doc .= parse: :file<samples/dromeds.xml>;
     my @elems = $doc.getElementsByTagName('*');
     is +@elems, 10;
     is @elems[0].tagName, 'dromedaries', 'first element';

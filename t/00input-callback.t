@@ -21,11 +21,11 @@ my LibXML::InputCallback $input-callbacks .= new: :callbacks{
 
 # low level callback checks on external API
 my ($context) = $input-callbacks.make-contexts;
-my $match = ($context.match)("example/test2.xml");
+my $match = ($context.match)("samples/test2.xml");
 is-deeply $match, 1, "match callback when found";
-$match = ($context.match)("example/does-not-exist.xml");
+$match = ($context.match)("samples/does-not-exist.xml");
 is-deeply $match, 0, "match callback when not found";
-my $ptr := ($context.open)("example/test2.xml");
+my $ptr := ($context.open)("samples/test2.xml");
 isa-ok $ptr, Pointer, 'open returns a pointer';
 my ($handle, @guff) = $context.handles.values;
 ok ($handle.defined && !@guff), 'Exactly one open handle';
@@ -44,7 +44,7 @@ my $parser = LibXML.new: :$input-callbacks;
 $parser.expand-xinclude = True;
 
 my $dom;
-lives-ok {$dom = $parser.parse: :file("example/test.xml")}, 'file parse';
+lives-ok {$dom = $parser.parse: :file("samples/test.xml")}, 'file parse';
 check-seen();
 is $dom.documentElement.firstChild.name, '#text', 'DOM sanity';
 

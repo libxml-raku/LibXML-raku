@@ -373,7 +373,7 @@ subtest 'document storing', {
 
 
     subtest 'to file handle', {
-        my IO::Handle $io = 'example/testrun.xml'.IO.open(:w);
+        my IO::Handle $io = 'samples/testrun.xml'.IO.open(:w);
 
         lives-ok {
             $doc.save: :$io;
@@ -381,24 +381,24 @@ subtest 'document storing', {
         }
 
         # now parse the file to check, if succeeded
-        my $tdoc = $parser.parse: :file( "example/testrun.xml" );
+        my $tdoc = $parser.parse: :file( "samples/testrun.xml" );
         is-deeply $tdoc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>' , '<foo>bar</foo>');
         is $tdoc.documentElement, '<foo>bar</foo>';
         is $tdoc.documentElement.nodeName, "foo";
         is $tdoc.documentElement.string-value, "bar";
-        unlink "example/testrun.xml" ;
+        unlink "samples/testrun.xml" ;
     }
 
     subtest 'to named file', {
-        $doc.save: :file( "example/testrun.xml" );
+        $doc.save: :file( "samples/testrun.xml" );
         pass(' TODO : Add test name');
         # now parse the file to check, if succeeded
-        my $tdoc = $parser.parse: :file( "example/testrun.xml" );
+        my $tdoc = $parser.parse: :file( "samples/testrun.xml" );
         ok( $tdoc, ' TODO : Add test name' );
         ok $tdoc.documentElement;
         is $tdoc.documentElement.nodeName, "foo";
         is $tdoc.documentElement.string-value, "bar";
-        unlink "example/testrun.xml" ;
+        unlink "samples/testrun.xml" ;
     }
 
     subtest 'element like functions', {
@@ -558,7 +558,7 @@ subtest 'various encodings', {
 subtest 'compress' => {
     plan 5;
     use File::Temp;
-    my LibXML::Document:D $doc = LibXML.parse: :file( "example/test.xml" );
+    my LibXML::Document:D $doc = LibXML.parse: :file( "samples/test.xml" );
     todo '$doc.input-compressed is unreliable in libxml <= v2.09.01'
         if LibXML.version <= v2.09.01;
     is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';

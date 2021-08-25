@@ -29,7 +29,7 @@ my LibXML::DocumentFragment:D $frag = ast-to-xml($frag-ast);
 is $frag, '<!-- testing --><species>Camelid</species>xxx&foo;';
 is-deeply $frag.ast, '#fragment' => $frag-ast;
 
-my LibXML::Document $doc .= parse: :file<example/dromeds.xml>;
+my LibXML::Document $doc .= parse: :file<samples/dromeds.xml>;
 is-deeply $doc.ast, "#xml"
                         => [
                             :dromedaries[
@@ -39,7 +39,7 @@ is-deeply $doc.ast, "#xml"
                                  ]
                         ];
 
-$doc .= parse: :file<example/ns.xml>;
+$doc .= parse: :file<samples/ns.xml>;
 
 my $dromedaries = [
     :xmlns("urn:camels"),

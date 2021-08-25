@@ -10,7 +10,7 @@ use LibXML::Document;
 
 constant CanDoIO = ? IO::Handle.can('do-not-close-automatically');
 
-my $html = "example/test.html";
+my $html = "samples/test.html";
 
 my $parser = LibXML.new();
 subtest 'parse :html and :file options', {
@@ -131,7 +131,7 @@ subtest 'html with encodings', {
 subtest 'latin2 encoding', {
 
     my $utf_str = "ěščř";
-    my $test_file = 'example/enc_latin2.html';
+    my $test_file = 'samples/enc_latin2.html';
     my $fh;
 
     $htmldoc = $parser.parse: :html, :file( $test_file );
@@ -185,7 +185,7 @@ skip "iso-8859-2 nyi", 2;
 
 subtest 'latin2 w/o meta charset', {
     my $utf_str = "ěščř";
-    my $test_file = 'example/enc2_latin2.html';
+    my $test_file = 'samples/enc2_latin2.html';
     my $fh;
 
     $htmldoc = $parser.parse: :html, :file($test_file), :enc<iso-8859-2>;

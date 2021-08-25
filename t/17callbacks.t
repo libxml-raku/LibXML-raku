@@ -142,7 +142,7 @@ subtest 'single callback', {
 
     $parser.expand-xinclude = True;
 
-    my $dom = $parser.parse: :file("example/test.xml");
+    my $dom = $parser.parse: :file("samples/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for expand_include called twice.');
     $close1_non_global_counter.test(2, 'close1 for expand_include called.');
@@ -188,8 +188,8 @@ subtest 'per parser callbacks', {
     $parser2.input-callbacks = $input-callbacks2;
     $parser2.expand-xinclude = True;
 
-    my $dom1 = $parser.parse: :file( "example/test.xml");
-    my $dom2 = $parser2.parse: :file("example/test.xml");
+    my $dom1 = $parser.parse: :file( "samples/test.xml");
+    my $dom2 = $parser2.parse: :file("samples/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for $parser out of ($parser,$parser2)');
     $close1_non_global_counter.test(2, 'close1 for $parser out of ($parser,$parser2)');
@@ -211,7 +211,7 @@ subtest 'per parser callbacks', {
     is $val2, "test 4", 'second parser result';
 }
 
-chdir("example/complex");
+chdir("samples/complex");
 
 my $str = 'complex.xml'.IO.slurp;
 

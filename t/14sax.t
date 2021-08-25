@@ -104,7 +104,7 @@ subtest 'callback basic', {
     my SAXTester $sax .= new;
     ok $sax.defined;
 
-    my $str = "example/dromeds.xml".IO.slurp;
+    my $str = "samples/dromeds.xml".IO.slurp;
     my $doc = LibXML.parse: :string($str);
     ok $doc.defined;
 
@@ -131,7 +131,7 @@ subtest 'callback basic', {
     ########### XML::SAX Replacement Tests ###########
     $parser = LibXML::SAX.new(sax-handler => $sax);
     ok $parser.defined;
-    $parser.parse: :file("example/dromeds.xml"); # startElement*10
+    $parser.parse: :file("samples/dromeds.xml"); # startElement*10
 
     $SAXTester_startElement_stacker.test(
         ['true' xx 10],
@@ -157,7 +157,7 @@ subtest 'Ns callbacks', {
     ok $sax.defined;
 
     $parser.sax-handler = $sax;
-    $parser.parse: :file("example/ns.xml");
+    $parser.parse: :file("samples/ns.xml");
 
     $SAXNSTester_startElement_stacker.test(
         [

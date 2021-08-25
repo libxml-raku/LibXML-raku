@@ -23,7 +23,7 @@ plan 3;
     my $xml-parser = LibXML.new();
     $xml-parser.input-callbacks($input-callbacks);
 
-    my $location = 'example/dromeds.xml';
+    my $location = 'samples/dromeds.xml';
 
     $xml-parser.load: :$location;
 

@@ -179,10 +179,6 @@ Tobias Leich,
 Xliff,
 and others.
 
-=head1 VERSION
-
-0.5.14
-
 =head1 COPYRIGHT
 
 2001-2007, AxKit.com Ltd.

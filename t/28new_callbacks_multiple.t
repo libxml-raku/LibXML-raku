@@ -140,7 +140,7 @@ my $match_file_stacker = Stacker.new(
     gen-cb => -> &push-cb {
         -> $uri {
 
-            my $verdict = (( $uri ~~ /^'/example/'/ ) ?? 1 !! 0);
+            my $verdict = (( $uri ~~ /^'/samples/'/ ) ?? 1 !! 0);
             if ($verdict)
             {
                 &push-cb({ verdict => $verdict, uri => $uri, });
@@ -154,7 +154,7 @@ my $match_file_stacker = Stacker.new(
 my $match_hash2_stacker = Stacker.new(
     gen-cb => -> &push-cb {
         -> $uri {
-            if ( $uri ~~ /^'/example/'/ ) {
+            if ( $uri ~~ /^'/samples/'/ ) {
                 &push-cb({ verdict => 1, uri => $uri, });
                 1;
             }
@@ -200,7 +200,7 @@ my $read_xml_stacker = Stacker.new(
     my $string = q:to<EOF>;
     <x xmlns:xinclude="http://www.w3.org/2001/XInclude">
     <xml>test
-    <xinclude:include href="/example/test2.xml"/>
+    <xinclude:include href="/samples/test2.xml"/>
     <xinclude:include href="/libxml/test2.xml"/>
     <xinclude:include href="/xmldom/test2.xml"/></xml>
     </x>
@@ -237,7 +237,7 @@ my $read_xml_stacker = Stacker.new(
 
         $open_file_stacker.test(
             [
-                '/example/test2.xml',
+                '/samples/test2.xml',
             ],
             'open_file() for URLs.',
         );
@@ -266,7 +266,7 @@ my $read_xml_stacker = Stacker.new(
 
         $match_file_stacker.test(
             [
-                { verdict => 1, uri => '/example/test2.xml',},
+                { verdict => 1, uri => '/samples/test2.xml',},
             ],
                 'match_file() for multiple_tests',
         );
@@ -303,8 +303,8 @@ my $read_xml_stacker = Stacker.new(
     my $string = q:to<EOF>;
     <x xmlns:xinclude="http://www.w3.org/2001/XInclude">
     <xml>test
-    <xinclude:include href="/example/test2.xml"/>
-    <xinclude:include href="/example/test3.xml"/></xml>
+    <xinclude:include href="/samples/test2.xml"/>
+    <xinclude:include href="/samples/test3.xml"/></xml>
     </x>
     EOF
 
@@ -333,8 +333,8 @@ my $read_xml_stacker = Stacker.new(
 
     $match_hash2_stacker.test(
         [
-            { verdict => 1, uri => '/example/test2.xml',},
-            { verdict => 1, uri => '/example/test3.xml',},
+            { verdict => 1, uri => '/samples/test2.xml',},
+            { verdict => 1, uri => '/samples/test3.xml',},
         ],
         'match_hash2() input callbacks' ,
     );
@@ -363,8 +363,8 @@ my $read_xml_stacker = Stacker.new(
 
     $open_file_stacker.test(
         [
-            '/example/test2.xml',
-            '/example/test3.xml',
+            '/samples/test2.xml',
+            '/samples/test3.xml',
         ],
         'open_file() for URLs.',
     );
@@ -377,8 +377,8 @@ my $read_xml_stacker = Stacker.new(
 
     $match_file_stacker.test(
         [
-            { verdict => 1, uri => '/example/test2.xml',},
-            { verdict => 1, uri => '/example/test3.xml',},
+            { verdict => 1, uri => '/samples/test2.xml',},
+            { verdict => 1, uri => '/samples/test3.xml',},
         ],
         'match_file() input callbacks' ,
     );
@@ -394,13 +394,13 @@ my $read_xml_stacker = Stacker.new(
     my $string = q:to<EOF>;
     <x xmlns:xinclude="http://www.w3.org/2001/XInclude">
     <xml>test
-    <xinclude:include href="/example/test2.xml"/>
+    <xinclude:include href="/samples/test2.xml"/>
     <xinclude:include href="/xmldom/test2.xml"/></xml>
     </x>
     EOF
     my $string2 = q:to<EOF>;
     <x xmlns:xinclude="http://www.w3.org/2001/XInclude">
-    <tmp/><xml>foo..<xinclude:include href="/example/test2.xml"/>bar</xml>
+    <tmp/><xml>foo..<xinclude:include href="/samples/test2.xml"/>bar</xml>
     </x>
     EOF
 
@@ -446,21 +446,21 @@ my $read_xml_stacker = Stacker.new(
 
     $open_file_stacker.test(
         [
-            '/example/test2.xml',
+            '/samples/test2.xml',
         ],
         'open_file() for URLs.',
     );
 
     $match_hash2_stacker.test(
         [
-            { verdict => 1, uri => '/example/test2.xml',},
+            { verdict => 1, uri => '/samples/test2.xml',},
         ],
         'match_hash2() input callbacks' ,
     );
 
     $read_xml_stacker.test(
         [
-            buf8.new(qq{<x xmlns:xinclude="http://www.w3.org/2001/XInclude">\n<tmp/><xml>foo..<foo xml:base="/example/test2.xml">bar<xsl/>..</foo>bar</xml>\n</x>\n}.encode),
+            buf8.new(qq{<x xmlns:xinclude="http://www.w3.org/2001/XInclude">\n<tmp/><xml>foo..<foo xml:base="/samples/test2.xml">bar<xsl/>..</foo>bar</xml>\n</x>\n}.encode),
             buf8.new,
         ],
         'read_xml() No. 2',
@@ -474,7 +474,7 @@ my $read_xml_stacker = Stacker.new(
 
     $match_file_stacker.test(
         [
-            { verdict => 1, uri => '/example/test2.xml',},
+            { verdict => 1, uri => '/samples/test2.xml',},
         ],
         'match_file() for inner callback.',
     );

@@ -126,7 +126,7 @@ class sax_null {...}
         check_mem();
     }
 
-    my $dtdstr = 'example/test.dtd'.IO.slurp;
+    my $dtdstr = 'samples/test.dtd'.IO.slurp;
     subtest 'DTD string parsing', {
         $dtdstr ~~ s:g/\r//;
         $dtdstr ~~ s/<[\r\n]>*$//;
@@ -142,7 +142,7 @@ class sax_null {...}
 
     subtest 'DTD URI parsing', {
         for 1..TIMES_THROUGH {
-            my $dtd = LibXML::Dtd.new('ignore', 'example/test.dtd');
+            my $dtd = LibXML::Dtd.new('ignore', 'samples/test.dtd');
         }
         pass('after URI parsing.');
         check_mem();
@@ -154,7 +154,7 @@ class sax_null {...}
         my $xml;
         try {
             quietly {
-                $xml = LibXML.parse: :file('example/article_bad.xml');
+                $xml = LibXML.parse: :file('samples/article_bad.xml');
             }
         };
         for 1..TIMES_THROUGH {

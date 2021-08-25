@@ -6,7 +6,7 @@ use LibXML;
 use LibXML::ErrorHandling;
 use LibXML::Node;
 
-my $file    = "example/dromeds.xml";
+my $file    = "samples/dromeds.xml";
 
 # init the file parser
 my $parser = LibXML.new();
@@ -143,7 +143,7 @@ subtest 'ns findnodes', {
     is +@none, 0;
 }
 
-my @doc = $root.findnodes('document("example/test.xml")');
+my @doc = $root.findnodes('document("samples/test.xml")');
 ok +@doc;
 
 # this query should result an empty array!

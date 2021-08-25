@@ -820,9 +820,6 @@ method internalSubset is rw returns LibXML::Dtd {
                  }
              );
 }
-=para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
-    LibXML is still limited. In particular one may not want to use common node
-    function on doctype declaration nodes!
 
 method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
@@ -837,7 +834,6 @@ method setExternalSubset(LibXML::Dtd $dtd is copy, Bool :$validate --> LibXML::D
     }
     $dtd.keep: self.raw.setExternalSubset: $dtd.raw;
 }
-=para I<EXPERIMENTAL!>
 =para If the :validate option is passed, the document is first validated against the DTD.
 
 #| This method removes any external subset from the document
@@ -853,11 +849,8 @@ method externalSubset is rw returns LibXML::Dtd {
                  }
              );
 }
-=para I<NOTE> Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in
-    LibXML is still limited. In particular one may not want use common node
-    function on doctype declaration nodes!
 
-method parser handles<parse> { require ::('LibXML::Parser'); }
+method parser handles<parse parseFromString> { require ::('LibXML::Parser'); }
 =begin pod
     =head3 method parse
 

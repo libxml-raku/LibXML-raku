@@ -36,6 +36,22 @@ multi method replaceData(UInt:D $off, UInt:D $length, Str:D $val --> Str) {
     }
 }
 
+method splitText(UInt $off) {
+    my $len = $.content.chars;
+    my $new = self.clone;
+    with self.parent {
+        .insertAfter($new, self);
+    }
+    if $off >= $len {
+        $new.content = '';
+    }
+    else {
+        self.substr-rw($off, $len - $off) = '';
+        $new.substr-rw(0, $off) = '';
+    }
+    $new;
+}
+
 my subset StrOrRegex where Str|Regex;
 my subset StrOrCode where Str|Code;
 method replaceDataString(StrOrRegex:D $old, StrOrCode:D $new, |c --> Str) {

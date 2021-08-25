@@ -484,11 +484,11 @@ method addSibling(LibXML::Node:D $new --> LibXML::Node) {
     &?ROUTINE.returns.box: self.raw.addSibling($new.raw);
 }
 
-#| Copy a node
-multi method cloneNode(LibXML::Node:D: Bool() :$deep! --> LibXML::Node) is also<clone> {
+multi method cloneNode(LibXML::Node:D: Bool() $deep --> LibXML::Node) {
     self.box: self.raw.cloneNode($deep);
 }
-multi method cloneNode(LibXML::Node:D: Bool() $deep = False --> LibXML::Node) {
+#| Copy a node
+multi method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) is also<clone> {
     self.box: self.raw.cloneNode($deep);
 }
 =para When $deep is True the function will copy all child nodes as well.

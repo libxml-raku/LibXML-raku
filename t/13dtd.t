@@ -7,13 +7,13 @@ plan 8;
 
 pass("Loaded");
 
-my $dtdstr = 'example/test.dtd'.IO.slurp;
+my $dtdstr = 'samples/test.dtd'.IO.slurp;
 $dtdstr ~~ s/\n*$//;
 
 ok($dtdstr, "DTD String read");
 
 subtest 'parse a DTD from a SYSTEM ID', {
-    my $dtd = LibXML::Dtd.new('ignore', 'example/test.dtd');
+    my $dtd = LibXML::Dtd.new('ignore', 'samples/test.dtd');
     ok($dtd, 'LibXML::Dtd successful.');
     my @dtd-lines-in =  $dtdstr.lines;
     my @dtd-lines-out = $dtd.Str.lines;
@@ -31,7 +31,7 @@ subtest 'parse a DTD from a string', {
 subtest 'validate with the DTD', {
     my $dtd = LibXML::Dtd.parse: :string($dtdstr);
     ok($dtd, '.parse_string 2');
-    my $xml = LibXML.parse: :file('example/article.xml');
+    my $xml = LibXML.parse: :file('samples/article.xml');
     ok($xml, 'parse the article.xml file');
     ok($xml.is-valid($dtd), 'valid XML file');
     lives-ok { $xml.validate($dtd) };
@@ -40,7 +40,7 @@ subtest 'validate with the DTD', {
 subtest 'validate a bad document', {
     my $dtd = LibXML::Dtd.parse: :string($dtdstr);
     ok($dtd, '.parse_string 3');
-    my $xml = LibXML.parse: :file('example/article_bad.xml');
+    my $xml = LibXML.parse: :file('samples/article_bad.xml');
     ok(!$xml.is-valid($dtd), 'invalid XML');
     dies-ok {
         $xml.validate($dtd);
@@ -51,10 +51,10 @@ subtest 'validate a bad document', {
     # this one is OK as it's well formed (no DTD)
 
     dies-ok {
-        $parser.parse: :file('example/article_bad.xml');
+        $parser.parse: :file('samples/article_bad.xml');
     }, 'Threw an exception';
     dies-ok {
-        $parser.parse: :file('example/article_internal_bad.xml');
+        $parser.parse: :file('samples/article_internal_bad.xml');
     }, 'Throw an exception 2';
 }
 
@@ -63,13 +63,13 @@ subtest 'validate a bad document', {
 
 subtest 'childNodes sanity', {
     my $parser = LibXML.new();
-    my $doc = $parser.parse: :file('example/dtd.xml');
+    my $doc = $parser.parse: :file('samples/dtd.xml');
     my @a = $doc.childNodes;
     is(+@a, 2, "Two child nodes");
 }
 
 subtest 'Perl ticket #2021', {
     quietly { dies-ok { LibXML::Dtd.new("",""); } };
-    my LibXML::Dtd $dtd .= new('', 'example/test.dtd');
+    my LibXML::Dtd $dtd .= new('', 'samples/test.dtd');
     ok(defined($dtd), "LibXML::Dtd.new working correctly");
 }

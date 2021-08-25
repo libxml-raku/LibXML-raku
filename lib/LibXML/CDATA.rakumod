@@ -13,7 +13,6 @@ use LibXML::Raw;
 use NativeCall;
 method raw { nativecast(xmlCDataNode, self) }
 method content is rw handles<substr substr-rw> { $.raw.content };
-method splitText { die X::NYI.new }
 
 =begin pod
 =head2 Synopsis

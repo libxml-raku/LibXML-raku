@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-plan 12;
+plan 13;
 
 use LibXML;
 use LibXML::Text;
@@ -257,3 +257,17 @@ subtest 'document fragment', {
     is $node.xpath-key(), "document()";
 }
 
+subtest 'splitText', {
+    my LibXML::Document $doc .= parse: string => q:to<END>;
+    <test_doc>This is a simple test for LibXML::Text.</test_doc>
+    END
+
+    my LibXML::Text $text = $doc.getDocumentElement().getFirstChild();
+    my LibXML::Text $new-node = $text.splitText(10);
+    is $text.getNodeValue, 'This is a ';
+    is $new-node.getNodeValue, 'simple test for LibXML::Text.';
+    ok $doc.getDocumentElement().getFirstChild().isSameNode($text);
+    ok $text.nextSibling.isSameNode($new-node);
+    ok $new-node.previousSibling.isSameNode($text);
+    ok $new-node.parent.isSameNode($text.parent);
+}

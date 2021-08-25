@@ -73,7 +73,7 @@ subtest 'LibXML::Document' => {
     my $numvalue = 1;
     my $ziplevel = 5;
     my Bool $format = True;
-    my LibXML::Document $doc .= parse("example/dtd.xml", :dtd);
+    my LibXML::Document $doc .= parse("samples/dtd.xml", :dtd);
     my $rootnode = $doc.documentElement;
     my Bool $comments = True;
     my $nodename = 'test';
@@ -91,7 +91,7 @@ subtest 'LibXML::Document' => {
     my LibXML::Document $dom2 .= createDocument( $version, $enc );
 
     my Str $URI = $doc.URI();
-    is $URI, "example/dtd.xml";
+    is $URI, "samples/dtd.xml";
     $doc.setURI($URI);
     $doc.URI = $URI;
     my $strEncoding = $doc.encoding();
@@ -191,7 +191,7 @@ subtest 'LibXML::Dtd' => {
     lives-ok {
         my $dtd = LibXML::Dtd.new(
             "SOME // Public / ID / 1.0",
-            "example/test.dtd"
+            "samples/test.dtd"
            );
         $dtd.getName();
         $dtd.publicId();
@@ -736,7 +736,7 @@ subtest 'LibXML::XPath::Context' => {
         $nodes.grep: {.textContent ~~ / <$regex> /}
     };
 
-    my LibXML::Document $doc .= parse: "example/article.xml";
+    my LibXML::Document $doc .= parse: "samples/article.xml";
     $node = $doc.root;
     my $xc = LibXML::XPath::Context.new(:$node);
     $xc.registerFunction('grep-nodes', &grep-nodes);
@@ -754,14 +754,14 @@ subtest 'LibXML::XPath::Context' => {
             return $data{$name};
         }
 
-        my $areas = LibXML.parse: :file('example/article.xml');
-        my $empl = LibXML.parse: :file('example/test.xml');
+        my $areas = LibXML.parse: :file('samples/article.xml');
+        my $empl = LibXML.parse: :file('samples/test.xml');
   
         my $xc = LibXML::XPath::Context.new(node => $empl);
   
         my %variables = (
             A => $xc.find('/employees/employee[@salary>10000]'),
-            B => $areas.find('example/article.xml'),
+            B => $areas.find('samples/article.xml'),
         );
   
         # get names of employees from $A working in an area listed in $B

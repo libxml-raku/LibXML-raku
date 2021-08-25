@@ -73,12 +73,12 @@ class SAXCoverage is LibXML::SAX::Handler::SAX2 {
 }
 
 my SAXCoverage $sax-handler .= new;
-my LibXML::Document $doc1 .= parse: :file<example/dtd.xml>;
-my LibXML::Document $doc2 .= parse: :file<example/dtd.xml>, :$sax-handler;
+my LibXML::Document $doc1 .= parse: :file<samples/dtd.xml>;
+my LibXML::Document $doc2 .= parse: :file<samples/dtd.xml>, :$sax-handler;
 is $doc2.Str, $doc1.Str, 'document integrity';
 
-$doc1 .= parse: :file<example/cdata.xml>;
-$doc2 .= parse: :file<example/cdata.xml>, :$sax-handler;
+$doc1 .= parse: :file<samples/cdata.xml>;
+$doc2 .= parse: :file<samples/cdata.xml>, :$sax-handler;
 is $doc2.Str, $doc1.Str, 'document integrity';
 
 is-deeply %SAXCoverage::cov.keys.sort.List, qw<

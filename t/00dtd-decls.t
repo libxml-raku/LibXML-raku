@@ -11,7 +11,7 @@ use LibXML::Dtd::Notation;
 
 subtest 'dtd notations' => {
     plan 10;
-    my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $notations = $dtd.notations;
     ok $notations.defined, 'DtD has notations';
@@ -30,7 +30,7 @@ subtest 'dtd notations' => {
 
 subtest 'dtd entities' => {
     plan 19;
-    my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::DeclMap $entities = $dtd.entities;
     ok $entities.defined, 'DtD has entities';
@@ -109,7 +109,7 @@ subtest 'dtd element declaration content' => {
 
 subtest 'dtd attribute declarations' => {
     plan 10;
-    my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
     my LibXML::Dtd::AttrDeclMap $elem-attributes = $dtd.attribute-declarations;
     is-deeply $elem-attributes.keys, ("doc",), 'elem attribute keys';
@@ -123,7 +123,7 @@ subtest 'dtd attribute declarations' => {
     is $type-attr.attrType, +XML_ATTRIBUTE_CDATA, 'attrType';
     is $type-attr.defaultMode, +XML_ATTRIBUTE_IMPLIED, 'defaultMode';
     is-deeply $type-attr.defaultValue, Str, 'defaultValue';
-    my $system-id = "example/ProductCatalog.dtd";
+    my $system-id = "samples/ProductCatalog.dtd";
     $dtd .= parse: :$system-id;
     my LibXML::Dtd::AttrDecl:D $Product-Category = $dtd.attribute-declarations<Product><Category>;
     is-deeply $Product-Category.values, ['HandTool', 'Table', 'Shop-Professional' ];

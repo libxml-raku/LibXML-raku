@@ -12,14 +12,14 @@ use Counter;
 use LibXML;
 
 my $string = q:to<EOF>;
-<x xmlns:xinclude="http://www.w3.org/2001/XInclude"><xml>test<xinclude:include href="/example/test2.xml"/></xml></x>
+<x xmlns:xinclude="http://www.w3.org/2001/XInclude"><xml>test<xinclude:include href="/samples/test2.xml"/></xml></x>
 EOF
 
 my $match_file_counter = Counter.new(
     gen-cb => -> &inc-cb {
 
         -> $uri {
-            if $uri ~~ /^'/example/'/ {
+            if $uri ~~ /^'/samples/'/ {
                 &inc-cb();
                 1;
             }
@@ -63,7 +63,7 @@ my $match_hash_counter = Counter.new(
     gen-cb => -> &inc-cb {
 
         -> $uri {
-            if $uri ~~ /^'/example/'/ {
+            if $uri ~~ /^'/samples/'/ {
                 &inc-cb();
                 1;
             }

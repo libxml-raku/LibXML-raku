@@ -117,6 +117,11 @@ multi method parse(
     self!publish: :$ctx;
 }
 
+# DOMish
+method parseFromString(Str:D() $string, |c) {
+    self.parse: :$string, |c;
+}
+
 multi method parse(
     LibXML::Parser:D:
     Blob:D :$buf!,

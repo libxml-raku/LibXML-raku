@@ -3,6 +3,7 @@
     - Default to DOM style createDocument() unless the first argument is defined
       and matches /^\d'.'\d$/, i.e. it's an XML version string.
     - Provide a cloneNode($deep) multi candidate.
+    - Add a LibXML::Text splitText() DOM method
 
 0.6.7  2021-08-24T08:14:25+12:00
     - protect all parse and validation contexts. These require global

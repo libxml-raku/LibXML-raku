@@ -121,8 +121,8 @@ my %goodPushWF = (
     dtd2      => [XML_DECL, '<!DOCTYPE ','foobar [','<!ENT','ITY foo " test ">',']>','<foobar>&f','oo;&gt;</foobar>',],
 );
 
-my $goodfile = "example/dromeds.xml";
-my $badfile1 = "example/bad.xml";
+my $goodfile = "samples/dromeds.xml";
+my $badfile1 = "samples/bad.xml";
 my $badfile2 = "does_not_exist.xml";
 
 my LibXML $parser .= new();
@@ -217,7 +217,7 @@ throws-like( { $parser.parse(:file($badfile1))},
     temp $parser.keep-blanks = False;
     temp config.skip-xml-declaration = True;
     my $docA = $parser.parse: :$string;
-    my $docB = $parser.parse: :file("example/test3.xml");
+    my $docB = $parser.parse: :file("samples/test3.xml");
     is( $docA, $tstr, "xml string round trips as expected");
     is( $docB, $tstr, "test3.xml round trips as expected");
 }
@@ -241,7 +241,7 @@ throws-like
     X::LibXML::Parser, :message(rx/:s Extra content at the end of the document/), "error parsing bad file from file handle of $badfile1";
 {
     temp $parser.expand-entities = True;
-    my $doc = $parser.parse: :file( "example/dtd.xml" );
+    my $doc = $parser.parse: :file( "samples/dtd.xml" );
 
     my $root = $doc.documentElement;
     isa-ok($root, 'LibXML::Element');
@@ -249,12 +249,12 @@ throws-like
     is( +@cn, 1, "1 child node" );
 
     $parser.expand-entities = False;
-    $doc = $parser.parse: :file( "example/dtd.xml" );
+    $doc = $parser.parse: :file( "samples/dtd.xml" );
     @cn = $doc.documentElement.childNodes;
     is( +@cn, 3, "3 child nodes" );
 
     temp $parser.dtd = True;
-    $doc = $parser.parse: :file( "example/complex/complex2.xml" );
+    $doc = $parser.parse: :file( "samples/complex/complex2.xml" );
     @cn = $doc.documentElement.childNodes;
     is( +@cn, 1, "1 child node" );
 }
@@ -279,7 +279,7 @@ my $badXInclude = q{
 
 
 {
-    $parser.URI = "example/";
+    $parser.URI = "samples/";
     temp $parser.keep-blanks = False;
     my $doc = $parser.parse: :string( $goodXInclude );
     isa-ok($doc, 'LibXML::Document');
@@ -304,7 +304,7 @@ my $badXInclude = q{
     $doc = Nil;
     throws-like { $doc = $parser.parse: :string( $badXInclude ); },
         X::LibXML::Parser,
-        :message(rx/'example/bad.xml:3: parser error : Extra content at the end of the document'/),
+        :message(rx/'samples/bad.xml:3: parser error : Extra content at the end of the document'/),
          "error parsing $badfile1 in include";
     ok(!$doc.defined, "no doc returned");
 
@@ -491,7 +491,7 @@ use LibXML::SAX;
     }
 
     # 3.5 PARSE FILE
-    $doc = $generator.parse: :file("example/test.xml");
+    $doc = $generator.parse: :file("samples/test.xml");
     isa-ok $doc, 'LibXML::Document';
 
 
@@ -773,8 +773,8 @@ use LibXML::SAX;
 
 {
     my Str ( $xsDoc1, $xsDoc2 );
-    my Str $fn1 = "example/xmlns/goodguy.xml";
-    my Str $fn2 = "example/xmlns/badguy.xml";
+    my Str $fn1 = "samples/xmlns/goodguy.xml";
+    my Str $fn2 = "samples/xmlns/badguy.xml";
 
     $xsDoc1 = q{<A:B xmlns:A="http://D"><A:C xmlns:A="http://D"></A:C></A:B>};
     $xsDoc2 = q{<A:B xmlns:A="http://D"><A:C xmlns:A="http://E"/></A:B>};
@@ -827,7 +827,7 @@ use LibXML::SAX;
 
 {
     my $xmldoc = q:to<EOXML>;
-    <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
+    <!DOCTYPE X SYSTEM "samples/ext_ent.dtd">
     <X>&foo;</X>
     EOXML
     my LibXML $parser .= new;
@@ -845,7 +845,7 @@ use LibXML::SAX;
 
 {
     my $xmldoc = q:to<EOXML>;
-    <!DOCTYPE X SYSTEM "example/ext_ent.dtd">
+    <!DOCTYPE X SYSTEM "samples/ext_ent.dtd">
     <X>&foo;</X>
     EOXML
     my LibXML $parser .= new();
@@ -867,7 +867,7 @@ use LibXML::SAX;
     $parser.load-ext-dtd = False;
     my $doc3;
     lives-ok {
-       $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
+       $doc3 = $parser.parse: :file( "samples/article_external_bad.xml" );
     };
 
     isa-ok( $doc3, 'LibXML::Document');
@@ -875,7 +875,7 @@ use LibXML::SAX;
     $parser.validation = True;
     $parser.load-ext-dtd = True;
     dies-ok {
-       $doc3 = $parser.parse: :file( "example/article_external_bad.xml" );
+       $doc3 = $parser.parse: :file( "samples/article_external_bad.xml" );
     };
 
 }

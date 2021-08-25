@@ -12,7 +12,7 @@ W3C::DOM Role | W3C::DOM Parent | LibXML Class | L1 Methods | L2 Methods | NYI
 Node |  | LibXML::Node | nodeName nodeValue parentNode childNodes firstChild lastChild previousSibling nextSibling ownerDocument insertBefore replaceChild removeChild appendChild hasChildNodes cloneNode | normalize isSupported namespaceURI prefix localName hasAttributes |
 CharacterData | Node |  | data length substringData appendData insertData deleteData replaceData
 Attr | Node | LibXML::Attr | name value | ownerElement | specified
-CDATASection | Text | LibXML::CDATA
+CDATASection | Text | LibXML::CDATA | splitText
 Comment | CharacterData | LibXML::Comment
 Document | Node | LibXML::Document | doctype implementation documentElement createElement createDocumentFragment createTextNode createComment createCDATASection createProcessingInstruction createAttribute createEntityReference getElementsByTagName | importNode createElementNS createAttributeNS getElementsByTagNameNS getElementById
 DocumentFragment | Node | LibXML::DocumentFragment
@@ -24,7 +24,7 @@ Implementation |  | LibXML | createDocument createDocumentType hasFeature
 NamedNodeMap |  | LibXML::Attr::Map | getNamedItem setNamedItem removeNamedItem item length | getNamedItemNS setNamedItemNS removeNamedItemNS
 Notation | Node | LibXML::Dtd::Notation | nodeName publicId systemId | N/A [1]
 ProcessingInstruction | Node | LibXML::PI | target data
-Text | CharacterData | LibXML::Text |  |  | splitText
+Text | CharacterData | LibXML::Text | splitText |  |
 
 =end table
 

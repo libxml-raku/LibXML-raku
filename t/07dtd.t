@@ -71,7 +71,7 @@ subtest 'externalSubset', {
 subtest 'doc with internal subset', {
     my $parser = LibXML.new();
 
-    my $doc = $parser.parse: :file( "example/dtd.xml" );
+    my $doc = $parser.parse: :file( "samples/dtd.xml" );
 
     ok $doc.defined;
 
@@ -166,7 +166,7 @@ subtest 'XHTML external subset', {
 }
 
 subtest 'bad Dtd parse', {
-    my $bad = 'example/bad.dtd';
+    my $bad = 'samples/bad.dtd';
     ok $bad.IO.f;
     dies-ok {
         LibXML::Dtd.parse("-//Foo//Test DTD 1.0//EN", $bad);
@@ -177,7 +177,7 @@ subtest 'bad Dtd parse', {
     ok $dtd.chars > 5;
     dies-ok { LibXML::Dtd.parse: :string($dtd); }, 'Parse fails for bad.dtd';
 
-    my $xml = "<!DOCTYPE test SYSTEM \"example/bad.dtd\">\n<test/>";
+    my $xml = "<!DOCTYPE test SYSTEM \"samples/bad.dtd\">\n<test/>";
 
     {
         my $parser = LibXML.new;
@@ -245,7 +245,7 @@ subtest 'Dtd DOM', {
 
 sub test_remove_dtd($test_name, &remove_sub) {
     my $parser = LibXML.new;
-    my $doc    = $parser.parse: :file('example/dtd.xml');
+    my $doc    = $parser.parse: :file('samples/dtd.xml');
     my $dtd    = $doc.internalSubset;
 
     remove_sub($doc, $dtd);
@@ -268,9 +268,9 @@ subtest 'remove Dtd Nodes', {
 sub test_insert_dtd ($test_name, &insert_sub) {
 
     my $parser  = LibXML.new;
-    my $src_doc = $parser.parse: :file('example/dtd.xml');
+    my $src_doc = $parser.parse: :file('samples/dtd.xml');
     my $dtd     = $src_doc.internalSubset.clone;
-    my $doc     = $parser.parse: :file('example/dtd.xml');
+    my $doc     = $parser.parse: :file('samples/dtd.xml');
 
     insert_sub($doc, $dtd);
 

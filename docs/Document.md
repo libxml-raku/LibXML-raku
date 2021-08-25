@@ -660,8 +660,6 @@ method internalSubset() returns LibXML::Dtd
 
 Gets or sets the internal DTD for the document.
 
-*NOTE* Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want to use common node function on doctype declaration nodes!
-
 ### method setExternalSubset
 
 ```raku
@@ -672,8 +670,6 @@ method setExternalSubset(
 ```
 
 This method sets a DTD node as an external subset of the given document.
-
-*EXPERIMENTAL!*
 
 If the :validate option is passed, the document is first validated against the DTD.
 
@@ -694,8 +690,6 @@ method externalSubset() returns LibXML::Dtd
 ```
 
 Gets or sets the external DTD for a document.
-
-*NOTE* Dtd nodes are no ordinary nodes in libxml2. The support for these nodes in LibXML is still limited. In particular one may not want use common node function on doctype declaration nodes!
 
 ### method parse
 

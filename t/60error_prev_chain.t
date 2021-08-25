@@ -15,7 +15,7 @@ LibXML::Config.max-errors = 100;
     $parser.load_ext_dtd(0);
 
     try {
-        $parser.parse: :file('example/JBR-ALLENtrees.htm');
+        $parser.parse: :file('samples/JBR-ALLENtrees.htm');
     };
 
     my $err = $!;

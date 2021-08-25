@@ -466,7 +466,7 @@ Add an additional node to the end of a nodelist
 
 ```raku
 multi method cloneNode(
-    Bool(Any) :$deep!
+    Bool(Any) :$deep = Bool::False
 ) returns LibXML::Node
 ```
 

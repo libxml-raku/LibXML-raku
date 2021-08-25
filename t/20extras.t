@@ -23,7 +23,7 @@ subtest ':skip-xml-declaration, :tag-expansion', {
 subtest ':exand-entities', {
     temp LibXML.skip-dtd = True;
     temp $parser.expand-entities = False;
-    my $doc = $parser.parse: :file( "example/dtd.xml" );
+    my $doc = $parser.parse: :file( "samples/dtd.xml" );
     ok $doc.defined;
     my $test = "<doc>This is a valid document &foo; !</doc>\n";
     is $doc.Str(:skip-xml-declaration), $test, ':!expand-entities';
@@ -47,7 +47,7 @@ subtest 'cloneNode', {
 
 subtest 'attribute child nodes' => {
     plan 3;
-    my LibXML::Document $doc .= parse: :file<example/dtd.xml>;
+    my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
     my $elem = $doc.createElement: "Test";
     my LibXML::Attr $att .= new: :name<att>, :value('xxx');
     $att.addChild: $doc.createEntityReference('foo');
