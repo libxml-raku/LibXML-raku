@@ -1,11 +1,13 @@
 {{$NEXT}}
+
+0.6.8  2021-08-27T15:35:11+12:00
     Conformance to W3C::DOM 0.0.3:
     - Default to DOM style createDocument() unless the first argument is defined
       and matches /^\d'.'\d$/, i.e. it's an XML version string.
     - Provide a cloneNode($deep) multi candidate.
     - Add a LibXML::Text splitText() DOM method
-    - Rename role LibXML::_StringyNode to  LibXML::_CharacterData. Base it
-      on the W3C DOM CharacterData abstract role.
+    - Rename role LibXML::_StringyNode to LibXML::_CharacterData. Base it
+      squarely on the W3C DOM CharacterData abstract role.
 
 0.6.7  2021-08-24T08:14:25+12:00
     - protect all parse and validation contexts. These require global
@@ -17,7 +19,7 @@
          parsing and validation contexts.
       -- protection locks to push parser methods in LibXML:Parser
     - Add maximum error limit of 100 #61. Configurable via XML::Config.max-errors().
-    - Fix LibXML::Text role to W3C::DOM::Text
+    - Fix LibXML::Text to do the W3C::DOM::Text role
     - Factor tests into subtests. Remove most 'TODO' test descriptions.
 
 0.6.5  2021-07-15T13:05:19+12:00

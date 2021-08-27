@@ -75,10 +75,10 @@
     "LibXML::XPath::Context": "lib/LibXML/XPath/Context.rakumod",
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",
     "LibXML::XPath::Object": "lib/LibXML/XPath/Object.rakumod",
+    "LibXML::_CharacterData": "lib/LibXML/_CharacterData.rakumod",
     "LibXML::_DomNode": "lib/LibXML/_DomNode.rakumod",
     "LibXML::_Options": "lib/LibXML/_Options.rakumod",
-    "LibXML::_ParentNode": "lib/LibXML/_ParentNode.rakumod",
-    "LibXML::_CharacterData": "lib/LibXML/_CharacterData.rakumod"
+    "LibXML::_ParentNode": "lib/LibXML/_ParentNode.rakumod"
   },
   "resources": [
     "libraries/xml6"
@@ -92,5 +92,5 @@
   ],
   "test-depends": [
   ],
-  "version": "0.6.7"
+  "version": "0.6.8"
 }
