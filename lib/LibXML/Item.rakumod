@@ -26,32 +26,8 @@ unit class LibXML::Item;
 use LibXML::Raw;
 use LibXML::Raw::DOM::Node;
 use LibXML::Enums;
+use LibXML::Config;
  
-my constant @ClassMap = do {
-    my Str @map;
-    for (
-        'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
-        'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
-        'LibXML::Comment'          => XML_COMMENT_NODE,
-        'LibXML::Dtd'              => XML_DTD_NODE,
-        'LibXML::Dtd::AttrDecl'    => XML_ATTRIBUTE_DECL,
-        'LibXML::Dtd::ElementDecl' => XML_ELEMENT_DECL,
-        'LibXML::Dtd::Entity'      => XML_ENTITY_DECL,
-        'LibXML::DocumentFragment' => XML_DOCUMENT_FRAG_NODE,
-        'LibXML::Document'         => XML_DOCUMENT_NODE,
-        'LibXML::Document'         => XML_HTML_DOCUMENT_NODE,
-        'LibXML::Document'         => XML_DOCB_DOCUMENT_NODE,
-        'LibXML::Element'          => XML_ELEMENT_NODE,
-        'LibXML::EntityRef'        => XML_ENTITY_REF_NODE,
-        'LibXML::Namespace'        => XML_NAMESPACE_DECL,
-        'LibXML::PI'               => XML_PI_NODE,
-        'LibXML::Text'             => XML_TEXT_NODE,
-    ) {
-        @map[.value] = .key
-    }
-    @map;
-}
-
 proto sub box-class($) {*}
 multi sub box-class(Str:D $class-name) {
     given %class{$class-name} {
@@ -60,8 +36,10 @@ multi sub box-class(Str:D $class-name) {
 }
 
 multi sub box-class(Int:D $_) is export(:box-class) {
-    box-class(@ClassMap[$_] // 'LibXML::Item');
+    box-class(@LibXML::Config::ClassMap[$_]);
 }
+
+multi sub box-class(LibXML::Item $_) { $_ }
 
 multi method box($_) {
     .defined ?? box-class(.type).box(.delegate) !! self.WHAT;

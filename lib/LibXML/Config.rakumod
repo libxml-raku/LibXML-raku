@@ -196,6 +196,31 @@ method query-handler returns QueryHandler is rw {
 }
 =para See L<LibXML::XPath::Context>
 
+our @ClassMap = BEGIN do {
+    my Str @map;
+    for (
+        'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
+        'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
+        'LibXML::Comment'          => XML_COMMENT_NODE,
+        'LibXML::Dtd'              => XML_DTD_NODE,
+        'LibXML::Dtd::AttrDecl'    => XML_ATTRIBUTE_DECL,
+        'LibXML::Dtd::ElementDecl' => XML_ELEMENT_DECL,
+        'LibXML::Dtd::Entity'      => XML_ENTITY_DECL,
+        'LibXML::DocumentFragment' => XML_DOCUMENT_FRAG_NODE,
+        'LibXML::Document'         => XML_DOCUMENT_NODE,
+        'LibXML::Document'         => XML_HTML_DOCUMENT_NODE,
+        'LibXML::Document'         => XML_DOCB_DOCUMENT_NODE,
+        'LibXML::Element'          => XML_ELEMENT_NODE,
+        'LibXML::EntityRef'        => XML_ENTITY_REF_NODE,
+        'LibXML::Namespace'        => XML_NAMESPACE_DECL,
+        'LibXML::PI'               => XML_PI_NODE,
+        'LibXML::Text'             => XML_TEXT_NODE,
+    ) {
+        @map[.value] = .key
+    }
+    @map;
+}
+
 =begin pod
 
 =head2 Copyright
