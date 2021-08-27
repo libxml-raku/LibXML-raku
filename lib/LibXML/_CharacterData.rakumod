@@ -1,12 +1,8 @@
-unit role LibXML::_StringyNode;
+#| This class models the W3C DOM CharacterData abstract class
+unit role LibXML::_CharacterData;
 
 use LibXML::Raw;
 use LibXML::Node;
-
-method nodeValue { ... }
-method content {...}
-method substr {...}
-method substr-rw {...}
 
 multi method new(LibXML::Node :doc($owner), Str() :$content!) {
     my xmlDoc $doc = .raw with $owner;
@@ -17,19 +13,23 @@ multi method new(Str:D() $content, *%o) {
     self.new(:$content, |%o);
 }
 
-method data returns Str is rw { $.nodeValue }
-method length { $.content.chars }
+method data {...}
+method cloneNode {...}
+method !substr(|c) {$.data.substr(|c)}
+method !substr-rw(|c) is rw {$.data.substr-rw(|c)}
+
+method length { $.data.chars }
 
 # DOM Boot-leather
-method substringData(UInt:D $off, UInt:D $len --> Str) { $.substr($off, $len) }
-method appendData(Str:D $val --> Str) { $.content ~= $val }
-method insertData(UInt:D $pos, Str:D $val) { $.content.substr-rw($pos, 0) = $val; }
-method setData(Str:D $val --> Str) { $.content = $val; }
-method getData returns Str { $.content; }
+method substringData(UInt:D $off, UInt:D $len --> Str) { self!substr($off, $len) }
+method appendData(Str:D $val --> Str) { self!substr-rw(*-0, 0) = $val }
+method insertData(UInt:D $pos, Str:D $val) { self!substr-rw($pos, 0) = $val; }
+method setData(Str:D $val --> Str) { self!substr-rw(0, *) = $val; }
+method getData returns Str { $.data }
 multi method replaceData(UInt:D $off, UInt:D $length, Str:D $val --> Str) {
-    my $len = $.content.chars;
+    my $len = $.length;
     if $len > $off {
-        $.substr-rw($off, $length) = $val;
+        self!substr-rw($off, $length) = $val;
     }
     else {
         Str
@@ -37,17 +37,17 @@ multi method replaceData(UInt:D $off, UInt:D $length, Str:D $val --> Str) {
 }
 
 method splitText(UInt $off) {
-    my $len = $.content.chars;
-    my $new = self.clone;
+    my $len = $.length;
+    my $new = self.cloneNode;
     with self.parent {
         .insertAfter($new, self);
     }
     if $off >= $len {
-        $new.content = '';
+        $new.setData('');
     }
     else {
-        self.substr-rw($off, $len - $off) = '';
-        $new.substr-rw(0, $off) = '';
+        self.replaceData($off, $len - $off, '');
+        $new.replaceData(0, $off, '');
     }
     $new;
 }
@@ -55,7 +55,7 @@ method splitText(UInt $off) {
 my subset StrOrRegex where Str|Regex;
 my subset StrOrCode where Str|Code;
 method replaceDataString(StrOrRegex:D $old, StrOrCode:D $new, |c --> Str) {
-    $.content = $.content.subst($old, $new, |c);
+    $.data .= subst($old, $new, |c);
 }
 method deleteDataString(StrOrRegex:D $old, |c --> Str) {
     $.replaceDataString($old, '', |c);

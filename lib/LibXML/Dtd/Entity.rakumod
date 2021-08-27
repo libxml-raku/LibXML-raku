@@ -4,8 +4,7 @@ use W3C::DOM;
 #| DtD entity definitions
 unit class LibXML::Dtd::Entity
     is repr('CPointer')
-    is LibXML::Node
-    does W3C::DOM::Entity;
+    is LibXML::Node;
 
 use LibXML::Raw;
 use LibXML::Enums;

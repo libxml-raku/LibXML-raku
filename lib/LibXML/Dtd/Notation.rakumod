@@ -60,11 +60,12 @@ method systemId(--> Str) { $.raw.systemId }
 #| Return the entity name
 method name(--> Str) { $.raw.name }
 
-method raw handles<Str> { nativecast(xmlNotation, self) }
+method raw handles<Str type> { nativecast(xmlNotation, self) }
 
 # DOM
 
 method nodeName is also<localName> { $.name }
+method nodeType { $.type }
 method prefix { Str }
 method hasAttributes { False }
 method cloneNode is also<clone> { self.box: self.raw }

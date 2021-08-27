@@ -1,9 +1,11 @@
 {{$NEXT}}
-    Conformance to W3C::DOM 0.0.3 test suite:
+    Conformance to W3C::DOM 0.0.3:
     - Default to DOM style createDocument() unless the first argument is defined
       and matches /^\d'.'\d$/, i.e. it's an XML version string.
     - Provide a cloneNode($deep) multi candidate.
     - Add a LibXML::Text splitText() DOM method
+    - Rename role LibXML::_StringyNode to  LibXML::_CharacterData. Base it
+      on the W3C DOM CharacterData abstract role.
 
 0.6.7  2021-08-24T08:14:25+12:00
     - protect all parse and validation contexts. These require global

@@ -137,6 +137,12 @@ Instead of giving offsets and length one can specify the exact string or a regul
 
     my $datastr = $node.data ~~ s/somecond/replacement/g; # 'g' is just an example for any flag
 
+### method splitText
+
+    method splitText(UInt $offset) returns LibXML::Text
+
+Breaks this node into two nodes at the specified offset, keeping both in the tree as siblings. After being split, this node will contain all the content up to the offset point. A new text node containing all the content at and after the offset point, is returned.
+
 Copyright
 ---------
 

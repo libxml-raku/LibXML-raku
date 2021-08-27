@@ -78,7 +78,7 @@
     "LibXML::_DomNode": "lib/LibXML/_DomNode.rakumod",
     "LibXML::_Options": "lib/LibXML/_Options.rakumod",
     "LibXML::_ParentNode": "lib/LibXML/_ParentNode.rakumod",
-    "LibXML::_StringyNode": "lib/LibXML/_StringyNode.rakumod"
+    "LibXML::_CharacterData": "lib/LibXML/_CharacterData.rakumod"
   },
   "resources": [
     "libraries/xml6"

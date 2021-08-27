@@ -1,12 +1,12 @@
 use LibXML::Node;
-use LibXML::_StringyNode;
+use LibXML::_CharacterData;
 use W3C::DOM;
 
 #| LibXML Text Nodes
 unit class LibXML::Text
     is repr('CPointer')
     is LibXML::Node
-    does LibXML::_StringyNode
+    does LibXML::_CharacterData
     does W3C::DOM::Text;
 
 use LibXML::Raw;
@@ -14,8 +14,7 @@ use Method::Also;
 use NativeCall;
 
 method raw { nativecast(xmlTextNode, self) }
-
-method content is rw is also<text ast> handles<substr substr-rw> { $.raw.content };
+method data is also<text content ast> is rw handles<substr substr-rw> { $.raw.content };
 
 =begin pod
 

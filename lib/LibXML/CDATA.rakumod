@@ -1,18 +1,20 @@
 use LibXML::Node;
-use LibXML::_StringyNode;
+use LibXML::_CharacterData;
 use W3C::DOM;
 
 #| LibXML CDATA Section nodes
 unit class LibXML::CDATA
     is repr('CPointer')
     is LibXML::Node
-    does LibXML::_StringyNode
+    does LibXML::_CharacterData
     does W3C::DOM::CDATASection;
 
 use LibXML::Raw;
 use NativeCall;
+use Method::Also;
+
 method raw { nativecast(xmlCDataNode, self) }
-method content is rw handles<substr substr-rw> { $.raw.content };
+method data is rw is also<content> handles<substr substr-rw> { $.raw.content };
 
 =begin pod
 =head2 Synopsis

@@ -1,19 +1,20 @@
 use LibXML::Node;
-use LibXML::_StringyNode;
+use LibXML::_CharacterData;
 use W3C::DOM;
 
 #| LibXML Comment nodes
 unit class LibXML::Comment
     is repr('CPointer')
     is LibXML::Node
-    does LibXML::_StringyNode
+    does LibXML::_CharacterData
     does W3C::DOM::Comment;
 
 use LibXML::Raw;
 use NativeCall;
-method raw { nativecast(xmlCommentNode, self) }
+use Method::Also;
 
-method content is rw handles<substr substr-rw> { $.raw.content };
+method raw { nativecast(xmlCommentNode, self) }
+method data is also<content> is rw handles<substr substr-rw> { $.raw.content };
 
 =begin pod
 =head2 Synopsis
