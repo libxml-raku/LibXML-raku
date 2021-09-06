@@ -564,7 +564,7 @@ subtest 'parse well balanced chunks', {
     subtest 'DOM chunk parser', {
 
         subtest 'well-formed', {
-            plan $MAX_WF_C;
+            plan 2 * $MAX_WF_C;
             for 1 .. $MAX_WF_C -> $_ is copy {
                 my Str:D $string = %chunks{'wellformed' ~ $_};
                 my $frag = $pparser.parse-balanced: :$string;
@@ -585,7 +585,7 @@ subtest 'parse well balanced chunks', {
         }
 
         subtest 'well-balanced', {
-            plan $MAX_WB_C;
+            plan 2 * $MAX_WB_C;
             for 1 .. $MAX_WB_C -> $_ is copy {
                 my Str:D $string = %chunks{'wellbalance' ~ $_};
                 my $frag = $pparser.parse-balanced: :$string;
@@ -671,7 +671,7 @@ subtest 'parse well balanced chunks', {
         my LibXML::SAX $parser .= new: :$sax-handler;
 
         subtest 'well-formed', {
-            plan $MAX_WF_C;
+            plan 2 * $MAX_WF_C;
              for 1 .. $MAX_WF_C -> $_ is copy {
                 my $string = %chunks{'wellformed' ~ $_};
                 my $frag = $parser.parse-balanced: :$string;
@@ -691,7 +691,7 @@ subtest 'parse well balanced chunks', {
         }
 
         subtest 'well-balanced', {
-            plan $MAX_WB_C;
+            plan 2 * $MAX_WB_C;
             for 1 .. $MAX_WB_C -> $_ is copy {
                 my Str:D $string = %chunks{'wellbalance' ~ $_};
                 my $frag = $parser.parse-balanced: :$string;
