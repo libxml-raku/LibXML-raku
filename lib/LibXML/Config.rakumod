@@ -16,7 +16,7 @@ use NativeCall;
 
 #| Returns the run-time version of the `libxml2` library.
 method version returns Version {
-    state $version //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
+    state $ //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
 }
 
 #| Returns the version of the `libxml2` library that the LibXML module was built against

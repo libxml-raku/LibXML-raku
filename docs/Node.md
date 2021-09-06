@@ -202,7 +202,7 @@ method getBaseURI() returns Str
 
 Gets the base URI
 
-Searches for the base URL of the node. The method should work on both XML and HTML documents even if base mechanisms for these are completely different. It returns the base as defined in RFC 2396 sections "5.1.1. Base URI within Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However it does not return the document base (5.1.3), use method `URI` of [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) for this. 
+Searches for the base URL of the node. The method should work on both XML and HTML documents even if base mechanisms for these are completely different. It returns the base as defined in RFC 2396 sections "5.1.1. Base URI within Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However it does not return the document base (5.1.3), use method `URI` of [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) for this.
 
 ### method setBaseURI
 

@@ -406,12 +406,13 @@ method Hash handles<AT-KEY keys pairs values> {
 }
 
 has AttrDeclMap $!element-attributes;
+
 #| returns a hash-map of attribute declarations
 method attribute-declarations(LibXML::Dtd:D $dtd: --> AttrDeclMap) {
     $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
         with $!raw.attributes;
 }
-=param Actually returns a two dimensional hash of element declarations and element names
+=para Actually returns a two dimensional hash of element declarations and element names
 
 #| True if the node is validated by the DtD
 multi method ACCEPTS(LibXML::Dtd:D: LibXML::Node:D $node --> Bool) {

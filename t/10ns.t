@@ -68,7 +68,7 @@ subtest 'multiple namespaces', {
     my LibXML::Namespace:D $ns1 = $namespaces[0];
     my $ns2 = $ns1.clone;
 
-    for ($ns1, $ns2) -> $ns {
+    for $ns1, $ns2 -> $ns {
         for :URI<http://kungfoo>, :localname<c>, :name<xmlns:c>, :prefix<xmlns>,  :declaredPrefix<c>, :type(+XML_NAMESPACE_DECL), :Str<xmlns:c="http://kungfoo"> , :unique-key<c|http://kungfoo> {
             is-deeply $ns."{.key}"(), .value, "namespace {.key} accessor";
         }
@@ -92,9 +92,9 @@ subtest 'nested names', {
 }
 
 subtest 'post creation namespace setting', {
-    my $e1 = LibXML::Element.new: :name("foo");
-    my $e2 = LibXML::Element.new: :name("bar:foo");
-    my $e3 = LibXML::Element.new: :name("foo");
+    my LibXML::Element $e1 .= new: :name("foo");
+    my LibXML::Element $e2 .= new: :name("bar:foo");
+    my LibXML::Element $e3 .= new: :name("foo");
     $e3.setAttribute( "kung", "foo" );
     my $a = $e3.getAttributeNode("kung");
 
@@ -115,13 +115,13 @@ subtest 'importing namespaces', {
     my $b = $docb.documentElement.firstChild;
 
     my $c = $doca.importNode( $b );
-    my LibXML::Item @attra = flat $c.properties, $c.namespaces;
+    my LibXML::Item @attra = $c.properties.Slip, $c.namespaces.Slip;
     is +@attra, 1;
     is @attra[0].nodeType, 18;
 
     my $d = $doca.adoptNode($b);
     ok $d.isSameNode( $b );
-    my LibXML::Item @attrb = flat $d.properties, $c.namespaces;
+    my LibXML::Item @attrb = $d.properties.Slip, $c.namespaces.Slip;
     is +@attrb, 1;
     is @attrb[0].nodeType, 18;
 }

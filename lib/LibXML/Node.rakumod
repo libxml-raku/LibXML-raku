@@ -251,7 +251,9 @@ method getBaseURI returns Str { self.raw.GetBase }
     HTML documents even if base mechanisms for these are completely different. It
     returns the base as defined in RFC 2396 sections "5.1.1. Base URI within
     Document Content" and "5.1.2. Base URI from the Encapsulating Entity". However
-    it does not return the document base (5.1.3), use method C<URI> of L<LibXML::Document> for this. 
+    it does not return the document base (5.1.3), use method C<URI> of L<LibXML::Document> for this.
+
+method URI is DEPRECATED('baseURI or doc.URI') { self.getBaseURI } 
 
 #| Sets the base URI
 method setBaseURI(Str $uri) { self.raw.SetBase($uri) }
@@ -262,7 +264,7 @@ method setBaseURI(Str $uri) { self.raw.SetBase($uri) }
     be desired, since it does not effectively set the base URI of the node. See RFC
     2396 appendix D for an example of how base URI can be specified in HTML. 
 
-method baseURI is rw is also<URI> {
+method baseURI is rw {
     Proxy.new(
         FETCH => { self.getBaseURI },
         STORE => sub ($, Str() $uri) { self.setBaseURI($uri) }

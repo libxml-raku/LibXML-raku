@@ -230,9 +230,6 @@ method attribute-declarations() returns LibXML::Dtd::AttrDeclMap
 
 returns a hash-map of attribute declarations
 
-param
-=====
-
 Actually returns a two dimensional hash of element declarations and element names
 
 ### multi method ACCEPTS

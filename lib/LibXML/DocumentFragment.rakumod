@@ -99,7 +99,7 @@ method new(LibXML::Node :doc($_), xmlDocFrag :$native) {
     calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
 =end pod
 
-method raw handles <encoding setCompression getCompression standalone URI wellFormed> {
+method raw handles <encoding setCompression getCompression standalone wellFormed> {
     nativecast(xmlDocFrag, self);
 }
 
