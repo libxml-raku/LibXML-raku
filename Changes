@@ -2,7 +2,7 @@
     - Move @ClassMap from LibXML::Item to LibXML::Config and change it
       from a constant to an 'our' scoped variable. Tweak the box-class()
       sub in LibXML::Item to better support subclassing - see t/00subclass.t
-    - Deprecate node-level URI method. It's use conflicts with baseURI() doco.
+    - baseURI() now defaults to the document URI().
 
 0.6.8  2021-08-27T15:35:11+12:00
     Conformance to W3C::DOM 0.0.3:
