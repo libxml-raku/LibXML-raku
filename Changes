@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.6.9  2021-09-20T11:21:08+12:00
     - Move @ClassMap from LibXML::Item to LibXML::Config and change it
       from a constant to an 'our' scoped variable. Tweak the box-class()
       sub in LibXML::Item to better support subclassing - see t/00subclass.t
