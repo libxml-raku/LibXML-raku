@@ -12,9 +12,6 @@ class LibXML::SAX::Handler::XML
     use XML::Element;
     use XML::PI;
     use XML::Text;
-    use NativeCall;
-    use LibXML::Document;
-    use LibXML::EntityRef;
     use LibXML::SAX::Builder :sax-cb;
 
     has XML::Document $.doc;    # The document that we're really building

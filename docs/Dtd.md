@@ -57,7 +57,7 @@ Description
 
 This class holds a DTD. You may parse a DTD from either a string, or from an external SYSTEM identifier.
 
-No support is available as yet for parsing from a filehandle.
+No support is available as yet for parsing from a file-handle.
 
 LibXML::Dtd is a sub-class of [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node), so all the methods available to nodes (particularly Str()) are available to Dtd objects.
 

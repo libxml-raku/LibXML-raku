@@ -923,7 +923,7 @@ method protect(&action) {
 }
 
 #| DOM level-2 feature introspection
-method isSupported(Str:D() $feature, Version $v?) {
+method isSupported(Str:D() $feature, Version $?) {
     $feature ~~ /:i ^[xml|html|core]$ /;
 }
 =para e.g. `$doc.issupported('HTML');

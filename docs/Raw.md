@@ -31,7 +31,7 @@ The LibXML::Raw module contains class definitions for native and bindings to the
 
 Other high level classes, by convention, have a `raw()` accessor, which can be used, if needed, to gain access to native objects from this module.
 
-Some care needs to be taken in keeping persistant references to raw structures.
+Some care needs to be taken in keeping persistent references to raw structures.
 
 The following is unsafe:
 
@@ -102,7 +102,7 @@ Callback for freeing some parser input allocations.
 class LibXML::Raw::xmlParserNodeInfo
 ------------------------------------
 
-The parser can be asked to collect Node informations, i.e. at what place in the file they were detected.
+The parser can be asked to collect Node information, i.e. at what place in the file they were detected.
 
 class LibXML::Raw::xmlXPathCompExpr
 -----------------------------------
@@ -162,7 +162,7 @@ A SAX Locator.
 class LibXML::Raw::xmlSAXHandler
 --------------------------------
 
-A SAX handler is bunch of callbacks called by the parser when processing of the input generate data or structure informations.
+A SAX handler is bunch of callbacks called by the parser when processing of the input generate data or structure information.
 
 class LibXML::Raw::xmlError
 ---------------------------
@@ -177,7 +177,7 @@ Expression evaluation occurs with respect to a context. the context consists of:
 class LibXML::Raw::xmlXPathParserContext
 ----------------------------------------
 
-An XPath parser context. It contains pure parsing informations, an xmlXPathContext, and the stack of objects.
+An XPath parser context. It contains pure parsing information, an xmlXPathContext, and the stack of objects.
 
 class LibXML::Raw::xmlNode
 --------------------------

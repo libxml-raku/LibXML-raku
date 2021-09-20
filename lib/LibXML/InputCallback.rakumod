@@ -172,7 +172,7 @@ my class Context {
             my Handle $handle = %!handles{+$addr}
                 // die "read on unopen handle";
 
-            given $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf {
+            given $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf is copy {
                 my UInt:D $n-read := do with $io-buf {.bytes} else {0};
                 if $n-read {
                     if $n-read > $bytes {
@@ -217,14 +217,14 @@ method callbacks { @!callbacks }
 
 =head2 Methods
 
-multi method TWEAK( Hash :callbacks($_)! ) {
+multi submethod TWEAK( Hash :callbacks($_)! ) {
     @!callbacks = CallbackGroup.new(|$_)
 }
-multi method TWEAK( List :callbacks($_)! ) {
+multi submethod TWEAK( List :callbacks($_)! ) {
     self.register-callbacks: |$_;
 }
-multi method TWEAK is default {
-}
+multi submethod TWEAK { }
+
 =begin pod
     =head3 method new
 

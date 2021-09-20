@@ -28,7 +28,7 @@ The LibXML::Raw module contains class definitions for native and bindings to the
 Other high level classes, by convention, have a `raw()` accessor, which can be
 used, if needed, to gain access to native objects from this module.
 
-Some care needs to be taken in keeping persistant references to raw structures.
+Some care needs to be taken in keeping persistent references to raw structures.
 
 The following is unsafe:
 
@@ -157,7 +157,7 @@ class xmlLocationSet is repr(Opaque) is export {}
 #| Callback for freeing some parser input allocations.
 class xmlParserInputDeallocate is repr(Opaque) is export {}
 
-#| The parser can be asked to collect Node informations, i.e. at what
+#| The parser can be asked to collect Node information, i.e. at what
 #| place in the file they were detected.
 class xmlParserNodeInfo is repr(Opaque) is export {}
 
@@ -314,7 +314,7 @@ class xmlElementContent is repr('CStruct') is export {
         Dump($buf, $max, self, +$paren);
         # null terminate
         $buf .= subbuf(0, $_)
-            with (0 ..^ $max).first: {$buf[$_] == 0}, :k;
+            with (^$max).first: {$buf[$_] == 0}, :k;
         $buf.decode;
     }
 }
@@ -416,7 +416,7 @@ class xmlSAXLocator is repr('CStruct') is export {
 }
 
 #| A SAX handler is bunch of callbacks called by the parser when processing
-#| of the input generate data or structure informations.
+#| of the input generate data or structure information.
 class xmlSAXHandler is repr('CStruct') is export {
 
     submethod BUILD(*%atts) {
@@ -762,7 +762,7 @@ class xmlXPathContext is repr('CStruct') is export {
     method SetStructuredErrorFunc( &error-func (xmlXPathContext $, xmlError $)) is native($BIND-XML2) is symbol('domSetXPathCtxtErrorHandler') {*};
 }
 
-#| An XPath parser context. It contains pure parsing informations,
+#| An XPath parser context. It contains pure parsing information,
 #| an xmlXPathContext, and the stack of objects.
 class xmlXPathParserContext is export {
 
@@ -792,7 +792,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     has int32       $.type; # type number, must be second !
     has xmlCharP    $!name; # the name of the node, or the entity
     method name { $!name }
-    has xmlNode $.children; # parent->childs link
+    has xmlNode $.children; # parent->child link
     has xmlNode     $.last; # last child link
     has xmlNode   $.parent; # child->parent link
     has xmlNode     $.next; # next sibling link
@@ -930,7 +930,7 @@ class xmlNode is anyNode {
     has xmlAttr  $.properties; # properties list
     has xmlNs         $.nsDef  # namespace definitions on this node
         is rw-ptr(method xml6_node_set_nsDef(xmlNs) is native($BIND-XML2) {*});
-    has Pointer        $.psvi; # for type/PSVI informations
+    has Pointer        $.psvi; # for type/PSVI information
     has uint16         $.line; # line number
     has uint16        $.extra; # extra data for XPath/XSLT
 
@@ -1034,7 +1034,7 @@ class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
     BEGIN @ClassMap[XML_ATTRIBUTE_NODE] = $?CLASS;
     has xmlNs       $.ns; # the associated namespace
     has int32    $.atype; # the attribute type if validating
-    has Pointer   $.psvi; # for type/PSVI informations
+    has Pointer   $.psvi; # for type/PSVI information
 
     method Free is native($XML2) is symbol('xmlFreeProp') {*}
     method xmlCopyProp(--> xmlAttr) is native($XML2) {*}
@@ -1070,7 +1070,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
                                        # actually an xmlCharEncoding 
     has xmlDict         $.dict         # dict used to allocate names or NULL
              is rw-ptr(method xml6_doc_set_dict(xmlDict) is native($BIND-XML2) {*});
-    has Pointer         $.psvi;        # for type/PSVI informations
+    has Pointer         $.psvi;        # for type/PSVI information
     has int32           $.parseFlags;  # set of xmlParserOption used to parse the
                                        # document
     has int32           $.properties;  # set of xmlDocProperties for this document
@@ -1501,7 +1501,7 @@ class xmlParserCtxt is export {
     has int32                  $.freeAttrsNr;  # number of freed attributes nodes
     has xmlAttr                $.freeAttrs;    # List of freed attributes nodes
 
-    # the complete error informations for the last error.
+    # the complete error information for the last error.
     HAS xmlError               $.lastError;
     has int32                  $.parseMode;    # the parser mode
     has ulong                  $.nbentities;   # number of entities references

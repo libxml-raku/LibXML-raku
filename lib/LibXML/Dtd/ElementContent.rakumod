@@ -18,8 +18,8 @@ method !visit(xmlElementContent $raw) {
         $?CLASS
     }
 }
-subset ElementDeclRef of  LibXML::Dtd::ElementContent where .type == XML_ELEMENT_CONTENT_ELEMENT;
-subset ElementDeclNode of  LibXML::Dtd::ElementContent where .type ~~ XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR;
+subset ElementDeclRef of LibXML::Dtd::ElementContent where .type == XML_ELEMENT_CONTENT_ELEMENT;
+subset ElementDeclNode of LibXML::Dtd::ElementContent where .type ~~ XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR;
 
 method getElementDecl(ElementDeclRef:D:) {
     my $elem-decl-class = box-class(XML_ELEMENT_DECL);

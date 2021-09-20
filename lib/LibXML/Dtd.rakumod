@@ -56,7 +56,7 @@ unit class LibXML::Dtd
   This class holds a DTD. You may parse a DTD from either a string, or from an
   external SYSTEM identifier.
 
-  No support is available as yet for parsing from a filehandle.
+  No support is available as yet for parsing from a file-handle.
 
   LibXML::Dtd is a sub-class of L<LibXML::Node>, so all the methods available to nodes (particularly Str()) are available
   to Dtd objects.
@@ -105,7 +105,7 @@ class ValidContext {
         $!raw .= new;
     }
 
-    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, xmlAttr :$attr, Bool :$check) is hidden-from-backtrace {
+    method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, Bool :$check) is hidden-from-backtrace {
         my $rv;
 
         LibXML::Config.protect: sub () is hidden-from-backtrace {
@@ -171,7 +171,7 @@ multi method new(
     self.box: $new-dtd;
 }
 
-# for Perl 5 compat
+# for Perl 5 compatiblity
 multi method new($external-id, $system-id) {
     self.parse(:$external-id, :$system-id);
 }

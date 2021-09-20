@@ -724,7 +724,7 @@ This method performs a deep data-serialization of the node. The [LibXML::Item](h
 ```raku
 method isSupported(
     Str:D(Any):D $feature,
-    Version $v?
+    Version $?
 ) returns Mu
 ```
 
