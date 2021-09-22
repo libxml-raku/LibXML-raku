@@ -83,7 +83,7 @@
   "resources": [
     "libraries/xml6"
   ],
-  "source-url": "https://github.com/libxml-raku/LibXML-raku",
+  "support" : { "source" : "https://github.com/libxml-raku/LibXML-raku.git" },
   "tags": [
     "xml",
     "html",
