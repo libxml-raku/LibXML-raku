@@ -12,6 +12,7 @@ LibXML - Raku bindings to the libxml2 native library
 SYNOPSIS
 ========
 
+    use LibXML;
     use LibXML::Document;
     my LibXML::Document $doc .=  parse: :string('<Hello/>');
     $doc.root.nodeValue = 'World!';
