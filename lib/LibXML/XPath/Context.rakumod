@@ -294,7 +294,7 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
         -> xmlXPathParserContext $ctxt, Int $n {
             CATCH { default { xpath-callback-error($_); } }
             my @params;
-            @params.unshift: get-value($ctxt.valuePop) for 0 ..^ $n;
+            @params.unshift: get-value($ctxt.valuePop) for ^$n;
             my $ret = &func(|@params, |args) // '';
             my xmlXPathObject:D $out := xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret, :$ctxt);
             $ctxt.valuePush($_) for $out;
@@ -337,7 +337,7 @@ method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, B
         if $v ~~ xmlNodeSet {
             if $literal {
                 if $v.defined {
-                    given (0 ..^ $v.nodeNr).map({$v.nodeTab[$_].delegate.string-value}).join {
+                    given (^$v.nodeNr).map({$v.nodeTab[$_].delegate.string-value}).join {
                         $v.Free;
                         $v := $_;
                     }

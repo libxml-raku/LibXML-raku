@@ -348,7 +348,7 @@ class SAXNSTester
         given $ctx.node {
             my LibXML::Node $node .= box($_);
             @!nodes.push: $node;
-            for 0 ..^ $num-namespaces {
+            for ^$num-namespaces {
                 $SAXNSTester_start_prefix_mapping_stacker.cb().($node)
             }
             $SAXNSTester_startElement_stacker.cb.($node);
@@ -360,7 +360,7 @@ class SAXNSTester
         my %ns = @!ns.pop;
         my LibXML::Node $node = @!nodes.pop;
 
-        for 0 ..^ %ns<num-namespaces> {
+        for ^%ns<num-namespaces> {
             $SAXNSTester_end_prefix_mapping_stacker.cb().($node)
         }
    }

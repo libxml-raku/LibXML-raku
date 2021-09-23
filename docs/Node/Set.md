@@ -71,7 +71,7 @@ Returns the number of nodes in the set.
 
     method AT-POS(UInt) returns LibXML::Item
 
-    for 0 ..^ $node-set.elems {
+    for ^$node-set.elems {
         my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
         ...
     }

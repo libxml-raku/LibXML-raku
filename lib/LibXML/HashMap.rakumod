@@ -76,7 +76,7 @@ method pairs is also<list List> {
     my $vbuf := self!CArray;
     $.raw.keys($kbuf);
     $.raw.values($vbuf);
-    (0 ..^ $.elems).map: {
+    (^$.elems).map: {
         $kbuf[$_] => $.thaw($vbuf[$_]);
     }
 }

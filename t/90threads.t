@@ -14,7 +14,7 @@ my LibXML::Parser $p = LibXML.new();
 ok($p.defined, 'Parser initted.');
 
 sub blat(&r, :$n = MAX_THREADS) {
-    (0 ..^ $n).race(:batch(1)).map(&r);
+    (^$n).race(:batch(1)).map(&r);
 }
 
 subtest 'relaxng' => {
@@ -72,7 +72,7 @@ subtest 'operating on different documents without lock', {
 
     my Str:D @values = blat {
         my LibXML::Document:D $doc = @docs[$_];
-        my  Str:D @values = await (0 ..^ 20).map: { start {
+        my  Str:D @values = await (^20).map: { start {
 	    # a dictionary of $doc
 	    my LibXML::Element:D $el = $doc.createElement('foo' ~ $_);
 	    $el.setAttribute('foo','bar');

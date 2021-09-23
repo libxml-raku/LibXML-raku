@@ -19,7 +19,7 @@ Synopsis
     $node-list.push: $elem;
 
     for $node-list -> LibXML::Node $item { ... }
-    for 0 ..^ $node-set.elems { my $item = $node-set[$_]; ... }
+    for ^$node-set.elems { my $item = $node-set[$_]; ... }
 
     my LibXML::Node::Set %nodes-by-xpath-name = $node-list.Hash;
     # ...

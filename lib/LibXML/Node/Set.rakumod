@@ -26,7 +26,7 @@ class LibXML::Node::Set
     method elems is also<size Numeric> { $!raw.nodeNr }
     method Seq returns Seq handles<Array list values map grep> {
         my CArray $tab := $!raw.nodeTab;
-        (0 ..^ $!raw.nodeNr).map: { $!of.box: $tab[$_] };
+        (^$!raw.nodeNr).map: { $!of.box: $tab[$_] };
     }
 
     method Hash handles <AT-KEY keys pairs> {
@@ -167,7 +167,7 @@ This class is commonly used for handling result sets from XPath queries. It perf
 
         method AT-POS(UInt) returns LibXML::Item
 
-        for 0 ..^ $node-set.elems {
+        for ^$node-set.elems {
             my $item = $node-set[$_]; # or: $node-set.AT-POS($_);
             ...
         }
