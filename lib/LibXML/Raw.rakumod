@@ -732,6 +732,7 @@ class xmlXPathContext is repr('CStruct') is export {
     has int32 $.maxParserDepth;
 
     our sub New(anyNode --> xmlXPathContext) is native($BIND-XML2) is symbol('domXPathNewCtxt') {*}
+    method Compile(xmlCharP --> xmlXPathCompExpr) is native($XML2) is symbol('xmlXPathCtxtCompile') {*}
     method Free is symbol('domXPathFreeCtxt') is native($BIND-XML2) {*}
     method Find(xmlXPathCompExpr, anyNode, int32 --> xmlXPathObject) is native($BIND-XML2) is symbol('domXPathFindCtxt') {*}
     method Select(xmlXPathCompExpr, anyNode --> xmlNodeSet) is native($BIND-XML2) is symbol('domXPathSelectCtxt') {*}

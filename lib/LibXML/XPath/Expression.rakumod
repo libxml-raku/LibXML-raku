@@ -6,18 +6,9 @@ use Method::Also;
 
 has xmlXPathCompExpr $!raw;
 method raw { $!raw }
-# for the LibXML::ErrorHandling role
-use LibXML::ErrorHandling;
-use LibXML::_Options;
-has $.sax-handler is rw;
-has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
-also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
-also does LibXML::ErrorHandling;
 
 submethod TWEAK(Str:D :$expr!) {
-    my $*XML-CONTEXT = self;
     $!raw .= new(:$expr);
-    self.flush-errors;
     die "invalid xpath expression: $expr"
         without $!raw;
 }

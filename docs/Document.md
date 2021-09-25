@@ -100,7 +100,7 @@ A subset of LibXML::Document that have node-type `XML_DOCB_DOCUMENT_NODE`. XML d
 Methods
 -------
 
-Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
+Many functions listed here are documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 ### method new
 
