@@ -10,7 +10,7 @@ LibXML based push parser
 Synopsis
 --------
 
-    # Perl 5 Compatible Interface
+    # Perl Compatible Interface
     use LibXML;
     use LibXML::Document;
     my LibXML $parser .= new;

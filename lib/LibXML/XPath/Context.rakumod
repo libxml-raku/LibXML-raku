@@ -603,7 +603,7 @@ multi method park(NodeObj:D $node, xmlXPathParserContext :$ctxt --> xmlNodeSet:D
         when LibXML::Node::Set  { .raw.copy }
         when LibXML::Node::List { xmlNodeSet.new: node => .raw, :list;}
         when LibXML::Node       { xmlNodeSet.new: node => .raw;}
-        default { fail "unhandled node type: {.WHAT.perl}" }
+        default { fail "unhandled node type: {.WHAT.raku}" }
     }, :$ctxt
 }
 multi method park(XPathRange:D $_) { $_ }
@@ -617,7 +617,7 @@ multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
     self!stash: $set, :$ctxt;
 }
 # anything else (Bool, Numeric, Str)
-multi method park($_) is default { fail "unexpected return value: {.perl}"; }
+multi method park($_) is default { fail "unexpected return value: {.raku}"; }
 
 sub xpath-callback-error(Exception $error) {
     CATCH { default { note "error handling callback error: $_" } }

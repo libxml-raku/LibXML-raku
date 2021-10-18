@@ -176,12 +176,14 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) 
     The current implementation differs from DOM in the following aspects 
 
     If an attribute with the same local name and namespace URI already exists on
-    the element, but its prefix differs from the prefix of C<$aname>, then this function is supposed to change the prefix (regardless of namespace
-    declarations and possible collisions). However, the current implementation does
-    rather the opposite. If a prefix is declared for the namespace URI in the scope
-    of the attribute, then the already declared prefix is used, disregarding the
-    prefix specified in C<$aname>. If no prefix is declared for the namespace, the function tries to declare the
-    prefix specified in C<$aname> and dies if the prefix is already taken by some other namespace. 
+    the element, but its prefix differs from the prefix of C<$aname>, then this
+    function is supposed to change the prefix (regardless of namespace declarations
+    and possible collisions). However, the current implementation does rather the
+    opposite. If a prefix is declared for the namespace URI in the scope of the
+    attribute, then the already declared prefix is used, disregarding the prefix
+    specified in C<$aname>. If no prefix is declared for the namespace, the function
+    tries to declare the prefix specified in C<$aname> and dies if the prefix is
+    already taken by some other namespace.
 
     According to DOM Level 2 specification, this method can also be used to create
     or modify special attributes used for declaring XML namespaces (which belong to
@@ -288,7 +290,7 @@ method attributes(LibXML::Element:D $node:) is rw is also<attribs attr> {
 
     Proves an associative interface to a node's attributes.
 
-    Unlike the equivalent Perl 5 method, this method retrieves only L<LibXML::Attr> (not L<LibXML::Namespace>) nodes.
+    Unlike the equivalent Perl method, this method retrieves only L<LibXML::Attr> (not L<LibXML::Namespace>) nodes.
 
     See also:
 
@@ -441,10 +443,11 @@ method !set-attributes(@atts) {
 =head2 DOM Manipulation Methods
 
 method ast(Bool :$blank = LibXML::Config.keep-blanks) {
-    my @content = self.namespaces>>.ast;
-    @content.append: self.properties>>.ast;
-    @content.append: self.children(:$blank)>>.ast(:$blank);
-    self.tag => @content;
+    self.tag => [
+        slip(self.namespaces>>.ast),
+        slip(self.properties>>.ast),
+        slip(self.children(:$blank)>>.ast(:$blank)),
+    ]
 }
 
 multi method AT-KEY('@*') is rw { self.attributes }

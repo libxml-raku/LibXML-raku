@@ -97,8 +97,10 @@ method new(|) { fail }
 method raw handles <etype prefix> { nativecast(xmlElementDecl, self) }
 
 method keys {
-    my @k = @.properties.map: { '@' ~ .nodeName };
-    @k.append: $.content.potential-children;
+    [
+        slip(@.properties.map: { '@' ~ .nodeName }),
+        slip($.content.potential-children),
+    ]
 }
 method values {
     my $dtd := self.parent;

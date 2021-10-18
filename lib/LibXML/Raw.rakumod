@@ -610,7 +610,7 @@ class xmlXPathObject is export {
     multi method coerce(Str $v)            { NewString($v) }
     multi method coerce(anyNode:D $v, UInt :$index = 0)      { NewPoint($v, $index) }
     multi method coerce(xmlNodeSet:D $v)   { WrapNodeSet($v.copy) }
-    multi method coerce($_) is default     { fail "unable to coerce to an XPath Object: {.perl}" }
+    multi method coerce($_) is default     { fail "unable to coerce to an XPath Object: {.raku}" }
 
     method select {
         self.value: :select;

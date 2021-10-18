@@ -215,7 +215,7 @@ LibXML provides a push parser interface. Rather than pulling the data from a giv
 
 Please see [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser) for more details.
 
-For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) object.
+For Perl compatibilty, the following methods are available to invoke a push-parser from a [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) object.
 
 ### method init-push
 
@@ -308,7 +308,7 @@ Note also that boolean options can be negated via a `no-` prefix.
 
     $parser.recover = False;
     $parser.no-recover = True;
-    $parser.set-option(:recover(False));
+    $parser.set-option(:!recover);
     $parser.set-option(:no-recover);
 
 ### method set-option

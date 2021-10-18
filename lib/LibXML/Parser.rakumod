@@ -1,12 +1,21 @@
 #| Parse XML with LibXML
 unit class LibXML::Parser;
 
+use LibXML::Parser::Context;
+use LibXML::_Options;
+constant %Opts = %(
+    %LibXML::Parser::Context::Opts,
+    %(:URI, :html, :line-numbers,
+      :sax-handler, :input-callbacks, :enc,
+     )
+);
+also does LibXML::_Options[%Opts];
+
 use LibXML::Config;
 use LibXML::Raw;
 use LibXML::Enums;
 use LibXML::Document;
 use LibXML::PushParser;
-use LibXML::Parser::Context;
 use Method::Also;
 
 constant config = LibXML::Config;
@@ -21,16 +30,7 @@ has $.input-callbacks is rw = config.input-callbacks;
 multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 
-use LibXML::_Options;
-constant %Opts = %(
-    %LibXML::Parser::Context::Opts,
-    %(:URI, :html, :line-numbers,
-      :sax-handler, :input-callbacks, :enc,
-     )
-);
-also does LibXML::_Options[%Opts];
-
-# Perl 5 compat
+# Perl compat
 multi method recover is rw {
     Proxy.new(
         FETCH => { 
@@ -60,7 +60,6 @@ method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input
 }
 
 method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
-
     my xmlDoc $raw = $ctx.publish();
     my $input-compressed = $ctx.input-compressed();
     my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed
@@ -202,7 +201,8 @@ multi method parse(
     LibXML::Parser:D:
     IO::Handle:D :$io!,
     Str :$URI = $io.path.path,
-    |c) is hidden-from-backtrace {
+    |c
+) is hidden-from-backtrace {
     my UInt:D $fd = $io.native-descriptor;
     $io.?do-not-close-automatically();
     self.parse( :$fd, :$URI, |c);
@@ -220,7 +220,8 @@ multi method parse(
 multi method parse(
     LibXML::Parser:D:
     Str() :location($file)!,
-    |c) is hidden-from-backtrace {
+    |c
+) is hidden-from-backtrace {
     $.parse(:$file, |c);
 }
 
@@ -237,7 +238,7 @@ multi method parse(
         |    IO::Path   { :io($_) }
         when Blob       { :buf($_) }
         when Str  { m:i:s/^ '<'/ ?? :string($_) !! :file($_) }
-        default { fail "Unrecognised parser input: {.perl}"; }
+        default { fail "Unrecognised parser input: {.raku}"; }
     }
     $.parse( |$in, |c );
 }
@@ -295,7 +296,7 @@ method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     }
 }
 
-# cheat's implementation of Perl 5's .generate() function
+# cheat's implementation of Perl's .generate() function
 # re-serializes, rather than rerunning SAX actions on the DOM
 method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     # document DOM with the SAX handler
@@ -564,7 +565,7 @@ given source the push parser waits for the data to be pushed into it.
 
 Please see L<LibXML::PushParser> for more details.
 
-For Perl 5 compatibilty, the following methods are available to invoke a push-parser from a L<LibXML::Parser> object.
+For Perl compatibilty, the following methods are available to invoke a push-parser from a L<LibXML::Parser> object.
 
 =head3 method init-push
 
@@ -674,7 +675,7 @@ Note also that boolean options can be negated via a `no-` prefix.
 
   $parser.recover = False;
   $parser.no-recover = True;
-  $parser.set-option(:recover(False));
+  $parser.set-option(:!recover);
   $parser.set-option(:no-recover);
 
 =head3 method set-option

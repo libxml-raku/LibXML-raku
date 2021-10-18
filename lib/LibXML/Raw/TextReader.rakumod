@@ -88,6 +88,6 @@ class xmlTextReader is repr('CPointer') is export {
         NewDoc( $doc);
     }
 
-    multi method new(|c) is default { fail c.perl }
+    multi method new(|c) is default { fail c.raku }
 }
 

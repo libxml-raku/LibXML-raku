@@ -68,7 +68,6 @@ my class Parser::Context {
     }
 
     submethod DESTROY {
-        $!buf = Nil;
         .Free with $!raw;
     }
 

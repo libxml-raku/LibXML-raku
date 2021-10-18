@@ -56,7 +56,7 @@ of all character data node. Therefore there exists no CharacterData class. This
 allows one to apply methods of text nodes also to Comments CDATA-sections and
 Processing instruction nodes.
 
-The DOM methods are provided for compatibility with ported Perl 5 code.
+The DOM methods are provided for compatibility with ported Perl code.
 
 `data` provides a proxy to a rw string, which allows for idiomatic Raku string manipulation and update.
 

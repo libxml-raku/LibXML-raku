@@ -138,7 +138,7 @@ The namespace URI may be Str:U (undefined) or blank ('') in order to create an a
 
 The current implementation differs from DOM in the following aspects 
 
-If an attribute with the same local name and namespace URI already exists on the element, but its prefix differs from the prefix of `$aname`, then this function is supposed to change the prefix (regardless of namespace declarations and possible collisions). However, the current implementation does rather the opposite. If a prefix is declared for the namespace URI in the scope of the attribute, then the already declared prefix is used, disregarding the prefix specified in `$aname`. If no prefix is declared for the namespace, the function tries to declare the prefix specified in `$aname` and dies if the prefix is already taken by some other namespace. 
+If an attribute with the same local name and namespace URI already exists on the element, but its prefix differs from the prefix of `$aname`, then this function is supposed to change the prefix (regardless of namespace declarations and possible collisions). However, the current implementation does rather the opposite. If a prefix is declared for the namespace URI in the scope of the attribute, then the already declared prefix is used, disregarding the prefix specified in `$aname`. If no prefix is declared for the namespace, the function tries to declare the prefix specified in `$aname` and dies if the prefix is already taken by some other namespace.
 
 According to DOM Level 2 specification, this method can also be used to create or modify special attributes used for declaring XML namespaces (which belong to the namespace "http://www.w3.org/2000/xmlns/" and have prefix or name "xmlns"). The implementation differs from DOM specification in the following: if a declaration of the same namespace prefix already exists on the element, then changing its value via this method automatically changes the namespace of all elements and attributes in its scope. This is because in libxml2 the namespace URI of an element is not static but is computed from a pointer to a namespace declaration attribute.
 
@@ -226,7 +226,7 @@ Returns True if the current node has any attributes set, otherwise False is retu
 
 Proves an associative interface to a node's attributes.
 
-Unlike the equivalent Perl 5 method, this method retrieves only [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) (not [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace)) nodes.
+Unlike the equivalent Perl method, this method retrieves only [LibXML::Attr](https://libxml-raku.github.io/LibXML-raku/Attr) (not [LibXML::Namespace](https://libxml-raku.github.io/LibXML-raku/Namespace)) nodes.
 
 See also:
 

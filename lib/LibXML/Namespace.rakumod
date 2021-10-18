@@ -63,7 +63,7 @@ method keep($_) {
 
 multi method new(xmlNs:D :native($_)!) is DEPRECATED<box> { self.box: $_ }
 
-# Perl 5 compat
+# Perl compat
 multi method new(Str:D $URI, NCName $prefix?, |c) {
     self.new: :$URI, :$prefix, |c;
 }

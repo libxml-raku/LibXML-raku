@@ -171,7 +171,7 @@ multi method new(
     self.box: $new-dtd;
 }
 
-# for Perl 5 compatiblity
+# for Perl compatiblity
 multi method new($external-id, $system-id) {
     self.parse(:$external-id, :$system-id);
 }

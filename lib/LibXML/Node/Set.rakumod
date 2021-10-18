@@ -43,7 +43,7 @@ class LibXML::Node::Set
     }
     method add(LibXML::Item:D $node) is also<push> {
         constant Ref = 1;
-        fail "node has wrong type {$node.WHAT.perl} for node-set of type: {$!of.WHAT}"
+        fail "node has wrong type {$node.WHAT.raku} for node-set of type: {$!of.WHAT}"
             unless $node ~~ $!of;
         $!hstore = Nil;
         $!raw.push($node.raw.ItemNode, Ref);

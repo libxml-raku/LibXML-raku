@@ -93,7 +93,7 @@ has UInt $.flags is rw = LibXML::Config.parser-flags();
 
 also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 
-# Perl 5 compat
+# Perl compat
 multi method recover is rw {
     Proxy.new(
         FETCH => { 

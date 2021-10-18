@@ -1,6 +1,7 @@
 unit role LibXML::_Options[%OPTS];
 
-sub neg($k) { $k.starts-with('no-') ?? $k.substr(3) !! 'no-' ~ $k; }
+multi sub neg($_ where .starts-with('no-')) { .substr(3) }
+multi sub neg($_) { 'no-' ~ $_ }
 
 method get-flag(UInt $flags, Str:D $k is copy) {
     $k .= subst("_", "-", :g);
@@ -64,7 +65,7 @@ method option-exists(Str:D $k is copy) {
     (%OPTS{$k} // %OPTS{neg($k)}).defined;
 }
 
-method get-option(Str:D $k is copy) is default {
+method get-option(Str:D $k is copy) {
     my $neg := ? $k.starts-with('no-');
     $k .= substr(3) if $neg;
     my $rv := self.can($k)
