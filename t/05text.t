@@ -20,6 +20,7 @@ my $doc = LibXML::Document.new();
         is $textnode.nodeValue(), $foo;
         
         nok $textnode.attributes(), 'Attributes NO-OP on text nodes';
+        is $textnode.nodePath, '/text()';
     }
     subtest 'substring', {
         my $tnstr = $textnode.substringData( 1,2 );
@@ -221,6 +222,7 @@ subtest 'standalone', {
     my $node = LibXML::Text.new: :content<foo>;
     ok $node, ' TODO : Add test name';
     is $node.nodeValue, "foo";
+    is $node.nodePath, '/text()';
 }
 
 subtest 'cdata', {
@@ -230,6 +232,7 @@ subtest 'cdata', {
     is $node.string-value(), "test";
     is $node.nodeName(), "#cdata-section";
     is $node.ast-key(), "#cdata";
+    is $node.nodePath, '/text()';
 }
 
 subtest 'comments', {
@@ -239,6 +242,7 @@ subtest 'comments', {
     is $node.string-value(), "test";
     is $node.nodeName(), "#comment";
     is $node.ast-key(), "#comment";
+    is $node.nodePath, '/comment()';
 }
 
 subtest 'document node name', {
@@ -247,6 +251,7 @@ subtest 'document node name', {
     is $node.nodeName(), "#document";
     is $node.ast-key(), "#xml";
     is $node.xpath-key(), "document()";
+    is $node.nodePath, '/';
 }
 subtest 'document fragment', {
 

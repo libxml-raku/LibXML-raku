@@ -10,7 +10,7 @@ plan 9;
 
 my LibXML $p .= new();
 
-ok $p, 'Can initialize a new LibXML instance';
+ok $p.defined, 'Can initialize a new LibXML instance';
 
 my $version = $p.version;
 
@@ -22,7 +22,7 @@ given LibXML.config-version {
         unless $_ == LibXML.version
 }
 
-ok($version >= Min-LibXML-Version, "LibXML version is suppported")
+ok $version >= Min-LibXML-Version, "LibXML version is suppported"
     or diag "sorry this version of libxml is not supported ($version < {Min-LibXML-Version})";
 
 for True, False -> $kb {

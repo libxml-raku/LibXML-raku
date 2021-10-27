@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 10;
+plan 11;
 
 use LibXML;
 use LibXML::Document;
@@ -12,7 +12,7 @@ my $xmlstring = q:to<EOSTR>;
         test 1
     </bar>
     <!-- test -->    
-    <bar>
+    <bar att="val">
         test 2
     </bar>
 </foo>
@@ -122,14 +122,20 @@ EOSTR
         ok $node.exists("following-sibling::bar");
     }
 
+    subtest 'attribute', {
+        my $result = $doc.find( "/foo/bar/@att" );
+        ok $result;
+        my $node = $result[0];
+        isa-ok $node, 'LibXML::Attr';
+        is $node.nodePath, '/foo/bar[2]/@att';
+    }
+
     subtest 'removeChild', {
-        # test the strange segfault after xpathing
         my $root = $doc.documentElement();
         for $root.findnodes( 'bar' ) -> $bar {
             $root.removeChild($bar);
         }
-        pass(' TODO : Add test name');
-        # warn $root.toString();
+        pass 'remove from root';
 
         $doc =  $parser.parse: :string( $xmlstring );
         my @bars = $doc.findnodes( '//bar' );
@@ -137,7 +143,7 @@ EOSTR
         for @bars -> $node {
             $node.parentNode().removeChild( $node );
         }
-        pass(' TODO : Add test name');
+        pass 'remove from parent';
     }
 
     subtest 'find numeric', {

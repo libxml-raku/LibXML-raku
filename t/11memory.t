@@ -36,7 +36,7 @@ class sax-null {...}
 
 {
 
-    pass('Start.');
+    pass 'Start.';
 
     # BASELINE
     check-mem(1);
@@ -59,15 +59,15 @@ class sax-null {...}
     }
 
     subtest 'appendChild',{
-        my $elem = LibXML::Element.new("foo");
-        my $elem2= LibXML::Element.new("bar");
+        my LibXML::Element $elem .= new("foo");
+        my LibXML::Element $elem2 .= new("bar");
         $elem.appendChild($elem2);
         ok $elem.Str;
         check-mem();
     }
 
     subtest 'set document element', {
-        my $doc2 = LibXML::Document.new();
+        my LibXML::Document $doc2 .= new();
         make-doc-elem( $doc2 );
         ok $doc2.defined;
         ok $doc2.documentElement.defined, 'documentElement';
@@ -79,49 +79,49 @@ class sax-null {...}
         check-mem(1);
 
         for 1..TIMES-THROUGH {
-            my $parser = LibXML.new();
+            my LibXML $parser .= new();
         }
         pass 'Initialise multiple parsers.';
         check-mem();
         # multiple parses
         for 1..TIMES-THROUGH {
-            my $parser = LibXML.new();
+            my LibXML $parser .= new();
             my $dom = $parser.parse: :string("<sometag>foo</sometag>");
         }
-        pass('multiple parses');
+        pass 'multiple parses';
 
         check-mem();
     }
 
     subtest 'multiple failing parses', {
         for 1..TIMES-THROUGH {
-            my $parser = LibXML.new();
+            my LibXML $parser .= new();
             try {
                 my $dom = $parser.parse: :string("<sometag>foo</somtag>"); # Thats meant to be an error, btw!
             };
         }
-        pass('Multiple failures.');
+        pass 'Multiple failures.';
 
         check-mem();
     }
 
     subtest 'building custom docs', {
-        my $doc = LibXML::Document.new();
-        for 1..TIMES-THROUGH        {
+        my LibXML::Document $doc .= new();
+        for 1..TIMES-THROUGH {
             my $elem = $doc.createElement('x');
             $doc.setDocumentElement($elem);
 
         }
-        pass('customDocs');
+        pass 'customDocs';
         check-mem();
 
         {
             my $doc = LibXML.createDocument;
-            for 1..TIMES-THROUGH        {
+            for 1..TIMES-THROUGH {
                 make-doc2( $doc );
             }
         }
-        pass('customDocs No. 2');
+        pass 'customDocs No. 2';
         check-mem();
     }
 
@@ -135,15 +135,15 @@ class sax-null {...}
         for 1..TIMES-THROUGH {
             my $dtd = LibXML::Dtd.parse: :string($dtdstr);
         }
-        pass('after dtdstr');
+        pass 'after dtdstr';
         check-mem();
     }
 
     subtest 'DTD URI parsing', {
         for 1..TIMES-THROUGH {
-            my $dtd = LibXML::Dtd.new('ignore', 'samples/test.dtd');
+            my LibXML::Dtd $dtd .= new('ignore', 'samples/test.dtd');
         }
-        pass('after URI parsing.');
+        pass 'after URI parsing.';
         check-mem();
     }
 
@@ -163,7 +163,7 @@ class sax-null {...}
                 }
             };
         }
-        pass('is-valid()');
+        pass 'is-valid()';
         check-mem();
 
         print "# validate() \n";
@@ -174,7 +174,7 @@ class sax-null {...}
                 }
             };
         }
-        pass('validate()');
+        pass 'validate()';
         check-mem();
     }
 
@@ -204,7 +204,7 @@ class sax-null {...}
             processMessage($xml, '/dromedaries/species' );
             my @nodes = $doc.findnodes("/foo/bar/foo");
         }
-        pass('after processMessage');
+        pass 'after processMessage';
         check-mem();
 
     }
@@ -215,7 +215,7 @@ class sax-null {...}
         for 1..TIMES-THROUGH {
             my $nodes = $doc.find("/foo/bar/foo");
         }
-        pass('.find.');
+        pass '.find.';
         check-mem();
 
     }
@@ -246,7 +246,7 @@ class sax-null {...}
     subtest 'namespace tests', {
         my $string = '<foo:bar xmlns:foo="bar"><foo:a/><foo:b/></foo:bar>';
 
-        my $doc = LibXML.new().parse: :string( $string );
+        my LibXML::Document $doc .= parse: :string( $string );
 
         for 1..TIMES-THROUGH {
             my @ns = $doc.documentElement().getNamespaces();
@@ -255,7 +255,7 @@ class sax-null {...}
             my $name = $doc.documentElement.nodeName;
         }
         check-mem();
-        pass('namespace tests.');
+        pass 'namespace tests.';
     }
 
     subtest 'SAX parser', {
@@ -269,12 +269,12 @@ class sax-null {...}
             "NAMESPACES ATTRIBUTE" => '<xm:xml1 xmlns:xm="foo"><xm:xml2 xm:foo="bar"/></xm:xml1>',
         );
 
-        my $sax-handler = sax-null.new;
-        my $parser  = LibXML.new: :$sax-handler;
+        my sax-null $sax-handler .= new;
+        my LibXML $parser .= new: :$sax-handler;
 
         check-mem();
 
-        for %xmlStrings.keys.sort -> $key  {
+        for %xmlStrings.keys.sort -> $key {
             print "# $key \n";
             for 1..TIMES-THROUGH {
                 my $doc = $parser.parse: :string( %xmlStrings{$key} );
@@ -297,11 +297,11 @@ class sax-null {...}
             "NAMESPACES ATTRIBUTE" => ['<xm:xml1 xmlns:xm="foo">', '<xm:xml2 xm:foo="bar"/></xm', ':xml1>'],
         );
 
-        my $handler = sax-null.new;
-        my $parser  = LibXML.new;
+        my sax-null $handler .= new;
+        my LibXML $parser .= new;
 
         check-mem();
-        for %xmlStrings.keys.sort -> $key  {
+        for %xmlStrings.keys.sort -> $key {
             print "# $key \n";
             for 1..TIMES-THROUGH {
                 %xmlStrings{$key}.map: { $parser.push( $_ ) } ;
@@ -311,7 +311,7 @@ class sax-null {...}
             check-mem();
         }
         # Cancelled TEST
-        pass('good pushed data');
+        pass 'good pushed data';
 
         my %xmlBadStrings = (
             "SIMPLE"      => ["<xml1>"],
@@ -321,7 +321,7 @@ class sax-null {...}
             "SIMPLE JUNK" => ["<xml1/> ", "junk"],
         );
 
-        for ( "SIMPLE", "SIMPLE2", "SIMPLE TEXT", "SIMPLE CDATA", "SIMPLE JUNK" ) -> $key  {
+        for ( "SIMPLE", "SIMPLE2", "SIMPLE TEXT", "SIMPLE CDATA", "SIMPLE JUNK" ) -> $key {
             print "# $key \n";
             for 1..TIMES-THROUGH {
                 try {%xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
@@ -330,13 +330,13 @@ class sax-null {...}
 
             check-mem();
         }
-        pass('bad pushed data');
+        pass 'bad pushed data';
     }
 
     subtest 'SAX push parser', {
 
         my $sax-handler = sax-null.new;
-        my $parser  = LibXML.new: :$sax-handler;
+        my LibXML $parser .= new: :$sax-handler;
         check-mem();
 
         my %xmlStrings = (
@@ -358,7 +358,7 @@ class sax-null {...}
 
             check-mem();
         }
-        pass('SAX PUSH PARSER');
+        pass 'SAX PUSH PARSER';
 
         subtest 'bad pushed data', {
 
@@ -370,7 +370,7 @@ class sax-null {...}
                 "SIMPLE JUNK"  => ["<xml1/> ", "junk"],
             );
 
-            for %xmlBadStrings.keys.sort -> $key  {
+            for %xmlBadStrings.keys.sort -> $key {
                 print "# $key \n";
                 for 1..TIMES-THROUGH {
                     try { %xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
@@ -379,7 +379,7 @@ class sax-null {...}
 
                 check-mem();
             }
-            pass('BAD PUSHED DATA');
+            pass 'BAD PUSHED DATA';
         }
     }
 }
@@ -387,19 +387,19 @@ class sax-null {...}
 summarise-mem();
 
 sub processMessage($msg, $xpath) {
-      my $parser = LibXML.new();
+    my LibXML $parser .= new();
 
-      my $doc  = $parser.parse: :string($msg);
-      my $elm  = $doc.getDocumentElement;
-      my $node = $doc.first($xpath);
-      my $text = $node.to-literal;
+    my $doc  = $parser.parse: :string($msg);
+    my $elm  = $doc.getDocumentElement;
+    my $node = $doc.first($xpath);
+    my $text = $node.to-literal;
 }
 
 sub make-doc {
     # code taken from an AxKit XSP generated page
     my $document = LibXML::Document.createDocument("1.0", "UTF-8");
     # warn("document: $document\n");
-    my ($parent);
+    my $parent;
 
     {
         my $elem = $document.createElement('p');
@@ -415,16 +415,16 @@ sub make-doc {
         $parent = $elem;
     }
 
-    $parent = $parent.parentNode;
+    $parent .= parentNode;
     # warn("parent now: $parent\n");
-    $parent = $parent.parentNode;
+    $parent .= parentNode;
     # warn("parent now: $parent\n");
 
     return $document
 }
 
 sub make-doc2($docA) {
-    my $docB = LibXML::Document.new;
+    my LibXML::Document $docB .= new;
     my $e1   = $docB.createElement( "A" );
     my $e2   = $docB.createElement( "B" );
     $e1.appendChild( $e2 );
@@ -478,13 +478,12 @@ sub summarise-mem() {
 
 # some tests for document fragments
 sub make-doc-elem($doc) {
-    my $dd = LibXML::Document.new();
+    my LibXML::Document $dd .= new();
     my $node1 = $doc.createElement('test1');
     my $node2 = $doc.createElement('test2');
     $doc.setDocumentElement( $node1 );
 }
 
-use LibXML::SAX::Builder :sax-cb;
 use LibXML::SAX::Handler::SAX2;
 
 class sax-null
