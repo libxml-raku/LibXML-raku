@@ -3,11 +3,11 @@ use LibXML::Node;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::Raw;
-use XML;
 use LibXML::SAX::Handler::XML;
 use LibXML::XPath::Context;
 use LibXML::XPath::Expression;
 
+use XML;
 use Bench;
 
 sub traverse-elems($_) {
@@ -111,6 +111,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
     my LibXML::XPath::Context $ctxt;
 
     $b.timethese: 1, %(
+        # macro-benchmarks
         '00-load.libxml' => {
             $libxml = LibXML.parse: :$*file, :!blanks;
             $libxml-root = $libxml.root;
@@ -122,8 +123,8 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
             $xml-root = $xml.root;
         },
         '00-load.hybrid' => {
-            my $sax-handler = LibXML::SAX::Handler::XML.new;
-            LibXML.parse: :$*file, :$sax-handler;
+            my LibXML::SAX::Handler::XML $sax-handler .= new;
+            LibXML.parse: :$*file;#, :$sax-handler;
         },
         '01-traverse-elems.xml' => { traverse-elems($xml-root) },
         '01-traverse-elems.libxml' => { traverse-elems($libxml-root) },
@@ -133,6 +134,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
     my LibXML::XPath::Expression $*kids-expr .= compile("descendant::*");
 
     $b.timethese: $*reps, %(
+        # micro-benchmarks
         '02-elems.libxml' => -> { get-elems($libxml-root)},
         '02-children.libxml' => -> { get-children($libxml-root)},
         '02-children-array.libxml' => -> { get-children-array($libxml-root)},

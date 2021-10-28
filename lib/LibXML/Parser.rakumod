@@ -20,13 +20,13 @@ use Method::Also;
 
 constant config = LibXML::Config;
 
-has Bool $.html is rw = False;
-has Bool $.line-numbers is rw = False;
-has UInt $.flags is rw = config.parser-flags();
-has Str $.URI is rw;
-has $.sax-handler is rw;
-has xmlEncodingStr $.enc is rw;
-has $.input-callbacks is rw = config.input-callbacks;
+has Bool $.html is rw is built = False;
+has Bool $.line-numbers is rw is built = False;
+has UInt $.flags is rw is built = config.parser-flags();
+has Str $.URI is rw is built;
+has $.sax-handler is rw is built;
+has xmlEncodingStr $.enc is rw is built;
+has $.input-callbacks is rw is built = config.input-callbacks;
 multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 

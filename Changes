@@ -1,4 +1,5 @@
 {{$NEXT}}
+    - Fix LibXML::Parser options setup and etc/benchmark.raku core-dump #64
 
 0.6.9  2021-09-20T11:21:08+12:00
     - Move @ClassMap from LibXML::Item to LibXML::Config and change it
