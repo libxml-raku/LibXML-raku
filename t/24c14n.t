@@ -6,7 +6,7 @@ use LibXML;
 use LibXML::Document;
 use LibXML::XPath::Context;
 
-my $parser = LibXML.new;
+my LibXML $parser .= new;
 
 subtest 'comments', {
     my LibXML::Document:D $doc = $parser.parse: :string( "<a><b/> <c/> <!-- d --> </a>" );
@@ -175,7 +175,7 @@ subtest 'integration', {
     my $xpath2 = q{(//. | //@* | //namespace::*)[ancestor-or-self::*[local-name()='MessageID' and namespace-uri()='http://www.w3.org/2005/08/addressing']]};
 
     my $doc = LibXML.load: string=>$xml;
-    my $selector = LibXML::XPath::Context.new(:$doc);
+    my LibXML::XPath::Context $selector .= new(:$doc);
     $selector.registerNs('x' => "http://www.w3.org/2005/08/addressing");
     my $expect = '<wsa:MessageID xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="MessageID">urn:www.sve.man.ac.uk-54690551758351720271010843310</wsa:MessageID>';
 

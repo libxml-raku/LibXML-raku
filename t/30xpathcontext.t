@@ -35,7 +35,7 @@ subtest 'findnodes() scalar', {
 
 subtest 'first(), last()', {
     for ($xpath~'/*', LibXML::XPath::Expression.parse($xpath~'/*')) -> $exp {
-        my $ctx = LibXML::XPath::Context.new(:$doc);
+        my LibXML::XPath::Context $ctx .= new(:$doc);
         is $ctx.first($exp).nodeName, 'bar';
         is $ctx.last($exp).nodeName, 'baz';
     }
@@ -98,14 +98,14 @@ sub registerNs-tests($compiled, $xc) {
 }
 
 
-my $compiled = LibXML::XPath::Expression.parse('/xxx:foo');
-my $xc1 = LibXML::XPath::Context.new: :doc($doc1);
+my LibXML::XPath::Expression $compiled .= parse('/xxx:foo');
+my LibXML::XPath::Context $xc1 .= new: :doc($doc1);
 $xc1.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++; });
 $xc1.registerNs('xxx', 'http://example.com/foobar');
 subtest 'registerNs', { registerNs-tests($compiled, $xc1) };
 
 # test :%ns constructor
-my $xc2 = LibXML::XPath::Context.new: :doc($doc1), :ns{ xxx => 'http://example.com/foobar' };
+my LibXML::XPath::Context $xc2 .= new: :doc($doc1), :ns{ xxx => 'http://example.com/foobar' };
 subtest ':%ns constructor', { registerNs-tests($compiled, $xc2) };
 
 
@@ -113,21 +113,21 @@ subtest ':%ns constructor', { registerNs-tests($compiled, $xc2) };
 $doc = LibXML.parse: :string(q:to<XML>);
 <foo/>
 XML
-$xc2 = LibXML::XPath::Context.new( :$doc );
+$xc2 .= new( :$doc );
 is $xc2.findnodes('//*').pop.nodeName, 'foo', 'First node is root node';
 
 # test xpath context preserves context node
 my $doc2 = LibXML.parse: :string(q:to<XML>);
 <foo><bar/></foo>
 XML
-my $xc3 = LibXML::XPath::Context.new(node => $doc2.getDocumentElement);
+my LibXML::XPath::Context $xc3 .= new(node => $doc2.getDocumentElement);
 $xc3.find('/');
 
 is $xc3.getContextNode.Str(), '<foo><bar/></foo>', 'context is root node' ;
 
 # check starting with empty context
-my $xc4;
-lives-ok { $xc4 = LibXML::XPath::Context.new() }, 'new empty context';
+my LibXML::XPath::Context $xc4;
+lives-ok { $xc4 .= new() }, 'new empty context';
 ok !defined($xc4.getContextNode), 'getContextNode when empty';
 dies-ok { $xc4.find('/') }, 'find of empty dies';
 my $cn = $doc2.getDocumentElement;
@@ -154,7 +154,7 @@ ok $xc4.getContextNode.isSameNode($doc2.getDocumentElement);
 
 # testcase for segfault found by Steve Hay
 
-my $xc5 = LibXML::XPath::Context.new();
+my LibXML::XPath::Context $xc5 .= new();
 $xc5.registerNs('pfx', 'http://www.foo.com');
 $doc = LibXML.parse: :string('<foo xmlns="http://www.foo.com" />');
 $xc5.setContextNode($doc);
@@ -216,7 +216,7 @@ subtest 'setting context position and size', {
 
 subtest 'Ns override', {
     my $d = LibXML.new().parse: :string(q~<x:a xmlns:x="http://x.com" xmlns:y="http://x1.com"><x1:a xmlns:x1="http://x1.com"/></x:a>~);
-    my $x = LibXML::XPath::Context.new;
+    my LibXML::XPath::Context $x .= new;
 
     # use the document's declaration
     is $x.findvalue('count(/x:a/y:a)', $d.documentElement), 1;
@@ -250,9 +250,9 @@ subtest 'Ns override', {
 }
 
 subtest 'document fragments', {
-    my $frag = LibXML::DocumentFragment.new;
-    my $foo = LibXML::Element.new('foo');
-    my $xpc = LibXML::XPath::Context.new;
+    my LibXML::DocumentFragment $frag .= new;
+    my LibXML::Element $foo .= new('foo');
+    my LibXML::XPath::Context $xpc .= new;
     $frag.appendChild($foo);
     $foo.appendTextChild('bar', 'quux');
     {

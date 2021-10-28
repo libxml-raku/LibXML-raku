@@ -4,7 +4,7 @@ use LibXML;
 
 plan 44;
 
-my $parser = LibXML.new;
+my LibXML $parser .= new;
 
 my $xml1 = q:to<EOF>;
 <!DOCTYPE root [

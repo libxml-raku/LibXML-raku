@@ -9,7 +9,7 @@ use LibXML::Document;
 
 my $string = "<foo><bar/></foo>\n";
 
-my $parser = LibXML.new();
+my LibXML $parser .= new();
 
 subtest ':skip-xml-declaration, :tag-expansion', {
     my $doc = $parser.parse: :$string;

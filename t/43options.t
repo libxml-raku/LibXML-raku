@@ -3,6 +3,7 @@ use Test;
 plan 5;
 
 use LibXML;
+use LibXML::Document;
 use LibXML::InputCallback;
 
 my @all = qw<
@@ -28,7 +29,7 @@ my @all = qw<
 >;
 
 subtest 'setting options', {
-    my $p = LibXML.new();
+    my LibXML $p .= new();
     for @all -> $opt {
         is ?$p.get-option($opt), False, "option $opt default";
     }
@@ -93,12 +94,12 @@ subtest 'network options', {
 
     chomp($sys_line);
 
-    my $parser = LibXML.new(
-        expand_entities => 0,
-        load_ext_dtd    => 0,
-        expand_xinclude => 0,
+    my LibXML $parser .= new(
+        :!expand-entities,
+        :!load-ext-dtd,
+        :!expand-xinclude,
     );
-    my $XML_DOC = $parser.load: string => $XML;
+    my LibXML::Document $XML_DOC = $parser.load: string => $XML;
 
     ok($XML_DOC.Str().contains($sys_line),
         "expand_entities is preserved after _clone()/etc."
@@ -116,7 +117,7 @@ subtest 'network options', {
     };
     $input-callbacks.activate;
 
-    $parser = LibXML.new();
+    $parser .= new();
     is-deeply $parser.network, False;
     $parser.load_ext_dtd = True;
     $parser.expand_entities = True;
@@ -133,7 +134,7 @@ subtest 'network options', {
 
 subtest 'setting all options', {
     my %opts = (map { $_ => True }, @all);
-    my $p = LibXML.new: |%opts;
+    my LibXML $p .= new: |%opts;
     for @all -> $opt {
         is-deeply ?$p.get-option($opt), True, $opt;
         is-deeply ?$p."$opt"(), True, $opt;
@@ -157,7 +158,7 @@ subtest 'setting all options', {
 
 subtest 'initialize options to False', {
     my %opts = (map { $_ => False }, @all);
-    my $p = LibXML.new: |%opts;
+    my LibXML $p .= new: |%opts;
     for @all -> $opt {
         is-deeply $p.get-option($opt), False, $opt;
         is-deeply $p."$opt"(), False, $opt;
@@ -166,7 +167,7 @@ subtest 'initialize options to False', {
 
 subtest 'initialize options to True', {
     my %opts = (map { $_ => True }, @all);
-    my $p = LibXML.new: |%opts;
+    my LibXML $p .= new: |%opts;
     for @all -> $opt {
         is-deeply ?$p.get-option($opt), True, $opt;
         is-deeply ?$p."$opt"(), True, $opt;

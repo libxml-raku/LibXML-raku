@@ -53,7 +53,7 @@ subtest 'from findnodes()', {
 skip("port remaining tests", 14);
     
 =begin TODO
-my $numbers = LibXML::Node::List.new(1..10);
+my LibXML::Node::List $numbers .= new(1..10);
 my $oddify  = sub { $_ + ($_%2?0:9) }; # add 9 to even numbers
 my @map = $numbers.map($oddify);
 
@@ -76,7 +76,7 @@ is(join('|',@grep), '1|3|5|7|9', 'grep works');
 
 isa_ok($grep => 'LibXML::NodeList', '$grep');
 
-my $shuffled = LibXML::Node::List.new(qw/1 4 2 3 6 5 9 7 8 10/);
+my LibXML::Node::List $shuffled .= new(qw/1 4 2 3 6 5 9 7 8 10/);
 my @alphabetical = $shuffled.sort(sub { my ($a, $b) = @_; $a cmp $b });
 my @numeric      = $shuffled.sort(sub { my ($a, $b) = @_; $a <=> $b });
 
@@ -84,7 +84,7 @@ is(join('|',@alphabetical), '1|10|2|3|4|5|6|7|8|9', 'sort works 1');
 
 is(join('|',@numeric), '1|2|3|4|5|6|7|8|9|10', 'sort works 2');
 
-my $reverse = LibXML::Node::List.new;
+my LibXML::Node::List $reverse .= new;
 my $return  = $numbers.foreach( sub { $reverse.unshift($_) } );
 
 is(

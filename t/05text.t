@@ -8,7 +8,7 @@ use LibXML;
 use LibXML::Text;
 use LibXML::Document;
 
-my $doc = LibXML::Document.new();
+my LibXML::Document $doc .= new();
 
 {
     my $foo = "foobar";
@@ -219,7 +219,7 @@ subtest 'utf8 tests', {
 }
 
 subtest 'standalone', {
-    my $node = LibXML::Text.new: :content<foo>;
+    my LibXML::Text $node .= new: :content<foo>;
     ok $node, ' TODO : Add test name';
     is $node.nodeValue, "foo";
     is $node.nodePath, '/text()';
@@ -227,7 +227,7 @@ subtest 'standalone', {
 
 subtest 'cdata', {
     need LibXML::CDATA;
-    my $node = LibXML::CDATA.new: :content<test>;
+    my LibXML::CDATA $node .= new: :content<test>;
 
     is $node.string-value(), "test";
     is $node.nodeName(), "#cdata-section";
@@ -237,7 +237,7 @@ subtest 'cdata', {
 
 subtest 'comments', {
     need LibXML::Comment;
-    my $node = LibXML::Comment.new: :content<test>;
+    my LibXML::Comment $node .= new: :content<test>;
 
     is $node.string-value(), "test";
     is $node.nodeName(), "#comment";
@@ -246,7 +246,7 @@ subtest 'comments', {
 }
 
 subtest 'document node name', {
-    my $node = LibXML::Document.new();
+    my LibXML::Document $node .= new();
 
     is $node.nodeName(), "#document";
     is $node.ast-key(), "#xml";
@@ -255,7 +255,7 @@ subtest 'document node name', {
 }
 subtest 'document fragment', {
 
-    my $node = LibXML::DocumentFragment.new();
+    my LibXML::DocumentFragment $node .= new();
 
     is $node.nodeName(), "#document-fragment";
     is $node.ast-key(), "#fragment";

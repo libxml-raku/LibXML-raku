@@ -9,8 +9,8 @@ use LibXML::Node;
 my $file    = "samples/dromeds.xml";
 
 # init the file parser
-my $parser = LibXML.new();
-my $dom    = $parser.parse: :$file;
+my LibXML $parser .= new();
+my $dom = $parser.parse: :$file;
 ok $dom.defined;
 
 
@@ -65,7 +65,7 @@ subtest 'findnodes basic', {
         flunk('Attribute selection (AT-KEY)');
     }
 
-    my $x = LibXML::Text.new: :content(1234);
+    my LibXML::Text $x .= new: :content(1234);
     with $x {
         is( .getData(), "1234", 'getData' );
     }

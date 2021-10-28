@@ -3,7 +3,7 @@ use LibXML;
 use Test;
 plan 7;
 
-my $parser = LibXML.new;
+my LibXML $parser .= new;
 my $file = 'test/xinclude/test.xml';
 {
     $parser.expand-xinclude = False;

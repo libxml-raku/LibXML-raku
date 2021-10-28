@@ -13,7 +13,7 @@ my $html = q:to/HTML/;
 </html>
 HTML
 
-my $parser = LibXML.new;
+my LibXML $parser .= new;
 my $doc = $parser.parse(
     :string($html),
     :recover,

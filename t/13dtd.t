@@ -13,8 +13,8 @@ $dtdstr ~~ s/\n*$//;
 ok($dtdstr, "DTD String read");
 
 subtest 'parse a DTD from a SYSTEM ID', {
-    my $dtd = LibXML::Dtd.new('ignore', 'samples/test.dtd');
-    ok($dtd, 'LibXML::Dtd successful.');
+    my LibXML::Dtd $dtd .= new('ignore', 'samples/test.dtd');
+    ok $dtd.defined, 'LibXML::Dtd successful.';
     my @dtd-lines-in =  $dtdstr.lines;
     my @dtd-lines-out = $dtd.Str.lines;
     @dtd-lines-out.shift;
@@ -24,12 +24,12 @@ subtest 'parse a DTD from a SYSTEM ID', {
 
 subtest 'parse a DTD from a string', {
 
-    my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+    my LibXML::Dtd $dtd .= parse: :string($dtdstr);
     ok $dtd, '.parse: :$string';
 }
 
 subtest 'validate with the DTD', {
-    my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+    my LibXML::Dtd $dtd .= parse: :string($dtdstr);
     ok($dtd, '.parse_string 2');
     my $xml = LibXML.parse: :file('samples/article.xml');
     ok($xml, 'parse the article.xml file');
@@ -38,7 +38,7 @@ subtest 'validate with the DTD', {
 }
 
 subtest 'validate a bad document', {
-    my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+    my LibXML::Dtd $dtd .= parse: :string($dtdstr);
     ok($dtd, '.parse_string 3');
     my $xml = LibXML.parse: :file('samples/article_bad.xml');
     ok(!$xml.is-valid($dtd), 'invalid XML');
@@ -46,7 +46,7 @@ subtest 'validate a bad document', {
         $xml.validate($dtd);
     }, '.validate throws an exception';
 
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     ok($parser.validation = True, '.validation returns True');
     # this one is OK as it's well formed (no DTD)
 
@@ -62,7 +62,7 @@ subtest 'validate a bad document', {
 # underlying DTD element in the C libxml library was freed twice
 
 subtest 'childNodes sanity', {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     my $doc = $parser.parse: :file('samples/dtd.xml');
     my @a = $doc.childNodes;
     is(+@a, 2, "Two child nodes");

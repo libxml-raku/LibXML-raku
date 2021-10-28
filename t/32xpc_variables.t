@@ -48,7 +48,7 @@ is %variables<f>.value(), 'b', 'single attribute node';
 %variables<g> = LibXML::XPath::Context.new(:$doc).first('/');
 is %variables<g>.nodeType(), +XML_DOCUMENT_NODE, 'single document node';
 
-my $xc = LibXML::XPath::Context.new(:$doc);
+my LibXML::XPath::Context $xc .= new(:$doc);
 # test registerVarLookupFunc() and getVarLookupData()
 subtest 'xpath context find', {
 

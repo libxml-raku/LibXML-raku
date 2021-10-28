@@ -15,7 +15,7 @@ use LibXML::Enums;
 my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo bar]]></foo>};
 
 my LibXML $parser .= new;
-my $doc    = $parser.parse: :string( $xmlstring );
+my $doc = $parser.parse: :string( $xmlstring );
 
 subtest 'Standalone Without NameSpaces', {
     my $node = $doc.documentElement;
@@ -302,7 +302,7 @@ subtest 'Standalone Without NameSpaces', {
 }
 
 subtest 'Standalone With NameSpaces', {
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $URI ="http://kungfoo";
     my $pre = "foo";
     my $name= "bar";
@@ -325,9 +325,9 @@ subtest 'Standalone With NameSpaces', {
 
 
 subtest 'Document Switching', {
-    my $docA = LibXML::Document.new;
+    my LibXML::Document $docA .= new;
     subtest 'simple document', {
-        my $docB = LibXML::Document.new;
+        my LibXML::Document $docB .= new;
         my $e1   = $docB.createElement( "A" );
         my $e2   = $docB.createElement( "B" );
         my $e3   = $docB.createElementNS( "http://kungfoo", "C:D" );
@@ -344,7 +344,7 @@ subtest 'Document Switching', {
 }
 
 subtest 'libxml2 specials', {
-    my $docA = LibXML::Document.new;
+    my LibXML::Document $docA .= new;
     my $e1   = $docA.createElement( "A" );
     my $e2   = $docA.createElement( "B" );
     my $e3   = $docA.createElement( "C" );
@@ -365,7 +365,7 @@ subtest 'libxml2 specials', {
 }
 
 subtest 'implicit attribute manipulation', {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     my $doc = $parser.parse: :string( '<foo bar="foo"/>' );
     my $root = $doc.documentElement;
     my $attributes := $root.attributes;
@@ -397,9 +397,9 @@ subtest 'implicit attribute manipulation', {
 }
 
 subtest 'importing and adopting', {
-    my $parser = LibXML.new;
-    my $doc1 = $parser.parse: :string( "<foo>bar<foobar/></foo>" );
-    my $doc2 = LibXML::Document.new;
+    my LibXML $parser .= new;
+    my LibXML::Document $doc1 .= parse: :string( "<foo>bar<foobar/></foo>" );
+    my LibXML::Document $doc2 .= new;
 
 
     ok $doc1 && $doc2;
@@ -414,7 +414,7 @@ subtest 'importing and adopting', {
     ok $cndoc.defined;
     ok $cndoc.isSameNode( $doc2 );
 
-    my $xnode = LibXML::Element.new: :name<test>;
+    my LibXML::Element $xnode .= new: :name<test>;
 
     my $node2 = $doc2.importNode($xnode);
     ok $node2;
@@ -422,14 +422,14 @@ subtest 'importing and adopting', {
     ok $cndoc2;
     ok $cndoc2.isSameNode( $doc2 );
 
-    my $doc3 = LibXML::Document.new;
+    my LibXML::Document $doc3 .= new;
     my $node3 = $doc3.adoptNode( $xnode );
     ok $node3;
     ok $xnode.isSameNode( $node3 );
     ok $node3.ownerDocument.defined, "have owner document";
     ok $doc3.isSameNode( $node3.ownerDocument );
 
-    my $xnode2 = LibXML::Element.new: :name<test>;
+    my LibXML::Element $xnode2 .= new: :name<test>;
     $xnode2.setOwnerDocument( $doc3 ); # alternate version of adopt node
     ok $xnode2.ownerDocument, 'setOwnerDocument';
     ok $doc3.isSameNode( $xnode2.ownerDocument ), 'setOwnerDocument';
@@ -437,7 +437,7 @@ subtest 'importing and adopting', {
 
 subtest 'appending empty fragment', {
   #
-  my $doc = LibXML::Document.new();
+  my LibXML::Document $doc .= new();
   my $frag = $doc.createDocumentFragment();
   my $root = $doc.createElement( 'foo' );
   my $r = $root.appendChild( $frag );
@@ -445,14 +445,14 @@ subtest 'appending empty fragment', {
 }
 
 subtest 'self append', {
-   my $doc = LibXML::Document.new();
+   my LibXML::Document $doc .= new();
    my $schema = $doc.createElement('sphinx:schema');
    dies-ok { $schema.appendChild( $schema ) }, 'self appendChild dies';
 }
 
 subtest 'entity reference', {
     use NativeCall;
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $attr = $doc.createAttribute('test','bar');
     my $ent = $doc.createEntityReference('foo');
     is $ent.Str, '&foo;', 'createEntityReference';
@@ -555,7 +555,7 @@ subtest 'entity reference', {
 subtest 'Perl #94149', {
     # https://rt.cpan.org/Ticket/Display.html?id=94149
 
-    my $orig = LibXML::Text.new: :content('Double ');
+    my LibXML::Text $orig .= new: :content('Double ');
     my $ret = $orig.addSibling(LibXML::Text.new: :content('Free'));
     is $ret.textContent, 'Double Free', 'merge text nodes with addSibling'
 }

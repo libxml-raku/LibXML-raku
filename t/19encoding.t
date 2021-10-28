@@ -2,8 +2,10 @@ use v6;
 use Test;
 plan 3;
 use LibXML;
+use LibXML::Document;
+use LibXML::Element;
 
-my $p = LibXML.new();
+my LibXML $p .= new();
 
 my $tstr_utf8       = 'test';
 my $tstr_iso_latin1 = "täst";
@@ -19,7 +21,7 @@ my $domstr-utf8 = q{<?xml version="1.0" encoding="UTF-8"?>
 subtest 'latin-1', {
     # magic encoding tests
 
-    my $dom_latin1 = LibXML::Document.new(:enc<iso-8859-1>);
+    my LibXML::Document $dom_latin1 .= new(:enc<iso-8859-1>);
     my $elemlat1   = $dom_latin1.createElement( $tstr_iso_latin1 );
 
     $dom_latin1.setDocumentElement( $elemlat1 );
@@ -48,7 +50,7 @@ subtest 'japanese encoding (EUC-JP)', {
 
     # this EUC-JP example uses a subset of UTF-8
     my $domstr-utf8 =  $domstr-jp.subst('EUC-JP', 'UTF-8');
-    my $dom_euc_jp = LibXML::Document.new( :enc<EUC-JP>);
+    my LibXML::Document $dom_euc_jp .= new( :enc<EUC-JP>);
     my $elemjp = $dom_euc_jp.createElement( $tstr_euc_jp );
 
     is $elemjp.nodeName, $tstr_euc_jp;
@@ -71,10 +73,8 @@ subtest 'cyrillic encoding (KOI8-R)', {
 };
     my $domstr-utf8 =  $domstr-koi.subst('KOI8-R', 'UTF-8');
 
-    my ($dom_koi8, $elemkoi8);
-
-    $dom_koi8 = LibXML::Document.new(:enc<KOI8-R>);
-    $elemkoi8 = $dom_koi8.createElement( $tstr_koi8r );
+    my LibXML::Document $dom_koi8 .= new(:enc<KOI8-R>);
+    my LibXML::Element $elemkoi8 = $dom_koi8.createElement( $tstr_koi8r );
 
     is $elemkoi8.nodeName, $tstr_koi8r;
 

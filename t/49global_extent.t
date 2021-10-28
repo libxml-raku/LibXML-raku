@@ -13,7 +13,7 @@ sub handler(*@p) {
 # global entity loader
 config.external-entity-loader = &handler;
 
-my $parser = LibXML.new(expand_entities => 1);
+my LibXML $parser .= new: :expand-entities;
 
 my $xml = q:to<EOF>;
 <?xml version="1.0" encoding="UTF-8"?>

@@ -10,9 +10,7 @@ plan 7;
 
 config.external-entity-loader = &handler;
 
-my $parser = LibXML.new(
-    expand_entities => 1,
-);
+my  LibXML $parser .= new: :expand-entities;
 
 sub handler(*@p) {
     return @p.map({$_//''}).join: ',';

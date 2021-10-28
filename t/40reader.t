@@ -19,8 +19,7 @@ pass "loaded LibXML::Reader";
 
 my $file = "test/textReader/countries.xml";
 subtest 'basic', {
-    my $reader = LibXML::Reader.new(location => $file, expand-entities => 1);
-    isa-ok($reader, "LibXML::Reader");
+    my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
 
     is-deeply($reader.getParserProp('expand-entities'), True, "getParserProp");
     lives-ok({$reader.setParserProp(:!expand-entities)}, "setParserProp");
@@ -92,8 +91,7 @@ subtest 'FD interface', {
     for 1 .. 2 {
         for :$fd, :$io -> Pair:D $how {
             $io.seek(0, SeekFromBeginning );
-            my $reader = LibXML::Reader.new(|$how,);
-            isa-ok($reader, "LibXML::Reader");
+            my LibXML::Reader $reader .= new(|$how,);
             $reader.read;
             $reader.read;
             is($reader.name, "countries","name in fd");
@@ -109,8 +107,7 @@ subtest 'FD interface', {
 
 subtest 'string interface', {
     my Str $doc = $file.IO.slurp;
-    my $reader = LibXML::Reader.new(string => $doc, URI => $file);
-    isa-ok($reader, "LibXML::Reader");
+    my LibXML::Reader $reader .= new(string => $doc, URI => $file);
     $reader.read;
     $reader.read;
     is($reader.name, "countries","name in string");
@@ -118,8 +115,7 @@ subtest 'string interface', {
 
 subtest 'DOM', {
   my LibXML::Document:D $DOM = LibXML.parse: :file($file);
-  my $reader = LibXML::Reader.new(:$DOM);
-  isa-ok($reader, "LibXML::Reader");
+  my LibXML::Reader $reader .= new(:$DOM);
   $reader.read;
   $reader.read;
   is($reader.name, "countries","name in string");
@@ -142,11 +138,10 @@ subtest 'Expand', {
     </root>
     EOF
     {
-        my $reader = LibXML::Reader.new(string => $xml);
+        my LibXML::Reader $reader .= new(string => $xml);
         $reader.preservePattern('//PP');
         $reader.preservePattern('//x:ZZ', :ns{ :x<foo> });
 
-        isa-ok($reader, "LibXML::Reader");
         $reader.nextElement;
         is($reader.name, "root","root node");
         $reader.nextElement;
@@ -208,7 +203,7 @@ subtest 'error', {
     </root>
     EOF
 
-    my $reader = LibXML::Reader.new(
+    my LibXML::Reader $reader .= new(
         string => $bad_xml,
         URI => "mystring.xml"
     );
@@ -220,14 +215,14 @@ subtest 'RelaxNG', {
     my $rng = "test/relaxng/demo.rng";
     for $rng, LibXML::RelaxNG.new(location => $rng) -> $RelaxNG {
         {
-            my $reader = LibXML::Reader.new(
+            my LibXML::Reader $reader .= new(
 	        location => "test/relaxng/demo.xml",
 	        :$RelaxNG,
             );
             ok($reader.finish, "validate using "~($RelaxNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
         }
         {
-            my $reader = LibXML::Reader.new(
+            my LibXML::Reader $reader .= new(
 	        location => "test/relaxng/invaliddemo.xml",
 	        :$RelaxNG,
             );
@@ -245,14 +240,14 @@ subtest 'XMLSchema', {
 
         for $xsd, LibXML::Schema.new(location => $xsd) -> $Schema {
             {
-                my $reader = LibXML::Reader.new(
+                my LibXML::Reader $reader .= new(
 	            location => "test/schema/demo.xml",
 	            :$Schema,
                 );
                 ok($reader.finish, "validate using "~($Schema.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
             }
             {
-                my $reader = LibXML::Reader.new(
+                my LibXML::Reader $reader .= new(
 	            location => "test/schema/invaliddemo.xml",
 	            :$Schema,
                 );
@@ -279,7 +274,7 @@ subtest 'Patterns', {
     my $pattern = LibXML::Pattern.compile('//inner|CC|/root/y:ZZ', :ns{y=>'foo'});
     ok($pattern);
     {
-        my $reader = LibXML::Reader.new(string => $xml);
+        my LibXML::Reader $reader .= new(string => $xml);
         ok($reader);
         my $matches='';
         while ($reader.read) {
@@ -291,7 +286,7 @@ subtest 'Patterns', {
     }
 
     {
-        my $reader = LibXML::Reader.new(string => $xml);
+        my LibXML::Reader $reader .= new(string => $xml);
         ok($reader);
         my $matches='';
         while ($reader.nextPatternMatch($pattern)) {

@@ -19,7 +19,7 @@ my $xmlstring = q:to<EOSTR>;
 EOSTR
 
 {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
 
     my $doc = $parser.parse: :string( $xmlstring );
 
@@ -32,7 +32,7 @@ EOSTR
         ok( $doc.isSameNode(@nodes[0].ownerDocument),
             'Doc is the same as the owner document.' );
 
-        my $compiled = LibXML::XPath::Expression.parse("/foo/bar");
+        my LibXML::XPath::Expression $compiled .= parse("/foo/bar");
         for (1..3) -> $idx {
             @nodes = $doc.findnodes( $compiled );
             is( +@nodes, 2, "Two nodes for /foo/bar - try No. $idx" );
@@ -137,7 +137,7 @@ EOSTR
         }
         pass 'remove from root';
 
-        $doc =  $parser.parse: :string( $xmlstring );
+        $doc = $parser.parse: :string( $xmlstring );
         my @bars = $doc.findnodes( '//bar' );
 
         for @bars -> $node {
@@ -159,7 +159,7 @@ EOSTR
 
 
 subtest 'Perl #39178', {
-    my $p = LibXML.new;
+    my LibXML $p .= new;
     my $doc = $p.parse: :file("samples/utf-16-2.xml");
     ok $doc.defined;
     my @nodes = $doc.findnodes("/cml/*");
@@ -168,7 +168,7 @@ subtest 'Perl #39178', {
 }
 
 subtest 'Perl #36576', {
-    my $p = LibXML.new;
+    my LibXML $p .= new;
     my $doc = $p.parse: :html, :file("samples/utf-16-1.html");
     ok $doc.defined;
     my @nodes = $doc.findnodes("//p");
@@ -178,7 +178,7 @@ subtest 'Perl #36576', {
 }
 
 subtest 'Perl #36576', {
-    my $p = LibXML.new;
+    my LibXML $p .= new;
     my $doc = $p.parse: :html, :file("samples/utf-16-2.html");
     ok $doc.defined;
     my @nodes = $doc.findnodes("//p");

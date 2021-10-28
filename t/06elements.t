@@ -21,7 +21,7 @@ my $attname3  = "C";
 my @badnames= ("1A", "<><", "&", "-:");
 
 subtest 'bound node', {
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $elem = $doc.createElement( $foo );
     ok $elem.defined;
     is $elem.tagName, $foo;
@@ -132,7 +132,7 @@ subtest 'bound node', {
 }
 
 subtest 'unbound node', {
-    my $elem = LibXML::Element.new: :name($foo);
+    my LibXML::Element $elem .= new: :name($foo);
     ok $elem.defined;
     is $elem.tagName, $foo;
 
@@ -160,10 +160,10 @@ subtest 'unbound node', {
 
 
 subtest 'namespace switching', {
-    my $elem = LibXML::Element.new: :name($foo);
+    my LibXML::Element $elem .= new: :name($foo);
     ok $elem.defined;
 
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
     my $nsAttr = $doc.createAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $bar);
@@ -176,7 +176,7 @@ subtest 'namespace switching', {
 }
 
 subtest 'default Namespace and Attributes', {
-    my $doc  = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $elem = $doc.createElementNS( "foo", "root" );
     $doc.setDocumentElement( $elem );
 
@@ -195,7 +195,7 @@ subtest 'default Namespace and Attributes', {
 }
 
 subtest 'Normalization on an Element node', {
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $t1 = $doc.createTextNode( "bar1" );
     my $t2 = $doc.createTextNode( "bar2" );
     my $t3 = $doc.createTextNode( "bar3" );
@@ -222,7 +222,7 @@ subtest 'Normalization on an Element node', {
 }
 
 subtest 'Normalization on a Document node', {
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $t1 = $doc.createTextNode( "bar1" );
     my $t2 = $doc.createTextNode( "bar2" );
     my $t3 = $doc.createTextNode( "bar3" );
@@ -254,7 +254,7 @@ subtest 'LibXML extensions', {
     my $plainstring = "foo";
     my $stdentstring= "$foo & this";
 
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $elem = $doc.createElement( $foo );
     $doc.setDocumentElement( $elem );
 
@@ -293,7 +293,7 @@ subtest 'LibXML::Attr nodes', {
     my $xml_ns = '<root xmlns="%s" xmlns:a="%s" foo="&quot;bar&ent;&quot;"/>'.sprintf($ns, $ns);
 
     for ($xml_nons, $xml_ns) -> $xml {
-        my $parser = LibXML.new;
+        my LibXML $parser .= new;
         $parser.complete-attributes = False;
         $parser.expand-entities = False;
         my $doc = $parser.parse: :string($dtd ~ $xml);
@@ -343,7 +343,7 @@ subtest 'LibXML::Attr nodes', {
     my @names = ("nons", "ns");
         for ($xml_nons, $xml_ns) -> $xml {
             my $n = shift(@names);
-            my $parser = LibXML.new;
+            my LibXML $parser .= new;
             $parser.complete-attributes = True;
             $parser.expand-entities = True;
             my $doc = $parser.parse: :string($dtd ~ $xml);
@@ -400,10 +400,10 @@ subtest 'LibXML::Attr nodes', {
 
 subtest 'Entity Reference construction', {
     use LibXML::EntityRef;
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
     my $elem = $doc.createElement( $foo );
     $elem.appendText('a');
-    my $ent-ref = LibXML::EntityRef.new(:$doc, :name<bar>);
+    my LibXML::EntityRef $ent-ref .= new(:$doc, :name<bar>);
     is $ent-ref.type, +XML_ENTITY_REF_NODE;
     is $ent-ref.nodeName, 'bar';
     is $ent-ref.ast-key, '&bar';

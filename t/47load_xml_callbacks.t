@@ -20,7 +20,7 @@ plan 3;
             -> $fh { $got-close = 1; $fh.close },
         );
 
-    my $xml-parser = LibXML.new();
+    my LibXML $xml-parser .= new();
     $xml-parser.input-callbacks($input-callbacks);
 
     my $location = 'samples/dromeds.xml';

@@ -368,7 +368,6 @@ subtest 'document storing', {
     my LibXML $parser .= new;
     my LibXML::Document $doc = $parser.parse: :string("<foo>bar</foo>");
 
-
     is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );
 
 
@@ -402,7 +401,7 @@ subtest 'document storing', {
     }
 
     subtest 'element like functions', {
-        my $parser2 = LibXML.new();
+        my LibXML $parser2 .= new();
         my $string1 = "<A><A><B/></A><A><B/></A></A>";
         my $string2 = '<C:A xmlns:C="xml://D"><C:A><C:B/></C:A><C:A><C:B/></C:A></C:A>';
         my $string3 = '<A xmlns="xml://D"><A><B/></A><A><B/></A></A>';
@@ -498,7 +497,7 @@ subtest 'Nil-ing nodes', {
        $x = Nil;                              # free the attribute
     }
     do {
-      my $object = LibXML::Element.new( :name<object> );
+      my LibXML::Element $object .= new( :name<object> );
       my $xml = qq{<?xml version="1.0" encoding="UTF-8"?>\n<lom/>};
       my $lom_doc = LibXML.parse: :string($xml);
       my $lom_root = $lom_doc.getDocumentElement();
@@ -558,7 +557,7 @@ subtest 'various encodings', {
 subtest 'compress' => {
     plan 5;
     use File::Temp;
-    my LibXML::Document:D $doc = LibXML.parse: :file( "samples/test.xml" );
+    my LibXML::Document:D $doc .= parse: :file( "samples/test.xml" );
     todo '$doc.input-compressed is unreliable in libxml <= v2.09.01'
         if LibXML.version <= v2.09.01;
     is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';

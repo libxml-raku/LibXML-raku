@@ -42,7 +42,7 @@ ok $sax-handler.startElement.defined, 'startElement initialization';
 my $string = '<html><body><h1 working="yup">Hello World</h1></body></html>';
 my Blob $chunk = $string.encode;
 
-my $ctx = xmlPushParserCtxt.new: :$sax-handler, :$chunk;
+my xmlPushParserCtxt $ctx .= new: :$sax-handler, :$chunk;
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
@@ -81,7 +81,7 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
 use XML::Document;
 use LibXML::SAX::Handler::XML;
-my $handler = LibXML::SAX::Handler::XML.new;
+my LibXML::SAX::Handler::XML $handler .= new;
 $sax-handler = $handler.raw;
 
 $ctx .= new: :$sax-handler, :$chunk;

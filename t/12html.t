@@ -12,7 +12,7 @@ constant CanDoIO = ? IO::Handle.can('do-not-close-automatically');
 
 my $html = "samples/test.html";
 
-my $parser = LibXML.new();
+my LibXML $parser .= new();
 subtest 'parse :html and :file options', {
     my LibXML::Document::HTML $doc = $parser.parse: :html, :file($html);
     ok $doc.defined;
@@ -93,8 +93,8 @@ subtest 'html with encodings', {
     is $htmldoc.findvalue('//p/text()'), $utf_str;
 
     my $enc = 'iso-8859-2';
-    my $iso_8859_str = buf8.new(0xEC, 0xB9, 0xE8, 0xF8).decode("latin-1");
-    my Blob $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
+    my Str $iso_8859 = buf8.new(0xEC, 0xB9, 0xE8, 0xF8).decode("latin-1");
+    my Blob $buf = $strhref.subst($utf_str, $iso_8859).encode("latin-1");
     
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
     ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
@@ -117,7 +117,7 @@ subtest 'html with encodings', {
     ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
     is $htmldoc.findvalue('//p/text()'), $utf_str;
 
-    $buf = $strhref.subst($utf_str, $iso_8859_str).encode("latin-1");
+    $buf = $strhref.subst($utf_str, $iso_8859).encode("latin-1");
     $htmldoc = $parser.parse: :html, :$buf, :$enc;
     ok $htmldoc.defined && $htmldoc.getDocumentElement.defined;
     is $htmldoc.findvalue('//p/text()'), $utf_str;
@@ -221,7 +221,7 @@ subtest 'recover', {
     </html>
     EOF
 
-    my $parser = LibXML.new;
+    my LibXML $parser .= new;
     $doc = Nil;
     quietly lives-ok {
         $doc = $parser.parse: :html, :string($html), :recover, :suppress-errors;
@@ -237,7 +237,7 @@ subtest 'parse :def-dtd', {
     # HTML_PARSE_NODEFDTD
 
     my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
-    my $p = LibXML.new;
+    my LibXML $p .= new;
         
     like( $p.parse( :html, :string( $html),
                     :recover,

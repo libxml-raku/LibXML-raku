@@ -11,7 +11,7 @@ my $htmlPublic = "-//W3C//DTD XHTML 1.0 Transitional//EN";
 my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
 subtest 'internalSubset', {
-    my $doc = LibXML::Document.new;
+    my LibXML::Document $doc .= new;
     my $dtd = $doc.createExternalSubset( "html",
                                           $htmlPublic,
                                           $htmlSystem
@@ -24,7 +24,7 @@ subtest 'internalSubset', {
 }
 
 subtest 'externalSubset', {
-    my $doc = LibXML::Document.new;
+    my LibXML::Document $doc .= new;
     my $dtd = $doc.createInternalSubset( "html",
                                           $htmlPublic,
                                           $htmlSystem
@@ -69,7 +69,7 @@ subtest 'externalSubset', {
 }
 
 subtest 'doc with internal subset', {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
 
     my $doc = $parser.parse: :file( "samples/dtd.xml" );
 
@@ -114,7 +114,7 @@ subtest 'doc with internal subset', {
     is($entity-ref.firstChild.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity reference entity-type');
 
     {
-        my $doc2  = LibXML::Document.new;
+        my LibXML::Document $doc2 .= new;
         my $e = $doc2.createElement("foo");
         $doc2.setDocumentElement( $e );
 
@@ -129,7 +129,7 @@ subtest 'doc with internal subset', {
 }
 
 subtest 'basic DtD validation', {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     $parser.validation = True;
     $parser.keep-blanks = True;
     my $doc = $parser.parse: :string(q:to<EOF>);
@@ -152,7 +152,7 @@ subtest 'basic DtD validation', {
 }
 
 subtest 'XHTML external subset', {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
 
     my $xml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://localhost/does_not_exist.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml"><head><title>foo</title></head><body><p>bar</p></body></html>';
@@ -180,14 +180,14 @@ subtest 'bad Dtd parse', {
     my $xml = "<!DOCTYPE test SYSTEM \"samples/bad.dtd\">\n<test/>";
 
     {
-        my $parser = LibXML.new;
+        my LibXML $parser .= new;
         $parser.load-ext-dtd = False;
         $parser.validation = False;
         my $doc = $parser.parse: :string($xml);
         ok $doc.defined;
     }
     {
-        my $parser = LibXML.new;
+        my LibXML $parser .= new;
         $parser.load-ext-dtd = True;
         $parser.validation = False;
         dies-ok { $parser.parse: :string($xml) };
@@ -195,7 +195,7 @@ subtest 'bad Dtd parse', {
 }
 
 subtest 'Dtd DOM', {
-    my $parser = LibXML.new();
+    my  LibXML $parser .= new();
     my $string =q:to<EOF>;
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE test [
@@ -227,7 +227,7 @@ subtest 'Dtd DOM', {
     given $attr-decl.getElementDecl {
         ok .defined;
         is .gist.chomp, '<!ELEMENT test (#PCDATA)>';
-        .parent.isSameNode($dtd);
+        ok .parent.isSameNode($dtd);
     }
 
     my $attr2-decl = $attr-decls<orphan><attr2>;
@@ -244,7 +244,7 @@ subtest 'Dtd DOM', {
 }
 
 sub test_remove_dtd($test_name, &remove_sub) {
-    my $parser = LibXML.new;
+    my LibXML $parser .= new;
     my $doc    = $parser.parse: :file('samples/dtd.xml');
     my $dtd    = $doc.internalSubset;
 
@@ -267,7 +267,7 @@ subtest 'remove Dtd Nodes', {
 
 sub test_insert_dtd ($test_name, &insert_sub) {
 
-    my $parser  = LibXML.new;
+    my LibXML $parser .= new;
     my $src_doc = $parser.parse: :file('samples/dtd.xml');
     my $dtd     = $src_doc.internalSubset.clone;
     my $doc     = $parser.parse: :file('samples/dtd.xml');

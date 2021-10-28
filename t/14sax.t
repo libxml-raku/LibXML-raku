@@ -36,7 +36,7 @@ sub _create_simple_counter {
 my $SAXTester_startDocument_counter = _create_simple_counter();
 my $SAXTester_endDocument_counter = _create_simple_counter();
 
-my $SAXTester_startElement_stacker = Stacker.new(
+my Stacker $SAXTester_startElement_stacker .= new(
     gen-cb => -> &push-cb {
 
         -> LibXML::Element $el {
@@ -50,7 +50,7 @@ my $SAXTester_startElement_stacker = Stacker.new(
     }
 );
 
-my $SAXNSTester_startElement_stacker = Stacker.new(
+my Stacker $SAXNSTester_startElement_stacker .= new(
     gen-cb => -> &push-cb {
 
         ->  LibXML::Node $node {
@@ -65,7 +65,7 @@ my $SAXNSTester_startElement_stacker = Stacker.new(
     }
 );
 
-my $SAXNS2Tester_startElement_stacker = Stacker.new(
+my Stacker $SAXNS2Tester_startElement_stacker .= new(
     gen-cb => -> &push-cb {
         -> LibXML::Element $elt {
 
@@ -108,7 +108,7 @@ subtest 'callback basic', {
     my $doc = LibXML.parse: :string($str);
     ok $doc.defined;
 
-    my $generator = LibXML::SAX.new(sax-handler => $sax);
+    my LibXML::SAX $generator .= new(sax-handler => $sax);
     ok $generator.defined;
 
     $generator.reparse($doc); # startElement*10
@@ -121,7 +121,7 @@ subtest 'callback basic', {
     $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
-    my $gen2 = LibXML::SAX.new;
+    my LibXML::SAX $gen2 .= new;
     my $dom2 = $gen2.reparse($doc);
     ok $dom2.defined;
 
@@ -153,7 +153,7 @@ EOT
 }
 
 subtest 'Ns callbacks', {
-    my $sax = SAXNSTester.new;
+    my SAXNSTester $sax .= new;
     ok $sax.defined;
 
     $parser.sax-handler = $sax;
@@ -187,11 +187,11 @@ subtest 'callback metrics', {
             $sax.column-number($ctx),
         ]);
     };
-    my $sax = SAXLocatorTester.new( :&cb );
+    my SAXLocatorTester $sax .= new( :&cb );
 
     ok $sax.defined, 'Created SAX handler with document locator';
 
-    my $parser = LibXML::SAX.new(sax-handler => $sax);
+    my LibXML::SAX $parser .= new(sax-handler => $sax);
 
     $parser.parse: :string(q:to<EOT>.chomp);
     <?xml version="1.0" encoding="UTF-8"?>
@@ -235,7 +235,7 @@ subtest 'namespaces, empty', {
 subtest 'error handling', {
     my $xml = '<foo><bar/><a>Text</b></foo>';
 
-    my $sax = SAXErrorTester.new;
+    my SAXErrorTester $sax .= new;
     do {
         try {
             LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
@@ -244,12 +244,12 @@ subtest 'error handling', {
     }
     ok $sax.errors, 'error handler called';
 
-    $sax = SAXErrorCallbackTester.new;
+    my SAXErrorCallbackTester $sax2 .= new;
     do {
-        try { LibXML::SAX.new(sax-handler => $sax ).parse: :string($xml) };
+        try { LibXML::SAX.new(sax-handler => $sax2 ).parse: :string($xml) };
         ok $!, 'we got another error';
     }
-    ok $sax.errors, 'error handler called';
+    ok $sax2.errors, 'error handler called';
 }
 
  ########### LibXML::SAX::parse-chunk test ###########
@@ -260,8 +260,8 @@ skip("todo: port remaining tests", 29);
 
 {
     my $chunk = '<app>LOGOUT</app><bar/>';
-    my $sax = LibXML::SAX::Handler::SAX2.new();
-    my $parser = LibXML::SAX.new(sax-handler => $sax );
+    my LibXML::SAX::Handler::SAX2 $sax .= new();
+    my LibXML::SAX $parser .= new(sax-handler => $sax );
     $parser.startDocument();
     $sax.startElement('foo');
     $parser.parse-chunk($chunk);
@@ -288,7 +288,7 @@ skip("todo: port remaining tests", 29);
 {
     use strict;
     use warnings;
-    my $parser = LibXML::SAX.new( Handler => MySAXHandler.new( )) ;
+    my LibXML::SAX $parser .= new( Handler => MySAXHandler.new( )) ;
     eval { $parser.parse_string(q:to<EOF> ) };
     <TVChannel TVChannelID="71" TVChannelName="ARD">
             <Moin>Moin</Moin>

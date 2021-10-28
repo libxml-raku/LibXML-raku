@@ -182,14 +182,14 @@ subtest 'LibXML::Dtd' => {
     plan 2;
     use LibXML::Dtd;
     lives-ok {
-        my $dtd = LibXML::Dtd.parse: :string(q:to<EOF>);
+        my LibXML::Dtd $dtd .= parse: :string(q:to<EOF>);
         <!ELEMENT test (#PCDATA)>
         EOF
        $dtd.getName();
     }, 'parse :string';
 
     lives-ok {
-        my $dtd = LibXML::Dtd.new(
+        my LibXML::Dtd $dtd .= new(
             "SOME // Public / ID / 1.0",
             "samples/test.dtd"
            );
@@ -738,7 +738,7 @@ subtest 'LibXML::XPath::Context' => {
 
     my LibXML::Document $doc .= parse: "samples/article.xml";
     $node = $doc.root;
-    my $xc = LibXML::XPath::Context.new(:$node);
+    my LibXML::XPath::Context $xc .= new(:$node);
     $xc.registerFunction('grep-nodes', &grep-nodes);
     @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
     is +@nodes, 2;
@@ -757,7 +757,7 @@ subtest 'LibXML::XPath::Context' => {
         my $areas = LibXML.parse: :file('samples/article.xml');
         my $empl = LibXML.parse: :file('samples/test.xml');
   
-        my $xc = LibXML::XPath::Context.new(node => $empl);
+        my LibXML::XPath::Context $xc .= new(node => $empl);
   
         my %variables = (
             A => $xc.find('/employees/employee[@salary>10000]'),

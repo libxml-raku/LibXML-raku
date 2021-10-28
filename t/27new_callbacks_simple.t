@@ -15,7 +15,7 @@ my $string = q:to<EOF>;
 <x xmlns:xinclude="http://www.w3.org/2001/XInclude"><xml>test<xinclude:include href="/samples/test2.xml"/></xml></x>
 EOF
 
-my $match_file_counter = Counter.new(
+my Counter $match_file_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $uri {
@@ -28,7 +28,7 @@ my $match_file_counter = Counter.new(
     }
 );
 
-my $open_file_counter = Counter.new(
+my Counter $open_file_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $uri {
@@ -39,7 +39,7 @@ my $open_file_counter = Counter.new(
     }
 );
 
-my $read_file_counter = Counter.new(
+my Counter $read_file_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $fh, $n {
@@ -49,7 +49,7 @@ my $read_file_counter = Counter.new(
     }
 );
 
-my $close_file_counter = Counter.new(
+my Counter $close_file_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $fh {
@@ -59,7 +59,7 @@ my $close_file_counter = Counter.new(
     }
 );
 
-my $match_hash_counter = Counter.new(
+my Counter $match_hash_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $uri {
@@ -72,7 +72,7 @@ my $match_hash_counter = Counter.new(
     }
 );
 
-my $open_hash_counter = Counter.new(
+my Counter $open_hash_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $uri {
@@ -86,7 +86,7 @@ my $open_hash_counter = Counter.new(
     }
 );
 
-my $close_hash_counter = Counter.new(
+my Counter $close_hash_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $h is rw {
@@ -98,7 +98,7 @@ my $close_hash_counter = Counter.new(
     }
 );
 
-my $read_hash_counter = Counter.new(
+my Counter $read_hash_counter .= new(
     gen-cb => -> &inc-cb {
 
         -> $h, $n {
@@ -116,7 +116,7 @@ my $read_hash_counter = Counter.new(
     }
 );
 
-my $icb = LibXML::InputCallback.new: :callbacks{
+my LibXML::InputCallback $icb .= new: :callbacks{
     match => $match_file_counter.cb(),
     open => $open_file_counter.cb(),
     read => $read_file_counter.cb(),
@@ -125,7 +125,7 @@ my $icb = LibXML::InputCallback.new: :callbacks{
 ok $icb.defined;
 
 
-my $parser = LibXML.new;
+my LibXML $parser .= new;
 $parser.expand-xinclude = True;
 $parser.input-callbacks = $icb;
 my $doc = $parser.parse: :$string;
@@ -142,7 +142,7 @@ ok $doc.defined, 'doc defined';
 
 is $doc.string-value(), "test..", 'string-value';
 
-my $icb2  = LibXML::InputCallback.new: :callbacks{
+my LibXML::InputCallback $icb2  .= new: :callbacks{
     match =>  $match_hash_counter.cb(),
     open  => $open_hash_counter.cb(),
     read  => $read_hash_counter.cb(),

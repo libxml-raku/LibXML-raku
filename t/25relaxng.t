@@ -8,7 +8,7 @@ plan 5;
 
 sub slurp(Str $_) { .IO.slurp }
 
-my $xmlparser = LibXML.new();
+my LibXML $xmlparser .= new();
 
 my $file         = "test/relaxng/schema.rng";
 my $badfile      = "test/relaxng/badschema.rng";
@@ -17,36 +17,36 @@ my $invalidfile  = "test/relaxng/invaliddemo.xml";
 my $demo4        = "test/relaxng/demo4.rng";
 
 subtest 'parse schema from a file', {
-    my $rngschema = LibXML::RelaxNG.new( location => $file );
+    my LibXML::RelaxNG $rngschema .= new( location => $file );
     ok $rngschema.defined;
 
-    dies-ok { $rngschema = LibXML::RelaxNG.new( location => $badfile ); }, 'parse of bad file';
+    dies-ok { $rngschema .= new( location => $badfile ); }, 'parse of bad file';
 
 }
 
 subtest 'parse schema from a string', {
     my $string = slurp($file);
 
-    my $rngschema = LibXML::RelaxNG.new( string => $string );
+    my LibXML::RelaxNG $rngschema .= new( string => $string );
     ok $rngschema.defined;
 
     $string = slurp($badfile);
 
-    dies-ok { $rngschema = LibXML::RelaxNG.new( string => $string ); }, 'bad rng schema dies';
+    dies-ok { $rngschema .= new( string => $string ); }, 'bad rng schema dies';
 }
 
 subtest 'parse schema from a document', {
     my LibXML::Document:D $doc       = $xmlparser.parse: :file( $file );
-    my $rngschema = LibXML::RelaxNG.new( :$doc );
+    my LibXML::RelaxNG $rngschema .= new( :$doc );
     ok $rngschema.defined;
 
     $doc       = $xmlparser.parse: :file( $badfile );
-    dies-ok { $rngschema = LibXML::RelaxNG.new( :$doc ); }, 'parse of invalid doc dies';
+    dies-ok { $rngschema .= new( :$doc ); }, 'parse of invalid doc dies';
 }
 
 subtest 'validate a document', {
     my $doc       = $xmlparser.parse: :file( $validfile );
-    my $rngschema = LibXML::RelaxNG.new( location => $file );
+    my LibXML::RelaxNG $rngschema .= new( location => $file );
 
     is-deeply $rngschema.is-valid( $doc ), True, 'is-valid on valid doc';
     my $valid = 0;
@@ -60,7 +60,7 @@ subtest 'validate a document', {
 }
 
 subtest 're-validate a modified document', {
-    my $rng = LibXML::RelaxNG.new(location => $demo4);
+    my LibXML::RelaxNG $rng .= new(location => $demo4);
     my $seed_xml = q:to<EOXML>;
     <?xml version="1.0" encoding="UTF-8"?>
     <root/>

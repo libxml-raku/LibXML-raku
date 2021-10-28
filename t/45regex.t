@@ -35,7 +35,7 @@ plan 23;
 
 {
     my $nondet_regex = '(bc)|(bd)';
-    my $nondet_re = LibXML::RegExp.new(regexp => $nondet_regex);
+    my LibXML::RegExp $nondet_re .= new(regexp => $nondet_regex);
 
     ok $nondet_re, 'Non deterministic re was initted';
     ok ! $nondet_re.isDeterministic, 'It is not deterministic';

@@ -13,7 +13,7 @@ use Stacker;
 
 use LibXML;
 
-my $read_hash_counter = Counter.new(
+my Counter $read_hash_counter .= new(
     gen-cb => -> &inc-cb {
         -> $h, $n {
 
@@ -30,7 +30,7 @@ my $read_hash_counter = Counter.new(
         };
     }
 );
-my $read_file_counter = Counter.new(
+my Counter $read_file_counter .= new(
     gen-cb => -> &inc-cb {
         -> $h, $n {
             &inc-cb();
@@ -40,7 +40,7 @@ my $read_file_counter = Counter.new(
     }
 );
 
-my $close_file_counter = Counter.new(
+my Counter $close_file_counter .= new(
     gen-cb => -> &inc-cb {
         -> $h {
             &inc-cb();
@@ -51,7 +51,7 @@ my $close_file_counter = Counter.new(
     }
 );
 
-my $close_xml_counter = Counter.new(
+my Counter $close_xml_counter .= new(
     gen-cb => -> &inc-cb {
         -> $dom is rw {
             $dom = Nil;
@@ -62,7 +62,7 @@ my $close_xml_counter = Counter.new(
     }
 );
 
-my $open_xml_counter = Counter.new(
+my Counter $open_xml_counter .= new(
     gen-cb => -> &inc-cb {
         -> $uri {
             my $dom = LibXML.parse: :string(q{<?xml version="1.0"?><foo><tmp/>barbar</foo>});
@@ -77,7 +77,7 @@ my $open_xml_counter = Counter.new(
     }
 );
 
-my $close_hash_counter = Counter.new(
+my Counter $close_hash_counter .= new(
     gen-cb => -> &inc-cb {
         -> $h is rw {
             $h = Nil;
@@ -89,7 +89,7 @@ my $close_hash_counter = Counter.new(
     }
 );
 
-my $open_hash_counter = Counter.new(
+my Counter $open_hash_counter .= new(
     gen-cb => -> &inc-cb {
         -> $uri {
             my $hash = { line => 0,
@@ -103,7 +103,7 @@ my $open_hash_counter = Counter.new(
     }
 );
 
-my $open_file_stacker = Stacker.new(
+my Stacker $open_file_stacker .= new(
     gen-cb => -> &push-cb {
         -> $uri {
 
@@ -121,7 +121,7 @@ my $open_file_stacker = Stacker.new(
     }
 );
 
-my $match_hash_stacker = Stacker.new(
+my Stacker $match_hash_stacker .= new(
     gen-cb => -> &push-cb {
         -> $uri {
 
@@ -136,7 +136,7 @@ my $match_hash_stacker = Stacker.new(
     }
 );
 
-my $match_file_stacker = Stacker.new(
+my Stacker $match_file_stacker .= new(
     gen-cb => -> &push-cb {
         -> $uri {
 
@@ -151,7 +151,7 @@ my $match_file_stacker = Stacker.new(
     }
 );
 
-my $match_hash2_stacker = Stacker.new(
+my Stacker $match_hash2_stacker .= new(
     gen-cb => -> &push-cb {
         -> $uri {
             if ( $uri ~~ /^'/samples/'/ ) {
@@ -165,7 +165,7 @@ my $match_hash2_stacker = Stacker.new(
     }
 );
 
-my $match_xml_stacker = Stacker.new(
+my Stacker $match_xml_stacker .= new(
     gen-cb => -> &push-cb {
         -> $uri {
             if ( $uri ~~ /^'/xmldom/'/ ) {
@@ -179,7 +179,7 @@ my $match_xml_stacker = Stacker.new(
     }
 );
 
-my $read_xml_stacker = Stacker.new(
+my Stacker $read_xml_stacker .= new(
     gen-cb => -> &push-cb {
         -> $dom, $buflen {
             my $tmp = $dom.documentElement.first('tmp');
@@ -206,7 +206,7 @@ my $read_xml_stacker = Stacker.new(
     </x>
     EOF
 
-    my $icb    = LibXML::InputCallback.new;
+    my LibXML::InputCallback $icb .= new;
 
     $icb.register-callbacks(
         match => $match_file_stacker.cb,
@@ -223,7 +223,7 @@ my $read_xml_stacker = Stacker.new(
 
     ok($icb, 'LibXML::InputCallback was initialized');
 
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     $parser.expand-xinclude = True ;
     $parser.input-callbacks = $icb;;
     my $doc = $parser.parse: :$string; # read_hash - 1,1,1,1,1
@@ -308,7 +308,7 @@ my $read_xml_stacker = Stacker.new(
     </x>
     EOF
 
-    my $icb    = LibXML::InputCallback.new();
+    my LibXML::InputCallback $icb .= new();
 
     $icb.register-callbacks( $match_file_stacker.cb, $open_file_stacker.cb(),
                                 $read_file_counter.cb(), $close_file_counter.cb() );
@@ -318,7 +318,7 @@ my $read_xml_stacker = Stacker.new(
                                 $read_hash_counter.cb(), $close_hash_counter.cb() );
 
 
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     $parser.expand-xinclude = True;
     $parser.input-callbacks = $icb;
     my $doc = $parser.parse: :$string;
@@ -404,11 +404,11 @@ my $read_xml_stacker = Stacker.new(
     </x>
     EOF
 
-    my $icb = LibXML::InputCallback.new();
+    my LibXML::InputCallback $icb .= new();
     ok ($icb, 'LibXML::InputCallback was initialized (No. 2)');
 
     my $open_xml2 = -> $uri {
-            my $parser = LibXML.new;
+            my LibXML $parser .= new;
             $parser.expand-xinclude = True;
             $parser.input-callbacks = $icb;
 
@@ -424,7 +424,7 @@ my $read_xml_stacker = Stacker.new(
     $icb.register-callbacks( $match_hash2_stacker.cb, $open_hash_counter.cb,
                                 $read_hash_counter.cb(), $close_hash_counter.cb );
 
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     $parser.expand-xinclude = True;
 
     $parser.input-callbacks = LibXML::InputCallback.new: :callbacks{

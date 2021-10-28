@@ -10,7 +10,7 @@ my $xml = q:to<EOF>;
 <bla> <foo/> </bla>
 EOF
 
-my $p = LibXML.new;
+my LibXML $p .= new;
 $p.keep-blanks = True;
 
 is(

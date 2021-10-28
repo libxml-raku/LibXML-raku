@@ -23,13 +23,13 @@ use LibXML;
     EOD
 
 for 1 .. 3 -> $time {
-    my $parser = LibXML.new();
+    my LibXML $parser .= new();
     my $doc = $parser.parse: :string($input);
     my @a = $doc.getChildnodes;
     is(+@a, 1, "1 Child node - time $time");
 }
 
-my $parser = LibXML.new();
+my LibXML $parser .= new();
 my $doc = $parser.parse: :string($input);
 for 1 .. 3 -> $time {
     my $e = $doc.getFirstChild;
@@ -46,9 +46,9 @@ for 1 .. 3 -> $time {
 }
 
 {
-    my $doc = LibXML::Document.new();
+    my LibXML::Document $doc .= new();
 
-    my $node = LibXML::Element.new('test');
+    my LibXML::Element $node .= new('test');
     $node.setAttribute(contents => "\c[0xE4]");
     $doc.setDocumentElement($node);
 

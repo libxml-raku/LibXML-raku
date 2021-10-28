@@ -10,7 +10,7 @@ use LibXML::Parser;
 constant MAX_THREADS = 10;
 constant MAX_LOOP = 50;
 
-my LibXML::Parser $p = LibXML.new();
+my LibXML $p .= new();
 ok($p.defined, 'Parser initted.');
 
 sub blat(&r, :$n = MAX_THREADS) {
@@ -223,14 +223,14 @@ subtest 'check parsing', {
 
     use LibXML::SAX;
     $p .= new(
-	sax-handler=>MyHandler.new(),
+	:sax-handler(MyHandler.new),
     );
     ok($p.defined, 'LibXML::SAX was initted.');
     blat { $p.parse: :$string for 1..5; 1; }
     pass('After LibXML::SAX - join.');
 
-    $p = LibXML.new(
-	sax-handler => MyHandler.new(),
+    $p .= new(
+	:sax-handler(MyHandler.new),
     );
     $p.parse: :chunk($string);
     $p.parse: :terminate;
@@ -240,7 +240,7 @@ subtest 'check parsing', {
     }
     pass('LibXML thread.');
 
-    $p = LibXML.new();
+    $p .= new();
     # parse a big file using the same parser
     blat {
         my IO::Handle $io = $bigfile.IO.open(:r);
@@ -288,7 +288,7 @@ subtest 'docfrag3', {
 
 subtest 'xinclude', {
     my $file = 'test/xinclude/test.xml';
-    my $parser = LibXML.new;
+    my LibXML $parser .= new;
     $parser.expand-xinclude = True;
     $parser.expand-entities = True;
     blat { $parser.parse(:$file) for 1..10 }

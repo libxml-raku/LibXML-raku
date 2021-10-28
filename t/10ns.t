@@ -108,7 +108,7 @@ subtest 'post creation namespace setting', {
 subtest 'importing namespaces', {
 
     my $doca = LibXML.createDocument;
-    my $docb = LibXML.new().parse: :string( q:to<EOX>);
+    my $docb = LibXML.parse: :string( q:to<EOX>);
     <x:a xmlns:x="http://foo.bar"><x:b/></x:a>
     EOX
 

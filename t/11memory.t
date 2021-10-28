@@ -133,7 +133,7 @@ class sax-null {...}
         ok $dtdstr;
 
         for 1..TIMES-THROUGH {
-            my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+            my LibXML::Dtd $dtd .= parse: :string($dtdstr);
         }
         pass 'after dtdstr';
         check-mem();
@@ -148,7 +148,7 @@ class sax-null {...}
     }
 
     subtest 'document validation', {
-        my $dtd = LibXML::Dtd.parse: :string($dtdstr);
+        my LibXML::Dtd $dtd .= parse: :string($dtdstr);
         my $xml;
 
         quietly {
@@ -335,7 +335,7 @@ class sax-null {...}
 
     subtest 'SAX push parser', {
 
-        my $sax-handler = sax-null.new;
+        my sax-null $sax-handler .= new;
         my LibXML $parser .= new: :$sax-handler;
         check-mem();
 
@@ -416,9 +416,7 @@ sub make-doc {
     }
 
     $parent .= parentNode;
-    # warn("parent now: $parent\n");
     $parent .= parentNode;
-    # warn("parent now: $parent\n");
 
     return $document
 }

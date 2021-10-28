@@ -3,11 +3,12 @@ use Test;
 plan 1;
 
 use LibXML;
+use LibXML::Document;
 
 # the following document should not be able to get parsed
 # if the catalog is not available
 
-my $doc = LibXML.new( catalog => "samples/catalog.xml" ).parse: :string(q:to<EOF>);
+my LibXML::Document $doc = LibXML.new( catalog => "samples/catalog.xml" ).parse: :string(q:to<EOF>);
 <!DOCTYPE article
   PUBLIC "-//Perl//XML LibXML V4.1.2//EN"
   "http://axkit.org/xml-libxml/test.dtd">

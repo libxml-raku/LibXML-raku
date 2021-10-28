@@ -13,7 +13,7 @@ use Stacker;
 sub _create_counter_pair(&worker-cb, &predicate-cb = sub { True })
 {
 
-    my $non_global_counter = Counter.new(
+    my Counter $non_global_counter .= new(
         gen-cb => -> &inc-cb {
            sub {
                 return &worker-cb(
@@ -29,7 +29,7 @@ sub _create_counter_pair(&worker-cb, &predicate-cb = sub { True })
         }
     );
 
-    my $global_counter = Counter.new(
+    my Counter $global_counter .= new(
         gen-cb => -> &inc-cb {
             sub {
                 return &worker-cb(
@@ -65,7 +65,7 @@ my ($open1_non_global_counter, $open1_global_counter) =
         },
     );
 
-my $open2_counter = Counter.new(
+my Counter $open2_counter .= new(
     gen-cb => -> &inc-cb {
         -> Str $fn is copy {
             $fn ~~ s/(<- [0..9]>)(\.xml)$/{$0}4{$1}/; # use a different file
@@ -137,7 +137,7 @@ subtest 'single callback', {
         :close( $close1_non_global_counter.cb.() ),
     };
 
-    my $parser = LibXML.new: :$input-callbacks;
+    my LibXML $parser .= new: :$input-callbacks;
     ok defined($parser), 'Parser was initted.';
 
     $parser.expand-xinclude = True;
@@ -162,8 +162,8 @@ subtest 'single callback', {
 subtest 'per parser callbacks', {
     # test per parser callbacks. These tests must not fail!
 
-    my $parser = LibXML.new();
-    my $parser2 = LibXML.new();
+    my LibXML $parser .= new();
+    my LibXML $parser2 .= new();
 
     ok $parser.defined, '$parser was init.';
     ok $parser2.defined, '$parser2 was init.';
@@ -217,13 +217,13 @@ my $str = 'complex.xml'.IO.slurp;
 
 {
     # tests if callbacks are called correctly within DTDs
-    my $parser2 = LibXML.new();
+    my LibXML $parser2 .= new();
     $parser2.expand-xinclude = True;
     my $dom = $parser2.parse: :string($str);
     ok defined($dom), '$dom was init.';
 }
 
-my $input-callbacks = LibXML::InputCallback.new: :callbacks{
+my LibXML::InputCallback $input-callbacks .= new: :callbacks{
         :match($match1_global_counter.cb.() ),
         :read( $read1_global_counter.cb.() ),
         :open( $open1_global_counter.cb.() ),
@@ -231,7 +231,7 @@ my $input-callbacks = LibXML::InputCallback.new: :callbacks{
 };
 
 subtest 'global callbacks', {
-    my $parser = LibXML.new: :$input-callbacks;
+    my LibXML $parser .= new: :$input-callbacks;
     $parser.dtd = True;
     ok defined($parser), '$parser was init';
 
