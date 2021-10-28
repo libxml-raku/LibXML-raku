@@ -12,18 +12,20 @@ Synopsis
 
     use LibXML::Document;
     use LibXML::DocumentFragment;
-    my LibXML::Document $doc .= new;
+    my LibXML::Document $doc .= parse: :string("<doc/>");
 
     my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
     say $frag.Str; # '<foo/><bar/>';
     $frag.parse: :balanced, :string('<baz/>');
     say $frag.Str; # '<foo/><bar/><baz>';
+    $doc.root.addChild($frag);
+    say $doc.root.Str; # <doc><foo/><bar/><baz/></doc>
 
     $frag = $doc.createDocumentFragment;
-    $frag.appendChild: $doc.createElement('foo');
-    $frag.appendChild: $doc.createElement('bar');
+    $frag.addChild: $doc.createElement('foo');
+    $frag.addChild: $doc.createElement('bar');
     $frag.parse: :balanced, :string('<baz/>');
-    say $frag.Str # '<foo/><bar/><baz/>'
+    say $frag.Str; # '<foo/><bar/><baz/>'
 
     $frag = $some-elem.removeChildNodes();
 
@@ -40,7 +42,7 @@ Synopsis
 Description
 -----------
 
-A Document Fragment differs from a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) in that it may contain multiple root nodes. It is commonly used as an intermediate object when assembling or editing documents. All adding, inserting or replacing functions are aware of document fragments.
+A Document Fragment differs from both [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) and [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) in that it may contain multiple root nodes. It is commonly used as an intermediate object when assembling or editing documents. All adding, inserting or replacing functions are aware of document fragments.
 
 It is a helper class as described in the DOM Level 2 Specification.
 
