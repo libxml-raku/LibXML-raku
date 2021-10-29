@@ -226,7 +226,7 @@ multi method parse(
 }
 
 multi method parse(LibXML::Parser:U: *%opt) is hidden-from-backtrace is default {
-     self.new(:lax, |%opt).parse(|%opt);
+     self.new(|%opt).parse(|%opt);
 }
 
 # parse from a Miscellaneous source
@@ -306,9 +306,11 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
 
 method load-catalog(Str:D $_) { config.load-catalog($_) }
 
-submethod TWEAK(Str :$catalog, *%opts) {
+submethod TWEAK(
+    :buf($), :file($), :string($), :fd($), :io($), :location($), # .parse modes
+    :$catalog, *%opts) {
     self.load-catalog($_) with $catalog;
-    $!flags = self.get-flags(|%opts);
+    self.set-options(|%opts);
 }
 
 method FALLBACK($key, |c) is rw {

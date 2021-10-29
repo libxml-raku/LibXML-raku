@@ -16,7 +16,8 @@ method get-flag(UInt $flags, Str:D $k is copy) {
                 unless $_ ~~ Bool;
         }
         else {
-            fail "unknown parser flag: $k";
+            warn "unknown parser flag: $k";
+            Bool;
         }
     }
 }
@@ -39,13 +40,13 @@ multi method set-flag(UInt $flags is rw, Str:D $k is copy, Bool() $v, Bool $lax?
         }
     }
     else {
-        my $k1 = neg($k);
-        with %OPTS{$k1} {
+        my $kn := neg($k);
+        with %OPTS{$kn} {
             # mask - negated
-            $.set-flag($flags, $k1, ! $v);
+            $.set-flag($flags, $kn, ! $v);
         }
         else {
-            fail "unknown parser flag: $k"
+            warn "unknown parser flag: $k"
                 unless $lax;
         }
     }
