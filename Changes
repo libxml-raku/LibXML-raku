@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.6.10  2021-10-30T06:00:36+13:00
     - Fix LibXML::Parser options setup and etc/benchmark.raku core-dump #64
 
 0.6.9  2021-09-20T11:21:08+12:00

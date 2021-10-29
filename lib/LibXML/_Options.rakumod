@@ -103,13 +103,13 @@ multi method option(Str:D $key, Bool() $val) {
     $.set-option($key, $val);
 }
 
-method options {
-    my %opts;
-    with self {
-        for %OPTS.keys.sort -> $k {
-            %opts{$k} = $_
-                with .get-option($k);
+method options(LibXML::_Options:D) {
+    my % = %OPTS.keys.sort.map: -> $k {
+        with .get-option($k) {
+            $k => $_;
+        }
+        else {
+            Empty;
         }
     }
-    %opts;
 }
