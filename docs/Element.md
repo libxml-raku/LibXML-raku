@@ -66,7 +66,7 @@ Synopsis
     say $_ for $elem.attributes.keys;   # att-1 .. att-n
     say $_ for $elem.childNodes.keys;   # 0, 1, ...
 
-    # -- Construction -- #
+    # -- Construction/Deconstruction -- #
     use LibXML::Item :&ast-to-xml;
     $elem = ast-to-xml(
         'Test' => [
@@ -84,6 +84,10 @@ Synopsis
     # <Test xmlns:mam="urn:mammals" foo="bar">
     #   <!--demo--><baz/><![CDATA[a&b]]>Some text.
     # </Test>
+    dd $elem.ast;
+    # :Test(["xmlns:mam" => "urn:mammals", :foo("bar"),
+    # "\n  ", "#comment" => "demo", :baz([]),
+    # "#cdata" => "a\&b", "Some text.", "\n"])
 
 The class inherits from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here. 
 
