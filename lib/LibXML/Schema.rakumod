@@ -1,5 +1,8 @@
+use LibXML::_Validator;
+
 #| XML Schema Validation
-unit class LibXML::Schema;
+unit class LibXML::Schema
+    does LibXML::_Validator;
 
 =begin pod
 
@@ -180,8 +183,8 @@ submethod DESTROY {
 }
 
 method !valid-ctx($schema:) { ValidContext.new: :$schema }
-method validate(LibXML::Node:D $node) is hidden-from-backtrace {
-    self!valid-ctx.validate($node);
+method validate(LibXML::Node:D $node, Bool :$check) is hidden-from-backtrace {
+    self!valid-ctx.validate($node, :$check);
 }
 =begin pod
     =head3 method validate

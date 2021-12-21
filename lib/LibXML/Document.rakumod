@@ -24,6 +24,7 @@ use LibXML::Raw;
 use LibXML::PI;
 use LibXML::Text;
 use LibXML::Types :QName, :NCName, :NameVal;
+use LibXML::_Validator;
 use Method::Also;
 use NativeCall;
 
@@ -482,6 +483,8 @@ method is-valid(|c --> Bool) { $.validate(|c, :check); }
 =head3 is-valid
 =begin code :lang<raku>
 multi method is-valid(LibXML::Dtd $dtd? --> Bool)
+multi method is-valid(LibXML::Schema $schema? --> Bool)
+multi method is-valid(LibXML::RelaxNG $rng? --> Bool)
 multi method is-valid(LibXML::Element $elem --> Bool)
 multi method is-valid(LibXML::Element $elem, LibXML::Attr $attr)
 =end code
@@ -493,7 +496,7 @@ Optionally accepts an element to check. The element may be at any level in the d
 You may also pass in a L<LibXML::Dtd> object, to validate the document against an external DTD:
 
     =begin code :lang<raku>
-    unless $doc.is-valid(:$dtd) {
+    unless $doc.is-valid($dtd) {
         warn("document is not valid!");
     }
     =end code
@@ -509,6 +512,8 @@ method valid is DEPRECATED<was-valid> { $.was-valid }
 =head3 method validate
 =begin code :lang<raku>
 multi method validate(LibXML::Dtd $dtd?)
+multi method validate(LibXML::Schema $schema)
+multi method validate(LibXML::RexlaxNG $rng)
 multi method validate(LibXML::Element $elem)
 multi method validate(LibXML::Element $elem, LibXML::Attr $attr)
 =end code
@@ -516,9 +521,8 @@ multi method validate($doc: Bool :$check --> Bool) is hidden-from-backtrace {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;
     $valid-ctx.validate($doc, :$check);
 }
-multi method validate($doc: LibXML::Dtd $dtd, Bool :$check --> Bool) is hidden-from-backtrace {
-    my LibXML::Dtd::ValidContext $valid-ctx .= new;
-    $valid-ctx.validate($doc, :$dtd, :$check);
+multi method validate($doc: LibXML::_Validator $validator, Bool :$check --> Bool) is hidden-from-backtrace {
+    $validator.validate($doc, :$check);
 }
 multi method validate($doc: LibXML::Element:D $elem, LibXML::Attr $attr?, Bool :$check --> Bool) is hidden-from-backtrace {
     my LibXML::Dtd::ValidContext $valid-ctx .= new;

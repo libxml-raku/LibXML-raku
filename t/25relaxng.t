@@ -49,14 +49,15 @@ subtest 'validate a document', {
     my LibXML::RelaxNG $rngschema .= new( location => $file );
 
     is-deeply $rngschema.is-valid( $doc ), True, 'is-valid on valid doc';
-    my $valid = 0;
-    lives-ok { $valid = $rngschema.validate( $doc ); }, 'validate valid document';
-    is $valid, 0;
+    my $stat = 0;
+    lives-ok { $stat = $rngschema.validate( $doc ); }, 'validate valid document';
+    is $stat, 0;
+    ok $doc.is-valid($rngschema);
 
-    $doc       = $xmlparser.parse: :file( $invalidfile );
-    $valid     = 0;
-    dies-ok { $valid = $rngschema.validate( $doc ); }, 'validate invalid document';
-     is-deeply $rngschema.is-valid( $doc ), False, 'is-valid on invalid doc';
+    $doc  = $xmlparser.parse: :file( $invalidfile );
+    dies-ok { $rngschema.validate( $doc ); }, 'validate invalid document';
+    is-deeply $rngschema.is-valid( $doc ), False, 'is-valid on invalid doc';
+    nok $doc.is-valid($rngschema);
 }
 
 subtest 're-validate a modified document', {

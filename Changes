@@ -1,4 +1,5 @@
 {{$NEXT}}
+    - Add LibXML::_Validator role. Performed by LibXML::{Dtd|Schema|RelaxNG}
 
 0.6.10  2021-10-30T06:00:36+13:00
     - Fix LibXML::Parser options setup and etc/benchmark.raku core-dump #64

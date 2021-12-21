@@ -40,13 +40,14 @@ subtest 'validate a document', {
     my LibXML::Schema $schema .= new( location => $file );
 
     is-deeply $schema.is-valid( $doc ), True, 'is-valid on valid doc';
-    my $valid = $schema.validate( $doc );
-    is( $valid, 0, 'validate() returns 0 to indicate validity of valid file.' );
+    my $stat = $schema.validate( $doc );
+    is $stat, 0, 'validate() returns 0 to indicate validity of valid file.';
+    ok $doc.is-valid($schema);
 
     $doc       = $xmlparser.parse: :file( $invalidfile );
-    $valid     = 0;
     is-deeply $schema.is-valid( $doc ), False, 'is-valid on invalid doc';
-    dies-ok { $valid = $schema.validate( $doc ); }, 'Invalid file throws an excpetion.';
+    dies-ok { $schema.validate( $doc ); }, 'Invalid file throws an excpetion.';
+    nok $doc.is-valid($schema);
 }
 
 subtest 'validate a node', {

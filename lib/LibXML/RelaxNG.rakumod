@@ -1,7 +1,8 @@
-use v6;
+use LibXML::_Validator;
 
 #| RelaxNG Schema Validation
-unit class LibXML::RelaxNG;
+unit class LibXML::RelaxNG
+    does LibXML::_Validator;
 
     =head2 Synopsis
 
@@ -161,8 +162,8 @@ submethod TWEAK(|c) {
 =end pod
 
 method !valid-ctx($schema:) { ValidContext.new: :$schema }
-method validate(LibXML::Document:D $doc) is hidden-from-backtrace {
-    self!valid-ctx.validate($doc);
+method validate(LibXML::Document:D $doc, Bool :$check) is hidden-from-backtrace {
+    self!valid-ctx.validate($doc, :$check);
 }
 =begin pod
     =head3 method validate

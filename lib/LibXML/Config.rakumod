@@ -182,6 +182,7 @@ our $queryHandler = class NoQueryHandler {
 }
 
 method lock handles<protect> {
+    # global lock
     BEGIN Lock.new;
 }
 
