@@ -236,7 +236,7 @@ method nodeValue is rw is also<value> returns Str {
     text value of an element use textContent() instead!
 
 #| this function returns the content of all text nodes in the descendants of the given node as specified in DOM.
-method textContent is also<text to-literal> returns Str {
+method textContent is also<text to-literal contents> returns Str {
     self.string-value;
 }
 

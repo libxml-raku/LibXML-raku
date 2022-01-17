@@ -338,6 +338,8 @@ Write to a name file (equivalent to $.write: :$file)
 
 ```raku
 multi method is-valid(LibXML::Dtd $dtd? --> Bool)
+multi method is-valid(LibXML::Schema $schema? --> Bool)
+multi method is-valid(LibXML::RelaxNG $rng? --> Bool)
 multi method is-valid(LibXML::Element $elem --> Bool)
 multi method is-valid(LibXML::Element $elem, LibXML::Attr $attr)
 ```
@@ -349,7 +351,7 @@ Optionally accepts an element to check. The element may be at any level in the d
 You may also pass in a [LibXML::Dtd](https://libxml-raku.github.io/LibXML-raku/Dtd) object, to validate the document against an external DTD:
 
 ```raku
-unless $doc.is-valid(:$dtd) {
+unless $doc.is-valid($dtd) {
     warn("document is not valid!");
 }
 ```
@@ -366,6 +368,8 @@ Whether the document was valid when it was parsed
 
 ```raku
 multi method validate(LibXML::Dtd $dtd?)
+multi method validate(LibXML::Schema $schema)
+multi method validate(LibXML::RexlaxNG $rng)
 multi method validate(LibXML::Element $elem)
 multi method validate(LibXML::Element $elem, LibXML::Attr $attr)
 ```

@@ -19,7 +19,7 @@ coverage :
 resources/libraries/%LIB-NAME% : $(SRC)/dom%O% $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O% $(SRC)/xml6_notation%O%  $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O% $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O% $(SRC)/xml6_error%O%
 	%LD% %LDSHARED% %LDFLAGS% %LDOUT%resources/libraries/%LIB-NAME% \
         $(SRC)/dom%O%  $(SRC)/domXPath%O% $(SRC)/xml6_parser_ctx%O% $(SRC)/xml6_config%O% $(SRC)/xml6_doc%O% $(SRC)/xml6_entity%O% $(SRC)/xml6_gbl%O% $(SRC)/xml6_hash%O% $(SRC)/xml6_input%O% $(SRC)/xml6_node%O%  $(SRC)/xml6_notation%O% $(SRC)/xml6_ns%O% $(SRC)/xml6_sax%O% $(SRC)/xml6_ref%O%  $(SRC)/xml6_reader%O% $(SRC)/xml6_xpath%O%  $(SRC)/xml6_error%O% \
-        %LIB-LDFLAGS% $(LD_DBG) 
+        %LIBS% $(LD_DBG)
 
 $(SRC)/dom%O% : $(SRC)/dom.c $(SRC)/dom.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/dom%O% $(SRC)/dom.c %LIB-CFLAGS% $(DBG)
