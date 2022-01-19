@@ -829,12 +829,12 @@ method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #| This method sets a DTD node as an external subset of the given document.
 method setExternalSubset(LibXML::Dtd $dtd is copy, Bool :$validate --> LibXML::Dtd) {
-    with $dtd.raw.doc {
-        $dtd .= clone unless .isSameNode($.raw);
+    with $dtd.raw.doc -> $doc {
+        $dtd .= clone unless $doc.isSameNode($.raw);
     }
 
-    if $validate && $dtd.defined {
-        $dtd.validate(self);
+    if $validate {
+        .validate(self) with $dtd;
     }
     $dtd.keep: self.raw.setExternalSubset: $dtd.raw;
 }

@@ -180,10 +180,9 @@ multi submethod TWEAK(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
     my UInt:D $fd = $io.native-descriptor;
     self.TWEAK( :$fd, :$URI, |c );
 }
-multi submethod TWEAK(Str:D :$file!, Str :$URI = $file, |c) {
-    my IO::Handle:D $io = $file.IO.open(:r);
-    my UInt:D $fd = $io.native-descriptor;
-    self.TWEAK: :$fd, :$URI, |c;
+multi submethod TWEAK(Str:D :$file!, |c) {
+    $!raw .= new: :$file;
+    self!setup;
 }
 multi submethod TWEAK(Str:D :location($file)!, |c) {
     self.TWEAK: :$file, |c;

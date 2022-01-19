@@ -89,7 +89,7 @@ subtest 'doc with internal subset', {
     is $entity-ref.firstChild.nodeValue, " test ";
     is $entity-ref.firstChild.entityType, +XML_INTERNAL_GENERAL_ENTITY;
     isa-ok $entity-ref[0], 'LibXML::Dtd::Entity';
-    isa-ok $entity-ref[0].parent, 'LibXML::Dtd';
+    isa-ok $entity-ref[0].parent, LibXML::Dtd;
 
     my $edcl = $entity-ref.firstChild;
     is $edcl.Str.chomp, '<!ENTITY foo " test ">';

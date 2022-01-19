@@ -41,6 +41,10 @@ subtest 'latin-1', {
 
 }
 
+if $*DISTRO.is-win {
+    skip-rest "don't have proper encoding support on Windows, yet";
+    exit 0;
+}
 
 subtest 'japanese encoding (EUC-JP)', {
     my $tstr_euc_jp     = '生麦生米生卵';

@@ -82,7 +82,8 @@
     "LibXML::_Validator": "lib/LibXML/_Validator.rakumod"
   },
   "resources": [
-    "libraries/xml6"
+    "libraries/xml6",
+    "libraries/libxml2"
   ],
   "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
   "support": {

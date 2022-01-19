@@ -10,10 +10,13 @@ use NativeCall;
 
 # sanity check our libraries
 lives-ok({ cglobal($XML2, "xmlParserVersion", Pointer) }, 'libxml2 sanity')
-    or die "unable to access the libxml2 library; is it installed?";
+   or note "unable to access the libxml2 library; is it installed?";
+
+sub xmlInitParser is native($XML2) {*}
+lives-ok {xmlInitParser()}, 'can call xmlInitParser()';
 
 lives-ok({ cglobal($BIND-XML2, "xml6_config_version", Pointer) }, 'binding lib sanity')
-    or die "unable to access 'xml6' binding library; has it been built? (e.g. 'zef build .)";
+    or note "unable to access 'xml6' binding library; has it been built? (e.g. 'zef build .)";
 
 for <xml6_doc_set_encoding xml6_gbl_set_tag_expansion> {
     ok(try {cglobal($BIND-XML2, $_, Pointer)}, "$BIND-XML2 $_ symbol")

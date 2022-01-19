@@ -51,7 +51,7 @@ class xmlTextReader is repr('CPointer') is export {
     method moveToNextAttribute(--> int32) is native($XML2) is symbol('xmlTextReaderMoveToNextAttribute') {*}
     method name(--> xmlCharP) is native($XML2) is symbol('xmlTextReaderConstName') {*}
     method namespaceURI(--> xmlCharP) is native($XML2) is symbol('xmlTextReaderConstNamespaceUri') {*}
-    method next(--> int32) is native($BIND-XML2) is symbol('xmlTextReaderNext') {*}
+    method next(--> int32) is native($XML2) is symbol('xmlTextReaderNext') {*}
     method nextElement(Str, Str --> int32) is native($BIND-XML2) is symbol('xml6_reader_next_element') {*}
     method nextPatternMatch(xmlPattern --> int32) is native($BIND-XML2) is symbol('xml6_reader_next_pattern_match') {*}
     method nextSibling(--> int32) is native($BIND-XML2) is symbol('xml6_reader_next_sibling') {*}
@@ -83,6 +83,9 @@ class xmlTextReader is repr('CPointer') is export {
     }
     multi method new(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, UInt :$flags = 0) {
         NewFd( $fd, $URI, $enc, $flags);
+    }
+    multi method new(Str:D :$file!) {
+        NewFile( $file);
     }
     multi method new(xmlDoc:D :$doc!) {
         NewDoc( $doc);

@@ -242,10 +242,12 @@ subtest 'check parsing', {
 
     $p .= new();
     # parse a big file using the same parser
-    blat {
-        my IO::Handle $io = $bigfile.IO.open(:r);
-        $p.parse: :$io;
-        $io.close;
+    unless $*DISTRO.is-win {
+        blat {
+            my IO::Handle $io = $bigfile.IO.open(:r);
+            $p.parse: :$io;
+            $io.close;
+        }
     }
 
     pass('threads.join after opening bigfile.');

@@ -21,11 +21,13 @@ my $file = "test/textReader/countries.xml";
 subtest 'basic', {
     my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
 
+    todo "expand-entities ignored under Windows?" if $*DISTRO.is-win;
     is-deeply($reader.getParserProp('expand-entities'), True, "getParserProp");
     lives-ok({$reader.setParserProp(:!expand-entities)}, "setParserProp");
     is-deeply($reader.getParserProp('expand-entities'), False, "getParserProp");
 
     is($reader.read, True, "read");
+    todo "byteConsumed vary on Windows" if $*DISTRO.is-win;
     is($reader.byteConsumed, 488, "byteConsumed");
     is($reader.attributeCount, 0, "attributeCount");
     is($reader.baseURI, $file, "baseURI");
@@ -85,11 +87,15 @@ subtest 'basic', {
     ok($reader.close, "close");
 }
 
-subtest 'FD interface', {
-    my IO::Handle:D $io = $file.IO.open: :r;
-    my UInt:D $fd = $io.native-descriptor;
-    for 1 .. 2 {
-        for :$fd, :$io -> Pair:D $how {
+if $*DISTRO.is-win {
+    skip 'todo - FD interface';
+}
+else {
+    subtest 'FD interface', {
+        my IO::Handle:D $io = $file.IO.open: :r;
+        my UInt:D $fd = $io.native-descriptor;
+        for 1 .. 2 {
+            for :$fd, :$io -> Pair:D $how {
             $io.seek(0, SeekFromBeginning );
             my LibXML::Reader $reader .= new(|$how,);
             $reader.read;
@@ -100,9 +106,10 @@ subtest 'FD interface', {
             $reader.read;
             $reader.finish;
             $reader.close;
+            }
         }
+        close $io;
     }
-    close $io;
 }
 
 subtest 'string interface', {
@@ -211,6 +218,7 @@ subtest 'error', {
     'caught the error';
 }
 
+todo "RelaxNG under windows" if $*DISTRO.is-win;
 subtest 'RelaxNG', {
     my $rng = "test/relaxng/demo.rng";
     for $rng, LibXML::RelaxNG.new(location => $rng) -> $RelaxNG {
@@ -231,6 +239,7 @@ subtest 'RelaxNG', {
     }
 }
 
+todo "XMLSchema under windows" if $*DISTRO.is-win;
 subtest 'XMLSchema', {
     if !LibXML.have-schemas {
         skip "https://github.com/shlomif/libxml2-2.9.4-reader-schema-regression", 4;

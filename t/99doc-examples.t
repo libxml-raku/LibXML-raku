@@ -155,10 +155,15 @@ subtest 'LibXML::Document' => {
     $node = $doc.getElementById('x');
     $doc.indexElements();
 
-    $doc = LibXML.createDocument( '1.0', "ISO-8859-15" );
-    is $doc.encoding, 'ISO-8859-15';
-    $doc .= parse(' <x>zzz</x>');
-    is $doc.root.Str, '<x>zzz</x>';
+    if $*DISTRO.is-win {
+        skip 'todo - proper encoding/iconv on Winbdows', 2;
+    }
+    else {
+        $doc = LibXML.createDocument( '1.0', "ISO-8859-15" );
+        is $doc.encoding, 'ISO-8859-15';
+        $doc .= parse(' <x>zzz</x>');
+        is $doc.root.Str, '<x>zzz</x>';
+    }
 };
 
 subtest 'LibXML::DocumentFragment' => {

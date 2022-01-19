@@ -110,10 +110,15 @@ subtest 'document attributes', {
     $doc.baseURI = "localhost/here.xml";
     is $doc.URI, "localhost/here.xml", 'URI is set.';
 
-    my $doc2 = LibXML::Document.createDocument(:version<1.1>, :enc<iso-8859-2>);
-    is $doc2.encoding, "iso-8859-2", 'doc2 encoding was set.';
-    is $doc2.version,  "1.1", 'doc2 version was set.';
-    is $doc2.standalone,  -1, 'doc2 standalone';
+    if $*DISTRO.is-win {
+        skip 'proper encoding support', 3;
+    }
+    else {
+        my $doc2 = LibXML::Document.createDocument(:version<1.1>, :enc<iso-8859-2>);
+        is $doc2.encoding, "iso-8859-2", 'doc2 encoding was set.';
+        is $doc2.version,  "1.1", 'doc2 version was set.';
+        is $doc2.standalone,  -1, 'doc2 standalone';
+    }
 }
 
 subtest 'creating elements', {
@@ -560,6 +565,7 @@ subtest 'compress' => {
     my LibXML::Document:D $doc .= parse: :file( "samples/test.xml" );
     todo '$doc.input-compressed is unreliable in libxml <= v2.09.01'
         if LibXML.version <= v2.09.01;
+    todo "unreliable on Windows" if $*DISTRO.is-win;
     is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';
     if LibXML.have-compression {
         lives-ok { $doc = LibXML.parse: :file<test/compression/test.xml.gz> }, 'load compressed document';

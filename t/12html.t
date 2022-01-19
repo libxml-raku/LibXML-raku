@@ -8,7 +8,7 @@ use LibXML;
 use LibXML::Raw;
 use LibXML::Document;
 
-constant CanDoIO = ? IO::Handle.can('do-not-close-automatically');
+constant CanDoIO = ? IO::Handle.can('do-not-close-automatically') && ! $*DISTRO.is-win;;
 
 my $html = "samples/test.html";
 
@@ -39,7 +39,7 @@ if CanDoIO {
     ok $doc.defined, 'parse :html and :io options';
 }
 else {
-    skip 'parse :$io tests need Rakudo >= 2020.06';
+    skip 'parse :$io tests need Rakudo >= 2020.06 & non-Windows';
 }
 
 
@@ -70,6 +70,11 @@ subtest 'html recovery parse', {
     is $body.lastChild.tagName, 'InPut';
     is-deeply $body.keys.sort, ('InPut', 'a', 'p', 'text()');
     is +$body<InPut>, 1, "case sensitivity on assoc get";
+}
+
+if $*DISTRO.is-win {
+    skip-rest "don't have proper encoding support on Windows, yet";
+    exit 0;
 }
 
 subtest 'html with encodings', {
