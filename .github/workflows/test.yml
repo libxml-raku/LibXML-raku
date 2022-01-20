@@ -25,12 +25,19 @@ jobs:
       - uses: Raku/setup-raku@v1
         with:
           raku-version: ${{ matrix.raku-version }}
-      - if: contains(matrix.os, 'unbuntu')
+      - name: Linux specific setup
+        if: contains(matrix.os, 'unbuntu')
         run: sudo apt-get install -y libxml2-dev
-      - if: contains(matrix.os, 'macOS')
+      - name: macOS specific setup
+        if: contains(matrix.os, 'macOS')
         run: |
             brew update
             brew install libxml2
+      - name: Install Dependencies
+        run: |
+          zef install --deps-only .
+          zef build .
+          zef install --/test App::Prove6
       - name: Run Tests
         run: prove6 -I. t
       - name: Install Module
