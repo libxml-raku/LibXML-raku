@@ -41,7 +41,7 @@ class Build {
         True;
     }
 
-    method build($workdir, :$I='/usr/include/libxml2') {
+    method build($workdir, Str :$I) {
         my $destdir = 'resources/libraries';
         mkdir $destdir;
         make($workdir, "$destdir", :libname<xml6>, :$I);
