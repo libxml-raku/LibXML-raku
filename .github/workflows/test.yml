@@ -25,9 +25,9 @@ jobs:
       - uses: Raku/setup-raku@v1
         with:
           raku-version: ${{ matrix.raku-version }}
-      - if contains(matrix.os, 'unbuntu')
+      - if: contains(matrix.os, 'unbuntu')
         run: sudo apt-get install -y libxml2-dev
-      - if contains(matrix.os, 'macOS')
+      - if: contains(matrix.os, 'macOS')
         run: |
             brew update
             brew install libxml2
