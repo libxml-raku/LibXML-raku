@@ -185,7 +185,7 @@ multi submethod TWEAK(
     RelaxNG :$!RelaxNG, Schema :$!Schema,
     xmlEncodingStr :$!enc, *%opts) {
     self!init-flags(%opts);
-    $!raw .= new: :$file, :$!enc, :$flags;
+    $!raw .= new: :$file, :$!enc, :$!flags;
     self!setup;
 }
 multi submethod TWEAK(Str:D :location($file)!, |c) {
