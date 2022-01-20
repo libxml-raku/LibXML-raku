@@ -13,21 +13,21 @@ class Build {
         my %vars = LibraryMake::get-vars($destfolder);
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
         if Rakudo::Internals.IS-WIN {
-            if $I {
-                %vars<LIB-CFLAGS> = "-I$I";
-                %vars<LIBS> = '-lxml2'; 
-                %vars<MAKE> = 'make';
-                %vars<CC> = 'gcc';
-                %vars<CCFLAGS> = '-fPIC -O3 -DNDEBUG --std=gnu99 -Wextra -Wall';
-                %vars<LD> = 'gcc';
-                %vars<LDSHARED> = '-shared';
-                %vars<LDFLAGS> = "-fPIC -O3 -Lresources/libraries";
-                %vars<CCOUT> = '-o ';
-                %vars<LDOUT> = '-o ';
-            }
-            else {
+            unless $I {
                 note "Using prebuilt DLLs on Windows";
+                return True;
             }
+
+            %vars<LIB-CFLAGS> = "-I$I";
+            %vars<LIBS> = '-lxml2'; 
+            %vars<MAKE> = 'make';
+            %vars<CC> = 'gcc';
+            %vars<CCFLAGS> = '-fPIC -O3 -DNDEBUG --std=gnu99 -Wextra -Wall';
+            %vars<LD> = 'gcc';
+            %vars<LDSHARED> = '-shared';
+            %vars<LDFLAGS> = "-fPIC -O3 -Lresources/libraries";
+            %vars<CCOUT> = '-o ';
+            %vars<LDOUT> = '-o ';
         }
         else {
             %vars<LIBS> = chomp(qx{xml2-config --libs 2>/dev/null} || '-lxml2');
@@ -38,6 +38,7 @@ class Build {
         mkdir($destfolder);
         LibraryMake::process-makefile($folder, %vars);
         shell(%vars<MAKE>);
+        True;
     }
 
     method build($workdir, :$I='/usr/include/libxml2') {
