@@ -12,7 +12,7 @@ sub xml6_config_have_libxml_reader(--> int32) is native($BIND-XML2) is export {*
 class xmlTextReader is repr('CPointer') is export {
 
     our sub NewBuf(xmlParserInputBuffer, Str $uri --> xmlTextReader) is native($XML2) is symbol('xmlNewTextReader') {*}
-    our sub NewFile(Str --> xmlTextReader) is native($XML2) is symbol('xmlNewTextReaderFilename') {*}
+    our sub NewFile(Str, Str, int32 --> xmlTextReader) is native($XML2) is symbol('xmlNewTextReaderForFile') {*}
     our sub NewMemory(Blob, int32, Str, Str, int32 --> xmlTextReader) is native($XML2) is symbol('xmlReaderForMemory') {*}
     our sub NewDoc(xmlDoc --> xmlTextReader) is native($XML2) is symbol('xmlReaderWalker') {*}
     our sub NewFd(int32, Str, Str, int32 --> xmlTextReader) is native($XML2) is symbol('xmlReaderForFd') {*}
@@ -84,8 +84,8 @@ class xmlTextReader is repr('CPointer') is export {
     multi method new(UInt:D :$fd!, Str :$URI, xmlEncodingStr :$enc, UInt :$flags = 0) {
         NewFd( $fd, $URI, $enc, $flags);
     }
-    multi method new(Str:D :$file!) {
-        NewFile( $file);
+    multi method new(Str:D :$file!, xmlEncodingStr :$enc, UInt :$flags = 0) {
+        NewFile( $file, $enc, $flags);
     }
     multi method new(xmlDoc:D :$doc!) {
         NewDoc( $doc);

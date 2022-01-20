@@ -21,7 +21,6 @@ my $file = "test/textReader/countries.xml";
 subtest 'basic', {
     my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
 
-    todo "expand-entities ignored under Windows?" if $*DISTRO.is-win;
     is-deeply($reader.getParserProp('expand-entities'), True, "getParserProp");
     lives-ok({$reader.setParserProp(:!expand-entities)}, "setParserProp");
     is-deeply($reader.getParserProp('expand-entities'), False, "getParserProp");
@@ -218,7 +217,6 @@ subtest 'error', {
     'caught the error';
 }
 
-todo "RelaxNG under windows" if $*DISTRO.is-win;
 subtest 'RelaxNG', {
     my $rng = "test/relaxng/demo.rng";
     for $rng, LibXML::RelaxNG.new(location => $rng) -> $RelaxNG {
@@ -239,7 +237,6 @@ subtest 'RelaxNG', {
     }
 }
 
-todo "XMLSchema under windows" if $*DISTRO.is-win;
 subtest 'XMLSchema', {
     if !LibXML.have-schemas {
         skip "https://github.com/shlomif/libxml2-2.9.4-reader-schema-regression", 4;

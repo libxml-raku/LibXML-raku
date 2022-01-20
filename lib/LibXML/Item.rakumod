@@ -176,8 +176,6 @@ multi sub ast-to-xml(*%p where .elems == 1) {
 
 =end pod
 
-method unbox { $.raw }
-
 # api/native wrapper for simple DOM methods
 multi trait_mod:<is>(
     Method $m where {.yada && .count <= 1 }, #Rakudo 2019.03+: && .returns ~~ LibXML::Item},
