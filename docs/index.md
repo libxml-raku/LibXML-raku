@@ -127,7 +127,7 @@ Other
 PREREQUISITES
 =============
 
-This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
+This module may requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
 Debian/Ubuntu Linux
 -------------------
@@ -136,6 +136,8 @@ Debian/Ubuntu Linux
 sudo apt-get install libxml2-dev
 ```
 
+Additional packages (such as build-essential) may be required to enable make, C compilation and linking.
+
 Mac OS X
 --------
 
@@ -143,6 +145,13 @@ Mac OS X
 brew update
 brew install libxml2
 ```
+
+The Xcode package also needs to be installed to enable compilation.
+
+Windows
+-------
+
+This module handles installation of LibXML, and binding code (xml6) so it should be ready to go without additional setup.
 
 ACKNOWLEDGEMENTS
 ================

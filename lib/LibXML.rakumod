@@ -148,18 +148,28 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 
 =head1 PREREQUISITES
 
-This module requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
+This module may requires the libxml2 library to be installed. Please follow the instructions below based on your platform:
 
 =head2 Debian/Ubuntu Linux
     =begin code :lang<shell>
     sudo apt-get install libxml2-dev
     =end code
 
+Additional packages (such as build-essential) may be required
+to enable make, C compilation and linking.
+
 =head2 Mac OS X
     =begin code :lang<shell>
     brew update
     brew install libxml2
     =end code
+
+The Xcode package also needs to be installed to enable compilation.
+
+=head2 Windows
+
+This module handles installation of LibXML, and binding code
+(xml6) so it should be ready to go without additional setup.
 
 =head1 ACKNOWLEDGEMENTS
 

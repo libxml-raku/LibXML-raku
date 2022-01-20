@@ -1,0 +1,32 @@
+Windows Support
+----------------
+
+There isn't an automatic procedure yet for building the
+LibXML library (libxml2.dll) or bindings (xml6.dll).
+
+So this needs to be done by hand on occasions to upgrade
+the library and/or bindings.
+
+Furthermore, we're currently building 32bit and without iconv,
+which restricts us to a small number of XML encoding schemes.
+
+Building on Windows
+-------------------
+Ensure that the mingw make system and compilers are installed:
+
+    choco install make mingw
+
+Here's how I built it:
+
+    cd LibXML-raku
+    cd ..
+    git clone https:://github.com/GNOME/libxml2; # mirror
+    cd libxml2\win32\
+    cscript.exe configure.gs threads=no iconv=no
+    make -f Makefile.mingw
+    cd ..\..\LibXML-raku
+    cp ..\libxml2\win32\bin.mingw32\libxml2.dll resources\libraries
+    rm resources\libraries\xml6.dll
+    raku Build.pm6 -I ..\libxml2\include\
+    git add resources\libraries\xml6.dll resources\libraries\libxml2.dll
+    git commit -m"..."
