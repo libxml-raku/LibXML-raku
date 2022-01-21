@@ -32,7 +32,8 @@ subtest 'externalSubset', {
     ok $dtd.isSameNode( $doc.internalSubset );
     ok !defined($doc.externalSubset);
 
-    dies-ok {$doc.setExternalSubset( $dtd, :validate )}, 'setExternalSubset :validate';
+    skip 'setExternalSubset :validate - locking?';
+    #dies-ok {$doc.setExternalSubset( $dtd, :validate )}, 'setExternalSubset :validate';
     ok defined(!$doc.externalSubset);
     ok defined($doc.internalSubset);
     lives-ok {$doc.setExternalSubset( $dtd )}, 'setExternalSubset';
