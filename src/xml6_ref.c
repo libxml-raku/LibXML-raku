@@ -40,24 +40,15 @@ _ref_new(void) {
 }
 
 DLLEXPORT void
-xml6_ref_init(void) {
-    if (_mutex == NULL) {
-        _mutex = xmlNewMutex();
-    }
-}
-
-DLLEXPORT void
 xml6_ref_add(void** self_ptr) {
     xml6RefPtr self;
     int init = 0;
 
+    if (_mutex == NULL) {
+        _mutex = xmlNewMutex();
+    }
+
     if ( *self_ptr == NULL ) {
-
-        if (_mutex == NULL) {
-            xml6_warn("xml6_ref_init() wasn't called");
-            xml6_ref_init();
-        }
-
         xmlMutexLock(_mutex);
         if ( *self_ptr == NULL ) {
             self = _ref_new();

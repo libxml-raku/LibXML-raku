@@ -6,15 +6,11 @@
 #include <string.h>
 
 static xmlExternalEntityLoader default_ext_entity_loader = NULL;
-DLLEXPORT void xml6_gbl_init_external_entity_loader(void) {
-    default_ext_entity_loader = xmlGetExternalEntityLoader();
-}
 
 DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
     int update = 0;
     if (default_ext_entity_loader == NULL) {
-        xml6_warn("xml6_gbl_init_external_entity_loader() has not been called");
-        xml6_gbl_init_external_entity_loader();
+        default_ext_entity_loader = xmlGetExternalEntityLoader();
     }
 
     if (net) {
@@ -42,9 +38,9 @@ union MsgArg {
     void*  p;
 };
 
-DLLEXPORT void xml6_gbl_message_func(
-    void *ctx,         // actually our callback...
-    char *fmt, ...) {  // incoming vararg message
+static void _gbl_message_func(
+    void* ctx,         // actually our callback...
+    char* fmt, ...) {  // incoming vararg message
     xml6_gbl_MessageCallback callback = (xml6_gbl_MessageCallback) ctx;
     char* fmtp = fmt;
     int argc = 0;
@@ -99,6 +95,15 @@ DLLEXPORT void xml6_gbl_message_func(
 
     // invoke the error handling callback; pass arguments
     (*callback)(fmt, argt, argv);
+}
+
+DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callback) {
+    /* we actually set the callback as the context and
+       xml6_gbl_message_func() as the handler
+    */
+    void* ctx = (void*) callback;
+    xmlGenericErrorFunc handler = (xmlGenericErrorFunc) _gbl_message_func;
+    xmlSetGenericErrorFunc(ctx, handler);
 }
 
 struct _xml6HandlerSave {

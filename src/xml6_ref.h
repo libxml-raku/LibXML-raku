@@ -8,7 +8,6 @@
 #define XML6_FAIL(self, msg) { self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return NULL;}
 #define XML6_FAIL_i(self, msg) {self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return -1;}
 
-DLLEXPORT void xml6_ref_init(void);
 DLLEXPORT void xml6_ref_add(void**);
 DLLEXPORT int xml6_ref_remove(void**, const char*, void*);
 DLLEXPORT void xml6_ref_set_fail(void*, xmlChar*);
