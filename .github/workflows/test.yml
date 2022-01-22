@@ -43,4 +43,5 @@ jobs:
         if: ${{ !(contains(matrix.os, 'windows') && !contains(matrix.raku, 'latest')) }}
         run: prove6 -I. t
       - name: Install Module
+        if: ${{ !(contains(matrix.os, 'windows') && !contains(matrix.raku, 'latest')) }}
         run: zef install --verbose .
