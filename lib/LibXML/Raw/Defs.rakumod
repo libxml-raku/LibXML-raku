@@ -1,6 +1,6 @@
 unit module LibXML::Raw::Defs;
 
-our $XML2 is export(:XML2) =  Rakudo::Internals.IS-WIN ?? %?RESOURCES<libraries/libxml2> !! 'xml2';
+our $XML2 is export(:XML2) = Rakudo::Internals.IS-WIN ?? %?RESOURCES<libraries/libxml2> !! 'xml2';
 our $BIND-XML2 is export(:BIND-XML2) = %?RESOURCES<libraries/xml6>;
 our $CLIB is export(:CLIB) = Rakudo::Internals.IS-WIN ?? 'msvcrt' !! Str;
 
