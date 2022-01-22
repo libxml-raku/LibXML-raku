@@ -42,4 +42,4 @@ jobs:
       - name: Run Tests
         run: prove6 -I. t
       - name: Install Module
-        run: zef install --verbose .
+        run: zef --verbose install .
