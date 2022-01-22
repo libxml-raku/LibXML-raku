@@ -18,7 +18,7 @@ jobs:
           - windows-latest
         raku-version:
           - 'latest'
-          - '2020.05.1'
+          - '2021.08'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -40,8 +40,6 @@ jobs:
           zef build .
           zef install --/test App::Prove6
       - name: Run Tests
-        if: ${{ !(contains(matrix.os, 'windows') && !contains(matrix.raku, 'latest')) }}
         run: prove6 -I. t
       - name: Install Module
-        if: ${{ !(contains(matrix.os, 'windows') && !contains(matrix.raku, 'latest')) }}
         run: zef install --verbose .
