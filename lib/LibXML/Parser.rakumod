@@ -80,7 +80,9 @@ method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
 }
 
 method processXIncludes (
-    LibXML::Document $_, *%opts --> Int) is also<process-xincludes> {
+    LibXML::Document $_,
+    *%opts --> Int
+) is also<process-xincludes> {
     my xmlDoc $doc = .raw;
     my $ctx = self!make-handler(:raw(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);
@@ -296,7 +298,7 @@ method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     }
 }
 
-# cheat's implementation of Perl's .generate() function
+# cheat's implementation of Perl's generate() function
 # re-serializes, rather than rerunning SAX actions on the DOM
 method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     # document DOM with the SAX handler

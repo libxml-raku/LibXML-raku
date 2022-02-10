@@ -21,7 +21,7 @@ unit class LibXML::Raw;
 
 =head2 Description
 
-The LibXML::Raw module contains class definitions for native and bindings to the LibXML2 library.
+The LibXML::Raw module contains class definitions for native bindings to the LibXML2 library.
 
 =head3 Low level native access
 
@@ -75,7 +75,7 @@ use Method::Also;
 
 our @ClassMap;
 
-use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :$CLIB, :Opaque, :xmlCharP;
+use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
 
 sub xmlParserVersion is export { cglobal($XML2, 'xmlParserVersion', Str); }
 
@@ -788,6 +788,12 @@ class xmlXPathParserContext is export {
     method valuePush(xmlXPathObject --> int32) is native($XML2) {*}
 }
 
+module CLib {
+    use LibXML::Raw::Defs :$CLIB;
+    our sub memcpy(Blob, Pointer, size_t) is native($CLIB) {*}
+    our sub free(Pointer) is native($CLIB) {*}
+}
+
 class anyNode is export does LibXML::Raw::DOM::Node {
     has Pointer $._private; # application data
     has int32       $.type; # type number, must be second !
@@ -861,26 +867,18 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method xml6_node_to_str(int32 $opts --> Str) is native($BIND-XML2) {*}
     method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> Str) is native($BIND-XML2) {*}
 
-    method Str(UInt :$options = 0 --> Str) is default {
-        with self {
-            .xml6_node_to_str($options);
-        }
-        else {
-            Str
-        }
+    method Str(anyNode:D: UInt :$options = 0 --> Str) is default {
+        self.xml6_node_to_str($options) // Str;
     }
 
-    method Blob(UInt :$options = 0, xmlEncodingStr :$enc --> Blob) {
-        method xml6_node_to_buf(int32 $opts, size_t $len is rw, Str $enc  --> Pointer[uint8]) is native($BIND-XML2) {*}
-        sub memcpy(Blob, Pointer, size_t) is native($CLIB) {*}
-        sub free(Pointer) is native($CLIB) {*}
+    method xml6_node_to_buf(int32 $opts, size_t $len is rw, Str $enc  --> Pointer[uint8]) is native($BIND-XML2) {*}
+
+    method Blob(anyNode:D: int32 :$options = 0, xmlEncodingStr :$enc --> Blob) {
         my buf8 $buf;
-        with self {
-            with .xml6_node_to_buf($options, my size_t $len, $enc) {
-                $buf .= allocate($len);
-                memcpy($buf, $_, $len);
-                free($_);
-            }
+        with self.xml6_node_to_buf($options, my size_t $len, $enc) {
+            $buf .= allocate($len);
+            CLib::memcpy($buf, $_, $len);
+            CLib::free($_);
         }
         $buf;
     }
@@ -1143,8 +1141,6 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
 class htmlDoc is xmlDoc is repr('CStruct') is export {
     BEGIN @ClassMap[XML_HTML_DOCUMENT_NODE] = $?CLASS;
     method DumpFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
-    sub memcpy(Blob, Pointer, size_t) is native($CLIB) {*}
-    sub free(Pointer) is native($CLIB) {*}
     our sub New(xmlCharP $URI, xmlCharP $external-id --> htmlDoc) is native($XML2) is symbol('htmlNewDoc') {*}
     method new(Str :$URI, Str :$external-id) {
         New($URI, $external-id);
@@ -1158,8 +1154,8 @@ class htmlDoc is xmlDoc is repr('CStruct') is export {
 
         if +$out && $len {
             my buf8 $buf .= allocate($len);
-            memcpy($buf, $out, $len);
-            free($out);
+            CLib::memcpy($buf, $out, $len);
+            CLib::free($out);
             $buf.decode; # encoding?
         }
         else {
