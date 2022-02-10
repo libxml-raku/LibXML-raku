@@ -41,5 +41,3 @@ jobs:
           zef install --/test App::Prove6
       - name: Run Tests
         run: prove6 -I. t
-      - name: Install Module
-        run: zef --verbose install .
