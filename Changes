@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.6.12  2022-03-31T17:06:34+13:00
+    - Add LibXML::Raw::CLib module. To encapsulate existing use of memcpy
+      and free
+    - move release repository from CPAN to zef ecosystem
+
 0.6.11  2022-01-22T16:18:22+13:00
     - Add LibXML::_Validator role. Performed by LibXML::{Dtd|Schema|RelaxNG}
     - Add Windows support. This module pre-builds the binding library

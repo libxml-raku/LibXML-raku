@@ -25,7 +25,7 @@ Synopsis
 Description
 -----------
 
-The LibXML::Raw module contains class definitions for native and bindings to the LibXML2 library.
+The LibXML::Raw module contains class definitions for native bindings to the LibXML2 library.
 
 ### Low level native access
 

@@ -745,7 +745,7 @@ multi method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
 
 #| DOM compatible method to get the document element
 method getDocumentElement returns LibXML::Element {
-        &?ROUTINE.returns.box:  $.raw.getDocumentElement
+    &?ROUTINE.returns.box:  $.raw.getDocumentElement
 }
 
 #| DOM compatible method to set the document element
