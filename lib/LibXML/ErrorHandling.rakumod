@@ -1,7 +1,7 @@
 use v6;
 use NativeCall;
 use LibXML::Raw;
-use LibXML::Raw::Defs :$BIND-XML2;
+use LibXML::Raw::Defs :$XML2, :$BIND-XML2;
 use LibXML::Enums;
 
 class X::LibXML is Exception {
@@ -351,7 +351,8 @@ role LibXML::ErrorHandling {
         $fmt.comb.map: { $argv[$n++]."$_"() };
     }
 
-    sub set-generic-error-handler( &func (Str $fmt, Str $argt, Pointer[MsgArg] $argv)) is native($BIND-XML2) is symbol('xml6_gbl_set_generic_error_handler') {*}
+    # This function is also used by the LibXSLT module
+    sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer $route) is native($BIND-XML2) is export(:set-generic-error-handler) is symbol('xml6_gbl_set_generic_error_handler') {*}
 
     method SetGenericErrorFunc(&handler) {
         set-generic-error-handler(
@@ -359,7 +360,8 @@ role LibXML::ErrorHandling {
                 CATCH { default { note $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @args = unmarshal-varargs($fmt, $argv);
                 &handler($msg, @args);
-            }
+            },
+            cglobal($XML2, 'xmlSetGenericErrorFunc', Pointer)
         );
     }
 }

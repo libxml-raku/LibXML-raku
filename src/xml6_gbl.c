@@ -97,13 +97,13 @@ static void _gbl_message_func(
     (*callback)(fmt, argt, argv);
 }
 
-DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callback) {
+DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callback,  void (*route)(void*, xmlGenericErrorFunc)) {
     /* we actually set the callback as the context and
        xml6_gbl_message_func() as the handler
     */
     void* ctx = (void*) callback;
     xmlGenericErrorFunc handler = (xmlGenericErrorFunc) _gbl_message_func;
-    xmlSetGenericErrorFunc(ctx, handler);
+    route(ctx, handler);
 }
 
 struct _xml6HandlerSave {

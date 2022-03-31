@@ -1,4 +1,7 @@
 {{$NEXT}}
+    - Fix LibXSLT broken in 0.6.11 by the withdrawal of xml6_gbl_message_func()
+      external symbol. Replaced by LibXML::ErrorHandling :&set-generic-error-handler
+      exported sub.
 
 0.6.12  2022-03-31T17:06:34+13:00
     - Add LibXML::Raw::CLib module. To encapsulate existing use of memcpy
