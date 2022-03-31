@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.6.13  2022-04-01T11:04:54+13:00
     - Fix LibXSLT broken in 0.6.11 by the withdrawal of xml6_gbl_message_func()
       external symbol. Replaced by LibXML::ErrorHandling :&set-generic-error-handler
       exported sub.
