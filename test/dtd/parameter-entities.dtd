@@ -1,0 +1,5 @@
+<!ENTITY % Document-Elements-Extra "">
+<!ELEMENT Document (P|H1|H2 %Document-Elements-Extra;)*>
+<!ELEMENT P (#PCDATA)>
+<!ELEMENT H1 (#PCDATA)>
+<!ELEMENT H2 (#PCDATA)>

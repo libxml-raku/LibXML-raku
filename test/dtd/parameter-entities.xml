@@ -1,0 +1,10 @@
+<!DOCTYPE Document SYSTEM "parameter-entities.dtd" [
+    <!ATTLIST P type CDATA #IMPLIED>
+    <!ELEMENT H3 (#PCDATA)>
+    <!ENTITY % Document-Elements-Extra "|H3">
+]>
+<Document>
+  <H1>Level 1 Header</H1>
+  <P type="test">This is a test of DtD parameter entities</P>
+  <H3>Level 3 Header</H3>
+</Document>

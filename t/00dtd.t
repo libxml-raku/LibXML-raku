@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 9;
+plan 10;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -79,7 +79,7 @@ subtest 'doc with internal dtd' => {
         isa-ok $doc<note>[0], LibXML::Element, 'doc root dereference';
     }
     my LibXML::Dtd $dtd = $doc.getInternalSubset;
-    ok $dtd.defined, 'has DtD';
+    ok $dtd.defined, 'has internal DtD';
     ok $dtd.validate, 'validate';
     ok $doc.validate;
     is $dtd.name, "note", '.name';
@@ -100,7 +100,7 @@ subtest 'doc with external dtd loaded' => {
     $doc .= parse: :file<test/dtd/note-external-dtd.xml>, :dtd;
     ok $doc.getExternalSubset.defined, 'external DtD';
     my LibXML::Dtd $dtd = $doc.getInternalSubset;
-    ok $dtd.defined, 'has DtD';
+    ok $dtd.defined, 'has internal DtD';
     ok $doc.validate($dtd), 'doc.validate';
     ok $dtd.validate($doc), 'dtd.validate';
     is $dtd.name, "note", '.name';
@@ -113,16 +113,30 @@ subtest 'doc with no dtd loaded' => {
     plan 9;
     my LibXML::Document $other-doc .= parse: :file<test/dtd/note-external-dtd.xml>, :dtd;
     $doc .= parse: :file<test/dtd/note-no-dtd.xml>;
-    lives-ok {$doc.setExternalSubset: $other-doc.getExternalSubset}, 'copt extrnal subset';
+    lives-ok {$doc.setExternalSubset: $other-doc.getExternalSubset}, 'copy external subset';
     $doc.setExternalSubset: $other-doc.getExternalSubset;
     ok $doc.getExternalSubset.defined, 'external DtD';
     my LibXML::Dtd $dtd = $doc.getExternalSubset;
-    ok $dtd.defined, 'has DtD';
+    ok $dtd.defined, 'has external DtD';
     ok $doc.validate($dtd), 'doc.validate';
     ok $dtd.validate($doc), 'dtd.validate';
     is $dtd.name, "note", '.name';
     is $dtd.systemId, "note.dtd", 'systemId';
     nok $dtd.publicId.defined, 'sans publicId';
     is-deeply $dtd.is-XHTML, False, 'is-XHTML';
+}
+
+subtest 'doc with parameter entities' => {
+    plan 8;
+    my LibXML::Document $doc .= parse: :file<test/dtd/parameter-entities.xml>, :dtd;
+    ok $doc.internalSubset.defined, "has internal subset";
+    my LibXML::Dtd $dtd = $doc.getExternalSubset;
+    ok $dtd.defined, 'has external DtD';
+    ok $doc.validate, 'doc.validate';
+    ok $doc.validate($dtd), 'doc.validate(dtd)';
+    ok $dtd.validate($doc), 'dtd.validate';
+    is $dtd.name, "Document", '.name';
+    is $dtd.systemId, "parameter-entities.dtd", 'systemId';
+    nok $dtd.publicId.defined, 'sans publicId';
 }
 
