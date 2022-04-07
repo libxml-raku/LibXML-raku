@@ -1,4 +1,3 @@
-our %class;
 
 #| base class for namespaces and nodes
 unit class LibXML::Item;
@@ -27,11 +26,16 @@ use LibXML::Raw;
 use LibXML::Raw::DOM::Node;
 use LibXML::Enums;
 use LibXML::Config;
+
+my %class;
+my $class-lock = Lock.new;
  
 proto sub box-class($) {*}
 multi sub box-class(Str:D $class-name) {
-    given %class{$class-name} {
-        .isa(LibXML::Item) ?? $_ !! ($_ = (require ::($class-name)));
+    $class-lock.protect: {
+        given %class{$class-name} {
+            .isa(LibXML::Item) ?? $_ !! ($_ = (require ::($class-name)));
+        }
     }
 }
 
