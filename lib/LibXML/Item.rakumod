@@ -188,7 +188,7 @@ multi trait_mod:<is>(
     $m.wrap: method () is hidden-from-backtrace { $m.returns.box: $.raw."$name"(); }
 }
 
-#| Utility method that verifies that `$native` is the same native struct as the current object.
+#| Utility method that verifies that `$raw` is the same native struct as the current object.
 method keep(LibXML::Raw::DOM::Node $raw,
             --> LibXML::Item) {
     do with $raw {
