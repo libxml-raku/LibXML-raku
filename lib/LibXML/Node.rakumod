@@ -145,8 +145,7 @@ method raw handles<
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue string-value
-    type
-    lock unlock
+    type lock unlock
     unique-key ast-key xpath-key
 > { nativecast(xmlNode, self) }
 

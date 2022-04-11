@@ -518,6 +518,19 @@ available as a single string in memory. You can pass an optional base URI string
   my $doc = $parser.parse: :string($xmlstring);
   my $doc = $parser.parse: :string($xmlstring), :$URI;
 
+=head4 method parse `:location` option
+
+    my $location = "http://www.cpan.org/authors/00whois.xml";
+    $doc = $parser.parse: :$location, :network;
+
+This option accepts a simple filename, a file URL with a `file:` prefix,
+or a HTTP URL with a `http:` prefix.
+
+The file is streamed as it is loaded, which may may be faster than fetching and loading from the URL in two stages. Please note:
+
+=item The `network` option (disabled by default) needs to enable fetching from HTTP address locations.
+=item HTTPS (`https:`) is currently not supported
+
 =head4 method parse `:html` option
 
   use LibXML::Document :HTML;
