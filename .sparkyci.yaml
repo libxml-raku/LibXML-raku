@@ -1,0 +1,7 @@
+init:
+
+  packages:
+    xml: {}
+
+main:
+  with-code-coverage: true
