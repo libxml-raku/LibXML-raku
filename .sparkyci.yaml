@@ -1,6 +1,7 @@
 init:
 
   packages:
+    build-essential: {}
     xml: {}
 
 main:
