@@ -37,7 +37,7 @@
     "LibXML::Enums": "lib/LibXML/Enums.rakumod",
     "LibXML::ErrorHandling": "lib/LibXML/ErrorHandling.rakumod",
     "LibXML::HashMap": "lib/LibXML/HashMap.rakumod",
-    "LibXML::HashMap::Maker": "lib/LibXML/HashMap/Maker.rakumod",
+    "LibXML::HashMap::NodeSet": "lib/LibXML/HashMap/NodeSet.rakumod",
     "LibXML::InputCallback": "lib/LibXML/InputCallback.rakumod",
     "LibXML::Item": "lib/LibXML/Item.rakumod",
     "LibXML::Namespace": "lib/LibXML/Namespace.rakumod",

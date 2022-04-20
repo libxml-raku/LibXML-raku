@@ -32,8 +32,7 @@ class LibXML::Node::Set
     method Hash handles <AT-KEY keys pairs> {
         $!hstore //= do {
             my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
-            require LibXML::HashMap::Maker;
-            LibXML::HashMap::Maker.(LibXML::Node::Set).new: :$raw;
+            (require ::('LibXML::HashMap::NodeSet')).new: :$raw;
         }
     }
     method AT-POS(UInt:D $pos) {
