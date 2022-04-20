@@ -485,7 +485,7 @@ multi method AT-KEY(Str:D $ where /^['@'|'attribute::']<name=.XML::Grammar::name
 }
 
 method appendWellBalancedChunk(Str:D $string --> LibXML::Node) {
-    my $frag = (require ::('LibXML::DocumentFragment')).parse: :balanced, :$string;
+    my $frag = box-class('LibXML::DocumentFragment').parse: :balanced, :$string;
     self.appendChild( $frag );
 }
 
