@@ -230,7 +230,6 @@ method domCheck(Bool :$recursive = True, :%seen = %(), :@path = [0]) {
 
     my Node $last;
     my Node $kid = self.children;
-    my $is-doc = ? (self.type == XML_DOCUMENT_NODE|XML_HTML_DOCUMENT_NODE|XML_DOCB_DOCUMENT_NODE);
     my @subpath = @path;
     @subpath.push: 0;
     my %kids-seen;

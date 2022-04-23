@@ -6,6 +6,7 @@ use LibXML::Raw;
 use LibXML::Raw::HashTable;
 use LibXML::Item;
 use LibXML::Node::Set;
+use LibXML::Types :resolve-package;
 use Method::Also;
 
 has Bool:D $.blank = False;
@@ -34,7 +35,7 @@ method Array handles<AT-POS keys first elems List list values map grep Numeric t
 }
 
 method AT-KEY(Str() $key) {
-    with $!hstore {
+    with ⚛$!hstore {
         .AT-KEY($key);
     }
     else {
@@ -43,30 +44,32 @@ method AT-KEY(Str() $key) {
 }
 
 method Hash handles <pairs> {
-    $!hstore //= do {
-        my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
-        use LibXML::HashMap;
-        LibXML::HashMap[LibXML::Node::Set].new: :$raw;
+    return $_ with ⚛$!hstore;
+    cas $!hstore, {
+        $_ // do {
+            my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
+            resolve-package('LibXML::HashMap').^parameterize(LibXML::Node::Set).new: :$raw;
+        }
     }
 }
 
 method push(LibXML::Item:D $node) {
     $.parent.appendChild($node);
     @!store.push($node) if $!reified;
-    $!hstore = Nil;
+    $!hstore ⚛= Nil;
     $node;
 } 
 method pop {
     do with self.Array.tail -> LibXML::Item $item {
         @!store.pop;
-        $!hstore = Nil;
+        $!hstore ⚛= Nil;
         $item.unbindNode;
     } // $!of;
 }
 method ASSIGN-POS(UInt() $pos, LibXML::Item:D $item) {
     self.Array unless $!reified;
     if $pos < +@!store {
-        $!hstore = Nil; # invalidate Hash cache
+        $!hstore ⚛= Nil; # invalidate Hash cache
         $.parent.replaceChild($item, @!store[$pos]);
         @!store[$pos] = $item;
     }

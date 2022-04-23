@@ -1,4 +1,3 @@
-
 #| base class for namespaces and nodes
 unit class LibXML::Item;
 
@@ -26,24 +25,20 @@ use LibXML::Raw;
 use LibXML::Raw::DOM::Node;
 use LibXML::Enums;
 use LibXML::Config;
+use LibXML::Types :resolve-package;
 
-my %class;
-my $class-lock = Lock.new;
- 
+also does LibXML::Types::XPathish;
+
 proto sub box-class($) {*}
 multi sub box-class(Str:D $class-name) {
-    $class-lock.protect: {
-        given %class{$class-name} {
-            .isa(LibXML::Item) ?? $_ !! ($_ = (require ::($class-name)));
-        }
-    }
+    resolve-package($class-name)
 }
 
 multi sub box-class(Int:D $_) is export(:box-class) {
     box-class(@LibXML::Config::ClassMap[$_]);
 }
 
-multi sub box-class(LibXML::Item $_) { $_ }
+multi sub box-class(::?CLASS $_) { $_ }
 
 multi method box($_) {
     .defined ?? box-class(.type).box(.delegate) !! self.WHAT;

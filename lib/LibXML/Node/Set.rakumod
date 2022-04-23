@@ -3,12 +3,15 @@ class LibXML::Node::Set
     does Iterable
     does Positional {
 
-    use LibXML::Enums;
     use LibXML::Raw;
     use LibXML::Raw::HashTable;
+    use LibXML::Enums;
     use LibXML::Item;
+    use LibXML::Types :resolve-package;
     use Method::Also;
     use NativeCall;
+
+    also does LibXML::Types::XPathish;
 
     has LibXML::Item $.of;
     has Bool $.deref;
@@ -30,9 +33,12 @@ class LibXML::Node::Set
     }
 
     method Hash handles <AT-KEY keys pairs> {
-        $!hstore //= do {
-            my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
-            (require ::('LibXML::HashMap::NodeSet')).new: :$raw;
+        return $_ with ⚛$!hstore;
+        cas $!hstore, {
+            $_ // do {
+                my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
+                resolve-package('LibXML::HashMap::NodeSet').new: :$raw;
+            }
         }
     }
     method AT-POS(UInt:D $pos) {
@@ -44,13 +50,13 @@ class LibXML::Node::Set
         constant Ref = 1;
         fail "node has wrong type {$node.WHAT.raku} for node-set of type: {$!of.WHAT}"
             unless $node ~~ $!of;
-        $!hstore = Nil;
+        $!hstore ⚛= Nil;
         $!raw.push($node.raw.ItemNode, Ref);
         $node;
     }
     method pop {
         with $!raw.pop -> $node {
-            $!hstore = Nil;
+            $!hstore ⚛= Nil;
             $!of.box: $node;
         }
         else {
@@ -65,7 +71,7 @@ class LibXML::Node::Set
     multi method delete(LibXML::Item:D $node) {
         my UInt $idx := $!raw.delete($node.raw.ItemNode);
         if $idx >= 0 {
-            $!hstore = Nil;
+            $!hstore ⚛= Nil;
             $node;
         }
         else {
@@ -82,7 +88,7 @@ class LibXML::Node::Set
     method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
     method reverse {
         $!raw.reverse;
-        $!hstore = Nil;
+        $!hstore ⚛= Nil;
         self;
     }
     method ast { self.Array».ast }

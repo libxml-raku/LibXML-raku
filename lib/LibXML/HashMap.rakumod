@@ -5,12 +5,13 @@ unit class LibXML::HashMap
 
 use LibXML::Item;
 use LibXML::Node::Set;
-use LibXML::XPath::Object :XPathRange;
+use LibXML::Types :XPathRange;
 use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
 use LibXML::Raw::HashTable;
 use LibXML::Enums;
 use LibXML::Dtd::Notation;
+use LibXML::XPath::Object;
 use NativeCall;
 use Method::Also;
 

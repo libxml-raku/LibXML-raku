@@ -4,9 +4,11 @@ unit class LibXML::XPath::Object
 
 use LibXML::Item;
 use LibXML::Raw;
-use LibXML::Node :iterate-set;
-use LibXML::Node::Set;
+use LibXML::Utils :iterate-set;
+use LibXML::Types :XPathRange;
 use NativeCall;
+
+also does LibXML::Types::XPathish;
 
 method new(xmlXPathObject:D :$raw!) {
     $raw.Reference;
@@ -17,11 +19,9 @@ method raw { nativecast(xmlXPathObject, self) }
 
 submethod DESTROY { self.raw.Unreference }
 
-my subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|LibXML::Node::Set|LibXML::Item;
-
 method coerce-to-raw(XPathRange $content is copy) {
     $content .= raw()
-        if $content ~~ LibXML::Item|LibXML::Node::Set;
+        if $content ~~ LibXML::Types::XPathish;
     xmlXPathObject.coerce($content);
 }
 
