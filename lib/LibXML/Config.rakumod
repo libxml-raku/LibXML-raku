@@ -48,16 +48,16 @@ method have-threads returns Bool { ? xml6_config::have_threads(); }
 #| Returns True if the `libxml2` library supports compression
 method have-compression returns Bool { ? xml6_config::have_compression(); }
 
-my @catalogs;
+my $catalogs = SetHash.new;
 my $catalog-lock = Lock.new;
 method load-catalog(Str:D $filename --> Nil) {
     $catalog-lock.protect: {
         my Int $stat = 0;
-        unless @catalogs.first($filename) {
+        unless $filename ∈ $catalogs {
             $stat = xmlLoadCatalog($filename);
             fail "unable to load XML catalog: $filename"
                 if $stat < 0;
-            @catalogs.push: $filename;
+            $catalogs.set: $filename;
         }
     }
 }
