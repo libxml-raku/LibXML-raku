@@ -1,12 +1,13 @@
+#| LibXML DTD Handling
+unit class LibXML::Dtd;
+
 use LibXML::Node;
 use W3C::DOM;
 use LibXML::_Validator;
 
-#| LibXML DTD Handling
-unit class LibXML::Dtd
-    is LibXML::Node
-    does W3C::DOM::DocumentType
-    does LibXML::_Validator;
+also is LibXML::Node;
+also does W3C::DOM::DocumentType;
+also does LibXML::_Validator;
 
   =begin pod
   =head2 Synopsis

@@ -1,113 +1,113 @@
 #| LibXML XPath Node Collections
-class LibXML::Node::Set
-    does Iterable
-    does Positional {
+unit class LibXML::Node::Set;
 
-    use LibXML::Raw;
-    use LibXML::Raw::HashTable;
-    use LibXML::Enums;
-    use LibXML::Item;
-    use LibXML::Types :resolve-package;
-    use Method::Also;
-    use NativeCall;
+use LibXML::Types :resolve-package;
 
-    also does LibXML::Types::XPathish;
+also does Iterable;
+also does Positional;
+also does LibXML::Types::XPathish;
 
-    has LibXML::Item $.of;
-    has Bool $.deref;
-    has xmlNodeSet $.raw;
-    has $!hstore;
+use LibXML::Raw;
+use LibXML::Raw::HashTable;
+use LibXML::Enums;
+use LibXML::Item;
+use Method::Also;
+use NativeCall;
 
-    submethod TWEAK {
-        $!raw //= xmlNodeSet.new;
-        .Reference given $!raw;
+has LibXML::Item $.of;
+has Bool $.deref;
+has xmlNodeSet $.raw;
+has $!hstore;
+
+submethod TWEAK {
+    $!raw //= xmlNodeSet.new;
+    .Reference given $!raw;
+}
+submethod DESTROY {
+    .Unreference with $!raw;
+}
+
+method elems is also<size Numeric> { $!raw.nodeNr }
+method Seq returns Seq handles<Array list values map grep> {
+    my CArray $tab := $!raw.nodeTab;
+    (^$!raw.nodeNr).map: { $!of.box: $tab[$_] };
+}
+
+method Hash handles <AT-KEY keys pairs> {
+    return $_ with ⚛$!hstore;
+    cas $!hstore, {
+        $_ // do {
+            my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
+            resolve-package('LibXML::HashMap::NodeSet').new: :$raw;
+        }
     }
-    submethod DESTROY {
-        .Unreference with $!raw;
+}
+method AT-POS(UInt:D $pos) {
+    $pos >= $!raw.nodeNr
+        ?? $!of
+        !! $!of.box($!raw.nodeTab[$pos]);
+}
+method add(LibXML::Item:D $node) is also<push> {
+    constant Ref = 1;
+    fail "node has wrong type {$node.WHAT.raku} for node-set of type: {$!of.WHAT}"
+        unless $node ~~ $!of;
+    $!hstore ⚛= Nil;
+    $!raw.push($node.raw.ItemNode, Ref);
+    $node;
+}
+method pop {
+    with $!raw.pop -> $node {
+        $!hstore ⚛= Nil;
+        $!of.box: $node;
     }
-
-    method elems is also<size Numeric> { $!raw.nodeNr }
-    method Seq returns Seq handles<Array list values map grep> {
-        my CArray $tab := $!raw.nodeTab;
-        (^$!raw.nodeNr).map: { $!of.box: $tab[$_] };
+    else {
+        $!of;
     }
+}
+multi method delete(UInt $pos) is also<DELETE-POS> {
+    my $node = self.AT-POS($pos);
+    self.delete($_) with $node;
+    $node;
+}
+multi method delete(LibXML::Item:D $node) {
+    my UInt $idx := $!raw.delete($node.raw.ItemNode);
+    if $idx >= 0 {
+        $!hstore ⚛= Nil;
+        $node;
+    }
+    else {
+        $!of;
+    }
+}
+method first { self.AT-POS(0) }
+method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
+method string-value { do with $.first { .string-value } // Str}
+multi method to-literal( :list($)! where .so ) { self».string-value }
+multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
+method Bool { self.defined && so self.elems }
+method Str is also<gist> handles <Int Num trim chomp> { $.Array».Str.join }
+method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
+method reverse {
+    $!raw.reverse;
+    $!hstore ⚛= Nil;
+    self;
+}
+method ast { self.Array».ast }
 
-    method Hash handles <AT-KEY keys pairs> {
-        return $_ with ⚛$!hstore;
-        cas $!hstore, {
-            $_ // do {
-                my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
-                resolve-package('LibXML::HashMap::NodeSet').new: :$raw;
+method iterator($nodes:) {
+    class Iteration does Iterator {
+        has UInt $!idx = 0;
+        has LibXML::Node::Set $.nodes is required;
+        method pull-one {
+            if $!idx < $!nodes.raw.nodeNr {
+                $!nodes.AT-POS($!idx++);
+            }
+            else {
+                IterationEnd;
             }
         }
     }
-    method AT-POS(UInt:D $pos) {
-        $pos >= $!raw.nodeNr
-            ?? $!of
-            !! $!of.box($!raw.nodeTab[$pos]);
-    }
-    method add(LibXML::Item:D $node) is also<push> {
-        constant Ref = 1;
-        fail "node has wrong type {$node.WHAT.raku} for node-set of type: {$!of.WHAT}"
-            unless $node ~~ $!of;
-        $!hstore ⚛= Nil;
-        $!raw.push($node.raw.ItemNode, Ref);
-        $node;
-    }
-    method pop {
-        with $!raw.pop -> $node {
-            $!hstore ⚛= Nil;
-            $!of.box: $node;
-        }
-        else {
-            $!of;
-        }
-    }
-    multi method delete(UInt $pos) is also<DELETE-POS> {
-        my $node = self.AT-POS($pos);
-        self.delete($_) with $node;
-        $node;
-    }
-    multi method delete(LibXML::Item:D $node) {
-        my UInt $idx := $!raw.delete($node.raw.ItemNode);
-        if $idx >= 0 {
-            $!hstore ⚛= Nil;
-            $node;
-        }
-        else {
-            $!of;
-        }
-    }
-    method first { self.AT-POS(0) }
-    method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
-    method string-value { do with $.first { .string-value } // Str}
-    multi method to-literal( :list($)! where .so ) { self».string-value }
-    multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-    method Bool { self.defined && so self.elems }
-    method Str is also<gist> handles <Int Num trim chomp> { $.Array».Str.join }
-    method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
-    method reverse {
-        $!raw.reverse;
-        $!hstore ⚛= Nil;
-        self;
-    }
-    method ast { self.Array».ast }
-
-    method iterator($nodes:) {
-        class Iteration does Iterator {
-            has UInt $!idx = 0;
-            has LibXML::Node::Set $.nodes is required;
-            method pull-one {
-                if $!idx < $!nodes.raw.nodeNr {
-                    $!nodes.AT-POS($!idx++);
-                }
-                else {
-                    IterationEnd;
-                }
-            }
-        }
-        Iteration.new: :$nodes;
-    }
+    Iteration.new: :$nodes;
 }
 
 =begin pod

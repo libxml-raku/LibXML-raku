@@ -1,10 +1,8 @@
-use v6;
+#| Interface to libxml2 Pull Parser
+unit class LibXML::Reader;
 
 use LibXML::ErrorHandling;
-
-#| Interface to libxml2 Pull Parser
-unit class LibXML::Reader
-    does LibXML::ErrorHandling;
+also does LibXML::ErrorHandling;
 
 =begin pod
 

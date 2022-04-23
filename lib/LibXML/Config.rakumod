@@ -72,7 +72,7 @@ my Bool:D $skipXMLDeclaration = False;
 my Bool:D $skipDTD = False;
 my Int:D $maxErrors = 100;
 
-#| Whether to omit '<?xml ...>' preamble (default Fallse)
+#| Whether to omit '<?xml ...>' preamble (default False)
 has Bool:D $!skipXMLDeclaration is mooish(:lazy);
 method !build-skipXMLDeclaration { $skipXMLDeclaration }
 
@@ -206,7 +206,7 @@ multi method input-callbacks(::?CLASS:D:) is rw {
 
 my subset QueryHandler where .can('query-to-xpath').so;
 
-my $queryHandler = class NoQueryHandler {
+my QueryHandler $queryHandler = class NoQueryHandler {
     method query-to-xpath($) {
         fail "queryHandler has not been configured";
     }

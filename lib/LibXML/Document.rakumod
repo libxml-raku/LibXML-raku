@@ -1,12 +1,14 @@
+
+#| LibXML DOM Document Class
+unit class LibXML::Document;
+
 use LibXML::Node;
 use LibXML::_ParentNode;
 use W3C::DOM;
 
-#| LibXML DOM Document Class
-unit class LibXML::Document
-    is LibXML::Node
-    does LibXML::_ParentNode
-    does W3C::DOM::Document;
+also is LibXML::Node;
+also does LibXML::_ParentNode;
+also does W3C::DOM::Document;
 
 use LibXML::Attr;
 use LibXML::CDATA;

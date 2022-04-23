@@ -1,11 +1,11 @@
+#| LibXML Attribute nodes
+unit class LibXML::Attr is repr('CPointer');
+
 use LibXML::Node;
 use W3C::DOM;
 
-#| LibXML Attribute nodes
-unit class LibXML::Attr
-    is repr('CPointer')
-    is LibXML::Node
-    does W3C::DOM::Attr;
+also is LibXML::Node;
+also does W3C::DOM::Attr;
 
 =begin pod
     =head2 Synopsis

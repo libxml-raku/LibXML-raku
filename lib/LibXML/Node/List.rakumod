@@ -1,6 +1,7 @@
 #| LibXML Sibling Node Lists
-unit class LibXML::Node::List
-    does Iterable;
+unit class LibXML::Node::List;
+
+also does Iterable;
 
 use LibXML::Raw;
 use LibXML::Raw::HashTable;

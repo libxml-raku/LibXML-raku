@@ -1,11 +1,11 @@
+#| LibXML Processing Instructions
+unit class LibXML::PI is repr('CPointer');
+
 use LibXML::Node;
 use W3C::DOM;
 
-#| LibXML Processing Instructions
-unit class LibXML::PI
-    is repr('CPointer')
-    is LibXML::Node
-    does W3C::DOM::ProcessingInstruction;
+also is LibXML::Node;
+also does W3C::DOM::ProcessingInstruction;
 
 use LibXML::Raw;
 use NativeCall;

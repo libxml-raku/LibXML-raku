@@ -10,7 +10,7 @@ use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::Raw;
 use LibXML::XPath::Expression;
-use LibXML::Types :NCName, :QName;
+use LibXML::Types :NCName, :QName, :NameVal;
 use LibXML::Utils :iterate-list, :iterate-set, :output-options;
 use W3C::DOM;
 use NativeCall;
@@ -131,7 +131,6 @@ also does W3C::DOM::Node;
 =end pod
 
 constant config = LibXML::Config;
-my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
 enum <SkipBlanks KeepBlanks>;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 

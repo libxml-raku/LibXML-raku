@@ -24,9 +24,11 @@ sub output-options(UInt :$options is copy = 0,
                    ) is export(:output-options) {
 
     warn ':skip-decl option is deprecated, please use :skip-xml-declaration'
-    with $skip-decl;
+        with $skip-decl;
+
     warn ':expand option is deprecated, please use :tag-expansion'
-    with $expand;
+        with $expand;
+
     for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY {
         $options +|= .value if .key;
     }

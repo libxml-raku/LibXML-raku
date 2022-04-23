@@ -1,7 +1,7 @@
 #| Bindings to xmlHashTable
-unit class LibXML::HashMap
-    does Associative
-    is repr('CPointer');
+unit class LibXML::HashMap is repr('CPointer');
+
+also does Associative;
 
 use LibXML::Item;
 use LibXML::Node::Set;

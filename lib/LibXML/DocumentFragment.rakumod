@@ -1,13 +1,13 @@
+#| LibXML's DOM L2 Document Fragment Implementation
+unit class LibXML::DocumentFragment is repr('CPointer');
+
 use LibXML::Node;
 use LibXML::_ParentNode;
 use W3C::DOM;
 
-#| LibXML's DOM L2 Document Fragment Implementation
-unit class LibXML::DocumentFragment
-    is repr('CPointer')
-    is LibXML::Node
-    does LibXML::_ParentNode
-    does W3C::DOM::DocumentFragment;
+also is LibXML::Node;
+also does LibXML::_ParentNode;
+also does W3C::DOM::DocumentFragment;
 
 =begin pod
     =head2 Synopsis

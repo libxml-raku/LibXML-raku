@@ -1,9 +1,8 @@
-use LibXML::Node;
-
 #| LibXML DtD Element declaration introspection (experimental)
-unit class LibXML::Dtd::ElementDecl
-    is repr('CPointer')
-    is LibXML::Node;
+unit class LibXML::Dtd::ElementDecl is repr('CPointer');
+
+use LibXML::Node;
+also is LibXML::Node;
 
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementContent;

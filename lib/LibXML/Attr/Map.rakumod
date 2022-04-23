@@ -1,14 +1,14 @@
-use W3C::DOM;
-
 #| LibXML Mapped Attributes
-class LibXML::Attr::Map
-    does Associative
-    does W3C::DOM::NamedNodeMap {
+unit class LibXML::Attr::Map;
 
-    use LibXML::Attr;
-    use LibXML::Types :QName, :NCName;
-    has LibXML::Node $.node handles<removeAttributeNode>;
-    use Method::Also;
+use W3C::DOM;
+also does Associative;
+also does W3C::DOM::NamedNodeMap;
+
+use LibXML::Attr;
+use LibXML::Types :QName, :NCName;
+has LibXML::Node $.node handles<removeAttributeNode>;
+use Method::Also;
 
 =begin pod
     =head2 Synopsis
@@ -61,81 +61,79 @@ class LibXML::Attr::Map
     =para Similar to the equivalent Raku Hash methods.
 =end pod
 
-    multi method AT-KEY(QName:D $name) {
-        $!node.getAttributeNode($name);
-    }
-
-    multi method AT-KEY(Str:D $name) is default {
-        $!node.findnodes('@' ~ $name)[0];
-    }
-
-    method ASSIGN-KEY(QName:D $name, Str:D $value) {
-        $!node.setAttribute($name, $value);
-    }
-
-    method DELETE-KEY(QName:D $key) {
-        with self.AT-KEY($key) -> $att {
-            self.removeAttributeNode($att);
-        }
-    }
-
-    method elems is also<Numeric length> { $!node.findvalue('count(@*)') }
-    method Hash handles<keys pairs values kv> {
-        my % = $!node.findnodes('@*').Array.map: {
-            .tagName => $_;
-        }
-    }
-
-
-    # DOM Support
-
-    #| Adds or replaces node with the same name as $att
-    method setNamedItem(LibXML::Attr:D $att --> LibXML::Attr) {
-        $!node.setAttributeNodeNS($att);
-    }
-
-    #| Gets an attribute by name
-    method getNamedItem(QName:D $name --> LibXML::Attr) {
-        self{$name};
-    }
-
-    #| Remove the item with the name `$name`
-    method removeNamedItem(QName:D $name --> LibXML::Attr) {
-        self{$name}:delete;
-    }
-
-    #| Assigns $att name space to $uri. Adds or replaces an attribute with the same as `$att`
-    method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
-        my $old-uri = $att.getNamespaceURI;
-        if $uri {
-            unless $old-uri ~~ $uri {
-                my $prefix = $!node.requireNamespace($uri);
-                $att.setNamespace($uri, $prefix);
-            }
-        }
-        elsif $old-uri {
-            $att.clearNamespace($old-uri);
-        }
-        $!node.setAttributeNodeNS($att);
-    }
-
-    #| Lookup attribute by namespace and name
-    method getNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
-        my $query = "\@*[local-name()='$name']";
-        $query ~= "[namespace-uri()='$_']" with $uri;
-        &?ROUTINE.returns.box: self.domXPathSelectStr($query);
-    }
-    =begin pod
-    C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
-    =end pod
-
-    #| Lookup and remove attribute by namespace and name
-    method removeNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
-        do with $.getNamedItemNS($name) { .unlink } // LibXML::Attr;
-    }
-    =para `$map.removeNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}:delete`.
-
+multi method AT-KEY(QName:D $name) {
+    $!node.getAttributeNode($name);
 }
+
+multi method AT-KEY(Str:D $name) is default {
+    $!node.findnodes('@' ~ $name)[0];
+}
+
+method ASSIGN-KEY(QName:D $name, Str:D $value) {
+    $!node.setAttribute($name, $value);
+}
+
+method DELETE-KEY(QName:D $key) {
+    with self.AT-KEY($key) -> $att {
+        self.removeAttributeNode($att);
+    }
+}
+
+method elems is also<Numeric length> { $!node.findvalue('count(@*)') }
+method Hash handles<keys pairs values kv> {
+    my % = $!node.findnodes('@*').Array.map: {
+        .tagName => $_;
+    }
+}
+
+
+# DOM Support
+
+#| Adds or replaces node with the same name as $att
+method setNamedItem(LibXML::Attr:D $att --> LibXML::Attr) {
+    $!node.setAttributeNodeNS($att);
+}
+
+#| Gets an attribute by name
+method getNamedItem(QName:D $name --> LibXML::Attr) {
+    self{$name};
+}
+
+#| Remove the item with the name `$name`
+method removeNamedItem(QName:D $name --> LibXML::Attr) {
+    self{$name}:delete;
+}
+
+#| Assigns $att name space to $uri. Adds or replaces an attribute with the same as `$att`
+method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
+    my $old-uri = $att.getNamespaceURI;
+    if $uri {
+        unless $old-uri ~~ $uri {
+            my $prefix = $!node.requireNamespace($uri);
+            $att.setNamespace($uri, $prefix);
+        }
+    }
+    elsif $old-uri {
+        $att.clearNamespace($old-uri);
+    }
+    $!node.setAttributeNodeNS($att);
+}
+
+#| Lookup attribute by namespace and name
+method getNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
+    my $query = "\@*[local-name()='$name']";
+    $query ~= "[namespace-uri()='$_']" with $uri;
+    &?ROUTINE.returns.box: self.domXPathSelectStr($query);
+}
+=begin pod
+C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.
+=end pod
+
+#| Lookup and remove attribute by namespace and name
+method removeNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
+    do with $.getNamedItemNS($name) { .unlink } // LibXML::Attr;
+}
+=para `$map.removeNamedItemNS($uri,$name)` is similar to `$map{$uri}{$name}:delete`.
 
 =begin pod
 
