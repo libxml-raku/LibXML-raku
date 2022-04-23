@@ -11,7 +11,8 @@
     "File::Temp",
     "Method::Also",
     "W3C::DOM:ver<0.0.2+>",
-    "XML"
+    "XML",
+    "AttrX::Mooish:ver<0.8.4+>:auth:<zef:vrurg>"
   ],
   "build-depends": [
     "LibraryMake"
@@ -73,7 +74,7 @@
     "LibXML::Schema": "lib/LibXML/Schema.rakumod",
     "LibXML::Text": "lib/LibXML/Text.rakumod",
     "LibXML::Types": "lib/LibXML/Types.rakumod",
-    "LibXML::Utils": "lib/LibXML/Utils.pm6",
+    "LibXML::Utils": "lib/LibXML/Utils.rakumod",
     "LibXML::XPath::Context": "lib/LibXML/XPath/Context.rakumod",
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",
     "LibXML::XPath::Object": "lib/LibXML/XPath/Object.rakumod",
