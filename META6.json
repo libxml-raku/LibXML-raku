@@ -1,12 +1,11 @@
 {
-  "name": "LibXML",
-  "description": "Raku bindings to the libxml2 native library",
-  "version": "0.6.14",
-  "perl": "6",
+  "auth": "zef:dwarring",
   "authors": [
     "David Warring"
   ],
-  "auth": "zef:dwarring",
+  "build-depends": [
+    "LibraryMake"
+  ],
   "depends": [
     "File::Temp",
     "Method::Also",
@@ -14,10 +13,10 @@
     "XML",
     "AttrX::Mooish:ver<0.8.4+>:auth<zef:vrurg>"
   ],
-  "build-depends": [
-    "LibraryMake"
-  ],
-  "test-depends": [],
+  "description": "Raku bindings to the libxml2 native library",
+  "license": "Artistic-2.0",
+  "name": "LibXML",
+  "perl": "6",
   "provides": {
     "LibXML": "lib/LibXML.rakumod",
     "LibXML::Attr": "lib/LibXML/Attr.rakumod",
@@ -84,20 +83,22 @@
     "LibXML::_ParentNode": "lib/LibXML/_ParentNode.rakumod",
     "LibXML::_Validator": "lib/LibXML/_Validator.rakumod"
   },
+  "raku": "*",
   "resources": [
     "libraries/xml6",
     "libraries/libxml2"
   ],
+  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
   "support": {
     "source": "https://github.com/libxml-raku/LibXML-raku.git"
   },
-  "license": "Artistic-2.0",
   "tags": [
     "xml",
     "html",
     "xpath",
     "dom"
   ],
-  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
-  "raku": "*"
+  "test-depends": [
+  ],
+  "version": "0.6.15"
 }
