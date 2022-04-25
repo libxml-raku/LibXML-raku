@@ -1,108 +1,113 @@
 #| LibXML XPath Node Collections
-class LibXML::Node::Set
-    does Iterable
-    does Positional {
+unit class LibXML::Node::Set;
 
-    use LibXML::Enums;
-    use LibXML::Raw;
-    use LibXML::Raw::HashTable;
-    use LibXML::Item;
-    use Method::Also;
-    use NativeCall;
+use LibXML::Types :resolve-package;
 
-    has LibXML::Item $.of;
-    has Bool $.deref;
-    has xmlNodeSet $.raw;
-    has $!hstore;
+also does Iterable;
+also does Positional;
+also does LibXML::Types::XPathish;
 
-    submethod TWEAK {
-        $!raw //= xmlNodeSet.new;
-        .Reference given $!raw;
-    }
-    submethod DESTROY {
-        .Unreference with $!raw;
-    }
+use LibXML::Raw;
+use LibXML::Raw::HashTable;
+use LibXML::Enums;
+use LibXML::Item;
+use Method::Also;
+use NativeCall;
 
-    method elems is also<size Numeric> { $!raw.nodeNr }
-    method Seq returns Seq handles<Array list values map grep> {
-        my CArray $tab := $!raw.nodeTab;
-        (^$!raw.nodeNr).map: { $!of.box: $tab[$_] };
-    }
+has LibXML::Item $.of;
+has Bool $.deref;
+has xmlNodeSet $.raw;
+has $!hstore;
 
-    method Hash handles <AT-KEY keys pairs> {
-        $!hstore //= do {
+submethod TWEAK {
+    $!raw //= xmlNodeSet.new;
+    .Reference given $!raw;
+}
+submethod DESTROY {
+    .Unreference with $!raw;
+}
+
+method elems is also<size Numeric> { $!raw.nodeNr }
+method Seq returns Seq handles<Array list values map grep> {
+    my CArray $tab := $!raw.nodeTab;
+    (^$!raw.nodeNr).map: { $!of.box: $tab[$_] };
+}
+
+method Hash handles <AT-KEY keys pairs> {
+    return $_ with ⚛$!hstore;
+    cas $!hstore, {
+        $_ // do {
             my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
-            require LibXML::HashMap::Maker;
-            LibXML::HashMap::Maker.(LibXML::Node::Set).new: :$raw;
+            resolve-package('LibXML::HashMap::NodeSet').new: :$raw;
         }
     }
-    method AT-POS(UInt:D $pos) {
-        $pos >= $!raw.nodeNr
-            ?? $!of
-            !! $!of.box($!raw.nodeTab[$pos]);
+}
+method AT-POS(UInt:D $pos) {
+    $pos >= $!raw.nodeNr
+        ?? $!of
+        !! $!of.box($!raw.nodeTab[$pos]);
+}
+method add(LibXML::Item:D $node) is also<push> {
+    constant Ref = 1;
+    fail "node has wrong type {$node.WHAT.raku} for node-set of type: {$!of.WHAT}"
+        unless $node ~~ $!of;
+    $!hstore ⚛= Nil;
+    $!raw.push($node.raw.ItemNode, Ref);
+    $node;
+}
+method pop {
+    with $!raw.pop -> $node {
+        $!hstore ⚛= Nil;
+        $!of.box: $node;
     }
-    method add(LibXML::Item:D $node) is also<push> {
-        constant Ref = 1;
-        fail "node has wrong type {$node.WHAT.raku} for node-set of type: {$!of.WHAT}"
-            unless $node ~~ $!of;
-        $!hstore = Nil;
-        $!raw.push($node.raw.ItemNode, Ref);
+    else {
+        $!of;
+    }
+}
+multi method delete(UInt $pos) is also<DELETE-POS> {
+    my $node = self.AT-POS($pos);
+    self.delete($_) with $node;
+    $node;
+}
+multi method delete(LibXML::Item:D $node) {
+    my UInt $idx := $!raw.delete($node.raw.ItemNode);
+    if $idx >= 0 {
+        $!hstore ⚛= Nil;
         $node;
     }
-    method pop {
-        with $!raw.pop -> $node {
-            $!hstore = Nil;
-            $!of.box: $node;
-        }
-        else {
-            $!of;
-        }
+    else {
+        $!of;
     }
-    multi method delete(UInt $pos) is also<DELETE-POS> {
-        my $node = self.AT-POS($pos);
-        self.delete($_) with $node;
-        $node;
-    }
-    multi method delete(LibXML::Item:D $node) {
-        my UInt $idx := $!raw.delete($node.raw.ItemNode);
-        if $idx >= 0 {
-            $!hstore = Nil;
-            $node;
-        }
-        else {
-            $!of;
-        }
-    }
-    method first { self.AT-POS(0) }
-    method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
-    method string-value { do with $.first { .string-value } // Str}
-    multi method to-literal( :list($)! where .so ) { self».string-value }
-    multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
-    method Bool { self.defined && so self.elems }
-    method Str is also<gist> handles <Int Num trim chomp> { $.Array».Str.join }
-    method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
-    method reverse {
-        $!raw.reverse;
-        $!hstore = Nil;
-        self;
-    }
-    method ast { self.Array».ast }
+}
+method first { self.AT-POS(0) }
+method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
+method string-value { do with $.first { .string-value } // Str}
+multi method to-literal( :list($)! where .so ) { self».string-value }
+multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }
+method Bool { self.defined && so self.elems }
+method Str is also<gist> handles <Int Num trim chomp> { $.Array».Str.join }
+method is-equiv(LibXML::Node::Set:D $_) { ? $!raw.hasSameNodes(.raw) }
+method reverse {
+    $!raw.reverse;
+    $!hstore ⚛= Nil;
+    self;
+}
+method ast { self.Array».ast }
 
-    method iterator($nodes:) {
-        class Iteration does Iterator {
-            has UInt $!idx = 0;
-            has LibXML::Node::Set $.nodes is required;
-            method pull-one {
-                if $!idx < $!nodes.raw.nodeNr {
-                    $!nodes.AT-POS($!idx++);
-                }
-                else {
-                    IterationEnd;
-                }
+method iterator($nodes:) {
+    class Iteration does Iterator {
+        has UInt $!idx = 0;
+        has LibXML::Node::Set $.nodes is required;
+        method pull-one {
+            if $!idx < $!nodes.raw.nodeNr {
+                $!nodes.AT-POS($!idx++);
+            }
+            else {
+                IterationEnd;
             }
         }
-        Iteration.new: :$nodes;
     }
+    Iteration.new: :$nodes;
 }
 
 =begin pod

@@ -1,13 +1,13 @@
+#| LibXML CDATA Section nodes
+unit class LibXML::CDATA is repr('CPointer');
+
 use LibXML::Node;
 use LibXML::_CharacterData;
 use W3C::DOM;
 
-#| LibXML CDATA Section nodes
-unit class LibXML::CDATA
-    is repr('CPointer')
-    is LibXML::Node
-    does LibXML::_CharacterData
-    does W3C::DOM::CDATASection;
+also is LibXML::Node;
+also does LibXML::_CharacterData;
+also does W3C::DOM::CDATASection;
 
 use LibXML::Raw;
 use NativeCall;

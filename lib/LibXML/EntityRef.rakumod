@@ -1,11 +1,11 @@
+#| Entity Reference nodes
+unit class LibXML::EntityRef is repr('CPointer');
+
 use LibXML::Node;
 use W3C::DOM;
 
-#| Entity Reference nodes
-unit class LibXML::EntityRef
-    is repr('CPointer')
-    is LibXML::Node
-    does W3C::DOM::EntityReference;
+also is LibXML::Node;
+also does W3C::DOM::EntityReference;
 
 =begin pod
 

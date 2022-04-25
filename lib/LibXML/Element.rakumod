@@ -1,13 +1,15 @@
-use LibXML::Node :&iterate-list;
+
+#| LibXML Class for Element Nodes
+unit class LibXML::Element is repr('CPointer');
+
+use LibXML::Node;
+use LibXML::Utils :iterate-list;
 use LibXML::_ParentNode;
 use W3C::DOM;
 
-#| LibXML Class for Element Nodes
-unit class LibXML::Element
-    is repr('CPointer')
-    is LibXML::Node
-    does LibXML::_ParentNode
-    does W3C::DOM::Element;
+also is LibXML::Node;
+also does LibXML::_ParentNode;
+also does W3C::DOM::Element;
 
 =begin pod
     =head2 Synopsis
@@ -485,7 +487,7 @@ multi method AT-KEY(Str:D $ where /^['@'|'attribute::']<name=.XML::Grammar::name
 }
 
 method appendWellBalancedChunk(Str:D $string --> LibXML::Node) {
-    my $frag = (require ::('LibXML::DocumentFragment')).parse: :balanced, :$string;
+    my $frag = box-class('LibXML::DocumentFragment').parse: :balanced, :$string;
     self.appendChild( $frag );
 }
 

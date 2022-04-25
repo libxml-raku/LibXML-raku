@@ -1,14 +1,24 @@
 use v6;
-use LibXML::Item :box-class, :ast-to-xml;
-use LibXML::_DomNode;
-use W3C::DOM;
 
 #| Abstract base class of LibXML Nodes
-unit class LibXML::Node
-    is repr('CPointer')
-    is LibXML::Item
-    does LibXML::_DomNode
-    does W3C::DOM::Node;
+unit class LibXML::Node is repr('CPointer');
+
+use LibXML::Item :box-class, :ast-to-xml, :dom-boxed;
+use LibXML::_DomNode;
+use LibXML::Config;
+use LibXML::Enums;
+use LibXML::Namespace;
+use LibXML::Raw;
+use LibXML::XPath::Expression;
+use LibXML::Types :NCName, :QName, :NameVal;
+use LibXML::Utils :iterate-list, :iterate-set, :output-options;
+use W3C::DOM;
+use NativeCall;
+use Method::Also;
+
+also is LibXML::Item;
+also does LibXML::_DomNode;
+also does W3C::DOM::Node;
 
 =begin pod
 
@@ -119,19 +129,8 @@ unit class LibXML::Node
 
     Many methods listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
-use Method::Also;
-use NativeCall;
-
-use LibXML::Raw;
-use LibXML::Config;
-use LibXML::Enums;
-use LibXML::Namespace;
-use LibXML::XPath::Expression;
-use LibXML::Types :NCName, :QName;
-use LibXML::Item :dom-boxed;
 
 constant config = LibXML::Config;
-my subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
 enum <SkipBlanks KeepBlanks>;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
@@ -309,7 +308,7 @@ method prev returns LibXML::Node is dom-boxed {...}
 
 # Fallback to LibXML::Attr::Map:U for non-element nodes
 method attributes(LibXML::Node:D $node:) {
-    require ::('LibXML::Attr::Map')
+    box-class('LibXML::Attr::Map')
 }
 
 =begin pod
@@ -529,9 +528,7 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
 ########################################################################
 =head2 Searching Methods
 
-method xpath-class {
-    require ::('LibXML::XPath::Context');
-}
+method xpath-class { box-class('LibXML::XPath::Context') }
 
 method xpath-context($node: |c) {
     $.xpath-class.new: :$node, |c;
@@ -724,16 +721,6 @@ method exists(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
     See L<LibXML::XPath::Context> for more details.
 =end pod
 
-sub iterate-list($parent, $of, Bool :$blank = True) is export(:iterate-list) {
-    # follow a chain of .next links.
-    (require ::('LibXML::Node::List')).new: :$of, :$blank, :$parent;
-}
-
-sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {
-    # iterate through a set of nodes
-    (require ::('LibXML::Node::Set')).new( :$raw, :$of, :$deref );
-}
-
 multi method ACCEPTS(LibXML::Node:D: LibXML::XPath::Expression:D $expr) {
     $.xpath-context.exists($expr);
 }
@@ -893,25 +880,6 @@ multi method save(IO() :io($path)!, |c) {
 
 multi method save(IO() :file($io)!, |c) {
     $.save(:$io, |c).close;
-}
-
-sub output-options(UInt :$options is copy = 0,
-                   Bool :$format,
-                   Bool :$skip-xml-declaration = config.skip-xml-declaration,
-                   Bool :$tag-expansion = config.tag-expansion,
-                   # **DEPRECATED**
-                   Bool :$skip-decl, Bool :$expand,
-                  ) is export(:output-options) {
-
-    warn ':skip-decl option is deprecated, please use :skip-xml-declaration'
-        with $skip-decl;
-    warn ':expand option is deprecated, please use :tag-expansion'
-        with $expand;
-    for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY {
-        $options +|= .value if .key;
-    }
-
-    $options;
 }
 
 method protect(&action) {

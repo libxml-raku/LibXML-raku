@@ -1,9 +1,11 @@
 #| methods common to elements, documents and document fragments
 unit role LibXML::_ParentNode;
 
-use LibXML::Node :iterate-set;
-use LibXML::Types :QName, :NameVal;
+use LibXML::Node;
 use LibXML::Config;
+use LibXML::Types :QName, :NameVal;
+use LibXML::Utils :iterate-set;
+
 my constant config = LibXML::Config;
 
 method getElementsByTagName(Str:D $name) {

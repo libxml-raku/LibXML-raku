@@ -1,13 +1,11 @@
 use v6;
 use Test;
-##
-# this test checks the DOM Document interface of XML::LibXML
+
+# this test checks the DOM Document interface of LibXML
 # it relies on the success of t/01basic.t and t/02parse.t
 
 # it will ONLY test the DOM capabilities as specified in DOM Level3
 # XPath tests should be done in another test file
-
-# since all tests are run on a preparsed
 
 plan 9;
 
@@ -16,12 +14,11 @@ use LibXML::Enums;
 
 sub is-empty-str(Str $s)
 {
-    return (!defined($s) or ($s.chars == 0));
+    ! $s.so;
 }
 
 sub _check_element_node(LibXML::Node $node, Str $name, Str $blurb)
 {
-
      ok $node, "$blurb - node was initialised";
      is $node.nodeType, +XML_ELEMENT_NODE, "$blurb - node is an element node";
      is $node.nodeName, $name, "$blurb - node has the right name.";
@@ -30,7 +27,7 @@ sub _check_element_node(LibXML::Node $node, Str $name, Str $blurb)
 
 sub _check_created_element(LibXML::Document $doc, Str $given-name, Str $name, Str $blurb)
 {
-    return _check_element_node(
+    _check_element_node(
         $doc.createElement($given-name),
         $name,
         $blurb
@@ -40,52 +37,51 @@ sub _check_created_element(LibXML::Document $doc, Str $given-name, Str $name, St
 sub _multi_arg_generic_count(LibXML::Node $node, Str $method, @ (List $meth_params, UInt $want_count, Str $blurb))
 {
     my @elems = $node."$method"( |$meth_params );
-    return is +(@elems), $want_count, $blurb;
+    is +(@elems), $want_count, $blurb;
 }
 
 sub _generic_count(LibXML::Node $node, Str $method, @ (Str $name, UInt $want_count, Str $blurb))
 {
-    return _multi_arg_generic_count(
+    _multi_arg_generic_count(
         $node, $method, [[$name], $want_count, $blurb, ],
     );
 }
 
 sub _count_local_name(LibXML::Document $doc, *@args)
 {
-    return _generic_count($doc, 'getElementsByLocalName', @args);
+    _generic_count($doc, 'getElementsByLocalName', @args);
 }
 
 sub _count_tag_name(LibXML::Node $node, *@args)
 {
-    return _generic_count($node, 'getElementsByTagName', @args);
+    _generic_count($node, 'getElementsByTagName', @args);
 }
 
 sub _count_children_by_local_name(LibXML::Node $node, *@args)
 {
-    return _generic_count($node, 'getChildrenByLocalName', @args);
+    _generic_count($node, 'getChildrenByLocalName', @args);
 }
 
 sub _count_children_by_name(LibXML::Node $node, *@args)
 {
-    return _generic_count($node, 'getChildrenByTagName', @args);
+    _generic_count($node, 'getChildrenByTagName', @args);
 }
 
 sub _count_elements_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want_count, Str $blurb)
 {
-    return _multi_arg_generic_count($node, 'getElementsByTagNameNS',
+    _multi_arg_generic_count($node, 'getElementsByTagNameNS',
         [$ns_and_name, $want_count, $blurb]
     );
 }
 
 sub _count_children_by_name_ns(LibXML::Node $node, List $ns_and_name, UInt $want_count, Str $blurb)
 {
-    return _multi_arg_generic_count($node, 'getChildrenByTagNameNS',
+    _multi_arg_generic_count($node, 'getChildrenByTagNameNS',
         [$ns_and_name, $want_count, $blurb]
     );
 }
 
 subtest 'document attributes', {
-
     my LibXML::Document $doc .= createDocument();
     ok $doc.defined, 'document creation';
 
@@ -369,7 +365,7 @@ subtest 'document manipulation', {
 
 subtest 'document storing', {
     need LibXML::Document;
-    # Document Storing
+
     my LibXML $parser .= new;
     my LibXML::Document $doc = $parser.parse: :string("<foo>bar</foo>");
 

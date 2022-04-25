@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML::HashMap;
 use LibXML::Element;
-use LibXML::XPath::Object :XPathRange;
+use LibXML::Types :XPathRange;
 use NativeCall;
 
 plan 2;

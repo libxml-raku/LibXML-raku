@@ -1,13 +1,13 @@
+#| LibXML Text Nodes
+unit class LibXML::Text is repr('CPointer');
+
 use LibXML::Node;
 use LibXML::_CharacterData;
 use W3C::DOM;
 
-#| LibXML Text Nodes
-unit class LibXML::Text
-    is repr('CPointer')
-    is LibXML::Node
-    does LibXML::_CharacterData
-    does W3C::DOM::Text;
+also is LibXML::Node;
+also does LibXML::_CharacterData;
+also does W3C::DOM::Text;
 
 use LibXML::Raw;
 use Method::Also;

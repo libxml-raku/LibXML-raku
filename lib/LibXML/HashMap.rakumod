@@ -1,16 +1,17 @@
 #| Bindings to xmlHashTable
-unit class LibXML::HashMap
-    does Associative
-    is repr('CPointer');
+unit class LibXML::HashMap is repr('CPointer');
+
+also does Associative;
 
 use LibXML::Item;
 use LibXML::Node::Set;
-use LibXML::XPath::Object :XPathRange;
+use LibXML::Types :XPathRange;
 use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
 use LibXML::Raw::HashTable;
 use LibXML::Enums;
 use LibXML::Dtd::Notation;
+use LibXML::XPath::Object;
 use NativeCall;
 use Method::Also;
 

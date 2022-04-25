@@ -1,12 +1,14 @@
+
+#| LibXML DOM Document Class
+unit class LibXML::Document;
+
 use LibXML::Node;
 use LibXML::_ParentNode;
 use W3C::DOM;
 
-#| LibXML DOM Document Class
-unit class LibXML::Document
-    is LibXML::Node
-    does LibXML::_ParentNode
-    does W3C::DOM::Document;
+also is LibXML::Node;
+also does LibXML::_ParentNode;
+also does W3C::DOM::Document;
 
 use LibXML::Attr;
 use LibXML::CDATA;
@@ -19,11 +21,11 @@ use LibXML::Element;
 use LibXML::EntityRef;
 use LibXML::Enums;
 use LibXML::Item :dom-boxed;
-use LibXML::Node :&output-options;
+use LibXML::Utils :&output-options;
 use LibXML::Raw;
 use LibXML::PI;
 use LibXML::Text;
-use LibXML::Types :QName, :NCName, :NameVal;
+use LibXML::Types :QName, :NCName, :NameVal, :resolve-package;
 use LibXML::_Validator;
 use Method::Also;
 use NativeCall;
@@ -174,9 +176,7 @@ method new(
 
 =end pod
 
-method implementation returns W3C::DOM::Implementation {
-    require ::('LibXML');
-}
+method implementation returns W3C::DOM::Implementation { resolve-package('LibXML') }
 
 # Perl compatibility
 multi method createDocument(Str:D() $version where /^\d'.'\d$/, xmlEncodingStr $enc) {
@@ -854,7 +854,7 @@ method externalSubset is rw returns LibXML::Dtd {
              );
 }
 
-method parser handles<parse parseFromString> { require ::('LibXML::Parser'); }
+method parser handles<parse parseFromString> { resolve-package('LibXML::Parser'); }
 =begin pod
     =head3 method parse
 

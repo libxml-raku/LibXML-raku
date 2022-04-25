@@ -108,12 +108,13 @@ use LibXML::Document;
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::Namespace;
-use LibXML::Node :iterate-set, :NameVal;
+use LibXML::Utils :iterate-set;
+use LibXML::Node;
 use LibXML::Node::List;
 use LibXML::Node::Set;
-use LibXML::Types :NCName, :QName;
+use LibXML::Types :NCName, :QName, :XPathRange, :NameVal;
 use LibXML::XPath::Expression;
-use LibXML::XPath::Object :XPathRange;
+use LibXML::XPath::Object;
 use NativeCall;
 use Method::Also;
 

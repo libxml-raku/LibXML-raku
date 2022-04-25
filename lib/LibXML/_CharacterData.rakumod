@@ -1,4 +1,4 @@
-#| This class models the W3C DOM CharacterData abstract class
+#| This role models the W3C DOM CharacterData abstract class
 unit role LibXML::_CharacterData;
 
 use LibXML::Raw;

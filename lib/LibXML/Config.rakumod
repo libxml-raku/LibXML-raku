@@ -10,21 +10,29 @@ unit class LibXML::Config;
 
 use LibXML::Enums;
 use LibXML::Raw;
+use LibXML::Types :resolve-package;
 use NativeCall;
+use AttrX::Mooish;
 
 =head2 Configuration Methods
 
 #| Returns the run-time version of the `libxml2` library.
+my $version;
 method version returns Version {
-    state $ //= Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.');
+    return $_ with ⚛$version;
+    cas $version, { $_ // Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.') };
 }
 
 #| Returns the version of the `libxml2` library that the LibXML module was built against
-method config-version { Version.new: xml6_config::version(); }
+my $config-version;
+method config-version {
+    return $_ with ⚛$config-version;
+    cas $config-version, { $_ // Version.new: xml6_config::version() }
+}
 
 #| Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
 method have-reader returns Bool {
-    (require ::('LibXML::Reader')).have-reader
+    resolve-package('LibXML::Reader').have-reader
 }
 
 #| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
@@ -40,35 +48,45 @@ method have-threads returns Bool { ? xml6_config::have_threads(); }
 #| Returns True if the `libxml2` library supports compression
 method have-compression returns Bool { ? xml6_config::have_compression(); }
 
-my @catalogs;
+my $catalogs = SetHash.new;
 my $catalog-lock = Lock.new;
 method load-catalog(Str:D $filename --> Nil) {
     $catalog-lock.protect: {
         my Int $stat = 0;
-        unless @catalogs.first($filename) {
+        unless $filename ∈ $catalogs {
             $stat = xmlLoadCatalog($filename);
             fail "unable to load XML catalog: $filename"
                 if $stat < 0;
-            @catalogs.push: $filename;
+            $catalogs.set: $filename;
         }
     }
 }
 
 =head2 Serialization Default Options
 
-our $inputCallbacks;
+my $inputCallbacks;
 
 # -- Output options --
 
-our $skipXMLDeclaration = Bool;
-our $skipDTD = Bool;
-our $maxErrors = 100;
+my Bool:D $skipXMLDeclaration = False;
+my Bool:D $skipDTD = False;
+my Int:D $maxErrors = 100;
 
-#| Whether to omit '<?xml ...>' preamble (default Fallse)
-method skip-xml-declaration returns Bool is rw { flag-proxy($skipXMLDeclaration) }
+#| Whether to omit '<?xml ...>' preamble (default False)
+has Bool:D $!skipXMLDeclaration is mooish(:lazy);
+method !build-skipXMLDeclaration { $skipXMLDeclaration }
+
+proto method skip-xml-declaration() {*}
+multi method skip-xml-declaration(::?CLASS:U: --> Bool) is rw { flag-proxy($skipXMLDeclaration) }
+multi method skip-xml-declaration(::?CLASS:D: --> Bool) is rw { flag-proxy($!skipXMLDeclaration) }
 
 #| Whether to omit internal DTDs (default False)
-method skip-dtd returns Bool is rw { flag-proxy($skipDTD) }
+has Bool:D $!skipDTD is mooish(:lazy);
+method !build-skipDTD { $skipDTD }
+
+proto method skip-dtd() {*}
+multi method skip-dtd(::?CLASS:U: --> Bool) is rw { flag-proxy($skipDTD) }
+multi method skip-dtd(::?CLASS:D: --> Bool) is rw { flag-proxy($!skipDTD) }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 method tag-expansion is rw returns Bool {
@@ -76,15 +94,18 @@ method tag-expansion is rw returns Bool {
 }
 
 #| Maximum errors before throwing a fatal X::LibXML::TooManyErrors
-method max-errors is rw returns UInt:D {
-    $maxErrors;
-}
+has UInt:D $!maxErrors is mooish(:lazy);
+method !build-maxErrors { $maxErrors }
+
+proto method max-errors() {*}
+multi method max-errors(::?CLASS:U: --> UInt:D) is rw { $maxErrors }
+multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!maxErrors }
 
 =head2 Parsing Default Options
 
 sub flag-proxy($flag is rw) is rw {
     Proxy.new( FETCH => sub ($) { $flag.so },
-               STORE => sub ($, $_) { $flag = .so } ); 
+               STORE => sub ($, $_) { $flag = .so } );
 }
 
 method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
@@ -163,13 +184,21 @@ method external-entity-loader returns Callable is rw {
         =end code
 
 #| Default input callback handlers
-method input-callbacks is rw {
+has $!inputCallbacks is mooish(:lazy);
+method !build-inputCallbacks { $inputCallbacks }
+
+proto method input-callbacks(|) {*}
+multi method input-callbacks(::?CLASS:U:) is rw {
     Proxy.new(
         FETCH => sub ($) { $inputCallbacks },
-        STORE => sub ($, $callbacks) {
-            $inputCallbacks = $callbacks;
-        }
+        STORE => sub ($, $callbacks) { $inputCallbacks = $callbacks }
     );
+}
+multi method input-callbacks(::?CLASS:D:) is rw {
+    Proxy.new(
+        FETCH => sub ($) { $!inputCallbacks },
+        STORE => sub ($, $callbacks) { $!inputCallbacks = $callbacks }
+        );
 }
 =para See L<LibXML::InputCallback>
 
@@ -177,7 +206,7 @@ method input-callbacks is rw {
 
 my subset QueryHandler where .can('query-to-xpath').so;
 
-our $queryHandler = class NoQueryHandler {
+my QueryHandler $queryHandler = class NoQueryHandler {
     method query-to-xpath($) {
         fail "queryHandler has not been configured";
     }
@@ -189,13 +218,21 @@ method lock handles<protect> {
 }
 
 #| Default query handler to service querySelector() and querySelectorAll() methods
-method query-handler returns QueryHandler is rw {
+has $!queryHandler is mooish(:lazy);
+method !build-queryHandler { $queryHandler }
+
+proto method query-handler() {*}
+multi method query-handler(::?CLASS:U: --> QueryHandler) is rw {
     Proxy.new(
         FETCH => sub ($) { $queryHandler },
-        STORE => sub ($, QueryHandler $_) {
-            $queryHandler = $_;
-        }
+        STORE => sub ($, QueryHandler $_) { $queryHandler = $_; }
     );
+}
+multi method query-handler(::?CLASS:D: --> QueryHandler) is rw {
+    Proxy.new(
+        FETCH => sub ($) { $!queryHandler },
+        STORE => sub ($, QueryHandler $_) { $!queryHandler = $_; }
+        );
 }
 =para See L<LibXML::XPath::Context>
 

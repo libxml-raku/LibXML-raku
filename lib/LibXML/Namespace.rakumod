@@ -1,10 +1,10 @@
+#| LibXML Namespace implementation
+unit class LibXML::Namespace is repr('CPointer');
+
 use LibXML::Item;
 use LibXML::_DomNode;
-#| LibXML Namespace implementation
-unit class LibXML::Namespace
-    is repr('CPointer')
-    is LibXML::Item
-    does LibXML::_DomNode;
+also is LibXML::Item;
+also does LibXML::_DomNode;
 
 =begin pod
     =head2 Synopsis

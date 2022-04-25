@@ -10,7 +10,8 @@
     "File::Temp",
     "Method::Also",
     "W3C::DOM:ver<0.0.2+>",
-    "XML"
+    "XML",
+    "AttrX::Mooish:ver<0.8.4+>:auth<zef:vrurg>"
   ],
   "description": "Raku bindings to the libxml2 native library",
   "license": "Artistic-2.0",
@@ -37,7 +38,7 @@
     "LibXML::Enums": "lib/LibXML/Enums.rakumod",
     "LibXML::ErrorHandling": "lib/LibXML/ErrorHandling.rakumod",
     "LibXML::HashMap": "lib/LibXML/HashMap.rakumod",
-    "LibXML::HashMap::Maker": "lib/LibXML/HashMap/Maker.rakumod",
+    "LibXML::HashMap::NodeSet": "lib/LibXML/HashMap/NodeSet.rakumod",
     "LibXML::InputCallback": "lib/LibXML/InputCallback.rakumod",
     "LibXML::Item": "lib/LibXML/Item.rakumod",
     "LibXML::Namespace": "lib/LibXML/Namespace.rakumod",
@@ -72,6 +73,7 @@
     "LibXML::Schema": "lib/LibXML/Schema.rakumod",
     "LibXML::Text": "lib/LibXML/Text.rakumod",
     "LibXML::Types": "lib/LibXML/Types.rakumod",
+    "LibXML::Utils": "lib/LibXML/Utils.rakumod",
     "LibXML::XPath::Context": "lib/LibXML/XPath/Context.rakumod",
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",
     "LibXML::XPath::Object": "lib/LibXML/XPath/Object.rakumod",
@@ -81,6 +83,7 @@
     "LibXML::_ParentNode": "lib/LibXML/_ParentNode.rakumod",
     "LibXML::_Validator": "lib/LibXML/_Validator.rakumod"
   },
+  "raku": "*",
   "resources": [
     "libraries/xml6",
     "libraries/libxml2"
@@ -97,5 +100,5 @@
   ],
   "test-depends": [
   ],
-  "version": "0.6.14"
+  "version": "0.6.15"
 }
