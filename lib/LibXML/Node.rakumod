@@ -5,7 +5,6 @@ unit class LibXML::Node is repr('CPointer');
 
 use LibXML::Item :box-class, :ast-to-xml, :dom-boxed;
 use LibXML::_DomNode;
-use LibXML::Config;
 use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::Raw;
@@ -130,7 +129,6 @@ also does W3C::DOM::Node;
     Many methods listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-constant config = LibXML::Config;
 enum <SkipBlanks KeepBlanks>;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 

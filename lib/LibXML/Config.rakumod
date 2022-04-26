@@ -129,14 +129,19 @@ method parser-flags returns UInt {
 }
 
 state &externalEntityLoader;
+has &!externalEntityLoader  is mooish(:lazy);
+proto method external-entity-loader() {*}
+multi method external-entity-loader(::?CLASS:U: --> Code) is rw { entity-loader(&externalEntityLoader) }
+multi method external-entity-loader(::?CLASS:D: --> Code) is rw { entity-loader(&!externalEntityLoader) }
+
 #| External entity handler to be used when parser expand-entities is set.
-method external-entity-loader returns Callable is rw {
+sub entity-loader($entityLoader is rw) returns Callable is rw {
     Proxy.new(
         FETCH => {
-            &externalEntityLoader //= nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
+            $entityLoader //= nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
         },
         STORE => -> $, &cb {
-            &externalEntityLoader = &cb;
+            $entityLoader = &cb;
             my constant XML_CHAR_ENCODING_NONE = 0;
             my constant XML_ERR_ENTITY_PROCESSING = 104;
             xmlExternalEntityLoader::Set(

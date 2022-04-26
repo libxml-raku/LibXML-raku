@@ -2,31 +2,31 @@
 unit class LibXML::Parser;
 
 use LibXML::Parser::Context;
+use LibXML::_Configurable;
 use LibXML::_Options;
+
 constant %Opts = %(
     %LibXML::Parser::Context::Opts,
     %(:URI, :html, :line-numbers,
       :sax-handler, :input-callbacks, :enc,
      )
 );
+also does LibXML::_Configurable;
 also does LibXML::_Options[%Opts];
 
-use LibXML::Config;
 use LibXML::Raw;
 use LibXML::Enums;
 use LibXML::Document;
 use LibXML::PushParser;
 use Method::Also;
 
-constant config = LibXML::Config;
-
 has Bool $.html is rw is built = False;
 has Bool $.line-numbers is rw is built = False;
-has UInt $.flags is rw is built = config.parser-flags();
+has UInt $.flags is rw is built = self.config.parser-flags();
 has Str $.URI is rw is built;
 has $.sax-handler is rw is built;
 has xmlEncodingStr $.enc is rw is built;
-has $.input-callbacks is rw is built = config.input-callbacks;
+has $.input-callbacks is rw is built = self.config.input-callbacks;
 multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 
@@ -62,7 +62,7 @@ method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input
 method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
     my xmlDoc $raw = $ctx.publish();
     my $input-compressed = $ctx.input-compressed();
-    my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed
+    my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed, :$.config
         with $raw;
 
     if $.expand-xinclude {
@@ -305,8 +305,6 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     my $string = $doc.Str;
     $.parse( :$string, |c );
 }
-
-method load-catalog(Str:D $_) { config.load-catalog($_) }
 
 submethod TWEAK(
     :buf($), :file($), :string($), :fd($), :io($), :location($), # .parse modes

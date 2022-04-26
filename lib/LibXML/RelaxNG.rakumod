@@ -1,8 +1,8 @@
-use LibXML::_Validator;
-
 #| RelaxNG Schema Validation
 unit class LibXML::RelaxNG
-    does LibXML::_Validator;
+
+use LibXML::_Validator;
+also does LibXML::_Validator;
 
     =head2 Synopsis
 
