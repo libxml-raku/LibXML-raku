@@ -1,13 +1,13 @@
 use v6;
 
-# Try running this under valgrind (perl6-valigrind-m)
+# Try running this under valgrind (raku-valigrind-m)
 
 use Test;
 use LibXML;
 use LibXML::Reader;
 use LibXML::Enums;
 
-plan 2;
+plan 3;
 
 unless LibXML.have-reader {
     skip-rest "LibXML Reader not supported in this libxml2 build";
@@ -68,8 +68,7 @@ class Test::XML::Ordered {
                     my $expected_text = $!expected.value();
 
                     for $got_text, $expected_text -> $t is rw {
-                        $t ~~ s/^s+//;
-                        $t ~~ s/\s+$//;
+                        $t .= trim;
                         $t ~~ s:g/\s+/ /;
                     }
                     if $got_text ne $expected_text {
@@ -221,7 +220,7 @@ EOF
     my LibXML::Reader $got .= new: :string($final_source);
     my LibXML::Reader $expected .= new: :string($xml_source);
 
-    Test::XML::Ordered::is-xml-ordered( :$got, :$expected, :diag-message<foo> );
+    ok Test::XML::Ordered::is-xml-ordered( :$got, :$expected, :diag-message<foo> );
 }
 
 pass("Finished");

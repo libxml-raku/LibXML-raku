@@ -21,7 +21,7 @@ also does LibXML::ErrorHandling;
       }
 
       my LibXML::Reader $reader .= new(file => "file.xml")
-             or die "cannot read file.xml\n";
+          or die "cannot read file.xml";
       while $reader.read {
           dump-node($reader);
       }
@@ -31,7 +31,7 @@ also does LibXML::ErrorHandling;
       use LibXML::Reader;
 
       my LibXML::Reader $reader .= new(file => "file.xml")
-             or die "cannot read file.xml\n";
+          or die "cannot read file.xml";
       $reader.preservePattern('//table/tr');
       $reader.finish;
       print $reader.document.Str(:deep);
@@ -90,7 +90,7 @@ my subset Schema  where LibXML::Schema|Str|Any:U;
 has RelaxNG $!RelaxNG;
 has Schema  $!Schema;
 has $.sax-handler is rw;
-has UInt $.flags is rw = LibXML::Config.parser-flags();
+has UInt $.flags is rw = self.config.parser-flags();
 
 also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 

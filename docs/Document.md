@@ -251,7 +251,14 @@ Note that this feature will *only* work if libxml2 is compiled with zlib support
 
 ### method Str
 
-#### multi `method Str(Bool :$skip-dtd, Bool :$html, Bool :$format)`;
+```raku
+multi method Str(
+        Bool :$skip-dtd,
+        Bool :$format, Bool :$tag-expansion,
+        Bool :$skip-xml-declaration,
+        LibXML::Config :$config, # defaults for :$skip-dtd, :skip-xml-declaration and :tag-expansion
+    ) returns Str;
+```
 
 *Str* is a serializing function, so the DOM Tree is serialized into an XML string, ready for output.
 
@@ -265,16 +272,18 @@ If $format is False, or omitted, the document is dumped as it was originally par
 
 If $format is True, libxml2 will add ignorable white spaces, so the nodes content is easier to read. Existing text nodes will not be altered
 
-libxml2 uses a hard-coded indentation of 2 space characters per indentation level. This value can not be altered on run-time.
+libxml2 uses a hard-coded indentation of 2 space characters per indentation level. This value can not be altered at run-time.
 
-#### `multi method Str: :C14N($!)!, |c`
+Note that the `:C14N` and `:html` options match different multi-methods, with diffrent options, as below:
+
+#### `multi method Str: :C14N($!)!, Bool :$comments, Bool :$exclusive, :$xpath`
 
     my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
-    my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
+    my Str $xml-ec14n = $doc.Str: :C14N, :exclusive, :$xpath, :@prefix;
 
-C14N Normalisation. See the documentation in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node).
+C14N normalisation mode. See the documentation in [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node).
 
-#### `multi method Str: :$html!, |c`
+#### `multi method Str: :$html!, Bool :$format`
 
     my Str $html = $document.Str: :html;
 

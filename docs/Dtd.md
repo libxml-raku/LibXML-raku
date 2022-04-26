@@ -182,7 +182,8 @@ This function allows one to validate a (parsed) document against the given XML S
 
 ```raku
 method is-valid(
-    W3C::DOM::Document:D $doc
+    W3C::DOM::Document:D $doc,
+    LibXML::Config :$config
 ) returns Bool
 ```
 

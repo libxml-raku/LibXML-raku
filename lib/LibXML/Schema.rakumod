@@ -32,6 +32,7 @@ unit class LibXML::Schema
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Configurable;
 use LibXML::_Options;
 use LibXML::Raw;
 use LibXML::Raw::Schema;
@@ -47,6 +48,7 @@ my class Parser::Context {
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings, $.network) is rw;
+    also does LibXML::_Configurable;
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings, :network)];
     also does LibXML::ErrorHandling;
 
@@ -105,6 +107,7 @@ my class ValidContext {
     has $.sax-handler;
     method recover is also<suppress-errors suppress-warnings> { False }
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
+    also does LibXML::_Configurable;
     also does LibXML::_Options[%( :sax-handler, :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
@@ -182,9 +185,9 @@ submethod DESTROY {
     .Free with $!raw;
 }
 
-method !valid-ctx($schema:) { ValidContext.new: :$schema }
-method validate(LibXML::Node:D $node, Bool :$check) is hidden-from-backtrace {
-    self!valid-ctx.validate($node, :$check);
+method !valid-ctx($schema: :$config!) { ValidContext.new: :$schema, :$config }
+method validate(LibXML::Node:D $node, Bool :$check, LibXML::Config :$config) is hidden-from-backtrace {
+    self!valid-ctx(:$config).validate($node, :$check);
 }
 =begin pod
     =head3 method validate
@@ -198,8 +201,8 @@ method validate(LibXML::Node:D $node, Bool :$check) is hidden-from-backtrace {
     return 0, otherwise it will die() and report the errors found.
 =end pod
 
-method is-valid(LibXML::Node:D $node --> Bool) {
-    self!valid-ctx.validate($node, :check);
+method is-valid(LibXML::Node:D $node, LibXML::Config :$config --> Bool) {
+    self!valid-ctx(:$config).validate($node, :check);
 }
 =begin pod
     =head3 method is-valid

@@ -72,15 +72,15 @@ Serialization Default Options
 ### method skip-xml-declaration
 
 ```raku
-method skip-xml-declaration() returns Bool
+method skip-xml-declaration() is rw returns Bool
 ```
 
-Whether to omit '<?xml ...>' preamble (default Fallse)
+Whether to omit '<?xml ...>' preamble (default False)
 
 ### method skip-dtd
 
 ```raku
-method skip-dtd() returns Bool
+method skip-dtd() is rw returns Bool
 ```
 
 Whether to omit internal DTDs (default False)
@@ -96,7 +96,7 @@ Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 ### method max-errors
 
 ```raku
-method max-errors() returns UInt:D
+method max-errors() is rw returns Int:D
 ```
 
 Maximum errors before throwing a fatal X::LibXML::TooManyErrors
@@ -130,9 +130,11 @@ External entity handler to be used when parser expand-entities is set.
 
 The routine provided is called whenever the parser needs to retrieve the content of an external entity. It is called with two arguments: the system ID (URI) and the public ID. The value returned by the subroutine is parsed as the content of the entity. 
 
-This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html)), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab`). 
+This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html)), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab`).
 
-A more granular solution to this problem, however, is provided by custom URL resolvers, as in 
+This configuration setting acts globally on the current thread.
+
+A more granular and localised solution to this problem, however, is provided by custom URL resolvers, as in
 
 ```raku
 my LibXML::InputCallback $cb .= new;
@@ -149,7 +151,7 @@ $parser.input-callbacks($cb);
 ### method input-callbacks
 
 ```raku
-method input-callbacks() returns Mu
+method input-callbacks is rw returns LibXML::InputCallback
 ```
 
 Default input callback handlers
@@ -162,7 +164,7 @@ Query Handler
 ### method query-handler
 
 ```raku
-method query-handler() returns LibXML::Config::QueryHandler
+method query-handler() is rw returns LibXML::Config::QueryHandler
 ```
 
 Default query handler to service querySelector() and querySelectorAll() methods

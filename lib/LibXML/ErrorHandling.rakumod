@@ -216,9 +216,10 @@ class X::LibXML::Parser is X::LibXML {
 #| LibXML Exceptions and Error Handling
 role LibXML::ErrorHandling {
 
-    use LibXML::Config;
+    method config {...}
+
     has X::LibXML @!errors;
-    has UInt $.max-errors = LibXML::Config.max-errors;
+    has UInt $.max-errors = self.config.max-errors;
 
     # SAX External Callback
     sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {

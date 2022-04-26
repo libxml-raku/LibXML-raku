@@ -100,8 +100,6 @@ unit class LibXML::InputCallback;
 
 =end pod
 
-use LibXML::ErrorHandling;
-use LibXML::_Options;
 use LibXML::Raw;
 
 my class CallbackGroup {
@@ -115,6 +113,9 @@ my class CallbackGroup {
 my class Context {
     use NativeCall;
     use LibXML::Raw::Defs :$CLIB;
+    use LibXML::_Configurable;
+    use LibXML::_Options;
+    use LibXML::ErrorHandling;
     use Method::Also;
 
     has CallbackGroup $.cb is required;
@@ -123,6 +124,7 @@ my class Context {
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
     also does LibXML::_Options[%( :sax-handler, :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
+    also does LibXML::_Configurable;
 
     method !catch(Exception $error) {
         CATCH { default { note "input callback error handling error: $_" } }
@@ -215,6 +217,9 @@ my class Context {
 has CallbackGroup @!callbacks;
 method callbacks { @!callbacks }
 
+multi method COERCE(%callbacks) { self.new: :%callbacks }
+multi method COERCE(@callbacks) { self.new: :@callbacks }
+
 =head2 Methods
 
 multi submethod TWEAK( Hash :callbacks($_)! ) {
@@ -306,15 +311,15 @@ method prepend(LibXML::InputCallback $icb) {
     @!callbacks.prepend: $icb.callbacks;
 }
 
-method make-contexts {
-    @!callbacks.map: -> $cb { Context.new: :$cb }
+method make-contexts(:$config!) {
+    @!callbacks.map: -> $cb { Context.new: :$cb, :$config }
 }
 
-method activate {
+method activate(LibXML::Config :$config) {
     # just to make sure we've initialised
     xmlInputCallbacks::RegisterDefault();
 
-    my @input-contexts = @.make-contexts();
+    my @input-contexts = @.make-contexts: :$config;
 
     for @input-contexts {
         die "unable to register input callbacks"

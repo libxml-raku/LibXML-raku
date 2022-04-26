@@ -16,9 +16,10 @@ sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {
 }
 
 sub output-options(UInt :$options is copy = 0,
+                   LibXML::Config :$config,
                    Bool :$format,
-                   Bool :$skip-xml-declaration = LibXML::Config.skip-xml-declaration,
-                   Bool :$tag-expansion = LibXML::Config.tag-expansion,
+                   Bool :$skip-xml-declaration = $config.skip-xml-declaration,
+                   Bool :$tag-expansion = $config.tag-expansion,
     # **DEPRECATED**
                    Bool :$skip-decl, Bool :$expand,
                    ) is export(:output-options) {

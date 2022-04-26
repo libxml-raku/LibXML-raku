@@ -10,7 +10,7 @@ use LibXML::RelaxNG;
 use LibXML::Schema;
 
 unless LibXML.have-reader {
-    skip-rest "LibXML Reader not supported in this libxml2 build";
+    skip-rest "LibXML Reader is not supported in this libxml2 build";
     exit;
 }
 
@@ -21,69 +21,69 @@ my $file = "test/textReader/countries.xml";
 subtest 'basic', {
     my LibXML::Reader $reader .= new(location => $file, expand-entities => 1);
 
-    is-deeply($reader.getParserProp('expand-entities'), True, "getParserProp");
-    lives-ok({$reader.setParserProp(:!expand-entities)}, "setParserProp");
-    is-deeply($reader.getParserProp('expand-entities'), False, "getParserProp");
+    is-deeply $reader.getParserProp('expand-entities'), True, "getParserProp";
+    lives-ok {$reader.setParserProp(:!expand-entities)}, "setParserProp";
+    is-deeply $reader.getParserProp('expand-entities'), False, "getParserProp";
 
-    is($reader.read, True, "read");
+    is $reader.read, True, "read";
     todo "byteConsumed vary on Windows" if $*DISTRO.is-win;
-    is($reader.byteConsumed, 488, "byteConsumed");
-    is($reader.attributeCount, 0, "attributeCount");
-    is($reader.baseURI, $file, "baseURI");
-    is($reader.encoding, 'UTF-8', "encoding");
-    is($reader.localName, 'countries', "localName");
-    is($reader.name, 'countries', "name");
-    is($reader.prefix, Str, "prefix");
-    is($reader.value, Str, "value");
-    is($reader.xmlLang, Str, "xmlLang");
-    is($reader.xmlVersion, '1.0', "xmlVersion");
+    is $reader.byteConsumed, 488, "byteConsumed";
+    is $reader.attributeCount, 0, "attributeCount";
+    is $reader.baseURI, $file, "baseURI";
+    is $reader.encoding, 'UTF-8', "encoding";
+    is $reader.localName, 'countries', "localName";
+    is $reader.name, 'countries', "name";
+    is $reader.prefix, Str, "prefix";
+    is $reader.value, Str, "value";
+    is $reader.xmlLang, Str, "xmlLang";
+    is $reader.xmlVersion, '1.0', "xmlVersion";
     $reader.read;
     $reader.read;
     $reader.read;		# skipping to country node
-    is($reader.name, 'country', "skipping to country");
-    is($reader.depth, "1", "depth");
-    is($reader.getAttribute("acronym"), "AL", "getAttribute");
-    is($reader.getAttributeNo(0), "AL", "getAttributeNo");
-    is($reader.getAttributeNs("acronym", Str), "AL", "getAttributeNs");
-    is($reader.lineNumber, "20", "lineNumber");
-    is($reader.columnNumber, "1", "columnNumber");
-    ok($reader.hasAttributes, "hasAttributes");
-    ok(! $reader.hasValue, "hasValue");
-    ok(! $reader.isDefault, "isDefault");
-    ok(! $reader.isEmptyElement, "isEmptyElement");
-    ok(! $reader.isNamespaceDecl, "isNamespaceDecl");
-    ok(! $reader.isValid, "isValid");
-    is($reader.localName, "country", "localName");
-    is($reader.lookupNamespace(Str), Str, "lookupNamespace");
+    is $reader.name, 'country', "skipping to country";
+    is $reader.depth, "1", "depth";
+    is $reader.getAttribute("acronym"), "AL", "getAttribute";
+    is $reader.getAttributeNo(0), "AL", "getAttributeNo";
+    is $reader.getAttributeNs("acronym", Str), "AL", "getAttributeNs";
+    is $reader.lineNumber, "20", "lineNumber";
+    is $reader.columnNumber, "1", "columnNumber";
+    ok $reader.hasAttributes, "hasAttributes";
+    nok $reader.hasValue, "hasValue";
+    nok $reader.isDefault, "isDefault";
+    nok $reader.isEmptyElement, "isEmptyElement";
+    nok $reader.isNamespaceDecl, "isNamespaceDecl";
+    nok $reader.isValid, "isValid";
+    is $reader.localName, "country", "localName";
+    is $reader.lookupNamespace(Str), Str, "lookupNamespace";
 
-    ok($reader.moveToAttribute("acronym"), "moveToAttribute");
-    ok($reader.moveToAttributeNo(0), "moveToAttributeNo");
-    ok($reader.moveToAttributeNs("acronym", Str), "moveToAttributeNs");
+    ok $reader.moveToAttribute("acronym"), "moveToAttribute";
+    ok $reader.moveToAttributeNo(0), "moveToAttributeNo";
+    ok $reader.moveToAttributeNs("acronym", Str), "moveToAttributeNs";
 
-    ok($reader.moveToElement, "moveToElement");
+    ok $reader.moveToElement, "moveToElement";
 
-    ok($reader.moveToFirstAttribute, "moveToFirstAttribute");
-    ok($reader.moveToNextAttribute, "moveToNextAttribute");
-    ok($reader.readAttributeValue, "attributeValue");
+    ok $reader.moveToFirstAttribute, "moveToFirstAttribute";
+    ok $reader.moveToNextAttribute, "moveToNextAttribute";
+    ok $reader.readAttributeValue, "attributeValue";
 
     $reader.moveToElement;
-    is($reader.name, "country", "name");
-    is($reader.namespaceURI, Str, "namespaceURI");
+    is $reader.name, "country", "name";
+    is $reader.namespaceURI, Str, "namespaceURI";
 
-    ok($reader.nextSibling, "nextSibling");
+    ok $reader.nextSibling, "nextSibling";
 
-    is($reader.nodeType, +XML_READER_TYPE_SIGNIFICANT_WHITESPACE, "nodeType");
-    is-deeply($reader.prefix, Str, "prefix");
+    is $reader.nodeType, +XML_READER_TYPE_SIGNIFICANT_WHITESPACE, "nodeType";
+    is-deeply $reader.prefix, Str, "prefix";
 
-    is($reader.readInnerXml, "", "readInnerXml");
-    is($reader.readOuterXml, "\n", "readOuterXml");
-    ok($reader.readState, "readState");
+    is $reader.readInnerXml, "", "readInnerXml";
+    is $reader.readOuterXml, "\n", "readOuterXml";
+    ok $reader.readState, "readState";
 
-    ok($reader.standalone, "standalone");
-    is($reader.value, "\n", "value");
-    is-deeply($reader.xmlLang, Str, "xmlLang");
+    ok $reader.standalone, "standalone";
+    is $reader.value, "\n", "value";
+    is-deeply $reader.xmlLang, Str, "xmlLang";
 
-    ok($reader.close, "close");
+    ok $reader.close, "close";
 }
 
 if $*DISTRO.is-win {
@@ -95,16 +95,16 @@ else {
         my UInt:D $fd = $io.native-descriptor;
         for 1 .. 2 {
             for :$fd, :$io -> Pair:D $how {
-            $io.seek(0, SeekFromBeginning );
-            my LibXML::Reader $reader .= new(|$how,);
-            $reader.read;
-            $reader.read;
-            is($reader.name, "countries","name in fd");
-            $reader.read;
-            $reader.read;
-            $reader.read;
-            $reader.finish;
-            $reader.close;
+                $io.seek(0, SeekFromBeginning );
+                my LibXML::Reader $reader .= new(|$how,);
+                $reader.read;
+                $reader.read;
+                is $reader.name, "countries","name in fd";
+                $reader.read;
+                $reader.read;
+                $reader.read;
+                $reader.finish;
+                $reader.close;
             }
         }
         close $io;
@@ -116,17 +116,17 @@ subtest 'string interface', {
     my LibXML::Reader $reader .= new(string => $doc, URI => $file);
     $reader.read;
     $reader.read;
-    is($reader.name, "countries","name in string");
+    is $reader.name, "countries","name in string";
 }
 
 subtest 'DOM', {
-  my LibXML::Document:D $DOM = LibXML.parse: :file($file);
-  my LibXML::Reader $reader .= new(:$DOM);
-  $reader.read;
-  $reader.read;
-  is($reader.name, "countries","name in string");
-  ok($reader.document,"document");
-  ok($reader.document.isSameNode($DOM),"document is DOM");
+    my LibXML::Document:D $DOM = LibXML.parse: :file($file);
+    my LibXML::Reader $reader .= new(:$DOM);
+    $reader.read;
+    $reader.read;
+    is $reader.name, "countries","name in string";
+    ok $reader.document,"document";
+    ok $reader.document.isSameNode($DOM),"document is DOM";
 }
 
 subtest 'Expand', {
@@ -149,51 +149,51 @@ subtest 'Expand', {
         $reader.preservePattern('//x:ZZ', :ns{ :x<foo> });
 
         $reader.nextElement;
-        is($reader.name, "root","root node");
+        is $reader.name, "root","root node";
         $reader.nextElement;
-        is($reader.name, "AA","nextElement");
+        is $reader.name, "AA","nextElement";
 
         $node1 = $reader.copyCurrentNode(:deep);
-        is($node1.nodeName, "AA","deep copy node");
+        is $node1.nodeName, "AA","deep copy node";
 
         $reader.next;
-        ok($reader.nextElement("DD"),"next named element");
-        is($reader.name, "DD","name");
-        is($reader.readOuterXml, "<DD/>","readOuterXml");
-        ok($reader.read,"read");
-        is($reader.name, "BB","name");
+        ok $reader.nextElement("DD"),"next named element";
+        is $reader.name, "DD","name";
+        is $reader.readOuterXml, "<DD/>","readOuterXml";
+        ok $reader.read,"read";
+        is $reader.name, "BB","name";
         $node2 = $reader.copyCurrentNode();
-        is($node2.nodeName, "BB","shallow copy node");
+        is $node2.nodeName, "BB","shallow copy node";
         $reader.nextElement;
-        is($reader.name, "CC","nextElement");
+        is $reader.name, "CC","nextElement";
         $reader.nextSibling;
-        is( $reader.nodeType(), +XML_READER_TYPE_TEXT, "text node" );
-        is( $reader.value,"foo", "text content" );
+        is $reader.nodeType(), +XML_READER_TYPE_TEXT, "text node" ;
+        is $reader.value,"foo", "text content" ;
         $reader.skipSiblings;
-        is( $reader.nodeType(), +XML_READER_TYPE_END_ELEMENT, "end element type" );
+        is $reader.nodeType(), +XML_READER_TYPE_END_ELEMENT, "end element type" ;
         $reader.nextElement;
-        is($reader.name, "EE","name");
-        ok($reader.nextSiblingElement("ZZ","foo"),"namespace");
-        is($reader.namespaceURI, "foo","namespaceURI");
+        is $reader.name, "EE","name";
+        ok $reader.nextSiblingElement("ZZ","foo"),"namespace";
+        is $reader.namespaceURI, "foo","namespaceURI";
         $reader.nextElement;
 
         $node3 = $reader.preserveNode;
-        is( $reader.readOuterXml(), $node3.Str, "outer xml");
-        ok($node3,"preserve node");
+        is $reader.readOuterXml(), $node3.Str, "outer xml";
+        ok $node3,"preserve node";
 
         $reader.finish;
         my $doc = $reader.document;
-        ok($doc.defined, "document");
-        ok($doc.documentElement, "doc root element");
-        is($doc.documentElement.Str, q{<root><EE baz="BAZ"><PP>preserved</PP></EE><x:ZZ xmlns:x="foo"/><QQ/></root>},
-           "preserved content");
+        ok $doc.defined, "document";
+        ok $doc.documentElement, "doc root element";
+        is $doc.documentElement.Str, q{<root><EE baz="BAZ"><PP>preserved</PP></EE><x:ZZ xmlns:x="foo"/><QQ/></root>},
+           "preserved content";
     }
 
-    ok($node1.hasChildNodes,"copy w/  child nodes");
-    is($node1.Str(),q{<AA foo="FOO"> text1 <inner/> </AA>});
-    ok(!defined($node2.firstChild), "copy w/o child nodes");
-    is($node2.Str(),q{<BB bar="BAR"/>});
-    is($node3.Str(),q{<QQ/>});
+    ok $node1.hasChildNodes,"copy w/  child nodes";
+    is $node1.Str(),q{<AA foo="FOO"> text1 <inner/> </AA>};
+    nok defined($node2.firstChild), "copy w/o child nodes";
+    is $node2.Str(),q{<BB bar="BAR"/>};
+    is $node3.Str(),q{<QQ/>};
 }
 
 subtest 'error', {
@@ -225,7 +225,7 @@ subtest 'RelaxNG', {
 	        location => "test/relaxng/demo.xml",
 	        :$RelaxNG,
             );
-            ok($reader.finish, "validate using "~($RelaxNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file'));
+            ok $reader.finish, "validate using "~($RelaxNG.isa(LibXML::RelaxNG) ?? 'LibXML::RelaxNG' !! 'RelaxNG file');
         }
         {
             my LibXML::Reader $reader .= new(
@@ -250,7 +250,7 @@ subtest 'XMLSchema', {
 	            location => "test/schema/demo.xml",
 	            :$Schema,
                 );
-                ok($reader.finish, "validate using "~($Schema.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file'));
+                ok $reader.finish, "validate using "~($Schema.isa(LibXML::Schema) ?? 'LibXML::Schema' !! 'Schema file');
             }
             {
                 my LibXML::Reader $reader .= new(
@@ -278,38 +278,38 @@ subtest 'Patterns', {
     </root>
     EOF
     my $pattern = LibXML::Pattern.compile('//inner|CC|/root/y:ZZ', :ns{y=>'foo'});
-    ok($pattern);
+    ok $pattern;
     {
         my LibXML::Reader $reader .= new(string => $xml);
-        ok($reader);
+        ok $reader;
         my $matches='';
         while ($reader.read) {
             if ($reader.matchesPattern($pattern)) {
 	        $matches ~= $reader.nodePath ~ ',';
             }
         }
-        is($matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,');
+        is $matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,';
     }
 
     {
         my LibXML::Reader $reader .= new(string => $xml);
-        ok($reader);
+        ok $reader;
         my $matches='';
         while ($reader.nextPatternMatch($pattern)) {
             $matches ~= $reader.nodePath ~ ',';
         }
-        is($matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,');
+        is $matches,'/root/AA/inner,/root/BB/CC,/root/BB/CC,/root/x:ZZ,';
     }
     {
         my $dom = LibXML.parse: :string($xml);
-        ok($dom);
+        ok $dom;
         my $matches='';
         for $dom.findnodes('//node()|@*') -> $node {
             if ($pattern.matchesNode($node)) {
 	        $matches ~= $node.nodePath ~ ',';
             }
         }
-        is($matches,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,');
+        is $matches,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,';
 
         my $accepts = '';
         for $dom.findnodes('//node()|@*') -> $node {
@@ -317,7 +317,7 @@ subtest 'Patterns', {
 	        $accepts ~= $node.nodePath ~ ',';
             }
         }
-        is($accepts,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,');
+        is $accepts,'/root/AA/inner,/root/BB/CC,/root/x:ZZ,';
     }
 }
  

@@ -6,6 +6,7 @@ use Test;
 use NativeCall;
 use LibXML;
 use LibXML::InputCallback;
+use LibXML::Config;
 
 plan 19;
 
@@ -20,7 +21,7 @@ my LibXML::InputCallback $input-callbacks .= new: :callbacks{
 };
 
 # low level callback checks on external API
-my ($context) = $input-callbacks.make-contexts;
+my ($context) = $input-callbacks.make-contexts: :config(LibXML::Config);
 my $match = ($context.match)("samples/test2.xml");
 is-deeply $match, 1, "match callback when found";
 $match = ($context.match)("samples/does-not-exist.xml");

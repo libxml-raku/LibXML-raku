@@ -20,7 +20,7 @@ Synopsis
     }
 
     my LibXML::Reader $reader .= new(file => "file.xml")
-           or die "cannot read file.xml\n";
+        or die "cannot read file.xml";
     while $reader.read {
         dump-node($reader);
     }
@@ -30,7 +30,7 @@ or
     use LibXML::Reader;
 
     my LibXML::Reader $reader .= new(file => "file.xml")
-           or die "cannot read file.xml\n";
+        or die "cannot read file.xml";
     $reader.preservePattern('//table/tr');
     $reader.finish;
     print $reader.document.Str(:deep);

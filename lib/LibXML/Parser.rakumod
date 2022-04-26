@@ -56,13 +56,13 @@ method get-flags(:$html, *%opts) {
 
 method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input-callbacks=$!input-callbacks, :$sax-handler=$.sax-handler, *%opts) {
     my UInt $flags = self.get-flags(|%opts);
-    LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
+    LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags, :$.config;
 }
 
 method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
     my xmlDoc $raw = $ctx.publish();
     my $input-compressed = $ctx.input-compressed();
-    my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed, :$.config
+    my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed
         with $raw;
 
     if $.expand-xinclude {

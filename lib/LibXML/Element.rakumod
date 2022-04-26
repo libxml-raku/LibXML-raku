@@ -448,7 +448,10 @@ method !set-attributes(@atts) {
 ########################################################################
 =head2 DOM Manipulation Methods
 
-method ast(Bool :$blank = LibXML::Config.keep-blanks) {
+method ast(
+    LibXML::Config :$config,
+    Bool :$blank = $config.keep-blanks
+) {
     self.tag => [
         slip(self.namespaces>>.ast),
         slip(self.properties>>.ast),

@@ -822,7 +822,11 @@ multi method Str(LibXML::Node:D: |c) is also<gist> is default {
 =begin pod
     =head3 multi method Str() returns Str
 
-        method Str(Bool :$format, Bool :$tag-expansion) returns Str;
+        method Str(
+            Bool :$format, Bool :$tag-expansion,
+            Bool :$skip-xml-declaration,
+            LibXML::Config :$config, # defaults for :skip-xml-declaration and :tag-expansion
+        ) returns Str;
 
     This method is similar to the method C<Str> of a L<LibXML::Document> but for a single node. It returns a string consisting of XML serialization of
     the given node and all its descendants.
