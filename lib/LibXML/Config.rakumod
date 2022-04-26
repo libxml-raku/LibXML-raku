@@ -68,11 +68,12 @@ my $inputCallbacks;
 
 # -- Output options --
 
-my Bool:D $skipXMLDeclaration = False;
-my Bool:D $skipDTD = False;
-my Int:D $maxErrors = 100;
+=head3 method skip-xml-declaration
+=for code :lang<raku>
+method skip-xml-declaration() is rw returns Bool
+=para Whether to omit '<?xml ...>' preamble (default False)
 
-#| Whether to omit '<?xml ...>' preamble (default False)
+my Bool:D $skipXMLDeclaration = False;
 has Bool:D $!skipXMLDeclaration is mooish(:lazy);
 method !build-skipXMLDeclaration { $skipXMLDeclaration }
 
@@ -80,7 +81,12 @@ proto method skip-xml-declaration() {*}
 multi method skip-xml-declaration(::?CLASS:U: --> Bool) is rw { flag-proxy($skipXMLDeclaration) }
 multi method skip-xml-declaration(::?CLASS:D: --> Bool) is rw { flag-proxy($!skipXMLDeclaration) }
 
-#| Whether to omit internal DTDs (default False)
+=head3 method skip-dtd
+=for code :lang<raku>
+method skip-dtd() is rw returns Bool
+=para Whether to omit internal DTDs (default False)
+
+my Bool:D $skipDTD = False;
 has Bool:D $!skipDTD is mooish(:lazy);
 method !build-skipDTD { $skipDTD }
 
@@ -93,7 +99,12 @@ method tag-expansion is rw returns Bool {
     LibXML::Raw.TagExpansion;
 }
 
-#| Maximum errors before throwing a fatal X::LibXML::TooManyErrors
+=head3 method max-errors
+=for code :lang<raku>
+method max-errors() is rw returns Int:D
+=para Maximum errors before throwing a fatal X::LibXML::TooManyErrors
+
+my Int:D $maxErrors = 100;
 has UInt:D $!maxErrors is mooish(:lazy);
 method !build-maxErrors { $maxErrors }
 
@@ -128,20 +139,13 @@ method parser-flags returns UInt {
     + ($.keep-blanks() ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
-state &externalEntityLoader;
-has &!externalEntityLoader  is mooish(:lazy);
-proto method external-entity-loader() {*}
-multi method external-entity-loader(::?CLASS:U: --> Code) is rw { entity-loader(&externalEntityLoader) }
-multi method external-entity-loader(::?CLASS:D: --> Code) is rw { entity-loader(&!externalEntityLoader) }
-
 #| External entity handler to be used when parser expand-entities is set.
-sub entity-loader($entityLoader is rw) returns Callable is rw {
+method external-entity-loader returns Callable is rw {
     Proxy.new(
         FETCH => {
-            $entityLoader //= nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
+            nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
         },
-        STORE => -> $, &cb {
-            $entityLoader = &cb;
+        STORE => -> $, &loader {
             my constant XML_CHAR_ENCODING_NONE = 0;
             my constant XML_ERR_ENTITY_PROCESSING = 104;
             xmlExternalEntityLoader::Set(
@@ -152,15 +156,16 @@ sub entity-loader($entityLoader is rw) returns Callable is rw {
                                 $ctxt.ParserError(.message);
                             }
                             else {
-                                warn $_;
+                                note "uncaught entity loader error: " ~ .message;
                             }
                             return xmlParserInput;
                         }
                     }
-                    my Str $string := externalEntityLoader($url, $id);
+                    my Str $string := &loader($url, $id);
                     my xmlParserInputBuffer $buf .= new: :$string;
                     $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
-                });
+                }
+            );
         }
     );
 }
@@ -172,10 +177,12 @@ sub entity-loader($entityLoader is rw) returns Callable is rw {
 
 =para This method can be used to completely disable entity loading, e.g. to prevent
     exploits of the type described at  (L<http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html>), where a service is tricked to expose its private data by letting it parse a
-   remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>). 
+   remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>).
 
-=para A more granular solution to this problem, however, is provided by custom URL
-    resolvers, as in 
+=para This configuration setting acts globally on the current thread.
+
+=para A more granular and localised solution to this problem, however, is provided by
+custom URL resolvers, as in
         =begin code :lang<raku>
         my LibXML::InputCallback $cb .= new;
         sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
@@ -188,7 +195,11 @@ sub entity-loader($entityLoader is rw) returns Callable is rw {
         $parser.input-callbacks($cb);
         =end code
 
-#| Default input callback handlers
+=head3 method input-callbacks
+=for code :lang<raku>
+method input-callbacks is rw returns LibXML::InputCallback
+=para Default input callback handlers
+
 has $!inputCallbacks is mooish(:lazy);
 method !build-inputCallbacks { $inputCallbacks }
 
@@ -222,7 +233,11 @@ method lock handles<protect> {
     BEGIN Lock.new;
 }
 
-#| Default query handler to service querySelector() and querySelectorAll() methods
+=head3 method query-handler
+=for code :lang<raku>
+method query-handler() is rw returns LibXML::Config::QueryHandler
+=para Default query handler to service querySelector() and querySelectorAll() methods
+
 has $!queryHandler is mooish(:lazy);
 method !build-queryHandler { $queryHandler }
 
