@@ -94,7 +94,7 @@ method processXIncludes (
 proto method parse(|c) is also<load> {*}
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Str:D() :$string!,
     Bool() :$html = $!html,
     Str() :$URI = $!URI,
@@ -124,7 +124,7 @@ method parseFromString(Str:D() $string, |c) {
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Blob:D :$buf!,
     Bool() :$html = $!html,
     Str() :$URI = $!URI,
@@ -147,7 +147,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Str() :$file!,
     Bool() :$html = $!html,
     xmlEncodingStr :$enc = $!enc,
@@ -175,7 +175,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     UInt :$fd!,
     Str :$URI = $!URI,
     Bool() :$html = $!html,
@@ -200,7 +200,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     IO::Handle:D :$io!,
     Str :$URI = $io.path.path,
     |c
@@ -211,7 +211,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     IO() :io($path)!,
     |c
 ) is hidden-from-backtrace {
@@ -220,14 +220,14 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Str() :location($file)!,
     |c
 ) is hidden-from-backtrace {
     $.parse(:$file, |c);
 }
 
-multi method parse(LibXML::Parser:U: *%opt) is hidden-from-backtrace is default {
+multi method parse(::?CLASS:U: *%opt) is hidden-from-backtrace is default {
      self.new(|%opt).parse(|%opt);
 }
 

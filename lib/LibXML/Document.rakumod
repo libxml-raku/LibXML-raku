@@ -873,8 +873,8 @@ method parser handles<parse parseFromString> { resolve-package('LibXML::Parser')
 =end pod
 
 #| Expand XInclude flags
-method processXIncludes(|c) is also<process-xincludes> {
-    self.parser.new.processXIncludes(self, |c);
+method processXIncludes(LibXML::Config :$config, |c) is also<process-xincludes> {
+    self.parser.new(:$config).processXIncludes(self, |c);
 }
 
 =begin pod

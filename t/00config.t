@@ -1,4 +1,5 @@
 use Test;
+plan 4;
 use LibXML::Config;
 
 subtest 'scoping', {
@@ -48,10 +49,33 @@ subtest 'propagation', {
         cmp-ok $ctx.config, '===', $config, 'configured LibXML::Reader';
     }
 
-    {
-        my LibXML $ctx .= new: :$config;
-        cmp-ok $ctx.config, '===', $config, 'configured LibXML';
-    }
+}
+
+subtest 'node', {
+    use LibXML::Document;
+    use LibXML::XPath::Context;;
+
+    my LibXML::Document:D $doc .= parse: :string("<test/>");
+    my LibXML::Config:D $config .= new: :skip-xml-declaration, :max-errors(42);
+
+    lives-ok {$doc.root.appendWellBalancedChunk("<a/><b/><c/>", :$config);}
+
+    my LibXML::XPath::Context $ctx = $doc.root.xpath-context: :$config;
+    cmp-ok $ctx.config, '===', $config, 'configured node xpath-context';
+
+    my $str = $doc.Str;
+    ok $str.starts-with("<?xml"), 'Str without config :!skip';
+
+    $str = $doc.Str: :$config;
+    nok $str.starts-with("<?xml"), 'Str with config :skip';
+
+    LibXML::Config.skip-xml-declaration = True;
+    $str = $doc.Str;
+    nok $str.starts-with("<?xml"), 'Str without config :skip';
+
+    $config.skip-xml-declaration = False;
+    $str = $doc.Str: :$config;
+    ok $str.starts-with("<?xml"), 'Str with config :!skip';
 }
 
 done-testing;
