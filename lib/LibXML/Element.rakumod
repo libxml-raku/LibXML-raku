@@ -448,7 +448,10 @@ method !set-attributes(@atts) {
 ########################################################################
 =head2 DOM Manipulation Methods
 
-method ast(Bool :$blank = LibXML::Config.keep-blanks) {
+method ast(
+    LibXML::Config :$config,
+    Bool :$blank = $config.keep-blanks
+) {
     self.tag => [
         slip(self.namespaces>>.ast),
         slip(self.properties>>.ast),
@@ -486,8 +489,8 @@ multi method AT-KEY(Str:D $ where /^['@'|'attribute::']<name=.XML::Grammar::name
     );
 }
 
-method appendWellBalancedChunk(Str:D $string --> LibXML::Node) {
-    my $frag = box-class('LibXML::DocumentFragment').parse: :balanced, :$string;
+method appendWellBalancedChunk(Str:D $string, |c --> LibXML::Node) {
+    my $frag = box-class('LibXML::DocumentFragment').parse: :balanced, :$string, |c;
     self.appendChild( $frag );
 }
 

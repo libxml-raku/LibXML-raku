@@ -685,7 +685,11 @@ An optional parameter :$selector can be used to pass an [LibXML::XPathContext](h
 
 ### multi method Str() returns Str
 
-    method Str(Bool :$format, Bool :$tag-expansion) returns Str;
+    method Str(
+        Bool :$format, Bool :$tag-expansion,
+        Bool :$skip-xml-declaration,
+        LibXML::Config :$config, # defaults for :skip-xml-declaration and :tag-expansion
+    ) returns Str;
 
 This method is similar to the method `Str` of a [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) but for a single node. It returns a string consisting of XML serialization of the given node and all its descendants.
 

@@ -12,7 +12,6 @@ also does W3C::DOM::Document;
 
 use LibXML::Attr;
 use LibXML::CDATA;
-use LibXML::Config;
 use LibXML::Comment;
 use LibXML::DocumentFragment;
 use LibXML::Dtd;
@@ -122,11 +121,10 @@ use NativeCall;
     A subset of LibXML::Document that have node-type C<XML_DOCB_DOCUMENT_NODE>. XML documents of type DocBook
 =end pod
 
-subset XML  is export(:XML)  of LibXML::Document:D where .nodeType == XML_DOCUMENT_NODE;
-subset HTML is export(:HTML) of LibXML::Document:D where .nodeType == XML_HTML_DOCUMENT_NODE;
-subset DOCB is export(:DOCB) of LibXML::Document:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
+subset XML  is export(:XML)  of ::?CLASS:D where .nodeType == XML_DOCUMENT_NODE;
+subset HTML is export(:HTML) of ::?CLASS:D where .nodeType == XML_HTML_DOCUMENT_NODE;
+subset DOCB is export(:DOCB) of ::?CLASS:D where .nodeType == XML_DOCB_DOCUMENT_NODE;
 
-constant config = LibXML::Config;
 constant InputCompressed = 1;
 
 =begin pod
@@ -351,8 +349,9 @@ method input-compressed returns Bool {
 =end pod
 
 method Str(
-    LibXML::Document:D $doc is copy:
-    Bool :$skip-dtd = config.skip-dtd,
+    ::?CLASS:D $doc is copy:
+    LibXML::Config :$config,
+    Bool :$skip-dtd = $config.skip-dtd,
     Bool :$html = $.raw.isa(htmlDoc),
     Bool :$C14N,
     |c --> Str) {
@@ -364,12 +363,18 @@ method Str(
 
     when $C14N { $doc.canonicalize(|c) }
     when $html { $doc.serialize-html(|c) }
-    default { $doc.raw.Str: options => output-options(|c); }
+    default { $doc.raw.Str: options => output-options(:$config, |c); }
 }
 =begin pod
     =head3 method Str
-
-    =head4 multi `method Str(Bool :$skip-dtd, Bool :$html, Bool :$format)`;
+    =begin code :lang<raku>
+    multi method Str(
+            Bool :$skip-dtd,
+            Bool :$format, Bool :$tag-expansion,
+            Bool :$skip-xml-declaration,
+            LibXML::Config :$config, # defaults for :$skip-dtd, :skip-xml-declaration and :tag-expansion
+        ) returns Str;
+    =end code
 
     I<Str> is a serializing function, so the DOM Tree is serialized into an XML
     string, ready for output.
@@ -386,16 +391,19 @@ method Str(
     is easier to read. Existing text nodes will not be altered
 
     libxml2 uses a hard-coded indentation of 2 space characters per indentation
-    level. This value can not be altered on run-time.
+    level. This value can not be altered at run-time.
 
-    =head4 `multi method Str: :C14N($!)!, |c`
+    Note that the `:C14N` and `:html` options match different multi-methods, with
+    diffrent options, as below:
+
+    =head4 `multi method Str: :C14N($!)!, Bool :$comments, Bool :$exclusive, :$xpath`
 
       my Str $xml-c14   = $doc.Str: :C14N, :$comment, :$xpath;
-      my Str $xml-ec14n = $doc.Str: :C14N, :exclusive $xpath, :@prefix;
+      my Str $xml-ec14n = $doc.Str: :C14N, :exclusive, :$xpath, :@prefix;
 
-   C14N Normalisation. See the documentation in L<LibXML::Node>.
+   C14N normalisation mode. See the documentation in L<LibXML::Node>.
 
-    =head4 `multi method Str: :$html!, |c`
+    =head4 `multi method Str: :$html!, Bool :$format`
 
       my Str $html = $document.Str: :html;
 
@@ -424,9 +432,10 @@ method serialize-html(Bool :$format = True --> Str) {
 =end pod
 
     method Blob(
-        LibXML::Document:D $doc is copy:
-        Bool() :$skip-xml-declaration is copy = config.skip-xml-declaration,
-        Bool() :$skip-dtd = config.skip-dtd,
+        ::?CLASS:D $doc is copy:
+        LibXML::Config :$config,
+        Bool() :$skip-xml-declaration is copy = $config.skip-xml-declaration,
+        Bool() :$skip-dtd = $config.skip-dtd,
         xmlEncodingStr:D :$enc = self.encoding // 'UTF-8',
         Bool :$force,
         |c  --> Blob) {
@@ -864,8 +873,8 @@ method parser handles<parse parseFromString> { resolve-package('LibXML::Parser')
 =end pod
 
 #| Expand XInclude flags
-method processXIncludes(|c) is also<process-xincludes> {
-    self.parser.new.processXIncludes(self, |c);
+method processXIncludes(LibXML::Config :$config, |c) is also<process-xincludes> {
+    self.parser.new(:$config).processXIncludes(self, |c);
 }
 
 =begin pod

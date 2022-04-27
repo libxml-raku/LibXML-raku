@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+0.6.16  2022-04-28T08:15:40+12:00
+    - Support for multiple configurations. Added the LibXML::_Configurable role, with
+      $.config attribute to various parsing, validation and reading contexts.
+      Replace internal referencing of global configuration in DOM classes with
+      parameters. For example the document processXIncludes() method now accepts
+      a :$config parameter.
+
 0.6.15  2022-04-26T06:00:31+12:00
     - Replace LibXML::HashMap::Maker with LibXML::HashMap::NodeSet.
     - Further thread safety improvements, including bare uses of

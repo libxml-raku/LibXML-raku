@@ -1,12 +1,44 @@
 #| LibXML Global configuration
 unit class LibXML::Config;
 
+=begin pod
+
 =head2 Synopsis
 
   =begin code :lang<raku>
   use LibXML::Config;
   if  LibXML::Config.have-compression { ... }
+
+  # change global default for maximum errors
+  LibXML::Config.max-errors = 42;
+
+  # create a parser with its own configuration
+  my LibXML::Config:D $config .= new: :max-errors(100);
+  my LibXML::Parser:D $parser .= new: :$config;
+  my LibXML::Document:D $doc = $parser.parse: :html, :file<messy.html>;
   =end code
+
+=head2 Description
+
+This class holds configuration settings. Some of which are read-only. Others are
+writeable, as listed below.
+
+In the simple case, the global configuration can be updated to suit the application.
+
+Objects of type L<LibXML::Config> may be created to enable configuration to localised
+and more explicit.
+
+These may be parsed to objects that perform the `LibXML::_Configurable` role,
+including L<LibXML>, L<LibXML::Parser>, L<LibXML::_Reader>.
+
+DOM objects, generally aren't configurable, although some methods that invoke
+a configurable object allow a `:$config` option.
+
+L<LibXML::Document> methods that support the `:$config` option include: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
+
+The `:$config`, option is also applicable to L<LibXML::Element> `appendWellBalancedChunk` method and L<LibXML::Node> `ast` and `xpath-class` methods.
+
+=end pod
 
 use LibXML::Enums;
 use LibXML::Raw;
@@ -64,42 +96,53 @@ method load-catalog(Str:D $filename --> Nil) {
 
 =head2 Serialization Default Options
 
-my $inputCallbacks;
+my $input-callbacks;
 
 # -- Output options --
 
-my Bool:D $skipXMLDeclaration = False;
-my Bool:D $skipDTD = False;
-my Int:D $maxErrors = 100;
+=head3 method skip-xml-declaration
+=for code :lang<raku>
+method skip-xml-declaration() is rw returns Bool
+=para Whether to omit '<?xml ...>' preamble (default False)
 
-#| Whether to omit '<?xml ...>' preamble (default False)
-has Bool:D $!skipXMLDeclaration is mooish(:lazy);
-method !build-skipXMLDeclaration { $skipXMLDeclaration }
+my Bool:D $skip-xml-declaration = False;
+has Bool:D $!skip-xml-declaration is mooish(:lazy);
+method !build-skip-xml-declaration { $skip-xml-declaration }
 
 proto method skip-xml-declaration() {*}
-multi method skip-xml-declaration(::?CLASS:U: --> Bool) is rw { flag-proxy($skipXMLDeclaration) }
-multi method skip-xml-declaration(::?CLASS:D: --> Bool) is rw { flag-proxy($!skipXMLDeclaration) }
+multi method skip-xml-declaration(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-xml-declaration) }
+multi method skip-xml-declaration(::?CLASS:D: --> Bool) is rw { flag-proxy($!skip-xml-declaration) }
 
-#| Whether to omit internal DTDs (default False)
-has Bool:D $!skipDTD is mooish(:lazy);
-method !build-skipDTD { $skipDTD }
+=head3 method skip-dtd
+=for code :lang<raku>
+method skip-dtd() is rw returns Bool
+=para Whether to omit internal DTDs (default False)
+
+my Bool:D $skip-dtd = False;
+has Bool:D $!skip-dtd is mooish(:lazy);
+method !build-skip-dtd { $skip-dtd }
 
 proto method skip-dtd() {*}
-multi method skip-dtd(::?CLASS:U: --> Bool) is rw { flag-proxy($skipDTD) }
-multi method skip-dtd(::?CLASS:D: --> Bool) is rw { flag-proxy($!skipDTD) }
+multi method skip-dtd(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-dtd) }
+multi method skip-dtd(::?CLASS:D: --> Bool) is rw { flag-proxy($!skip-dtd) }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 method tag-expansion is rw returns Bool {
     LibXML::Raw.TagExpansion;
 }
 
-#| Maximum errors before throwing a fatal X::LibXML::TooManyErrors
-has UInt:D $!maxErrors is mooish(:lazy);
-method !build-maxErrors { $maxErrors }
+=head3 method max-errors
+=for code :lang<raku>
+method max-errors() is rw returns Int:D
+=para Maximum errors before throwing a fatal X::LibXML::TooManyErrors
+
+my Int:D $max-errors = 100;
+has UInt:D $!max-errors is mooish(:lazy);
+method !build-max-errors { $max-errors }
 
 proto method max-errors() {*}
-multi method max-errors(::?CLASS:U: --> UInt:D) is rw { $maxErrors }
-multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!maxErrors }
+multi method max-errors(::?CLASS:U: --> UInt:D) is rw { $max-errors }
+multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!max-errors }
 
 =head2 Parsing Default Options
 
@@ -128,15 +171,13 @@ method parser-flags returns UInt {
     + ($.keep-blanks() ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
-state &externalEntityLoader;
 #| External entity handler to be used when parser expand-entities is set.
 method external-entity-loader returns Callable is rw {
     Proxy.new(
         FETCH => {
-            &externalEntityLoader //= nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
+            nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
         },
-        STORE => -> $, &cb {
-            &externalEntityLoader = &cb;
+        STORE => -> $, &loader {
             my constant XML_CHAR_ENCODING_NONE = 0;
             my constant XML_ERR_ENTITY_PROCESSING = 104;
             xmlExternalEntityLoader::Set(
@@ -147,15 +188,16 @@ method external-entity-loader returns Callable is rw {
                                 $ctxt.ParserError(.message);
                             }
                             else {
-                                warn $_;
+                                note "uncaught entity loader error: " ~ .message;
                             }
                             return xmlParserInput;
                         }
                     }
-                    my Str $string := externalEntityLoader($url, $id);
+                    my Str $string := &loader($url, $id);
                     my xmlParserInputBuffer $buf .= new: :$string;
                     $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
-                });
+                }
+            );
         }
     );
 }
@@ -167,10 +209,12 @@ method external-entity-loader returns Callable is rw {
 
 =para This method can be used to completely disable entity loading, e.g. to prevent
     exploits of the type described at  (L<http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html>), where a service is tricked to expose its private data by letting it parse a
-   remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>). 
+   remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>).
 
-=para A more granular solution to this problem, however, is provided by custom URL
-    resolvers, as in 
+=para This configuration setting acts globally on the current thread.
+
+=para A more granular and localised solution to this problem, however, is provided by
+custom URL resolvers, as in
         =begin code :lang<raku>
         my LibXML::InputCallback $cb .= new;
         sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
@@ -183,21 +227,25 @@ method external-entity-loader returns Callable is rw {
         $parser.input-callbacks($cb);
         =end code
 
-#| Default input callback handlers
-has $!inputCallbacks is mooish(:lazy);
-method !build-inputCallbacks { $inputCallbacks }
+=head3 method input-callbacks
+=for code :lang<raku>
+method input-callbacks is rw returns LibXML::InputCallback
+=para Default input callback handlers
+
+has $!input-callbacks is mooish(:lazy);
+method !build-input-callbacks { $input-callbacks }
 
 proto method input-callbacks(|) {*}
 multi method input-callbacks(::?CLASS:U:) is rw {
     Proxy.new(
-        FETCH => sub ($) { $inputCallbacks },
-        STORE => sub ($, $callbacks) { $inputCallbacks = $callbacks }
+        FETCH => sub ($) { $input-callbacks },
+        STORE => sub ($, $callbacks) { $input-callbacks = $callbacks }
     );
 }
 multi method input-callbacks(::?CLASS:D:) is rw {
     Proxy.new(
-        FETCH => sub ($) { $!inputCallbacks },
-        STORE => sub ($, $callbacks) { $!inputCallbacks = $callbacks }
+        FETCH => sub ($) { $!input-callbacks },
+        STORE => sub ($, $callbacks) { $!input-callbacks = $callbacks }
         );
 }
 =para See L<LibXML::InputCallback>
@@ -206,9 +254,9 @@ multi method input-callbacks(::?CLASS:D:) is rw {
 
 my subset QueryHandler where .can('query-to-xpath').so;
 
-my QueryHandler $queryHandler = class NoQueryHandler {
+my QueryHandler $query-handler = class NoQueryHandler {
     method query-to-xpath($) {
-        fail "queryHandler has not been configured";
+        fail "query-handler has not been configured";
     }
 }
 
@@ -217,21 +265,25 @@ method lock handles<protect> {
     BEGIN Lock.new;
 }
 
-#| Default query handler to service querySelector() and querySelectorAll() methods
-has $!queryHandler is mooish(:lazy);
-method !build-queryHandler { $queryHandler }
+=head3 method query-handler
+=for code :lang<raku>
+method query-handler() is rw returns LibXML::Config::QueryHandler
+=para Default query handler to service querySelector() and querySelectorAll() methods
+
+has $!query-handler is mooish(:lazy);
+method !build-query-handler { $query-handler }
 
 proto method query-handler() {*}
 multi method query-handler(::?CLASS:U: --> QueryHandler) is rw {
     Proxy.new(
-        FETCH => sub ($) { $queryHandler },
-        STORE => sub ($, QueryHandler $_) { $queryHandler = $_; }
+        FETCH => sub ($) { $query-handler },
+        STORE => sub ($, QueryHandler $_) { $query-handler = $_; }
     );
 }
 multi method query-handler(::?CLASS:D: --> QueryHandler) is rw {
     Proxy.new(
-        FETCH => sub ($) { $!queryHandler },
-        STORE => sub ($, QueryHandler $_) { $!queryHandler = $_; }
+        FETCH => sub ($) { $!query-handler },
+        STORE => sub ($, QueryHandler $_) { $!query-handler = $_; }
         );
 }
 =para See L<LibXML::XPath::Context>

@@ -4,7 +4,7 @@ use W3C::DOM;
 # Needed for Rakudo 2020.5.1 - see #59
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.6.15>
+unit class LibXML:ver<0.6.16>
     is LibXML::Parser
     does W3C::DOM::Implementation;
 
@@ -17,7 +17,7 @@ method config handles <
       have-compression have-reader have-schemas have-threads
       skip-xml-declaration skip-dtd keep-blanks-default tag-expansion external-entity-loader
 > {
-    LibXML::Config;
+    callsame();
 }
 
 method createDocument(|c) {
@@ -136,7 +136,7 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 
 =head2 Other
 
-=item L<LibXML::Config> - LibXML global configuration
+=item L<LibXML::Config> - LibXML global and local configuration
 
 =item L<LibXML::Enums> - XML_* enumerated constants
 

@@ -1,6 +1,9 @@
 #| XPath Evaluation Context
 unit class LibXML::XPath::Context;
 
+use LibXML::_Configurable;
+also does LibXML::_Configurable;
+
 =begin pod
     =head2 Synopsis
 
@@ -103,7 +106,6 @@ unit class LibXML::XPath::Context;
       my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
 =end pod
 
-use LibXML::Config;
 use LibXML::Document;
 use LibXML::Item;
 use LibXML::Raw;
@@ -119,7 +121,7 @@ use NativeCall;
 use Method::Also;
 
 has $.sax-handler is rw;
-has $.query-handler is rw = LibXML::Config.query-handler;
+has $.query-handler is rw = self.config.query-handler;
 has xmlXPathContext $!raw .= new;
 method raw { $!raw }
 
@@ -166,7 +168,7 @@ sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:struct
 method !try(&action) {
     my $rv;
 
-    LibXML::Config.protect: sub () is hidden-from-backtrace {
+    self.config.protect: sub () is hidden-from-backtrace {
         my $handlers = xml6_gbl_save_error_handlers();
         $!raw.SetStructuredErrorFunc: &structured-error-cb;
 

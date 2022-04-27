@@ -1,5 +1,8 @@
 unit class LibXML::Parser::Context;
 
+use LibXML::_Configurable;
+also does LibXML::_Configurable;
+
 use NativeCall;
 use LibXML::Config;
 use LibXML::Enums;
@@ -9,9 +12,9 @@ use LibXML::Raw;
 use LibXML::_Options;
 
 has xmlParserCtxt $!raw handles <wellFormed valid>;
-has uint32 $.flags = LibXML::Config.parser-flags;
-multi method flags(LibXML::Parser::Context:D:) is default is rw { $!flags }
-multi method flags { LibXML::Config.parser-flags }
+has uint32 $.flags = self.config.parser-flags;
+multi method flags(::?CLASS:D:) is rw { $!flags }
+multi method flags(::?CLASS:U:) { self.config.parser-flags }
 has Bool $.input-compressed;
 has Bool $.line-numbers;
 has $.input-callbacks;
@@ -97,7 +100,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
     my $rv;
 
-    LibXML::Config.protect: sub () is hidden-from-backtrace {
+    self.config.protect: sub () is hidden-from-backtrace {
         my $*XML-CONTEXT = self;
         $_ = .new: :raw(xmlParserCtxt.new)
             without $*XML-CONTEXT;

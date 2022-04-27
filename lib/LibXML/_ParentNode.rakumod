@@ -6,8 +6,6 @@ use LibXML::Config;
 use LibXML::Types :QName, :NameVal;
 use LibXML::Utils :iterate-set;
 
-my constant config = LibXML::Config;
-
 method getElementsByTagName(Str:D $name) {
     iterate-set(LibXML::Node, $.raw.getElementsByTagName($name));
 }
@@ -39,6 +37,6 @@ multi method appendTextChild(NameVal:D $_) {
     $.appendTextChild(.key, .value);
 }
 
-method ast(Bool :$blank = config.keep-blanks --> Pair) {
+method ast(LibXML::Config :$config, Bool :$blank = $config.keep-blanks --> Pair) {
     self.ast-key => [self.childNodes(:$blank).map(*.ast: :$blank)];
 }

@@ -3,7 +3,7 @@ use Test;
 plan 14;
 
 use LibXML;
-use LibXML::ErrorHandling;
+use LibXML::Parser::Context;
 use LibXML::Node;
 
 my $file    = "samples/dromeds.xml";
@@ -14,7 +14,7 @@ my $dom = $parser.parse: :$file;
 ok $dom.defined;
 
 
-LibXML::ErrorHandling.SetGenericErrorFunc(-> $fmt, |c { });
+LibXML::Parser::Context.SetGenericErrorFunc(-> $fmt, |c { });
 
 subtest 'findnodes basic', {
     # get the root document

@@ -13,7 +13,32 @@ Synopsis
 ```raku
 use LibXML::Config;
 if  LibXML::Config.have-compression { ... }
+
+# change global default for maximum errors
+LibXML::Config.max-errors = 42;
+
+# create a parser with its own configuration
+my LibXML::Config:D $config .= new: :max-errors(100);
+my LibXML::Parser:D $parser .= new: :$config;
+my LibXML::Document:D $doc = $parser.parse: :html, :file<messy.html>;
 ```
+
+Description
+-----------
+
+This class holds configuration settings. Some of which are read-only. Others are writeable, as listed below.
+
+In the simple case, the global configuration can be updated to suit the application.
+
+Objects of type [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) may be created to enable configuration to localised and more explicit.
+
+These may be parsed to objects that perform the `LibXML::_Configurable` role, including [LibXML](https://libxml-raku.github.io/LibXML-raku), [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser), [LibXML::_Reader](https://libxml-raku.github.io/LibXML-raku/_Reader).
+
+DOM objects, generally aren't configurable, although some methods that invoke a configurable object allow a `:$config` option.
+
+[LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) methods that support the `:$config` option include: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
+
+The `:$config`, option is also applicable to [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) `appendWellBalancedChunk` method and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) `ast` and `xpath-class` methods.
 
 Configuration Methods
 ---------------------
@@ -72,15 +97,15 @@ Serialization Default Options
 ### method skip-xml-declaration
 
 ```raku
-method skip-xml-declaration() returns Bool
+method skip-xml-declaration() is rw returns Bool
 ```
 
-Whether to omit '<?xml ...>' preamble (default Fallse)
+Whether to omit '<?xml ...>' preamble (default False)
 
 ### method skip-dtd
 
 ```raku
-method skip-dtd() returns Bool
+method skip-dtd() is rw returns Bool
 ```
 
 Whether to omit internal DTDs (default False)
@@ -96,7 +121,7 @@ Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 ### method max-errors
 
 ```raku
-method max-errors() returns UInt:D
+method max-errors() is rw returns Int:D
 ```
 
 Maximum errors before throwing a fatal X::LibXML::TooManyErrors
@@ -130,9 +155,11 @@ External entity handler to be used when parser expand-entities is set.
 
 The routine provided is called whenever the parser needs to retrieve the content of an external entity. It is called with two arguments: the system ID (URI) and the public ID. The value returned by the subroutine is parsed as the content of the entity. 
 
-This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html)), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab`). 
+This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html)), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab`).
 
-A more granular solution to this problem, however, is provided by custom URL resolvers, as in 
+This configuration setting acts globally on the current thread.
+
+A more granular and localised solution to this problem, however, is provided by custom URL resolvers, as in
 
 ```raku
 my LibXML::InputCallback $cb .= new;
@@ -149,7 +176,7 @@ $parser.input-callbacks($cb);
 ### method input-callbacks
 
 ```raku
-method input-callbacks() returns Mu
+method input-callbacks is rw returns LibXML::InputCallback
 ```
 
 Default input callback handlers
@@ -162,7 +189,7 @@ Query Handler
 ### method query-handler
 
 ```raku
-method query-handler() returns LibXML::Config::QueryHandler
+method query-handler() is rw returns LibXML::Config::QueryHandler
 ```
 
 Default query handler to service querySelector() and querySelectorAll() methods

@@ -1,8 +1,8 @@
-use LibXML::_Validator;
-
 #| RelaxNG Schema Validation
-unit class LibXML::RelaxNG
-    does LibXML::_Validator;
+unit class LibXML::RelaxNG;
+
+use LibXML::_Validator;
+also does LibXML::_Validator;
 
     =head2 Synopsis
 
@@ -31,6 +31,7 @@ unit class LibXML::RelaxNG
 
 use LibXML::Document;
 use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Configurable;
 use LibXML::_Options;
 use LibXML::Raw;
 use LibXML::Raw::RelaxNG;
@@ -41,6 +42,7 @@ use Method::Also;
 has xmlRelaxNG $.raw;
 
 my class Parser::Context {
+    also does LibXML::_Configurable;
     has xmlRelaxNGParserCtxt $!raw;
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
@@ -92,6 +94,7 @@ my class Parser::Context {
 }
 
 my class ValidContext {
+    also does LibXML::_Configurable;
     has xmlRelaxNGValidCtxt $!raw;
     # for the LibXML::ErrorHandling role
     has $.sax-handler;
@@ -161,9 +164,9 @@ submethod TWEAK(|c) {
     constraints of the RelaxNG specification.
 =end pod
 
-method !valid-ctx($schema:) { ValidContext.new: :$schema }
-method validate(LibXML::Document:D $doc, Bool :$check) is hidden-from-backtrace {
-    self!valid-ctx.validate($doc, :$check);
+method !valid-ctx($schema: :$config!) { ValidContext.new: :$schema, :$config }
+method validate(LibXML::Document:D $doc, Bool :$check, LibXML::Config :$config) is hidden-from-backtrace {
+    self!valid-ctx(:$config).validate($doc, :$check);
 }
 =begin pod
     =head3 method validate
@@ -177,8 +180,8 @@ method validate(LibXML::Document:D $doc, Bool :$check) is hidden-from-backtrace 
     a `try` block or in the scope of a `CATCH` block.
 =end pod
 
-method is-valid(LibXML::Document:D $doc) {
-    self!valid-ctx.is-valid($doc);
+method is-valid(LibXML::Document:D $doc, LibXML::Config :$config) {
+    self!valid-ctx(:$config).is-valid($doc);
 }
 =begin pod
     =head3 method is-valid

@@ -52,15 +52,12 @@ also does W3C::DOM::DocumentFragment;
 
 =end pod
 
-use LibXML::Config;
 use LibXML::Element;
 use LibXML::Raw;
 use LibXML::Node;
 use NativeCall;
 use Method::Also;
 use LibXML::Parser::Context;
-
-my constant config = LibXML::Config;
 
 class ParserContext is LibXML::Parser::Context {
     has LibXML::DocumentFragment $.doc-frag is required;

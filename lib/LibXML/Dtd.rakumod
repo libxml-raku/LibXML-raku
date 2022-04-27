@@ -96,6 +96,9 @@ has xmlDtd $.raw is built handles <systemId publicId>;
 constant DocNode = W3C::DOM::Document;
 
 class ValidContext {
+    use LibXML::_Configurable;
+    also does LibXML::_Configurable;
+
     has xmlValidCtxt $!raw;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
@@ -292,10 +295,10 @@ multi method getNodeDeclaration(LibXML::Attr:D $_) {
     $.getAttrDeclaration: .getOwnerElement.nodeName, .nodeName;
 }
 
-method !valid-ctx($schema:) { ValidContext.new: :$schema }
+method !valid-ctx($schema: :$config!) { ValidContext.new: :$schema, :$config }
 
-method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument, Bool :$check --> UInt) is hidden-from-backtrace {
-    self!valid-ctx.validate($doc, :$dtd, :$check);
+method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument, Bool :$check , LibXML::Config :$config --> UInt) is hidden-from-backtrace {
+    self!valid-ctx(:$config).validate($doc, :$dtd, :$check);
 }
   =begin pod
   =head3 method validate
@@ -308,8 +311,8 @@ method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument, Bool :$che
   =end pod
 
 #| Returns True if the passed document is valid against the DTD
-method is-valid(LibXML::Dtd:D $dtd: DocNode:D $doc --> Bool) {
-    self!valid-ctx.validate($doc, :$dtd, :check);
+method is-valid(LibXML::Dtd:D $dtd: DocNode:D $doc, LibXML::Config :$config --> Bool) {
+    self!valid-ctx(:$config).validate($doc, :$dtd, :check);
 }
 
 #| Returns True if the publicId or systemId match an XHTML identifier

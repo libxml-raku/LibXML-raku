@@ -2,31 +2,31 @@
 unit class LibXML::Parser;
 
 use LibXML::Parser::Context;
+use LibXML::_Configurable;
 use LibXML::_Options;
+
 constant %Opts = %(
     %LibXML::Parser::Context::Opts,
     %(:URI, :html, :line-numbers,
       :sax-handler, :input-callbacks, :enc,
      )
 );
+also does LibXML::_Configurable;
 also does LibXML::_Options[%Opts];
 
-use LibXML::Config;
 use LibXML::Raw;
 use LibXML::Enums;
 use LibXML::Document;
 use LibXML::PushParser;
 use Method::Also;
 
-constant config = LibXML::Config;
-
 has Bool $.html is rw is built = False;
 has Bool $.line-numbers is rw is built = False;
-has UInt $.flags is rw is built = config.parser-flags();
+has UInt $.flags is rw is built = self.config.parser-flags();
 has Str $.URI is rw is built;
 has $.sax-handler is rw is built;
 has xmlEncodingStr $.enc is rw is built;
-has $.input-callbacks is rw is built = config.input-callbacks;
+has $.input-callbacks is rw is built = self.config.input-callbacks;
 multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 
@@ -56,7 +56,7 @@ method get-flags(:$html, *%opts) {
 
 method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input-callbacks=$!input-callbacks, :$sax-handler=$.sax-handler, *%opts) {
     my UInt $flags = self.get-flags(|%opts);
-    LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags;
+    LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags, :$.config;
 }
 
 method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
@@ -94,7 +94,7 @@ method processXIncludes (
 proto method parse(|c) is also<load> {*}
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Str:D() :$string!,
     Bool() :$html = $!html,
     Str() :$URI = $!URI,
@@ -124,7 +124,7 @@ method parseFromString(Str:D() $string, |c) {
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Blob:D :$buf!,
     Bool() :$html = $!html,
     Str() :$URI = $!URI,
@@ -147,7 +147,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Str() :$file!,
     Bool() :$html = $!html,
     xmlEncodingStr :$enc = $!enc,
@@ -175,7 +175,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     UInt :$fd!,
     Str :$URI = $!URI,
     Bool() :$html = $!html,
@@ -200,7 +200,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     IO::Handle:D :$io!,
     Str :$URI = $io.path.path,
     |c
@@ -211,7 +211,7 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     IO() :io($path)!,
     |c
 ) is hidden-from-backtrace {
@@ -220,14 +220,14 @@ multi method parse(
 }
 
 multi method parse(
-    LibXML::Parser:D:
+    ::?CLASS:D:
     Str() :location($file)!,
     |c
 ) is hidden-from-backtrace {
     $.parse(:$file, |c);
 }
 
-multi method parse(LibXML::Parser:U: *%opt) is hidden-from-backtrace is default {
+multi method parse(::?CLASS:U: *%opt) is hidden-from-backtrace is default {
      self.new(|%opt).parse(|%opt);
 }
 
@@ -306,10 +306,8 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     $.parse( :$string, |c );
 }
 
-method load-catalog(Str:D $_) { config.load-catalog($_) }
-
 submethod TWEAK(
-    :buf($), :file($), :string($), :fd($), :io($), :location($), # .parse modes
+    :buf($), :file($), :string($), :fd($), :io($), :location($), :config($), # .parse modes
     :$catalog, *%opts) {
     self.load-catalog($_) with $catalog;
     self.set-options(|%opts);
