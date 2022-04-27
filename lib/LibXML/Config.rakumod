@@ -1,12 +1,44 @@
 #| LibXML Global configuration
 unit class LibXML::Config;
 
+=begin pod
+
 =head2 Synopsis
 
   =begin code :lang<raku>
   use LibXML::Config;
   if  LibXML::Config.have-compression { ... }
+
+  # change global default for maximum errors
+  LibXML::Config.max-errors = 42;
+
+  # create a parser with its own configuration
+  my LibXML::Config:D $config .= new: :max-errors(100);
+  my LibXML::Parser:D $parser .= new: :$config;
+  my LibXML::Document:D $doc = $parser.parse: :html, :file<messy.html>;
   =end code
+
+=head2 Description
+
+This class holds configuration settings. Some of which are read-only. Others are
+writeable, as listed below.
+
+In the simple case, the global configuration can be updated to suit the application.
+
+Objects of type L<LibXML::Config> may be created to enable configuration to localised
+and more explicit.
+
+These may be parsed to objects that perform the `LibXML::_Configurable` role,
+including L<LibXML>, L<LibXML::Parser>, L<LibXML::_Reader>.
+
+DOM objects, generally aren't configurable, although some methods that invoke
+a configurable object allow a `:$config` option.
+
+L<LibXML::Document> methods that support the `:$config` option include: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
+
+The `:$config`, option is also applicable to L<LibXML::Element> `appendWellBalancedChunk` method and L<LibXML::Node> `ast` and `xpath-class` methods.
+
+=end pod
 
 use LibXML::Enums;
 use LibXML::Raw;

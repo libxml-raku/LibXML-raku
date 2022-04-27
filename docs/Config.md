@@ -13,7 +13,32 @@ Synopsis
 ```raku
 use LibXML::Config;
 if  LibXML::Config.have-compression { ... }
+
+# change global default for maximum errors
+LibXML::Config.max-errors = 42;
+
+# create a parser with its own configuration
+my LibXML::Config:D $config .= new: :max-errors(100);
+my LibXML::Parser:D $parser .= new: :$config;
+my LibXML::Document:D $doc = $parser.parse: :html, :file<messy.html>;
 ```
+
+Description
+-----------
+
+This class holds configuration settings. Some of which are read-only. Others are writeable, as listed below.
+
+In the simple case, the global configuration can be updated to suit the application.
+
+Objects of type [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) may be created to enable configuration to localised and more explicit.
+
+These may be parsed to objects that perform the `LibXML::_Configurable` role, including [LibXML](https://libxml-raku.github.io/LibXML-raku), [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser), [LibXML::_Reader](https://libxml-raku.github.io/LibXML-raku/_Reader).
+
+DOM objects, generally aren't configurable, although some methods that invoke a configurable object allow a `:$config` option.
+
+[LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) methods that support the `:$config` option include: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
+
+The `:$config`, option is also applicable to [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) `appendWellBalancedChunk` method and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) `ast` and `xpath-class` methods.
 
 Configuration Methods
 ---------------------
