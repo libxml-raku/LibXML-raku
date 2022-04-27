@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.6.16  2022-04-28T08:15:40+12:00
     - Support for multiple configurations. Added the LibXML::_Configurable role, with
       $.config attribute to various parsing, validation and reading contexts.
       Replace internal referencing of global configuration in DOM classes with
