@@ -307,7 +307,7 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
 }
 
 submethod TWEAK(
-    :buf($), :file($), :string($), :fd($), :io($), :location($), # .parse modes
+    :buf($), :file($), :string($), :fd($), :io($), :location($), :config($), # .parse modes
     :$catalog, *%opts) {
     self.load-catalog($_) with $catalog;
     self.set-options(|%opts);

@@ -1,8 +1,8 @@
-use LibXML::_Validator;
-
 #| XML Schema Validation
-unit class LibXML::Schema
-    does LibXML::_Validator;
+unit class LibXML::Schema;
+
+use LibXML::_Validator;
+also does LibXML::_Validator;
 
 =begin pod
 
