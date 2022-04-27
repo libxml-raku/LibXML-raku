@@ -154,14 +154,14 @@ multi submethod TWEAK(LibXML::Document:D :DOM($!document)!,
     $!raw .= new: :$doc;
     self!setup: :!errors;
 }
-method !init-flags(%opts) {
+method !init-flags(:config($), *%opts) {
     self.set-flags($!flags, |%opts);
 }
 multi submethod TWEAK(Blob:D :$!buf!, UInt :$len = $!buf.bytes,
                       Str :$URI,
                       RelaxNG :$!RelaxNG, Schema :$!Schema,
                       :$!enc, *%opts) {
-    self!init-flags(%opts);
+    self!init-flags(|%opts);
     $!raw .= new: :$!buf, :$len, :$!enc, :$URI, :$!flags;
     self!setup;
 }
@@ -172,7 +172,7 @@ multi submethod TWEAK(Str:D :$string!, xmlEncodingStr :$!enc = 'UTF-8', |c) {
 multi submethod TWEAK(UInt:D :$fd!, Str :$URI,
                       RelaxNG :$!RelaxNG, Schema :$!Schema,
                       xmlEncodingStr :$!enc, *%opts) {
-    self!init-flags(%opts);
+    self!init-flags(|%opts);
     $!raw .= new: :$fd, :$!enc, :$URI, :$!flags;
     self!setup;
 }
@@ -185,7 +185,7 @@ multi submethod TWEAK(
     Str:D :$file!,
     RelaxNG :$!RelaxNG, Schema :$!Schema,
     xmlEncodingStr :$!enc, *%opts) {
-    self!init-flags(%opts);
+    self!init-flags(|%opts);
     $!raw .= new: :$file, :$!enc, :$!flags;
     self!setup;
 }
