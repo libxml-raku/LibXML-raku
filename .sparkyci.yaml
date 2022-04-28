@@ -5,4 +5,4 @@ init:
     xml: {}
 
 main:
-  with-code-coverage: false
+  with-code-coverage: true
