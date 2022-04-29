@@ -4,6 +4,7 @@ use Test;
 plan 4;
 
 use LibXML;
+use LibXML::Document;
 use LibXML::InputCallback;
 
 use lib './t/lib';
@@ -137,21 +138,17 @@ subtest 'single callback', {
         :close( $close1_non_global_counter.cb.() ),
     };
 
-    my LibXML $parser .= new: :$input-callbacks;
-    ok defined($parser), 'Parser was initted.';
+    my LibXML:D $parser .= new: :$input-callbacks;
 
     $parser.expand-xinclude = True;
 
-    my $dom = $parser.parse: :file("samples/test.xml");
+    my LibXML::Document:D $dom = $parser.parse: :file("samples/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for expand_include called twice.');
     $close1_non_global_counter.test(2, 'close1 for expand_include called.');
     $match1_non_global_counter.test(2, 'match1 for expand_include called twice.');
 
     $open1_non_global_counter.test(2, 'expand_include open1 worked.');
-
-    ok $dom.defined, 'DOM was returned.';
-    # warn $dom.toString();
 
     my $root = $dom.getDocumentElement();
 
@@ -162,13 +159,10 @@ subtest 'single callback', {
 subtest 'per parser callbacks', {
     # test per parser callbacks. These tests must not fail!
 
-    my LibXML $parser .= new();
-    my LibXML $parser2 .= new();
+    my LibXML:D $parser .= new();
+    my LibXML:D $parser2 .= new();
 
-    ok $parser.defined, '$parser was init.';
-    ok $parser2.defined, '$parser2 was init.';
-
-    my LibXML::InputCallback $input-callbacks .= new: :callbacks{
+    my LibXML::InputCallback:D $input-callbacks .= new: :callbacks{
         :match($match1_non_global_counter.cb.() ),
         :read( $read1_non_global_counter.cb.() ),
         :open( $open1_non_global_counter.cb.() ),
@@ -178,7 +172,7 @@ subtest 'per parser callbacks', {
     $parser.input-callbacks = $input-callbacks;
     $parser.expand-xinclude = True;
 
-    my LibXML::InputCallback $input-callbacks2 .= new: :callbacks{
+    my LibXML::InputCallback:D $input-callbacks2 .= new: :callbacks{
         :match(&match2),
         :read(&read2),
         :open($open2_counter.cb),
@@ -188,8 +182,8 @@ subtest 'per parser callbacks', {
     $parser2.input-callbacks = $input-callbacks2;
     $parser2.expand-xinclude = True;
 
-    my $dom1 = $parser.parse: :file( "samples/test.xml");
-    my $dom2 = $parser2.parse: :file("samples/test.xml");
+    my LibXML::Document:D $dom1 = $parser.parse: :file( "samples/test.xml");
+    my LibXML::Document:D $dom2 = $parser2.parse: :file("samples/test.xml");
 
     $read1_non_global_counter.test(2, 'read1 for $parser out of ($parser,$parser2)');
     $close1_non_global_counter.test(2, 'close1 for $parser out of ($parser,$parser2)');
@@ -197,15 +191,12 @@ subtest 'per parser callbacks', {
     $match1_non_global_counter.test(2, 'match1 for $parser out of ($parser,$parser2)');
     $open1_non_global_counter.test(2, 'expand_include for $parser out of ($parser,$parser2)');
     $open2_counter.test(2, 'expand_include for $parser2 out of ($parser,$parser2)');
-    ok $dom1.defined, '$dom1 was returned';
-    ok $dom2.defined, '$dom2 was returned';
 
     my $val1  = ( $dom1.first( "/x/xml/text()") ).string-value();
     my $val2  = ( $dom2.first( "/x/xml/text()") ).string-value();
 
     $val1 .= trim;
     $val2 .= trim;
-
 
     is $val1, "test", 'first parser result';
     is $val2, "test 4", 'second parser result';
@@ -219,8 +210,9 @@ my $str = 'complex.xml'.IO.slurp;
     # tests if callbacks are called correctly within DTDs
     my LibXML $parser2 .= new();
     $parser2.expand-xinclude = True;
-    my $dom = $parser2.parse: :string($str);
-    ok defined($dom), '$dom was init.';
+    lives-ok {
+        my LibXML::Document:D $ = $parser2.parse: :string($str);
+    }
 }
 
 my LibXML::InputCallback $input-callbacks .= new: :callbacks{
@@ -231,9 +223,8 @@ my LibXML::InputCallback $input-callbacks .= new: :callbacks{
 };
 
 subtest 'global callbacks', {
-    my LibXML $parser .= new: :$input-callbacks;
+    my LibXML:D $parser .= new: :$input-callbacks;
     $parser.dtd = True;
-    ok defined($parser), '$parser was init';
 
     ok $parser.parse(:string($str)), 'parse: :string returns a true value.';
 

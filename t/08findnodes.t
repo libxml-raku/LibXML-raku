@@ -1,18 +1,18 @@
 use v6;
 use Test;
-plan 14;
+plan 13;
 
 use LibXML;
 use LibXML::Parser::Context;
+use LibXML::Document;
+use LibXML::Element;
 use LibXML::Node;
 
 my $file    = "samples/dromeds.xml";
 
 # init the file parser
-my LibXML $parser .= new();
-my $dom = $parser.parse: :$file;
-ok $dom.defined;
-
+my LibXML:D $parser .= new();
+my LibXML::Document:D $dom = $parser.parse: :$file;
 
 LibXML::Parser::Context.SetGenericErrorFunc(-> $fmt, |c { });
 
@@ -47,7 +47,6 @@ subtest 'findnodes basic', {
     # find with not conditions
     @list   = $elem.findnodes( "species[\@name!='Llama']/disposition" );
     is +@list, 2;
-
 
     @list   = $elem.findnodes( 'species/@name' );
 
@@ -100,7 +99,7 @@ subtest 'findnodes basic', {
 }
 
 for 0..3 {
-    my $doc = LibXML.parse: :string(q:to<EOT>);
+    my LibXML::Document:D $doc = LibXML.parse: :string(q:to<EOT>);
     <?xml version="1.0" encoding="UTF-8"?>
     <?xsl-stylesheet type="text/xsl" href="a.xsl"?>
     <a />
@@ -109,14 +108,14 @@ for 0..3 {
     is $pi.xpath-key, 'processing-instruction()';
 }
 
-my $doc = $parser.parse: :string(q:to<EOT>);
+my LibXML::Document:D $doc = $parser.parse: :string(q:to<EOT>);
 <a:foo xmlns:a="http://foo.com" xmlns:b="http://bar.com">
  <b:bar>
   <a:foo xmlns:a="http://other.com"/>
  </b:bar>
 </a:foo>
 EOT
-my $root = $doc.getDocumentElement;
+my LibXML::Element:D $root = $doc.getDocumentElement;
 
 subtest 'ns findnodes', {
     my @a = $root.findnodes('//a:foo');

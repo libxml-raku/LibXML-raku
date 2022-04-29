@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 19;
+plan 18;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
@@ -10,8 +10,7 @@ use LibXML::Parser;
 constant MAX_THREADS = 10;
 constant MAX_LOOP = 50;
 
-my LibXML $p .= new();
-ok($p.defined, 'Parser initted.');
+my LibXML:D $p .= new();
 
 sub blat(&r, :$n = MAX_THREADS) {
     (^$n).race(:batch(1)).map(&r);
@@ -222,10 +221,9 @@ subtest 'check parsing', {
     }
 
     use LibXML::SAX;
-    $p .= new(
+    my LibXML::SAX:D $p .= new(
 	:sax-handler(MyHandler.new),
     );
-    ok($p.defined, 'LibXML::SAX was initted.');
     blat { $p.parse: :$string for 1..5; 1; }
     pass('After LibXML::SAX - join.');
 

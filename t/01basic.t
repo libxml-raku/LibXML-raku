@@ -2,15 +2,14 @@ use v6;
 use Test;
 use LibXML;
 use LibXML::Config;
+use LibXML::Document;
 
 constant config = LibXML::Config;
 constant Min-LibXML-Version = v2.08.00;
 
-plan 9;
+plan 8;
 
-my LibXML $p .= new();
-
-ok $p.defined, 'Can initialize a new LibXML instance';
+my LibXML:D $p .= new();
 
 my $version = $p.version;
 
@@ -31,7 +30,7 @@ for True, False -> $kb {
 }
 
 my Str $string = '<html><body><h1>Test</h1></body></html>';
-my $doc = $p.parse: :$string;
+my LibXML::Document:D $doc = $p.parse: :$string;
 
 config.skip-xml-declaration = True;
 

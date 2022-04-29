@@ -386,19 +386,16 @@ subtest 'namespace reconciliation', {
     ok !defined($b.getAttribute( 'xmlns:xsi' ));
 
     # tests for reconciliation during setAttributeNodeNS
-    my $attr = $doca.createAttributeNS(
+    my LibXML::Attr:D $attr = $doca.createAttributeNS(
         'http://children', 'child:attr', 'value'
     );
-    ok $attr.defined;
-    my $child = $doca.documentElement.firstChild;
-    ok $child.defined;
+    my LibXML::Element:D $child = $doca.documentElement.firstChild;
     $child.setAttributeNodeNS($attr);
     ok !defined($child.getAttribute( 'xmlns:child' ));
 
     # due to libxml2 limitation, LibXML declares the namespace
     # on the root element
     $attr = $doca.createAttributeNS('http://other','other:attr','value');
-    ok $attr.defined;
     $child.setAttributeNodeNS($attr);
     #
     ok !defined($child.getAttribute( 'xmlns:other' ));

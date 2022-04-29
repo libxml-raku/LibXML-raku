@@ -6,6 +6,7 @@ use LibXML;
 use LibXML::SAX;
 use LibXML::SAX::Builder;
 use LibXML::SAX::Handler::SAX2;
+use LibXML::Document;
 use LibXML::Node;
 use LibXML::Element;
 
@@ -99,17 +100,14 @@ sub _create_urn_stacker
 my $SAXNSTester_start_prefix_mapping_stacker = _create_urn_stacker();
 my $SAXNSTester_end_prefix_mapping_stacker = _create_urn_stacker();
 
-my $parser;
+my LibXML::SAX $parser;
 subtest 'callback basic', {
-    my SAXTester $sax .= new;
-    ok $sax.defined;
+    my SAXTester:D $sax .= new;
 
     my $str = "samples/dromeds.xml".IO.slurp;
-    my $doc = LibXML.parse: :string($str);
-    ok $doc.defined;
+    my LibXML::Document:D $doc = LibXML.parse: :string($str);
 
-    my LibXML::SAX $generator .= new(sax-handler => $sax);
-    ok $generator.defined;
+    my LibXML::SAX:D $generator .= new(sax-handler => $sax);
 
     $generator.reparse($doc); # startElement*10
 
@@ -122,8 +120,7 @@ subtest 'callback basic', {
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
     my LibXML::SAX $gen2 .= new;
-    my $dom2 = $gen2.reparse($doc);
-    ok $dom2.defined;
+    my LibXML::Document:D $dom2 = $gen2.reparse($doc);
 
     is $dom2.Str, $str;
     # warn($dom2.toString);
@@ -153,8 +150,7 @@ EOT
 }
 
 subtest 'Ns callbacks', {
-    my SAXNSTester $sax .= new;
-    ok $sax.defined;
+    my SAXNSTester:D $sax .= new;
 
     $parser.sax-handler = $sax;
     $parser.parse: :file("samples/ns.xml");
@@ -187,11 +183,9 @@ subtest 'callback metrics', {
             $sax.column-number($ctx),
         ]);
     };
-    my SAXLocatorTester $sax .= new( :&cb );
+    my SAXLocatorTester:D $sax .= new( :&cb );
 
-    ok $sax.defined, 'Created SAX handler with document locator';
-
-    my LibXML::SAX $parser .= new(sax-handler => $sax);
+    my LibXML::SAX:D $parser .= new(sax-handler => $sax);
 
     $parser.parse: :string(q:to<EOT>.chomp);
     <?xml version="1.0" encoding="UTF-8"?>

@@ -1,9 +1,13 @@
 use v6;
 use Test;
-plan 11;
+plan 10;
 
 use LibXML;
 use LibXML::Document;
+use LibXML::Element;
+use LibXML::Node;
+use LibXML::Text;
+use LibXML::Node::Set;
 use LibXML::XPath::Expression;
 
 my $xmlstring = q:to<EOSTR>;
@@ -21,9 +25,7 @@ EOSTR
 {
     my LibXML $parser .= new();
 
-    my $doc = $parser.parse: :string( $xmlstring );
-
-    ok $doc.defined, 'Parsing successful.';
+    my LibXML::Document:D $doc = $parser.parse: :string( $xmlstring );
 
     subtest 'findnodes', {
         my @nodes = $doc.findnodes( "/foo/bar" );
@@ -58,11 +60,10 @@ EOSTR
 
     subtest 'find', {
         my $result = $doc.find( "/foo/bar" );
-        ok $result;
+        ok $result.defined;
         isa-ok $result, "LibXML::Node::Set";
         skip("numeric on nodes");
         is +$result, 2;
-
 
         ok $doc.isSameNode($result.iterator.pull-one.ownerDocument);
 
@@ -108,7 +109,6 @@ EOSTR
         $result = $doc.find( "contains(/foo/bar[3], 'test 1')" );
         is-deeply $result, False;
 
-
         ok $doc.exists("/foo/bar[2]");
         is-deeply $doc.exists("/foo/bar[3]"), False;
         is-deeply $doc.exists("-7.2"), True;
@@ -117,28 +117,28 @@ EOSTR
         is-deeply $doc.exists("''"), False;
         is-deeply $doc.exists("'0'"), True;
 
-        my $node = $doc.first("/foo/bar[1]" );
+        my LibXML::Element $node = $doc.first("/foo/bar[1]" );
         ok $node.defined;
         ok $node.exists("following-sibling::bar");
     }
 
     subtest 'attribute', {
-        my $result = $doc.find( "/foo/bar/@att" );
-        ok $result;
+        my LibXML::Node::Set:D $result = $doc.find( "/foo/bar/@att" );
+        ok $result.defined;
         my $node = $result[0];
         isa-ok $node, 'LibXML::Attr';
         is $node.nodePath, '/foo/bar[2]/@att';
     }
 
     subtest 'removeChild', {
-        my $root = $doc.documentElement();
+        my LibXML::Element:D $root = $doc.documentElement();
         for $root.findnodes( 'bar' ) -> $bar {
             $root.removeChild($bar);
         }
         pass 'remove from root';
 
         $doc = $parser.parse: :string( $xmlstring );
-        my @bars = $doc.findnodes( '//bar' );
+        my LibXML::Element @bars = $doc.findnodes( '//bar' );
 
         for @bars -> $node {
             $node.parentNode().removeChild( $node );
@@ -159,48 +159,45 @@ EOSTR
 
 
 subtest 'Perl #39178', {
-    my LibXML $p .= new;
-    my $doc = $p.parse: :file("samples/utf-16-2.xml");
-    ok $doc.defined;
-    my @nodes = $doc.findnodes("/cml/*");
+    my LibXML:D $p .= new;
+    my LibXML::Document:D $doc = $p.parse: :file("samples/utf-16-2.xml");
+    my LibXML::Element @nodes = $doc.findnodes("/cml/*");
     is +@nodes, 2;
     is @nodes[1].textContent, "utf-16 test with umlauts: \x[e4]\x[f6]\x[fc]\x[c4]\x[d6]\x[dc]\x[df]";
 }
 
 subtest 'Perl #36576', {
-    my LibXML $p .= new;
-    my $doc = $p.parse: :html, :file("samples/utf-16-1.html");
-    ok $doc.defined;
-    my @nodes = $doc.findnodes("//p");
+    my LibXML:D $p .= new;
+    my LibXML::Document:D $doc = $p.parse: :html, :file("samples/utf-16-1.html");
+    my LibXML::Element:D @nodes = $doc.findnodes("//p");
     is +@nodes, 1;
 
     _utf16_content_test(@nodes, 'nodes content is fine.');
 }
 
 subtest 'Perl #36576', {
-    my LibXML $p .= new;
-    my $doc = $p.parse: :html, :file("samples/utf-16-2.html");
-    ok $doc.defined;
-    my @nodes = $doc.findnodes("//p");
+    my LibXML:D $p .= new;
+    my LibXML::Document:D $doc = $p.parse: :html, :file("samples/utf-16-2.html");
+    my LibXML::Element:D @nodes = $doc.findnodes("//p");
     is +@nodes, 1, 'Found one p';
     _utf16_content_test(@nodes, 'p content is fine.');
 }
 
 subtest 'Perl #69096', {
-    my $doc = LibXML::Document.createDocument();
-    my $root = $doc.createElement('root');
+    my LibXML::Document:D $doc .= createDocument();
+    my LibXML::Element:D $root = $doc.createElement('root');
     $doc.setDocumentElement($root);
-    my $e = $doc.createElement("child");
-    my $e2 = $doc.createElement("child");
-    my $t1 = $doc.createTextNode( "te" );
-    my $t2 = $doc.createTextNode( "st" );
+    my LibXML::Element:D $e = $doc.createElement("child");
+    my LibXML::Element:D $e2 = $doc.createElement("child");
+    my LibXML::Text:D $t1 = $doc.createTextNode( "te" );
+    my LibXML::Text:D $t2 = $doc.createTextNode( "st" );
     $root.appendChild($e);
     $root.appendChild($e2);
     $e2.appendChild($t1);
     $e2.appendChild($t2);
 
     $doc.normalize();
-    my @cn = $doc.findnodes('//child[text()="test"]');
+    my LibXML::Node:D @cn = $doc.findnodes('//child[text()="test"]');
     is +@cn, 1, 'xpath testing adjacent text nodes';
 }
 

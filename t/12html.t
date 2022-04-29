@@ -2,7 +2,7 @@ use v6;
 use Test;
 use LibXML;
 
-plan 11;
+plan 10;
 
 use LibXML;
 use LibXML::Raw;
@@ -14,8 +14,7 @@ my $html = "samples/test.html";
 
 my LibXML $parser .= new();
 subtest 'parse :html and :file options', {
-    my LibXML::Document::HTML $doc = $parser.parse: :html, :file($html);
-    ok $doc.defined;
+    my LibXML::Document::HTML:D $doc = $parser.parse: :html, :file($html);
     isa-ok $doc.raw, htmlDoc, 'HTML, under the hood';
     cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
     cmp-ok $doc, '!~~', LibXML::Document::XML, "isn't XML";
@@ -29,10 +28,7 @@ $io.seek(0, SeekFromBeginning );
 
 ok $string;
 
-my $doc = $parser.parse: :html, :$string;
-
-
-ok $doc.defined;
+my LibXML::Document:D $doc = $parser.parse: :html, :$string;
 
 if CanDoIO {
     $doc = $parser.parse: :html, :$io;
@@ -56,7 +52,7 @@ my $strhref = q:to<EOHTML>;
 </html>
 EOHTML
 
-my $htmldoc;
+my LibXML::Document::HTML $htmldoc;
 
 subtest 'html recovery parse', { 
     $parser.recover = True;
@@ -227,11 +223,9 @@ subtest 'recover', {
     EOF
 
     my LibXML $parser .= new;
-    $doc = Nil;
     quietly lives-ok {
         $doc = $parser.parse: :html, :string($html), :recover, :suppress-errors;
     };
-    ok  $doc.defined, ' Parsing was successful.';
     my $root = $doc && $doc.documentElement;
     my $val = $root && $root.findvalue('//input[@id="foo"]/@value');
     is $val, 'working', 'XPath';

@@ -1,9 +1,10 @@
 use v6;
 use Test;
 
-plan 14;
+plan 11;
 
 use LibXML;
+use LibXML::Document;
 use LibXML::InputCallback;
 
 use lib './t/lib';
@@ -116,19 +117,17 @@ my Counter $read_hash_counter .= new(
     }
 );
 
-my LibXML::InputCallback $icb .= new: :callbacks{
+my LibXML::InputCallback:D $icb .= new: :callbacks{
     match => $match_file_counter.cb(),
     open => $open_file_counter.cb(),
     read => $read_file_counter.cb(),
     close => $close_file_counter.cb() };
 
-ok $icb.defined;
 
-
-my LibXML $parser .= new;
+my LibXML:D $parser .= new;
 $parser.expand-xinclude = True;
 $parser.input-callbacks = $icb;
-my $doc = $parser.parse: :$string;
+my LibXML::Document:D $doc = $parser.parse: :$string;
 
 $match_file_counter.test(1, 'match_file matched once.');
 
@@ -138,17 +137,13 @@ $read_file_counter.test(2, 'read_file called twice.');
 
 $close_file_counter.test(1, 'close_file called once.');
 
-ok $doc.defined, 'doc defined';
-
 is $doc.string-value(), "test..", 'string-value';
 
-my LibXML::InputCallback $icb2  .= new: :callbacks{
+my LibXML::InputCallback:D $icb2  .= new: :callbacks{
     match =>  $match_hash_counter.cb(),
     open  => $open_hash_counter.cb(),
     read  => $read_hash_counter.cb(),
     close => $close_hash_counter.cb()};
-
-ok $icb2.defined;
 
 $parser.input-callbacks = $icb2;
 $doc = $parser.parse: :$string;

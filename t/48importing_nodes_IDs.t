@@ -10,23 +10,25 @@ use Test;
 plan 4;
 
 use LibXML;
+use LibXML::Document;
+use LibXML::Element;
 
 {
-    my $doc = LibXML.load(string => q:to<EOT>);
+    my LibXML::Document:D $doc = LibXML.load(string => q:to<EOT>);
     <root>
         <item xml:id="id1">item1</item>
     </root>
     EOT
 
-    my $elem = $doc.getElementById('id1');
+    my LibXML::Element $elem = $doc.getElementById('id1');
     ok $elem.defined, 'Orig doc has id1';
 
     is $elem.textContent(), 'item1', 'Content of orig doc elem id1';
 
-    my $doc2 = LibXML.createDocument( "1.0", "UTF-8" );
+    my LibXML::Document:D $doc2 = LibXML.createDocument( "1.0", "UTF-8" );
     $doc2.setDocumentElement( $doc2.importNode( $doc.documentElement() ) );
 
-    my $elem2 = $doc2.getElementById('id1');
+    my LibXML::Element $elem2 = $doc2.getElementById('id1');
     ok defined($elem2), 'Doc2 after importNode has id1';
 
     is $elem2.textContent(), 'item1', 'Doc2 after importNode has id1';

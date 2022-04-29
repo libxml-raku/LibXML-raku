@@ -1,15 +1,14 @@
 use v6;
 use Test;
-plan 13;
+plan 12;
 
 use LibXML;
 use LibXML::Document;
 use LibXML::XPath::Context;
 
-my LibXML::Document $doc .= parse: :string(q:to<XML>);
+my LibXML::Document:D $doc .= parse: :string(q:to<XML>);
 <foo><bar a="b">Bla</bar><bar/></foo>
 XML
-ok $doc.defined;
 
 my $errors;
 

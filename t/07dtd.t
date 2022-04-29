@@ -25,7 +25,7 @@ subtest 'internalSubset', {
 
 subtest 'externalSubset', {
     my LibXML::Document $doc .= new;
-    my $dtd = $doc.createInternalSubset( "html",
+    my LibXML::Dtd:D $dtd = $doc.createInternalSubset( "html",
                                           $htmlPublic,
                                           $htmlSystem
                                         );
@@ -34,7 +34,6 @@ subtest 'externalSubset', {
 
     skip 'setExternalSubset :validate - locking?';
     #dies-ok {$doc.setExternalSubset( $dtd, :validate )}, 'setExternalSubset :validate';
-    ok defined(!$doc.externalSubset);
     ok defined($doc.internalSubset);
     lives-ok {$doc.setExternalSubset( $dtd )}, 'setExternalSubset';
     ok $dtd.isSameNode( $doc.externalSubset );
@@ -72,9 +71,7 @@ subtest 'externalSubset', {
 subtest 'doc with internal subset', {
     my LibXML $parser .= new();
 
-    my $doc = $parser.parse: :file( "samples/dtd.xml" );
-
-    ok $doc.defined;
+    my LibXML::Document:D $doc = $parser.parse: :file( "samples/dtd.xml" );
 
     my $dtd = $doc.internalSubset;
     is $dtd.name, 'doc';
@@ -111,15 +108,15 @@ subtest 'doc with internal subset', {
     is $entity.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity entity-type';
 
     $entity-ref = $doc.createEntityReference("gt");
-    is($entity-ref.nodeType, +XML_ENTITY_REF_NODE, 'predefined entity reference nodeType' );
-    is($entity-ref.firstChild.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity reference entity-type');
+    is $entity-ref.nodeType, +XML_ENTITY_REF_NODE, 'predefined entity reference nodeType';
+    is $entity-ref.firstChild.entityType, +XML_INTERNAL_PREDEFINED_ENTITY, 'predefined entity reference entity-type';
 
     {
         my LibXML::Document $doc2 .= new;
         my $e = $doc2.createElement("foo");
         $doc2.setDocumentElement( $e );
 
-        my $dtd2 = $doc.internalSubset;
+        my LibXML::Dtd $dtd2 = $doc.internalSubset;
         ok $dtd2.defined;
 
         lives-ok {
@@ -157,7 +154,7 @@ subtest 'XHTML external subset', {
 
     my $xml = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://localhost/does_not_exist.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml"><head><title>foo</title></head><body><p>bar</p></body></html>';
-    my $doc;
+    my LibXML::Document $doc;
     lives-ok {
         $doc = $parser.parse: :string($xml);
     };
@@ -181,14 +178,14 @@ subtest 'bad Dtd parse', {
     my $xml = "<!DOCTYPE test SYSTEM \"samples/bad.dtd\">\n<test/>";
 
     {
-        my LibXML $parser .= new;
+        my LibXML:D $parser .= new;
         $parser.load-ext-dtd = False;
         $parser.validation = False;
-        my $doc = $parser.parse: :string($xml);
+        my LibXML::Document $doc = $parser.parse: :string($xml);
         ok $doc.defined;
     }
     {
-        my LibXML $parser .= new;
+        my LibXML:D $parser .= new;
         $parser.load-ext-dtd = True;
         $parser.validation = False;
         dies-ok { $parser.parse: :string($xml) };

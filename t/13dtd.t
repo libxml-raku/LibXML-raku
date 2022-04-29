@@ -13,8 +13,7 @@ $dtdstr ~~ s/\n*$//;
 ok($dtdstr, "DTD String read");
 
 subtest 'parse a DTD from a SYSTEM ID', {
-    my LibXML::Dtd $dtd .= new('ignore', 'samples/test.dtd');
-    ok $dtd.defined, 'LibXML::Dtd successful.';
+    my LibXML::Dtd:D $dtd .= new('ignore', 'samples/test.dtd');
     my @dtd-lines-in =  $dtdstr.lines;
     my @dtd-lines-out = $dtd.Str.lines;
     @dtd-lines-out.shift;
@@ -70,6 +69,7 @@ subtest 'childNodes sanity', {
 
 subtest 'Perl ticket #2021', {
     quietly { dies-ok { LibXML::Dtd.new("",""); } };
-    my LibXML::Dtd $dtd .= new('', 'samples/test.dtd');
-    ok(defined($dtd), "LibXML::Dtd.new working correctly");
+    lives-ok {
+        my LibXML::Dtd:D $dtd .= new('', 'samples/test.dtd');
+    }, "LibXML::Dtd.new working correctly";
 }

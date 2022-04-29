@@ -5,6 +5,7 @@ plan 24;
 use LibXML;
 use LibXML::XPath::Context;
 use LibXML::XPath::Expression;
+use LibXML::Node::Set;
 
 my $errors;
 
@@ -27,7 +28,7 @@ subtest 'findnodes() list', {
 
 subtest 'findnodes() scalar', {
     for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
-        my $nl = LibXML::XPath::Context.new(:$doc).findnodes($exp);
+        my LibXML::Node::Set:D $nl = LibXML::XPath::Context.new(:$doc).findnodes($exp);
         ok $nl.pop.nodeName eq 'foo';
         ok !defined($nl.pop);
     }

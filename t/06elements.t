@@ -5,7 +5,9 @@ use Test;
 plan 10;
 
 use LibXML;
+use LibXML::Attr;
 use LibXML::Document;
+use LibXML::Element;
 use LibXML::Enums;
 
 my $foo       = "foo";
@@ -22,7 +24,7 @@ my @badnames= ("1A", "<><", "&", "-:");
 
 subtest 'bound node', {
     my LibXML::Document $doc .= new();
-    my $elem = $doc.createElement( $foo );
+    my LibXML::Element $elem = $doc.createElement( $foo );
     ok $elem.defined;
     is $elem.tagName, $foo;
 
@@ -35,7 +37,7 @@ subtest 'bound node', {
         ok $elem.hasAttribute($attname1);
         is $elem.getAttribute($attname1), $attvalue1;
 
-        my $attr = $elem.getAttributeNode($attname1);
+        my LibXML::Attr $attr = $elem.getAttributeNode($attname1);
         ok $attr.defined;
         is $attr.name, $attname1;
         is $attr.value, $attvalue1;
@@ -91,7 +93,7 @@ subtest 'bound node', {
     subtest 'empty NS', {
         $elem.setAttributeNS( '', $foo, $attvalue2 );
         ok $elem.hasAttribute( $foo );
-        my $tattr = $elem.getAttributeNode( $foo );
+        my LibXML::Attr $tattr = $elem.getAttributeNode( $foo );
         ok $tattr.defined;
         is $tattr.name, $foo;
         is $tattr.nodeName, $foo;
@@ -110,8 +112,7 @@ subtest 'bound node', {
     subtest 'node based functions', {
         my $e2 = $doc.createElement($foo);
         $doc.setDocumentElement($e2);
-        my $nsAttr = $doc.createAttributeNS( $nsURI~".x", $prefix~":"~$foo, $bar);
-        ok $nsAttr.defined;
+        my LibXML::Attr:D $nsAttr = $doc.createAttributeNS( $nsURI~".x", $prefix~":"~$foo, $bar);
         $elem.setAttributeNodeNS($nsAttr);
         ok $elem.hasAttributeNS($nsURI~".x", $foo);
         $elem.removeAttributeNS( $nsURI~".x", $foo);
@@ -132,15 +133,14 @@ subtest 'bound node', {
 }
 
 subtest 'unbound node', {
-    my LibXML::Element $elem .= new: :name($foo);
-    ok $elem.defined;
+    my LibXML::Element:D $elem .= new: :name($foo);
     is $elem.tagName, $foo;
 
     $elem.setAttribute( $attname1, $attvalue1 );
     ok $elem.hasAttribute($attname1);
     is $elem.getAttribute($attname1), $attvalue1;
 
-    my $attr = $elem.getAttributeNode($attname1);
+    my LibXML::Attr $attr = $elem.getAttributeNode($attname1);
     ok $attr.defined;
     is $attr.name, $attname1;
     is $attr.value, $attvalue1;
@@ -148,7 +148,7 @@ subtest 'unbound node', {
     $elem.setAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $attvalue2 );
     ok $elem.hasAttributeNS( $nsURI, $foo );
 
-    my $tattr = $elem.getAttributeNodeNS( $nsURI, $foo );
+    my LibXML::Attr $tattr = $elem.getAttributeNodeNS( $nsURI, $foo );
     ok $tattr.defined;
     is $tattr.name, $foo;
     is $tattr.nodeName, $prefix~ ":" ~$foo;
@@ -160,14 +160,12 @@ subtest 'unbound node', {
 
 
 subtest 'namespace switching', {
-    my LibXML::Element $elem .= new: :name($foo);
-    ok $elem.defined;
+    my LibXML::Element:D $elem .= new: :name($foo);
 
     my LibXML::Document $doc .= new();
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
-    my $nsAttr = $doc.createAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $bar);
-    ok $nsAttr.defined;
+    my LibXML::Attr:D $nsAttr = $doc.createAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $bar);
 
     $elem.setAttributeNodeNS($nsAttr);
     ok $elem.hasAttributeNS($nsURI, $foo);
@@ -296,12 +294,12 @@ subtest 'LibXML::Attr nodes', {
         my LibXML $parser .= new;
         $parser.complete-attributes = False;
         $parser.expand-entities = False;
-        my $doc = $parser.parse: :string($dtd ~ $xml);
+        my LibXML::Document $doc = $parser.parse: :string($dtd ~ $xml);
 
         ok $doc.defined;
         my $root = $doc.getDocumentElement;
         subtest 'getAttributeNode', {
-            my $attr = $root.getAttributeNode('foo');
+            my LibXML::Attr $attr = $root.getAttributeNode('foo');
             ok $attr.defined;
             isa-ok $attr, 'LibXML::Attr';
             ok $root.isSameNode($attr.ownerElement);
@@ -310,7 +308,7 @@ subtest 'LibXML::Attr nodes', {
             is $attr.gist, 'foo="&quot;bar&ent;&quot;"';
         }
         subtest 'getAttributeNodeNS', {
-            my $attr = $root.getAttributeNodeNS(Str,'foo');
+            my LibXML::Attr $attr = $root.getAttributeNodeNS(Str,'foo');
             ok $attr.defined;
             isa-ok $attr, 'LibXML::Attr';
             ok $root.isSameNode($attr.ownerElement);

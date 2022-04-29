@@ -1,6 +1,7 @@
 use v6;
 use Test;
 use LibXML;
+use LibXML::Document;
 use LibXML::Raw;
 use Telemetry;
 
@@ -42,8 +43,7 @@ class sax-null {...}
     check-mem(1);
 
     subtest 'make doc in sub', {
-        my $doc = make-doc();
-        ok $doc.defined;
+        my LibXML::Document:D $doc = make-doc();
         ok $doc.Str.defined, 'Str()';
         check-mem();
     }
@@ -51,8 +51,7 @@ class sax-null {...}
     subtest 'make doc in sub II', {
         # same test as the first one. if this still leaks, it's
         # our problem, otherwise it's perl :/
-        my $doc = make-doc();
-        $doc.defined;
+        my LibXML::Document:D $doc = make-doc();
 
         ok $doc.Str.defined, 'Str()';
         check-mem();
@@ -67,9 +66,8 @@ class sax-null {...}
     }
 
     subtest 'set document element', {
-        my LibXML::Document $doc2 .= new();
+        my LibXML::Document:D $doc2 .= new();
         make-doc-elem( $doc2 );
-        ok $doc2.defined;
         ok $doc2.documentElement.defined, 'documentElement';
         check-mem();
     }

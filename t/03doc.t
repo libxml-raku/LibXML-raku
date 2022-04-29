@@ -10,6 +10,7 @@ use Test;
 plan 9;
 
 use LibXML;
+use LibXML::Document;
 use LibXML::Enums;
 
 sub is-empty-str(Str $s)
