@@ -1,6 +1,7 @@
 #include "xml6.h"
 #include "xml6_gbl.h"
 #include <libxml/parser.h>
+#include <libxml/threads.h>
 #include <libxml/xmlIO.h>
 #include <stdarg.h>
 #include <string.h>
@@ -9,6 +10,7 @@ static xmlExternalEntityLoader default_ext_entity_loader = NULL;
 
 DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
     int update = 0;
+    xmlLockLibrary();
     if (default_ext_entity_loader == NULL) {
         default_ext_entity_loader = xmlGetExternalEntityLoader();
     }
@@ -21,6 +23,7 @@ DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
         update = xmlGetExternalEntityLoader() == default_ext_entity_loader;
         if (update) xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
     }
+    xmlUnlockLibrary();
 
     return update;
 }

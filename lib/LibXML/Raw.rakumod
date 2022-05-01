@@ -1708,7 +1708,6 @@ method TagExpansion is rw {
 }
 
 module xmlExternalEntityLoader is export {
-    our sub Default(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlDefaultExternalEntityLoader') {*}
     our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
     our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($XML2) is symbol('xmlSetExternalEntityLoader') {*}
     our sub Get( --> Pointer ) is native($XML2) is symbol('xmlGetExternalEntityLoader') {*}
