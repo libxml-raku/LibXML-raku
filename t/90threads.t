@@ -7,8 +7,8 @@ use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
 use LibXML::Parser;
-constant MAX_THREADS = 10;
-constant MAX_LOOP = 50;
+INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || 10;
+INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
 
 my LibXML:D $p .= new();
 
@@ -165,14 +165,16 @@ my $rngschema = q:to<EOF>;
 EOF
 
 {
-    blat {
+    my @ok = blat {
+        my $ok = True;
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
-	    die "no error" without $!;
+            $ok = False without $!;
         }
+	$ok;
     }
-    pass("test RNG validation errors thread safe sanity");
+    ok @ok.all.so, "test RNG validation errors thread safe sanity";
 }
 
 my $xsdschema = q:to<EOF>;
@@ -185,14 +187,16 @@ my $xsdschema = q:to<EOF>;
 EOF
 
 {
-    blat {
+    my @ok = blat {
+        my $ok = True;
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
-	    die "no error" without $!;
+            $ok = False without $!;
         }
+        $ok;
     }
-    pass "test Schema validation errors thread safe sanity";
+    ok @ok.all.so, "test Schema validation errors thread safe sanity";
 }
 
 sub use_dom($d) {
@@ -208,8 +212,8 @@ my $bigfile = "etc/libxml2-api.xml";
 subtest 'dom access', {
     my $string = $bigfile.IO.slurp;
     ok $string , 'bigfile was slurped fine.';
-    blat { my $dom = do { $p.parse: :$string }; use_dom($dom) for 1..5; };
-    pass 'Joined all threads.';
+    my @ok = blat { my $dom = do { $p.parse: :$string }; use_dom($dom) for 1..5; True};
+     ok @ok.all.so, 'Joined all threads.';
 }
 
 subtest 'check parsing', {
@@ -224,8 +228,8 @@ subtest 'check parsing', {
     my LibXML::SAX:D $p .= new(
 	:sax-handler(MyHandler.new),
     );
-    blat { $p.parse: :$string for 1..5; 1; }
-    pass('After LibXML::SAX - join.');
+    my @ok = blat { $p.parse: :$string for 1..5; True; }
+    ok @ok.all.so, 'After LibXML::SAX - join.';
 
     $p .= new(
 	:sax-handler(MyHandler.new),
@@ -233,57 +237,63 @@ subtest 'check parsing', {
     $p.parse: :chunk($string);
     $p.parse: :terminate;
 
-    blat {
+    @ok = blat {
         use_dom($p.parse: :chunk($string), :terminate);
+        True;
     }
-    pass('LibXML thread.');
+    ok @ok.all.so, 'LibXML thread.';
 
     $p .= new();
     # parse a big file using the same parser
+    @ok = True;
     unless $*DISTRO.is-win {
-        blat {
+        @ok = blat {
             my IO::Handle $io = $bigfile.IO.open(:r);
             $p.parse: :$io;
             $io.close;
+            True;
         }
     }
 
-    pass('threads.join after opening bigfile.');
+    ok @ok.all.so, 'threads.join after opening bigfile.';
 }
 
 subtest 'create elements', {
-    blat { my @n = map {LibXML::Element.new('bar'~$_)}, 1..100 }
-    pass;
+    my @ok = blat { my @n = map {LibXML::Element.new('bar'~$_)}, 1..100; True }
+    ok @ok.all.so;
 }
 
 # ported from Perl
 
 subtest 'docfrag', {
     my LibXML::Element $e .= new('foo');
-    blat {
+    my @ok = blat {
         my LibXML::Document $d .= new();
         $d.setDocumentElement($d.createElement('root'));
         $e.protect: { $d.documentElement.appendChild($e); }
+        True;
     }
-    pass;
+    ok @ok.all.so;
 }
 
 subtest 'docfrag2', {
     my LibXML::Element $e .= new('foo');
     my LibXML::Document $d .= new();
     $d.setDocumentElement: $d.createElement('root');
-    blat {
+    my @ok = blat {
 	$e.protect: {$d.protect: { $d.documentElement.appendChild($e); }}
+        True;
     }
-    pass;
+    ok @ok.all.so;
 }
 
 subtest 'docfrag3', {
     my LibXML::Element $e .= new('foo');
-    blat {
+    my @ok = blat {
 	$e.protect: { LibXML::Element.new('root').appendChild($e); }
+        True;
     }
-    pass;
+    ok @ok.all.so;
 }
 
 subtest 'xinclude', {
@@ -291,6 +301,6 @@ subtest 'xinclude', {
     my LibXML $parser .= new;
     $parser.expand-xinclude = True;
     $parser.expand-entities = True;
-    blat { $parser.parse(:$file) for 1..10 }
-    pass;
+    my @ok = blat { $parser.parse(:$file) for 1..10; True }
+    ok @ok.all.so;
 }
