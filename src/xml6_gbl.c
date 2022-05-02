@@ -7,13 +7,20 @@
 #include <string.h>
 
 static xmlExternalEntityLoader default_ext_entity_loader = NULL;
+DLLEXPORT void xml6_gbl_init_external_entity_loader(void) {
+    default_ext_entity_loader = xmlGetExternalEntityLoader();
+}
 
-DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
+DLLEXPORT void* xml6_gbl_get_external_entity_loader(void) {
+    return xmlGetExternalEntityLoader();
+}
+
+DLLEXPORT void xml6_gbl_set_external_entity_loader(void *loader) {
+    xmlSetExternalEntityLoader(loader);
+}
+
+DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int net) {
     int update = 0;
-    xmlLockLibrary();
-    if (default_ext_entity_loader == NULL) {
-        default_ext_entity_loader = xmlGetExternalEntityLoader();
-    }
 
     if (net) {
         update = xmlGetExternalEntityLoader() == xmlNoNetExternalEntityLoader;
@@ -23,13 +30,28 @@ DLLEXPORT int xml6_gbl_set_external_entity_loader(int net) {
         update = xmlGetExternalEntityLoader() == default_ext_entity_loader;
         if (update) xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
     }
-    xmlUnlockLibrary();
 
     return update;
 }
 
+DLLEXPORT int xml6_gbl_get_tag_expansion(void) {
+    return xmlSaveNoEmptyTags;
+}
+
 DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {
     xmlSaveNoEmptyTags = flag;
+}
+
+DLLEXPORT int xml6_gbl_get_keep_blanks(void) {
+    return xmlKeepBlanksDefaultValue;
+}
+
+DLLEXPORT void xml6_gbl_set_keep_blanks(int flag) {
+    xmlKeepBlanksDefaultValue = flag;
+}
+
+DLLEXPORT xmlError* xml6_gbl_get_last_error(void) {
+    return &xmlLastError;
 }
 
 

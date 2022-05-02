@@ -155,13 +155,8 @@ method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
 
 #| Keep blank nodes (Default True)
-method keep-blanks returns Bool is rw {
-   Proxy.new(
-        FETCH => { ? xmlKeepBlanksDefaultValue() },
-        STORE => sub ($, Bool() $_) {
-            xmlKeepBlanksDefault($_);
-        },
-    );
+method keep-blanks is rw returns Bool {
+    LibXML::Raw.KeepBlanksDefault();
 }
 
 #| Low-level default parser flags (Read-only)
@@ -211,7 +206,7 @@ method external-entity-loader returns Callable is rw {
     exploits of the type described at  (L<http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html>), where a service is tricked to expose its private data by letting it parse a
    remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>).
 
-=para This configuration setting acts globally on the current thread.
+=para This method is not thread-safe and acts globally across all parser instances and threads.
 
 =para A more granular and localised solution to this problem, however, is provided by
 custom URL resolvers, as in

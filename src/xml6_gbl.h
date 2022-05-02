@@ -3,8 +3,18 @@
 
 #include <libxml/globals.h>
 
-DLLEXPORT int xml6_gbl_set_external_entity_loader(int net);
+DLLEXPORT void xml6_gbl_init_external_entity_loader(void);
+DLLEXPORT void* xml6_gbl_get_external_entity_loader(void);
+DLLEXPORT void xml6_gbl_set_external_entity_loader(void *);
+DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int);
+
+DLLEXPORT int xml6_gbl_get_tag_expansion(void);
 DLLEXPORT void xml6_gbl_set_tag_expansion(int);
+
+DLLEXPORT int xml6_gbl_get_keep_blanks(void);
+DLLEXPORT void xml6_gbl_set_keep_blanks(int flag);
+
+DLLEXPORT xmlError* xml6_gbl_get_last_error(void);
 
 typedef void (*xml6_gbl_MessageCallback) (const char *msg,
                                           const char *argt,

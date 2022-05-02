@@ -552,9 +552,8 @@ class xmlError is export {
     has xmlParserCtxt     $.ctxt; # the parser context if available
     has anyNode           $.node; # the node in the tree
 
-    our sub Last(--> xmlError) is native($XML2) is symbol('xmlGetLastError') {*}; 
-    method Reset() is native($XML2) is symbol('xmlResetError') {*};
-    method context(uint32 is rw --> Str) is symbol('xml6_error_context_and_column') is native($BIND-XML2) {*}
+    our sub Last(--> xmlError) is native($BIND-XML2) is symbol('xml6_gbl_get_last_error') {*}
+    method context(uint32 is rw --> Str) is native($BIND-XML2) is symbol('xml6_error_context_and_column') {*}
 }
 
 class xmlXPathObject is export {
@@ -1683,24 +1682,23 @@ sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {
-    sub xmlKeepBlanksDefault(int32 $v --> int32) is native($XML2) is export { * }
-    sub xmlKeepBlanksDefaultValue is export {
-        cglobal($XML2, "xmlKeepBlanksDefaultValue", int32);
-    }
+    sub xml6_gbl_get_keep_blanks(--> int32) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_set_keep_blanks(int32 $v) is native($BIND-XML2) is export { * }
 
     Proxy.new(
-        FETCH => { xmlKeepBlanksDefaultValue() },
+        FETCH => { ? xml6_gbl_get_keep_blanks() },
         STORE => sub ($, Bool() $_) {
-            xmlKeepBlanksDefault($_);
+            xml6_gbl_set_keep_blanks($_);
         },
     );
 }
 
 method TagExpansion is rw {
-    sub xml6_gbl_set_tag_expansion(int32 $v --> int32) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_get_tag_expansion(--> int32) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_set_tag_expansion(int32 $v) is native($BIND-XML2) is export { * }
 
     Proxy.new(
-        FETCH => { ? cglobal($XML2, "xmlSaveNoEmptyTags", int32); },
+        FETCH => { ? xml6_gbl_get_tag_expansion() },
         STORE => sub ($, Bool() $_) {
             xml6_gbl_set_tag_expansion($_);
         },
@@ -1709,9 +1707,10 @@ method TagExpansion is rw {
 
 module xmlExternalEntityLoader is export {
     our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
-    our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($XML2) is symbol('xmlSetExternalEntityLoader') {*}
-    our sub Get( --> Pointer ) is native($XML2) is symbol('xmlGetExternalEntityLoader') {*}
-    our sub set-networked(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
+    our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
+    our sub Get( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
+    our sub Init is native($BIND-XML2) is symbol('xml6_gbl_init_external_entity_loader') {*}
+    our sub set-networked(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader_net') {*}
 }
 
 method ExternalEntityLoader is rw {
@@ -1725,6 +1724,7 @@ method ExternalEntityLoader is rw {
 
 INIT {
     xmlInitParser();
+    xmlExternalEntityLoader::Init();
 }
 sub xml6_gbl_message_func is export { cglobal($BIND-XML2, 'xml6_gbl_message_func', Pointer) }
 

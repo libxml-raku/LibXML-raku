@@ -1,5 +1,5 @@
 use Test;
-plan 4;
+plan 5;
 use LibXML::Config;
 
 subtest 'scoping', {
@@ -19,6 +19,14 @@ subtest 'scoping', {
 
     is-deeply $cu.skip-xml-declaration, False;
     is-deeply $cd.skip-xml-declaration, True;
+}
+
+subtest 'global', {
+    my LibXML::Config:U $cu;
+    $cu.tag-expansion = True;
+    is-deeply $cu.tag-expansion, True;
+    $cu.tag-expansion = False;
+    is-deeply $cu.tag-expansion, False;
 }
 
 subtest 'construct', {
