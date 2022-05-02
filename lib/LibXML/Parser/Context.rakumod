@@ -99,31 +99,29 @@ submethod DESTROY { self.reset }
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
+    my $*XML-CONTEXT = self;
+    $_ = .new: :raw(xmlParserCtxt.new)
+        without $*XML-CONTEXT;
 
-    self.config.protect: sub () is hidden-from-backtrace {
-        my $*XML-CONTEXT = self;
-        $_ = .new: :raw(xmlParserCtxt.new)
-            without $*XML-CONTEXT;
+    my @input-contexts = .activate()
+        with $*XML-CONTEXT.input-callbacks;
 
-        my @input-contexts = .activate()
-            with $*XML-CONTEXT.input-callbacks;
+    my $handlers = xml6_gbl_save_error_handlers();
+    $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
+    &*chdir(~$*CWD);
 
-        my $handlers = xml6_gbl_save_error_handlers();
-        $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
-        &*chdir(~$*CWD);
+    $rv := action();
 
-        $rv := action();
+    .deactivate
+        with $*XML-CONTEXT.input-callbacks;
 
-        .deactivate
-            with $*XML-CONTEXT.input-callbacks;
+    xml6_gbl_restore_error_handlers($handlers);
 
-        xml6_gbl_restore_error_handlers($handlers);
+    .flush-errors for @input-contexts;
+    $rv := $*XML-CONTEXT.is-valid if $check-valid;
+    $*XML-CONTEXT.flush-errors: :$recover;
+    $*XML-CONTEXT.publish() without self;
 
-        .flush-errors for @input-contexts;
-        $rv := $*XML-CONTEXT.is-valid if $check-valid;
-        $*XML-CONTEXT.flush-errors: :$recover;
-        $*XML-CONTEXT.publish() without self;
-    }
     $rv;
 }
 
