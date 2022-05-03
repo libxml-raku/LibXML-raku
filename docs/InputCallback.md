@@ -64,6 +64,11 @@ After object instantiation using the parameter-less constructor, you can registe
     $input-callbacks.register-callbacks(&match-cb3, &open-cb3,
                                         &read-cb3, &close-cb3);
 
+    # set up global input callbacks for the process
+    LibXML::Config.input-callbacks = $input-callbacks;
+    # -- OR --
+    # set up parser specific callbacks
+    LibXML::Config.parser-locking = False;
     $parser.input-callbacks = $input-callbacks;
     $parser.parse: :file( $some-xml-file );
 
@@ -74,8 +79,8 @@ Methods
 
 ### method new
 
-    multi method new(Callable :%callbacks) returns LibXML::InoputCallback
-    multi method new(Hash :@callbacks) returns LibXML::InoputCallback
+    multi method new(Callable :%callbacks) returns LibXML::InputCallback
+    multi method new(Hash :@callbacks) returns LibXML::InputCallback
 
 A simple constructor.
 

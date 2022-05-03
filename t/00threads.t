@@ -79,30 +79,4 @@ subtest 'configs', {
         is $total, $max-errors + MAX_LOOP * (MAX_THREADS * (MAX_THREADS+1) div 2);
     }
 
-    {
-        my $passing = True;
-        my xmlParserCtxt $ctx .= new;
-        for (^MAX_LOOP) -> $i {
-            my @ok = blat(
-                -> $j {
-                    given @configs[$j] {
-                        my $out = '?';
-                        my $in =  $i ~ '_' ~ $j;
-                        .external-entity-loader = -> $, $ { $out = $in }
-                        # do a little work
-                        my LibXML::Element $e .= new('elem' ~ $in);
-                        my &ld = .external-entity-loader;
-                        &ld('x', 'y', $ctx);
-                        $out eq $in;
-                    }
-                }
-            );
-            $passing = False unless @ok.all.so;
-        }
-        todo 'external-entity-loader thread-safety';
-        ok $passing, 'external-entity-loader config';
-    }
-
-    
-    
 }

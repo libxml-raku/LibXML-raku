@@ -93,6 +93,11 @@ unit class LibXML::InputCallback;
       $input-callbacks.register-callbacks(&match-cb3, &open-cb3,
                                           &read-cb3, &close-cb3);
 
+      # set up global input callbacks for the process
+      LibXML::Config.input-callbacks = $input-callbacks;
+      # -- OR --
+      # set up parser specific callbacks
+      LibXML::Config.parser-locking = False;
       $parser.input-callbacks = $input-callbacks;
       $parser.parse: :file( $some-xml-file );
 
@@ -138,6 +143,7 @@ my class Context {
         has Blob $.buf is rw;
     }
     has Handle %.handles{UInt};
+    has Lock $!lock .= new;
 
     sub memcpy(CArray[uint8], Blob, size_t --> CArray[uint8]) is native($CLIB) {*}
 
@@ -156,7 +162,7 @@ my class Context {
             my $fh = $!cb.open.($file);
             with $fh {
                 my Handle $handle .= new: :$fh;
-                %!handles{+$handle.addr} = $handle;
+                $!lock.protect: { %!handles{+$handle.addr} = $handle };
                 note "$_: open $file --> {+$handle.addr}" with $!cb.trace;
                 $handle.addr;
             }
@@ -204,11 +210,12 @@ my class Context {
         -> Pointer:D $addr --> Int {
             CATCH { default { self!catch($_); -1 } }
             note "$_\[{+$addr}\]: close --> 0" with $!cb.trace;
-            my Handle $handle = %!handles{+$addr}
-                // die (+$addr).fmt("close on unopened input callback context: 0x%X");
-            $!cb.close.($handle.fh);
-            %!handles{+$addr}:delete;
-
+            $!lock.protect: {
+                my Handle $handle = %!handles{+$addr}
+                    // die (+$addr).fmt("close on unopened input callback context: 0x%X");
+                $!cb.close.($handle.fh);
+                %!handles{+$addr}:delete;
+            }
             0;
         }
     }
@@ -233,8 +240,8 @@ multi submethod TWEAK { }
 =begin pod
     =head3 method new
 
-        multi method new(Callable :%callbacks) returns LibXML::InoputCallback
-        multi method new(Hash :@callbacks) returns LibXML::InoputCallback
+        multi method new(Callable :%callbacks) returns LibXML::InputCallback
+        multi method new(Hash :@callbacks) returns LibXML::InputCallback
 
     A simple constructor.
 

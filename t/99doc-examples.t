@@ -316,6 +316,7 @@ subtest 'LibXML::InputCallback' => {
     use LibXML::Document;
     use LibXML::Parser;
     use LibXML::InputCallback;
+    use LibXML::Config;
     # Define the four callback functions
     sub match-uri(Str $uri) {
         $uri ~~ MyScheme::URI:D; # trigger our callback group at a 'myscheme' URIs
@@ -342,7 +343,7 @@ subtest 'LibXML::InputCallback' => {
 
     my LibXML::Parser $parser .= new;
     # Register the callback group at a parser instance
-    $parser.input-callbacks = $input-callbacks;
+    LibXML::Config.input-callbacks = $input-callbacks;
 
     my LibXML::Document:D $doc = $parser.parse: :file('myscheme:muahahaha.xml');
     is $doc.root.Str, '<helloworld/>';

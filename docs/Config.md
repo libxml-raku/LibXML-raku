@@ -157,7 +157,7 @@ The routine provided is called whenever the parser needs to retrieve the content
 
 This method can be used to completely disable entity loading, e.g. to prevent exploits of the type described at ([http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html](http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html)), where a service is tricked to expose its private data by letting it parse a remote file (RSS feed) that contains an entity reference to a local file (e.g. `/etc/fstab`).
 
-This configuration setting acts globally on the current thread.
+This method acts globally across all parser instances and threads.
 
 A more granular and localised solution to this problem, however, is provided by custom URL resolvers, as in
 
@@ -181,7 +181,13 @@ method input-callbacks is rw returns LibXML::InputCallback
 
 Default input callback handlers
 
+Input callbacks are not thread-safe and `parser-locking` should also be set to disable concurrent parsing when using per-parser input-callbacks (see below).
+
 See [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallback)
+
+### parser-locking
+
+This configuration setting will lock the parsing of documents to disable concurrent parsing. It need to be set to allow per-parser input-callbacks, which are not currently thread safe.
 
 Query Handler
 -------------

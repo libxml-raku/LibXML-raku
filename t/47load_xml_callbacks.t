@@ -1,23 +1,26 @@
 #!/usr/bin/perl
 
 # ensure operation of input callbacks with .load()
-
-use LibXML;
-use LibXML::InputCallback;
 use Test;
 plan 3;
 
+use LibXML;
+use LibXML::InputCallback;
+use LibXML::Config;
+
+LibXML::Config.parser-locking = True;
+
 {
-    my $got-open = 0;
-    my $got-read = 0;
-    my $got-close = 0;
+    my Bool $got-open;
+    my Bool $got-read;
+    my Bool $got-close;
 
     my LibXML::InputCallback $input-callbacks .= new();
     $input-callbacks.register-callbacks(
             -> $ { 1 },
-            -> $file { $got-open = 1; $file.IO.open(:r) },
-            -> $fh, $n { $got-read = 1; $fh.read($n); },
-            -> $fh { $got-close = 1; $fh.close },
+            -> $file { $got-open++; $file.IO.open(:r) },
+            -> $fh, $n { $got-read++; $fh.read($n); },
+            -> $fh { $got-close++; $fh.close },
         );
 
     my LibXML $xml-parser .= new();

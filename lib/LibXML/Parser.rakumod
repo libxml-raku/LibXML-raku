@@ -26,7 +26,7 @@ has UInt $.flags is rw is built = self.config.parser-flags();
 has Str $.URI is rw is built;
 has $.sax-handler is rw is built;
 has xmlEncodingStr $.enc is rw is built;
-has $.input-callbacks is rw is built = self.config.input-callbacks;
+has $.input-callbacks is rw is built;
 multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 
@@ -309,6 +309,7 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
 submethod TWEAK(
     :buf($), :file($), :string($), :fd($), :io($), :location($), :config($), # .parse modes
     :$catalog, *%opts) {
+    $!input-callbacks = .input-callbacks with self.config;
     self.load-catalog($_) with $catalog;
     self.set-options(|%opts);
 }

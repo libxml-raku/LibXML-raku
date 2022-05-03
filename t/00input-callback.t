@@ -40,7 +40,9 @@ is $n, 0, 'close callback return value';
 ok !$context.handles, 'No longer have an open fh';
 check-seen();
 
-my $parser = LibXML.new: :$input-callbacks;
+LibXML::Config.input-callbacks = $input-callbacks;
+
+my $parser = LibXML.new;
 
 $parser.expand-xinclude = True;
 

@@ -6,6 +6,9 @@ plan 4;
 use LibXML;
 use LibXML::Document;
 use LibXML::InputCallback;
+use LibXML::Config;
+
+LibXML::Config.parser-locking = True;
 
 use lib './t/lib';
 use Counter;

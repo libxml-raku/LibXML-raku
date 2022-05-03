@@ -1,12 +1,14 @@
 use v6;
 use Test;
-plan 18;
+plan 19;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
 use LibXML::Parser;
+use LibXML::InputCallback;
+
 INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || 10;
 INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
 
@@ -14,6 +16,10 @@ my LibXML:D $p .= new();
 
 sub blat(&r, :$n = MAX_THREADS) {
     (^$n).race(:batch(1)).map(&r);
+}
+
+sub trundle(&r, :$n = MAX_THREADS) {
+    (^$n).map(&r);
 }
 
 subtest 'relaxng' => {
@@ -121,6 +127,24 @@ subtest 'multiple documents', {
     is @docs.elems, MAX_THREADS, 'document leaf nodes';
     is @docs.map(*.unique-key).unique.elems, MAX_THREADS, 'document leaf nodes reduced by unique keys';
     is @docs.map(*.Str).unique.elems, 1, 'document leaf nodes reduced by content';
+}
+
+subtest 'input callbacks', {
+    my atomicint $open-calls = 0;
+    my LibXML::InputCallback() $callbacks = (
+                -> $ { $open-calls⚛++; True },
+                -> $file { $file.IO.open(:r) },
+                -> $fh, $n { $fh.read($n); },
+                -> $fh { $fh.close },
+    );
+    LibXML::Config.input-callbacks = $callbacks;
+    for (^MAX_LOOP) {
+        my LibXML::Document:D @ = blat {
+            my LibXML $parser .= new;
+            $parser.parse: :location<samples/dromeds.xml>;
+        }
+    }
+    is $open-calls, MAX_LOOP * MAX_THREADS, 'input callbacks';
 }
 
 my $xml_bad = q:to<EOF>;

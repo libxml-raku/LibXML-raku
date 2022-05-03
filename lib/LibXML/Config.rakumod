@@ -206,7 +206,7 @@ method external-entity-loader returns Callable is rw {
     exploits of the type described at  (L<http://searchsecuritychannel.techtarget.com/generic/0,295582,sid97_gci1304703,00.html>), where a service is tricked to expose its private data by letting it parse a
    remote file (RSS feed) that contains an entity reference to a local file (e.g. C</etc/fstab>).
 
-=para This method is not thread-safe and acts globally across all parser instances and threads.
+=para This method acts globally across all parser instances and threads.
 
 =para A more granular and localised solution to this problem, however, is provided by
 custom URL resolvers, as in
@@ -227,6 +227,9 @@ custom URL resolvers, as in
 method input-callbacks is rw returns LibXML::InputCallback
 =para Default input callback handlers
 
+=para Input callbacks are not thread-safe and `parser-locking` should also be set to
+disable concurrent parsing when using per-parser input-callbacks (see below).
+
 has $!input-callbacks is mooish(:lazy);
 method !build-input-callbacks { $input-callbacks }
 
@@ -234,7 +237,11 @@ proto method input-callbacks(|) {*}
 multi method input-callbacks(::?CLASS:U:) is rw {
     Proxy.new(
         FETCH => sub ($) { $input-callbacks },
-        STORE => sub ($, $callbacks) { $input-callbacks = $callbacks }
+        STORE => sub ($, $callbacks) {
+            .deactivate with $input-callbacks;
+            .activate with $callbacks;
+            $input-callbacks = $callbacks;
+        }
     );
 }
 multi method input-callbacks(::?CLASS:D:) is rw {
@@ -244,6 +251,14 @@ multi method input-callbacks(::?CLASS:D:) is rw {
         );
 }
 =para See L<LibXML::InputCallback>
+
+=head3 parser-locking
+=para This configuration setting will lock the parsing of documents to disable
+concurrent parsing. It need to be set to allow per-parser input-callbacks,
+which are not currently thread safe.
+
+my Bool $parser-locking;
+method parser-locking(::?CLASS:U:) is rw { $parser-locking }
 
 =head2 Query Handler
 

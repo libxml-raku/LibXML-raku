@@ -99,12 +99,17 @@ submethod DESTROY { self.reset }
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
+    my $locking := LibXML::Config.parser-locking;
+    self.config.lock if $locking;
     my $*XML-CONTEXT = self;
     $_ = .new: :raw(xmlParserCtxt.new)
         without $*XML-CONTEXT;
 
     my @input-contexts = .activate()
         with $*XML-CONTEXT.input-callbacks;
+
+    die "parser-locking needs to be enabled to allow parser-level input-callbacks"
+        if @input-contexts && ! $locking;
 
     my $handlers = xml6_gbl_save_error_handlers();
     $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
@@ -121,6 +126,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
     $rv := $*XML-CONTEXT.is-valid if $check-valid;
     $*XML-CONTEXT.flush-errors: :$recover;
     $*XML-CONTEXT.publish() without self;
+    self.config.lock if $locking;
 
     $rv;
 }
