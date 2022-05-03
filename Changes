@@ -1,5 +1,12 @@
 {{$NEXT}}
 
+0.7.0  2022-05-04T07:50:06+12:00
+    - Remove parser lock in most cases. Use of multiple input-callbacks is not
+      thread-safe.
+    - The LibXML::Config:U parser-locking flag has been introduced to handle multiple
+      input-callbacks or any other potential thread-safety issues. It restores the old
+      locking
+
 0.6.16  2022-04-28T08:15:40+12:00
     - Support for multiple configurations. Added the LibXML::_Configurable role, with
       $.config attribute to various parsing, validation and reading contexts.
