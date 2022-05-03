@@ -225,10 +225,14 @@ custom URL resolvers, as in
 =head3 method input-callbacks
 =for code :lang<raku>
 method input-callbacks is rw returns LibXML::InputCallback
-=para Default input callback handlers
+=para Default input callback handlers.
 
-=para Input callbacks are not thread-safe and `parser-locking` should also be set to
-disable concurrent parsing when using per-parser input-callbacks (see below).
+=para The LibXML::Config:U `input-callbacks` method sets and enables a set of input callbacks for the entire
+process. This method is thread-safe.
+
+=para The  LibXML::Config:U `input-callbacks` sets up a localised set of input callbacks.
+Concurrent use of mulitple input callbacks is thread-safe and `parser-locking`
+also be set to disable concurrent parsing (see below).
 
 has $!input-callbacks is mooish(:lazy);
 method !build-input-callbacks { $input-callbacks }
