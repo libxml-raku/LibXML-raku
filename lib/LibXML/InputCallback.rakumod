@@ -222,10 +222,16 @@ my class Context {
 }
 
 has CallbackGroup @!callbacks;
+has $!active;
 method callbacks { @!callbacks }
 
 multi method COERCE(%callbacks) { self.new: :%callbacks }
 multi method COERCE(@callbacks) { self.new: :@callbacks }
+
+method !active-check is hidden-from-backtrace {
+    die "input callbacks cannot be reconfigured while active"
+        if $!active;
+}
 
 =head2 Methods
 
@@ -257,6 +263,7 @@ multi method register-callbacks( &match, &open, &read, &close = sub ($) {}, |c) 
     $.register-callbacks( :&match, :&open, :&read, :&close, |c);
 }
 multi method register-callbacks(:&match!, :&open!, :&read!, :&close = sub ($) {}, Str :$trace) is default {
+    self!active-check;
     my CallbackGroup $cb .= new: :&match, :&open, :&read, :&close, :$trace;
     @!callbacks.push: $cb;
 }
@@ -282,6 +289,7 @@ multi method unregister-callbacks( &match, &open?, &read?, &close?, |c) {
     $.unregister-callbacks( :&match, :&open, :&read, :&close, |c);
 }
 multi method unregister-callbacks( :&match, :&open, :&read, :&close) is default {
+    self!active-check;
     with &match // &open // &read // &close {
         @!callbacks .= grep: {
             (!&match.defined || &match !=== .match)
@@ -311,10 +319,12 @@ multi method unregister-callbacks( :&match, :&open, :&read, :&close) is default 
 
 
 method append(LibXML::InputCallback $icb) {
+    self!active-check;
     @!callbacks.append: $icb.callbacks;
 }
 
 method prepend(LibXML::InputCallback $icb) {
+    self!active-check;
     @!callbacks.prepend: $icb.callbacks;
 }
 
@@ -332,6 +342,7 @@ method activate(LibXML::Config :$config) {
         die "unable to register input callbacks"
             if xmlInputCallbacks::Register(.match, .open, .read, .close) < 0;
     }
+    $!active = True;
     @input-contexts;
 }
 
@@ -340,6 +351,7 @@ method deactivate {
         warn "unable to remove input callbacks"
             if xmlInputCallbacks::Pop() < 0;
     }
+    $!active = False;
 }
 
 =begin pod

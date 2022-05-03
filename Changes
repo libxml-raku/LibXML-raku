@@ -1,4 +1,5 @@
 {{$NEXT}}
+    - Don't allow mutation of active LibXML::InputCallback objects.
 
 0.7.0  2022-05-04T07:50:06+12:00
     - Remove parser lock in most cases. Use of multiple input-callbacks is not
