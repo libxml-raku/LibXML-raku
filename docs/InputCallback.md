@@ -68,7 +68,7 @@ After object instantiation using the parameter-less constructor, you can registe
     LibXML::Config.input-callbacks = $input-callbacks;
     # -- OR --
     # set up parser specific callbacks
-    LibXML::Config.parser-locking = False;
+    LibXML::Config.parser-locking = True;
     $parser.input-callbacks = $input-callbacks;
     $parser.parse: :file( $some-xml-file );
 
