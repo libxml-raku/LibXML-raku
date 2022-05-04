@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 19;
+plan 20;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
@@ -129,7 +129,7 @@ subtest 'multiple documents', {
     is @docs.map(*.Str).unique.elems, 1, 'document leaf nodes reduced by content';
 }
 
-subtest 'input callbacks', {
+subtest 'input callbacks, global', {
     my atomicint $open-calls = 0;
     my LibXML::InputCallback() $callbacks = (
                 -> $ { $open-calls⚛++; True },
@@ -137,10 +137,29 @@ subtest 'input callbacks', {
                 -> $fh, $n { $fh.read($n); },
                 -> $fh { $fh.close },
     );
-    LibXML::Config.input-callbacks = $callbacks;
+    temp LibXML::Config.input-callbacks = $callbacks;
     for (^MAX_LOOP) {
         my LibXML::Document:D @ = blat {
             my LibXML $parser .= new;
+            $parser.parse: :location<samples/dromeds.xml>;
+        }
+    }
+    is $open-calls, MAX_LOOP * MAX_THREADS, 'input callbacks';
+}
+
+subtest 'input callbacks, local', {
+    my atomicint $open-calls = 0;
+    temp LibXML::Config.parser-locking = True;
+    for (^MAX_LOOP) {
+        my LibXML::InputCallback() $callbacks = (
+            -> $ { $open-calls⚛++; True },
+            -> $file { $file.IO.open(:r) },
+            -> $fh, $n { $fh.read($n); },
+            -> $fh { $fh.close },
+        );
+        my LibXML $parser .= new;
+        $parser.input-callbacks = $callbacks;
+        my LibXML::Document:D @ = blat {
             $parser.parse: :location<samples/dromeds.xml>;
         }
     }
