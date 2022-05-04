@@ -17,6 +17,11 @@ sub trundle(&r, :$n = MAX_THREADS) {
     (^$n).map(&r);
 }
 
+unless LibXML::Config.have-threads {
+    skip-rest 'This libxml library does not have threading enabled';
+    exit 0;
+}
+
 subtest 'configs', {
     my @configs = (^MAX_THREADS).map: {LibXML::Config.new};
 

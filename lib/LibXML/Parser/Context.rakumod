@@ -96,39 +96,44 @@ method reset { self.set-raw(xmlParserCtxt); }
 
 submethod DESTROY { self.reset }
 
+sub protected(&action) {
+    LibXML::Config.parser-locking
+        ?? LibXML::Config.protect(&action)
+	!! &action;
+}
+
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
-    my $locking := LibXML::Config.parser-locking;
-    self.config.lock if $locking;
-    my $*XML-CONTEXT = self;
-    $_ = .new: :raw(xmlParserCtxt.new)
-        without $*XML-CONTEXT;
+    protected {
+	my $*XML-CONTEXT = self;
+	$_ = .new: :raw(xmlParserCtxt.new)
+	    without $*XML-CONTEXT;
 
-    my @input-contexts = .activate()
-        with $*XML-CONTEXT.input-callbacks;
+	my @input-contexts = .activate()
+	    with $*XML-CONTEXT.input-callbacks;
 
-    die "parser-locking needs to be enabled to allow parser-level input-callbacks"
-        if @input-contexts && ! $locking;
+	die "parser-locking needs to be enabled to allow parser-level input-callbacks"
+	    if @input-contexts && !LibXML::Config.parser-locking;
 
-    my $handlers = xml6_gbl_save_error_handlers();
-    $*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
-    &*chdir(~$*CWD);
+	my $handlers = xml6_gbl_save_error_handlers();
+	$*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
+	&*chdir(~$*CWD);
 
-    $rv := action();
+	$rv := action();
 
-    .deactivate
-        with $*XML-CONTEXT.input-callbacks;
+	.deactivate
+	    with $*XML-CONTEXT.input-callbacks;
 
-    xml6_gbl_restore_error_handlers($handlers);
+	xml6_gbl_restore_error_handlers($handlers);
 
-    .flush-errors for @input-contexts;
-    $rv := $*XML-CONTEXT.is-valid if $check-valid;
-    $*XML-CONTEXT.flush-errors: :$recover;
-    $*XML-CONTEXT.publish() without self;
-    self.config.lock if $locking;
+	.flush-errors for @input-contexts;
+	$rv := $*XML-CONTEXT.is-valid if $check-valid;
+	$*XML-CONTEXT.flush-errors: :$recover;
+	$*XML-CONTEXT.publish() without self;
 
-    $rv;
+	$rv;
+    }
 }
 
 method FALLBACK($key, |c) is rw {
