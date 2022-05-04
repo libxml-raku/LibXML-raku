@@ -77,7 +77,7 @@ subtest 'operating on different documents without lock', {
 
     my Str:D @values = blat {
         my LibXML::Document:D $doc = @docs[$_];
-        my  Str:D @values = await (^20).map: { start {
+        my Str:D @values = await (^20).map: { start {
 	    # a dictionary of $doc
 	    my LibXML::Element:D $el = $doc.createElement('foo' ~ $_);
 	    $el.setAttribute('foo','bar');
@@ -148,11 +148,12 @@ subtest 'input callbacks, global', {
 }
 
 subtest 'input callbacks, local', {
-    my atomicint $open-calls = 0;
+    my Int $open-calls = 0;
     temp LibXML::Config.parser-locking = True;
     for (^MAX_LOOP) {
+        my atomicint $local-open-calls = 0;
         my LibXML::InputCallback() $callbacks = (
-            -> $ { $open-calls⚛++; True },
+            -> $ { $local-open-calls⚛++; True },
             -> $file { $file.IO.open(:r) },
             -> $fh, $n { $fh.read($n); },
             -> $fh { $fh.close },
@@ -162,30 +163,30 @@ subtest 'input callbacks, local', {
         my LibXML::Document:D @ = blat {
             $parser.parse: :location<samples/dromeds.xml>;
         }
+        $open-calls += $local-open-calls;
     }
     is $open-calls, MAX_LOOP * MAX_THREADS, 'input callbacks';
 }
 
-my $xml_bad = q:to<EOF>;
-<?xml version="1.0" encoding="utf-8"?>
-<root><node><leaf/></root>
-EOF
+subtest 'parsing with errors', {
+    my $xml_bad = q:to<EOF>;
+    <?xml version="1.0" encoding="utf-8"?>
+    <root><node><leaf/></root>
+    EOF
 
-
-{
     my X::LibXML::Parser:D @err = blat { try { my $x = $p.parse: :string($xml_bad)} for 1..100; $!; }
     is @err.elems, MAX_THREADS, 'parse errors';
 }
 
-my $xml_invalid = q:to<EOF>;
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE root [
-<!ELEMENT root EMPTY>
-]>
-<root><something/></root>
-EOF
+subtest 'parsing of invalid documents', {
+    my $xml_invalid = q:to<EOF>;
+    <?xml version="1.0" encoding="utf-8"?>
+    <!DOCTYPE root [
+    <!ELEMENT root EMPTY>
+    ]>
+    <root><something/></root>
+    EOF
 
-{
   my LibXML::Document:D @docs = blat {
       my $x = $p.parse: :string($xml_invalid);
       die if $x.is-valid;
@@ -196,18 +197,18 @@ EOF
   is @docs.elems, MAX_THREADS, 'well-formed, but invalid documents';
 }
 
-my $rngschema = q:to<EOF>;
-<?xml version="1.0"?>
-<r:grammar xmlns:r="http://relaxng.org/ns/structure/1.0">
-  <r:start>
-    <r:element name="root">
-      <r:attribute name="id"/>
-    </r:element>
-  </r:start>
-</r:grammar>
-EOF
+subtest 'relaxNG schema validation', {
+    my $rngschema = q:to<EOF>;
+    <?xml version="1.0"?>
+    <r:grammar xmlns:r="http://relaxng.org/ns/structure/1.0">
+      <r:start>
+        <r:element name="root">
+          <r:attribute name="id"/>
+        </r:element>
+      </r:start>
+    </r:grammar>
+    EOF
 
-{
     my @ok = blat {
         my $ok = True;
         for 1..MAX_LOOP {
@@ -220,16 +221,16 @@ EOF
     ok @ok.all.so, "test RNG validation errors thread safe sanity";
 }
 
-my $xsdschema = q:to<EOF>;
-<?xml version="1.0"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <xsd:element name="root">
-    <xsd:attribute name="partNum" type="SKU" use="required"/>
-  </xsd:element>
-</xsd:schema>
-EOF
+subtest 'XML schema validation', {
+    my $xsdschema = q:to<EOF>;
+    <?xml version="1.0"?>
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <xsd:element name="root">
+        <xsd:attribute name="partNum" type="SKU" use="required"/>
+      </xsd:element>
+    </xsd:schema>
+    EOF
 
-{
     my @ok = blat {
         my $ok = True;
         for 1..MAX_LOOP {
