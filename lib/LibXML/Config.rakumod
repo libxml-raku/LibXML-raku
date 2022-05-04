@@ -261,7 +261,7 @@ multi method input-callbacks(::?CLASS:D:) is rw {
 concurrent parsing. It need to be set to allow per-parser input-callbacks,
 which are not currently thread safe.
 
-my Bool $parser-locking;
+my Bool $parser-locking = ! $?CLASS.have-threads;
 method parser-locking(::?CLASS:U:) is rw { $parser-locking }
 
 =head2 Query Handler
