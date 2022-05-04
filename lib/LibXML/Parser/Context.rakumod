@@ -98,8 +98,8 @@ submethod DESTROY { self.reset }
 
 sub protected(&action) {
     LibXML::Config.parser-locking
-        ?? &action()
-	!! LibXML::Config.protect(&action);
+        ?? LibXML::Config.protect(&action)
+	!! &action();
 }
 
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
