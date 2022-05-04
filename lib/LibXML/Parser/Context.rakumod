@@ -98,13 +98,14 @@ submethod DESTROY { self.reset }
 
 sub protected(&action) {
     LibXML::Config.parser-locking
-        ?? LibXML::Config.protect(&action)
-	!! &action;
+        ?? &action()
+	!! LibXML::Config.protect(&action);
 }
 
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
+
     protected {
 	my $*XML-CONTEXT = self;
 	$_ = .new: :raw(xmlParserCtxt.new)
@@ -131,9 +132,8 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 	$rv := $*XML-CONTEXT.is-valid if $check-valid;
 	$*XML-CONTEXT.flush-errors: :$recover;
 	$*XML-CONTEXT.publish() without self;
-
-	$rv;
     }
+    $rv;
 }
 
 method FALLBACK($key, |c) is rw {

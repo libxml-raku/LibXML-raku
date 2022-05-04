@@ -1,12 +1,13 @@
 {{$NEXT}}
     - Don't allow mutation of active LibXML::InputCallback objects.
+    - Fix handling of LibXML::Config:U parser-locking when True.
 
 0.7.0  2022-05-04T07:50:06+12:00
-    - Remove parser lock in most cases. Use of multiple input-callbacks is not
-      thread-safe.
-    - The LibXML::Config:U parser-locking flag has been introduced to handle multiple
-      input-callbacks or any other potential thread-safety issues. It restores the old
-      locking
+    - Remove parser lock in most cases to allow concurrent parsing.
+    - Use of parser-specific input-callbacks is not thread-safe. The
+      LibXML::Config:U parser-locking flag has been introduced to this
+      or any other potential thread-safety issues with parsing. Setting it
+      restores the old locking behaviour.
 
 0.6.16  2022-04-28T08:15:40+12:00
     - Support for multiple configurations. Added the LibXML::_Configurable role, with
