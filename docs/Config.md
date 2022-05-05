@@ -181,9 +181,9 @@ method input-callbacks is rw returns LibXML::InputCallback
 
 Default input callback handlers.
 
-The LibXML::Config:U `input-callbacks` method sets and enables a set of input callbacks for the entire process. This method is thread-safe.
+The LibXML::Config:U `input-callbacks` method sets and enables a set of input callbacks for the entire process.
 
-The LibXML::Config:U `input-callbacks` sets up a localised set of input callbacks. Concurrent use of mulitple input callbacks is thread-safe and `parser-locking` also be set to disable concurrent parsing (see below).
+The LibXML::Config:U `input-callbacks` sets up a localised set of input callbacks. Concurrent use of multiple input callbacks is NOT thread-safe and `parser-locking` also needs to be set to disable concurrent parsing (see below).
 
 See [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallback)
 

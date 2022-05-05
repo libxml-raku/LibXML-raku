@@ -228,11 +228,11 @@ method input-callbacks is rw returns LibXML::InputCallback
 =para Default input callback handlers.
 
 =para The LibXML::Config:U `input-callbacks` method sets and enables a set of input callbacks for the entire
-process. This method is thread-safe.
+process.
 
 =para The  LibXML::Config:U `input-callbacks` sets up a localised set of input callbacks.
-Concurrent use of mulitple input callbacks is thread-safe and `parser-locking`
-also be set to disable concurrent parsing (see below).
+Concurrent use of multiple input callbacks is NOT thread-safe and `parser-locking`
+also needs to be set to disable concurrent parsing (see below).
 
 has $!input-callbacks is mooish(:lazy);
 method !build-input-callbacks { $input-callbacks }
