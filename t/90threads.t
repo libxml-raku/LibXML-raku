@@ -369,7 +369,7 @@ subtest 'xpath', {
     my @sym = <xx docbParserInputPtr docbParserCtxt docbParserCtxtPtr docbParserInput docbDocPtr>;
     my LibXML::Document $doc .= parse: :$string;
     my @ok = (1..MAX_LOOP).map: {
-        my @all = trundle -> $n {
+        my @all = blat -> $n {
             my $m = $n % 5 + 1;
             my $elem = $doc.first("/api/files/file[1]/exports[$m]");
             $elem.getAttribute('symbol') eq @sym[$m];

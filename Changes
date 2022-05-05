@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.7.2  2022-05-06T06:48:46+12:00
+    - Remove further locks to allow multi-threading in validation and
+      XPath queries.
+
 0.7.1  2022-05-05T07:05:24+12:00
     - Update Windows binary (resources\libraries\xml6.dll)
     - Don't allow mutation of active LibXML::InputCallback objects.
