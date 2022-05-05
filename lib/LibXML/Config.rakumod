@@ -279,6 +279,13 @@ method lock handles<protect> {
     BEGIN Lock.new;
 }
 
+sub protected(&action) is hidden-from-backtrace is export(:protected) {
+    $parser-locking
+        ?? $?CLASS.protect(&action)
+	!! &action();
+}
+
+
 =head3 method query-handler
 =for code :lang<raku>
 method query-handler() is rw returns LibXML::Config::QueryHandler

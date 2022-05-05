@@ -106,6 +106,7 @@ also does LibXML::_Configurable;
       my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
 =end pod
 
+use LibXML::Config :&protected;
 use LibXML::Document;
 use LibXML::Item;
 use LibXML::Raw;
@@ -168,7 +169,7 @@ sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:struct
 method !try(&action) {
     my $rv;
 
-    self.config.protect: sub () is hidden-from-backtrace {
+    protected sub () is hidden-from-backtrace {
         my $handlers = xml6_gbl_save_error_handlers();
         $!raw.SetStructuredErrorFunc: &structured-error-cb;
 

@@ -38,7 +38,7 @@ use LibXML::Raw;
 use LibXML::Raw::Schema;
 use LibXML::Parser::Context;
 use Method::Also;
-use LibXML::Config;
+use LibXML::Config :&protected;
 
 has xmlSchema $.raw;
 
@@ -79,7 +79,7 @@ my class Parser::Context {
     method parse {
         my $rv;
 
-        LibXML::Config.protect: sub () is hidden-from-backtrace {
+        protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
             my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
             my $handlers = xml6_gbl_save_error_handlers();
@@ -125,7 +125,7 @@ my class ValidContext {
         my xmlDoc:D $doc = .raw;
         my $rv;
 
-        LibXML::Config.protect: sub () is hidden-from-backtrace {
+        protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;

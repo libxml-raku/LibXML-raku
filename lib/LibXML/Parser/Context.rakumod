@@ -4,7 +4,7 @@ use LibXML::_Configurable;
 also does LibXML::_Configurable;
 
 use NativeCall;
-use LibXML::Config;
+use LibXML::Config :&protected;
 use LibXML::Enums;
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Item;
@@ -96,17 +96,11 @@ method reset { self.set-raw(xmlParserCtxt); }
 
 submethod DESTROY { self.reset }
 
-sub protected(&action) {
-    LibXML::Config.parser-locking
-        ?? LibXML::Config.protect(&action)
-	!! &action();
-}
-
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
 
-    protected {
+    protected sub () is hidden-from-backtrace {
 	my $*XML-CONTEXT = self;
 	$_ = .new: :raw(xmlParserCtxt.new)
 	    without $*XML-CONTEXT;

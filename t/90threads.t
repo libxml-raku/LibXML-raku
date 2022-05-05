@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 20;
+plan 23;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
@@ -20,6 +20,25 @@ sub blat(&r, :$n = MAX_THREADS) {
 
 sub trundle(&r, :$n = MAX_THREADS) {
     (^$n).map(&r);
+}
+
+subtest 'dtd' => {
+    plan 2;
+    my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
+    my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
+    my @ok = (1..MAX_LOOP).map: {
+        my @k = blat {$doc.is-valid && $dtd.is-valid($doc) && $doc.is-valid($dtd) };
+        @k.all.so;
+    }
+    ok @ok.all.so;
+    my LibXML::Document $bad .= parse: :string('<bar/>');
+
+    @ok = (1..MAX_LOOP).map: {
+        my @k = blat { ! ($dtd.is-valid($bad) || $bad.is-valid($dtd)) }
+        @k.all.so;
+    }
+        
+    ok @ok.all.so;
 }
 
 subtest 'relaxng' => {
@@ -43,7 +62,6 @@ subtest 'relaxng' => {
     is-deeply (+@good, [@good.unique]), (MAX_THREADS, [True]), 'relax-ng valid';
     is-deeply (+@bad, [@bad.unique]), (MAX_THREADS, [False]), 'relax-ng invalid';
 }
-
 
 subtest 'parse strings', {
     my X::LibXML::Parser:D @err = blat { try { LibXML.parse: :string('foo'); } for 1..100; $! };
@@ -252,17 +270,15 @@ sub use_dom($d) {
 }
 
 my $bigfile = "etc/libxml2-api.xml";
+my $string = $bigfile.IO.slurp;
+ok $string , 'bigfile was slurped fine.';
 
 subtest 'dom access', {
-    my $string = $bigfile.IO.slurp;
-    ok $string , 'bigfile was slurped fine.';
     my @ok = blat { my $dom = do { $p.parse: :$string }; use_dom($dom) for 1..5; True};
      ok @ok.all.so, 'Joined all threads.';
 }
 
 subtest 'check parsing', {
-    my $string = $bigfile.IO.slurp;
-    ok $string , 'bigfile was slurped fine.';
     use LibXML::SAX::Handler::SAX2;
     class MyHandler is LibXML::SAX::Handler::SAX2 {
 
@@ -346,5 +362,18 @@ subtest 'xinclude', {
     $parser.expand-xinclude = True;
     $parser.expand-entities = True;
     my @ok = blat { $parser.parse(:$file) for 1..10; True }
+    ok @ok.all.so;
+}
+
+subtest 'xpath', {
+    my @sym = <xx docbParserInputPtr docbParserCtxt docbParserCtxtPtr docbParserInput docbDocPtr>;
+    my LibXML::Document $doc .= parse: :$string;
+    my @ok = (1..MAX_LOOP).map: {
+        my @all = trundle -> $n {
+            my $m = $n % 5 + 1;
+            my $elem = $doc.first("/api/files/file[1]/exports[$m]");
+            $elem.getAttribute('symbol') eq @sym[$m];
+        };
+    }
     ok @ok.all.so;
 }

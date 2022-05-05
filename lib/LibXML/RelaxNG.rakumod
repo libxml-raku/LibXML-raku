@@ -36,7 +36,7 @@ use LibXML::_Options;
 use LibXML::Raw;
 use LibXML::Raw::RelaxNG;
 use LibXML::Parser::Context;
-use LibXML::Config;
+use LibXML::Config :&protected;
 use Method::Also;
 
 has xmlRelaxNG $.raw;
@@ -77,7 +77,7 @@ my class Parser::Context {
     method parse {
         my $rv;
 
-        LibXML::Config.protect: sub () is hidden-from-backtrace {
+        protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
@@ -115,7 +115,7 @@ my class ValidContext {
     method validate(LibXML::Document:D $doc, Bool() :$check) is hidden-from-backtrace {
         my $rv;
 
-        LibXML::Config.protect: sub () is hidden-from-backtrace {
+        protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
