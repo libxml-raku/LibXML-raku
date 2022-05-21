@@ -124,7 +124,7 @@ Other
 
   * [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallback) - LibXML class for Input callback handling
 
-  * See also [LibXML::Threads](https://libxml-raku.github.io/LibXML-raku/Threads), for notes on threading and conciurrency
+  * See also [LibXML::Threads](https://libxml-raku.github.io/LibXML-raku/Threads), for notes on threading and concurrency
 
 PREREQUISITES
 =============
