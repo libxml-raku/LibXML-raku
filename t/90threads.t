@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 23;
+plan 24;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Document;
@@ -253,7 +253,7 @@ subtest 'XML schema validation', {
         my $ok = True;
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
-	    try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
+            try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
             $ok = False without $!;
         }
         $ok;
@@ -349,11 +349,33 @@ subtest 'docfrag2', {
 
 subtest 'docfrag3', {
     my LibXML::Element $e .= new('foo');
+
     my @ok = blat {
 	$e.protect: { LibXML::Element.new('root').appendChild($e); }
         True;
     }
     ok @ok.all.so;
+}
+
+subtest 'docfrag4', {
+    use LibXML::Document;
+    use LibXML::DocumentFragment;
+    my LibXML::Document $doc .= parse: :string("<doc/>");
+
+    my LibXML::DocumentFragment:D @frags = (1..MAX_THREADS).hyper(:batch(1)).map: {
+        my LibXML::DocumentFragment $frag;
+        for (1..MAX_LOOP) {
+            $frag .= parse: :balanced, :string('<foo/><bar/>');
+            $frag.parse: :balanced, :string('<baz/>');
+            $frag.addChild: $doc.createElement('foo');
+        }
+        $frag;
+    }
+    is +@frags, MAX_THREADS;
+    lives-ok {
+        $doc.addChild($_)
+        for @frags;
+    }
 }
 
 subtest 'xinclude', {

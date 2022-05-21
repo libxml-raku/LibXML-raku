@@ -38,7 +38,7 @@ or
 Description
 -----------
 
-This is a Raku interface to libxml2's pull-parser implementation xmlTextReader *http://xmlsoft.org/html/libxml-xmlreader.html*. Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
+This is a Raku interface to libxml2's pull-parser implementation xmlTextReader [http://xmlsoft.org/html/libxml-xmlreader.html](http://xmlsoft.org/html/libxml-xmlreader.html). Pull-parsers (such as StAX in Java, or XmlReader in C#) use an iterator approach to parse XML documents. They are easier to program than event-based parser (SAX) and much more lightweight than tree-based parser (DOM), which load the complete tree into memory.
 
 The Reader acts as a cursor going forward on the document stream and stopping at each node on the way. At every point, the DOM-like methods of the Reader object allow one to examine the current node (name, namespace, attributes, etc.)
 

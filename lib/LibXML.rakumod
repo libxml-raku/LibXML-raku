@@ -146,6 +146,8 @@ See also L<LibXML::DOM>, which summarizes DOM classes and methods.
 
 =item L<LibXML::InputCallback> - LibXML class for Input callback handling
 
+=item See also L<LibXML::Threads>, for notes on threading and conciurrency
+
 =head1 PREREQUISITES
 
 This module may requires the libxml2 library to be installed. Please follow the instructions below based on your platform:

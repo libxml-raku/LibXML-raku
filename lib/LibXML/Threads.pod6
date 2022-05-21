@@ -1,0 +1,68 @@
+=begin pod
+=head1 Notes on Raku LibXML Threading and Concurrency
+
+=head2 Concurrency and Parsing
+
+Parsing, including, validation and the Reader pull-parser can be run concurrently.
+
+=begin code :lang<raku>
+my @docs = @files.hyper.map: -> $file { LibXML::Parse: :$file }
+=end code
+
+However, the Raku LibXML bindings will protect these with a commonly library lock, defeating concurrency, if
+the libxml library has not been compiled with threading enabled. Threading can be
+checked using the L<LibXML::Config> `threads` method.
+
+=for code :lang<raku>
+unless LibXML::Config.threads { ... }
+
+=head3 Concurrency and Input Callbacks
+
+Input callbacks may be set globally, without affecting concurrency.
+
+=begin code :lang<raku>
+my LibXML::InputCallback $input-callbacks .= new: @callbacks;
+LibXML::Config.input-callbacks = $input-callbacks;
+=end code
+
+They may also be set at the parser level. However, this is
+not thread safe. The LibXML library requires that you
+also enable the `parser-locking` flag, which limits
+concurrent parsing.
+
+=begin code :lang<raku>
+LibXML::Config.parser-locking = True;
+my LibXML::InputCallback $input-callbacks .= new: :callbacks{
+        :&match, :&read, :&open, :&close
+}
+LibXML::Config.parser-locking = True;
+my LibXML:D $parser .= new: :$input-callbacks;
+=end code
+
+=head2 DOM Concurrency
+
+=head3 Parallel Construction
+
+Document fragments and element sub-trees, may be constructed
+in parallel provided that they remain independent
+of each other. They then need to be assembled sequentially
+to create the final document:
+
+=begin code :lang<raku>
+my LibXML::Document $doc .= parse: :string("<doc/>");
+my @frags = @files.hyper.map: -> $file { LibXML::DocumentFragment.parse: :balanced, :$file}
+$doc.addChild($_) for @frags;
+=end code
+
+=head3 DOM Updates and Concurrency
+
+It is not thread-safe to read and modify DOM nodes concurrently.
+
+However, each node has a `protect` method that can be used to limit
+concurrency.
+
+=for code :lang<raku>
+$elem.protect: { $elem.appendChild: LibXML::Element.new('foo') }
+
+Be careful with nesting `protect` calls, to avoid potential deadlocks.
+=end pod

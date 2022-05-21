@@ -38,7 +38,8 @@ also does LibXML::ErrorHandling;
 
    =head2 Description
 
-   This is a Raku interface to libxml2's pull-parser implementation xmlTextReader I<http://xmlsoft.org/html/libxml-xmlreader.html>. Pull-parsers (such as StAX in
+   This is a Raku interface to libxml2's pull-parser implementation xmlTextReader
+   L<http://xmlsoft.org/html/libxml-xmlreader.html>. Pull-parsers (such as StAX in
    Java, or XmlReader in C#) use an iterator approach to parse XML documents. They
    are easier to program than event-based parser (SAX) and much more lightweight
    than tree-based parser (DOM), which load the complete tree into memory.
@@ -48,7 +49,8 @@ also does LibXML::ErrorHandling;
    object allow one to examine the current node (name, namespace, attributes,
    etc.)
 
-   The user's code keeps control of the progress and simply calls the C<read()> function repeatedly to progress to the next node in the document order. Other
+   The user's code keeps control of the progress and simply calls the C<read()>
+   function repeatedly to progress to the next node in the document order. Other
    functions provide means for skipping complete sub-trees, or nodes until a
    specific element, etc.
 

@@ -93,7 +93,7 @@ doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md 
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
       docs/XPath/Context.md docs/XPath/Expression.md\
       docs/SAX/Handler/SAX2.md docs/SAX/Handler/XML.md\
-      docs/SAX/Builder.md
+      docs/SAX/Builder.md docs/Threads.md
 
 docs/index.md : lib/LibXML.rakumod
 	(\
