@@ -16,7 +16,18 @@ subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ St
 role XPathish {}
 subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|XPathish;
 
-my $resolve-lock = Lock.new;
-sub resolve-package(Str:D $pkg) is export(:resolve-package) is raw {
-    $resolve-lock.protect: { ::{$pkg}:exists ?? ::($pkg) !! do require ::($pkg) }
+our &resolve-package is export(:resolve-package);
+
+BEGIN {
+    if $*RAKU.compiler.version >= v2022.04.74.g.1.c.4680544 {
+        &resolve-package = anon sub resolve-package(Str:D $pkg) is raw {
+            ::{$pkg}:exists ?? ::($pkg) !! do require ::($pkg)
+        }
+    }
+    else {
+        my $resolve-lock = Lock.new;
+        &resolve-package = anon sub resolve-package(Str:D $pkg) is raw {
+            $resolve-lock.protect: { ::{$pkg}:exists ?? ::($pkg) !! do require ::($pkg) }
+        }
+    }
 }
