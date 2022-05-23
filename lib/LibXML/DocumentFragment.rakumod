@@ -66,7 +66,9 @@ class ParserContext is LibXML::Parser::Context {
     has Pointer $.user-data;
     has Pointer[xmlNode] $.nodes is rw .= new();
     submethod DESTROY {
-        .FreeList() with $!nodes.deref;
+        with $!nodes {
+            .FreeList() with .deref;
+        }
     }
     method publish {
         callsame();
