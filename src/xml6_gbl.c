@@ -34,6 +34,16 @@ DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int net) {
     return update;
 }
 
+/*
+ * Note: xmlSaveNoEmptyTags, xmlKeepBlanksDefaultValue and
+ * xmlLastError are macros defined in libxml/globals.h.
+ * When threading is enabled they expand to:
+ * - (*(__xmlSaveNoEmptyTags()))
+ * - (*(__xmlKeepBlanksDefaultValue()))
+ * - (*(__xmlLastError()))
+ * which are localised thread-safe accessors
+ */
+
 DLLEXPORT int xml6_gbl_get_tag_expansion(void) {
     return xmlSaveNoEmptyTags;
 }
