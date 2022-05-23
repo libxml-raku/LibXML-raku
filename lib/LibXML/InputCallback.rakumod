@@ -177,7 +177,7 @@ my class Context {
         -> Pointer $addr, CArray $out-arr, UInt $bytes --> UInt {
             CATCH { default { self!catch($_); 0; } }
 
-            my Handle $handle = %!handles{+$addr}
+            my Handle $handle = $!lock.protect({ %!handles{+$addr} })
                 // die "read on unopen handle";
 
             given $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf is copy {
