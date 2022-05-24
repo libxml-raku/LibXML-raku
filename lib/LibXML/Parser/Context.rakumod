@@ -117,15 +117,16 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
 	$rv := action();
 
-	.deactivate
-	    with $*XML-CONTEXT.input-callbacks;
-
-	xml6_gbl_restore_error_handlers($handlers);
-
 	.flush-errors for @input-contexts;
 	$rv := $*XML-CONTEXT.is-valid if $check-valid;
 	$*XML-CONTEXT.flush-errors: :$recover;
 	$*XML-CONTEXT.publish() without self;
+
+	LEAVE .deactivate
+	    with $*XML-CONTEXT.input-callbacks;
+
+	LEAVE xml6_gbl_restore_error_handlers($handlers);
+
     }
     $rv;
 }

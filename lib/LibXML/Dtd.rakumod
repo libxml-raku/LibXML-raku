@@ -121,10 +121,10 @@ class ValidContext {
 
             $rv := $!raw.validate(:$doc, :$dtd, :$elem);
 
-            xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
             self.flush-errors;
+            LEAVE xml6_gbl_restore_error_handlers($handlers);
         }
 
         ? $rv;

@@ -177,9 +177,9 @@ method !try(&action) {
 
         $rv := &action();
 
-        xml6_gbl_restore_error_handlers($handlers);
         temp self.recover //= $rv.defined;
         self.flush-errors;
+        LEAVE xml6_gbl_restore_error_handlers($handlers);
     }
     $rv;
 }

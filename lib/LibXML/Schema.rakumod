@@ -23,7 +23,7 @@ also does LibXML::_Validator;
     The LibXML::Schema class is a tiny frontend to libxml2's XML Schema
     implementation. Currently it supports only schema parsing and document
     validation. libxml2 only supports decimal types up to 24 digits
-    (the standard requires at least 18). 
+    (the standard requires at least 18).
 
     =head2 Methods
 
@@ -88,12 +88,11 @@ my class Parser::Context {
 
             $rv := $!raw.Parse;
 
-            xml6_gbl_restore_error_handlers($handlers);
-
-            if $ext-loader-changed {
-                xmlExternalEntityLoader::set-networked(+!$!network.so);
-            }
             self.flush-errors;
+
+            LEAVE xml6_gbl_restore_error_handlers($handlers);
+            LEAVE xmlExternalEntityLoader::set-networked(+!$!network.so)
+                if $ext-loader-changed;
         }
 
         $rv;
@@ -132,10 +131,10 @@ my class ValidContext {
 
             $rv := $!raw.ValidateDoc($doc);
 
-            xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
             self.flush-errors;
+            LEAVE xml6_gbl_restore_error_handlers($handlers);
         }
 
         $rv;

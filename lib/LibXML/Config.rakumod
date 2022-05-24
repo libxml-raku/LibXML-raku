@@ -258,7 +258,7 @@ multi method input-callbacks(::?CLASS:D:) is rw {
 
 =head3 parser-locking
 =para This configuration setting will lock the parsing of documents to disable
-concurrent parsing. It need to be set to allow per-parser input-callbacks,
+concurrent parsing. It needs to be set to allow per-parser input-callbacks,
 which are not currently thread safe.
 
 my Bool $parser-locking = ! $?CLASS.have-threads;

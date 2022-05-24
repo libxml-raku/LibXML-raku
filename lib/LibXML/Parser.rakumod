@@ -113,7 +113,7 @@ multi method parse(
         $raw.input.filename = $_ with $URI;
         $ctx.set-raw: $raw;
         $raw.ParseDocument;
-        $ctx.close();
+        LEAVE .close() with $ctx;
     };
     self!publish: :$ctx;
 }
@@ -141,7 +141,7 @@ multi method parse(
     my LibXML::Parser::Context $ctx = self!make-handler: :$raw, :$html, |%opts;
     $ctx.try: {
         $raw.ParseDocument;
-        $ctx.close();
+        LEAVE .close() with $ctx;
     };
     self!publish: :$ctx;
 }
@@ -193,7 +193,7 @@ multi method parse(
            !! xmlParserCtxt.new;
         $ctx.set-raw: $raw;
         $raw.set-myDoc($raw.ReadFd($fd, $URI, $enc, $flags));
-        $ctx.close();
+        LEAVE .close() with $ctx;
     };
 
     self!publish: :$ctx;

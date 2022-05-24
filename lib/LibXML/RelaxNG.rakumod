@@ -85,8 +85,8 @@ my class Parser::Context {
 
             $rv := $!raw.Parse;
 
-            xml6_gbl_restore_error_handlers($handlers);
             self.flush-errors;
+            LEAVE xml6_gbl_restore_error_handlers($handlers);
         }
         $rv;
     }
@@ -122,10 +122,10 @@ my class ValidContext {
 
             $rv := $!raw.ValidateDoc($doc.raw);
 
-            xml6_gbl_restore_error_handlers($handlers);
 	    $rv := self.validity-check
                 if $check;
             self.flush-errors;
+            LEAVE xml6_gbl_restore_error_handlers($handlers);
         }
 
         $rv;
