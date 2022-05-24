@@ -151,6 +151,12 @@ struct _xml6HandlerSave {
 typedef struct _xml6HandlerSave xml6HandlerSave;
 typedef xml6HandlerSave *xml6HandlerSavePtr;
 
+/*
+ * These are also thread-safe macros:
+ * 	xmlStructuredErrorContext, xmlStructuredErrorContext
+ *      xmlGenericErrorContext, xmlGenericError
+ */
+
 DLLEXPORT void* xml6_gbl_save_error_handlers(void) {
     xml6HandlerSavePtr save = (xml6HandlerSavePtr)xmlMalloc(sizeof(struct _xml6HandlerSave));
     save->serror_ctxt = xmlStructuredErrorContext;
