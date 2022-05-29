@@ -23,7 +23,7 @@ Synopsis
 Description
 -----------
 
-The LibXML::Schema class is a tiny frontend to libxml2's XML Schema implementation. Currently it supports only schema parsing and document validation. libxml2 only supports decimal types up to 24 digits (the standard requires at least 18). 
+The LibXML::Schema class is a tiny frontend to libxml2's XML Schema implementation. Currently it supports only schema parsing and document validation. libxml2 only supports decimal types up to 24 digits (the standard requires at least 18).
 
 Methods
 -------

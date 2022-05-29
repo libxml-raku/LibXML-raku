@@ -189,7 +189,7 @@ See [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallb
 
 ### parser-locking
 
-This configuration setting will lock the parsing of documents to disable concurrent parsing. It need to be set to allow per-parser input-callbacks, which are not currently thread safe.
+This configuration setting will lock the parsing of documents to disable concurrent parsing. It needs to be set to allow per-parser input-callbacks, which are not currently thread safe.
 
 Query Handler
 -------------
