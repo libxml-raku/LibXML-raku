@@ -15,7 +15,7 @@ my $version = $p.version;
 
 ok $version, 'LibXML.version is trueish';
 
-diag "Running libxml2 version: $version (module {LibXML.^ver})";
+diag "Running libxml2 version: $version (module {LibXML.^ver}, Raku {$*RAKU.compiler.version})";
 given LibXML.config-version {
     diag "***NOTE was configured against libxml2 version $_ ***"
         unless $_ == LibXML.version
