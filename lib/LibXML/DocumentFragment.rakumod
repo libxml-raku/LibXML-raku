@@ -58,6 +58,7 @@ use LibXML::Node;
 use NativeCall;
 use Method::Also;
 use LibXML::Parser::Context;
+use LibXML::Config :&protected;
 
 class ParserContext is LibXML::Parser::Context {
     has LibXML::DocumentFragment $.doc-frag is required;
@@ -66,14 +67,21 @@ class ParserContext is LibXML::Parser::Context {
     has Pointer $.user-data;
     has Pointer[xmlNode] $.nodes is rw .= new();
     submethod DESTROY {
-        with $!nodes {
-            .FreeList() with .deref;
+        protected {
+            if $!nodes {
+                $!nodes.deref.FreeList(); ;
+            }
         }
     }
     method publish {
         callsame();
-        my xmlNode $rv = $!nodes.deref;
-        $!nodes .= new();
+        my xmlNode $rv;
+        protected {
+            if $!nodes {
+                $rv = $!nodes.deref;
+                $!nodes .= new();
+            }
+        }
         $rv;
     }
 }
