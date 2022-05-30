@@ -1,5 +1,5 @@
 use Test;
-plan 2;
+plan 1;
 use LibXML::Config;
 use LibXML::Element;
 use LibXML::Raw;
@@ -20,40 +20,6 @@ sub trundle(&r, :$n = MAX_THREADS) {
 unless LibXML::Config.have-threads {
     skip-rest 'This libxml library does not have threading enabled';
     exit 0;
-}
-
-subtest 'low-level', {
-    {
-        my $passing = True;
-        for (^MAX_LOOP) -> $i {
-            my @ok = blat(
-                -> $j {
-                    xml6_gbl_set_tag_expansion(($i + $j + 1) %% 2);
-                    # do a little work
-                    my LibXML::Element $e .= new('elem' ~ $i ~ '_' ~ $j);
-                    xml6_gbl_get_tag_expansion() == ($i + $j + 1) %% 2;
-                }
-            );
-            $passing = False unless @ok.all.so;
-        }
-        ok $passing, 'tag expansion native';
-    }
-
-    {
-        my $passing = True;
-        for (^MAX_LOOP) -> $i {
-            my @ok = blat(
-                -> $j {
-                    LibXML::Raw.TagExpansion = ($i + $j + 1) %% 2;
-                    # do a little work
-                    my LibXML::Element $e .= new('elem' ~ $i ~ '_' ~ $j);
-                    LibXML::Raw.TagExpansion == ($i + $j + 1) %% 2;
-                }
-            );
-            $passing = False unless @ok.all.so;
-        }
-        ok $passing, 'tag expansion proxy';
-    }
 }
 
 subtest 'configs', {
