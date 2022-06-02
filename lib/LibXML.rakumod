@@ -15,7 +15,7 @@ use LibXML::Types :QName;
 method config handles <
       version config-version
       have-compression have-reader have-schemas have-threads
-      skip-xml-declaration skip-dtd keep-blanks-default tag-expansion external-entity-loader
+      skip-xml-declaration skip-dtd tag-expansion external-entity-loader
 > {
     callsame();
 }

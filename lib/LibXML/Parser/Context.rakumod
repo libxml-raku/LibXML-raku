@@ -113,6 +113,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
 	my $handlers = xml6_gbl_save_error_handlers();
 	$*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
+        my @prev = self.config.setup();
 	&*chdir(~$*CWD);
 
 	$rv := action();
@@ -122,10 +123,14 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 	$*XML-CONTEXT.flush-errors: :$recover;
 	$*XML-CONTEXT.publish() without self;
 
-	LEAVE .deactivate
-	    with $*XML-CONTEXT.input-callbacks;
+	LEAVE {
+            self.config.restore(@prev);
 
-	LEAVE xml6_gbl_restore_error_handlers($handlers);
+            .deactivate
+	        with $*XML-CONTEXT.input-callbacks;
+
+	    xml6_gbl_restore_error_handlers($handlers);
+        }
 
     }
     $rv;

@@ -174,12 +174,17 @@ method !try(&action) {
         $!raw.SetStructuredErrorFunc: &structured-error-cb;
 
         my $*XPATH-CONTEXT = self;
+        my @prev = self.config.setup;
 
         $rv := &action();
 
         temp self.recover //= $rv.defined;
         self.flush-errors;
-        LEAVE xml6_gbl_restore_error_handlers($handlers);
+
+        LEAVE {
+            self.config.restore(@prev);
+            xml6_gbl_restore_error_handlers($handlers);
+        }
     }
     $rv;
 }

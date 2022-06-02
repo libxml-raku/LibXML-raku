@@ -1,4 +1,12 @@
 {{$NEXT}}
+    #13 we can't rely on Raku threads maintaining an association with LibXML
+    global variables which are scoped to OS threads. This release locally
+    re-initializes settings whenever they are used.
+    - Avoid side effects from changing LibXML::Config settings. This now just
+      holds the settings, until the new setup() method is called to apply them.
+      The new restore() method can be called later to restore original settings.
+    - Parsing, validation and XPath contexts now call setup() to apply the
+      global setting locally and restore() to clean up afterwards..
 
 0.7.3  2022-05-30T07:38:33+12:00
     - Minor threading fixes

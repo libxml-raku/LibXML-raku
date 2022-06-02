@@ -82,11 +82,15 @@ my class Parser::Context {
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $!raw.SetParserErrorFunc: &structured-error-cb;
+            my @prev = self.config.setup;
 
             $rv := $!raw.Parse;
 
             self.flush-errors;
-            LEAVE xml6_gbl_restore_error_handlers($handlers);
+            LEAVE {
+                self.config.restore(@prev);
+                xml6_gbl_restore_error_handlers($handlers);
+            }
         }
         $rv;
     }
@@ -119,13 +123,17 @@ my class ValidContext {
             my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
+            my @prev = self.config.setup;
 
             $rv := $!raw.ValidateDoc($doc.raw);
 
 	    $rv := self.validity-check
                 if $check;
             self.flush-errors;
-            LEAVE xml6_gbl_restore_error_handlers($handlers);
+            LEAVE {
+                self.config.restore(@prev);
+                xml6_gbl_restore_error_handlers($handlers);
+            }
         }
 
         $rv;
@@ -158,7 +166,7 @@ submethod TWEAK(|c) {
 
     The `:string` parameter will parse the schema from the given XML string.
 
-    The `:doc` parameter allows one to parse the schema from a pre-parsed L<<<<<<LibXML::Document>>>>>>.
+    The `:doc` parameter allows one to parse the schema from a pre-parsed L<LibXML::Document>.
 
     Note that the constructor will die() if the schema does not meed the
     constraints of the RelaxNG specification.

@@ -1709,6 +1709,7 @@ module xmlExternalEntityLoader is export {
     our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
     our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
     our sub Get( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
+    our sub Restore( Pointer --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
     our sub Init is native($BIND-XML2) is symbol('xml6_gbl_init_external_entity_loader') {*}
     our sub set-networked(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader_net') {*}
 }

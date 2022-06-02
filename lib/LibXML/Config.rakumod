@@ -127,9 +127,13 @@ multi method skip-dtd(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-dtd) }
 multi method skip-dtd(::?CLASS:D: --> Bool) is rw { flag-proxy($!skip-dtd) }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
-method tag-expansion is rw returns Bool {
-    LibXML::Raw.TagExpansion;
-}
+my Bool:D $tag-expansion = False;
+has Bool:D $!tag-expansion is mooish(:lazy);
+method !build-tag-expansion { $tag-expansion }
+
+proto method tag-expansion() {*}
+multi method tag-expansion(::?CLASS:U: --> Bool) is rw { flag-proxy($tag-expansion) }
+multi method tag-expansion(::?CLASS:D: --> Bool) is rw { flag-proxy($!tag-expansion) }
 
 =head3 method max-errors
 =for code :lang<raku>
@@ -154,10 +158,30 @@ sub flag-proxy($flag is rw) is rw {
 method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
 
-#| Keep blank nodes (Default True)
-method keep-blanks is rw returns Bool {
-    LibXML::Raw.KeepBlanksDefault();
+method setup returns List {
+    my @prev[3] = xml6_gbl_get_tag_expansion(), xml6_gbl_get_keep_blanks(), xmlExternalEntityLoader::Get();
+    xml6_gbl_set_tag_expansion(self.tag-expansion);
+    xml6_gbl_set_keep_blanks(self.keep-blanks);
+    set-external-entity-loader(self.external-entity-loader);
+    @prev;
 }
+
+multi method restore([]) { }
+multi method restore(@prev where .elems == 3) {
+    if @prev {
+        xml6_gbl_set_tag_expansion(@prev[0]);
+        xml6_gbl_set_keep_blanks(@prev[1]);
+        xmlExternalEntityLoader::Restore(@prev[2]);
+    }
+}
+
+my Bool:D $keep-blanks = True;
+has Bool:D $!keep-blanks is mooish(:lazy) = True;
+method !build-keep-blanks { $keep-blanks }
+
+proto method keep-blanks() {*}
+multi method keep-blanks(::?CLASS:U: --> Bool) is rw { flag-proxy($keep-blanks) }
+multi method keep-blanks(::?CLASS:D: --> Bool) is rw { flag-proxy($!keep-blanks) }
 
 #| Low-level default parser flags (Read-only)
 method parser-flags returns UInt {
@@ -166,35 +190,40 @@ method parser-flags returns UInt {
     + ($.keep-blanks() ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
+my &external-entity-loader;
+has &!external-entity-loader is mooish(:lazy);
+method !build-external-entity-loader { &external-entity-loader }
+
+proto method external-entity-loader() {*}
+multi method external-entity-loader(::?CLASS:U: --> Callable) is rw { &external-entity-loader }
+multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
+
 #| External entity handler to be used when parser expand-entities is set.
-method external-entity-loader returns Callable is rw {
-    Proxy.new(
-        FETCH => {
-            nativecast( :(Str, Str, xmlParserCtxt --> xmlParserInput), xmlExternalEntityLoader::Get())
-        },
-        STORE => -> $, &loader {
-            my constant XML_CHAR_ENCODING_NONE = 0;
-            my constant XML_ERR_ENTITY_PROCESSING = 104;
-            xmlExternalEntityLoader::Set(
-                sub (Str $url, Str $id, xmlParserCtxt $ctxt --> xmlParserInput) {
-                    CATCH {
-                        default {
-                            if $ctxt.defined {
-                                $ctxt.ParserError(.message);
-                            }
-                            else {
-                                note "uncaught entity loader error: " ~ .message;
-                            }
-                            return xmlParserInput;
+sub set-external-entity-loader(&loader) {
+    my constant XML_CHAR_ENCODING_NONE = 0;
+    if &loader.defined {
+        xmlExternalEntityLoader::Set(
+            sub (Str $url, Str $id, xmlParserCtxt $ctxt --> xmlParserInput) {
+                CATCH {
+                    default {
+                        if $ctxt.defined {
+                            $ctxt.ParserError(.message);
                         }
+                        else {
+                            note "uncaught entity loader error: " ~ .message;
+                        }
+                        return xmlParserInput;
                     }
-                    my Str $string := &loader($url, $id);
-                    my xmlParserInputBuffer $buf .= new: :$string;
-                    $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
                 }
-            );
-        }
-    );
+                my Str $string := &loader($url, $id);
+                my xmlParserInputBuffer $buf .= new: :$string;
+                $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
+            }
+        );
+    }
+    else {
+        xmlExternalEntityLoader::Init()
+    }
 }
 
 =para The routine provided is called whenever the parser needs to retrieve the

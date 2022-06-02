@@ -81,18 +81,21 @@ my class Parser::Context {
 
         protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
-            my $ext-loader-changed = xmlExternalEntityLoader::set-networked(+$!network.so);
+
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $!raw.SetParserErrorFunc: &structured-error-cb;
+            my @prev = self.config.setup();
+            xmlExternalEntityLoader::set-networked(+$!network.so);
 
             $rv := $!raw.Parse;
 
             self.flush-errors;
 
-            LEAVE xml6_gbl_restore_error_handlers($handlers);
-            LEAVE xmlExternalEntityLoader::set-networked(+!$!network.so)
-                if $ext-loader-changed;
+            LEAVE {
+                self.config.restore(@prev);
+                xml6_gbl_restore_error_handlers($handlers);
+             }
         }
 
         $rv;
@@ -128,13 +131,16 @@ my class ValidContext {
             my $*XML-CONTEXT = self;
             my $handlers = xml6_gbl_save_error_handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
-
+            my @prev = self.config.setup();
             $rv := $!raw.ValidateDoc($doc);
 
 	    $rv := self.validity-check
                 if $check;
             self.flush-errors;
-            LEAVE xml6_gbl_restore_error_handlers($handlers);
+            LEAVE {
+                self.config.restore(@prev);
+                xml6_gbl_restore_error_handlers($handlers);
+            }
         }
 
         $rv;
