@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.7.4  2022-06-03T12:33:17+12:00
     #13 we can't rely on Raku threads maintaining an association with LibXML
     global variables which are scoped to OS threads. This release locally
     re-initializes settings whenever they are used.
