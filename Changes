@@ -1,5 +1,14 @@
 {{$NEXT}}
 
+0.7.5  2022-06-12T08:27:39+12:00
+   - LibXML::Config
+     -- More documentation, checks and protection
+     -- Correct handling of &external-entity-loader, which is a true
+        global in libxml2; make it similar to input-callbacks 
+     -- Detect and warn on OS thread change.
+   - xml6_gbl.c: use longer accessor sub names for thread-scoped accessors,
+     e.g. xml6_gbl_os_thread_get_tag_expansion()
+
 0.7.4  2022-06-03T12:33:17+12:00
     #13 we can't rely on Raku threads maintaining an association with LibXML
     global variables which are scoped to OS threads. This release locally
