@@ -159,7 +159,7 @@ method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
 
 method setup returns List {
-    my @prev[3] = xml6_gbl_get_tag_expansion(), xml6_gbl_get_keep_blanks(), xmlExternalEntityLoader::Get();
+    my @prev[4] = $*THREAD.id, xml6_gbl_get_tag_expansion(), xml6_gbl_get_keep_blanks(), xmlExternalEntityLoader::Get();
     xml6_gbl_set_tag_expansion(self.tag-expansion);
     xml6_gbl_set_keep_blanks(self.keep-blanks);
     set-external-entity-loader(self.external-entity-loader);
@@ -167,11 +167,14 @@ method setup returns List {
 }
 
 multi method restore([]) { }
-multi method restore(@prev where .elems == 3) {
-    if @prev {
-        xml6_gbl_set_tag_expansion(@prev[0]);
-        xml6_gbl_set_keep_blanks(@prev[1]);
-        xmlExternalEntityLoader::Restore(@prev[2]);
+multi method restore(@prev where .elems == 4) {
+    if $*THREAD.id == @prev[0] {
+        xml6_gbl_set_tag_expansion(@prev[1]);
+        xml6_gbl_set_keep_blanks(@prev[2]);
+        xmlExternalEntityLoader::Restore(@prev[3]);
+    }
+    else {
+        warn "OS thread change";
     }
 }
 
