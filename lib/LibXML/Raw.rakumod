@@ -552,7 +552,7 @@ class xmlError is export {
     has xmlParserCtxt     $.ctxt; # the parser context if available
     has anyNode           $.node; # the node in the tree
 
-    our sub Last(--> xmlError) is native($BIND-XML2) is symbol('xml6_gbl_get_last_error') {*}
+    our sub Last(--> xmlError) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_get_last_error') {*}
     method context(uint32 is rw --> Str) is native($BIND-XML2) is symbol('xml6_error_context_and_column') {*}
 }
 
@@ -1682,25 +1682,25 @@ sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {
-    sub xml6_gbl_get_keep_blanks(--> int32) is native($BIND-XML2) is export { * }
-    sub xml6_gbl_set_keep_blanks(int32 $v) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_os_thread_get_keep_blanks(--> int32) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_os_thread_set_keep_blanks(int32 $v) is native($BIND-XML2) is export { * }
 
     Proxy.new(
-        FETCH => { ? xml6_gbl_get_keep_blanks() },
+        FETCH => { ? xml6_gbl_os_thread_get_keep_blanks() },
         STORE => sub ($, Bool() $_) {
-            xml6_gbl_set_keep_blanks($_);
+            xml6_gbl_os_thread_set_keep_blanks($_);
         },
     );
 }
 
 method TagExpansion is rw {
-    sub xml6_gbl_get_tag_expansion(--> int32) is native($BIND-XML2) is export { * }
-    sub xml6_gbl_set_tag_expansion(int32 $v) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_os_thread_get_tag_expansion(--> int32) is native($BIND-XML2) is export { * }
+    sub xml6_gbl_os_thread_set_tag_expansion(int32 $v) is native($BIND-XML2) is export { * }
 
     Proxy.new(
-        FETCH => { ? xml6_gbl_get_tag_expansion() },
+        FETCH => { ? xml6_gbl_os_thread_get_tag_expansion() },
         STORE => sub ($, Bool() $_) {
-            xml6_gbl_set_tag_expansion($_);
+            xml6_gbl_os_thread_set_tag_expansion($_);
         },
     );
 }

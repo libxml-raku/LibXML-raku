@@ -41,26 +41,26 @@ DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int net) {
  * - (*(__xmlSaveNoEmptyTags()))
  * - (*(__xmlKeepBlanksDefaultValue()))
  * - (*(__xmlLastError()))
- * which are localised thread-safe accessors
+ * which are scoped to threads.
  */
 
-DLLEXPORT int xml6_gbl_get_tag_expansion(void) {
+DLLEXPORT int xml6_gbl_os_thread_get_tag_expansion(void) {
     return xmlSaveNoEmptyTags;
 }
 
-DLLEXPORT void xml6_gbl_set_tag_expansion(int flag) {
+DLLEXPORT void xml6_gbl_os_thread_set_tag_expansion(int flag) {
     xmlSaveNoEmptyTags = flag;
 }
 
-DLLEXPORT int xml6_gbl_get_keep_blanks(void) {
+DLLEXPORT int xml6_gbl_os_thread_get_keep_blanks(void) {
     return xmlKeepBlanksDefaultValue;
 }
 
-DLLEXPORT void xml6_gbl_set_keep_blanks(int flag) {
+DLLEXPORT void xml6_gbl_os_thread_set_keep_blanks(int flag) {
     xmlKeepBlanksDefaultValue = flag;
 }
 
-DLLEXPORT xmlError* xml6_gbl_get_last_error(void) {
+DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void) {
     return &xmlLastError;
 }
 
@@ -132,13 +132,13 @@ static void _gbl_message_func(
     (*callback)(fmt, argt, argv);
 }
 
-DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callback,  void (*route)(void*, xmlGenericErrorFunc)) {
+DLLEXPORT void xml6_gbl_set_os_thread_generic_error_handler(xml6_gbl_MessageCallback callback,  void (*setter)(void*, xmlGenericErrorFunc)) {
     /* we actually set the callback as the context and
        xml6_gbl_message_func() as the handler
     */
     void* ctx = (void*) callback;
     xmlGenericErrorFunc handler = (xmlGenericErrorFunc) _gbl_message_func;
-    route(ctx, handler);
+    xmlSetGenericErrorFunc(ctx, handler);
 }
 
 struct _xml6HandlerSave {

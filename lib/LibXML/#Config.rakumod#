@@ -50,7 +50,7 @@ including L<LibXML>, L<LibXML::Parser>, L<LibXML::_Reader>.
     =for code :lang<raku>
     my $doc = LibXML.parse: :file<doc.xml>, :$config;
 
-DOM objects, generally aren't configurable, although some particular methods do `:$config` option.
+DOM objects, generally aren't configurable, although some particular methods do support a `:$config` option.
 
 - L<LibXML::Document> methods: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
 - L<LibXML::Element> method: `appendWellBalancedChunk`.

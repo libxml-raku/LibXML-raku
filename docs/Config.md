@@ -32,13 +32,29 @@ In the simple case, the global configuration can be updated to suit the applicat
 
 Objects of type [LibXML::Config](https://libxml-raku.github.io/LibXML-raku/Config) may be created to enable configuration to localised and more explicit.
 
-These may be parsed to objects that perform the `LibXML::_Configurable` role, including [LibXML](https://libxml-raku.github.io/LibXML-raku), [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser), [LibXML::_Reader](https://libxml-raku.github.io/LibXML-raku/_Reader).
+Note however that the `input-callbacks` and `external-entity-loader` are global in the `libxml` library and need to be configured globally:
 
-DOM objects, generally aren't configurable, although some methods that invoke a configurable object allow a `:$config` option.
+```raku
+LibXML::Config.input-callbacks = @input-callbacks;
+LibXML::Config.external-entity-loader = &external-entity-loader;
+```
 
-[LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) methods that support the `:$config` option include: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
+...or `parser-locking` needs to be set, which allows multiple local configurations, but disables multi-threaded parsing:
 
-The `:$config`, option is also applicable to [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) `appendWellBalancedChunk` method and [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) `ast` and `xpath-class` methods.
+```raku
+LibXML::Config.parser-locking = True;
+my LibXML::Config $config .= new: :@input-callbacks, :&external-entity-loader;
+```
+
+Configuration instance objects may be passed to objects that perform the `LibXML::_Configurable` role, including [LibXML](https://libxml-raku.github.io/LibXML-raku), [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser), [LibXML::_Reader](https://libxml-raku.github.io/LibXML-raku/_Reader).
+
+```raku
+    my $doc = LibXML.parse: :file<doc.xml>, :$config;
+```
+
+DOM objects, generally aren't configurable, although some particular methods do `:$config` option.
+
+- [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) methods: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`. - [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) method: `appendWellBalancedChunk`. - [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) methods: `ast` and `xpath-class`.
 
 Configuration Methods
 ---------------------
@@ -110,11 +126,8 @@ method skip-dtd() is rw returns Bool
 
 Whether to omit internal DTDs (default False)
 
-### method tag-expansion
-
-```raku
-method tag-expansion() returns Bool
-```
+class Attribute+{AttrX::Mooish::AttrXMooishAttributeHOW}.new(base-name => "tag-expansion", lazy => Bool::True, builder => "build-tag-expansion", clearer => Bool::False, predicate => Bool::False, trigger => Bool::False, filter => Bool::False, composer => Bool::False, no-init => Bool::False, init-args => [], phony-required => Bool::True)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 
@@ -129,14 +142,6 @@ Maximum errors before throwing a fatal X::LibXML::TooManyErrors
 Parsing Default Options
 -----------------------
 
-### method keep-blanks
-
-```raku
-method keep-blanks() returns Bool
-```
-
-Keep blank nodes (Default True)
-
 ### method parser-flags
 
 ```raku
@@ -145,10 +150,12 @@ method parser-flags() returns UInt
 
 Low-level default parser flags (Read-only)
 
-### method external-entity-loader
+### sub set-external-entity-loader
 
 ```raku
-method external-entity-loader() returns Callable
+sub set-external-entity-loader(
+    &loader
+) returns Mu
 ```
 
 External entity handler to be used when parser expand-entities is set.

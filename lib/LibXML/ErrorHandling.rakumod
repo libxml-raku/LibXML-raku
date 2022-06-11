@@ -353,7 +353,7 @@ role LibXML::ErrorHandling {
     }
 
     # This function is also used by the LibXSLT module
-    sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer $route) is native($BIND-XML2) is export(:set-generic-error-handler) is symbol('xml6_gbl_set_generic_error_handler') {*}
+    sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv)) is native($BIND-XML2) is export(:set-generic-error-handler) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
 
     method SetGenericErrorFunc(&handler) {
         set-generic-error-handler(
@@ -361,8 +361,7 @@ role LibXML::ErrorHandling {
                 CATCH { default { note $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
                 my @args = unmarshal-varargs($fmt, $argv);
                 &handler($msg, @args);
-            },
-            cglobal($XML2, 'xmlSetGenericErrorFunc', Pointer)
+            }
         );
     }
 }
