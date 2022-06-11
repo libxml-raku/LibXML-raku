@@ -50,7 +50,7 @@ including L<LibXML>, L<LibXML::Parser>, L<LibXML::_Reader>.
     =for code :lang<raku>
     my $doc = LibXML.parse: :file<doc.xml>, :$config;
 
-DOM objects, generally aren't configurable, although some particular methods do `:$config` option.
+DOM objects, generally aren't configurable, although some particular methods do support a `:$config` option.
 
 - L<LibXML::Document> methods: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`.
 - L<LibXML::Element> method: `appendWellBalancedChunk`.
@@ -113,8 +113,6 @@ method load-catalog(Str:D $filename --> Nil) {
 }
 
 =head2 Serialization Default Options
-
-my $input-callbacks;
 
 # -- Output options --
 
@@ -186,7 +184,8 @@ method setup returns List {
     my @prev[4] = $*THREAD.id, xml6_gbl_os_thread_get_tag_expansion(), xml6_gbl_os_thread_get_keep_blanks(), xmlExternalEntityLoader::Get();
     xml6_gbl_os_thread_set_tag_expansion(self.tag-expansion);
     xml6_gbl_os_thread_set_keep_blanks(self.keep-blanks);
-    set-external-entity-loader(self.external-entity-loader);
+    set-external-entity-loader(&!external-entity-loader)
+        if self.defined;
     @prev;
 }
 
@@ -195,7 +194,8 @@ multi method restore(@prev where .elems == 4) {
     if $*THREAD.id == @prev[0] {
         xml6_gbl_os_thread_set_tag_expansion(@prev[1]);
         xml6_gbl_os_thread_set_keep_blanks(@prev[2]);
-        xmlExternalEntityLoader::Restore(@prev[3]);
+        xmlExternalEntityLoader::Restore(@prev[3])
+            if self.defined;
     }
     else {
         warn "OS thread change";
@@ -222,8 +222,16 @@ has &!external-entity-loader is mooish(:lazy);
 method !build-external-entity-loader { &external-entity-loader }
 
 proto method external-entity-loader() {*}
-multi method external-entity-loader(::?CLASS:U: --> Callable) is rw { &external-entity-loader }
 multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
+multi method external-entity-loader(::?CLASS:U: --> Callable) is rw {
+    Proxy.new(
+        FETCH => { $lock.protect: { &external-entity-loader } },
+        STORE => -> $, &loader {
+            set-external-entity-loader(&loader);
+            &external-entity-loader = &loader;
+        }
+    );
+}
 
 #| External entity handler to be used when parser expand-entities is set.
 sub set-external-entity-loader(&loader) {
@@ -290,6 +298,7 @@ process.
 Concurrent use of multiple input callbacks is NOT thread-safe and `parser-locking`
 also needs to be set to disable concurrent parsing (see below).
 
+my $input-callbacks;
 has $!input-callbacks is mooish(:lazy);
 method !build-input-callbacks { $input-callbacks }
 

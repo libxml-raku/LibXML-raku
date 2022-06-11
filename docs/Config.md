@@ -52,7 +52,7 @@ Configuration instance objects may be passed to objects that perform the `LibXML
     my $doc = LibXML.parse: :file<doc.xml>, :$config;
 ```
 
-DOM objects, generally aren't configurable, although some particular methods do `:$config` option.
+DOM objects, generally aren't configurable, although some particular methods do support a `:$config` option.
 
 - [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) methods: `processXIncludes`, `validate`, `Str`, `Blob`, and `parse`. - [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) method: `appendWellBalancedChunk`. - [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) methods: `ast` and `xpath-class`.
 
