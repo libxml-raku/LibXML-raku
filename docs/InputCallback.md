@@ -11,12 +11,14 @@ Example
 -------
 
     use LibXML::InputCallback;
+    use LibXML::Config;
     my LibXML::InputCallback $icb .= new: :callbacks{
         match => -> Str $file --> Bool { $file.starts-with('file:') },
         open  => -> Str $file --> IO::Handle { $file.substr(5).IO.open(:r); },
         read  => -> IO::Handle:D $fh, UInt $n --> Blob { $fh.read($n); },
         close => -> IO::Handle:D $fh { $fh.close },
     };
+    LibXML::Config.input-callbacks = $icb;
 
 Description
 -----------
@@ -71,8 +73,6 @@ After object instantiation using the parameter-less constructor, you can registe
     LibXML::Config.parser-locking = True;
     $parser.input-callbacks = $input-callbacks;
     $parser.parse: :file( $some-xml-file );
-
-Note that this Raku port does not currently support the old Perl Global Callback mechanism.
 
 Methods
 -------

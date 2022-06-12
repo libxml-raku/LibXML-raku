@@ -108,7 +108,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 	my @input-contexts = .activate()
 	    with $*XML-CONTEXT.input-callbacks;
 
-	die "parser-locking needs to be enabled to allow parser-level input-callbacks"
+	die "LibXML::Config->parser-locking needs to be enabled to allow parser-level input-callbacks"
 	    if @input-contexts && !LibXML::Config.parser-locking;
 
 	my $handlers = xml6_gbl_save_error_handlers();
