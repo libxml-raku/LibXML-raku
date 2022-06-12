@@ -1,6 +1,7 @@
 *~
 .*
 *.o
+*.obj
 Makefile
 blib/
 README.md
