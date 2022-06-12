@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.7.6  2022-06-13T06:51:41+12:00
+   - Handle NULL in xml6_gbl_restore_error_handlers(). This could happen if
+     an exception occurred before error handlers have been set-up.
+
 0.7.5  2022-06-12T08:27:39+12:00
    - LibXML::Config
      -- More documentation, checks and protection
