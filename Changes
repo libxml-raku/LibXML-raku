@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.7.7  2022-06-13T10:47:07+12:00
+   - Update prebuilt xml6.dll on Windows
+
 0.7.6  2022-06-13T06:51:41+12:00
    - Handle NULL in xml6_gbl_restore_error_handlers(). This could happen if
      an exception occurred before error handlers have been set-up.

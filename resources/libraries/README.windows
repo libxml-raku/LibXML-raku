@@ -28,5 +28,5 @@ Here's how I built it:
     cp ..\libxml2\win32\bin.mingw32\libxml2.dll resources\libraries
     rm resources\libraries\xml6.dll
     raku Build.pm6 -I ..\libxml2\include\
-    git add resources\libraries\xml6.dll resources\libraries\libxml2.dll
+    git add -f resources\libraries\xml6.dll resources\libraries\libxml2.dll
     git commit -m"..."

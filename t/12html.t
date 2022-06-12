@@ -1,6 +1,7 @@
 use v6;
 use Test;
 use LibXML;
+use trace;
 
 plan 10;
 
@@ -8,7 +9,7 @@ use LibXML;
 use LibXML::Raw;
 use LibXML::Document;
 
-constant CanDoIO = ? IO::Handle.can('do-not-close-automatically') && ! $*DISTRO.is-win;;
+constant CanDoIO = ? IO::Handle.can('do-not-close-automatically') && ! $*DISTRO.is-win;
 
 my $html = "samples/test.html";
 
