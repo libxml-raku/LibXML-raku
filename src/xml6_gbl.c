@@ -41,7 +41,9 @@ DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int net) {
  * - (*(__xmlSaveNoEmptyTags()))
  * - (*(__xmlKeepBlanksDefaultValue()))
  * - (*(__xmlLastError()))
- * which are scoped to threads.
+ * which are scoped to OS threads.
+ * Note: Rakudo high-level threads are not bound to OS threads, for example 
+ * https://github.com/libxml-raku/LibXML-raku/issues/13#issuecomment-1140570095
  */
 
 DLLEXPORT int xml6_gbl_os_thread_get_tag_expansion(void) {
@@ -167,10 +169,12 @@ DLLEXPORT void* xml6_gbl_save_error_handlers(void) {
 }
 
 DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
-    xml6HandlerSavePtr save = (xml6HandlerSavePtr)ptr;
-    xmlStructuredErrorContext = save->serror_ctxt;
-    xmlStructuredError = save->serror_handler;
-    xmlGenericErrorContext = save->error_ctxt;
-    xmlGenericError = save->error_handler;
-    free(save);
+    if (ptr != NULL) {
+        xml6HandlerSavePtr save = (xml6HandlerSavePtr)ptr;
+        xmlStructuredErrorContext = save->serror_ctxt;
+        xmlStructuredError = save->serror_handler;
+        xmlGenericErrorContext = save->error_ctxt;
+        xmlGenericError = save->error_handler;
+        free(save);
+    }
 }
