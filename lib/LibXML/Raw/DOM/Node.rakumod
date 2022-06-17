@@ -146,10 +146,10 @@ method cloneNode(Bool:D $deep) {
 method getNodeName  { self.domGetNodeName }
 method setNodeName(QName $_) { self.domSetNodeName($_) }
 
-method getNodeValue { self.domGetNodeValue }
+method getNodeValue { self.domGetNodeValue.Str }
 method setNodeValue(Str $_) { self.domSetNodeValue($_) }
 
-method unique-key { self.domUniqueKey }
+method unique-key { self.domUniqueKey.Str }
 method xpath-key { self.domGetXPathKey }
 method ast-key { self.domGetASTKey }
 

@@ -759,10 +759,12 @@ method canonicalize(
         my $nodes = $selector.findnodes($_)
             with $xpath;
 
-        $rv := self.raw.xml6_node_to_str_C14N(
-            +$comments, $mode, $prefix,
-            do with $nodes { .raw } else { xmlNodeSet },
-        );
+        given self.raw.xml6_node_to_str_C14N(
+                   +$comments, $mode, $prefix,
+                   do with $nodes { .raw } else { xmlNodeSet },
+        ) {
+            $rv := .Str;
+        }
 
         die $_ with .domFailure;
     }

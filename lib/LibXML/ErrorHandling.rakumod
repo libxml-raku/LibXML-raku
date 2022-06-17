@@ -274,7 +274,7 @@ role LibXML::ErrorHandling {
             my Int $level = .level;
             my Str $file = .file;
             my UInt:D $line = .line;
-            my Str $context = .context(my uint32 $column);
+            my Str() $context = .context(my uint32 $column);
             my UInt:D $code = .code;
             my UInt:D $domain-num = .domain;
             my Str $msg = .message;

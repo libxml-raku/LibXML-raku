@@ -154,10 +154,6 @@ DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr self, int options, size_t* len, c
     return rv;
 }
 
-DLLEXPORT xmlChar* xml6_node_to_str(xmlNodePtr self, int options) {
-    return xml6_node_to_buf(self, options, NULL, "UTF-8");
-}
-
 
 DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments,  xmlC14NMode mode, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist) {
     xmlChar *rv = NULL;

@@ -7,7 +7,7 @@ use LibXML::Item;
 use LibXML::Node::Set;
 use LibXML::Types :XPathRange;
 use LibXML::Raw;
-use LibXML::Raw::Defs :$XML2, :$CLIB, :xmlCharP;
+use LibXML::Raw::Defs :$XML2, :xmlCharP;
 use LibXML::Raw::HashTable;
 use LibXML::Enums;
 use LibXML::Dtd::Notation;
@@ -153,12 +153,12 @@ role Assoc[UInt $of] {
 }
 
 role Assoc[Str $of] {
-    sub free(Pointer) is native($CLIB) {*};
+    my constant &copy-string = &LibXML::Raw::copy-string;
+    my constant &free = &LibXML::Raw::CLib::free;
     method of {$of}
-    sub pointerDup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
-    sub stringDup(Pointer --> Str) is native($XML2) is symbol('xmlStrdup') {*}
-    method freeze(Str() $v) { pointerDup($v) }
-    method thaw(Pointer $p) { stringDup($p) }
+    sub strDup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
+    method freeze(Str() $v) { strDup($v) }
+    method thaw(Pointer $p) { copy-string($p) }
     method deallocator { -> Pointer $p, xmlCharP $k { free($_) with $p } }
 }
 

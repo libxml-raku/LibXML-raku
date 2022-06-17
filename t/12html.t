@@ -1,7 +1,6 @@
 use v6;
 use Test;
 use LibXML;
-use trace;
 
 plan 10;
 
