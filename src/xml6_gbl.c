@@ -8,16 +8,19 @@
 #include <assert.h>
 
 static xmlExternalEntityLoader _default_ext_entity_loader = NULL;
-static xmlDictPtr _dict = NULL;
-static xmlMutexPtr _dict_mutex = NULL;
+static xmlDictPtr _cache = NULL;
+static xmlMutexPtr _cache_mutex = NULL;
+#ifdef DEBUG
+static int _cache_size = 0;
+#endif
 
 DLLEXPORT void xml6_gbl_init(void) {
     assert(_default_ext_entity_loader == NULL);
-    assert(_dict == NULL);
-    assert(_dict_mutex == NULL);
+    assert(_cache == NULL);
+    assert(_cache_mutex == NULL);
     _default_ext_entity_loader = xmlGetExternalEntityLoader();
-    _dict_mutex = xmlNewMutex();
-    _dict = xmlDictCreate();
+    _cache_mutex = xmlNewMutex();
+    _cache = xmlDictCreate();
 }
 
 DLLEXPORT void* xml6_gbl_get_external_entity_loader(void) {
@@ -192,11 +195,16 @@ DLLEXPORT const xmlChar* xml6_gbl_cache(xmlChar* word) {
     const xmlChar *key = NULL;
 
     if (word != NULL) {
-        assert(_dict != NULL);
+        assert(_cache != NULL);
 
-        xmlMutexLock(_dict_mutex);
-        key = xmlDictLookup(_dict, word, -1);
-        xmlMutexUnlock(_dict_mutex);
+        xmlMutexLock(_cache_mutex);
+#ifdef DEBUG
+        if (!xmlDictExists(_cache, word, -1)) {
+            _cache_size++;
+        }
+#endif
+        key = xmlDictLookup(_cache, word, -1);
+        xmlMutexUnlock(_cache_mutex);
 
         if (key != word) {
             xmlFree(word);
@@ -210,14 +218,26 @@ DLLEXPORT const xmlChar* xml6_gbl_cache_dup(const xmlChar* word) {
 
     if (word != NULL) {
         int word_len = strlen((char*)word);
-        assert(_dict != NULL);
+        assert(_cache != NULL);
 
-        xmlMutexLock(_dict_mutex);
-        if (!xmlDictExists(_dict, word, word_len)) {
-            word = xmlStrdup(word);
+        xmlMutexLock(_cache_mutex);
+        key = xmlDictExists(_cache, word, word_len);
+        if (key == NULL) {
+#ifdef DEBUG
+            _cache_size++;
+#endif
+            key = xmlDictLookup(_cache, xmlStrdup(word), word_len);
         }
-        key = xmlDictLookup(_dict, word, word_len);
-        xmlMutexUnlock(_dict_mutex);
+        xmlMutexUnlock(_cache_mutex);
     }
     return key;
+}
+
+DLLEXPORT int
+xml6_gbl_cache_size(void) {
+#ifdef DEBUG
+    return _cache_size;
+#else
+    return -1;
+#endif
 }

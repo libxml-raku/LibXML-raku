@@ -1687,6 +1687,7 @@ sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 sub xmlInitParser is native($XML2) is export {*}
 our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
 our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
+our sub cache-size(-->int32) is native($BIND-XML2) is symbol('xml6_gbl_cache_size') {*}
 
 sub xml6_gbl_save_error_handlers(--> Pointer) is native($BIND-XML2) is export {*}
 sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}
