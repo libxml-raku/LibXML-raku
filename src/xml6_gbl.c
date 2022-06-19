@@ -152,7 +152,8 @@ DLLEXPORT void xml6_gbl_set_os_thread_generic_error_handler(xml6_gbl_MessageCall
     */
     void* ctx = (void*) callback;
     xmlGenericErrorFunc handler = (xmlGenericErrorFunc) _gbl_message_func;
-    xmlSetGenericErrorFunc(ctx, handler);
+    // setter could be: xmlSetGenericErrorFunc() or xsltSetGenericErrorFunc()
+    setter(ctx, handler);
 }
 
 struct _xml6HandlerSave {
