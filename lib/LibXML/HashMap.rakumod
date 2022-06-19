@@ -153,12 +153,11 @@ role Assoc[UInt $of] {
 }
 
 role Assoc[Str $of] {
-    my constant &copy-string = &LibXML::Raw::copy-string;
     my constant &free = &LibXML::Raw::CLib::free;
     method of {$of}
     sub strDup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
     method freeze(Str() $v) { strDup($v) }
-    method thaw(Pointer $p) { copy-string($p) }
+    method thaw(Pointer $p) { nativecast(Str, $p) }
     method deallocator { -> Pointer $p, xmlCharP $k { free($_) with $p } }
 }
 

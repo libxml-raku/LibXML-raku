@@ -1,4 +1,5 @@
 #include "xml6.h"
+#include "xml6_gbl.h"
 #include "xml6_ns.h"
 #include "xml6_ref.h"
 #include <string.h>
@@ -20,7 +21,7 @@ DLLEXPORT xmlNsPtr xml6_ns_copy(xmlNsPtr self) {
     return new;
 }
 
-DLLEXPORT xmlChar* xml6_ns_unique_key(xmlNsPtr self) {
+DLLEXPORT const xmlChar* xml6_ns_unique_key(xmlNsPtr self) {
     xmlChar *rv = NULL;
 
     assert(self != NULL);
@@ -28,5 +29,5 @@ DLLEXPORT xmlChar* xml6_ns_unique_key(xmlNsPtr self) {
     if (self->prefix != NULL) rv = xmlStrdup(self->prefix);
     rv = xmlStrcat(rv, (const xmlChar *) "|");
     if (self->href != NULL) rv = xmlStrcat(rv, self->href);
-    return rv;
+    return xml6_gbl_cache(rv);
 }

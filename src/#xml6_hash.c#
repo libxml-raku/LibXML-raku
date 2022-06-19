@@ -4,33 +4,38 @@
 #include <assert.h>
 
 #include "xml6.h"
+#include "xml6_gbl.h"
 #include "xml6_node.h"
 #include "xml6_hash.h"
 #include "dom.h"
 #include "domXPath.h"
 
-static xmlChar* _xml6_make_ns_key(xmlChar* name, xmlChar *pfx) {
+static const xmlChar* _xml6_make_ns_key(cont xmlChar* name, xmlChar *pfx) {
     xmlChar* key;
     if (pfx != NULL && *pfx != 0) {
-        key = xmlStrdup(pfx);
-        key = xmlStrcat(key, (const xmlChar*) ":" );
-        key = xmlStrcat(key, name );
+        int prefix_len = strlen((char*)prefix);
+        char* buf = malloc(strlen((char*)prefix) + strlen((char*)name) + 3);
+        strcpy(buf, (char*)prefix);
+        buf[prefix_len] = ':';
+        strcpy(buf + prefix_len + 1, (char*)name);
+        key = xml6_gbl_dict_save((xmlChar*)buf);
+  
     }
     else {
-        key = xmlStrdup(name);
+        key = name;
     }
     return key;
 }
 
-static void _xml6_get_key(void* value, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar* _) {
+static void _xml6_get_key(void* value, const xmlChar*** keys, const xmlChar* name, xmlChar* pfx, xmlChar* _) {
     *((*keys)++) = _xml6_make_ns_key(name, pfx);
 }
 
-static void _xml6_get_value(void* value, const void*** values, xmlChar* _, xmlChar* _2, xmlChar* _3) {
+static void _xml6_get_value(void* value, const void*** values, const xmlChar* _, xmlChar* _2, xmlChar* _3) {
     *((*values)++) = value;
 }
 
-static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar* _3) {
+static void _xml6_get_pair(void* value, const void*** pairs, const xmlChar* name, xmlChar *pfx, xmlChar* _3) {
     *((*pairs)++) = (void*) _xml6_make_ns_key(name, pfx);
     *((*pairs)++) = value;
 }

@@ -5,10 +5,19 @@
 #include <libxml/xmlIO.h>
 #include <stdarg.h>
 #include <string.h>
+#include <assert.h>
 
-static xmlExternalEntityLoader default_ext_entity_loader = NULL;
-DLLEXPORT void xml6_gbl_init_external_entity_loader(void) {
-    default_ext_entity_loader = xmlGetExternalEntityLoader();
+static xmlExternalEntityLoader _default_ext_entity_loader = NULL;
+static xmlDictPtr _dict = NULL;
+static xmlMutexPtr _dict_mutex = NULL;
+
+DLLEXPORT void xml6_gbl_init(void) {
+    assert(_default_ext_entity_loader == NULL);
+    assert(_dict == NULL);
+    assert(_dict_mutex == NULL);
+    _default_ext_entity_loader = xmlGetExternalEntityLoader();
+    _dict_mutex = xmlNewMutex();
+    _dict = xmlDictCreate();
 }
 
 DLLEXPORT void* xml6_gbl_get_external_entity_loader(void) {
@@ -24,10 +33,10 @@ DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int net) {
 
     if (net) {
         update = xmlGetExternalEntityLoader() == xmlNoNetExternalEntityLoader;
-        if (update) xmlSetExternalEntityLoader(default_ext_entity_loader);
+        if (update) xmlSetExternalEntityLoader(_default_ext_entity_loader);
     }
     else {
-        update = xmlGetExternalEntityLoader() == default_ext_entity_loader;
+        update = xmlGetExternalEntityLoader() == _default_ext_entity_loader;
         if (update) xmlSetExternalEntityLoader(xmlNoNetExternalEntityLoader);
     }
 
@@ -177,4 +186,38 @@ DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
         xmlGenericError = save->error_handler;
         free(save);
     }
+}
+
+DLLEXPORT const xmlChar* xml6_gbl_cache(xmlChar* word) {
+    const xmlChar *key = NULL;
+
+    if (word != NULL) {
+        assert(_dict != NULL);
+
+        xmlMutexLock(_dict_mutex);
+        key = xmlDictLookup(_dict, word, -1);
+        xmlMutexUnlock(_dict_mutex);
+
+        if (key != word) {
+            xmlFree(word);
+        }
+    }
+    return key;
+}
+
+DLLEXPORT const xmlChar* xml6_gbl_cache_dup(const xmlChar* word) {
+    const xmlChar *key = NULL;
+
+    if (word != NULL) {
+        int word_len = strlen((char*)word);
+        assert(_dict != NULL);
+
+        xmlMutexLock(_dict_mutex);
+        if (!xmlDictExists(_dict, word, word_len)) {
+            word = xmlStrdup(word);
+        }
+        key = xmlDictLookup(_dict, word, word_len);
+        xmlMutexUnlock(_dict_mutex);
+    }
+    return key;
 }

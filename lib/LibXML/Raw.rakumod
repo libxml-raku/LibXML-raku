@@ -90,24 +90,13 @@ module CLib {
     our sub memcpy(Blob:D, Pointer:D, size_t) is native($CLIB) {*}
     our sub free(Pointer:D) is native($CLIB) {*}
     our sub strlen(Pointer:D --> size_t) is native($CLIB) {*}
+    our sub strnlen(Pointer:D, size_t --> size_t) is native($CLIB) {*}
 }
 
-our sub copy-string(Pointer $p) {
-    my buf8 $buf;
-    if $p {
-        my $len = CLib::strlen($p);
-        $buf .= allocate($len);
-        CLib::memcpy($buf, $p, $len);
-        $buf.decode: "utf-8";
-    }
-    else {
-        Str;
-    }
-}
-
+# Pointer to string, expected to be freed by the caller
 class AllocedStr is Pointer is repr('CPointer') {
     method Str {
-        self.&copy-string();
+        nativecast(Str, self);
     }
     submethod DESTROY {
         CLib::free(self) if self;
@@ -147,7 +136,7 @@ class xmlBuffer32 is repr(Opaque) is export {
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlNodeDump') {*};
-    method Content(--> Pointer) is symbol('xmlBufferContent') is native($XML2) { * }
+    method Content(--> Str) is symbol('xmlBufferContent') is native($XML2) { * }
     method NotationDump(xmlNotation) is native($XML2) is symbol('xmlDumpNotationDecl') {*};
     method Free() is native($XML2) is symbol('xmlBufferFree') {*};
     method new(--> xmlBuffer32:D) { New() }
@@ -159,7 +148,7 @@ class xmlBuf is repr(Opaque) is export {
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlBufNodeDump') { * }
-    method Content(--> Pointer) is symbol('xmlBufContent') is native($XML2) { * }
+    method Content(--> Str) is symbol('xmlBufContent') is native($XML2) { * }
     method Free is symbol('xmlBufFree') is native($XML2) { * }
     method new(--> xmlBuf:D) { New() }
 }
@@ -341,9 +330,10 @@ class xmlElementContent is repr('CStruct') is export {
     method Str(UInt :$max = 255, Bool:D :$paren = so ($!type == XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR)) {
         my buf8 $buf .= allocate($max);
         Dump($buf, $max, self, +$paren);
-        # null terminate
-        $buf .= subbuf(0, $_)
-            with (^$max).first: {$buf[$_] == 0}, :k;
+        given CLib::strnlen(nativecast(Pointer, $buf), $max) {
+            # Null terminate
+            $buf .= subbuf(0, $_)
+        }
         $buf.decode;
     }
 }
@@ -383,7 +373,7 @@ class xmlNs is export is repr('CStruct') {
             $buf.WriteQuoted($_);
         }
 
-        my Str $content = copy-string($buf.Content);
+        my Str $content = $buf.Content;
         $buf.Free;
         $content;
     }
@@ -837,7 +827,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method SetListDoc(xmlDoc) is native($XML2) is symbol('xmlSetListDoc') {*}
     method GetLineNo(--> long) is native($XML2) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native($XML2) is symbol('xmlIsBlankNode') {*}
-    method GetNodePath(--> xmlCharP) is native($XML2) is symbol('xmlGetNodePath') {*}
+    method GetNodePath(--> AllocedStr) is native($XML2) is symbol('xmlGetNodePath') {*}
     method AddChild(anyNode --> anyNode) is native($XML2) is symbol('xmlAddChild') {*}
     method AddChildList(anyNode --> anyNode) is native($XML2) is symbol('xmlAddChildList') {*}
     method AddContent(xmlCharP) is native($XML2) is symbol('xmlNodeAddContent') {*}
@@ -845,7 +835,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native($XML2) {*}
     method domXPathSelectStr(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domXPathFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native($BIND-XML2) {*}
-    method domFailure(--> xmlCharP) is native($BIND-XML2) {*}
+    method domFailure(--> AllocedStr) is native($BIND-XML2) {*}
     method dom-error { die $_ with self.domFailure }
     method domAppendChild(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domReplaceNode(anyNode --> anyNode) is native($BIND-XML2) {*}
@@ -918,7 +908,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
         }
     }
 
-    method string-value(--> xmlCharP) is native($XML2) is symbol('xmlXPathCastNodeToString') {*}
+    method string-value(--> AllocedStr) is native($XML2) is symbol('xmlXPathCastNodeToString') {*}
     method Unlink is native($BIND-XML2) is symbol('domUnlinkNode') {*}
     method Release is native($BIND-XML2) is symbol('domReleaseNode') {*}
     method Reference is native($BIND-XML2) is symbol('xml6_node_add_reference') {*}
@@ -968,9 +958,9 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method NewNs(xmlCharP $href, xmlCharP $prefix --> xmlNs) is native($XML2) is symbol('xmlNewNs') {*};
     method SetProp(Str, Str --> xmlAttr) is native($XML2) is symbol('xmlSetProp') {*}
     method domGetAttributeNode(xmlCharP $qname --> xmlAttr) is native($BIND-XML2) {*}
-    method domGetAttribute(xmlCharP $qname --> xmlCharP) is native($BIND-XML2)  {*}
+    method domGetAttribute(xmlCharP $qname --> AllocedStr) is native($BIND-XML2)  {*}
     method domHasAttributeNS(xmlCharP $uri, xmlCharP $name --> int32) is native($BIND-XML2) {*}
-    method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> xmlCharP) is native($BIND-XML2) {*}
+    method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> AllocedStr) is native($BIND-XML2) {*}
     method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name --> xmlAttr) is native($BIND-XML2) {*}
     method domSetAttribute(Str, Str --> int32) is native($BIND-XML2) {*}
     method domSetAttributeNode(xmlAttr --> xmlAttr) is native($BIND-XML2) {*}
@@ -1064,7 +1054,7 @@ class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
     method new(Str :$name!, Str :$value!, xmlDoc :$doc --> xmlAttr:D) {
         $doc.NewProp($name, $value);
     }
-    method domAttrSerializeContent(--> xmlCharP) is native($BIND-XML2) {*}
+    method domAttrSerializeContent(--> AllocedStr) is native($BIND-XML2) {*}
 }
 
 #| An XML document (type: XML_DOCUMENT_NODE)
@@ -1090,8 +1080,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
              is rw-str(method xml6_doc_set_URI(Str) is native($BIND-XML2) {*});
     has int32           $.charset;     # Internal flag for charset handling,
                                        # actually an xmlCharEncoding 
-    has xmlDict         $.dict         # dict used to allocate names or NULL
-             is rw-ptr(method xml6_doc_set_dict(xmlDict) is native($BIND-XML2) {*});
+    has xmlDict         $.dict;        # dict used to allocate names or NULL
     has Pointer         $.psvi;        # for type/PSVI information
     has int32           $.parseFlags;  # set of xmlParserOption used to parse the
                                        # document
@@ -1133,8 +1122,8 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
        self.NewEntityRef($name);
     }
 
-    method NodeGetBase(anyNode --> xmlCharP) is native($XML2) is symbol('xmlNodeGetBase') {*}
-    method EncodeEntitiesReentrant(xmlCharP --> xmlCharP) is native($XML2) is symbol('xmlEncodeEntitiesReentrant') {*}
+    method NodeGetBase(anyNode --> AllocedStr) is native($XML2) is symbol('xmlNodeGetBase') {*}
+    method EncodeEntitiesReentrant(xmlCharP --> AllocedStr) is native($XML2) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native($XML2) {*}
     method XIncludeProcessFlags(uint32 $flags --> int32) is symbol('xmlXIncludeProcessFlags') is native($XML2) {*}
     method SearchNs(anyNode, Str --> xmlNs) is native($XML2) is symbol('xmlSearchNs') {*}
@@ -1214,7 +1203,7 @@ class xmlNotation is export {
     multi method Str(xmlNotation:D:){
         my xmlBuffer32 $buf .= new;
         $buf.NotationDump(self);
-        my Str $content = copy-string($buf.Content);
+        my Str $content = $buf.Content;
         $buf.Free;
         $content;
     }
@@ -1701,6 +1690,7 @@ our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*
 
 sub xml6_gbl_save_error_handlers(--> Pointer) is native($BIND-XML2) is export {*}
 sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}
+sub xml6_gbl_init() is native($BIND-XML2) is export {*}
 
 ## Globals aren't yet writable in Rakudo
 
@@ -1733,7 +1723,6 @@ module xmlExternalEntityLoader is export {
     our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
     our sub Get( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
     our sub Restore( Pointer --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
-    our sub Init is native($BIND-XML2) is symbol('xml6_gbl_init_external_entity_loader') {*}
     our sub set-networked(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader_net') {*}
 }
 
@@ -1748,7 +1737,7 @@ method ExternalEntityLoader is rw {
 
 INIT {
     xmlInitParser();
-    xmlExternalEntityLoader::Init();
+    xml6_gbl_init();
 }
 sub xml6_gbl_message_func is export { cglobal($BIND-XML2, 'xml6_gbl_message_func', Pointer) }
 

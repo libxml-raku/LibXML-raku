@@ -30,16 +30,6 @@ DLLEXPORT void xml6_doc_set_version(xmlDocPtr self, char *version) {
     self->version = version ? xmlStrdup((const xmlChar*) version) : NULL;
 }
 
-DLLEXPORT void xml6_doc_set_dict(xmlDocPtr self, xmlDictPtr dict) {
-    assert(self != NULL);
-    if (self->dict) {
-        // todo: is it valid/safe to replace an existing doc dictionary?
-        xml6_warn("discarding an existing document dictionary");
-        xmlDictFree(self->dict);
-    }
-    self->dict = dict;
-}
-
 DLLEXPORT int
 xml6_doc_set_flags(xmlDocPtr self, int flags) {
     assert(self != NULL);

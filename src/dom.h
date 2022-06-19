@@ -118,13 +118,13 @@ _domCanInsert( xmlNodePtr cur, xmlNodePtr ref );
 DLLEXPORT int
 domTestDocument( xmlNodePtr cur, xmlNodePtr ref );
 
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGetNodeName( xmlNodePtr node);
 
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGetXPathKey( xmlNodePtr node);
 
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGetASTKey( xmlNodePtr node);
 
 DLLEXPORT void
@@ -248,7 +248,7 @@ domSetAttributeNode( xmlNodePtr node , xmlAttrPtr attr );
 DLLEXPORT xmlAttrPtr
 domSetAttributeNodeNS( xmlNodePtr node , xmlAttrPtr attr );
 
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGenNsPrefix(xmlNodePtr self, xmlChar* base);
 
 DLLEXPORT int

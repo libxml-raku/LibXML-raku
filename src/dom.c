@@ -10,6 +10,7 @@
 #include "dom.h"
 #include "domXPath.h"
 #include "xml6.h"
+#include "xml6_gbl.h"
 #include "xml6_ref.h"
 #include <string.h>
 #include <assert.h>
@@ -710,11 +711,10 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
 }
 
 // DOM compliant.
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGetNodeName(xmlNodePtr node) {
     const xmlChar* prefix = NULL;
     const xmlChar* name   = NULL;
-    xmlChar* rv           = NULL;
 
     if ( node == NULL ) {
         return NULL;
@@ -776,92 +776,94 @@ domGetNodeName(xmlNodePtr node) {
     }
 
     if ( prefix != NULL ) {
-        rv = xmlStrdup( prefix );
-        rv = xmlStrcat( rv , (const xmlChar*) ":" );
-        rv = xmlStrcat( rv , name );
-    }
-    else {
-        rv = xmlStrdup( name );
+        int prefix_len = strlen((char*)prefix);
+        char* buf = malloc(strlen((char*)prefix) + strlen((char*)name) + 3);
+        strcpy(buf, (char*)prefix);
+        buf[prefix_len] = ':';
+        strcpy(buf + prefix_len + 1, (char*)name);
+        name = xml6_gbl_cache((xmlChar*)buf);
     }
 
-   return rv;
+    return name;
 }
 
-static xmlChar* _domPrepend(xmlChar* str, const char* pfx) {
-    xmlChar* rv = xmlStrcat(xmlStrdup( (xmlChar*)pfx), str);
-    xmlFree(str);
-    return rv;
+static const xmlChar* _domPrepend(const xmlChar* name, char pfx) {
+    int buf_len = xmlStrlen(name) + 2;
+    xmlChar* buf = malloc(buf_len);
+    buf[0] = pfx;
+    strncpy((char*)buf+1, (char*)name, buf_len-1);
+    return xml6_gbl_cache(buf);
 }
 
 // Returns a name that can be used in an XPath filter expression
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGetXPathKey(xmlNodePtr node) {
-    xmlChar* rv = NULL;
+    const xmlChar* name = NULL;
 
     switch (node->type) {
         case XML_COMMENT_NODE :
-            rv = xmlStrdup( (xmlChar*) "comment()");
+            name = (xmlChar*) "comment()";
             break;
         case XML_CDATA_SECTION_NODE :
         case XML_TEXT_NODE :
-            rv = xmlStrdup( (xmlChar*) "text()");
+            name = (xmlChar*) "text()";
             break;
         case XML_NAMESPACE_DECL :
-            rv = xmlStrdup( (xmlChar*) "namespace()");
+            name = (xmlChar*) "namespace()";
             break;
         case XML_DOCUMENT_NODE :
         case XML_HTML_DOCUMENT_NODE :
         case XML_DOCB_DOCUMENT_NODE :
         case XML_DOCUMENT_FRAG_NODE :
-            rv = xmlStrdup( (xmlChar*) "document()");
+            name = (xmlChar*) "document()";
             break;
         case XML_PI_NODE :
-            rv = xmlStrdup( (xmlChar*) "processing-instruction()");
+            name = (xmlChar*) "processing-instruction()";
             break;
         case XML_ENTITY_REF_NODE :
             /* not searchable via xpath */
             break;
         default :
-            rv = domGetNodeName(node);
+            name = domGetNodeName(node);
             if (node->type == XML_ATTRIBUTE_NODE) {
-                rv = _domPrepend(rv, "@");
+                name = _domPrepend(name, '@');
             }
         break;
     }
-    return rv;
+return (xmlChar*)name;
 }
 
 // Returns a name tailored for AST construction
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGetASTKey(xmlNodePtr node) {
-    xmlChar* rv = NULL;
+    const xmlChar* name = NULL;
 
     switch (node->type) {
         case XML_DOCUMENT_NODE :
-            rv = xmlStrdup( (xmlChar*) "#xml");
+            name = (xmlChar*) "#xml";
             break;
         case XML_HTML_DOCUMENT_NODE :
-            rv = xmlStrdup( (xmlChar*) "#html");
+            name = (xmlChar*) "#html";
             break;
         case XML_DOCB_DOCUMENT_NODE :
-            rv = xmlStrdup( (xmlChar*) "#docb");
+            name = (xmlChar*) "#docb";
             break;
         case XML_DOCUMENT_FRAG_NODE :
-            rv = xmlStrdup( (xmlChar*) "#fragment");
+            name = (xmlChar*) "#fragment";
             break;
         case XML_CDATA_SECTION_NODE :
-            rv =  xmlStrdup( (xmlChar*) "#cdata");
+            name = (xmlChar*) "#cdata";
             break;
         default :
-            rv = domGetNodeName(node);
+            name = domGetNodeName(node);
             if (node->type == XML_PI_NODE) {
-                rv = _domPrepend(rv, "?");
+                name = _domPrepend(name, '?');
             }
             else if (node->type == XML_ENTITY_REF_NODE) {
-                rv = _domPrepend(rv, "&");
+                name = _domPrepend(name, '&');
             }
     }
-    return rv;
+    return name;
 }
 
 DLLEXPORT void
@@ -1344,47 +1346,47 @@ domNodeType(xmlChar* name) {
             case '#': {
                 switch (name[1]) {
                     case 'c':
-                        if (xmlStrcmp( name, (unsigned char*) "#comment" ) == 0) {
+                        if (xmlStrcmp( name, (xmlChar*) "#comment" ) == 0) {
                             node_type = XML_COMMENT_NODE;
                         }
-                        else if (xmlStrcmp( name, (unsigned char*) "#cdata" ) == 0
-                                 || xmlStrcmp( name, (unsigned char*) "#cdata-section" ) == 0) {
+                        else if (xmlStrcmp( name, (xmlChar*) "#cdata" ) == 0
+                                 || xmlStrcmp( name, (xmlChar*) "#cdata-section" ) == 0) {
                             node_type = XML_CDATA_SECTION_NODE;
                         }
                         break;
 
                     case 'd':
-                        if (xmlStrcmp( name, (unsigned char*) "#document" ) == 0) {
+                        if (xmlStrcmp( name, (xmlChar*) "#document" ) == 0) {
                             node_type = XML_DOCUMENT_NODE;
                         }
-                        else if (xmlStrcmp( name, (unsigned char*) "#document-fragment" ) == 0) {
+                        else if (xmlStrcmp( name, (xmlChar*) "#document-fragment" ) == 0) {
                             node_type = XML_DOCUMENT_FRAG_NODE;
                         }
-                        else if (xmlStrcmp( name, (unsigned char*) "#docbook" ) == 0) {
+                        else if (xmlStrcmp( name, (xmlChar*) "#docbook" ) == 0) {
                             node_type = XML_DOCB_DOCUMENT_NODE;
                         }
                         break;
 
                     case 'h':
-                        if (xmlStrcmp( name, (unsigned char*) "#html" ) == 0) {
+                        if (xmlStrcmp( name, (xmlChar*) "#html" ) == 0) {
                             node_type = XML_HTML_DOCUMENT_NODE;
                         }
                         break;
 
                     case 'f':
-                        if (xmlStrcmp( name, (unsigned char*) "#fragment" ) == 0) {
+                        if (xmlStrcmp( name, (xmlChar*) "#fragment" ) == 0) {
                             node_type = XML_DOCUMENT_FRAG_NODE;
                         }
                         break;
 
                     case 't':
-                        if (xmlStrcmp( name, (unsigned char*) "#text" ) == 0) {
+                        if (xmlStrcmp( name, (xmlChar*) "#text" ) == 0) {
                             node_type = XML_TEXT_NODE;
                         }
                         break;
 
                     case 'x':
-                        if (xmlStrcmp( name, (unsigned char*) "#xml" ) == 0) {
+                        if (xmlStrcmp( name, (xmlChar*) "#xml" ) == 0) {
                             node_type = XML_DOCUMENT_NODE;
                         }
                         break;
@@ -1456,11 +1458,8 @@ domGetChildrenByLocalName( xmlNodePtr self, xmlChar* name ){
 }
 
 static int _domNamecmp(xmlNodePtr self, const xmlChar* pname) {
-    int rv;
-    xmlChar* name = domGetNodeName(self);
-    rv = xmlStrcmp( name, pname );
-    xmlFree(name);
-    return rv;
+    const xmlChar* name = domGetNodeName(self);
+    return xmlStrcmp( name, pname );
 }
 
 static xmlNodeSetPtr
@@ -1746,7 +1745,7 @@ domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix ) {
             ns = ns->next;
         }
     }
-    return rv;
+    return xml6_gbl_cache_dup(rv);
 }
 
 DLLEXPORT int
@@ -1792,13 +1791,13 @@ domSetNamespaceDeclPrefix(xmlNodePtr self, xmlChar* prefix, xmlChar* new_prefix 
 
 DLLEXPORT const xmlChar*
 domGetAttributeNS(xmlNodePtr self, const xmlChar* nsURI, const xmlChar* name) {
-    const xmlChar* rv = NULL;
+    xmlChar* rv = NULL;
 
     if ( nsURI && *nsURI) {
         if ( xmlStrcmp(nsURI, XML_XMLNS_NS) == 0) {
             if (name && xmlStrcmp(name, (xmlChar*)"xmlns") == 0)
                 name = NULL;
-            rv = domGetNamespaceDeclURI(self, name);
+            rv = xmlStrdup(domGetNamespaceDeclURI(self, name));
         }
         else {
             rv = xmlGetNsProp( self, name, nsURI );
@@ -1999,9 +1998,9 @@ static int _domPrefixMatch(const xmlChar *prefix, xmlChar *base) {
     return matched;
 }
 
-DLLEXPORT xmlChar*
+DLLEXPORT const xmlChar*
 domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
-    xmlChar *rv;
+    xmlChar* rv;
     xmlNsPtr *all_ns = xmlGetNsList(self->doc, self);
     xmlHashTablePtr hash = xmlHashCreate(10);
     char entry[1];
@@ -2019,7 +2018,6 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
                 const xmlChar *key = ns->prefix;
                 if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
                     xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), entry);
-
                 }
             }
             ns = all_ns[i++];
@@ -2036,11 +2034,10 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
             sprintf((char*)rv, "%s%d", base, seq);
             spare = xmlHashLookup(hash, (xmlChar*)rv) == NULL;
         }
-
-        xmlHashFree(hash, NULL);
     }
 
-    return rv;
+    xmlHashFree(hash, NULL);
+    return xml6_gbl_cache(rv);
 }
 
 DLLEXPORT int
@@ -2363,7 +2360,6 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
 DLLEXPORT xmlChar* domFailure(xmlNodePtr self) {
     return xml6_ref_get_fail(self->_private);
 }
-
 DLLEXPORT xmlChar* domUniqueKey(void* self) {
     char key[20];
     sprintf(key, "%p", self);

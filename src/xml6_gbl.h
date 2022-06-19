@@ -3,7 +3,8 @@
 
 #include <libxml/globals.h>
 
-DLLEXPORT void xml6_gbl_init_external_entity_loader(void);
+DLLEXPORT void xml6_gbl_init(void);
+
 DLLEXPORT void* xml6_gbl_get_external_entity_loader(void);
 DLLEXPORT void xml6_gbl_set_external_entity_loader(void *);
 DLLEXPORT int xml6_gbl_set_external_entity_loader_net(int);
@@ -24,5 +25,8 @@ DLLEXPORT void xml6_gbl_set_os_thread_generic_error_handler(xml6_gbl_MessageCall
 
 DLLEXPORT void* xml6_gbl_save_error_handlers(void);
 DLLEXPORT void xml6_gbl_restore_error_handlers(void*);
+
+DLLEXPORT const xmlChar* xml6_gbl_cache(xmlChar*);
+DLLEXPORT const xmlChar* xml6_gbl_cache_dup(const xmlChar* word);
 
 #endif /* __XML6_GBL_H */

@@ -17,6 +17,6 @@ method isId {
 }
 
 method serializeContent {
-    self.domAttrSerializeContent;
+    self.domAttrSerializeContent.Str;
 }
 

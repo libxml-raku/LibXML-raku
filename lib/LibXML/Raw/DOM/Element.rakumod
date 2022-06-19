@@ -101,7 +101,7 @@ method getAttributeNodeNS(Str $uri, Str:D $att-name) {
 }
 
 method getAttributeNS(Str $uri, Str:D $att-name --> Str) {
-    self.domGetAttributeNS($uri, $att-name);
+    self.domGetAttributeNS($uri, $att-name).Str;
 }
 
 # user wants to get the special attribute for declaring XML namespace ...
@@ -114,7 +114,7 @@ multi method getAttribute(XMLNS-Name:D $name) {
     self.domGetNamespaceDeclURI($prefix);
 }
 multi method getAttribute(Str:D $name) {
-    self.domGetAttribute($name);
+    self.domGetAttribute($name).Str;
 }
 
 multi method setAttributeNS(Str $uri, XMLNS-Name:D $name, Str:D $value) {

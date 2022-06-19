@@ -70,7 +70,7 @@ method setNamespaceDeclPrefix(NCName $prefix, NCName $new-prefix --> Int) {
 
 method localNS { self.ns }
 
-method nodePath { self.GetNodePath }
+method nodePath { self.GetNodePath.Str }
 
 method getNamespaceDeclURI(NCName $prefix) {
     self.domGetNamespaceDeclURI($prefix);

@@ -457,7 +457,7 @@ method readOuterXml returns Str is reader-raw {...}
 #| Returns a canonical location path to the current element from the root node to
 #|the current node.
 method nodePath {
-    .GetNodePath with $!raw.currentNode;
+    .GetNodePath.Str with $!raw.currentNode;
 }
 =item Namespaced elements are matched by '*', because there is no
     way to declare prefixes within XPath patterns.

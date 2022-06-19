@@ -256,9 +256,6 @@ sub set-external-entity-loader(&loader) {
             }
         );
     }
-    else {
-        xmlExternalEntityLoader::Init()
-    }
 }
 
 =para The routine provided is called whenever the parser needs to retrieve the

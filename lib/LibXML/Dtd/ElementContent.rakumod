@@ -52,11 +52,11 @@ method parent {
     self!visit: $!raw.parent;
 }
 method potential-children(UInt:D :$max = 255) {
-    my CArray[Pointer] $kids .= new;
+    my CArray[Str] $kids .= new;
     my int32 $len = 0;
     $kids[$max] = Pointer;
     $!raw.PotentialChildren($kids, $len, $max);
-    my @ = (^$len).map: {LibXML::Raw::copy-string($kids[$_])}
+    my @ = (^$len).map: {$kids[$_]}
 }
 
 =begin pod

@@ -136,17 +136,20 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 =head2 Property Methods
 
 method raw handles<
-    domCheck domFailure
+    domCheck
     getNodeName getNodeValue
     isBlank hasAttributes hasChildNodes
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
-    setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue string-value
+    setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
     type lock unlock
     unique-key ast-key xpath-key
 > { nativecast(xmlNode, self) }
 
 method native is DEPRECATED<raw> { self.raw }
+
+method domFailure { $.raw.domFailure.Str }
+method string-value { $.raw.string-value.Str }
 
 submethod DESTROY {
     self.raw.Unreference;
@@ -242,7 +245,7 @@ method nodeType returns UInt { self.type }
     `XML_*_NODE` and `XML_*_DECL` for the node and declaration types.
 
 #| Gets the base URI
-method getBaseURI returns Str { self.raw.GetBase // do with $.doc { .URI } // Str }
+method getBaseURI returns Str { self.raw.GetBase.Str // do with $.doc { .URI } // Str }
 =para Searches for the base URL of the node. The method should work on both XML and
     HTML documents even if base mechanisms for these are completely different. It
     returns the base as defined in RFC 2396 sections "5.1.1. Base URI within
