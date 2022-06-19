@@ -84,7 +84,7 @@ sub append-text-child($e) {
 
 sub unbox($e) {
     for 1 .. 50 {
-       $e.unbox;
+       $e.raw;
     }
 }
 
@@ -115,7 +115,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '00-load.libxml' => {
             $libxml = LibXML.parse: :$*file, :!blanks;
             $libxml-root = $libxml.root;
-            $raw = $libxml-root.unbox;
+            $raw = $libxml-root.raw;
             $ctxt =  $libxml-root.xpath-context;
         },
         '00-load.xml' => {
@@ -124,7 +124,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         },
         '00-load.hybrid' => {
             my LibXML::SAX::Handler::XML $sax-handler .= new;
-            LibXML.parse: :$*file;#, :$sax-handler;
+            my XML::Document $xml = LibXML.parse: :$*file, :$sax-handler;
         },
         '01-traverse-elems.xml' => { traverse-elems($xml-root) },
         '01-traverse-elems.libxml' => { traverse-elems($libxml-root) },
