@@ -1972,8 +1972,11 @@ domAttrSerializeContent(xmlAttrPtr attr) {
         }
         children = children->next;
     }
-    rv = xmlStrdup( buffer->content );
+
+    rv = buffer->content;
+    buffer->content = NULL;
     xmlBufferFree( buffer );
+
     return rv;
 }
 
