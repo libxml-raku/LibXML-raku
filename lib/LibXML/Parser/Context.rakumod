@@ -111,7 +111,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 	die "LibXML::Config->parser-locking needs to be enabled to allow parser-level input-callbacks"
 	    if @input-contexts && !LibXML::Config.parser-locking;
 
-	my $handlers = xml6_gbl_save_error_handlers();
+	my $handlers = xml6_gbl::save-error-handlers();
 	$*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
         my @prev = self.config.setup();
 	&*chdir(~$*CWD);
@@ -129,7 +129,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
             .deactivate
 	        with $*XML-CONTEXT.input-callbacks;
 
-	    xml6_gbl_restore_error_handlers($handlers);
+	    xml6_gbl::restore-error-handlers($handlers);
         }
 
     }

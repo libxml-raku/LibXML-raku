@@ -170,7 +170,7 @@ method !try(&action) {
     my $rv;
 
     protected sub () is hidden-from-backtrace {
-        my $handlers = xml6_gbl_save_error_handlers();
+        my $handlers = xml6_gbl::save-error-handlers();
         $!raw.SetStructuredErrorFunc: &structured-error-cb;
 
         my $*XPATH-CONTEXT = self;
@@ -183,7 +183,7 @@ method !try(&action) {
 
         LEAVE {
             self.config.restore(@prev);
-            xml6_gbl_restore_error_handlers($handlers);
+            xml6_gbl::restore-error-handlers($handlers);
         }
     }
     $rv;

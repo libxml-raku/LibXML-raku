@@ -79,7 +79,7 @@ my class Parser::Context {
 
         protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
-            my $handlers = xml6_gbl_save_error_handlers();
+            my $handlers = xml6_gbl::save-error-handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             $!raw.SetParserErrorFunc: &structured-error-cb;
             my @prev = self.config.setup;
@@ -89,7 +89,7 @@ my class Parser::Context {
             self.flush-errors;
             LEAVE {
                 self.config.restore(@prev);
-                xml6_gbl_restore_error_handlers($handlers);
+                xml6_gbl::restore-error-handlers($handlers);
             }
         }
         $rv;
@@ -121,7 +121,7 @@ my class ValidContext {
 
         protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
-            my $handlers = xml6_gbl_save_error_handlers();
+            my $handlers = xml6_gbl::save-error-handlers();
             $!raw.SetStructuredErrorFunc: &structured-error-cb;
             my @prev = self.config.setup;
 
@@ -132,7 +132,7 @@ my class ValidContext {
             self.flush-errors;
             LEAVE {
                 self.config.restore(@prev);
-                xml6_gbl_restore_error_handlers($handlers);
+                xml6_gbl::restore-error-handlers($handlers);
             }
         }
 

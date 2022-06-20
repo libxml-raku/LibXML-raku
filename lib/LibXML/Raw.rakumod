@@ -85,6 +85,9 @@ module xml6_config is export {
     our sub version(--> Str) is native($BIND-XML2) is symbol('xml6_config_version') is export {*};
 }
 
+our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
+our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
+
 module CLib {
     use LibXML::Raw::Defs :$CLIB;
     our sub memcpy(Blob:D, Pointer:D, size_t) is native($CLIB) {*}
@@ -119,9 +122,43 @@ class xmlNode        is repr('CStruct') is export {...}
 class xmlNodeSet     is repr('CStruct') is export {...}
 class xmlNotation    is repr('CStruct') is export {...}
 class xmlParserCtxt  is repr('CStruct') is export {...}
+class xmlParserInput is repr('CStruct') is export {...}
 class xmlXPathParserContext
                      is repr('CStruct') is export {...}
 class xmlXPathObject is repr('CStruct') is export {...}
+
+module xml6_gbl is export {
+
+    class MsgArg is repr('CUnion') {
+        has num64  $.f;
+        has uint32 $.d;
+        has long   $.l;
+        has Str    $.s;
+    }
+
+    our sub scan-varargs(Str $fmt, Pointer[xml6_gbl::MsgArg] $argv) is export(:unmarshal-varargs) {
+        my int $n = 0;
+        $fmt.comb.map: { $argv[$n++]."$_"() };
+    }
+
+    our sub cache-size(-->int32) is native($BIND-XML2) is symbol('xml6_gbl_cache_size') {*}
+
+    our sub save-error-handlers(--> Pointer) is symbol('xml6_gbl_save_error_handlers') is native($BIND-XML2) is export {*}
+    our sub restore-error-handlers(Pointer) is symbol('xml6_gbl_restore_error_handlers') is native($BIND-XML2) is export {*}
+
+    our sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer $setter) is native($BIND-XML2) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
+
+    our sub get-keep-blanks(--> int32) is symbol('xml6_gbl_os_thread_get_keep_blanks') is native($BIND-XML2) is export { * }
+    our sub set-keep-blanks(int32 $v) is symbol('xml6_gbl_os_thread_set_keep_blanks') is native($BIND-XML2) is export { * }
+
+    our sub get-tag-expansion(--> int32) is symbol('xml6_gbl_os_thread_get_tag_expansion') is native($BIND-XML2) is export { * }
+    our sub set-tag-expansion(int32 $v) is symbol('xml6_gbl_os_thread_set_tag_expansion') is native($BIND-XML2) is export { * }
+
+    our sub get-external-entity-loader( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
+    our sub set-external-entity-loader( Pointer --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
+
+    our sub init() is symbol('xml6_gbl_init') is native($BIND-XML2) is export {*}
+}
 
 # Opaque structs
 #| A libxml automata description, It can be compiled into a regexp
@@ -136,7 +173,7 @@ class xmlBuffer32 is repr(Opaque) is export {
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlNodeDump') {*};
-    method Content(--> Str) is symbol('xmlBufferContent') is native($XML2) { * }
+    method Content(--> xmlCharP) is symbol('xmlBufferContent') is native($XML2) { * }
     method NotationDump(xmlNotation) is native($XML2) is symbol('xmlDumpNotationDecl') {*};
     method Free() is native($XML2) is symbol('xmlBufferFree') {*};
     method new(--> xmlBuffer32:D) { New() }
@@ -148,7 +185,7 @@ class xmlBuf is repr(Opaque) is export {
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlBufNodeDump') { * }
-    method Content(--> Str) is symbol('xmlBufContent') is native($XML2) { * }
+    method Content(--> xmlCharP) is symbol('xmlBufContent') is native($XML2) { * }
     method Free is symbol('xmlBufFree') is native($XML2) { * }
     method new(--> xmlBuf:D) { New() }
 }
@@ -294,7 +331,7 @@ class xmlParserInputBuffer is repr('CStruct') is export {
 #|An xmlParserInput is an input flow for the XML processor.
 #| Each entity parsed is associated an xmlParserInput (except the
 #| few predefined ones). 
-class xmlParserInput is repr('CStruct') is export {
+class xmlParserInput is export {
     has xmlParserInputBuffer           $.buf;  # UTF-8 encoded buffer
     has Str                       $.filename   # The file analyzed, if any
           is rw-str(method xml6_input_set_filename(Str) is native($BIND-XML2) {*});
@@ -383,11 +420,11 @@ class xmlNs is export is repr('CStruct') {
 #| A SAX Locator.
 class xmlSAXLocator is repr('CStruct') is export {
     has Pointer  $.getPublicIdFunc is rw-ptr(
-        method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx --> Str) ) is native($BIND-XML2) {*}
+        method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx --> xmlCharP) ) is native($BIND-XML2) {*}
     );
 
     has Pointer $.getSystemIdFunc is rw-ptr(
-        method xml6_sax_locator_set_getSystemId( &cb (xmlParserCtxt $ctx --> Str) ) is native($BIND-XML2) {*}
+        method xml6_sax_locator_set_getSystemId( &cb (xmlParserCtxt $ctx --> xmlCharP) ) is native($BIND-XML2) {*}
     );
 
     has Pointer $.getLineNumberFunc is rw-ptr(
@@ -406,12 +443,12 @@ class xmlSAXLocator is repr('CStruct') is export {
     }
 
     method getPublicId(xmlParserCtxt $ctx) {
-        with nativecast(:(xmlParserCtxt $ctx --> Str), $!getPublicIdFunc) -> &cb {
+        with nativecast(:(xmlParserCtxt $ctx --> xmlCharP), $!getPublicIdFunc) -> &cb {
             &cb($ctx)
         }
     }
 
-    method getSystemId(xmlParserCtxt $ctx --> Str) {
+    method getSystemId(xmlParserCtxt $ctx --> xmlCharP) {
         with nativecast(:(xmlParserCtxt $ctx --> int32), $!getSystemIdFunc) -> &cb {
             &cb($ctx)
         }
@@ -843,11 +880,11 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domReplaceChild(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
     method domInsertBefore(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
     method domInsertAfter(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
-    method domGetNodeName(--> Str) is native($BIND-XML2) {*}
+    method domGetNodeName(--> xmlCharP) is native($BIND-XML2) {*}
     method domSetNodeName(Str) is native($BIND-XML2) {*}
     method domGetNodeValue(--> AllocedStr) is native($BIND-XML2) {*}
-    method domGetXPathKey(--> Str) is native($BIND-XML2) {*}
-    method domGetASTKey(--> Str) is native($BIND-XML2) {*}
+    method domGetXPathKey(--> xmlCharP) is native($BIND-XML2) {*}
+    method domGetASTKey(--> xmlCharP) is native($BIND-XML2) {*}
     method domSetNodeValue(Str) is native($BIND-XML2) {*}
     method domRemoveChild(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domRemoveChildNodes(--> xmlDocFrag) is native($BIND-XML2) {*}
@@ -878,7 +915,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
 
     method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> AllocedStr) is native($BIND-XML2) {*}
 
-    method Str(anyNode:D: UInt :$options = 0 --> Str) is default {
+    method Str(anyNode:D: UInt :$options = 0 --> xmlCharP) is default {
         do with self.Blob(:$options) {
             .decode('utf8');
         } // Str;
@@ -966,7 +1003,7 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method domSetAttributeNode(xmlAttr --> xmlAttr) is native($BIND-XML2) {*}
     method domSetAttributeNodeNS(xmlAttr --> xmlAttr) is native($BIND-XML2) {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value --> xmlAttr) is native($BIND-XML2) {*}
-    method domGenNsPrefix(Str $base-prefix --> Str) is native($BIND-XML2) {*}
+    method domGenNsPrefix(Str $base-prefix --> xmlCharP) is native($BIND-XML2) {*}
     method ValidElements(xmlElem, CArray[Str], int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetValidElements') {*}
 
     our sub New(xmlNs, Str $name --> xmlElem) is native($XML2) is symbol('xmlNewNode') {*}
@@ -1685,36 +1722,25 @@ sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 
 ## xmlInitParser() should be called once at start-up
 sub xmlInitParser is native($XML2) is export {*}
-our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
-our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
-our sub cache-size(-->int32) is native($BIND-XML2) is symbol('xml6_gbl_cache_size') {*}
-
-sub xml6_gbl_save_error_handlers(--> Pointer) is native($BIND-XML2) is export {*}
-sub xml6_gbl_restore_error_handlers(Pointer) is native($BIND-XML2) is export {*}
-sub xml6_gbl_init() is native($BIND-XML2) is export {*}
 
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {
-    sub xml6_gbl_os_thread_get_keep_blanks(--> int32) is native($BIND-XML2) is export { * }
-    sub xml6_gbl_os_thread_set_keep_blanks(int32 $v) is native($BIND-XML2) is export { * }
 
     Proxy.new(
-        FETCH => { ? xml6_gbl_os_thread_get_keep_blanks() },
+        FETCH => { ? xml6_gbl::get-keep-blanks() },
         STORE => sub ($, Bool() $_) {
-            xml6_gbl_os_thread_set_keep_blanks($_);
+            xml6_gbl::set-keep-blanks($_);
         },
     );
 }
 
 method TagExpansion is rw {
-    sub xml6_gbl_os_thread_get_tag_expansion(--> int32) is native($BIND-XML2) is export { * }
-    sub xml6_gbl_os_thread_set_tag_expansion(int32 $v) is native($BIND-XML2) is export { * }
 
     Proxy.new(
-        FETCH => { ? xml6_gbl_os_thread_get_tag_expansion() },
+        FETCH => { ? xml6_gbl::get-tag-expansion() },
         STORE => sub ($, Bool() $_) {
-            xml6_gbl_os_thread_set_tag_expansion($_);
+            xml6_gbl::set-tag-expansion($_);
         },
     );
 }
@@ -1722,8 +1748,6 @@ method TagExpansion is rw {
 module xmlExternalEntityLoader is export {
     our sub NoNet(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) is native($XML2) is symbol('xmlNoNetExternalEntityLoader') {*}
     our sub Set( &loader (xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput) ) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
-    our sub Get( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
-    our sub Restore( Pointer --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
     our sub set-networked(int32 $ --> int32) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader_net') {*}
 }
 
@@ -1738,9 +1762,8 @@ method ExternalEntityLoader is rw {
 
 INIT {
     xmlInitParser();
-    xml6_gbl_init();
+    xml6_gbl::init();
 }
-sub xml6_gbl_message_func is export { cglobal($BIND-XML2, 'xml6_gbl_message_func', Pointer) }
 
 =begin pod
 

@@ -340,26 +340,11 @@ role LibXML::ErrorHandling {
         throw($lvl, $err);
     }
 
-    my class MsgArg is repr('CUnion') is export(:MsgArg) {
-        has num64  $.f;
-        has uint32 $.d;
-        has long   $.l;
-        has Str    $.s;
-    }
-
-    my sub unmarshal-varargs(Str $fmt, Pointer[MsgArg] $argv) is export(:unmarshal-varargs) {
-        my int $n = 0;
-        $fmt.comb.map: { $argv[$n++]."$_"() };
-    }
-
-    # This function is also used by the LibXSLT module
-    sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer $setter) is native($BIND-XML2) is export(:set-generic-error-handler) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
-
     method SetGenericErrorFunc(&handler) {
-        set-generic-error-handler(
-            -> Str $msg, Str $fmt, Pointer[MsgArg] $argv {
+        xml6_gbl::set-generic-error-handler(
+            -> Str $msg, Str $fmt, Pointer[xml6_gbl::MsgArg] $argv {
                 CATCH { default { note $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
-                my @args = unmarshal-varargs($fmt, $argv);
+                my @args = xml6_gbl::scan-varargs($fmt, $argv);
                 &handler($msg, @args);
             },
             cglobal($XML2, 'xmlSetGenericErrorFunc', Pointer)

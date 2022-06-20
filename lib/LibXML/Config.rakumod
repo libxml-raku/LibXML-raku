@@ -181,10 +181,15 @@ method setup returns List {
         Please configure globally, or set 'parser-locking' to disable threaded parsing
         END
     }
-    my @prev[4] = $*THREAD.id, xml6_gbl_os_thread_get_tag_expansion(), xml6_gbl_os_thread_get_keep_blanks(), xmlExternalEntityLoader::Get();
-    xml6_gbl_os_thread_set_tag_expansion(self.tag-expansion);
-    xml6_gbl_os_thread_set_keep_blanks(self.keep-blanks);
-    set-external-entity-loader(&!external-entity-loader)
+    my @prev[4] = (
+        $*THREAD.id,
+        xml6_gbl::get-tag-expansion(),
+        xml6_gbl::get-keep-blanks(),
+        xml6_gbl::get-external-entity-loader,
+    );
+    xml6_gbl::set-tag-expansion(self.tag-expansion);
+    xml6_gbl::set-keep-blanks(self.keep-blanks);
+    xml6_gbl::set-external-entity-loader(&!external-entity-loader)
         if self.defined;
     @prev;
 }
@@ -192,9 +197,9 @@ method setup returns List {
 multi method restore([]) { }
 multi method restore(@prev where .elems == 4) {
     if $*THREAD.id == @prev[0] {
-        xml6_gbl_os_thread_set_tag_expansion(@prev[1]);
-        xml6_gbl_os_thread_set_keep_blanks(@prev[2]);
-        xmlExternalEntityLoader::Restore(@prev[3])
+        xml6_gbl::set-tag-expansion(@prev[1]);
+        xml6_gbl::set-keep-blanks(@prev[2]);
+        xml6_gbl::set-external-entity-loader(@prev[3])
             if self.defined;
     }
     else {
