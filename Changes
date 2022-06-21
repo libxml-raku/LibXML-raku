@@ -1,10 +1,14 @@
 {{$NEXT}}
 
+0.7.9  2022-06-22T07:57:17+12:00
+   - Optimize resolve-package for a significant speedup #79
+
 0.7.8  2022-06-20T15:15:05+12:00
    - Remove memory leaks
      -- Fix anyNode Str() method leak, by basing it on $node.Blob #77
      -- Add LibXML::Raw AllocedStr class for pointers to strings that need to be freed #78
      -- Add xml6_gbl_cache() to mimimise leaks on repetitive data (e.g. tag-names) #78
+   - Created xml6_gbl module to house most of the xml6_gbl_* subroutines
 
 0.7.7  2022-06-13T10:47:07+12:00
    - Update prebuilt xml6.dll on Windows
