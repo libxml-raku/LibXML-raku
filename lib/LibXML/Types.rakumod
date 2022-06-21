@@ -16,19 +16,32 @@ subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ St
 role XPathish {}
 subset XPathRange is export(:XPathRange) where Bool|Numeric|Str|XPathish;
 
-our &resolve-package is export(:resolve-package);
+{
+    my $resolution-cache := {};
+    our sub resolve-package(Str:D $pkg) is export(:resolve-package) is raw {
+        my \found = $resolution-cache{$pkg};
+        found !=== Any ?? found !! resolve-package-slow-path($pkg);
+    }
 
-BEGIN {
-    if $*RAKU.compiler.version >= v2022.04.74.g.1.c.4680544 {
-        &resolve-package = anon sub resolve-package(Str:D $pkg) is raw {
-            ::{$pkg}:exists ?? ::($pkg) !! do require ::($pkg)
-        }
+    sub add-to-cache(Str:D $pkg, \result --> Nil) {
+        my $new-cache = $resolution-cache.clone;
+        $new-cache{$pkg} := result;
+        $resolution-cache := $new-cache;
     }
-    else {
-        my $resolve-lock = Lock.new;
-        &resolve-package = anon sub resolve-package(Str:D $pkg) is raw {
-            $resolve-lock.protect: { ::{$pkg}:exists ?? ::($pkg) !! do require ::($pkg) }
-        }
-    }
+
+    my &resolve-package-slow-path = $*RAKU.compiler.version >= v2022.04.74.g.1.c.4680544
+        ??  anon sub resolve-package-slow-path(Str:D $pkg) is raw {
+                my \found = do require ::($pkg);
+                add-to-cache($pkg, found);
+                found
+            }
+        !!  do {
+                my $resolve-lock = Lock.new;
+                anon sub resolve-package-slow-path(Str:D $pkg) is raw {
+                    my \found = $resolve-lock.protect: { require ::($pkg) }
+                    add-to-cache($pkg, found);
+                    found
+                }
+            }
 }
 
