@@ -40,9 +40,8 @@ multi sub box-class(Int:D $_) is export(:box-class) {
 
 multi sub box-class(::?CLASS $_) { $_ }
 
-multi method box($_) {
-    .defined ?? box-class(.type).box(.delegate) !! self.WHAT;
-}
+multi method box(Any:D $_) { box-class(.type).box(.delegate) }
+multi method box(Any:U) { self.WHAT }
 
 #| Node constructor from data
 proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
@@ -184,16 +183,20 @@ multi trait_mod:<is>(
 }
 
 #| Utility method that verifies that `$raw` is the same native struct as the current object.
-method keep(LibXML::Raw::DOM::Node $raw,
-            --> LibXML::Item) {
-    do with $raw {
-        do with self -> $obj {
-            die "returned unexpected node: {.Str}"
-                unless $obj.raw.isSameNode($_);
-            $obj;
-        } // self.box: $_;
-    } // self.WHAT;
+proto method keep(LibXML::Raw::DOM::Node $ --> LibXML::Item) {*}
+
+multi method keep(::?CLASS:D $obj: LibXML::Raw::DOM::Node:D $raw) {
+    die "returned unexpected node: {$raw.Str}"
+        unless $obj.raw.isSameNode($raw);
+    $obj;
 }
+multi method keep(::?CLASS:U: LibXML::Raw::DOM::Node:D $raw) {
+    self.box: $raw;
+}
+multi method keep(Any:U $raw) {
+    self.WHAT
+}
+
 
 =begin pod
 =head2 Copyright
