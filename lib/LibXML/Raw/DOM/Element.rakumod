@@ -6,7 +6,7 @@ use LibXML::Types :NCName, :QName;
 use LibXML::Raw::Defs :XML_XMLNS_NS, :XML_XML_NS;
 
 my constant Node = LibXML::Raw::DOM::Node;
-my subset XMLNS-Name of Str:D where /^xmlns[\:|$]/;
+my subset XMLNS-Name of Str:D where .starts-with('xmlns') && (.chars == 5 || .substr(5,1) eq ':');
 
 method domGetAttributeNode { ... }
 method domGetAttributeNodeNS { ... }
@@ -18,7 +18,11 @@ method domSetAttributeNodeNS { ... }
 method domSetAttributeNS { ... }
 method domGenNsPrefix { ... }
 
-sub xmlns-prefix(XMLNS-Name $name) { $name.split(':')[1] // ''}
+sub xmlns-prefix(XMLNS-Name $name) {
+    do with $name.index(":") {
+        $name.substr($_ + 1);
+    } // '';
+}
 
 # user wants to set the special attribute for declaring XML namespace ...
 multi method setAttribute(XMLNS-Name $name, Str:D $value --> UInt) {

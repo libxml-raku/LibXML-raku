@@ -168,7 +168,7 @@ multi method setAttributeNS(Str $uri, NameVal:D $_ --> LibXML::Attr) {
 }
 #| Namespace-aware version of of setAttribute()
 multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) {
-    &?ROUTINE.returns.box: $.raw.setAttributeNS($uri, $name, $value);
+    LibXML::Attr.box: $.raw.setAttributeNS($uri, $name, $value);
 }
 =begin pod
     =para  where
@@ -203,10 +203,11 @@ multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) 
 =end pod
 
 #| Set an attribute node on an element
-method setAttributeNode(LibXML::Attr:D $att, Bool :$ns --> LibXML::Attr) {
-    $ns
-        ?? self.setAttributeNodeNS($att)
-        !! $att.keep: $.raw.setAttributeNode($att.raw);
+multi method setAttributeNode(LibXML::Attr:D $att, Bool :$ns! where .so --> LibXML::Attr) {
+    self.setAttributeNodeNS($att)
+}
+multi method setAttributeNode(LibXML::Attr:D $att, --> LibXML::Attr) {
+    $att.keep: $.raw.setAttributeNode($att.raw);
 }
 #| Namespace aware version of setAttributeNode
 method setAttributeNodeNS(LibXML::Attr:D $att --> LibXML::Attr) {

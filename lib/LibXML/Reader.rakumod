@@ -491,14 +491,14 @@ method copyCurrentNode(Bool :$deep --> LibXML::Node) {
     my $call := $deep ?? 'currentNodeTree' !! 'currentNode';
     my anyNode $node = self!op($call);
     $node .= copy: :$deep;
-    &?ROUTINE.returns.box($node);
+    LibXML::Node.box($node);
 }
 =item Use :deep to obtain the full sub-tree.
 
 #| This tells the XML Reader to preserve the current node in the document tree.
 method preserveNode(--> LibXML::Node) {
     $.document; # realise containing document
-    &?ROUTINE.returns.box: self!op('preserveNode');
+    LibXML::Node.box: self!op('preserveNode');
 }
 =para A document tree consisting of the preserved nodes and their content can be
     obtained using the method C<document()> once parsing is finished.

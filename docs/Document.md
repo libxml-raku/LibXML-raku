@@ -427,7 +427,7 @@ equivalent to .createElement($name, :$href)
 multi method createAttribute(
     Str:D $qname where { ... },
     Str $value = "",
-    Str :$href
+    Str:D :$href!
 ) returns LibXML::Attr
 ```
 

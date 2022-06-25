@@ -65,6 +65,11 @@ multi sub get-attribute(XML::Element:D $e) {
        $e.attribs<name>;
     }
 }
+multi sub get-attribute-node(LibXML::Element:D $e) {
+    for 1 .. 5 {
+       $e.getAttributeNode('name');
+    }
+}
 
 sub att-edit($e) {
     if $e.hasAttribute('name') {
@@ -153,6 +158,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},
         '03-elems.xml' =>  -> { get-elems($xml-root)},
         '03-attribs.libxml' => -> { get-attribute($libxml-root)},
+        '03-attrib-nodes.libxml' => -> { get-attribute-node($libxml-root)},
         '03-attribs.libxml-native' => -> { get-attribute-native($raw)},
         '03-attribs.xml' => -> { get-attribute($xml-root)},
         '04-box.libxml' => { box($raw) },

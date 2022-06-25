@@ -123,7 +123,7 @@ method setNamedItemNS(Str $uri, LibXML::Attr:D $att) {
 method getNamedItemNS(Str $uri, NCName:D $name --> LibXML::Attr) {
     my $query = "\@*[local-name()='$name']";
     $query ~= "[namespace-uri()='$_']" with $uri;
-    &?ROUTINE.returns.box: self.domXPathSelectStr($query);
+    LibXML::Attr.box: self.domXPathSelectStr($query);
 }
 =begin pod
 C<$map.getNamedItemNS($uri,$name)> is similar to C<$map{$uri}{$name}>.

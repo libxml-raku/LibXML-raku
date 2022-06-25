@@ -96,7 +96,7 @@ A containing object of the correct type (LibXML::Element) has been created for t
 
 ```raku
 method keep(
-    LibXML::Raw::DOM::Node $raw
+    LibXML::Raw::DOM::Node $
 ) returns LibXML::Item
 ```
 

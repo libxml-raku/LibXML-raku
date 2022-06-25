@@ -180,7 +180,7 @@ multi trait_mod:<is>(
     :$dom-boxed!) is export(:dom-boxed) {
     my $name := $dom-boxed ~~ Str:D ?? $dom-boxed !! $m.name;
     my ::?CLASS $class := $m.returns;
-    $m.wrap: method (|c) is hidden-from-backtrace { $class.box: $.raw."$name"(|c); }
+    $m.wrap: method () is hidden-from-backtrace { $class.box: $.raw."$name"(); }
 }
 
 #| Utility method that verifies that `$raw` is the same native struct as the current object.

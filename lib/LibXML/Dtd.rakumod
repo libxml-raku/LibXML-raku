@@ -261,22 +261,22 @@ method cloneNode(LibXML::Dtd:D: $?) is also<clone> {
 
 #| Notation declaration lookup
 method getNotation(Str $name --> LibXML::Dtd::Notation) {
-    &?ROUTINE.returns.box: $.raw.getNotation($name);
+    LibXML::Dtd::Notation.box: $.raw.getNotation($name);
 }
 
 #| Entity declaration lookup
 method getEntity(Str $name --> LibXML::Dtd::Entity) {
-    &?ROUTINE.returns.box: $.raw.getEntity($name);
+    LibXML::Dtd::Entity.box: $.raw.getEntity($name);
 }
 
 #| Element declaration lookup
 method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) {
-    &?ROUTINE.returns.box: $.raw.getElementDecl($name);
+    LibXML::Dtd::ElementDecl.box: $.raw.getElementDecl($name);
 }
 
 #| Attribute declaration lookup
 method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDecl) {
-    &?ROUTINE.returns.box: $.raw.getAttrDecl($elem-name, $attr-name);
+    LibXML::Dtd::AttrDecl.box: $.raw.getAttrDecl($elem-name, $attr-name);
 }
 
 =head3 getNodeDeclaration

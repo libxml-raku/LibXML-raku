@@ -74,7 +74,7 @@ class LibXML::SAX::Builder {
             -> $obj, &callb {
                 sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
                     CATCH { default { handle-error($ctx, $_,) } }
-                    my $ent = callb($obj, $name, :$ctx);
+                    my $ent := callb($obj, $name, :$ctx);
                     $ent ~~ LibXML::Dtd::Entity ?? .raw !! $ent;
                 }
         },

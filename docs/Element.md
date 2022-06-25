@@ -146,12 +146,12 @@ If an attribute with the same local name and namespace URI already exists on the
 
 According to DOM Level 2 specification, this method can also be used to create or modify special attributes used for declaring XML namespaces (which belong to the namespace "http://www.w3.org/2000/xmlns/" and have prefix or name "xmlns"). The implementation differs from DOM specification in the following: if a declaration of the same namespace prefix already exists on the element, then changing its value via this method automatically changes the namespace of all elements and attributes in its scope. This is because in libxml2 the namespace URI of an element is not static but is computed from a pointer to a namespace declaration attribute.
 
-### method setAttributeNode
+### multi method setAttributeNode
 
 ```raku
-method setAttributeNode(
+multi method setAttributeNode(
     LibXML::Attr:D $att,
-    Bool :$ns
+    Bool :$ns! where { ... }
 ) returns LibXML::Attr
 ```
 

@@ -479,7 +479,7 @@ method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-    &?ROUTINE.returns.box: self.raw.addSibling($new.raw);
+     LibXML::Node.box: self.raw.addSibling($new.raw);
 }
 
 multi method cloneNode(LibXML::Node:D: Bool() $deep --> LibXML::Node) {
