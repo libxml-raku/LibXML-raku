@@ -592,15 +592,14 @@ multi method createAttribute(NameVal $_!, |c) {
 multi method createAttribute(
     QName:D $qname,
     Str $value = '',
-    Str :$href,
+    Str:D :$href!,
     --> LibXML::Attr
 ) {
-    with $href {
-        $.createAttributeNS($_, $qname, $value);
-    }
-    else {
-        &?ROUTINE.returns.box: $.raw.createAttribute($qname, $value);
-    }
+    $.createAttributeNS($href, $qname, $value);
+}
+
+multi method createAttribute(QName:D $qname, Str $value = '' --> LibXML::Attr) {
+    &?ROUTINE.returns.box: $.raw.createAttribute($qname, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
@@ -717,6 +716,7 @@ method createDTD(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
 method getEntity(Str $name --> LibXML::Dtd::Entity) {
     &?ROUTINE.returns.box: $.raw.GetEntity($name);
 }
+
 =para Searches any internal subset, external subset, and predefined entities
 
 # don't allow more than one element in the document root
@@ -753,9 +753,7 @@ multi method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
     LibXML itself.
 
 #| DOM compatible method to get the document element
-method getDocumentElement returns LibXML::Element {
-    &?ROUTINE.returns.box:  $.raw.getDocumentElement
-}
+method getDocumentElement returns LibXML::Element is dom-boxed {...}
 
 #| DOM compatible method to set the document element
 method setDocumentElement($doc: LibXML::Element:D $elem --> LibXML::Element) {
@@ -903,7 +901,7 @@ method processXIncludes(LibXML::Config :$config, |c) is also<process-xincludes> 
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
-   &?ROUTINE.returns.box: $.raw.getElementById($id);
+    &?ROUTINE.returns.box: $.raw.getElementById($id);
 }
 =para Note: the ID of an element may change while manipulating the document. For
     documents with a DTD, the information about ID attributes is only available if

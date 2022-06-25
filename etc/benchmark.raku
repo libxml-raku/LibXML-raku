@@ -82,6 +82,12 @@ sub append-text-child($e) {
     $e.appendTextChild('Foo', 'Bar').unbindNode();
 }
 
+sub dom-boxed($e) {
+    for 1 .. 50 {
+       $e.nextSibling;
+    }
+}
+
 sub unbox($e) {
     for 1 .. 50 {
        $e.raw;
@@ -152,6 +158,7 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
         '04-box.libxml' => { box($raw) },
         '04-unbox.libxml' => { unbox($libxml-root) },
         '04-keep.libxml' => { keep($libxml-root, $raw) },
+        '04-dom-boxed.libxml' => { dom-boxed($libxml-root) },
         '05-att-edit.libxml' => {att-edit($libxml-root) },
         '05-append-text-child.libxml' => {append-text-child($libxml-root) },
     );
