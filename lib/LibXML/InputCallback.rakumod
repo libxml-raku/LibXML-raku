@@ -133,7 +133,7 @@ my class Context {
 
     method !catch(Exception $error) {
         CATCH { default { note "input callback error handling error: $_" } }
-        self.callback-error: X::LibXML::IO::AdHoc.new: :$error;
+        self.callback-error: $error;
     }
 
     my class Handle {

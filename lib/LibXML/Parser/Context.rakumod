@@ -6,12 +6,12 @@ also does LibXML::_Configurable;
 use NativeCall;
 use LibXML::Config :&protected;
 use LibXML::Enums;
-use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::ErrorHandling :&generic-error-cb, :&structured-error-cb;
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::_Options;
 
-has xmlParserCtxt $!raw handles <wellFormed valid>;
+has xmlParserCtxt $!raw handles <wellFormed valid SetStructuredErrorFunc>;
 has uint32 $.flags = self.config.parser-flags;
 multi method flags(::?CLASS:D:) is rw { $!flags }
 multi method flags(::?CLASS:U:) { self.config.parser-flags }
@@ -96,6 +96,8 @@ method reset { self.set-raw(xmlParserCtxt); }
 
 submethod DESTROY { self.reset }
 
+method stop-parser { .StopParser with $!raw }
+
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
@@ -108,11 +110,11 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 	my @input-contexts = .activate()
 	    with $*XML-CONTEXT.input-callbacks;
 
-	die "LibXML::Config->parser-locking needs to be enabled to allow parser-level input-callbacks"
+	die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
 	    if @input-contexts && !LibXML::Config.parser-locking;
 
 	my $handlers = xml6_gbl::save-error-handlers();
-	$*XML-CONTEXT.raw.SetStructuredErrorFunc: &structured-error-cb;
+	$*XML-CONTEXT.SetStructuredErrorFunc: &structured-error-cb;
         my @prev = self.config.setup();
 	&*chdir(~$*CWD);
 

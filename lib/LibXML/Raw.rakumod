@@ -873,7 +873,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domXPathSelectStr(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domXPathFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native($BIND-XML2) {*}
     method domFailure(--> AllocedStr) is native($BIND-XML2) {*}
-    method dom-error { die $_ with self.domFailure }
+    method dom-error { die .Str with self.domFailure }
     method domAppendChild(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domReplaceNode(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domAddSibling(anyNode --> anyNode) is native($BIND-XML2) {*}

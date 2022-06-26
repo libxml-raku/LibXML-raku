@@ -280,11 +280,16 @@ role LibXML::ErrorHandling {
             my Str $msg = .message;
             $column ||= .column;
             $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
-            self.callback-error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
+            self!error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
         }
     }
 
-    method callback-error(X::LibXML $err is copy) {
+    method callback-error(Exception $error) {
+        self.?stop-parser unless self.?suppress-errors;
+        self!error: X::LibXML::IO::AdHoc.new(:$error);
+    }
+    method !error(X::LibXML:D $err is copy) {
+
         unless @!errors > $!max-errors {
             $err = X::LibXML::TooManyErrors.new( :level(XML_ERR_FATAL), :$.max-errors )
                 if @!errors == $!max-errors;

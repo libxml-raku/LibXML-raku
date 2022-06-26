@@ -1,4 +1,8 @@
 {{$NEXT}}
+   - Fix error handling in SAX callbacks. These are now trapped by
+     LibXML::ErrorHandler. Note that exceptions in SAX callbacks now
+     halt parsing unless `suppress-errors` has been set.
+   - More minor optimizations of DOM methods
 
 0.7.9  2022-06-22T07:57:17+12:00
    - Optimize resolve-package for a significant speedup #79

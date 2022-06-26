@@ -27,166 +27,161 @@ class LibXML::SAX::Builder {
         %atts
     }
 
-    sub handle-error(xmlParserCtxt $ctx, Exception $err) {
-        CATCH { default { note "error handling SAX error: $_" } }
-        with $ctx {
-            .ParserError($err.message ~ "\n");
-        }
-        else {
-            note "SAX errror: $err";
-        }
+    sub handle-error(Exception $err) {
+        CATCH { default { note "error handling SAX error $err: $_" } }
+        $*XML-CONTEXT.callback-error: $err;
     }
 
     my %SAXHandlerDispatch = %(
         'characters'|'ignorableWhitespace'|'cdataBlock' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) {
-                    CATCH { default { handle-error($ctx, $_,) } }
+                    CATCH { default { handle-error $_ } }
                     # ensure null termination
                     sub memcpy(Blob $dest, CArray $chars, size_t $n) is native($CLIB) {*};
                     my buf8 $char-buf .= allocate($len);
                     memcpy($char-buf, $chars, $len);
-                    callb($obj, $char-buf.decode, :$ctx);
+                    $saxh.&callb($char-buf.decode, :$ctx);
                 }
         },
         'internalSubset'|'externalSubset' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, :$ctx, :$external-id, :$system-id);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($name, :$ctx, :$external-id, :$system-id);
                 }
         },
         'isStandalone'|'hasInternalSubset'|'hasExternalSubset' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx --> UInt) {
-                    CATCH { default { handle-error($ctx, $_); UInt; } }
-                    my UInt $ := callb($obj, :$ctx);
+                    CATCH { default { handle-error $_; UInt; } }
+                    my UInt $ := $saxh.&callb(:$ctx);
                 }
         },
         'resolveEntity' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    my xmlParserInput $ := callb($obj, :$ctx, :$public-id, :$system-id);
+                    CATCH { default {handle-error $_ } }
+                    my xmlParserInput $ := $saxh.&callb(:$ctx, :$public-id, :$system-id);
                 }
         },
         'getEntity' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    my $ent := callb($obj, $name, :$ctx);
+                    CATCH { default {handle-error $_ } }
+                    my $ent := $saxh.&callb($name, :$ctx);
                     $ent ~~ LibXML::Dtd::Entity ?? .raw !! $ent;
                 }
         },
         'entityDecl' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, Int $type, Str $public-id, Str $system-id, Str $content) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, $content, :$ctx, :$public-id, :$system-id, :$type);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($name, $content, :$ctx, :$public-id, :$system-id, :$type);
                 }
         },
         'attributeDecl' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree);
                 }
         },
         'elementDecl' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, $content, :$ctx, :$type);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($name, $content, :$ctx, :$type);
                 }
         },
         'unparsedEntityDecl' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, :$ctx, :$public-id, :$system-id, :$notation-name);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($name, :$ctx, :$public-id, :$system-id, :$notation-name);
                 }
         },
         'notationDecl' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $name, :$ctx, :$public-id, :$system-id);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($name, :$ctx, :$public-id, :$system-id);
                 }
         },
         'setDocumentLocator' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, xmlSAXLocator $locator) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $locator, :$ctx);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($locator, :$ctx);
                 }
         },
         'startDocument'|'endDocument' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, :$ctx);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb(:$ctx);
                 }
         },
         'startElement' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts-raw) {
-                    CATCH { default { handle-error($ctx, $_,) } }
+                    CATCH { default {handle-error $_ } }
                     my $attribs = atts2Hash($atts-raw);
-                    callb($obj, $name, :$ctx, :$atts-raw, :$attribs);
+                    $saxh.&callb($name, :$ctx, :$atts-raw, :$attribs);
                 }
         },
         'endElement'|'reference'|'comment'|'getParameterEntity' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $text) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $text, :$ctx);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($text, :$ctx);
                 }
         },
         'warning'|'error'|'fatalError' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $text) {
                     CATCH { default { note "error handling SAX error: $_" } }
-                    callb($obj, $text, :$ctx);
+                    $saxh.&callb($text, :$ctx);
                 }
         },
         'processingInstruction' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $target, Str $data) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $target, $data, :$ctx);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($target, $data, :$ctx);
                 }
         },
         # Introduced with SAX2 
         'startElementNs' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts-raw, :$ctx );
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts-raw, :$ctx );
                 }
         },
         'endElementNs' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
-                    CATCH { default { handle-error($ctx, $_,) } }
-                    callb($obj, $local-name, :$prefix, :$uri, :$ctx);
+                    CATCH { default {handle-error $_ } }
+                    $saxh.&callb($local-name, :$prefix, :$uri, :$ctx);
                 }
         },
         'serror' =>
-            -> $obj, &callb {
+            -> $saxh, &callb {
                 sub (X::LibXML $error) {
-                    callb($obj, $error);
+                    $saxh.&callb($error);
                 }
         },
     );
 
-    method !build(Any:D $obj, %dispatches) {
+    method !build(Any:D $saxh, %dispatches) {
         my Bool %seen;
-        for $obj.^methods.grep(* ~~ is-sax-cb) -> &meth {
+        for $saxh.^methods.grep(* ~~ is-sax-cb) -> &meth {
             my $name = &meth.sax-name;
             with %dispatches{$name} -> &dispatch {
                 warn "duplicate SAX callback: $name"
                     if %seen{$name}++;
-                $obj.set-sax-callback($name, &dispatch($obj, &meth));
+                $saxh.set-sax-callback($name, &dispatch($saxh, &meth));
             }
             else {
                 my $known = %dispatches.keys.sort.join: ' ';
@@ -199,12 +194,12 @@ class LibXML::SAX::Builder {
         }
         warn "'startElement' and 'startElementNs' callbacks are mutually exclusive"
             if %seen<startElement> && %seen<startElementNs>;
-        $obj;
+        $saxh;
     }
 
-    method build-sax-handler($obj) {
-        $obj.raw.init;
-        self!build($obj, %SAXHandlerDispatch);
+    method build-sax-handler($saxh) {
+        $saxh.raw.init;
+        self!build($saxh, %SAXHandlerDispatch);
     }
 
 }
