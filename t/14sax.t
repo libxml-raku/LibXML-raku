@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 35;
+plan 34;
 
 use LibXML;
 use LibXML::SAX;
@@ -20,9 +20,7 @@ class SAXNSTester { ... }
 class SAXNS2Tester { ... }
 class SAXLocatorTester { ... }
 class SAXErrorTester { ... }
-class SAXErrorCallbackTester { ... }
-
-pass('Loaded');
+class SAXInternalParseTester { ... }
 
 sub _create_simple_counter {
     Counter.new(
@@ -227,23 +225,43 @@ subtest 'namespaces, empty', {
 }
 
 subtest 'error handling', {
-    my $xml = '<foo><bar/><a>Text</b></foo>';
+    my $bad-xml = '<foo><bar/><a>Text</b></foo>';
+    my $good-xml = '<foo><bar/><a>Text</a></foo>';
 
     my SAXErrorTester $sax .= new;
     do {
         try {
-            LibXML::SAX.new(sax-handler => $sax).parse: :string($xml);
+            LibXML::SAX.new(sax-handler => $sax).parse: :string($bad-xml);
         };
         ok $!, 'we got an error';
     }
     ok $sax.errors, 'error handler called';
 
-    my SAXErrorCallbackTester $sax2 .= new;
+    my SAXInternalParseTester $sax2 .= new;
     do {
-        try { LibXML::SAX.new(sax-handler => $sax2 ).parse: :string($xml) };
+        try { LibXML::SAX.new(sax-handler => $sax2 ).parse: :string($bad-xml) };
         ok $!, 'we got another error';
     }
     ok $sax2.errors, 'error handler called';
+
+    $sax2 .= new;
+    do {
+        try { LibXML::SAX.new(sax-handler => $sax2 ).parse: :string($good-xml) };
+        nok $!, 'no errors';
+    }
+    ok $sax2.start-element-called, 'startElement called';
+    ok $sax2.start-element-completed, 'startElement completed';
+    nok $sax2.errors, 'no internal errors';
+
+    $sax2 .= new: :pre-xml($bad-xml);
+    do {
+        try { LibXML::SAX.new(sax-handler => $sax2 ).parse: :string($good-xml) };
+        todo "issue #80";
+        ok $!, 'we got another error';
+    }
+    ok $sax2.start-element-called, 'startElement called';
+    nok $sax2.start-element-completed, 'startElement not completed';
+    nok $sax2.errors, 'error handler not called for internal errors';
 }
 
  ########### LibXML::SAX::parse-chunk test ###########
@@ -411,17 +429,23 @@ class SAXErrorTester
     method fatalError($_) is sax-cb { @!errors.push: 'fatal' => $_; }
 }
 
-class SAXErrorCallbackTester
+class SAXInternalParseTester
     is SAXErrorTester { # check inheritance
 
+    has $.pre-xml = "<foo/>";
+    has $.post-xml = "<bar/>";
+
     use LibXML::SAX::Builder :sax-cb, :is-sax-cb;
-    has Bool $.start-element-ok;
-    method startElement(|c) is sax-cb {
+    has Bool $.start-element-called;
+    has Bool $.start-element-completed;
+    method startElement(|) is sax-cb {
+        $!start-element-called = True;
         # test if we can do other stuff
-        LibXML.parse: :string("<foo/>");
+        LibXML.parse: :string($!pre-xml);
         callsame;
-        LibXML.parse: :string("<bar/>");
-        $!start-element-ok = True; warn;
+        LibXML.parse: :string($!post-xml);
+        $!start-element-completed = True;
     }
+    method endElement(|) is sax-cb { callsame }
 }
 

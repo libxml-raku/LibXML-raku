@@ -1,11 +1,11 @@
 # a base class that provides a full set of SAX2 callbacks
 use LibXML::SAX::Handler;
-use LibXML::Raw;
 
 my role SAX2BaseClass {
     # implement methods that call LibXML2's default SAX2 handlers,
     # so that callsame(), etc will invoke them
     use LibXML::Types :QName, :NCName;
+    use LibXML::Raw;
     use NativeCall;
 
     my constant Ctx = xmlParserCtxt;

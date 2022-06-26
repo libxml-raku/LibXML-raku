@@ -36,7 +36,7 @@ class LibXML::SAX::Handler::XML
 
     method endElement(Str $name) is sax-cb {
         # step up the tree
-        $!node .= parent // Nil;
+        $!node = $!node.parent // Nil;
     }
 
     method cdataBlock(Str $data) is sax-cb {

@@ -193,10 +193,12 @@ class LibXML::SAX::Builder {
                 die "unknown SAX method $name. expected: $known";
             }
         }
+        for <Element ElementNS Document> {
+            warn "'start$_', 'end$_' callbacks not paired"
+                if %seen{'start'~ $_}.so !=== %seen{'end'~ $_}.so
+        }
         warn "'startElement' and 'startElementNs' callbacks are mutually exclusive"
             if %seen<startElement> && %seen<startElementNs>;
-        warn "'endElement' and 'endElementNs' callbacks are mutually exclusive"
-            if %seen<endElement> && %seen<endElementNs>;
         $obj;
     }
 
