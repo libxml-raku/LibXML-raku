@@ -4,6 +4,12 @@ unit class LibXML::XPath::Context;
 use LibXML::_Configurable;
 also does LibXML::_Configurable;
 
+use LibXML::_Options;
+also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
+
+use LibXML::ErrorHandling;
+also does LibXML::ErrorHandling;
+
 =begin pod
     =head2 Synopsis
 
@@ -108,6 +114,7 @@ also does LibXML::_Configurable;
 
 use LibXML::Config :&protected;
 use LibXML::Document;
+use LibXML::Enums;
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::Namespace;
@@ -127,11 +134,7 @@ has xmlXPathContext $!raw .= new;
 method raw { $!raw }
 
 # for the LibXML::ErrorHandling role
-use LibXML::ErrorHandling;
-use LibXML::_Options;
 has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
-also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
-also does LibXML::ErrorHandling;
 
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
@@ -172,7 +175,6 @@ method !try(&action) {
     protected sub () is hidden-from-backtrace {
         my $handlers = xml6_gbl::save-error-handlers();
         $!raw.SetStructuredErrorFunc: &structured-error-cb;
-
         my $*XPATH-CONTEXT = self;
         my @prev = self.config.setup;
 
@@ -241,11 +243,17 @@ method lookupNs(NCName:D $prefix --> Str) {
 }
 =para If C<$prefix> is not registered to any namespace URI returns C<Str:U>.
 
+sub callback-error(Exception $error) {
+    CATCH { default { note "error handling callback error $error: $_" } }
+    $*XPATH-CONTEXT.callback-error: $error, :domain-num(XML_FROM_XPATH);
+    xmlXPathObject;
+}
+
 #| Registers a variable lookup function.
 method registerVarLookupFunc(&callback, |args) {
     $!raw.RegisterVariableLookup(
-        -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject:D {
-            CATCH { default { xpath-callback-error($_); } }
+        -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject {
+            CATCH { default { callback-error $_; } }
             my $ret = &callback($name, $url, |args) // '';
             xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret);
         },
@@ -301,7 +309,7 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
     $!raw.RegisterFuncNS(
         $name, $uri,
         -> xmlXPathParserContext $ctxt, Int $n {
-            CATCH { default { xpath-callback-error($_); } }
+            CATCH { default { callback-error $_ } }
             my @params;
             @params.unshift: get-value($ctxt.valuePop) for ^$n;
             my $ret = &func(|@params, |args) // '';
@@ -366,8 +374,8 @@ proto method findnodes($, $?, :deref($) --> LibXML::Node::Set) {*}
 multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bool :$deref) {
     iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
 }
-multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) is default {
-    my $expr = LibXML::XPath::Expression.new: :expr($_);
+multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) {
+    my LibXML::XPath::Expression:D $expr .= new: :expr($_);
     iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
 }
 =begin pod
@@ -627,11 +635,6 @@ multi method park(Listy:D $_, xmlXPathParserContext :$ctxt --> xmlNodeSet) {
 }
 # anything else (Bool, Numeric, Str)
 multi method park($_) is default { fail "unexpected return value: {.raku}"; }
-
-sub xpath-callback-error(Exception $error) {
-    CATCH { default { note "error handling callback error: $_" } }
-    $*XPATH-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :$error;
-}
 
 method querySelector(Str() $selector, |c) {
     self.first: $!query-handler.query-to-xpath($selector);

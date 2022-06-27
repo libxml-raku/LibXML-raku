@@ -175,7 +175,7 @@ subtest  'bad xpaths', {
     }
 }
 
-subtest 'dom interaaction', {
+subtest 'dom interaction', {
     my $doc = LibXML.createDocument();
     my $root= $doc.createElement( "A" );
     $doc.setDocumentElement($root);

@@ -6,7 +6,7 @@ also does LibXML::_Configurable;
 use NativeCall;
 use LibXML::Config :&protected;
 use LibXML::Enums;
-use LibXML::ErrorHandling :&generic-error-cb, :&structured-error-cb;
+use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::_Options;

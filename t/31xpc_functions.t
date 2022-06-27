@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 12;
+plan 13;
 
 use LibXML;
 use LibXML::Document;
@@ -140,6 +140,17 @@ subtest 'identity function', {
     is $pass1.size, 301;
 
     is $xc.find('pass2(//*)').size(), 301;
+}
+
+subtest 'callback errors', {
+    $xc.registerFunction(
+        'die',
+        -> *@a {
+            die 'goodbye!';
+        }
+    );
+    todo "correct error";
+    throws-like {$xc.findvalue('die("a","b")');}, X::LibXML, :message("XPath error: goodbye!");
 }
 
 ok $errors, 'errors trapped';

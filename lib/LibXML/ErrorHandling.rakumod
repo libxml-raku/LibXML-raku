@@ -38,13 +38,13 @@ class X::LibXML is Exception {
 
     =head3 method message
 
-      $error_message = @!.message();
+      $error_message = $.message();
 
     Returns a human-readable informative error message.
 
     =head3 method level
 
-      $error_level = $!.level();
+      $error_level = $.level();
 
     Returns an integer value describing how consequent is the error. L<LibXMNL::Enums>
     defines the following enumerations:
@@ -89,7 +89,11 @@ class X::LibXML is Exception {
 
 #| LibXML ad-hoc errors
 class X::LibXML::AdHoc is X::LibXML {
-    has Exception $.error handles<message>;
+    has Exception:D $.error is required;
+#| Ad-hoc exceptions from Raku XPath functions
+    subset XPath of ::?CLASS where .domain-num == XML_FROM_XPATH;
+    subset IO    of ::?CLASS where .domain-num == XML_FROM_IO;
+    method message { self.domain ~ ' error: ' ~ $!error.message }
 }
 =begin pod
     =para
@@ -103,16 +107,6 @@ class X::LibXML::AdHoc is X::LibXML {
 
     =para The trapped error
 =end pod
-
-#| Ad-hoc exceptions from Raku XPath functions
-class X::LibXML::XPath::AdHoc is X::LibXML::AdHoc {
-    method domain-num {XML_FROM_XPATH}
-}
-
-#|  Ad-hoc exceptions from Raku Input callbacks
-class X::LibXML::IO::AdHoc is X::LibXML::AdHoc {
-    method domain-num {XML_FROM_IO}
-}
 
 #| LibXML Reader exceptions
 class X::LibXML::OpFail is X::LibXML {
@@ -284,9 +278,9 @@ role LibXML::ErrorHandling {
         }
     }
 
-    method callback-error(Exception $error) {
-        self.?stop-parser unless self.?suppress-errors;
-        self!error: X::LibXML::IO::AdHoc.new(:$error);
+    method callback-error(Exception $error, UInt :$domain-num = XML_FROM_IO) {
+        self.?stop-parser;
+        self!error: X::LibXML::AdHoc.new: :$error, :$domain-num;
     }
     method !error(X::LibXML:D $err is copy) {
 

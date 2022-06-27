@@ -12,13 +12,13 @@ Methods common to all X::LibXML exceptions
 
 ### method message
 
-    $error_message = @!.message();
+    $error_message = $.message();
 
 Returns a human-readable informative error message.
 
 ### method level
 
-    $error_level = $!.level();
+    $error_level = $.level();
 
 Returns an integer value describing how consequent is the error. [LibXMNL::Enums](LibXMNL::Enums) defines the following enumerations:
 
@@ -55,6 +55,10 @@ class X::LibXML::AdHoc
 
 LibXML ad-hoc errors
 
+
+
+Ad-hoc exceptions from Raku XPath functions
+
 Exceptions raised in callbacks are wrapped in an X::LibXML::Adhoc (if not already of type X::LibXML), stashed into a `$*XML-CONTEXT` or `$*XPATH-CONTEXT` variable, and re-raised on return from the calling function.
 
 ### method error
@@ -62,16 +66,6 @@ Exceptions raised in callbacks are wrapped in an X::LibXML::Adhoc (if not alread
     method error() returns Exception
 
 The trapped error
-
-class X::LibXML::XPath::AdHoc
------------------------------
-
-Ad-hoc exceptions from Raku XPath functions
-
-class X::LibXML::IO::AdHoc
---------------------------
-
-Ad-hoc exceptions from Raku Input callbacks
 
 class X::LibXML::OpFail
 -----------------------
