@@ -130,7 +130,7 @@ use Method::Also;
 
 has $.sax-handler is rw;
 has $.query-handler is rw = self.config.query-handler;
-has xmlXPathContext $!raw .= new;
+has xmlXPathContext $!raw handles<SetStructuredErrorFunc> .= new;
 method raw { $!raw }
 
 # for the LibXML::ErrorHandling role
@@ -165,22 +165,21 @@ multi submethod TWEAK(LibXML::Node :$node, :%ns) {
       }
 }
 
-sub structured-error-cb(xmlXPathContext $ctx, xmlError:D $err) is export(:structured-error-cb) {
-    CATCH { default { note "error handling structured error: $_" } }
-    $*XPATH-CONTEXT.structured-error($err);
+sub generic-error-cb(Str:D $fmt, |args) {
+    CATCH { default { note "error handling XML generic error: $_" } }
+    $*XPATH-CONTEXT.generic-error($fmt, |args);
 }
 method !try(&action) {
     my $rv;
 
     protected sub () is hidden-from-backtrace {
         my $handlers = xml6_gbl::save-error-handlers();
-        $!raw.SetStructuredErrorFunc: &structured-error-cb;
+        self.SetGenericErrorFunc: &generic-error-cb;
         my $*XPATH-CONTEXT = self;
         my @prev = self.config.setup;
 
         $rv := &action();
 
-        temp self.recover //= $rv.defined;
         self.flush-errors;
 
         LEAVE {
@@ -246,16 +245,16 @@ method lookupNs(NCName:D $prefix --> Str) {
 sub callback-error(Exception $error) {
     CATCH { default { note "error handling callback error $error: $_" } }
     $*XPATH-CONTEXT.callback-error: $error, :domain-num(XML_FROM_XPATH);
-    xmlXPathObject;
+    xmlXPathObject.COERCE: False;
 }
 
 #| Registers a variable lookup function.
 method registerVarLookupFunc(&callback, |args) {
     $!raw.RegisterVariableLookup(
         -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject {
-            CATCH { default { callback-error $_; } }
+            CATCH { default { callback-error $_ } }
             my $ret = &callback($name, $url, |args) // '';
-            xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret);
+            xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret);
         },
         Pointer,
     );
@@ -309,11 +308,11 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
     $!raw.RegisterFuncNS(
         $name, $uri,
         -> xmlXPathParserContext $ctxt, Int $n {
-            CATCH { default { callback-error $_ } }
+            CATCH { default { $ctxt.valuePush: callback-error($_) } }
             my @params;
             @params.unshift: get-value($ctxt.valuePop) for ^$n;
             my $ret = &func(|@params, |args) // '';
-            my xmlXPathObject:D $out := xmlXPathObject.coerce: $*XPATH-CONTEXT.park($ret, :$ctxt);
+            my xmlXPathObject:D $out := xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret, :$ctxt);
             $ctxt.valuePush($_) for $out;
         }
     );

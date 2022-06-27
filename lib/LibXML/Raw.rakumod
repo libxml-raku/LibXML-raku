@@ -660,12 +660,12 @@ class xmlXPathObject is export {
     our sub NewPoint(anyNode:D, int32 --> xmlXPathObject) is native($BIND-XML2) is symbol('domXPathNewPoint') {*}
     our sub WrapNodeSet(xmlNodeSet --> xmlXPathObject) is native($XML2) is symbol('xmlXPathWrapNodeSet') {*}
 
-    multi method coerce(Bool $v)           { NewBoolean($v) }
-    multi method coerce(Numeric $v)        { NewFloat($v.Num) }
-    multi method coerce(Str $v)            { NewString($v) }
-    multi method coerce(anyNode:D $v, UInt :$index = 0)      { NewPoint($v, $index) }
-    multi method coerce(xmlNodeSet:D $v)   { WrapNodeSet($v.copy) }
-    multi method coerce($_) is default     { fail "unable to coerce to an XPath Object: {.raku}" }
+    multi method COERCE(Bool:D $v)           { NewBoolean($v) }
+    multi method COERCE(Numeric:D $v)        { NewFloat($v.Num) }
+    multi method COERCE(Str:D $v)            { NewString($v) }
+    multi method COERCE(anyNode:D $v, UInt :$index = 0)      { NewPoint($v, $index) }
+    multi method COERCE(xmlNodeSet:D $v)     { WrapNodeSet($v.copy) }
+    method coerce($v) is DEPRECATED<COERCE>  { self.COERCE($v) }
 
     method select {
         self.value: :select;

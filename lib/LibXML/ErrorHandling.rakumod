@@ -93,7 +93,10 @@ class X::LibXML::AdHoc is X::LibXML {
 #| Ad-hoc exceptions from Raku XPath functions
     subset XPath of ::?CLASS where .domain-num == XML_FROM_XPATH;
     subset IO    of ::?CLASS where .domain-num == XML_FROM_IO;
-    method message { self.domain ~ ' error: ' ~ $!error.message }
+    method message {
+        my $message =  $!error.message;
+        self.domain ~ ' error: ' ~ $message;
+    }
 }
 =begin pod
     =para
@@ -273,7 +276,10 @@ role LibXML::ErrorHandling {
             my UInt:D $domain-num = .domain;
             my Str $msg = .message;
             $column ||= .column;
-            $msg //= do with xmlParserErrors($code) { .key } else { $code.Str }
+            $msg //= $code.Str;
+            if $msg ~~ /^\d+$/ {
+                $msg ~= " ({.key})" with xmlParserErrors($msg.Int);
+            }
             self!error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
         }
     }

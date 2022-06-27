@@ -22,13 +22,15 @@ submethod DESTROY { self.raw.Unreference }
 method coerce-to-raw(XPathRange $content is copy) {
     $content .= raw()
         if $content ~~ LibXML::Types::XPathish;
-    xmlXPathObject.coerce($content);
+    xmlXPathObject.COERCE($content);
 }
 
-method coerce($content) {
+multi method COERCE(XPathRange:D $content) {
     my xmlXPathObject:D $raw = self.coerce-to-raw($content);
     self.new: :$raw;
 }
+
+method coerce($v) is DEPRECATED<COERCE> { self.COERCE: $v }
 
 method value(xmlXPathObject :$raw = $.raw, Bool :$literal,  --> XPathRange) {
     given $raw.value {

@@ -8,37 +8,37 @@ use LibXML::Enums;
 
 plan 25;
 
-my xmlXPathObject $xo .= coerce(42);
+my xmlXPathObject $xo .= COERCE(42);
 is $xo.type, +XPATH_NUMBER;
 is-approx $xo.float, 42;
 is-approx $xo.select, 42;
 
-$xo .= coerce(42.1);
+$xo .= COERCE(42.1);
 is $xo.type, +XPATH_NUMBER;
 is-approx $xo.float, 42.1;
 is-approx $xo.select, 42.1;
 
-$xo .= coerce(Inf);
+$xo .= COERCE(Inf);
 is $xo.type, +XPATH_NUMBER;
 is xmlXPathObject::IsInf($xo.float), 1;
 is-deeply $xo.select, Inf;
 
-$xo .= coerce(-Inf);
+$xo .= COERCE(-Inf);
 is $xo.type, +XPATH_NUMBER;
 my int32 $is-inf = xmlXPathObject::IsInf($xo.float);
 is $is-inf, -1;
 is-deeply $xo.select, -Inf;
 
-$xo .= coerce(NaN);
+$xo .= COERCE(NaN);
 is $xo.type, +XPATH_NUMBER;
 ok xmlXPathObject::IsNaN($xo.float);
 is-deeply $xo.select, NaN;
 
-$xo .= coerce(True);
+$xo .= COERCE(True);
 is $xo.type, +XPATH_BOOLEAN;           
 is-deeply $xo.select, True;
 
-$xo .= coerce('Zsófia');
+$xo .= COERCE('Zsófia');
 is $xo.type, +XPATH_STRING;
 is $xo.select, 'Zsófia';
 
@@ -46,11 +46,11 @@ my LibXML::Document $doc .= parse: :string("<a><b/><c/><d/></a>");
 my LibXML::Node::Set:D $nodes = $doc.find('*/*');
 is $nodes.size, 3;
 
-$xo .= coerce($nodes.raw);
+$xo .= COERCE($nodes.raw);
 is  $xo.type, +XPATH_NODESET;
 is-deeply $xo.select, $nodes.raw;
 
-$xo .= coerce($nodes[1].raw);
+$xo .= COERCE($nodes[1].raw);
 is  $xo.type, +XPATH_POINT;
 my $raw = $xo.select;
 isa-ok $raw, anyNode;

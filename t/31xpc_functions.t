@@ -13,7 +13,7 @@ XML
 my $errors;
 
 my LibXML::XPath::Context $xc .= new(:$doc);
-$xc.SetGenericErrorFunc(-> $fmt, |c { $errors++ });
+$xc.SetStructuredErrorFunc(-> $fmt, |c { $errors++ });
 $xc.registerNs('foo','urn:foo');
 # low level test
 subtest 'registerFunctionNS', {
