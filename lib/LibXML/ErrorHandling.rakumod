@@ -93,10 +93,7 @@ class X::LibXML::AdHoc is X::LibXML {
 #| Ad-hoc exceptions from Raku XPath functions
     subset XPath of ::?CLASS where .domain-num == XML_FROM_XPATH;
     subset IO    of ::?CLASS where .domain-num == XML_FROM_IO;
-    method message {
-        my $message =  $!error.message;
-        self.domain ~ ' error: ' ~ $message;
-    }
+    method message { self.domain ~ ' error: ' ~ $!error.message }
 }
 =begin pod
     =para

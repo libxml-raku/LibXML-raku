@@ -1,7 +1,16 @@
 {{$NEXT}}
+
+0.7.10  2022-06-28T07:33:30+12:00
    - Fix error handling in SAX callbacks. These are now trapped by
      LibXML::ErrorHandler. Note that exceptions in SAX callbacks now
-     halt parsing unless `suppress-errors` has been set.
+     halt parsing unless `recover` has been set; in which case an
+     uncaught exception in a function returns false.
+   - Also fix error handling in XPath evaluations. Exceptions were
+     incidentally failing by causing stack errors (1223).
+   - Define some newly added XPath error codes in LibXML::Enums,
+     including 1223 (XML_XPATH_STACK_ERROR)
+   - Use generic error-handler in XPath expressions anyway; structured
+     errors are geared more towards parsing.
    - More minor optimizations of DOM methods
 
 0.7.9  2022-06-22T07:57:17+12:00
