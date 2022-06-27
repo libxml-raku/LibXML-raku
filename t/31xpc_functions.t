@@ -149,8 +149,13 @@ subtest 'callback errors', {
             die 'goodbye!';
         }
     );
-    todo "correct error";
     throws-like {$xc.findvalue('die("a","b")');}, X::LibXML, :message("XPath error: goodbye!");
+
+    $xc.recover = True;
+    my $v;
+    quietly lives-ok {$v = $xc.findvalue('die("a","b")');}, "recover exception";
+    is-deeply $v, False, 'recovered exception result';
+    is-deeply $xc.findvalue('2=1+1'), True, "post-exception function call";
 }
 
 ok $errors, 'errors trapped';
