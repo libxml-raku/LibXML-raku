@@ -96,7 +96,11 @@ method reset { self.set-raw(xmlParserCtxt); }
 
 submethod DESTROY { self.reset }
 
-method stop-parser { .StopParser with $!raw }
+method stop-parser {
+    with $!raw {
+        .StopParser unless self.recover;
+    }
+}
 
 method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
