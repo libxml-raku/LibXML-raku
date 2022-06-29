@@ -63,7 +63,6 @@ subtest 'mixed argument types', {
         }
     );
 
-
     is $xc.findvalue('join("","a","b","c")'), 'abc';
 
     is $xc.findvalue('join("-","a",/foo,//*)'), 'a-foo-foo-bar-bar';
@@ -155,7 +154,7 @@ subtest 'callback errors', {
     my $v;
     quietly lives-ok {$v = $xc.findvalue('die("a","b")');}, "recover exception";
     is-deeply $v, False, 'recovered exception result';
-    is-deeply $xc.findvalue('2=1+1'), True, "post-exception function call";
+    is-deeply $xc.findvalue('2=1+1'), True, "post-recovery function call";
 }
 
 ok $errors, 'errors trapped';

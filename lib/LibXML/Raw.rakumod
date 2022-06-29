@@ -92,8 +92,6 @@ module CLib {
     use LibXML::Raw::Defs :$CLIB;
     our sub memcpy(Blob:D, Pointer:D, size_t) is native($CLIB) {*}
     our sub free(Pointer:D) is native($CLIB) {*}
-    our sub strlen(Pointer:D --> size_t) is native($CLIB) {*}
-    our sub strnlen(Pointer:D, size_t --> size_t) is native($CLIB) {*}
 }
 
 # Pointer to string, expected to be freed by the caller
@@ -136,7 +134,7 @@ module xml6_gbl is export {
         has Str    $.s;
     }
 
-    our sub scan-varargs(Str $fmt, Pointer[xml6_gbl::MsgArg] $argv) is export(:unmarshal-varargs) {
+    our sub scan-varargs(Str $fmt, Pointer[MsgArg] $argv) {
         my int $n = 0;
         $fmt.comb.map: { $argv[$n++]."$_"() };
     }
@@ -367,11 +365,7 @@ class xmlElementContent is repr('CStruct') is export {
     method Str(UInt :$max = 255, Bool:D :$paren = so ($!type == XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR)) {
         my buf8 $buf .= allocate($max);
         Dump($buf, $max, self, +$paren);
-        given CLib::strnlen(nativecast(Pointer, $buf), $max) {
-            # Null terminate
-            $buf .= subbuf(0, $_)
-        }
-        $buf.decode;
+        nativecast(Str, $buf);
     }
 }
 
@@ -398,7 +392,7 @@ class xmlNs is export is repr('CStruct') {
     method Str {
         nextsame without self;
         nextsame if self.prefix ~~ 'xml';
-        # approximation of xmlsave.c: xmlNsDumpOutput(...)
+        # approximation of xmlsave.c static function: xmlNsDumpOutput(...)
         my xmlBuffer32 $buf .= new;
 
         $buf.Write('xmlns');
@@ -925,10 +919,10 @@ class anyNode is export does LibXML::Raw::DOM::Node {
 
     method Blob(anyNode:D: int32 :$options = 0, xmlEncodingStr :$enc --> Blob) {
         my buf8 $buf;
-        with self.xml6_node_to_buf($options, my size_t $len, $enc) {
+        if self.xml6_node_to_buf($options, my size_t $len, $enc) -> $p {
             $buf .= allocate($len);
-            CLib::memcpy($buf, $_, $len);
-            CLib::free($_);
+            CLib::memcpy($buf, $p, $len);
+            CLib::free($p);
         }
         $buf;
     }
@@ -1189,27 +1183,18 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
 #| xmlDoc of type: XML_HTML_DOCUMENT_NODE
 class htmlDoc is xmlDoc is repr('CStruct') is export {
     BEGIN @ClassMap[XML_HTML_DOCUMENT_NODE] = $?CLASS;
-    method DumpFormat(Pointer[uint8] $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
+    method DumpFormat(AllocedStr $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
     our sub New(xmlCharP $URI, xmlCharP $external-id --> htmlDoc) is native($XML2) is symbol('htmlNewDoc') {*}
     method new(Str :$URI, Str :$external-id) {
         New($URI, $external-id);
     }
 
     method dump(Bool:D :$format = True) {
-        my Pointer[uint8] $out .= new;
+        my AllocedStr $out .= new;
         my int32 $len;
 
         self.DumpFormat($out, $len, +$format);
-
-        if +$out && $len {
-            my buf8 $buf .= allocate($len);
-            CLib::memcpy($buf, $out, $len);
-            CLib::free($out);
-            $buf.decode; # encoding?
-        }
-        else {
-            Str;
-        }
+        $out.Str;
     }
 }
 
@@ -1586,8 +1571,8 @@ class xmlParserCtxt is export {
 
     # SAX2 Handler callbacks
     #-- Document Properties --#
-    method xmlSAX2GetPublicId(--> Pointer) is native($XML2) {*};
-    method xmlSAX2GetSystemId(--> Pointer) is native($XML2) {*};
+    method xmlSAX2GetPublicId(--> Str) is native($XML2) {*};
+    method xmlSAX2GetSystemId(--> Str) is native($XML2) {*};
     method xmlSAX2SetDocumentLocator(xmlSAXLocator $loc) is native($XML2) {*};
     method xmlSAX2GetLineNumber(--> int32) is native($XML2) {*};
     method xmlSAX2GetColumnNumber(--> int32) is native($XML2) {*};

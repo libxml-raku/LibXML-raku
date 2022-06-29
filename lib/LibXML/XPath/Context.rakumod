@@ -169,7 +169,7 @@ sub generic-error-cb(Str:D $fmt, |args) {
     CATCH { default { note "error handling XML generic error: $_" } }
     $*XPATH-CONTEXT.generic-error($fmt, |args);
 }
-method !try(&action) {
+method !try(&action) is hidden-from-backtrace {
     my $rv;
 
     protected sub () is hidden-from-backtrace {
