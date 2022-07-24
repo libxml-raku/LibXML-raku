@@ -115,7 +115,7 @@ role Assoc[LibXML::Item $of] {
     method of {$of}
     method freeze(LibXML::Item $n where .isa($of)) {
         .raw.Reference with $n;
-        nativecast(Pointer, $n);
+        nativecast(Pointer, $n.raw);
     }
     method thaw(Pointer $p) {
         $of.box: itemNode.cast($p);

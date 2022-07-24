@@ -1,10 +1,13 @@
 #| DtD entity definitions
-unit class LibXML::Dtd::Entity is repr('CPointer');
+unit class LibXML::Dtd::Entity;
 
 use LibXML::Node;
-also is LibXML::Node;
-
 use LibXML::Raw;
+use LibXML::_Rawish;
+
+also is LibXML::Node;
+also does LibXML::_Rawish[xmlEntity, ()];
+
 use LibXML::Enums;
 use NativeCall;
 use LibXML::Dtd::Notation;
@@ -69,8 +72,6 @@ method entityType { $.raw.etype }
     `XML_INTERNAL_GENERAL_ENTITY`,
     `XML_INTERNAL_PARAMETER_ENTITY`,
     or `XML_INTERNAL_PREDEFINED_ENTITY`
-
-method raw { nativecast(xmlEntity, self) }
 
 method Str {
     self.defined && self.raw.etype == XML_INTERNAL_PREDEFINED_ENTITY

@@ -61,6 +61,7 @@ DOM objects, generally aren't configurable, although some particular methods do 
 use LibXML::Enums;
 use LibXML::Raw;
 use LibXML::Types :resolve-package;
+use LibXML::X;
 use NativeCall;
 use AttrX::Mooish;
 
@@ -378,30 +379,93 @@ multi method query-handler(::?CLASS:D: --> QueryHandler) is rw {
 }
 =para See L<LibXML::XPath::Context>
 
-our @ClassMap = BEGIN do {
+my constant @DefaultClassMap =
+    'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
+    'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
+    'LibXML::Comment'          => XML_COMMENT_NODE,
+    'LibXML::Dtd'              => XML_DTD_NODE,
+    'LibXML::Dtd::AttrDecl'    => XML_ATTRIBUTE_DECL,
+    'LibXML::Dtd::ElementDecl' => XML_ELEMENT_DECL,
+    'LibXML::Dtd::Entity'      => XML_ENTITY_DECL,
+    'LibXML::DocumentFragment' => XML_DOCUMENT_FRAG_NODE,
+    'LibXML::Document'         => XML_HTML_DOCUMENT_NODE,
+    'LibXML::Document'         => XML_DOCB_DOCUMENT_NODE,
+    'LibXML::Document'         => XML_DOCUMENT_NODE,
+    'LibXML::Element'          => XML_ELEMENT_NODE,
+    'LibXML::EntityRef'        => XML_ENTITY_REF_NODE,
+    'LibXML::Namespace'        => XML_NAMESPACE_DECL,
+    'LibXML::PI'               => XML_PI_NODE,
+    'LibXML::Text'             => XML_TEXT_NODE;
+
+my constant %DefaultClassMap = @DefaultClassMap;
+my constant @ClassMap = do {
     my Str @map;
-    for (
-        'LibXML::Attr'             => XML_ATTRIBUTE_NODE,
-        'LibXML::CDATA'            => XML_CDATA_SECTION_NODE,
-        'LibXML::Comment'          => XML_COMMENT_NODE,
-        'LibXML::Dtd'              => XML_DTD_NODE,
-        'LibXML::Dtd::AttrDecl'    => XML_ATTRIBUTE_DECL,
-        'LibXML::Dtd::ElementDecl' => XML_ELEMENT_DECL,
-        'LibXML::Dtd::Entity'      => XML_ENTITY_DECL,
-        'LibXML::DocumentFragment' => XML_DOCUMENT_FRAG_NODE,
-        'LibXML::Document'         => XML_DOCUMENT_NODE,
-        'LibXML::Document'         => XML_HTML_DOCUMENT_NODE,
-        'LibXML::Document'         => XML_DOCB_DOCUMENT_NODE,
-        'LibXML::Element'          => XML_ELEMENT_NODE,
-        'LibXML::EntityRef'        => XML_ENTITY_REF_NODE,
-        'LibXML::Namespace'        => XML_NAMESPACE_DECL,
-        'LibXML::PI'               => XML_PI_NODE,
-        'LibXML::Text'             => XML_TEXT_NODE,
-    ) {
-        @map[.value] = .key
+    for @DefaultClassMap -> (:key($class-name), :value($code)) {
+        @map[$code] = $class-name;
     }
     @map;
 }
+
+# COW clone of @ClassMap
+has @.class-map is mooish(:lazy);
+
+method build-class-map {
+    @ClassMap
+        .grep(*.defined)
+        .map({ resolve-package($_) })
+}
+
+method !validate-map-class-name(Str:D $class, Str:D $why) {
+    unless %DefaultClassMap{$class}:exists {
+        LibXML::X::ClassName.new(:$class, :$why).throw;
+    }
+}
+
+method !validate-map-class(Any:U \type, Str:D $why) {
+    unless %DefaultClassMap{type.^name}:exists {
+        LibXML::X::Class.new(:class(type.^name), :$why).throw;
+    }
+}
+
+proto method map-class(|) {*}
+multi method map-class(Int:D $id, Mu:U \user-type) {
+    self.protect: { @!class-map[$id] := user-type }
+}
+multi method map-class(Str:D $class, Mu:U \user-type) {
+    self!validate-map-class-name($class, q<unknown to configuration 'map-call' method>);
+    samewith(%DefaultClassMap{$class}, user-type);
+}
+multi method map-class(LibXML::Types::Itemish:U \from-type, Mu:U \user-type) {
+    self!validate-map-class(from-type, q<unsupported by configuration 'map-call' method>);
+    samewith(from-type.^name, user-type)
+}
+# Maps LibXML::* class names into user classes
+multi method map-class(*@pos, *%mappings) {
+    for %mappings.kv -> Str:D $class, \user-type {
+        samewith(%DefaultClassMap{$class}, user-type);
+    }
+
+    for @pos -> $mapping {
+        unless $mapping ~~ Pair {
+            LibXML::X::ArgumentType.new(:got($mapping.WHAT),
+                :expected(Pair),
+                :routine(q<configuration method 'map-class'>)).throw;
+        }
+        samewith($mapping.key, $mapping.value);
+    }
+}
+
+proto method class-from($) {*}
+multi method class-from(LibXML::Types::Itemish:U \from-type) {
+    self!validate-map-class(from-type, q<unsupported by configuration 'class-map' method>);
+    samewith(%DefaultClassMap{from-type.^name});
+}
+multi method class-from(Str:D $class) {
+    self!validate-map-class-name($class, q<unknown to configuration 'class-map' method>);
+    samewith(%DefaultClassMap{$class});
+}
+multi method class-from(::?CLASS:D: Int:D $id) { @!class-map[$id] }
+multi method class-from(::?CLASS:U: Int:D $id) { resolve-package(@ClassMap[$id]) }
 
 =begin pod
 

@@ -7,7 +7,7 @@ use LibXML::_Options;
 
 constant %Opts = %(
     %LibXML::Parser::Context::Opts,
-    %(:URI, :html, :line-numbers,
+    %(:URI, :html, :line-numbers, :config,
       :sax-handler, :input-callbacks, :enc,
      )
 );
@@ -62,7 +62,11 @@ method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input
 method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
     my xmlDoc $raw = $ctx.publish();
     my $input-compressed = $ctx.input-compressed();
-    my LibXML::Document $doc .= new: :raw($_), :$URI, :$input-compressed
+    my LibXML::Document:D $doc =
+        self
+            .config
+            .class-from(XML_DOCUMENT_NODE)
+            .new: :raw($_), :$URI, :$input-compressed, :$.config
         with $raw;
 
     if $.expand-xinclude {

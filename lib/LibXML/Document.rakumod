@@ -3,11 +3,14 @@
 unit class LibXML::Document;
 
 use LibXML::Node;
+use LibXML::Raw;
 use LibXML::_ParentNode;
+use LibXML::_Rawish;
 use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_ParentNode;
+also does LibXML::_Rawish[xmlDoc, <encoding setCompression getCompression standalone URI wellFormed set-flags>];
 also does W3C::DOM::Document;
 
 use LibXML::Attr;
@@ -21,11 +24,11 @@ use LibXML::EntityRef;
 use LibXML::Enums;
 use LibXML::Item :dom-boxed;
 use LibXML::Utils :&output-options;
-use LibXML::Raw;
 use LibXML::PI;
 use LibXML::Text;
 use LibXML::Types :QName, :NCName, :NameVal, :resolve-package;
 use LibXML::_Validator;
+use AttrX::Mooish;
 use Method::Also;
 use NativeCall;
 
@@ -133,7 +136,6 @@ constant InputCompressed = 1;
     Many functions listed here are documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-has xmlDoc $.raw;
 method new(
     Str  :$version,
     xmlEncodingStr :$enc,
@@ -220,9 +222,6 @@ implied.
         =end code
 =end pod
 
-method raw handles <encoding setCompression getCompression standalone URI wellFormed set-flags> {
-    $!raw; # xmlDoc htmlDoc
-}
 =begin pod
     =head3 method URI
 
@@ -423,7 +422,7 @@ method serialize-html(Bool :$format = True --> Str) {
     my buf8 $buf;
 
     given self.raw -> xmlDoc:D $_ {
-        my htmlDoc:D $html-doc = nativecast(htmlDoc, $_);
+        my htmlDoc:D $html-doc = self.box(htmlDoc);
         $html-doc.dump(:$format);
     }
 }
@@ -569,12 +568,12 @@ method documentElement is rw is also<root> returns LibXML::Element {
 method createElement(QName $name, Str :$href --> LibXML::Element) {
     $href
     ?? $.createElementNS($href, $name)
-    !! LibXML::Element.box: $.raw.createElement($name);
+    !! self.box: $.raw.createElement($name);
 }
 
 #| equivalent to .createElement($name, :$href)
 method createElementNS(Str $href, QName:D $name --> LibXML::Element) {
-    LibXML::Element.box: $.raw.createElementNS($href, $name);
+    self.box: $.raw.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -599,7 +598,7 @@ multi method createAttribute(
 }
 
 multi method createAttribute(QName:D $qname, Str $value = '' --> LibXML::Attr) {
-    LibXML::Attr.box: $.raw.createAttribute($qname, $value);
+    self.box: $.raw.createAttribute($qname, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
@@ -611,32 +610,32 @@ multi method createAttributeNS(Str $href,
                          Str $value = '',
                          --> LibXML::Attr
                         ) {
-    LibXML::Attr.box: $.raw.createAttributeNS($href, $qname, $value);
+    self.box: $.raw.createAttributeNS($href, $qname, $value);
 }
 
 #| Creates a Document Fragment
 method createDocumentFragment($doc: --> LibXML::DocumentFragment) {
-    LibXML::DocumentFragment.new: :$doc;
+    $.config.class-map[XML_DOCUMENT_FRAG_NODE].new: :$doc;
 }
 
 #| Creates a Text Node bound to the DOM.
 method createTextNode($doc: Str $content --> LibXML::Text) {
-    LibXML::Text.new: :$doc, :$content;
+    $.config.class-map[XML_TEXT_NODE].new: :$doc, :$content;
 }
 
 #| Create a Comment Node bound to the DOM
 method createComment($doc: Str $content --> LibXML::Comment) {
-    LibXML::Comment.new: :$doc, :$content;
+    $.config.class-map[XML_COMMENT_NODE].new: :$doc, :$content;
 }
 
 #| Create a CData Section bound to the DOM
 method createCDATASection($doc: Str $content --> LibXML::CDATA) {
-    LibXML::CDATA.new: :$doc, :$content;
+    $.config.class-map[XML_CDATA_SECTION_NODE].new: :$doc, :$content;
 }
 
 #| Creates an Entity Reference
 method createEntityReference($doc: Str $name --> LibXML::EntityRef) {
-    LibXML::EntityRef.new: :$doc, :$name;
+    $.config.class-map[XML_ENTITY_REF_NODE].new: :$doc, :$name;
 }
 =begin pod
     =para
@@ -662,19 +661,19 @@ multi method createPI(NameVal $_!, |c) {
     $.createPI(.key, .value, |c);
 }
 multi method createPI($doc: NCName $name, Str $content? --> LibXML::PI) {
-    LibXML::PI.new: :$doc, :$name, :$content;
+    $.config.class-map[XML_PI_NODE].new: :$doc, :$name, :$content;
 }
 
 #| Creates a new external subset
 method createExternalSubset($doc: Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    LibXML::Dtd.new: :$doc, :type<external>, :$name, :$external-id, :$system-id;
+    $.confg.class-map[XML_DTD_NODE].new: :$doc, :type<external>, :$name, :$external-id, :$system-id;
 }
 =para This function is similar to C<createInternalSubset()> but this DTD is considered to be external and is therefore not added to the
   document itself. Nevertheless it can be used for validation purposes.
 
 #| Creates a new Internal Subset
 method createInternalSubset($doc: Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    LibXML::Dtd.new: :$doc, :type<internal>, :$name, :$external-id, :$system-id;
+    $.confg.class-map[XML_DTD_NODE].new: :$doc, :type<internal>, :$name, :$external-id, :$system-id;
 }
 =begin pod
     =head3 method createInternalSubset
@@ -709,12 +708,12 @@ method createInternalSubset($doc: Str $name, Str $external-id, Str $system-id --
 
 #| Create a new external DTD
 method createDTD(Str $name, Str $external-id, Str $system-id --> LibXML::Dtd) {
-    LibXML::Dtd.new: :$name, :$external-id, :$system-id, :type<external>;
+    $.confg.class-map[XML_DTD_NODE].new: :$name, :$external-id, :$system-id, :type<external>;
 }
 
 #| Lookup an entity in the document
 method getEntity(Str $name --> LibXML::Dtd::Entity) {
-    LibXML::Dtd::Entity.box: $.raw.GetEntity($name);
+    self.box: $.raw.GetEntity($name);
 }
 
 =para Searches any internal subset, external subset, and predefined entities
@@ -729,7 +728,7 @@ method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node(
 proto method importNode(LibXML::Node:D $node --> LibXML::Node) {*}
 multi method importNode(LibXML::Document $) { fail "Can't import Document nodes" }
 multi method importNode(LibXML::Node:D $node --> LibXML::Node) {
-     LibXML::Node.box: $.raw.importNode($node.raw);
+     self.box: $.raw.importNode($node.raw);
 }
 =para If a node is not part of a document, it can be imported to another document. As
     specified in DOM Level 2 Specification the Node will not be altered or removed
@@ -758,7 +757,7 @@ method getDocumentElement returns LibXML::Element is dom-boxed {...}
 #| DOM compatible method to set the document element
 method setDocumentElement($doc: LibXML::Element:D $elem --> LibXML::Element) {
     # Preempt libxml which unlinks, but doesn't free any current root element
-    LibXML::Node.box($_).unbindNode
+    self.box($_).unbindNode
         with $.raw.getDocumentElement;
 
     $elem.setOwnerDocument($doc);
@@ -901,7 +900,7 @@ method processXIncludes(LibXML::Config :$config, |c) is also<process-xincludes> 
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
-    LibXML::Element.box: $.raw.getElementById($id);
+    self.box: $.raw.getElementById($id);
 }
 =para Note: the ID of an element may change while manipulating the document. For
     documents with a DTD, the information about ID attributes is only available if

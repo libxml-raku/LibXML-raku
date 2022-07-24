@@ -1,5 +1,5 @@
 #| Entity Reference nodes
-unit class LibXML::EntityRef is repr('CPointer');
+unit class LibXML::EntityRef;
 
 use LibXML::Node;
 use W3C::DOM;
@@ -77,8 +77,7 @@ note $doc.root.Str; # <doc att="xxx&foo;">This is a valid document &foo; !</doc>
 =end pod
 
 use LibXML::Raw;
-use NativeCall;
-method raw { nativecast(xmlEntityRefNode, self) }
+has xmlEntityRefNode $.raw;
 
 method new(LibXML::Node :doc($owner), Str :$name!) {
     my xmlDoc:D $doc = .raw with $owner;

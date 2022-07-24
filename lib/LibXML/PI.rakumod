@@ -1,5 +1,5 @@
 #| LibXML Processing Instructions
-unit class LibXML::PI is repr('CPointer');
+unit class LibXML::PI;
 
 use LibXML::Node;
 use W3C::DOM;

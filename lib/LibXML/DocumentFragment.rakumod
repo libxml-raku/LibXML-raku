@@ -1,12 +1,15 @@
 #| LibXML's DOM L2 Document Fragment Implementation
-unit class LibXML::DocumentFragment is repr('CPointer');
+unit class LibXML::DocumentFragment;
 
 use LibXML::Node;
+use LibXML::Raw;
 use LibXML::_ParentNode;
+use LibXML::_Rawish;
 use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_ParentNode;
+also does LibXML::_Rawish[xmlDocFrag, <encoding setCompression getCompression standalone wellFormed>];
 also does W3C::DOM::DocumentFragment;
 
 =begin pod
@@ -53,7 +56,6 @@ also does W3C::DOM::DocumentFragment;
 =end pod
 
 use LibXML::Element;
-use LibXML::Raw;
 use LibXML::Node;
 use NativeCall;
 use Method::Also;
@@ -109,10 +111,6 @@ method new(LibXML::Node :doc($_), xmlDocFrag :$native) {
     Creates a new empty document fragment to which nodes can be added; typically by
     calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
 =end pod
-
-method raw handles <encoding setCompression getCompression standalone wellFormed> {
-    nativecast(xmlDocFrag, self);
-}
 
 #| parses a balanced XML chunk
 method parse(

@@ -1,9 +1,9 @@
 use v6;
 
 #| Abstract base class of LibXML Nodes
-unit class LibXML::Node is repr('CPointer');
+unit class LibXML::Node;
 
-use LibXML::Item :box-class, :ast-to-xml, :dom-boxed;
+use LibXML::Item :dom-boxed;
 use LibXML::_DomNode;
 use LibXML::Enums;
 use LibXML::Namespace;
@@ -11,6 +11,7 @@ use LibXML::Raw;
 use LibXML::XPath::Expression;
 use LibXML::Types :NCName, :QName, :NameVal;
 use LibXML::Utils :iterate-list, :iterate-set, :output-options;
+use LibXML::_Rawish;
 use W3C::DOM;
 use NativeCall;
 use Method::Also;
@@ -132,10 +133,12 @@ also does W3C::DOM::Node;
 enum <SkipBlanks KeepBlanks>;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
+has anyNode:D $!raw is built(:bind) is required;
+
 ########################################################################
 =head2 Property Methods
 
-method raw handles<
+proto method raw(|) handles<
     domCheck
     getNodeName getNodeValue
     isBlank hasAttributes hasChildNodes
@@ -143,8 +146,9 @@ method raw handles<
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
     type lock unlock
-    unique-key ast-key xpath-key
-> { nativecast(xmlNode, self) }
+    unique-key ast-key xpath-key> {*}
+multi method raw(::?CLASS:D:) { $!raw }
+multi method raw(::?CLASS:U:) { xmlNode }
 
 method native is DEPRECATED<raw> { self.raw }
 
@@ -155,12 +159,12 @@ submethod DESTROY {
     self.raw.Unreference;
 }
 
-multi method box(anyNode:D $_) {
+multi method box(anyNode:D $_, *%c) {
     .Reference;
-    my $class := box-class(.type);
+    my $class := self.box-class(.type);
     $class.REPR.starts-with('C')
         ?? nativecast($class, $_)
-        !! $class.bless: :raw(.delegate);
+        !! $class.bless: :raw(.delegate), |(:$.config if self.defined), |%c;
 }
 
 method getName { self.getNodeName }
@@ -309,7 +313,7 @@ method prev returns LibXML::Node is dom-boxed {...}
 
 # Fallback to LibXML::Attr::Map:U for non-element nodes
 method attributes(LibXML::Node:D $node:) {
-    box-class('LibXML::Attr::Map')
+    self.box-class('LibXML::Attr::Map')
 }
 
 =begin pod
@@ -340,7 +344,7 @@ method ownerDocument is rw is also<doc> {
 }
 
 method getOwnerDocument is also<get-doc> returns LibXML::Node {
-    my \doc-class = box-class(XML_DOCUMENT_NODE);
+    my \doc-class = self.box-class(XML_DOCUMENT_NODE);
     do with self {
         with .raw.doc -> xmlDoc $raw {
             doc-class.box($raw);
@@ -513,7 +517,7 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
     last child of the parent node.
 
     method removeChildNodes(--> LibXML::Node) {
-    my \frag-class = box-class(XML_DOCUMENT_FRAG_NODE);
+    my \frag-class = self.box-class(XML_DOCUMENT_FRAG_NODE);
     frag-class.box: self.raw.removeChildNodes();
 }
 =begin pod
@@ -529,7 +533,7 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
 ########################################################################
 =head2 Searching Methods
 
-method xpath-class { box-class('LibXML::XPath::Context') }
+method xpath-class { self.box-class('LibXML::XPath::Context') }
 
 method xpath-context($node: |c) {
     $.xpath-class.new: :$node, |c;
@@ -808,7 +812,8 @@ method canonicalize(
     :v(v1.1) can be passed to specify v1.1 of the C14N specification. The `:$eclusve` flag is not applicable to this level.
 =end pod
 
-proto method Str(|) is also<serialize> handles <Int Num> {*}
+proto method Str(|) is also<serialize gist> handles <Int Num> {*}
+multi method Str(LibXML::Node:U:) { nextsame }
 multi method Str(LibXML::Node:D: :$C14N! where .so, |c) {
     self.canonicalize(|c);
 }
@@ -820,7 +825,7 @@ multi method Str(LibXML::Node:D: :$C14N! where .so, |c) {
     `$node.Str( :C14N, |%opts)` is equivalent to `$node.canonicalize(|%opts)`
 =end pod
 
-multi method Str(LibXML::Node:D: |c) is also<gist> is default {
+multi method Str(LibXML::Node:D: |c) is default {
     my $options = output-options(|c);
     self.raw.Str(:$options);
 }

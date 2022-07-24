@@ -1,6 +1,5 @@
 use v6;
 use Test;
-plan 10;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Dtd;
@@ -8,6 +7,8 @@ use LibXML::Document;
 use LibXML::Element;
 use LibXML::Enums;
 use LibXML::ErrorHandling;
+
+plan 10;
 
 my $string = q:to<EOF>;
     <!ELEMENT doc (head, descr)>
@@ -45,8 +46,9 @@ $string = qq:to<EOF>;
 </doc>
 EOF
 
-my LibXML::Document $doc .= parse: :$string, :dtd;
-my LibXML::Element $head = $doc.documentElement.elements[0];
+my LibXML::Document:D $doc .= parse: :$string, :dtd;
+my LibXML::Element:D $head = $doc.documentElement.elements[0];
+note $head.Str;
 is-deeply $head.keys.sort, ("\@b", "\@id", "text()");
 my LibXML::Attr $id = $head.getAttributeNode('id');
 my LibXML::Attr $a = $head.getAttributeNode('a');

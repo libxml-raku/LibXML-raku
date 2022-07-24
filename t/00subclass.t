@@ -12,28 +12,42 @@ use LibXML::Config;
 use LibXML::Enums;
 use LibXML::Document;
 use LibXML::Element;
+use LibXML::Attr;
+use LibXML::Raw;
 
 class MyElement is LibXML::Element {
-    use LibXML::Raw;
-    submethod TWEAK(:$raw) {
-        isa-ok $raw, xmlElem, 'TWEAK';
-        ok defined($raw), 'TWEAK';
-    }
-    has xmlElem $.raw;
+    has Str:D $.my-attr = "something special";
     method nodeValue { 'bazinga' }
 }
 
-@LibXML::Config::ClassMap[XML_ELEMENT_NODE] = MyElement;
+class MyAttr is LibXML::Attr {
+#    submethod TWEAK {
+#        isa-ok $.raw, xmlAttr, 'MyAttr $.raw type';
+#        ok defined($.raw), 'MyAttr $.raw is defined';
+#    }
+}
 
-my LibXML::Document $doc .= parse: :string(q:to<END>);
-<doc>test</doc>
+my $config = LibXML::Config.new;
+$config.map-class(
+    'LibXML::Element' => MyElement,
+    LibXML::Attr => MyAttr );
+
+my LibXML::Document:D $doc .= parse: :string(q:to<END>), :$config;
+<doc att="42">test</doc>
 END
 
 my $root = $doc.getDocumentElement;
 
 isa-ok $root, MyElement, 'parsed elem type';
+isa-ok $root.raw, xmlElem, 'parsed element $.raw type';
+ok defined($root.raw), 'parsed element $.raw is defined';
 is $root.nodeName, 'doc', 'parsed elem name';
 is $root.nodeValue, 'bazinga', 'parsed elem value';
+
+my $attr = $root.getAttributeNode("att");
+
+isa-ok $attr, MyAttr, 'element attribute type';
+isa-ok $attr.raw, xmlAttr, 'element attribute $.raw type';
 
 my $elem = $doc.createElement('foo');
 
@@ -43,4 +57,4 @@ is $elem.nodeValue, 'bazinga', 'created elem value';
 
 $root.addChild($elem);
 
-is $root.Str, '<doc>test<foo/></doc>', 'serialization sanity';
+is $root.Str, '<doc att="42">test<foo/></doc>', 'serialization sanity';

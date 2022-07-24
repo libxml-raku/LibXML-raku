@@ -1,15 +1,31 @@
 
 #| LibXML Class for Element Nodes
-unit class LibXML::Element is repr('CPointer');
+unit class LibXML::Element;
 
 use LibXML::Node;
 use LibXML::Utils :iterate-list;
 use LibXML::_ParentNode;
+use LibXML::Attr;
+use LibXML::Attr::Map;
+use LibXML::Config;
+use LibXML::Dtd::ElementDecl;
+use LibXML::Enums;
+use LibXML::Item :box-class, :dom-boxed;
+use LibXML::Namespace;
+use LibXML::Raw;
+use LibXML::Types :QName, :NCName, :NameVal;
+use LibXML::_Rawish;
+use XML::Grammar;
+use NativeCall;
+use Method::Also;
 use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_ParentNode;
 also does W3C::DOM::Element;
+also does LibXML::_Rawish[ xmlElem,
+                           <content getAttribute getAttributeNS getNamespaceDeclURI
+                            hasAttribute hasAttributeNS removeAttribute removeAttributeNS>];
 
 =begin pod
     =head2 Synopsis
@@ -99,19 +115,11 @@ also does W3C::DOM::Element;
 
 =end pod
 
-use NativeCall;
-
-use LibXML::Attr;
-use LibXML::Attr::Map;
-use LibXML::Config;
-use LibXML::Dtd::ElementDecl;
-use LibXML::Enums;
-use LibXML::Item :box-class, :dom-boxed;
-use LibXML::Namespace;
-use LibXML::Raw;
-use LibXML::Types :QName, :NCName, :NameVal;
-use XML::Grammar;
-use Method::Also;
+#has xmlElem:D $.raw is required handles<
+#        content
+#        getAttribute getAttributeNS getNamespaceDeclURI
+#        hasAttribute hasAttributeNS
+#        removeAttribute removeAttributeNS>;
 
 # Perl compat
 multi method new(QName:D $name, LibXML::Namespace $ns?) {
@@ -124,13 +132,13 @@ multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns
     self.box: $raw;
 }
 
-method raw handles<
-        content
-        getAttribute getAttributeNS getNamespaceDeclURI
-        hasAttribute hasAttributeNS
-        removeAttribute removeAttributeNS> {
-    nativecast(xmlElem, self);
-}
+#method raw handles<
+#        content
+#        getAttribute getAttributeNS getNamespaceDeclURI
+#        hasAttribute hasAttributeNS
+#        removeAttribute removeAttributeNS> {
+#    nativecast(xmlElem, self);
+#}
 
 =begin pod
     =head3 method new
@@ -168,7 +176,7 @@ multi method setAttributeNS(Str $uri, NameVal:D $_ --> LibXML::Attr) {
 }
 #| Namespace-aware version of of setAttribute()
 multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) {
-    LibXML::Attr.box: $.raw.setAttributeNS($uri, $name, $value);
+    self.box: $.raw.setAttributeNS($uri, $name, $value);
 }
 =begin pod
     =para  where
@@ -220,10 +228,10 @@ method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
 }
 
 method getAttributeNode(Str:D $att-name --> LibXML::Attr) is also<attribute> {
-    LibXML::Attr.box: $.raw.getAttributeNode($att-name);
+    self.box: $.raw.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
-    LibXML::Attr.box: $.raw.getAttributeNodeNS($uri, $att-name);
+    self.box: $.raw.getAttributeNodeNS($uri, $att-name);
 }
 
 # handled by the `raw` method

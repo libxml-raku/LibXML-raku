@@ -1,13 +1,16 @@
 #| LibXML DtD Element declaration introspection (experimental)
-unit class LibXML::Dtd::ElementDecl is repr('CPointer');
+unit class LibXML::Dtd::ElementDecl;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
+
 also is LibXML::Node;
+also does LibXML::_Rawish[xmlElementDecl, <etype prefix>];
 
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementContent;
 use LibXML::Enums;
-use LibXML::Raw;
 use NativeCall;
 use Method::Also;
 
@@ -93,7 +96,6 @@ method attributes is also<attribs attr> {
     my % = @.properties.map: { .nodeName => $_ };
 }
 method new(|) { fail }
-method raw handles <etype prefix> { nativecast(xmlElementDecl, self) }
 
 method keys {
     [

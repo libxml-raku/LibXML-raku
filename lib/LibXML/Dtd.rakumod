@@ -4,10 +4,29 @@ unit class LibXML::Dtd;
 use LibXML::Node;
 use W3C::DOM;
 use LibXML::_Validator;
+use LibXML::_Rawish;
+use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Options;
+use LibXML::Raw;
+use LibXML::Raw::HashTable;
+use LibXML::Parser::Context;
+use LibXML::Attr;
+use LibXML::Element;
+use LibXML::EntityRef;
+use LibXML::Node;
+use LibXML::Dtd::AttrDecl;
+use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::Entity;
+use LibXML::Dtd::Notation;
+use LibXML::HashMap;
+use LibXML::Config :&protected;
+use Method::Also;
+use NativeCall;
 
 also is LibXML::Node;
 also does W3C::DOM::DocumentType;
 also does LibXML::_Validator;
+also does LibXML::_Rawish[xmlDtd, <systemId publicId>];
 
   =begin pod
   =head2 Synopsis
@@ -72,26 +91,6 @@ also does LibXML::_Validator;
   =item L<LibXML::Dtd::ElementContent> - LibXML DTD element content declarations (experimental)
   =item L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations (experimental)
   =end  pod
-
-use LibXML::ErrorHandling :&structured-error-cb;
-use LibXML::_Options;
-use LibXML::Raw;
-use LibXML::Raw::HashTable;
-use LibXML::Parser::Context;
-use LibXML::Attr;
-use LibXML::Element;
-use LibXML::EntityRef;
-use LibXML::Node;
-use LibXML::Dtd::AttrDecl;
-use LibXML::Dtd::ElementDecl;
-use LibXML::Dtd::Entity;
-use LibXML::Dtd::Notation;
-use LibXML::HashMap;
-use LibXML::Config :&protected;
-use Method::Also;
-use NativeCall;
-
-has xmlDtd $.raw is built handles <systemId publicId>;
 
 constant DocNode = W3C::DOM::Document;
 
@@ -394,21 +393,21 @@ has DeclMapNotation $!notations;
 #| returns a hash-map of notation declarations
 method notations(LibXML::Dtd:D $dtd: --> DeclMap) {
     $!notations //= DeclMapNotation.new: :$dtd, :raw($_)
-        with $!raw.notations;
+        with $.raw.notations;
 }
 
 has DeclMap $!entities;
 #| returns a hash-map of entity declarations
 method entities(LibXML::Dtd:D $dtd: --> DeclMap) {
     $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::Entity)
-        with $!raw.entities;
+        with $.raw.entities;
 }
 
 has DeclMap $!elements;
 #| returns a hash-map of element declarations
 method element-declarations(LibXML::Dtd:D $dtd: --> DeclMap) {
     $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
-        with $!raw.elements;
+        with $.raw.elements;
 }
 
 method Hash handles<AT-KEY keys pairs values> {
@@ -420,7 +419,7 @@ has AttrDeclMap $!element-attributes;
 #| returns a hash-map of attribute declarations
 method attribute-declarations(LibXML::Dtd:D $dtd: --> AttrDeclMap) {
     $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
-        with $!raw.attributes;
+        with $.raw.attributes;
 }
 =para Actually returns a two dimensional hash of element declarations and element names
 

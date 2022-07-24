@@ -1,16 +1,18 @@
 #| LibXML DtD Element attribute declaration introspection (experimental)
-unit class LibXML::Dtd::AttrDecl is repr('CPointer');
+unit class LibXML::Dtd::AttrDecl;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
+
 also is LibXML::Node;
+also does LibXML::_Rawish[xmlAttrDecl, <prefix defaultValue>];
 
 use LibXML::Enums;
 use LibXML::Item :&box-class;
-use LibXML::Raw;
 use NativeCall;
 
-method new(|) { fail }
-method raw handles<prefix defaultValue> { nativecast(xmlAttrDecl, self) }
+method new(|) { fail ::?CLASS.^name ~ " cannot be directly instantiated" }
 
 method attrType returns UInt { $.raw.atype }
 method defaultMode returns UInt { $.raw.def }

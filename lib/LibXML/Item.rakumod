@@ -24,27 +24,35 @@ unit class LibXML::Item;
 use LibXML::Raw;
 use LibXML::Raw::DOM::Node;
 use LibXML::Enums;
-use LibXML::Config;
 use LibXML::Types :resolve-package;
+use LibXML::Config;
+use LibXML::_Configurable;
 
+also does LibXML::Types::Itemish;
 also does LibXML::Types::XPathish;
+also does LibXML::_Configurable;
 
-proto sub box-class($) {*}
-multi sub box-class(Str:D $class-name) {
-    resolve-package($class-name)
+sub box-class($_) is export(:box-class) {
+    ::?CLASS.box-class($_)
 }
 
-multi sub box-class(Int:D $_) is export(:box-class) {
-    box-class(@LibXML::Config::ClassMap[$_]);
-}
+proto sub ast-to-xml(|) is export(:ast-to-xml) {*}
+multi sub ast-to-xml($_) { ::?CLASS.ast-to-xml($_) }
+multi sub ast-to-xml(*%p where .elems == 1) { ::?CLASS.ast-to-xml(%p.pairs.head) }
 
-multi sub box-class(::?CLASS $_) { $_ }
+proto method box-class($) {*}
+multi method box-class(::?CLASS $_) { $_ }
+multi method box-class(Str:D $class-name) { resolve-package($class-name) }
+multi method box-class(::?CLASS:U: Int:D $id) { LibXML::Config.class-from($id) }
+multi method box-class(::?CLASS:D: Int:D $id) { $!config.class-from($id) }
 
-multi method box(Any:D $_) { box-class(.type).box(.delegate) }
+proto method box(|) {*}
+multi method box(::?CLASS:D: Any:D $_, *%c) { self.box-class(.type).box(.delegate, :$!config, |%c) }
+multi method box(::?CLASS:U: Any:D $_, *%c) { self.box-class(.type).box(.delegate, |%c) }
 multi method box(Any:U) { self.WHAT }
 
 #| Node constructor from data
-proto sub ast-to-xml(| --> LibXML::Item) is export(:ast-to-xml) {*}
+proto method ast-to-xml(| --> LibXML::Item) {*}
 =begin pod
 This function can be useful as a succinct of building nodes from data. For example:
 
@@ -72,7 +80,7 @@ Produces:
     =end code
 =end pod
 
-multi sub ast-to-xml(Pair $_) {
+multi method ast-to-xml(Pair $_) {
     my $name = .key;
     my $value := .value;
 
@@ -80,48 +88,48 @@ multi sub ast-to-xml(Pair $_) {
 
     when $value ~~ Str:D {
         when $name.starts-with('#') {
-            box-class($node-type).new: :content($value);
+            self.box-class($node-type).new: :content($value);
         }
         when $name.starts-with('?') {
             $name .= substr(1);
-            box-class('LibXML::PI').new: :$name, :content($value);
+            self.box-class(XML_PI_NODE).new: :$name, :content($value);
         }
         when $name.starts-with('xmlns:') {
             my $prefix = $name.substr(6);
-            box-class('LibXML::Namespace').new: :$prefix, :URI($value)
+            self.box-class(XML_NAMESPACE_DECL).new: :$prefix, :URI($value)
         }
         default {
             $name .= substr(1) if $name.starts-with('@');
-            box-class('LibXML::Attr').new: :$name, :$value;
+            self.box-class(XML_ATTRIBUTE_NODE).new: :$name, :$value;
         }
     }
     when $name.starts-with('&') {
         $name .= substr(1);
         $name .= chop() if $name.ends-with(';');
-        box-class('LibXML::EntityRef').new: :$name
+        self.box-class(XML_ENTITY_REF_NODE).new: :$name
     }
     default {
-        my $node := box-class($node-type).new: :$name;
+        my $node := self.box-class($node-type).new: :$name;
 
         for $value.List {
-            $node.add( ast-to-xml($_) ) if .defined;
+            $node.add( self.ast-to-xml($_) ) if .defined;
         }
         $node;
     }
 }
 
-multi sub ast-to-xml(Positional $_) {
-    ast-to-xml('#fragment' => $_);
+multi method ast-to-xml(Positional $_) {
+    self.ast-to-xml('#fragment' => $_);
 }
 
-multi sub ast-to-xml(Str:D $content) {
-    box-class('LibXML::Text').new: :$content;
+multi method ast-to-xml(Str:D $content) {
+    self.box-class(XML_TEXT_NODE).new: :$content;
 }
 
-multi sub ast-to-xml(LibXML::Item:D $_) { $_ }
+multi method ast-to-xml(LibXML::Item:D $_) { $_ }
 
-multi sub ast-to-xml(*%p where .elems == 1) {
-    ast-to-xml(%p.pairs[0]);
+multi method ast-to-xml(*%p where .elems == 1) {
+    self.ast-to-xml(%p.pairs.head);
 }
 
 =begin pod
@@ -179,8 +187,11 @@ multi trait_mod:<is>(
     Method $m where {.yada && .count <= 1 && .returns ~~ ::?CLASS},
     :$dom-boxed!) is export(:dom-boxed) {
     my $name := $dom-boxed ~~ Str:D ?? $dom-boxed !! $m.name;
-    my ::?CLASS $class := $m.returns;
-    $m.wrap: method () is hidden-from-backtrace { $class.box: $.raw."$name"(); }
+    my &wrapper = method (::?CLASS:D:) is hidden-from-backtrace {
+        self.box: $.raw."$name"()
+    };
+    &wrapper.set_name($name);
+    $m.wrap: &wrapper;
 }
 
 #| Utility method that verifies that `$raw` is the same native struct as the current object.

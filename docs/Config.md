@@ -126,8 +126,7 @@ method skip-dtd() is rw returns Bool
 
 Whether to omit internal DTDs (default False)
 
-class Attribute+{AttrX::Mooish::AttrXMooishAttributeHOW}.new(base-name => "tag-expansion", lazy => Bool::True, builder => "build-tag-expansion", clearer => Bool::False, predicate => Bool::False, trigger => Bool::False, filter => Bool::False, composer => Bool::False, no-init => Bool::False, init-args => [], phony-required => Bool::True)
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+### has Bool:D $!tag-expansion
 
 Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 
