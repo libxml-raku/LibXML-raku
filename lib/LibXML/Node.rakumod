@@ -144,11 +144,7 @@ method raw handles<
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
     type lock unlock
     unique-key ast-key xpath-key
-> {
-    self.REPR.starts-with('C')
-        ?? nativecast(xmlNode, self)
-        !! self.raw;
-}
+> { nativecast(xmlNode, self) }
 
 method native is DEPRECATED<raw> { self.raw }
 
