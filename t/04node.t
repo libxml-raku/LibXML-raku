@@ -555,7 +555,7 @@ subtest 'entity reference', {
 subtest 'Perl #94149', {
     # https://rt.cpan.org/Ticket/Display.html?id=94149
 
-    my LibXML::Text $orig .= new: :content('Double ');
-    my $ret = $orig.addSibling(LibXML::Text.new: :content('Free'));
+    my LibXML::Text $orig = $doc.create: LibXML::Text, :content('Double ');
+    my $ret = $orig.addSibling($doc.create: LibXML::Text, :content('Free'));
     is $ret.textContent, 'Double Free', 'merge text nodes with addSibling'
 }

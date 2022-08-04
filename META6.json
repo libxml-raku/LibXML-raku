@@ -80,6 +80,7 @@
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",
     "LibXML::XPath::Object": "lib/LibXML/XPath/Object.rakumod",
     "LibXML::_CharacterData": "lib/LibXML/_CharacterData.rakumod",
+    "LibXML::_Collection": "lib/LibXML/_Collection.rakumod",
     "LibXML::_Configurable": "lib/LibXML/_Configurable.rakumod",
     "LibXML::_DomNode": "lib/LibXML/_DomNode.rakumod",
     "LibXML::_Options": "lib/LibXML/_Options.rakumod",

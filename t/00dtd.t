@@ -48,7 +48,6 @@ EOF
 
 my LibXML::Document:D $doc .= parse: :$string, :dtd;
 my LibXML::Element:D $head = $doc.documentElement.elements[0];
-note $head.Str;
 is-deeply $head.keys.sort, ("\@b", "\@id", "text()");
 my LibXML::Attr $id = $head.getAttributeNode('id');
 my LibXML::Attr $a = $head.getAttributeNode('a');

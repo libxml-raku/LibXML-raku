@@ -2,22 +2,22 @@
 unit class LibXML::PI;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
+use NativeCall;
+use Method::Also;
 use W3C::DOM;
 
 also is LibXML::Node;
+also does LibXML::_Rawish[xmlPINode];
 also does W3C::DOM::ProcessingInstruction;
 
-use LibXML::Raw;
-use NativeCall;
-use Method::Also;
-
-method new(:doc($owner)!, Str :$name!, Str :$content!) {
+method new(:doc($owner)!, Str :$name!, Str :$content!, *%c) {
     my xmlDoc:D $doc = .raw with $owner;
     my xmlPINode:D $raw .= new: :$name, :$content, :$doc;
-    self.box: $raw;
+    self.box: $raw, |%c;
 }
 
-method raw { nativecast(xmlPINode, self) }
 method content is rw is also<data> handles<substr substr-rw> { $.raw.content };
 method target { self.nodeName }
 

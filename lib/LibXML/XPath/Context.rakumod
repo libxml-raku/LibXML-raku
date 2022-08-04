@@ -2,7 +2,10 @@
 unit class LibXML::XPath::Context;
 
 use LibXML::_Configurable;
+use LibXML::_Collection;
+
 also does LibXML::_Configurable;
+also does LibXML::_Collection;
 
 use LibXML::_Options;
 also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
@@ -118,7 +121,6 @@ use LibXML::Enums;
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::Namespace;
-use LibXML::Utils :iterate-set;
 use LibXML::Node;
 use LibXML::Node::List;
 use LibXML::Node::Set;
@@ -362,7 +364,7 @@ method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, B
                     $v := Str;
                 }
             } else {
-                $v := iterate-set(LibXML::Item, $v);
+                $v := self.iterate-set(LibXML::Item, $v);
             }
         }
         $v;
@@ -371,11 +373,11 @@ method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, B
 
 proto method findnodes($, $?, :deref($) --> LibXML::Node::Set) {*}
 multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bool :$deref) {
-    iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
+    self.iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
 }
 multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) {
     my LibXML::XPath::Expression:D $expr .= new: :expr($_);
-    iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
+    self.iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
 }
 =begin pod
     =head3 method findnodes
@@ -402,7 +404,7 @@ multi method first(Str:D $expr, LibXML::Node $ref?) {
 multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     my $rv = LibXML::Node;
     with self!findnodes($expr, $ref) -> xmlNodeSet $_ {
-        $rv = LibXML::Item.box: .nodeTab[0]
+        $rv = self.box: LibXML::Item, .nodeTab[0]
            if .nodeNr;
         .Free;
     }
@@ -426,7 +428,7 @@ multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
         my $n := $nodes.nodeNr;
         my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
-        my $rv := LibXML::Item.box: $node;
+        my $rv := self.box: LibXML::Item, $node;
         $nodes.Free;
         $rv;
     } // LibXML::Node;
@@ -521,7 +523,7 @@ multi method exists(Str:D $expr, LibXML::Node $ref?) returns Bool;
 
 
 method getContextNode {
-    LibXML::Node.box: $!raw.node;
+    self.box: LibXML::Node, $!raw.node;
 }
 
 # defining the context node

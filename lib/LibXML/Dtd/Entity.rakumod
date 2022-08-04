@@ -6,7 +6,7 @@ use LibXML::Raw;
 use LibXML::_Rawish;
 
 also is LibXML::Node;
-also does LibXML::_Rawish[xmlEntity, ()];
+also does LibXML::_Rawish[xmlEntity];
 
 use LibXML::Enums;
 use NativeCall;

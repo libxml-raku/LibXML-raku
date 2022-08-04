@@ -44,10 +44,10 @@ use Method::Also;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!) {
+method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!, *%c) {
     my xmlDoc $doc = .raw with $owner;
     my xmlAttr:D $raw := xmlAttr.new( :$name, :$value, :$doc );
-    self.box: $raw;
+    self.box: $raw, |%c;
 }
 =begin pod
     =head3 method new

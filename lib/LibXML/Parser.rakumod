@@ -11,7 +11,6 @@ constant %Opts = %(
       :sax-handler, :input-callbacks, :enc,
      )
 );
-also does LibXML::_Configurable;
 also does LibXML::_Options[%Opts];
 
 use LibXML::Raw;
@@ -20,13 +19,14 @@ use LibXML::Document;
 use LibXML::PushParser;
 use Method::Also;
 
+has LibXML::Config:D $.config .= new;
 has Bool $.html is rw is built = False;
 has Bool $.line-numbers is rw is built = False;
 has UInt $.flags is rw is built = self.config.parser-flags();
 has Str $.URI is rw is built;
 has $.sax-handler is rw is built;
 has xmlEncodingStr $.enc is rw is built;
-has $.input-callbacks is rw is built;
+has $!input-callbacks is built;
 multi method input-callbacks is rw { $!input-callbacks }
 multi method input-callbacks($!input-callbacks) {}
 
@@ -54,7 +54,13 @@ method get-flags(:$html, *%opts) {
     $flags;
 }
 
-method !make-handler(xmlParserCtxt :$raw, :$line-numbers=$!line-numbers, :$input-callbacks=$!input-callbacks, :$sax-handler=$.sax-handler, *%opts) {
+method !make-handler( ::?CLASS:D:
+                      xmlParserCtxt :$raw,
+                      :$line-numbers    = $!line-numbers,
+                      :$input-callbacks = $!input-callbacks,
+                      :$sax-handler     = $.sax-handler,
+                      *%opts )
+{
     my UInt $flags = self.get-flags(|%opts);
     LibXML::Parser::Context.new: :$raw, :$line-numbers, :$input-callbacks, :$sax-handler, :$flags, :$.config;
 }
@@ -102,7 +108,7 @@ multi method parse(
     Str:D() :$string!,
     Bool() :$html = $!html,
     Str() :$URI = $!URI,
-    *%opts 
+    *%opts
 ) is hidden-from-backtrace {
 
     my LibXML::Parser::Context:D $ctx = self!make-handler: :$html, |%opts;
@@ -232,7 +238,7 @@ multi method parse(
 }
 
 multi method parse(::?CLASS:U: *%opt) is hidden-from-backtrace is default {
-     self.new(|%opt).parse(|%opt);
+    self.new(|%opt).parse(|%opt)
 }
 
 # parse from a Miscellaneous source
@@ -272,7 +278,7 @@ method push(
                 .push($chunk);
             }
             else {
-                $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler;
+                $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler, :$.config;
             }
         }
         if $terminate {
@@ -292,7 +298,7 @@ multi method parse(Bool :$terminate!, |c) { $.push(:$terminate, |c); }
 
 method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     use LibXML::DocumentFragment;
-    my LibXML::DocumentFragment $frag .= new: :$doc;
+    my LibXML::DocumentFragment $frag .= new: :$doc, :$.config;
     $frag.parse: :balanced, :$string, :$.sax-handler, :$.keep-blanks;
     with $!sax-handler {
         .publish($frag);
@@ -313,7 +319,6 @@ method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
 submethod TWEAK(
     :buf($), :file($), :string($), :fd($), :io($), :location($), :config($), # .parse modes
     :$catalog, *%opts) {
-    $!input-callbacks = .input-callbacks with self.config;
     self.load-catalog($_) with $catalog;
     self.set-options(|%opts);
 }

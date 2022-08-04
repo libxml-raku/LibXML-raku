@@ -1,5 +1,5 @@
 use v6.d;
-unit role LibXML::_Rawish[::RawType, @handles];
+unit role LibXML::_Rawish[::RawType, *@handles];
 
 # Pre-cache attribute object. Since role body is invoked for each role consumption we'd have
 # exactly one copy per class.
@@ -12,7 +12,7 @@ has RawType $!_raw = $attr.get_value(self);
 # But we can take advantage of the fact that role body is executed when role is getting specialized.
 
 for @handles -> $handles {
-    my &delegate = anon method (|c) is hidden-from-backtrace {
+    my &delegate = anon method (|c) is raw is hidden-from-backtrace {
         (self.defined ?? $!_raw !! RawType)."$handles"(|c)
     }
     &delegate.set_name($handles);

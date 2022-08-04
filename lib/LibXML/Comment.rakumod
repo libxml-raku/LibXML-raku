@@ -9,7 +9,7 @@ use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_CharacterData;
-also does LibXML::_Rawish[xmlCommentNode, ()];
+also does LibXML::_Rawish[xmlCommentNode];
 also does W3C::DOM::Comment;
 
 use NativeCall;

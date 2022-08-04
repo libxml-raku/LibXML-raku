@@ -3,9 +3,11 @@ unit class LibXML::Dtd::AttrDecl;
 
 use LibXML::Node;
 use LibXML::Raw;
+use LibXML::_Configurable;
 use LibXML::_Rawish;
 
 also is LibXML::Node;
+also does LibXML::_Configurable;
 also does LibXML::_Rawish[xmlAttrDecl, <prefix defaultValue>];
 
 use LibXML::Enums;
@@ -37,7 +39,7 @@ method getElementDecl(Any:D:) {
     with $.raw.parent {
         # xmlAttrDecl nodes should always have the Dtd as immediate parent
         my xmlDtd:D $dtd = .delegate;
-        $elem-decl-class.box: $dtd.getElementDecl($.elemName);
+        self.box: $elem-decl-class, $dtd.getElementDecl($.elemName);
     }
     else {
         $elem-decl-class;

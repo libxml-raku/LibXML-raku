@@ -2,6 +2,8 @@ use v6;
 use Test;
 use LibXML::HashMap;
 use LibXML::Element;
+use LibXML::Enums;
+use LibXML::Config;
 use LibXML::Types :XPathRange;
 use NativeCall;
 
@@ -9,10 +11,11 @@ plan 2;
 
 subtest 'node-hash' => {
     plan 4;
-    my LibXML::HashMap[LibXML::Element] $elems .= new;
+    my $config = LibXML::Config.new;
+    my LibXML::HashMap[LibXML::Element] $elems .= new(:$config);
 
     for 1 .. 5 {
-        $elems{'e'~$_} .= new('Elem' ~ $_);
+        $elems{'e'~$_} .= new('Elem' ~ $_, :$config);
     }
 
     is-deeply [$elems.keys.sort], [(1..5).map('e'~*)], 'keys';
@@ -20,14 +23,15 @@ subtest 'node-hash' => {
 
     $elems<e5>:delete;
     nok $elems<e5>:exists, 'deleted element';
-    $elems<e4> .= new('Replaced');
+    $elems<e4> .= new('Replaced', :$config);
     is $elems<e4>.Str, '<Replaced/>', 'replaced element';
 }
 
 subtest 'object-hash' => {
     plan 20;
 
-    my LibXML::HashMap[XPathRange] $h .= new;
+    my $config = LibXML::Config.new;
+    my LibXML::HashMap[XPathRange] $h .= new(:$config);
     is-deeply $h.of, XPathRange;
     is $h.elems, 0;
     lives-ok { $h<Xx> = 'Hi';};
@@ -49,7 +53,7 @@ subtest 'object-hash' => {
     is-deeply $h.values.sort, (42e0, "xx");
     is-deeply $h.pairs.sort, (Xx => 42e0, 'x:y' => "xx");
 
-    my LibXML::Element $node .= new('test');
+    my LibXML::Element $node .= new('test', :$config);
 
     lives-ok {$h<elem> = $node;};
     is-deeply $h.keys.sort, ("Xx", "elem", "x:y");

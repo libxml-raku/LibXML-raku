@@ -97,11 +97,11 @@ class ParserContext is LibXML::Parser::Context {
 
 # The native DOM returns the document fragment content as
 # a node-list; rather than the fragment itself
-method keep(|c) { LibXML::Node.box(|c) }
+method keep(|c) { LibXML::Node.box(:$.config, |c) }
 
-method new(LibXML::Node :doc($_), xmlDocFrag :$native) {
+method new(LibXML::Node :doc($_), xmlDocFrag :$native, *%c) {
     my xmlDoc:D $doc = .raw with $_;
-    self.box: $native // xmlDocFrag.new(:$doc);
+    self.box: $native // xmlDocFrag.new(:$doc), |%c;
 }
 =begin pod
     =head3 method new
@@ -122,9 +122,8 @@ method parse(
 
     my $doc-frag = self;
     $_ .= new(|c) without $doc-frag;
-    my $flags = 
 
-    my ParserContext $ctx .= new: :$string, :$doc-frag, :$user-data, |c;
+    my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
 
     $ctx.try: {
         # simple closures tend to leak on native callbacks. use dynamic variables

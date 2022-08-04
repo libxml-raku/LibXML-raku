@@ -1,8 +1,10 @@
 #| LibXML Namespace implementation
-unit class LibXML::Namespace is repr('CPointer');
+unit class LibXML::Namespace;
 
 use LibXML::Item;
+use LibXML::Raw;
 use LibXML::_DomNode;
+
 also is LibXML::Item;
 also does LibXML::_DomNode;
 
@@ -30,27 +32,28 @@ also does LibXML::_DomNode;
     methods return what you would expect if you treated the namespace node as an attribute.
 =end pod
 
-use LibXML::Raw;
 use LibXML::Types :NCName;
 use NativeCall;
 use Method::Also;
 use LibXML::Enums;
 use LibXML::Raw::Defs :XML_XMLNS_NS;
-method raw handles<type href Str> { nativecast(xmlNs, self) }
+
+has xmlNs:D $.raw is required handles<type href Str>;
+
 method native is DEPRECATED<raw> { self.raw }
 
 multi method box(LibXML::Namespace $_) { $_ }
-multi method box(xmlNs:D $raw --> LibXML::Namespace) {
-    nativecast(LibXML::Namespace, $raw.Copy);
+multi method box(xmlNs:D $raw, *%c --> LibXML::Namespace) {
+    self.new: :raw($raw.Copy), |%c
 }
-multi method box(itemNode:D $raw --> LibXML::Namespace) {
+multi method box(itemNode:D $raw, *%c --> LibXML::Namespace) {
     fail "not a namespace node"
         unless .type == XML_NAMESPACE_DECL;
-    nativecast(LibXML::Namespace, $raw.delegate.Copy);
+    self.new: :raw($raw.delegate.Copy), |%c
 }
 
 method clone(Any:D: |c) {
-    self.new: :$.URI, :prefix($.declaredPrefix), |c;
+    self.new: :$.URI, :prefix($.declaredPrefix), :$.config, |c;
 }
 
 method keep($_) {
@@ -68,10 +71,10 @@ multi method new(Str:D $URI, NCName $prefix?, |c) {
     self.new: :$URI, :$prefix, |c;
 }
 
-multi method new(Str:D :$URI!, NCName :$prefix, LibXML::Item :node($node-obj)) {
+multi method new(Str:D :$URI!, NCName :$prefix, LibXML::Item :node($node-obj), *%c) {
     my xmlElem $node = .raw with $node-obj;
     my xmlNs:D $raw .= new: :$URI, :$prefix, :$node;
-    self.box: $raw;
+    self.box: $raw, |(:config(.config) with $node-obj), |%c;
 }
 
 =head2 Methods

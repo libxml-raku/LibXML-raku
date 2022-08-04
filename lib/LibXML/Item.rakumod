@@ -47,8 +47,9 @@ multi method box-class(::?CLASS:U: Int:D $id) { LibXML::Config.class-from($id) }
 multi method box-class(::?CLASS:D: Int:D $id) { $!config.class-from($id) }
 
 proto method box(|) {*}
-multi method box(::?CLASS:D: Any:D $_, *%c) { self.box-class(.type).box(.delegate, :$!config, |%c) }
-multi method box(::?CLASS:U: Any:D $_, *%c) { self.box-class(.type).box(.delegate, |%c) }
+# XXX Should it be `anyNode:D` instead of `Any:D`??
+multi method box(::?CLASS:D: Any:D $_, *%c) { $.config.class-from(.type).box(.delegate, :$!config, |%c) }
+multi method box(::?CLASS:U: Any:D $_, *%c) { $.config.class-from(.type).box(.delegate, |%c) }
 multi method box(Any:U) { self.WHAT }
 
 #| Node constructor from data
@@ -85,31 +86,32 @@ multi method ast-to-xml(Pair $_) {
     my $value := .value;
 
     my UInt $node-type := itemNode::NodeType($name);
+    my $config = $.config // LibXML::Config.new;
 
     when $value ~~ Str:D {
         when $name.starts-with('#') {
-            self.box-class($node-type).new: :content($value);
+            self.box-class($node-type).new: :content($value), :$config;
         }
         when $name.starts-with('?') {
             $name .= substr(1);
-            self.box-class(XML_PI_NODE).new: :$name, :content($value);
+            $config.class-from(XML_PI_NODE).new: :$name, :content($value), :$config;
         }
         when $name.starts-with('xmlns:') {
             my $prefix = $name.substr(6);
-            self.box-class(XML_NAMESPACE_DECL).new: :$prefix, :URI($value)
+            $config.class-from(XML_NAMESPACE_DECL).new: :$prefix, :URI($value), :$config;
         }
         default {
             $name .= substr(1) if $name.starts-with('@');
-            self.box-class(XML_ATTRIBUTE_NODE).new: :$name, :$value;
+            $config.class-from(XML_ATTRIBUTE_NODE).new: :$name, :$value, :$config;
         }
     }
     when $name.starts-with('&') {
         $name .= substr(1);
         $name .= chop() if $name.ends-with(';');
-        self.box-class(XML_ENTITY_REF_NODE).new: :$name
+        $config.class-from(XML_ENTITY_REF_NODE).new: :$name, :$config;
     }
     default {
-        my $node := self.box-class($node-type).new: :$name;
+        my $node := self.box-class($node-type).new: :$name, :$config;
 
         for $value.List {
             $node.add( self.ast-to-xml($_) ) if .defined;
@@ -123,7 +125,7 @@ multi method ast-to-xml(Positional $_) {
 }
 
 multi method ast-to-xml(Str:D $content) {
-    self.box-class(XML_TEXT_NODE).new: :$content;
+    self.box-class(XML_TEXT_NODE).new: :$content, :config($.config // LibXML::Config.new);
 }
 
 multi method ast-to-xml(LibXML::Item:D $_) { $_ }
@@ -183,12 +185,15 @@ multi method ast-to-xml(*%p where .elems == 1) {
 =end pod
 
 # replace yada with a call to the underlying raw method
-multi trait_mod:<is>(
-    Method $m where {.yada && .count <= 1 && .returns ~~ ::?CLASS},
-    :$dom-boxed!) is export(:dom-boxed) {
+multi trait_mod:<is>( Method $m where {.yada && .count <= 1 && .returns ~~ ::?CLASS},
+                      :$dom-boxed!
+                     ) is export(:dom-boxed)
+{
     my $name := $dom-boxed ~~ Str:D ?? $dom-boxed !! $m.name;
+    my $class := $m.returns;
     my &wrapper = method (::?CLASS:D:) is hidden-from-backtrace {
-        self.box: $.raw."$name"()
+#        note "BOXING on ", self.WHICH, " into {$class.^name} for method '$name' --> ", $.raw."$name"().WHICH;
+        self.box: $class, $.raw."$name"()
     };
     &wrapper.set_name($name);
     $m.wrap: &wrapper;
@@ -208,7 +213,6 @@ multi method keep(::?CLASS:U: LibXML::Raw::DOM::Node:D $raw) {
 multi method keep(Any:U $raw) {
     self.WHAT
 }
-
 
 =begin pod
 =head2 Copyright

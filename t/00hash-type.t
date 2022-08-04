@@ -4,9 +4,12 @@ use LibXML::HashMap;
 use LibXML::Element;
 use LibXML::Document;
 use LibXML::Node::Set;
+use LibXML::Config;
 use NativeCall;
 
 plan 4;
+
+LibXML::Config.use-global;
 
 subtest 'Str HashMaps' => {
     plan 17;

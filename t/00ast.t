@@ -6,11 +6,12 @@ use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Item :&ast-to-xml;
 use LibXML::Config;
+use LibXML::Raw;
 
 plan 11;
 
-LibXML::Config.keep-blanks = False;
-my LibXML::Element $elem .= new('Test');
+LibXML::Config.keep-blanks = False; # Make it the test default
+my LibXML::Element $elem .= new('Test', config => LibXML::Config.new);
 $elem.setAttribute('foo', 'bar');
 $elem.appendText('Some text.');
 $elem.setNamespace("urn:mammals", "mam");
@@ -27,7 +28,7 @@ is-deeply $elem.ast, 'mam:Test' => ['xmlns:mam' => 'urn:mammals', :foo<bar>, 'So
 my $frag-ast = ['#comment' => ' testing ', :species["Camelid"], "xxx", '&foo' => [], ];
 my LibXML::DocumentFragment:D $frag = ast-to-xml($frag-ast);
 is $frag, '<!-- testing --><species>Camelid</species>xxx&foo;';
-is-deeply $frag.ast, '#fragment' => $frag-ast;
+is-deeply $frag.ast, '#fragment' => $frag-ast, '#fragment';
 
 my LibXML::Document $doc .= parse: :file<samples/dromeds.xml>;
 is-deeply $doc.ast, "#xml"
@@ -37,7 +38,8 @@ is-deeply $doc.ast, "#xml"
                                      :species[:name<Llama>, :humps["1 (sort of)"], :disposition["Aloof"]],
                                      :species[:name<Alpaca>, :humps["(see Llama)"], :disposition["Friendly"]]
                                  ]
-                        ];
+                        ],
+"#xml";
 
 $doc .= parse: :file<samples/ns.xml>;
 

@@ -4,13 +4,13 @@ unit role LibXML::_CharacterData;
 use LibXML::Raw;
 use LibXML::Node;
 
-multi method new(LibXML::Node :doc($owner), Str() :$content!) {
+multi method new(LibXML::Node :doc($owner), Str() :$content!, *%c) {
     my xmlDoc $doc = .raw with $owner;
     my anyNode:D $raw = self.raw.new: :$content, :$doc;
-    self.box: $raw;
+    self.box: $raw, |%c;
 }
-multi method new(Str:D() $content, *%o) {
-    self.new(:$content, |%o);
+multi method new(Str:D() $content, *%c) {
+    self.new(:$content, |%c);
 }
 
 method data {...}

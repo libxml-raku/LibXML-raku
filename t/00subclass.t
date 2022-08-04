@@ -30,7 +30,7 @@ class MyAttr is LibXML::Attr {
 my $config = LibXML::Config.new;
 $config.map-class(
     'LibXML::Element' => MyElement,
-    LibXML::Attr => MyAttr );
+    (LibXML::Attr) => MyAttr );
 
 my LibXML::Document:D $doc .= parse: :string(q:to<END>), :$config;
 <doc att="42">test</doc>

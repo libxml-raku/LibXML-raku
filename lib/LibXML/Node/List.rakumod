@@ -1,14 +1,18 @@
 #| LibXML Sibling Node Lists
 unit class LibXML::Node::List;
 
-also does Iterable;
-
 use LibXML::Raw;
 use LibXML::Raw::HashTable;
 use LibXML::Item;
 use LibXML::Node::Set;
 use LibXML::Types :resolve-package;
+use LibXML::_Configurable;
+use LibXML::_Collection;
 use Method::Also;
+
+also does Iterable;
+also does LibXML::_Configurable;
+also does LibXML::_Collection;
 
 has Bool:D $.blank = False;
 has $!raw handles <string-value>;
@@ -49,7 +53,7 @@ method Hash handles <pairs> {
     cas $!hstore, {
         $_ // do {
             my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
-            resolve-package('LibXML::HashMap').^parameterize(LibXML::Node::Set).new: :$raw;
+            self.create: resolve-package('LibXML::HashMap').^parameterize(LibXML::Node::Set), :$raw
         }
     }
 }
@@ -91,23 +95,24 @@ method iterator {
         has Bool:D $.blank is required;
         has $.of is required;
         has $.cur is required;
+        has LibXML::Config:D $.config is required;
 
         method pull-one {
             with $!cur -> $this {
                 $!cur = $this.next-node($!blank);
-                $!of.box: $this;
+                $!of.box: $this, :$!config;
             }
             else {
                 IterationEnd;
             }
         }
     }
-    iterator.new: :$!of, :$!blank, :cur($!raw);
+    iterator.new: :$!of, :$!blank, :cur($!raw), :config($!parent.config);
 }
 
 method to-node-set {
     my xmlNodeSet:D $raw = $!raw.list-to-nodeset($!blank);
-    LibXML::Node::Set.new: :$raw;
+    self.create: LibXML::Node::Set, :$raw;
 }
 method ast { self.Array».ast }
 

@@ -6,7 +6,10 @@ plan 13;
 
 use LibXML;
 use LibXML::Text;
+use LibXML::Config;
 use LibXML::Document;
+
+LibXML::Config.use-global;
 
 my LibXML::Document $doc .= new();
 

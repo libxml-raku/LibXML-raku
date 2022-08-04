@@ -65,6 +65,11 @@ use LibXML::X;
 use NativeCall;
 use AttrX::Mooish;
 
+# XXX Temporary solution for testing where no specific config object is required
+my LibXML::Config $singleton;
+method use-global() { $singleton //= ::?CLASS.new }
+method global { $singleton }
+
 =head2 Configuration Methods
 
 #| Returns the run-time version of the `libxml2` library.
@@ -167,7 +172,9 @@ multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!max-errors }
 
 =head2 Parsing Default Options
 
-sub flag-proxy($flag is rw) is rw {
+has xmlElementType:D $.document-kind = XML_DOCUMENT_NODE;
+
+my sub flag-proxy($flag is rw) is rw {
     Proxy.new( FETCH => sub ($) { $flag.so },
                STORE => sub ($, $_) { $flag = .so } );
 }
@@ -183,25 +190,23 @@ method setup returns List {
         END
     }
     my @prev[4] = (
-        $*THREAD.id,
+        $*STACK-ID,
         xml6_gbl::get-tag-expansion(),
         xml6_gbl::get-keep-blanks(),
         xml6_gbl::get-external-entity-loader,
     );
     xml6_gbl::set-tag-expansion(self.tag-expansion);
     xml6_gbl::set-keep-blanks(self.keep-blanks);
-    xml6_gbl::set-external-entity-loader(&!external-entity-loader)
-        if self.defined;
+    set-external-entity-loader(&!external-entity-loader) with self;
     @prev;
 }
 
 multi method restore([]) { }
 multi method restore(@prev where .elems == 4) {
-    if $*THREAD.id == @prev[0] {
+    if $*STACK-ID == @prev[0] {
         xml6_gbl::set-tag-expansion(@prev[1]);
         xml6_gbl::set-keep-blanks(@prev[2]);
-        xml6_gbl::set-external-entity-loader(@prev[3])
-            if self.defined;
+        xml6_gbl::set-external-entity-loader(@prev[3]) with self;
     }
     else {
         warn "OS thread change";
@@ -209,7 +214,7 @@ multi method restore(@prev where .elems == 4) {
 }
 
 my Bool:D $keep-blanks = True;
-has Bool:D $!keep-blanks is mooish(:lazy) = True;
+has Bool:D $!keep-blanks is built is mooish(:lazy) = True;
 method !build-keep-blanks { $keep-blanks }
 
 proto method keep-blanks() {*}
@@ -220,7 +225,7 @@ multi method keep-blanks(::?CLASS:D: --> Bool) is rw { flag-proxy($!keep-blanks)
 method parser-flags returns UInt {
     XML_PARSE_NONET
     + XML_PARSE_NODICT
-    + ($.keep-blanks() ?? 0 !! XML_PARSE_NOBLANKS)
+    + ($.keep-blanks ?? 0 !! XML_PARSE_NOBLANKS)
 }
 
 my &external-entity-loader;
@@ -286,7 +291,7 @@ custom URL resolvers, as in
         }
         sub deny(|c) { }
         $cb.register-callbacks(&match, &deny, &deny, &deny);
-        $parser.input-callbacks($cb);
+        $parser.input-callbacks($cb)
         =end code
 
 =head3 method input-callbacks
@@ -312,7 +317,7 @@ multi method input-callbacks(::?CLASS:U:) is rw {
         STORE => sub ($, $callbacks) {
             $lock.protect: {
                 .deactivate with $input-callbacks;
-                .activate with $callbacks;
+                .activate(:config( $singleton // ::?CLASS.new )) with $callbacks;
                 $input-callbacks = $callbacks;
             }
         }
@@ -407,24 +412,21 @@ my constant @ClassMap = do {
 }
 
 # COW clone of @ClassMap
-has @.class-map is mooish(:lazy);
+has @.class-map is default(Nil) is mooish(:lazy);
 
 method build-class-map {
     @ClassMap
-        .grep(*.defined)
-        .map({ resolve-package($_) })
+        .map({ .defined ?? resolve-package($_) !! Nil })
 }
 
-method !validate-map-class-name(Str:D $class, Str:D $why) {
-    unless %DefaultClassMap{$class}:exists {
-        LibXML::X::ClassName.new(:$class, :$why).throw;
-    }
+method !validate-map-class-name(Str:D $class, Str:D $why, Bool:D :$strict = True) {
+    %DefaultClassMap{$class}:exists
+        || ($strict ?? LibXML::X::ClassName.new(:$class, :$why).throw !! False)
 }
 
-method !validate-map-class(Any:U \type, Str:D $why) {
-    unless %DefaultClassMap{type.^name}:exists {
-        LibXML::X::Class.new(:class(type.^name), :$why).throw;
-    }
+method !validate-map-class(Any:U \type, Str:D $why, Bool:D :$strict = True) {
+    %DefaultClassMap{type.^name}:exists
+        || ($strict ?? LibXML::X::Class.new(:class(type.^name), :$why).throw !! False)
 }
 
 proto method map-class(|) {*}
@@ -456,12 +458,20 @@ multi method map-class(*@pos, *%mappings) {
 }
 
 proto method class-from($) {*}
-multi method class-from(LibXML::Types::Itemish:U \from-type) {
-    self!validate-map-class(from-type, q<unsupported by configuration 'class-map' method>);
+multi method class-from(LibXML::Types::Itemish:U \from-type, Bool:D :$strict = True) {
+    return from-type
+        unless self!validate-map-class(
+            from-type,
+            q<unsupported by configuration 'class-map' method>,
+            :$strict);
     samewith(%DefaultClassMap{from-type.^name});
 }
-multi method class-from(Str:D $class) {
-    self!validate-map-class-name($class, q<unknown to configuration 'class-map' method>);
+multi method class-from(Str:D $class, Bool:D :$strict = True) {
+    return resolve-package($class)
+        unless self!validate-map-class-name(
+            $class,
+            q<unknown to configuration 'class-map' method>,
+            :$strict);
     samewith(%DefaultClassMap{$class});
 }
 multi method class-from(::?CLASS:D: Int:D $id) { @!class-map[$id] }

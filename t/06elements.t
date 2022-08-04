@@ -401,7 +401,7 @@ subtest 'Entity Reference construction', {
     my LibXML::Document $doc .= new();
     my $elem = $doc.createElement( $foo );
     $elem.appendText('a');
-    my LibXML::EntityRef $ent-ref .= new(:$doc, :name<bar>);
+    my LibXML::EntityRef $ent-ref = $doc.create(LibXML::EntityRef, :$doc, :name<bar>);
     is $ent-ref.type, +XML_ENTITY_REF_NODE;
     is $ent-ref.nodeName, 'bar';
     is $ent-ref.ast-key, '&bar';

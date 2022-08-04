@@ -77,11 +77,11 @@ note $doc.root.Str; # <doc att="xxx&foo;">This is a valid document &foo; !</doc>
 =end pod
 
 use LibXML::Raw;
-has xmlEntityRefNode $.raw;
+has xmlEntityRefNode:D $.raw is required;
 
-method new(LibXML::Node :doc($owner), Str :$name!) {
+method new(LibXML::Node :doc($owner), Str :$name!, *%c) {
     my xmlDoc:D $doc = .raw with $owner;
     my xmlEntityRefNode:D $raw = $doc.new-ent-ref: :$name;
-    self.box($raw);
+    self.box($raw, |%c);
 }
 method ast { self.ast-key => [] }

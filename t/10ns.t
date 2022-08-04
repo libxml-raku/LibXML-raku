@@ -289,7 +289,7 @@ subtest 'Namespace Declarations', {
         is $doc.findnodes('/document[@attr and foo]').size(), 1;
         is $doc.findvalue('/document/@attr'), 'value';
 
-        my LibXML::XPath::Context $xp .= new: :$doc;
+        my LibXML::XPath::Context $xp = $doc.create: LibXML::XPath::Context, :$doc;
         is $xp.findnodes('/document/foo').size(), 1;
         is $xp.findnodes('/document[foo]').size(), 1;
         is $xp.findnodes('/document[*]').size(), 1;
