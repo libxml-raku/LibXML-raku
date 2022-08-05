@@ -2,11 +2,14 @@ use v6;
 use Test;
 
 use LibXML;
+use LibXML::Config;
 use LibXML::Schema;
 use LibXML::InputCallback;
 use LibXML::Element;
 
 plan 5;
+
+LibXML::Config.use-global;
 
 sub slurp(Str $_) { .IO.slurp }
 
@@ -19,7 +22,7 @@ my $invalidfile  = "test/schema/invaliddemo.xml";
 my $netfile      = "test/schema/net.xsd";
 
 subtest 'parse schema from a file', {
-    my LibXML::Schema $schema .= new( location => $file );
+    my LibXML::Schema $schema = $xmlparser.create( LibXML::Schema, location => $file );
     ok ( $schema.defined, 'Good LibXML::Schema was initialised' );
 
     dies-ok { $schema .= new( location => $badfile ); },  'Bad LibXML::Schema throws an exception.';
@@ -28,7 +31,7 @@ subtest 'parse schema from a file', {
 subtest 'parse schema from a string', {
     my $string = slurp($file);
 
-    my LibXML::Schema $schema .= new( string => $string );
+    my LibXML::Schema $schema = $xmlparser.create( LibXML::Schema, string => $string );
     ok ( $schema.defined, 'Schema initialized from string.' );
 
     $string = slurp($badfile);
@@ -37,7 +40,7 @@ subtest 'parse schema from a string', {
 
 subtest 'validate a document', {
     my $doc       = $xmlparser.parse: :file( $validfile );
-    my LibXML::Schema $schema .= new( location => $file );
+    my LibXML::Schema $schema = $doc.create( LibXML::Schema, location => $file );
 
     is-deeply $schema.is-valid( $doc ), True, 'is-valid on valid doc';
     my $stat = $schema.validate( $doc );
@@ -60,7 +63,7 @@ subtest 'validate a node', {
     </shiporder>
     EOF
 
-    my LibXML::Schema $schema .= new(string => q:to<EOF>);
+    my LibXML::Schema $schema = $doc.create(LibXML::Schema, string => q:to<EOF>);
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
       <xs:element name="shiporder">
         <xs:complexType>

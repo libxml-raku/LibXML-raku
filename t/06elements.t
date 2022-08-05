@@ -133,7 +133,8 @@ subtest 'bound node', {
 }
 
 subtest 'unbound node', {
-    my LibXML::Element:D $elem .= new: :name($foo);
+    my LibXML::Document $doc .= new();
+    my LibXML::Element:D $elem = $doc.create: LibXML::Element, :name($foo);
     is $elem.tagName, $foo;
 
     $elem.setAttribute( $attname1, $attvalue1 );
@@ -160,9 +161,9 @@ subtest 'unbound node', {
 
 
 subtest 'namespace switching', {
-    my LibXML::Element:D $elem .= new: :name($foo);
-
     my LibXML::Document $doc .= new();
+    my LibXML::Element:D $elem = $doc.create: LibXML::Element, :name($foo);
+
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
     my LibXML::Attr:D $nsAttr = $doc.createAttributeNS( $nsURI, $prefix ~ ":"~ $foo, $bar);

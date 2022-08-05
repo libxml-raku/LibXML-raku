@@ -12,7 +12,7 @@ XML
 
 my $errors;
 
-my LibXML::XPath::Context $xc .= new(:$doc);
+my LibXML::XPath::Context $xc = $doc.create(LibXML::XPath::Context, :$doc);
 $xc.SetStructuredErrorFunc(-> $fmt, |c { $errors++ });
 $xc.registerNs('foo','urn:foo');
 # low level test
@@ -120,7 +120,7 @@ subtest 'node injection', {
 
 subtest 'identity function', {
     my LibXML::Document $largedoc .= parse: :string('<a>'~ ('<b/>' x 300) ~ '</a>');
-    $xc .= new: :doc($largedoc);
+    $xc = $largedoc.create: $xc.WHAT, :doc($largedoc);
     $xc.setContextNode($largedoc.documentElement);
     $xc.registerFunction: 'pass1', -> {
 	$largedoc.findnodes('(//*)')

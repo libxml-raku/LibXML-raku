@@ -90,7 +90,9 @@
   },
   "resources": [
     "libraries/xml6",
-    "libraries/libxml2"
+    "libraries/libxml2",
+    "libraries/liblibxml2.so",
+    "libraries/liblibxml2.dylib"
   ],
   "support": {
     "source": "https://github.com/libxml-raku/LibXML-raku.git"

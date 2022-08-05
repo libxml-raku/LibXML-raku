@@ -92,9 +92,10 @@ subtest 'nested names', {
 }
 
 subtest 'post creation namespace setting', {
-    my LibXML::Element $e1 .= new: :name("foo");
-    my LibXML::Element $e2 .= new: :name("bar:foo");
-    my LibXML::Element $e3 .= new: :name("foo");
+    my $doc = LibXML.createDocument;
+    my LibXML::Element $e1 = $doc.create: LibXML::Element, :name("foo");
+    my LibXML::Element $e2 = $doc.create: LibXML::Element, :name("bar:foo");
+    my LibXML::Element $e3 = $doc.create: LibXML::Element, :name("foo");
     $e3.setAttribute( "kung", "foo" );
     my $a = $e3.getAttributeNode("kung");
 

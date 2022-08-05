@@ -12,6 +12,7 @@ constant %Opts = %(
      )
 );
 also does LibXML::_Options[%Opts];
+also does LibXML::_Configurable[:use-new];
 
 use LibXML::Raw;
 use LibXML::Enums;
@@ -19,7 +20,6 @@ use LibXML::Document;
 use LibXML::PushParser;
 use Method::Also;
 
-has LibXML::Config:D $.config .= new;
 has Bool $.html is rw is built = False;
 has Bool $.line-numbers is rw is built = False;
 has UInt $.flags is rw is built = self.config.parser-flags();
@@ -69,11 +69,7 @@ method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
     my xmlDoc $raw = $ctx.publish();
     my $input-compressed = $ctx.input-compressed();
     my LibXML::Document:D $doc =
-        self
-            .config
-            .class-from(XML_DOCUMENT_NODE)
-            .new: :raw($_), :$URI, :$input-compressed, :$.config
-        with $raw;
+        self.create: $.config.class-map[XML_DOCUMENT_NODE], :raw($_), :$URI, :$input-compressed with $raw;
 
     if $.expand-xinclude {
         my $flags = $ctx.flags;
@@ -313,7 +309,7 @@ method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
 method reparse(LibXML::Document:D $doc!, |c) is also<generate> {
     # document DOM with the SAX handler
     my $string = $doc.Str;
-    $.parse( :$string, |c );
+    self.parse( :$string, |c );
 }
 
 submethod TWEAK(

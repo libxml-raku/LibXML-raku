@@ -1,8 +1,20 @@
 #| XML Schema Validation
 unit class LibXML::Schema;
 
+use LibXML::Document;
+use LibXML::Element;
+use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Options;
+use LibXML::Raw;
+use LibXML::Raw::Schema;
+use LibXML::Parser::Context;
+use Method::Also;
+use LibXML::Config :&protected;
+use LibXML::_Configurable;
 use LibXML::_Validator;
+
 also does LibXML::_Validator;
+also does LibXML::_Configurable;
 
 =begin pod
 
@@ -29,17 +41,6 @@ also does LibXML::_Validator;
 
 =end pod
 
-use LibXML::Document;
-use LibXML::Element;
-use LibXML::ErrorHandling :&structured-error-cb;
-use LibXML::_Configurable;
-use LibXML::_Options;
-use LibXML::Raw;
-use LibXML::Raw::Schema;
-use LibXML::Parser::Context;
-use Method::Also;
-use LibXML::Config :&protected;
-
 has xmlSchema $.raw;
 
 my class Parser::Context {
@@ -54,17 +55,14 @@ my class Parser::Context {
 
     multi submethod TWEAK( xmlSchemaParserCtxt:D :$!raw! ) {
     }
-    multi submethod TWEAK(Str:D :$url!) {
+    multi submethod TWEAK(Str:D :location(:$url)!) {
         $!raw .= new: :$url;
-    }
-    multi submethod TWEAK(Str:D :location($url)!) {
-        self.TWEAK: :$url;
     }
     multi submethod TWEAK(Blob:D :$!buf!) {
         $!raw .= new: :$!buf;
     }
     multi submethod TWEAK(Str:D :$string!) {
-        self.TWEAK: :buf($string.encode);
+        $!raw .= new: :buf($string.encode);
     }
     multi submethod TWEAK(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .raw;
@@ -190,9 +188,9 @@ submethod DESTROY {
     .Free with $!raw;
 }
 
-method !valid-ctx($schema: :$config!) { ValidContext.new: :$schema, :$config }
-method validate(LibXML::Node:D $node, Bool :$check, LibXML::Config :$config) is hidden-from-backtrace {
-    self!valid-ctx(:$config).validate($node, :$check);
+method !valid-ctx($schema:) { $schema.create: ValidContext, :$schema }
+method validate(LibXML::Node:D $node, Bool :$check) is hidden-from-backtrace {
+    self!valid-ctx.validate($node, :$check);
 }
 =begin pod
     =head3 method validate
@@ -206,8 +204,8 @@ method validate(LibXML::Node:D $node, Bool :$check, LibXML::Config :$config) is 
     return 0, otherwise it will die() and report the errors found.
 =end pod
 
-method is-valid(LibXML::Node:D $node, LibXML::Config :$config --> Bool) {
-    self!valid-ctx(:$config).validate($node, :check);
+method is-valid(LibXML::Node:D $node --> Bool) {
+    self!valid-ctx.validate($node, :check);
 }
 =begin pod
     =head3 method is-valid

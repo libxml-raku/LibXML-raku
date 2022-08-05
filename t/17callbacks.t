@@ -9,6 +9,7 @@ use LibXML::InputCallback;
 use LibXML::Config;
 
 LibXML::Config.parser-locking = True;
+LibXML::Config.use-global;
 
 use lib './t/lib';
 use Counter;

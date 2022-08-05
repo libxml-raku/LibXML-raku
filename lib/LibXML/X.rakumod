@@ -1,8 +1,8 @@
 use v6.d;
 
-role LibXML::X is Exception { }
+role X::LibXML is Exception { }
 
-role LibXML::X::BadClass does LibXML::X {
+role X::LibXML::BadClass does X::LibXML {
     has Str:D $.class is required;
     has Str $.why;
     method message {
@@ -10,15 +10,15 @@ role LibXML::X::BadClass does LibXML::X {
     }
 }
 
-class LibXML::X::ClassName does LibXML::X::BadClass {
+class X::LibXML::ClassName does X::LibXML::BadClass {
     has Str:D $.what = "class name";
 }
 
-class LibXML::X::Class does LibXML::X::BadClass {
+class X::LibXML::Class does X::LibXML::BadClass {
     has Str:D $.what = "type object";
 }
 
-class LibXML::X::ArgumentType is X::TypeCheck does LibXML::X {
+class X::LibXML::ArgumentType is X::TypeCheck does X::LibXML {
     has Str:D $.routine is required;
     method message {
         "Bad argument in call to $.routine: " ~ self.explain

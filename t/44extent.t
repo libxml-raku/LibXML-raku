@@ -12,6 +12,8 @@ config.external-entity-loader = &handler;
 
 my  LibXML $parser .= new: :expand-entities;
 
+$parser.config.parser-locking = True;
+
 sub handler(*@p) {
     return @p.map({$_//''}).join: ',';
 }

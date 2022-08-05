@@ -1,8 +1,8 @@
-unit role LibXML::_Configurable; #[Bool:D :$required = True];
-
+use v6.d;
+unit role LibXML::_Configurable[Bool:D :$required = True, Bool:D :$use-new = False];
 use LibXML::Config;
 
-has LibXML::Config:D $!config is built handles<load-catalog> = LibXML::Config.global;
+has LibXML::Config:D $!config is built handles<load-catalog> = ($use-new ?? LibXML::Config.new !! LibXML::Config.global);
 
 #::?ROLE.^get_attribute_for_usage('$!config').set_required(+$required);
 
@@ -15,9 +15,9 @@ multi method create(::?CLASS:U: \kind, |c) {
     kind.new: :config(LibXML::Config.new), |c
 }
 multi method create(::?CLASS:D: \kind, |c) {
-    kind.new: :$.config, |c
+    kind.new: :$!config, |c
 }
 
 multi method box(LibXML::_Configurable \kind, |c) {
-    kind.box: :$.config, |c
+    kind.box: :$!config, |c
 }

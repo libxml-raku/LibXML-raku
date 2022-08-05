@@ -312,7 +312,7 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
         -> xmlXPathParserContext $ctxt, Int $n {
             CATCH { default { $ctxt.valuePush: callback-error($_) } }
             my @params;
-            @params.unshift: get-value($ctxt.valuePop) for ^$n;
+            @params.unshift: self.get-value($ctxt.valuePop) for ^$n;
             my $ret = &func(|@params, |args) // '';
             my xmlXPathObject:D $out := xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret, :$ctxt);
             $ctxt.valuePush($_) for $out;
@@ -376,7 +376,7 @@ multi method findnodes(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?, Bo
     self.iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
 }
 multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) {
-    my LibXML::XPath::Expression:D $expr .= new: :expr($_);
+    my LibXML::XPath::Expression:D $expr = self.create: LibXML::XPath::Expression, :expr($_);
     self.iterate-set(LibXML::Item, self!findnodes($expr, $ref), :$deref);
 }
 =begin pod
@@ -399,7 +399,7 @@ multi method findnodes(Str:D $_, LibXML::Node $ref?, Bool :$deref) {
 
 proto method first($, $? --> LibXML::Item) {*}
 multi method first(Str:D $expr, LibXML::Node $ref?) {
-    $.first(LibXML::XPath::Expression.new(:$expr), $ref);
+    $.first(self.create(LibXML::XPath::Expression, :$expr), $ref);
 }
 multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     my $rv = LibXML::Node;
@@ -422,7 +422,7 @@ multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
 
 proto method last($, $? --> LibXML::Item) {*}
 multi method last(Str:D $expr, LibXML::Node $ref?) {
-    $.last(LibXML::XPath::Expression.new(:$expr), $ref);
+    $.last(self.create(LibXML::XPath::Expression, :$expr), $ref);
 }
 multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
@@ -450,12 +450,12 @@ method AT-KEY($_, Bool :$deref = True --> LibXML::Node::Set) {
     for $xpc<tr> -> LibXML::Element $row-elem {...}
     =end code
 
-proto sub get-value(xmlXPathObject, Bool :literal($)) is export(:get-value) {*}
-multi sub get-value(xmlXPathObject:D $raw, Bool :$literal) {
-    my LibXML::XPath::Object $object .= new: :$raw;
+proto method get-value(xmlXPathObject, Bool :literal($)) is implementation-detail is export(:get-value) {*}
+multi method get-value(xmlXPathObject:D $raw, Bool :$literal) {
+    my LibXML::XPath::Object $object = self.create: LibXML::XPath::Object, :$raw;
     $object.value: :$literal;
 }
-multi sub get-value(xmlXPathObject:U $, Bool :literal($))  {
+multi method get-value(xmlXPathObject:U $, Bool :literal($))  {
     fail "No value";
 }
 
@@ -612,7 +612,7 @@ method !stash(xmlNodeSet:D $raw, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) 
         %!pool{$ctxt-addr} = []
              if .valueNr == 0  && !.value.defined;
     }
-    %!pool{$ctxt-addr}.push: LibXML::Node::Set.new: :$raw;
+    %!pool{$ctxt-addr}.push: self.create(LibXML::Node::Set, :$raw);
     $raw;
 }
 multi method park(NodeObj:D $node, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) {

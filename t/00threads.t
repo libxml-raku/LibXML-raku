@@ -4,6 +4,8 @@ use LibXML::Config;
 use LibXML::Element;
 use LibXML::Raw;
 
+LibXML::Config.use-global;
+
 # low level threading tests
 
 INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || 10;

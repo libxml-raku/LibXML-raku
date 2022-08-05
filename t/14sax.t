@@ -100,12 +100,12 @@ my $SAXNSTester_end_prefix_mapping_stacker = _create_urn_stacker();
 
 my LibXML::SAX $parser;
 subtest 'callback basic', {
-    my SAXTester:D $sax .= new;
 
     my $str = "samples/dromeds.xml".IO.slurp;
     my LibXML::Document:D $doc = LibXML.parse: :string($str);
+    my SAXTester:D $sax = $doc.create: SAXTester;
 
-    my LibXML::SAX:D $generator .= new(sax-handler => $sax);
+    my LibXML::SAX:D $generator = $doc.create: LibXML::SAX, sax-handler => $sax;
 
     $generator.reparse($doc); # startElement*10
 
@@ -117,7 +117,7 @@ subtest 'callback basic', {
     $SAXTester_startDocument_counter.test(1, 'startDocument called once.');
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 
-    my LibXML::SAX $gen2 .= new;
+    my LibXML::SAX $gen2 = $doc.create: LibXML::SAX;
     my LibXML::Document:D $dom2 = $gen2.reparse($doc);
 
     is $dom2.Str, $str;
@@ -148,7 +148,7 @@ EOT
 }
 
 subtest 'Ns callbacks', {
-    my SAXNSTester:D $sax .= new;
+    my SAXNSTester:D $sax = $parser.create: SAXNSTester;
 
     $parser.sax-handler = $sax;
     $parser.parse: :file("samples/ns.xml");
@@ -211,7 +211,8 @@ subtest 'callback metrics', {
 
 
 subtest 'namespaces, empty', {
-    my SAXNS2Tester $sax .= new;
+    use LibXML::Config;
+    my SAXNS2Tester $sax .= new: config => LibXML::Config.new;
     my $xml = "<a xmlns='xml://A'><b/></a>";
     my @tests = (
         sub {
@@ -316,9 +317,11 @@ skip("todo: port remaining tests", 29);
 
 use LibXML::SAX::Handler::SAX2;
 use LibXML::Raw;
+use LibXML::_Configurable;
 
-class SAXTester
-    is LibXML::SAX::Handler::SAX2 {
+class SAXTester {
+    also is LibXML::SAX::Handler::SAX2;
+    also does LibXML::_Configurable;
 
     use NativeCall;
     use LibXML::SAX::Builder :sax-cb;
@@ -336,7 +339,7 @@ class SAXTester
     method startElement(xmlParserCtxt :$ctx!, |) is sax-cb {
         callsame;
         with $ctx.node {
-            my LibXML::Node $node .= box($_);
+            my LibXML::Node $node = self.box(LibXML::Node, $_);
             $SAXTester_startElement_stacker.cb.($node);
         }
     }
@@ -347,8 +350,9 @@ class SAXTester
 }
 
 
-class SAXNSTester
-    is LibXML::SAX::Handler::SAX2 {
+class SAXNSTester {
+    also is LibXML::SAX::Handler::SAX2;
+    also does LibXML::_Configurable;
 
     use LibXML::SAX::Builder :sax-cb, :atts2Hash;
     has Hash @!ns;
@@ -358,7 +362,7 @@ class SAXNSTester
         callsame;
         @!ns.push: ${ :num-namespaces, :$namespaces };
         given $ctx.node {
-            my LibXML::Node $node .= box($_);
+            my LibXML::Node $node = self.box(LibXML::Node, $_);
             @!nodes.push: $node;
             for ^$num-namespaces {
                 $SAXNSTester_start_prefix_mapping_stacker.cb().($node)
@@ -379,14 +383,15 @@ class SAXNSTester
 
 }
 
-class SAXNS2Tester
-    is LibXML::SAX::Handler::SAX2 {
+class SAXNS2Tester {
+    also is LibXML::SAX::Handler::SAX2;
+    also does LibXML::_Configurable;
     use LibXML::SAX::Builder :sax-cb;
 
     method startElement(:$ctx!, |) is sax-cb {
         callsame;
         with $ctx.node {
-            my LibXML::Node $node .= box($_);
+            my LibXML::Node $node = self.box(LibXML::Node, $_);
             $SAXNS2Tester_startElement_stacker.cb.($node);
         }
     }

@@ -162,13 +162,13 @@ multi method tag-expansion(::?CLASS:D: --> Bool) is rw { flag-proxy($!tag-expans
 method max-errors() is rw returns Int:D
 =para Maximum errors before throwing a fatal X::LibXML::TooManyErrors
 
-my Int:D $max-errors = 100;
+my UInt:D $max-errors = 100;
 has UInt:D $!max-errors is mooish(:lazy);
 method !build-max-errors { $max-errors }
 
 proto method max-errors() {*}
-multi method max-errors(::?CLASS:U: --> UInt:D) is rw { $max-errors }
-multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!max-errors }
+multi method max-errors(::?CLASS:U:) is rw { $max-errors }
+multi method max-errors(::?CLASS:D:) is rw { $!max-errors }
 
 =head2 Parsing Default Options
 
@@ -182,8 +182,25 @@ my sub flag-proxy($flag is rw) is rw {
 method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
 
+my &external-entity-loader;
+#has &!external-entity-loader is mooish(:lazy);
+#method !build-external-entity-loader { &external-entity-loader }
+
+#proto method external-entity-loader() {*}
+#multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
+#multi method external-entity-loader(::?CLASS:U: --> Callable) is rw {
+method external-entity-loader(--> Callable) is rw {
+    Proxy.new(
+        FETCH => { $lock.protect: { &external-entity-loader } },
+        STORE => -> $, &loader {
+            set-external-entity-loader(&loader);
+            &external-entity-loader = &loader;
+        }
+        );
+}
+
 method setup returns List {
-    if self.defined && &!external-entity-loader.defined && !self.parser-locking {
+    if self.defined && &external-entity-loader.defined && !self.parser-locking {
         warn q:to<END>.chomp;
         Unsafe use of local 'external-entity-loader' configuration.
         Please configure globally, or set 'parser-locking' to disable threaded parsing
@@ -197,7 +214,7 @@ method setup returns List {
     );
     xml6_gbl::set-tag-expansion(self.tag-expansion);
     xml6_gbl::set-keep-blanks(self.keep-blanks);
-    set-external-entity-loader(&!external-entity-loader) with self;
+    set-external-entity-loader(&external-entity-loader) with self;
     @prev;
 }
 
@@ -226,22 +243,6 @@ method parser-flags returns UInt {
     XML_PARSE_NONET
     + XML_PARSE_NODICT
     + ($.keep-blanks ?? 0 !! XML_PARSE_NOBLANKS)
-}
-
-my &external-entity-loader;
-has &!external-entity-loader is mooish(:lazy);
-method !build-external-entity-loader { &external-entity-loader }
-
-proto method external-entity-loader() {*}
-multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
-multi method external-entity-loader(::?CLASS:U: --> Callable) is rw {
-    Proxy.new(
-        FETCH => { $lock.protect: { &external-entity-loader } },
-        STORE => -> $, &loader {
-            set-external-entity-loader(&loader);
-            &external-entity-loader = &loader;
-        }
-    );
 }
 
 #| External entity handler to be used when parser expand-entities is set.
@@ -337,7 +338,7 @@ concurrent parsing. It needs to be set to allow per-parser input-callbacks,
 which are not currently thread safe.
 
 my Bool $parser-locking = ! $?CLASS.have-threads;
-method parser-locking(::?CLASS:U:) is rw { $parser-locking }
+method parser-locking is rw { $parser-locking }
 
 =head2 Query Handler
 
@@ -421,12 +422,12 @@ method build-class-map {
 
 method !validate-map-class-name(Str:D $class, Str:D $why, Bool:D :$strict = True) {
     %DefaultClassMap{$class}:exists
-        || ($strict ?? LibXML::X::ClassName.new(:$class, :$why).throw !! False)
+        || ($strict ?? X::LibXML::ClassName.new(:$class, :$why).throw !! False)
 }
 
 method !validate-map-class(Any:U \type, Str:D $why, Bool:D :$strict = True) {
     %DefaultClassMap{type.^name}:exists
-        || ($strict ?? LibXML::X::Class.new(:class(type.^name), :$why).throw !! False)
+        || ($strict ?? X::LibXML::Class.new(:class(type.^name), :$why).throw !! False)
 }
 
 proto method map-class(|) {*}
@@ -449,7 +450,7 @@ multi method map-class(*@pos, *%mappings) {
 
     for @pos -> $mapping {
         unless $mapping ~~ Pair {
-            LibXML::X::ArgumentType.new(:got($mapping.WHAT),
+            X::LibXML::ArgumentType.new(:got($mapping.WHAT),
                 :expected(Pair),
                 :routine(q<configuration method 'map-class'>)).throw;
         }

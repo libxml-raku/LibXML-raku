@@ -127,8 +127,8 @@ multi method new(QName:D $name, LibXML::Namespace $ns?, *%c) {
 multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj), *%c) {
     my xmlDoc:D $doc = .raw with $owner;
     my xmlNs:D $ns = .raw with $ns-obj;
-    my $config = %c<config> // ($owner andthen .config) // LibXML::Config.new;
-    self.box: xmlElem.new( :$name, :$doc, :$ns ), :$config;
+    %c<config> //= ($owner andthen .config orelse LibXML::Config.global);
+    self.box: xmlElem.new( :$name, :$doc, :$ns ), |%c;
 }
 
 #method raw handles<

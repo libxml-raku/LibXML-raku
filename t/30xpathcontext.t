@@ -3,6 +3,7 @@ use Test;
 plan 24;
 
 use LibXML;
+use LibXML::Config;
 use LibXML::XPath::Context;
 use LibXML::XPath::Expression;
 use LibXML::Node::Set;
@@ -17,18 +18,18 @@ my $xpath = '/*';
 my $xpath2 = '/*/*';
 subtest 'findnodes() list', {
     for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
-        my @nodes = LibXML::XPath::Context.new(:$doc).findnodes($exp);
+        my @nodes = $doc.create(LibXML::XPath::Context, :$doc).findnodes($exp);
         is +@nodes, 1;
         is @nodes.head.nodeName,'foo';
         is(
-            LibXML::XPath::Context.new( node => @nodes[0]).findnodes('bar').head.nodeName(),
+            $doc.create(LibXML::XPath::Context,  node => @nodes[0]).findnodes('bar').head.nodeName(),
             'bar');
     }
 }
 
 subtest 'findnodes() scalar', {
     for ($xpath, LibXML::XPath::Expression.parse($xpath)) -> $exp {
-        my LibXML::Node::Set:D $nl = LibXML::XPath::Context.new(:$doc).findnodes($exp);
+        my LibXML::Node::Set:D $nl = $doc.create(LibXML::XPath::Context, :$doc).findnodes($exp);
         ok $nl.pop.nodeName eq 'foo';
         ok !defined($nl.pop);
     }
@@ -36,29 +37,29 @@ subtest 'findnodes() scalar', {
 
 subtest 'first(), last()', {
     for ($xpath~'/*', LibXML::XPath::Expression.parse($xpath~'/*')) -> $exp {
-        my LibXML::XPath::Context $ctx .= new(:$doc);
+        my LibXML::XPath::Context $ctx = $doc.create(LibXML::XPath::Context, :$doc);
         is $ctx.first($exp).nodeName, 'bar';
         is $ctx.last($exp).nodeName, 'baz';
     }
 }
 
 subtest 'findvalue()', {
-    is LibXML::XPath::Context.new(:$doc).findvalue('1+1'), 2;
+    is $doc.create(LibXML::XPath::Context, :$doc).findvalue('1+1'), 2;
 
-    is LibXML::XPath::Context.new(:$doc).findvalue(LibXML::XPath::Expression.parse('1+1')), 2;
+    is $doc.create(LibXML::XPath::Context, :$doc).findvalue(LibXML::XPath::Expression.parse('1+1')), 2;
 
-    is-deeply LibXML::XPath::Context.new(:$doc).findvalue('1=2'), False;
+    is-deeply $doc.create(LibXML::XPath::Context, :$doc).findvalue('1=2'), False;
 
-    is-deeply LibXML::XPath::Context.new(:$doc).findvalue(LibXML::XPath::Expression.parse('1=2')), False;
+    is-deeply $doc.create(LibXML::XPath::Context, :$doc).findvalue(LibXML::XPath::Expression.parse('1=2')), False;
 }
 
 subtest 'find()', {
-    ok LibXML::XPath::Context.new(:$doc).find('/foo/bar').pop.nodeName eq 'bar';
+    ok $doc.create(LibXML::XPath::Context, :$doc).find('/foo/bar').pop.nodeName eq 'bar';
 
-    ok LibXML::XPath::Context.new(:$doc).find(LibXML::XPath::Expression.parse('/foo/bar')).pop.nodeName eq 'bar';
+    ok $doc.create(LibXML::XPath::Context, :$doc).find(LibXML::XPath::Expression.parse('/foo/bar')).pop.nodeName eq 'bar';
 
-    is LibXML::XPath::Context.new(:$doc).find('1*3'), 3;
-    is LibXML::XPath::Context.new(:$doc).find('1=1'), True;
+    is $doc.create(LibXML::XPath::Context, :$doc).find('1*3'), 3;
+    is $doc.create(LibXML::XPath::Context, :$doc).find('1=1'), True;
 }
 
 my $doc1 = LibXML.parse: :string(q:to<XML>);
@@ -100,13 +101,13 @@ sub registerNs-tests($compiled, $xc) {
 
 
 my LibXML::XPath::Expression $compiled .= parse('/xxx:foo');
-my LibXML::XPath::Context $xc1 .= new: :doc($doc1);
+my LibXML::XPath::Context $xc1 = $doc1.create: LibXML::XPath::Context, :doc($doc1);
 $xc1.SetGenericErrorFunc(-> $ctx, $fmt, |c { $errors++; });
 $xc1.registerNs('xxx', 'http://example.com/foobar');
 subtest 'registerNs', { registerNs-tests($compiled, $xc1) };
 
 # test :%ns constructor
-my LibXML::XPath::Context $xc2 .= new: :doc($doc1), :ns{ xxx => 'http://example.com/foobar' };
+my LibXML::XPath::Context $xc2 = $doc1.create: LibXML::XPath::Context, :doc($doc1), :ns{ xxx => 'http://example.com/foobar' };
 subtest ':%ns constructor', { registerNs-tests($compiled, $xc2) };
 
 
@@ -114,21 +115,21 @@ subtest ':%ns constructor', { registerNs-tests($compiled, $xc2) };
 $doc = LibXML.parse: :string(q:to<XML>);
 <foo/>
 XML
-$xc2 .= new( :$doc );
+$xc2 = $doc.create( $xc2.WHAT, :$doc );
 is $xc2.findnodes('//*').pop.nodeName, 'foo', 'First node is root node';
 
 # test xpath context preserves context node
 my $doc2 = LibXML.parse: :string(q:to<XML>);
 <foo><bar/></foo>
 XML
-my LibXML::XPath::Context $xc3 .= new(node => $doc2.getDocumentElement);
+my LibXML::XPath::Context $xc3 = $doc2.create(LibXML::XPath::Context, node => $doc2.getDocumentElement);
 $xc3.find('/');
 
 is $xc3.getContextNode.Str(), '<foo><bar/></foo>', 'context is root node' ;
 
 # check starting with empty context
 my LibXML::XPath::Context $xc4;
-lives-ok { $xc4 .= new() }, 'new empty context';
+lives-ok { $xc4 = $doc2.create($xc4) }, 'new empty context';
 ok !defined($xc4.getContextNode), 'getContextNode when empty';
 dies-ok { $xc4.find('/') }, 'find of empty dies';
 my $cn = $doc2.getDocumentElement;
@@ -155,7 +156,7 @@ ok $xc4.getContextNode.isSameNode($doc2.getDocumentElement);
 
 # testcase for segfault found by Steve Hay
 
-my LibXML::XPath::Context $xc5 .= new();
+my LibXML::XPath::Context $xc5 = $doc2.create(LibXML::XPath::Context);
 $xc5.registerNs('pfx', 'http://www.foo.com');
 $doc = LibXML.parse: :string('<foo xmlns="http://www.foo.com" />');
 $xc5.setContextNode($doc);
@@ -216,8 +217,8 @@ subtest 'setting context position and size', {
 }
 
 subtest 'Ns override', {
-    my $d = LibXML.new().parse: :string(q~<x:a xmlns:x="http://x.com" xmlns:y="http://x1.com"><x1:a xmlns:x1="http://x1.com"/></x:a>~);
-    my LibXML::XPath::Context $x .= new;
+    my $d = LibXML.parse: :string(q~<x:a xmlns:x="http://x.com" xmlns:y="http://x1.com"><x1:a xmlns:x1="http://x1.com"/></x:a>~);
+    my LibXML::XPath::Context $x = $d.create: LibXML::XPath::Context;
 
     # use the document's declaration
     is $x.findvalue('count(/x:a/y:a)', $d.documentElement), 1;
@@ -251,9 +252,9 @@ subtest 'Ns override', {
 }
 
 subtest 'document fragments', {
-    my LibXML::DocumentFragment $frag .= new;
-    my LibXML::Element $foo .= new('foo');
-    my LibXML::XPath::Context $xpc .= new;
+    my LibXML::DocumentFragment $frag .= new: config => LibXML::Config.new;
+    my LibXML::Element $foo = $frag.create(LibXML::Element, 'foo');
+    my LibXML::XPath::Context $xpc = $frag.create(LibXML::XPath::Context);
     $frag.appendChild($foo);
     $foo.appendTextChild('bar', 'quux');
     {

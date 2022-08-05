@@ -3,8 +3,12 @@ use Test;
 plan 5;
 
 use LibXML;
+use LibXML::Config;
 use LibXML::Document;
 use LibXML::InputCallback;
+
+
+LibXML::Config.use-global;
 
 my @all = qw<
     recover

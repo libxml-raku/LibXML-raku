@@ -3,12 +3,15 @@ use Test;
 plan 11;
 
 use LibXML;
+use LibXML::Config;
 use LibXML::Document;
 use LibXML::Reader;
 use LibXML::Enums;
 use LibXML::Document;
 use LibXML::RelaxNG;
 use LibXML::Schema;
+
+LibXML::Config.use-global;
 
 unless LibXML.have-reader {
     skip-rest "LibXML Reader is not supported in this libxml2 build";
@@ -122,7 +125,7 @@ subtest 'string interface', {
 
 subtest 'DOM', {
     my LibXML::Document:D $DOM = LibXML.parse: :file($file);
-    my LibXML::Reader $reader .= new(:$DOM);
+    my LibXML::Reader $reader = $DOM.create(LibXML::Reader, :$DOM);
     $reader.read;
     $reader.read;
     is $reader.name, "countries","name in string";

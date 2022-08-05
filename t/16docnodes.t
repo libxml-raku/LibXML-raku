@@ -3,6 +3,7 @@ use Test;
 plan 11;
 
 use LibXML;
+use LibXML::Element;
 
 # this test fails under XML-LibXML-1.00 with a segfault after the
 # second parsing.  it was fixed by putting in code in getChildNodes
@@ -48,7 +49,7 @@ for 1 .. 3 -> $time {
 {
     my LibXML::Document $doc .= new();
 
-    my LibXML::Element $node .= new('test');
+    my LibXML::Element $node = $doc.create(LibXML::Element, 'test');
     $node.setAttribute(contents => "\c[0xE4]");
     $doc.setDocumentElement($node);
 

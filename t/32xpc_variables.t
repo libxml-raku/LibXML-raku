@@ -25,30 +25,30 @@ sub get_variable($name, $uri ) {
 
 # $c: node list
 subtest 'nodelist', {
-    %variables<c> = LibXML::XPath::Context.new(:$doc).findnodes('//bar');
+    %variables<c> = $doc.create(LibXML::XPath::Context, :$doc).findnodes('//bar');
     isa-ok %variables<c>, 'LibXML::Node::Set';
     is %variables<c>.size(), 2;
     is %variables<c>[1].nodeName, 'bar';
 }
 
 # $d: a single element node
-%variables<d> = LibXML::XPath::Context.new(:$doc).findnodes('/*').pop;
+%variables<d> = $doc.create(LibXML::XPath::Context, :$doc).findnodes('/*').pop;
 is %variables<d>.nodeName(), 'foo', 'single element node';
 
 # $e: a single text node
-%variables<e> = LibXML::XPath::Context.new(:$doc).findnodes('//text()');
+%variables<e> = $doc.create(LibXML::XPath::Context, :$doc).findnodes('//text()');
 is %variables<e>[0].data(), 'Bla', 'single text node';
 
 # $f: a single attribute node
-%variables<f> = LibXML::XPath::Context.new(:$doc).findnodes('//@*').pop;
+%variables<f> = $doc.create(LibXML::XPath::Context, :$doc).findnodes('//@*').pop;
 is %variables<f>.nodeName(), 'a', 'single attribute node';
 is %variables<f>.value(), 'b', 'single attribute node';
 
 # $f: a single document node
-%variables<g> = LibXML::XPath::Context.new(:$doc).first('/');
+%variables<g> = $doc.create(LibXML::XPath::Context, :$doc).first('/');
 is %variables<g>.nodeType(), +XML_DOCUMENT_NODE, 'single document node';
 
-my LibXML::XPath::Context $xc .= new(:$doc);
+my LibXML::XPath::Context $xc = $doc.create(LibXML::XPath::Context, :$doc);
 # test registerVarLookupFunc() and getVarLookupData()
 subtest 'xpath context find', {
 
