@@ -207,7 +207,7 @@ method setup returns List {
         END
     }
     my @prev[4] = (
-        $*STACK-ID,
+        $*THREAD.id,
         xml6_gbl::get-tag-expansion(),
         xml6_gbl::get-keep-blanks(),
         xml6_gbl::get-external-entity-loader,
@@ -220,7 +220,7 @@ method setup returns List {
 
 multi method restore([]) { }
 multi method restore(@prev where .elems == 4) {
-    if $*STACK-ID == @prev[0] {
+    if $*THREAD.id == @prev[0] {
         xml6_gbl::set-tag-expansion(@prev[1]);
         xml6_gbl::set-keep-blanks(@prev[2]);
         xml6_gbl::set-external-entity-loader(@prev[3]) with self;
