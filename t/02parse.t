@@ -414,10 +414,8 @@ subtest 'SAX parser', {
     }
 
     subtest 'SAX2 handler', {
-        note "CONFIG DEFAULT skip-xml-declaration: ", config.skip-xml-declaration;
         my LibXML::SAX::Handler::SAX2 $sax-handler .= new;
         my LibXML::SAX $generator .= new: :$sax-handler;
-        note "SAX CONFIG: ", $generator.config.skip-xml-declaration;
 
         subtest 'general tests', {
             my $string  = q{<bar foo="bar">foo</bar>};
@@ -447,10 +445,6 @@ subtest 'SAX parser', {
             for @goodWFNSStrings -> $string {
                 my $doc = $generator.parse: :$string;
                 isa-ok $doc , LibXML::Document;
-
-                note $doc.config.skip-xml-declaration, " // ", $generator.config.skip-xml-declaration, " // ", config.skip-xml-declaration;
-                note config.global.WHICH;
-                note $doc.Str.raku;
                 is $doc.Str.subst(/' encoding="UTF-8"'/, ''), $string, "Good NS $i";
                 $i++
             }
