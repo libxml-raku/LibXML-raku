@@ -1,9 +1,9 @@
+#| LibXML DtD notations
+unit class LibXML::Dtd::Notation;
+
 use W3C::DOM;
 
-#| LibXML DtD notations
-unit class LibXML::Dtd::Notation
-    is repr('CPointer')
-    does W3C::DOM::Notation;
+also does W3C::DOM::Notation;
 
 use LibXML::Raw;
 use NativeCall;
@@ -40,11 +40,13 @@ Notation declarations are an older mechanism that is sometimes used in a DTD to 
 
 =end pod
 
-method new(Str:D :$name!, Str :$publicId, Str :$systemId) {
-    self.box: xmlNotation.new(:$name, :$publicId, :$systemId);
+has xmlNotation:D $.raw handles<Str type> is required;
+
+multi method new(Str:D :$name!, Str :$publicId, Str :$systemId, *%c) {
+    self.bless(raw => xmlNotation.new(:$name, :$publicId, :$systemId), |%c)
 }
-method box(xmlNotation:D $raw --> LibXML::Dtd::Notation) {
-    nativecast(self, $raw.Copy);
+method box(xmlNotation:D $raw, |c --> LibXML::Dtd::Notation) {
+    self.bless: :raw(nativecast(xmlNotation, $raw.Copy)), |c
 }
 method unique-key returns Str { $.raw.UniqueKey.Str }
 method isSame($_) is also<isSameNode> {
@@ -57,18 +59,14 @@ method publicId(--> Str) { $.raw.publicId }
 #| Return the System ID
 method systemId(--> Str) { $.raw.systemId }
 
-#| Return the entity name
-method name(--> Str) { $.raw.name }
-
-method raw handles<Str type> { nativecast(xmlNotation, self) }
-
 # DOM
 
-method nodeName is also<localName> { $.name }
+#| Return the entity name
+method nodeName(--> Str) is also<name localName> { $!raw.name }
 method nodeType { $.type }
 method prefix { Str }
 method hasAttributes { False }
-method cloneNode is also<clone> { self.box: self.raw }
+method cloneNode is also<clone> { self.box: $!raw }
 
 # Inventory of unimplemented DOM methods. Mostly because W3C expects this
 # class to be based on a node, but LibXML doesn't.
@@ -79,4 +77,4 @@ method nodeValue is also<
     die X::NYI.new
 }
 
-submethod DESTROY { self.raw.Free; }
+submethod DESTROY { $!raw.Free; }
