@@ -39,7 +39,7 @@ is $doc.Str(), $xml_out;
 
 my $xml_out2 = $xml; $xml_out2 .= subst(/'&'[a|b]';'/, '<!-- -->', :g);
 
-config.external-entity-loader = -> *@ { '<!-- -->' };
+$parser.config.external-entity-loader = -> *@ { '<!-- -->' };
 $doc = $parser.parse: :string($xml);
 is $doc.Str(), $xml_out2;
 

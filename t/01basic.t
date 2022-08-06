@@ -32,7 +32,7 @@ for True, False -> $kb {
 my Str $string = '<html><body><h1>Test</h1></body></html>';
 my LibXML::Document:D $doc = $p.parse: :$string;
 
-config.skip-xml-declaration = True;
+$doc.config.skip-xml-declaration = True;
 
 is $doc.Str.chomp, $string, '$doc.Str';
 is-deeply $doc.Str(:format).lines, (

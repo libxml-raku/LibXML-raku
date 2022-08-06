@@ -214,7 +214,7 @@ subtest 'parse :file', {
         my $string = "<a>    <b/> </a>";
         my $tstr = "<a><b/></a>\n";
         temp $parser.keep-blanks = False;
-        temp config.skip-xml-declaration = True;
+        temp $parser.config.skip-xml-declaration = True;
         my $docA = $parser.parse: :$string;
         my $docB = $parser.parse: :file("samples/test3.xml");
         is $docA, $tstr, "xml string round trips as expected";
