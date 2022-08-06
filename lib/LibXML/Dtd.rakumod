@@ -19,7 +19,6 @@ use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 use LibXML::HashMap;
 use LibXML::Config :&protected;
-use AttrX::Mooish;
 use Method::Also;
 use NativeCall;
 use W3C::DOM;
@@ -226,9 +225,9 @@ multi method new($external-id, $system-id, *%c) {
     Returns the system identifier of the external subset.
 =end pod
 
-has LibXML::Parser::Context:D $!parser-ctx is mooish(:lazy);
-method !build-parser-ctx {
-    self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new)
+has LibXML::Parser::Context $!parser-ctx;
+method !parser-ctx {
+    $!parser-ctx //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new)
 }
 
 multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
@@ -236,7 +235,7 @@ multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') 
     self.box($raw, config => LibXML::Config.new)
 }
 multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $raw = $!parser-ctx.try: {xmlDtd.parse: :$string, :$enc};
+    my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$string, :$enc};
     self.box($raw)
 }
 =begin pod
@@ -255,7 +254,7 @@ multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) {
     self.box($raw, config => LibXML::Config.new);
 }
 multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) {
-    my xmlDtd:D $raw = $!parser-ctx.try: {xmlDtd.parse: :$external-id, :$system-id;};
+    my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box($raw);
 }
 multi method parse(Str $external-id, Str $system-id) is default {

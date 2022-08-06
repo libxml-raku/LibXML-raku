@@ -68,7 +68,7 @@ method !make-handler( ::?CLASS:D:
 method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
     my xmlDoc $raw = $ctx.publish();
     my $input-compressed = $ctx.input-compressed();
-    my LibXML::Document:D $doc =
+    my LibXML::Document $doc =
         self.create: $.config.class-map[XML_DOCUMENT_NODE], :raw($_), :$URI, :$input-compressed with $raw;
 
     if $.expand-xinclude {

@@ -11,8 +11,7 @@
     "File::Temp",
     "Method::Also",
     "W3C::DOM:ver<0.0.2+>",
-    "XML",
-    "AttrX::Mooish:ver<0.8.4+>:auth<zef:vrurg>"
+    "XML"
   ],
   "build-depends": [
     "LibraryMake"

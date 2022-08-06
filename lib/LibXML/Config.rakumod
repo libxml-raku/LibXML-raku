@@ -63,7 +63,6 @@ use LibXML::Raw;
 use LibXML::Types :resolve-package;
 use LibXML::X;
 use NativeCall;
-use AttrX::Mooish;
 
 # XXX Temporary solution for testing where no specific config object is required
 my LibXML::Config $singleton;
@@ -128,8 +127,7 @@ method skip-xml-declaration() is rw returns Bool
 =para Whether to omit '<?xml ...>' preamble (default False)
 
 my Bool:D $skip-xml-declaration = False;
-has Bool:D $!skip-xml-declaration is mooish(:lazy);
-method !build-skip-xml-declaration { $skip-xml-declaration }
+has Bool:D $!skip-xml-declaration is built = $skip-xml-declaration;
 
 proto method skip-xml-declaration() {*}
 multi method skip-xml-declaration(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-xml-declaration) }
@@ -141,8 +139,7 @@ method skip-dtd() is rw returns Bool
 =para Whether to omit internal DTDs (default False)
 
 my Bool:D $skip-dtd = False;
-has Bool:D $!skip-dtd is mooish(:lazy);
-method !build-skip-dtd { $skip-dtd }
+has Bool:D $!skip-dtd is built = $skip-dtd;
 
 proto method skip-dtd() {*}
 multi method skip-dtd(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-dtd) }
@@ -150,8 +147,7 @@ multi method skip-dtd(::?CLASS:D: --> Bool) is rw { flag-proxy($!skip-dtd) }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 my Bool:D $tag-expansion = False;
-has Bool:D $!tag-expansion is mooish(:lazy);
-method !build-tag-expansion { $tag-expansion }
+has Bool:D $!tag-expansion is built = $tag-expansion;
 
 proto method tag-expansion() {*}
 multi method tag-expansion(::?CLASS:U: --> Bool) is rw { flag-proxy($tag-expansion) }
@@ -163,8 +159,7 @@ method max-errors() is rw returns Int:D
 =para Maximum errors before throwing a fatal X::LibXML::TooManyErrors
 
 my UInt:D $max-errors = 100;
-has UInt:D $!max-errors is mooish(:lazy);
-method !build-max-errors { $max-errors }
+has UInt:D $!max-errors is built = $max-errors;
 
 proto method max-errors() {*}
 multi method max-errors(::?CLASS:U:) is rw { $max-errors }
@@ -183,24 +178,22 @@ method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
 
 my &external-entity-loader;
-#has &!external-entity-loader is mooish(:lazy);
-#method !build-external-entity-loader { &external-entity-loader }
+has &!external-entity-loader = &external-entity-loader;
 
-#proto method external-entity-loader() {*}
-#multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
-#multi method external-entity-loader(::?CLASS:U: --> Callable) is rw {
-method external-entity-loader(--> Callable) is rw {
+proto method external-entity-loader() {*}
+multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
+multi method external-entity-loader(::?CLASS:U:) is rw {
+#method external-entity-loader(--> Callable) is rw {
     Proxy.new(
         FETCH => { $lock.protect: { &external-entity-loader } },
         STORE => -> $, &loader {
             set-external-entity-loader(&loader);
             &external-entity-loader = &loader;
-        }
-        );
+        });
 }
 
 method setup returns List {
-    if self.defined && &external-entity-loader.defined && !self.parser-locking {
+    if self.defined && &!external-entity-loader.defined && !self.parser-locking {
         warn q:to<END>.chomp;
         Unsafe use of local 'external-entity-loader' configuration.
         Please configure globally, or set 'parser-locking' to disable threaded parsing
@@ -214,7 +207,8 @@ method setup returns List {
     );
     xml6_gbl::set-tag-expansion(self.tag-expansion);
     xml6_gbl::set-keep-blanks(self.keep-blanks);
-    set-external-entity-loader(&external-entity-loader) with self;
+#    xml6_gbl::set-external-entity-loader(&!external-entity-loader) with self && &!external-entity-loader;
+    set-external-entity-loader(&!external-entity-loader) with self && &!external-entity-loader;
     @prev;
 }
 
@@ -226,13 +220,12 @@ multi method restore(@prev where .elems == 4) {
         xml6_gbl::set-external-entity-loader(@prev[3]) with self;
     }
     else {
-        warn "OS thread change";
+        warn "OS thread change\n" ~ Backtrace.new.full.Str.indent(4);
     }
 }
 
 my Bool:D $keep-blanks = True;
-has Bool:D $!keep-blanks is built is mooish(:lazy) = True;
-method !build-keep-blanks { $keep-blanks }
+has Bool:D $!keep-blanks is built = $keep-blanks;
 
 proto method keep-blanks() {*}
 multi method keep-blanks(::?CLASS:U: --> Bool) is rw { flag-proxy($keep-blanks) }
@@ -308,8 +301,7 @@ Concurrent use of multiple input callbacks is NOT thread-safe and `parser-lockin
 also needs to be set to disable concurrent parsing (see below).
 
 my $input-callbacks;
-has $!input-callbacks is mooish(:lazy);
-method !build-input-callbacks { $input-callbacks }
+has $!input-callbacks is built = $input-callbacks;
 
 proto method input-callbacks(|) {*}
 multi method input-callbacks(::?CLASS:U:) is rw {
@@ -358,7 +350,7 @@ method lock handles<protect> {
 sub protected(&action) is hidden-from-backtrace is export(:protected) {
     $parser-locking
         ?? $?CLASS.protect(&action)
-	!! &action();
+        !! &action();
 }
 
 
@@ -367,8 +359,7 @@ sub protected(&action) is hidden-from-backtrace is export(:protected) {
 method query-handler() is rw returns LibXML::Config::QueryHandler
 =para Default query handler to service querySelector() and querySelectorAll() methods
 
-has $!query-handler is mooish(:lazy);
-method !build-query-handler { $query-handler }
+has $!query-handler is built = $query-handler;
 
 proto method query-handler() {*}
 multi method query-handler(::?CLASS:U: --> QueryHandler) is rw {
@@ -413,11 +404,13 @@ my constant @ClassMap = do {
 }
 
 # COW clone of @ClassMap
-has @.class-map is default(Nil) is mooish(:lazy);
+has @!class-map is default(Nil);
 
-method build-class-map {
-    @ClassMap
-        .map({ .defined ?? resolve-package($_) !! Nil })
+method class-map {
+    unless @!class-map {
+        @!class-map = @ClassMap.map({ .defined ?? resolve-package($_) !! Nil })
+    }
+    @!class-map
 }
 
 method !validate-map-class-name(Str:D $class, Str:D $why, Bool:D :$strict = True) {
@@ -432,7 +425,7 @@ method !validate-map-class(Any:U \type, Str:D $why, Bool:D :$strict = True) {
 
 proto method map-class(|) {*}
 multi method map-class(Int:D $id, Mu:U \user-type) {
-    self.protect: { @!class-map[$id] := user-type }
+    self.protect: { @.class-map[$id] := user-type }
 }
 multi method map-class(Str:D $class, Mu:U \user-type) {
     self!validate-map-class-name($class, q<unknown to configuration 'map-call' method>);
@@ -475,7 +468,7 @@ multi method class-from(Str:D $class, Bool:D :$strict = True) {
             :$strict);
     samewith(%DefaultClassMap{$class});
 }
-multi method class-from(::?CLASS:D: Int:D $id) { @!class-map[$id] }
+multi method class-from(::?CLASS:D: Int:D $id) { @.class-map[$id] }
 multi method class-from(::?CLASS:U: Int:D $id) { resolve-package(@ClassMap[$id]) }
 
 =begin pod

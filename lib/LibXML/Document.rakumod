@@ -28,7 +28,6 @@ use LibXML::PI;
 use LibXML::Text;
 use LibXML::Types :QName, :NCName, :NameVal, :resolve-package;
 use LibXML::_Validator;
-use AttrX::Mooish;
 use Method::Also;
 use NativeCall;
 
@@ -130,9 +129,13 @@ subset DOCB is export(:DOCB) of ::?CLASS:D where .nodeType == XML_DOCB_DOCUMENT_
 
 constant InputCompressed = 1;
 
-has Any:U $.parser-class is mooish(:lazy);
+has $!parser-class;
 
-method build-parser-class { resolve-package 'LibXML::Parser' }
+method parser-class {
+    $!parser-class === Any
+        ?? ($!parser-class := resolve-package 'LibXML::Parser')
+        !! $!parser-class
+}
 
 =begin pod
     =head2 Methods

@@ -13,7 +13,6 @@ use LibXML::Types :NCName, :QName, :NameVal, :resolve-package;
 use LibXML::Utils :output-options;
 use LibXML::_Collection;
 use LibXML::_Rawish;
-use AttrX::Mooish;
 use W3C::DOM;
 use NativeCall;
 use Method::Also;
