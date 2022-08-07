@@ -9,8 +9,6 @@ use LibXML::Enums;
 
 plan 25;
 
-LibXML::Config.use-global;
-
 my xmlXPathObject $xo .= COERCE(42);
 is $xo.type, +XPATH_NUMBER;
 is-approx $xo.float, 42;

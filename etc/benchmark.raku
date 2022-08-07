@@ -10,7 +10,6 @@ use LibXML::XPath::Expression;
 
 use XML;
 use Bench;
-LibXML::Config.use-global;
 
 sub traverse-elems($_) {
     traverse-elems($_) for .elements;

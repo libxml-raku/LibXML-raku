@@ -7,9 +7,6 @@ use LibXML::Config;
 use LibXML::Document;
 use LibXML::InputCallback;
 
-
-LibXML::Config.use-global;
-
 my @all = qw<
     recover
     expand_entities

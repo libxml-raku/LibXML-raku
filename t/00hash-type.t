@@ -9,8 +9,6 @@ use NativeCall;
 
 plan 4;
 
-LibXML::Config.use-global;
-
 subtest 'Str HashMaps' => {
     plan 17;
     my LibXML::HashMap[Str] $h .= new;

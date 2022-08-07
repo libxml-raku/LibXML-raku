@@ -4,8 +4,6 @@ use Test;
 use LibXML::Attr;
 use LibXML::Config;
 
-LibXML::Config.use-global;
-
 plan 18;
 
 subtest 'LibXML::Attr' => {

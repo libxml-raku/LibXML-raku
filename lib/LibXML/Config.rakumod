@@ -1,5 +1,7 @@
+use v6.d;
+use OO::Monitors;
 #| LibXML Global configuration
-unit class LibXML::Config;
+unit monitor LibXML::Config;
 
 =begin pod
 
@@ -65,55 +67,58 @@ use LibXML::X;
 use NativeCall;
 
 # XXX Temporary solution for testing where no specific config object is required
-my LibXML::Config $singleton;
-method use-global() { $singleton //= ::?CLASS.new }
+my LibXML::Config:D $singleton .= new;
 method global { $singleton }
+
+proto method clone(|) {*}
+multi method clone(::?CLASS:U: |c) { $singleton.clone(|c) }
+multi method clone(::?CLASS:D: |c) { nextsame }
 
 =head2 Configuration Methods
 
 #| Returns the run-time version of the `libxml2` library.
 my $version;
-method version returns Version {
+method version(--> Version:D) {
     return $_ with ⚛$version;
     cas $version, { $_ // Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.') };
 }
 
 #| Returns the version of the `libxml2` library that the LibXML module was built against
 my $config-version;
-method config-version {
-    return $_ with ⚛$config-version;
-    cas $config-version, { $_ // Version.new: xml6_config::version() }
+method config-version(--> Version:D) {
+    $config-version //= Version.new: xml6_config::version()
 }
 
 #| Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
-method have-reader returns Bool {
-    resolve-package('LibXML::Reader').have-reader
+my $have-reader;
+method have-reader(--> Bool:D) {
+    $have-reader //= resolve-package('LibXML::Reader').have-reader
 }
 
 #| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
-method have-schemas returns Bool {
-    given $.version {
+my $have-schemas;
+method have-schemas(--> Bool:D) {
+    $have-schemas //= do given self.version {
         $_ >= v2.05.10 && $_ != v2.09.04
     }
 }
 
 #| Returns True if the `libxml2` library supports threads
-method have-threads returns Bool { ? xml6_config::have_threads(); }
+my $have-threads;
+method have-threads(--> Bool:D) { $have-threads //= ? xml6_config::have_threads(); }
 
 #| Returns True if the `libxml2` library supports compression
-method have-compression returns Bool { ? xml6_config::have_compression(); }
+my $have-compression;
+method have-compression(--> Bool:D) { $have-compression //= ? xml6_config::have_compression(); }
 
 my $catalogs = SetHash.new;
-my $lock = Lock.new;
 method load-catalog(Str:D $filename --> Nil) {
-    $lock.protect: {
-        my Int $stat = 0;
-        unless $filename ∈ $catalogs {
-            $stat = xmlLoadCatalog($filename);
-            fail "unable to load XML catalog: $filename"
-                if $stat < 0;
-            $catalogs.set: $filename;
-        }
+    my Int $stat = 0;
+    unless $filename ∈ $catalogs {
+        $stat = xmlLoadCatalog($filename);
+        fail "unable to load XML catalog: $filename"
+            if $stat < 0;
+        $catalogs.set: $filename;
     }
 }
 
@@ -126,73 +131,71 @@ method load-catalog(Str:D $filename --> Nil) {
 method skip-xml-declaration() is rw returns Bool
 =para Whether to omit '<?xml ...>' preamble (default False)
 
-my Bool:D $skip-xml-declaration = False;
-has Bool:D $!skip-xml-declaration is built = $skip-xml-declaration;
+has Bool:D() $!skip-xml-declaration is built = False;
 
 proto method skip-xml-declaration() {*}
-multi method skip-xml-declaration(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-xml-declaration) }
-multi method skip-xml-declaration(::?CLASS:D: --> Bool) is rw { flag-proxy($!skip-xml-declaration) }
+multi method skip-xml-declaration(::?CLASS:U: --> Bool:D) is rw { $singleton.skip-xml-declaration }
+multi method skip-xml-declaration(::?CLASS:D: --> Bool:D) is rw { $!skip-xml-declaration }
 
 =head3 method skip-dtd
 =for code :lang<raku>
 method skip-dtd() is rw returns Bool
 =para Whether to omit internal DTDs (default False)
 
-my Bool:D $skip-dtd = False;
-has Bool:D $!skip-dtd is built = $skip-dtd;
+has Bool:D() $!skip-dtd is built = False;
 
 proto method skip-dtd() {*}
-multi method skip-dtd(::?CLASS:U: --> Bool) is rw { flag-proxy($skip-dtd) }
-multi method skip-dtd(::?CLASS:D: --> Bool) is rw { flag-proxy($!skip-dtd) }
+multi method skip-dtd(::?CLASS:U: --> Bool) is rw { $singleton.skip-dtd }
+multi method skip-dtd(::?CLASS:D: --> Bool) is rw { $!skip-dtd }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
-my Bool:D $tag-expansion = False;
-has Bool:D $!tag-expansion is built = $tag-expansion;
+has Bool:D() $!tag-expansion is built = False;
 
 proto method tag-expansion() {*}
-multi method tag-expansion(::?CLASS:U: --> Bool) is rw { flag-proxy($tag-expansion) }
-multi method tag-expansion(::?CLASS:D: --> Bool) is rw { flag-proxy($!tag-expansion) }
+multi method tag-expansion(::?CLASS:U: --> Bool) is rw { $singleton.tag-expansion }
+multi method tag-expansion(::?CLASS:D: --> Bool) is rw { $!tag-expansion }
 
 =head3 method max-errors
 =for code :lang<raku>
 method max-errors() is rw returns Int:D
 =para Maximum errors before throwing a fatal X::LibXML::TooManyErrors
 
-my UInt:D $max-errors = 100;
-has UInt:D $!max-errors is built = $max-errors;
+has UInt:D $!max-errors is built = 100;
 
 proto method max-errors() {*}
-multi method max-errors(::?CLASS:U:) is rw { $max-errors }
-multi method max-errors(::?CLASS:D:) is rw { $!max-errors }
+multi method max-errors(::?CLASS:U: --> UInt:D) is rw { $singleton.max-errors }
+multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!max-errors }
 
 =head2 Parsing Default Options
 
-has xmlElementType:D $.document-kind = XML_DOCUMENT_NODE;
+has xmlDocumentType:D $!document-kind = XML_DOCUMENT_NODE;
 
-my sub flag-proxy($flag is rw) is rw {
-    Proxy.new( FETCH => sub ($) { $flag.so },
-               STORE => sub ($, $_) { $flag = .so } );
-}
+proto method document-kind() {*}
+multi method document-kind(::?CLASS:U: --> xmlDocumentType:D) { $singleton.document-kind }
+multi method document-kind(::?CLASS:D: --> xmlDocumentType:D) { $!document-kind }
 
 method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
 
-my &external-entity-loader;
-has &!external-entity-loader = &external-entity-loader;
+has &!external-entity-loader;
 
 proto method external-entity-loader() {*}
-multi method external-entity-loader(::?CLASS:D: --> Callable) is rw { &!external-entity-loader }
-multi method external-entity-loader(::?CLASS:U:) is rw {
+multi method external-entity-loader(::?CLASS:U:) is rw { $singleton.external-entity-loader }
+multi method external-entity-loader(::?CLASS:D:) is rw {
 #method external-entity-loader(--> Callable) is rw {
     Proxy.new(
-        FETCH => { $lock.protect: { &external-entity-loader } },
+        FETCH => { &!external-entity-loader },
         STORE => -> $, &loader {
-            set-external-entity-loader(&loader);
-            &external-entity-loader = &loader;
+            if self === $singleton {
+                set-external-entity-loader(&loader);
+            }
+            &!external-entity-loader = &loader;
         });
 }
 
-method setup returns List {
+proto method setup(|) {*}
+multi method setup(::?CLASS:U: --> List:D) { $singleton.setup }
+multi method setup(::?CLASS:D: --> List:D) {
     if self.defined && &!external-entity-loader.defined && !self.parser-locking {
         warn q:to<END>.chomp;
         Unsafe use of local 'external-entity-loader' configuration.
@@ -208,7 +211,10 @@ method setup returns List {
     xml6_gbl::set-tag-expansion(self.tag-expansion);
     xml6_gbl::set-keep-blanks(self.keep-blanks);
 #    xml6_gbl::set-external-entity-loader(&!external-entity-loader) with self && &!external-entity-loader;
-    set-external-entity-loader(&!external-entity-loader) with self && &!external-entity-loader;
+    if self !=== $singleton && &!external-entity-loader {
+        note "SETTING EXTERNAL ENT LOADER";
+        set-external-entity-loader(&!external-entity-loader);
+    }
     @prev;
 }
 
@@ -224,15 +230,14 @@ multi method restore(@prev where .elems == 4) {
     }
 }
 
-my Bool:D $keep-blanks = True;
-has Bool:D $!keep-blanks is built = $keep-blanks;
+has Bool:D() $!keep-blanks is built = True;
 
 proto method keep-blanks() {*}
-multi method keep-blanks(::?CLASS:U: --> Bool) is rw { flag-proxy($keep-blanks) }
-multi method keep-blanks(::?CLASS:D: --> Bool) is rw { flag-proxy($!keep-blanks) }
+multi method keep-blanks(::?CLASS:U: --> Bool) is rw { $singleton.keep-blanks }
+multi method keep-blanks(::?CLASS:D: --> Bool) is rw { $!keep-blanks }
 
 #| Low-level default parser flags (Read-only)
-method parser-flags returns UInt {
+method parser-flags(--> UInt:D) {
     XML_PARSE_NONET
     + XML_PARSE_NODICT
     + ($.keep-blanks ?? 0 !! XML_PARSE_NOBLANKS)
@@ -300,27 +305,20 @@ process.
 Concurrent use of multiple input callbacks is NOT thread-safe and `parser-locking`
 also needs to be set to disable concurrent parsing (see below).
 
-my $input-callbacks;
-has $!input-callbacks is built = $input-callbacks;
+has $!input-callbacks is built;
 
 proto method input-callbacks(|) {*}
-multi method input-callbacks(::?CLASS:U:) is rw {
-    Proxy.new(
-        FETCH => sub ($) { $lock.protect: { $input-callbacks } },
-        STORE => sub ($, $callbacks) {
-            $lock.protect: {
-                .deactivate with $input-callbacks;
-                .activate(:config( $singleton // ::?CLASS.new )) with $callbacks;
-                $input-callbacks = $callbacks;
-            }
-        }
-    );
-}
+multi method input-callbacks(::?CLASS:U:) is rw { $singleton.input-callbacks }
 multi method input-callbacks(::?CLASS:D:) is rw {
     Proxy.new(
         FETCH => sub ($) { $!input-callbacks },
-        STORE => sub ($, $callbacks) { $!input-callbacks = $callbacks }
-        );
+        STORE => sub ($, $callbacks) {
+            if self === $singleton {
+                .deactivate with $!input-callbacks;
+                .activate with $callbacks;
+            }
+            $!input-callbacks = $callbacks
+        });
 }
 =para See L<LibXML::InputCallback>
 
@@ -329,7 +327,7 @@ multi method input-callbacks(::?CLASS:D:) is rw {
 concurrent parsing. It needs to be set to allow per-parser input-callbacks,
 which are not currently thread safe.
 
-my Bool $parser-locking = ! $?CLASS.have-threads;
+my Bool:D() $parser-locking = ! $singleton.have-threads;
 method parser-locking is rw { $parser-locking }
 
 =head2 Query Handler
@@ -349,7 +347,7 @@ method lock handles<protect> {
 
 sub protected(&action) is hidden-from-backtrace is export(:protected) {
     $parser-locking
-        ?? $?CLASS.protect(&action)
+        ?? $singleton.protect(&action)
         !! &action();
 }
 
@@ -362,18 +360,8 @@ method query-handler() is rw returns LibXML::Config::QueryHandler
 has $!query-handler is built = $query-handler;
 
 proto method query-handler() {*}
-multi method query-handler(::?CLASS:U: --> QueryHandler) is rw {
-    Proxy.new(
-        FETCH => sub ($) { $query-handler },
-        STORE => sub ($, QueryHandler $_) { $query-handler = $_; }
-    );
-}
-multi method query-handler(::?CLASS:D: --> QueryHandler) is rw {
-    Proxy.new(
-        FETCH => sub ($) { $!query-handler },
-        STORE => sub ($, QueryHandler $_) { $!query-handler = $_; }
-        );
-}
+multi method query-handler(::?CLASS:U: --> QueryHandler) is rw { $singleton.query-handler }
+multi method query-handler(::?CLASS:D: --> QueryHandler) is rw { $!query-handler }
 =para See L<LibXML::XPath::Context>
 
 my constant @DefaultClassMap =
@@ -403,10 +391,11 @@ my constant @ClassMap = do {
     @map;
 }
 
-# COW clone of @ClassMap
 has @!class-map is default(Nil);
 
-method class-map {
+proto method class-map() {*}
+multi method class-map(::?CLASS:U:) { $singleton.class-map }
+multi method class-map(::?CLASS:D:) {
     unless @!class-map {
         @!class-map = @ClassMap.map({ .defined ?? resolve-package($_) !! Nil })
     }
@@ -424,19 +413,20 @@ method !validate-map-class(Any:U \type, Str:D $why, Bool:D :$strict = True) {
 }
 
 proto method map-class(|) {*}
-multi method map-class(Int:D $id, Mu:U \user-type) {
-    self.protect: { @.class-map[$id] := user-type }
+multi method map-class(::?CLASS:U: |c) { $singleton.map-class(|c) }
+multi method map-class(::?CLASS:D: Int:D $id, Mu:U \user-type) {
+    @.class-map[$id] := user-type;
 }
-multi method map-class(Str:D $class, Mu:U \user-type) {
+multi method map-class(::?CLASS:D: Str:D $class, Mu:U \user-type) {
     self!validate-map-class-name($class, q<unknown to configuration 'map-call' method>);
     samewith(%DefaultClassMap{$class}, user-type);
 }
-multi method map-class(LibXML::Types::Itemish:U \from-type, Mu:U \user-type) {
+multi method map-class(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Mu:U \user-type) {
     self!validate-map-class(from-type, q<unsupported by configuration 'map-call' method>);
     samewith(from-type.^name, user-type)
 }
 # Maps LibXML::* class names into user classes
-multi method map-class(*@pos, *%mappings) {
+multi method map-class(::?CLASS:D: *@pos, *%mappings) {
     for %mappings.kv -> Str:D $class, \user-type {
         samewith(%DefaultClassMap{$class}, user-type);
     }
@@ -452,7 +442,8 @@ multi method map-class(*@pos, *%mappings) {
 }
 
 proto method class-from($) {*}
-multi method class-from(LibXML::Types::Itemish:U \from-type, Bool:D :$strict = True) {
+multi method class-from(::?CLASS:U: |c) { $singleton.class-from(|c) }
+multi method class-from(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Bool:D :$strict = True) {
     return from-type
         unless self!validate-map-class(
             from-type,
@@ -460,7 +451,7 @@ multi method class-from(LibXML::Types::Itemish:U \from-type, Bool:D :$strict = T
             :$strict);
     samewith(%DefaultClassMap{from-type.^name});
 }
-multi method class-from(Str:D $class, Bool:D :$strict = True) {
+multi method class-from(::?CLASS:D: Str:D $class, Bool:D :$strict = True) {
     return resolve-package($class)
         unless self!validate-map-class-name(
             $class,
@@ -469,7 +460,6 @@ multi method class-from(Str:D $class, Bool:D :$strict = True) {
     samewith(%DefaultClassMap{$class});
 }
 multi method class-from(::?CLASS:D: Int:D $id) { @.class-map[$id] }
-multi method class-from(::?CLASS:U: Int:D $id) { resolve-package(@ClassMap[$id]) }
 
 =begin pod
 

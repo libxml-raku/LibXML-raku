@@ -107,7 +107,7 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
 
     protected sub () is hidden-from-backtrace {
         my $*XML-CONTEXT = self;
-        $_ = .new: :raw(xmlParserCtxt.new), :config(LibXML::Config.global // LibXML::Config.new) without $*XML-CONTEXT;
+        $_ = .new: :raw(xmlParserCtxt.new) without $*XML-CONTEXT;
 
         my @input-contexts = .activate with $*XML-CONTEXT.input-callbacks;
 

@@ -27,6 +27,9 @@ enum xmlElementType is export (
    XML_XINCLUDE_START => 19,
 );
 
+subset xmlDocumentType of xmlElementType is export
+    where XML_DOCUMENT_NODE | XML_HTML_DOCUMENT_NODE | XML_DOCUMENT_FRAG_NODE;
+
 enum xmlParserOption is export (
    XML_PARSE_RECOVER => 1,
    XML_PARSE_NOENT => 2,

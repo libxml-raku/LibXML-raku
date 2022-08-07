@@ -11,7 +11,8 @@
     "File::Temp",
     "Method::Also",
     "W3C::DOM:ver<0.0.2+>",
-    "XML"
+    "XML",
+    "OO::Monitors"
   ],
   "build-depends": [
     "LibraryMake"

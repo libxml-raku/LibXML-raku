@@ -10,8 +10,6 @@ use LibXML::RelaxNG;
 use LibXML::Parser;
 use LibXML::InputCallback;
 
-LibXML::Config.use-global;
-
 INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || (($*KERNEL.cpu-cores / 2).Int max 10);
 INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
 

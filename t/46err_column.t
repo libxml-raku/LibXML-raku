@@ -8,8 +8,6 @@ use LibXML::ErrorHandling;
 
 plan 2;
 
-LibXML::Config.use-global;
-
 throws-like
     {
         LibXML.parse: :string(

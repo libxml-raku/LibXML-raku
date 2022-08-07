@@ -232,7 +232,7 @@ method !parser-ctx {
 
 multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$string, :$enc};
-    self.box($raw, config => LibXML::Config.new)
+    self.box: $raw
 }
 multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$string, :$enc};
@@ -251,11 +251,11 @@ multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') 
 
 multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) {
     my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$external-id, :$system-id;};
-    self.box($raw, config => LibXML::Config.new);
+    self.box: $raw
 }
 multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) {
     my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$external-id, :$system-id;};
-    self.box($raw);
+    self.box: $raw
 }
 multi method parse(Str $external-id, Str $system-id) is default {
     self.parse: :$external-id, :$system-id;

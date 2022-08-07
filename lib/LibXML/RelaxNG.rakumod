@@ -4,7 +4,7 @@ unit class LibXML::RelaxNG;
 use LibXML::_Configurable;
 use LibXML::_Validator;
 
-also does LibXML::_Configurable[:use-new];
+also does LibXML::_Configurable;
 also does LibXML::_Validator;
 
     =head2 Synopsis

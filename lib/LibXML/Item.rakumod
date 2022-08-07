@@ -53,7 +53,7 @@ multi method box(::?CLASS:U: Any:D $_, *%c) { $.config.class-from(.type).box(.de
 multi method box(Any:U) { self.WHAT }
 
 #| Node constructor from data
-proto method ast-to-xml(| --> LibXML::Item) {*}
+proto method ast-to-xml(::?CLASS:D: | --> LibXML::Item) {*}
 =begin pod
 This function can be useful as a succinct of building nodes from data. For example:
 
@@ -125,7 +125,7 @@ multi method ast-to-xml(Positional $_) {
 }
 
 multi method ast-to-xml(Str:D $content) {
-    self.box-class(XML_TEXT_NODE).new: :$content, :config($.config // LibXML::Config.new);
+    self.box-class(XML_TEXT_NODE).new: :$content, :$.config
 }
 
 multi method ast-to-xml(LibXML::Item:D $_) { $_ }

@@ -12,7 +12,7 @@ constant %Opts = %(
      )
 );
 also does LibXML::_Options[%Opts];
-also does LibXML::_Configurable[:use-new];
+also does LibXML::_Configurable;
 
 use LibXML::Raw;
 use LibXML::Enums;

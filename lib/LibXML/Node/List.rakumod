@@ -20,7 +20,7 @@ has $.of is required;
 has Bool $!reified;
 has LibXML::Item @!store;
 has $!hstore;
-has LibXML::Item $.parent is required;
+has LibXML::Item:D $.parent is required;
 
 submethod TWEAK {
     $!raw = do given $!parent.raw {

@@ -9,8 +9,6 @@ use LibXML::Element;
 
 plan 5;
 
-LibXML::Config.use-global;
-
 sub slurp(Str $_) { .IO.slurp }
 
 my LibXML $xmlparser .= new();

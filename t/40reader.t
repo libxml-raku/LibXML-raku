@@ -11,8 +11,6 @@ use LibXML::Document;
 use LibXML::RelaxNG;
 use LibXML::Schema;
 
-LibXML::Config.use-global;
-
 unless LibXML.have-reader {
     skip-rest "LibXML Reader is not supported in this libxml2 build";
     exit;

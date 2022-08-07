@@ -9,8 +9,6 @@ use LibXML::Element;
 use LibXML::Namespace;
 use LibXML::Node;
 
-LibXML::Config.use-global;
-
 my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo bar]]></foo>};
 
 my LibXML $parser .= new();

@@ -4,7 +4,7 @@ unit class LibXML::Reader;
 use LibXML::ErrorHandling;
 use LibXML::_Configurable;
 
-also does LibXML::_Configurable[:use-new];
+also does LibXML::_Configurable;
 also does LibXML::ErrorHandling;
 
 =begin pod

@@ -9,7 +9,6 @@ use LibXML::Config;
 
 LibXML::Config.parser-locking = True;
 LibXML.config.skip-xml-declaration = True;
-LibXML::Config.use-global;
 
 use lib './t/lib';
 use Counter;

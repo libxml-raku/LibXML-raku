@@ -8,8 +8,6 @@ use LibXML;
 use LibXML::InputCallback;
 use LibXML::Config;
 
-LibXML::Config.use-global;
-
 plan 19;
 
 my $fh;
