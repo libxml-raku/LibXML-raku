@@ -7,6 +7,7 @@ use LibXML::Config;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
+use LibXML::Schema;
 use LibXML::Parser;
 use LibXML::InputCallback;
 
@@ -60,8 +61,8 @@ subtest 'relaxng' => {
     my Bool @bad = blat { @schemas[$_].is-valid($bad); }
 
     is +@schemas, MAX_THREADS, 'relaxng schemas';
-    is-deeply (+@good, [@good.unique]), (MAX_THREADS, [True]), 'relax-ng valid';
-    is-deeply (+@bad, [@bad.unique]), (MAX_THREADS, [False]), 'relax-ng invalid';
+    is-deeply (+@good, [@good.unique]), (+MAX_THREADS, [True]), 'relax-ng valid';
+    is-deeply (+@bad, [@bad.unique]), (+MAX_THREADS, [False]), 'relax-ng invalid';
 }
 
 subtest 'parse strings', {
@@ -233,7 +234,13 @@ subtest 'relaxNG schema validation', {
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
-            $ok = False without $!;
+            with $! {
+                .rethrow unless $_ ~~ X::LibXML::Parser
+                && .message.contains('failed to validate');
+            }
+            else {
+                $ok = False;
+            }
         }
 	$ok;
     }
@@ -254,8 +261,14 @@ subtest 'XML schema validation', {
         my $ok = True;
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
-            try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
-            $ok = False without $!;
+            try { my LibXML::Schema $s .= new( string => $xsdschema ); $s.validate( $x ) };
+            with $! {
+                .rethrow unless $_ ~~ X::LibXML::Parser
+                && .message.contains('is not valid');
+            }
+            else {
+                $ok = False;
+            }
         }
         $ok;
     }

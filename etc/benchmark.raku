@@ -15,8 +15,8 @@ sub traverse-elems($_) {
     traverse-elems($_) for .elements;
 }
 
-sub traverse-kids($_) {
-    traverse-kids($_) for .childNodes;
+sub traverse-nodes($_) {
+    traverse-nodes($_) for .childNodes;
 }
 
 multi sub get-elems(LibXML::Element:D $e) {
@@ -43,41 +43,43 @@ multi sub find-elems(Any:D $c) {
     $c.find($*kids-expr);
 }
 sub get-children(LibXML::Element:D $e) {
-    $e.childNodes
+    $e.childNodes for 1..15;
 }
 sub get-children-array(LibXML::Element:D $e) {
-    $e.childNodes.Array;
+    $e.childNodes.Array for 1..15;
 }
 sub get-children-native(xmlElem:D $raw) {
-    $raw.children;
+    $raw.children for 1..15;
 }
 multi sub get-attribute(LibXML::Element:D $e) {
-    for 1 .. 5 {
+    for 1 .. 15 {
        $e.getAttribute('name');
     }
 }
 multi sub get-attribute-native(xmlElem:D $raw) {
-    for 1 .. 5 {
+    for 1 .. 15 {
        $raw.getAttribute('name');
     }
 }
 multi sub get-attribute(XML::Element:D $e) {
-    for 1 .. 5 {
+    for 1 .. 15 {
        $e.attribs<name>;
     }
 }
 multi sub get-attribute-node(LibXML::Element:D $e) {
-    for 1 .. 5 {
+    for 1 .. 15 {
        $e.getAttributeNode('name');
     }
 }
 
 sub att-edit($e) {
     if $e.hasAttribute('name') {
-        my $v := $e.getAttribute('name');
-        $v :=  $e.getAttributeNS(Str, 'name');
-        $e.setAttribute('name', 'xxx');
-        $e.setAttributeNS(Str, 'name', $v);
+        for 1..5 {
+            my $v := $e.getAttribute('name');
+            $v :=  $e.getAttributeNS(Str, 'name');
+            $e.setAttribute('name', 'xxx');
+            $e.setAttributeNS(Str, 'name', $v);
+        }
     }
     else {
         die 'att-edit failed';
@@ -124,6 +126,10 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
 
     $b.timethese: 1, %(
         # macro-benchmarks
+        '00-load.hybrid' => {
+            my LibXML::SAX::Handler::XML $sax-handler .= new;
+            my XML::Document:D $ = LibXML.parse: :$*file, :$sax-handler;
+        },
         '00-load.libxml' => {
             $libxml = LibXML.parse: :$*file, :!blanks;
             $libxml-root = $libxml.root;
@@ -134,40 +140,36 @@ sub MAIN(Str :$*file='etc/libxml2-api.xml', UInt :$*reps = 1000) {
             $xml = from-xml-file($*file);
             $xml-root = $xml.root;
         },
-        '00-load.hybrid' => {
-            my LibXML::SAX::Handler::XML $sax-handler .= new;
-            my XML::Document $xml = LibXML.parse: :$*file, :$sax-handler;
-        },
-        '01-traverse-elems.xml' => { traverse-elems($xml-root) },
-        '01-traverse-elems.libxml' => { traverse-elems($libxml-root) },
-        '01-traverse-kids.libxml' => { traverse-kids($libxml-root) },
+        '01-traverse-elems.xml' => { for 1..3 {traverse-elems($xml-root)} },
+        '01-traverse-elems.libxml' => { for 1..3 {traverse-elems($libxml-root)} },
+        '01-traverse-nodes.libxml' => { for 1..3 {traverse-nodes($libxml-root)} },
     );
 
     my LibXML::XPath::Expression $*kids-expr .= compile("descendant::*");
 
     $b.timethese: $*reps, %(
         # micro-benchmarks
+        '02-children-array.libxml' => -> { get-children-array($libxml-root) },
+        '02-children.libxml' => -> { get-children($libxml-root) },
+        '02-children.libxml-native' => -> { get-children-native($raw) },
         '02-elems.libxml' => -> { get-elems($libxml-root)},
-        '02-children.libxml' => -> { get-children($libxml-root)},
-        '02-children-array.libxml' => -> { get-children-array($libxml-root)},
+        '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},
+        '02-elems.libxml-local' => -> { get-elems-local($libxml-root)},
         '02-elems.libxml-native' => -> { get-elems-native($raw)},
-        '02-find.libxml' => -> { find-elems($libxml-root)},
+        '02-elems.xml' =>  -> { get-elems($xml-root)},
         '02-find-ctxt.libxml' => -> { find-elems($ctxt)},
         '02-find-raw.libxml' => -> { find-elems($ctxt.raw)},
-        '02-children.libxml-native' => -> { get-children-native($raw)},
-        '02-elems.libxml-local' => -> { get-elems-local($libxml-root)},
-        '02-elems.libxml-assoc' => -> { get-elems-assoc($libxml-root)},
-        '03-elems.xml' =>  -> { get-elems($xml-root)},
-        '03-attribs.libxml' => -> { get-attribute($libxml-root)},
+        '02-find.libxml' => -> { find-elems($libxml-root)},
         '03-attrib-nodes.libxml' => -> { get-attribute-node($libxml-root)},
+        '03-attribs.libxml' => -> { get-attribute($libxml-root)},
         '03-attribs.libxml-native' => -> { get-attribute-native($raw)},
         '03-attribs.xml' => -> { get-attribute($xml-root)},
         '04-box.libxml' => { box($raw) },
-        '04-unbox.libxml' => { unbox($libxml-root) },
-        '04-keep.libxml' => { keep($libxml-root, $raw) },
         '04-dom-boxed.libxml' => { dom-boxed($libxml-root) },
-        '05-att-edit.libxml' => {att-edit($libxml-root) },
+        '04-keep.libxml' => { keep($libxml-root, $raw) },
+        '04-unbox.libxml' => { unbox($libxml-root) },
         '05-append-text-child.libxml' => {append-text-child($libxml-root) },
+        '05-att-edit.libxml' => {att-edit($libxml-root) },
     );
 
 }
