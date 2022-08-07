@@ -263,7 +263,7 @@ subtest 'XML schema validation', {
             try { my LibXML::Schema $s .= new( string => $xsdschema ); $s.validate( $x ) };
             with $! {
                 .rethrow unless $_ ~~ X::LibXML::Parser
-                && .message.contains('failed to validate');
+                && .message.contains('is not valid');
             }
             else {
                 $ok = False;
