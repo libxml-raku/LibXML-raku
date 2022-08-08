@@ -64,7 +64,8 @@ my class Parser::Context {
         $!raw .= new: :$!buf;
     }
     multi submethod TWEAK(Str:D :$string!) {
-        $!raw .= new: :buf($string.encode);
+        $!buf = $string.encode;
+        $!raw .= new: :$!buf;
     }
     multi submethod TWEAK(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .raw;
