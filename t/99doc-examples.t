@@ -44,7 +44,7 @@ subtest 'LibXML::Attr::Map' => {
     $atts<att3> = "CCC";
     is $node.Str, '<foo att1="AAA" att3="CCC"/>';
 
-    my LibXML::Attr $style = $node.create: LibXML::Attr, :name<style>, :value('fontweight: bold');
+    my LibXML::Attr $style .= create: :from($node), :name<style>, :value('fontweight: bold');
     $atts.setNamedItem($style);
     $style = $atts.getNamedItem('style');
     like $node.Str, rx:s/ 'style="fontweight: bold"' /;
@@ -230,7 +230,7 @@ subtest 'LibXML::Element' => {
     my $newPrefix = 'bar';
     my $childname = 'kid';
     my LibXML::Element $elem;
-    my LibXML::Attr $attrnode = $dom.create: LibXML::Attr, :name<att-key>, :value<att-val>;
+    my LibXML::Attr $attrnode .= create: :from($dom), :name<att-key>, :value<att-val>;
     my Bool $boolean;
     my $activate = True;
     my Str $xpath-expression = '*';

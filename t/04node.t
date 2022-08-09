@@ -415,7 +415,7 @@ subtest 'importing and adopting', {
     ok $cndoc.defined;
     ok $cndoc.isSameNode( $doc2 );
 
-    my LibXML::Element $xnode = $doc2.create: LibXML::Element, :name<test>;
+    my LibXML::Element $xnode .= create: :for($doc2), :name<test>;
 
     my $node2 = $doc2.importNode($xnode);
     ok $node2;
@@ -430,7 +430,7 @@ subtest 'importing and adopting', {
     ok $node3.ownerDocument.defined, "have owner document";
     ok $doc3.isSameNode( $node3.ownerDocument );
 
-    my LibXML::Element $xnode2 = $doc3.create: LibXML::Element, :name<test>;
+    my LibXML::Element $xnode2 .= create: :for($doc3), :name<test>;
     $xnode2.setOwnerDocument( $doc3 ); # alternate version of adopt node
     ok $xnode2.ownerDocument, 'setOwnerDocument';
     ok $doc3.isSameNode( $xnode2.ownerDocument ), 'setOwnerDocument';
