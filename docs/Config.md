@@ -62,7 +62,7 @@ Configuration Methods
 ### method version
 
 ```raku
-method version() returns Version
+method version() returns Version:D
 ```
 
 Returns the run-time version of the `libxml2` library.
@@ -70,7 +70,7 @@ Returns the run-time version of the `libxml2` library.
 ### method config-version
 
 ```raku
-method config-version() returns Mu
+method config-version() returns Version:D
 ```
 
 Returns the version of the `libxml2` library that the LibXML module was built against
@@ -126,7 +126,7 @@ method skip-dtd() is rw returns Bool
 
 Whether to omit internal DTDs (default False)
 
-### has Bool:D $!tag-expansion
+### has Bool:D(Any) $!tag-expansion
 
 Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 
@@ -144,7 +144,7 @@ Parsing Default Options
 ### method parser-flags
 
 ```raku
-method parser-flags() returns UInt
+method parser-flags() returns UInt:D
 ```
 
 Low-level default parser flags (Read-only)
@@ -176,7 +176,7 @@ sub match($uri) {   # accept file:/ URIs except for XML catalogs in /etc/xml/
 }
 sub deny(|c) { }
 $cb.register-callbacks(&match, &deny, &deny, &deny);
-$parser.input-callbacks($cb);
+$parser.input-callbacks($cb)
 ```
 
 ### method input-callbacks

@@ -51,10 +51,10 @@ method systemId() returns Str
 
 Return the System ID
 
-### method name
+### method nodeName
 
 ```raku
-method name() returns Str
+method nodeName() returns Str
 ```
 
 Return the entity name

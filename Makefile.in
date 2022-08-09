@@ -88,7 +88,7 @@ realclean : clean
 	@rm -f Makefile docs/*.md docs/*/*.md
 
 Pod-To-Markdown-installed :
-	raku -M Pod::To::Markdown -e0
+	@raku -M Pod::To::Markdown -e';'
 
 doc : Pod-To-Markdown-installed docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Dict.md docs/Document.md docs/DocumentFragment.md\
       docs/Dtd.md docs/Dtd/AttrDecl.md  docs/Dtd/Entity.md docs/Dtd/ElementDecl.md docs/Dtd/Notation.md docs/Dtd/ElementContent.md docs/DOM.md docs/Element.md docs/Enums.md docs/EntityRef.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/HashMap.md docs/Raw.md\
@@ -107,11 +107,13 @@ docs/index.md : lib/LibXML.rakumod
         ) > $@
 
 docs/%.md : lib/LibXML/%.rakumod
+	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@
 
 docs/%.md : lib/LibXML/%.pod6
+	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@
