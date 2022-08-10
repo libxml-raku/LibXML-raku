@@ -165,11 +165,8 @@ submethod DESTROY {
 
 multi method box(anyNode:D $node, *%c) {
     $node.Reference;
-    my $config = %c<config> // self.config;
-    my $class := $config.class-from($node.type);
-    $class.REPR.starts-with('C')
-        ?? nativecast($class, $node)
-        !! $class.bless: :raw($node.delegate), |(:$config with $config), |%c;
+    my $class := (%c<config> //= self.config).class-map[$node.type];
+    $class.bless: :raw($node.delegate), |%c;
 }
 
 method getName { self.getNodeName }
