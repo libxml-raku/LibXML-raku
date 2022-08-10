@@ -1,19 +1,19 @@
 #| LibXML Text Nodes
-unit class LibXML::Text is repr('CPointer');
+unit class LibXML::Text;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
 use LibXML::_CharacterData;
 use W3C::DOM;
-
-also is LibXML::Node;
-also does LibXML::_CharacterData;
-also does W3C::DOM::Text;
-
-use LibXML::Raw;
 use Method::Also;
 use NativeCall;
 
-method raw { nativecast(xmlTextNode, self) }
+also is LibXML::Node;
+also does LibXML::_CharacterData;
+also does LibXML::_Rawish[xmlTextNode];
+also does W3C::DOM::Text;
+
 method data is also<text content ast> is rw handles<substr substr-rw> { $.raw.content };
 
 =begin pod

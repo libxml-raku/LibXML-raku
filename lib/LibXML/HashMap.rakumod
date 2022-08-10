@@ -1,8 +1,9 @@
 #| Bindings to xmlHashTable
-unit class LibXML::HashMap is repr('CPointer');
+unit class LibXML::HashMap;
 
-also does Associative;
-
+use LibXML::_Configurable;
+use LibXML::_Collection;
+use LibXML::_Rawish;
 use LibXML::Item;
 use LibXML::Node::Set;
 use LibXML::Types :XPathRange;
@@ -15,7 +16,11 @@ use LibXML::XPath::Object;
 use NativeCall;
 use Method::Also;
 
-method raw { nativecast(xmlHashTable, self) }
+also does Associative;
+also does LibXML::_Configurable;
+also does LibXML::_Collection;
+
+has xmlHashTable:D $.raw .= new;
 
 method of {XPathRange}
 
@@ -29,7 +34,7 @@ method freeze(XPathRange $content) {
 method thaw(Pointer $p) {
     do with $p {
         my $raw = nativecast(xmlXPathObject, $_);
-        LibXML::XPath::Object.value: :$raw;
+        LibXML::XPath::Object.value: :$raw, :$.config;
     }
     else {
         Nil;
@@ -43,10 +48,9 @@ method deallocator() {
     }
 }
 
-method new(CArray :$pairs, xmlHashTable:D :$raw = xmlHashTable.new()) {
-    $raw.add-pairs($_, $pairs.elems, self.deallocator)
+submethod TWEAK(CArray :$pairs) {
+    $!raw.add-pairs($_, $pairs.elems, self.deallocator)
         with $pairs;
-    nativecast(self.WHAT, $raw);
 }
 method cleanup { .Free(self.deallocator) with self.raw; }
 submethod DESTROY { self.cleanup }
@@ -115,10 +119,10 @@ role Assoc[LibXML::Item $of] {
     method of {$of}
     method freeze(LibXML::Item $n where .isa($of)) {
         .raw.Reference with $n;
-        nativecast(Pointer, $n);
+        nativecast(Pointer, $n.raw);
     }
     method thaw(Pointer $p) {
-        $of.box: itemNode.cast($p);
+        $of.box: itemNode.cast($p), :$.config;
     }
     method deallocator() {
         -> Pointer $p, Str $k {
@@ -136,7 +140,7 @@ role Assoc[LibXML::Node::Set $of] {
     }
     method thaw(Pointer $p) {
         my $raw = nativecast(xmlNodeSet, $p).copy;
-        $of.new: :$raw, :deref;
+        self.create: $of, :$raw, :deref;
     }
     method deallocator() {
         -> Pointer $p, Str $k {

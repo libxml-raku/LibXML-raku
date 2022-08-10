@@ -1,21 +1,24 @@
 use v6;
 
 #| Abstract base class of LibXML Nodes
-unit class LibXML::Node is repr('CPointer');
+unit class LibXML::Node;
 
-use LibXML::Item :box-class, :ast-to-xml, :dom-boxed;
+use LibXML::Item :dom-boxed;
 use LibXML::_DomNode;
 use LibXML::Enums;
 use LibXML::Namespace;
 use LibXML::Raw;
 use LibXML::XPath::Expression;
-use LibXML::Types :NCName, :QName, :NameVal;
-use LibXML::Utils :iterate-list, :iterate-set, :output-options;
+use LibXML::Types :NCName, :QName, :NameVal, :resolve-package;
+use LibXML::Utils :output-options;
+use LibXML::_Collection;
+use LibXML::_Rawish;
 use W3C::DOM;
 use NativeCall;
 use Method::Also;
 
 also is LibXML::Item;
+also does LibXML::_Collection;
 also does LibXML::_DomNode;
 also does W3C::DOM::Node;
 
@@ -132,10 +135,14 @@ also does W3C::DOM::Node;
 enum <SkipBlanks KeepBlanks>;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
+has anyNode:D $!raw is built(:bind) is required;
+
+has $.xpath-class is built(:bind) = resolve-package('LibXML::XPath::Context');
+
 ########################################################################
 =head2 Property Methods
 
-method raw handles<
+proto method raw(|) handles<
     domCheck
     getNodeName getNodeValue
     isBlank hasAttributes hasChildNodes
@@ -143,8 +150,9 @@ method raw handles<
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
     type lock unlock
-    unique-key ast-key xpath-key
-> { nativecast(xmlNode, self) }
+    unique-key ast-key xpath-key> {*}
+multi method raw(::?CLASS:D:) { $!raw }
+multi method raw(::?CLASS:U:) { xmlNode }
 
 method native is DEPRECATED<raw> { self.raw }
 
@@ -155,12 +163,10 @@ submethod DESTROY {
     self.raw.Unreference;
 }
 
-multi method box(anyNode:D $_) {
-    .Reference;
-    my $class := box-class(.type);
-    $class.REPR.starts-with('C')
-        ?? nativecast($class, $_)
-        !! $class.bless: :raw(.delegate);
+multi method box(anyNode:D $node, *%c) {
+    $node.Reference;
+    my $class := (%c<config> //= self.config).class-map[$node.type];
+    $class.bless: :raw($node.delegate), |%c;
 }
 
 method getName { self.getNodeName }
@@ -309,7 +315,7 @@ method prev returns LibXML::Node is dom-boxed {...}
 
 # Fallback to LibXML::Attr::Map:U for non-element nodes
 method attributes(LibXML::Node:D $node:) {
-    box-class('LibXML::Attr::Map')
+    self.box-class('LibXML::Attr::Map')
 }
 
 =begin pod
@@ -340,10 +346,10 @@ method ownerDocument is rw is also<doc> {
 }
 
 method getOwnerDocument is also<get-doc> returns LibXML::Node {
-    my \doc-class = box-class(XML_DOCUMENT_NODE);
+    my \doc-class = self.box-class(XML_DOCUMENT_NODE);
     do with self {
         with .raw.doc -> xmlDoc $raw {
-            doc-class.box($raw);
+            self.box: doc-class, $raw
         }
     } // doc-class;
 }
@@ -372,7 +378,7 @@ method getOwner returns LibXML::Node is dom-boxed<root> {...}
     In most cases this will be a document node or a document fragment node.
 
 method childNodes(Bool :$blank = True) is also<getChildnodes children nodes> handles <AT-POS ASSIGN-POS elems List list values map grep push pop> {
-    iterate-list(self, LibXML::Node, :$blank);
+    self.iterate-list(LibXML::Node, :$blank);
 }
 =begin pod
     =head3 method childNodes
@@ -396,7 +402,7 @@ method childNodes(Bool :$blank = True) is also<getChildnodes children nodes> han
 =end pod
 
 method nonBlankChildNodes {
-    iterate-list(self, LibXML::Node, :!blank);
+    self.iterate-list(LibXML::Node, :!blank);
 }
 =begin pod
     =head3 method nonBlankChildNodes
@@ -443,7 +449,7 @@ method appendChild(LibXML::Item:D $new) is also<add addChild> returns LibXML::It
     node is not part of the document, the node will be imported first.
 
 method addNewChild(Str $uri, QName $name --> LibXML::Node) {
-    LibXML::Node.box: self.raw.addNewChild($uri, $name);
+    self.box: LibXML::Node, self.raw.addNewChild($uri, $name)
 }
 =begin pod
     =head3 method addNewChild
@@ -479,7 +485,7 @@ method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
 
 #| Add an additional node to the end of a nodelist
 method addSibling(LibXML::Node:D $new --> LibXML::Node) {
-     LibXML::Node.box: self.raw.addSibling($new.raw);
+     self.box: LibXML::Node, self.raw.addSibling($new.raw)
 }
 
 multi method cloneNode(LibXML::Node:D: Bool() $deep --> LibXML::Node) {
@@ -513,8 +519,8 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
     last child of the parent node.
 
     method removeChildNodes(--> LibXML::Node) {
-    my \frag-class = box-class(XML_DOCUMENT_FRAG_NODE);
-    frag-class.box: self.raw.removeChildNodes();
+    my \frag-class = $.config.class-from(XML_DOCUMENT_FRAG_NODE);
+    self.box: frag-class, self.raw.removeChildNodes();
 }
 =begin pod
     =head3 method removeChildNodes
@@ -529,14 +535,12 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
 ########################################################################
 =head2 Searching Methods
 
-method xpath-class { box-class('LibXML::XPath::Context') }
-
 method xpath-context($node: |c) {
-    $.xpath-class.new: :$node, |c;
+    self.create: $.xpath-class, :$node, |c;
 }
 
 method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
-    self.xpath-class.new(:$node, :%ns).findnodes($expr, :$deref);
+    self.create($.xpath-class, :$node, :%ns).findnodes($expr, :$deref)
 }
 
 =begin pod
@@ -603,7 +607,7 @@ method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$dere
 =end pod
 
 method find(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
-    self.xpath-class.new(:$node, :%ns).find($expr, :$deref);
+    self.create($.xpath-class, :$node, :%ns).find($expr, :$deref);
 }
 =begin pod
     =head3 method find
@@ -621,7 +625,7 @@ method find(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
 =end pod
 
 method findvalue(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
-    self.xpath-class.new(:$node, :%ns).findvalue($expr);
+    self.create($.xpath-class, :$node, :%ns).findvalue($expr);
 }
 =begin pod
     =head3 method findvalue
@@ -644,7 +648,7 @@ method findvalue(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
 =end pod
 
 multi method first(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
-    self.xpath-class.new(:$node, :%ns).first($expr);
+    self.create($.xpath-class, :$node, :%ns).first($expr);
 }
 multi method first(Bool :$blank = True) {
     $blank ?? $.firstChild !! $.firstNonBlankChild;
@@ -665,7 +669,7 @@ multi method first(Bool :$blank = True) {
 =end pod
 
 multi method last(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
-    self.xpath-class.new(:$node, :%ns).last($expr);
+    self.create($.xpath-class, :$node, :%ns).last($expr);
 }
 multi method last(Bool :$blank = True) {
     $blank ?? $.lastChild !! $.lastNonBlankChild;
@@ -686,7 +690,7 @@ multi method last(Bool :$blank = True) {
 =end pod
 
 method exists(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
-    self.xpath-class.new(:$node, :%ns).exists($expr);
+    self.create($.xpath-class, :$node, :%ns).exists($expr);
 }
 =begin pod
     =head3 method exists
@@ -754,8 +758,8 @@ method canonicalize(
             ## due to how c14n is implemented, the nodeset it receives must
             ## include child nodes; ie, child nodes aren't assumed to be rendered.
             ## so we use an xpath expression to find all of the child nodes.
-            state $AllNodes //= LibXML::XPath::Expression.new: expr => '(. | .//node() | .//@* | .//namespace::*)';
-            state $NonCommentNodes //= LibXML::XPath::Expression.new: expr => '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
+            state $AllNodes //= self.create: LibXML::XPath::Expression, expr => '(. | .//node() | .//@* | .//namespace::*)';
+            state $NonCommentNodes //= self.create: LibXML::XPath::Expression, expr => '(. | .//node() | .//@* | .//namespace::*)[not(self::comment())]';
             $xpath //= $comments ?? $AllNodes !! $NonCommentNodes;
         }
 
@@ -808,7 +812,8 @@ method canonicalize(
     :v(v1.1) can be passed to specify v1.1 of the C14N specification. The `:$eclusve` flag is not applicable to this level.
 =end pod
 
-proto method Str(|) is also<serialize> handles <Int Num> {*}
+proto method Str(|) is also<serialize gist> handles <Int Num> {*}
+multi method Str(LibXML::Node:U:) { nextsame }
 multi method Str(LibXML::Node:D: :$C14N! where .so, |c) {
     self.canonicalize(|c);
 }
@@ -820,7 +825,7 @@ multi method Str(LibXML::Node:D: :$C14N! where .so, |c) {
     `$node.Str( :C14N, |%opts)` is equivalent to `$node.canonicalize(|%opts)`
 =end pod
 
-multi method Str(LibXML::Node:D: |c) is also<gist> is default {
+multi method Str(LibXML::Node:D: |c) is default {
     my $options = output-options(|c);
     self.raw.Str(:$options);
 }
@@ -925,7 +930,7 @@ method clearNamespace {
 }
 method localNS(--> LibXML::Namespace) is dom-boxed {...}
 method getNamespaces is also<namespaces> {
-    iterate-list(self, LibXML::Namespace);
+    self.iterate-list(LibXML::Namespace);
 }
 =begin pod
     =head3 method getNamespaces
@@ -991,10 +996,10 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with self.raw.ns {.hr
 =end pod
 
 multi method AT-KEY(NCName:D $tag) {
-    iterate-set(LibXML::Node, self.raw.getChildrenByLocalName($tag), :deref);
+    self.iterate-set(LibXML::Node, self.raw.getChildrenByLocalName($tag), :deref);
 }
 multi method AT-KEY(QName:D $tag) {
-    iterate-set(LibXML::Node, self.raw.getChildrenByTagName($tag), :deref);
+    self.iterate-set(LibXML::Node, self.raw.getChildrenByTagName($tag), :deref);
 }
 multi method AT-KEY(Str:D $xpath) is default {
     $.xpath-context.AT-KEY($xpath);

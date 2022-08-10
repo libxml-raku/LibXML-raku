@@ -13,14 +13,14 @@ my LibXML $parser .= new();
 
 subtest ':skip-xml-declaration, :tag-expansion', {
     my LibXML::Document:D $doc = $parser.parse: :$string;
-    temp LibXML.skip-xml-declaration = 1;
+    temp $doc.config.skip-xml-declaration = 1;
     is $doc.Str(), $string, ':skip-xml-declaration';
-    temp LibXML.tag-expansion = True;
+    temp $doc.config.tag-expansion = True;
     is $doc.Str(), "<foo><bar></bar></foo>\n", ':tag-expansion';
 }
 
 subtest ':exand-entities', {
-    temp LibXML.skip-dtd = True;
+    temp $parser.config.skip-dtd = True;
     temp $parser.expand-entities = False;
     my LibXML::Document:D $doc = $parser.parse: :file( "samples/dtd.xml" );
     my $test = "<doc>This is a valid document &foo; !</doc>\n";
@@ -46,7 +46,7 @@ subtest 'attribute child nodes' => {
     plan 3;
     my LibXML::Document:D $doc .= parse: :file<samples/dtd.xml>;
     my $elem = $doc.createElement: "Test";
-    my LibXML::Attr:D $att .= new: :name<att>, :value('xxx');
+    my LibXML::Attr:D $att = $doc.create: LibXML::Attr, :name<att>, :value('xxx');
     $att.addChild: $doc.createEntityReference('foo');
     is $att.Str, "xxx test ";
     isa-ok $att.childNodes[1], 'LibXML::EntityRef';

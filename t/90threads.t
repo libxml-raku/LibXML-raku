@@ -3,6 +3,7 @@ use Test;
 plan 24;
 use LibXML;
 use LibXML::Attr;
+use LibXML::Config;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
@@ -10,7 +11,7 @@ use LibXML::Schema;
 use LibXML::Parser;
 use LibXML::InputCallback;
 
-INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || 10;
+INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || (($*KERNEL.cpu-cores / 2).Int max 10);
 INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
 
 my LibXML:D $p .= new();
@@ -54,7 +55,7 @@ subtest 'relaxng' => {
     my LibXML::Document $good .= parse: :string('<foo/>');
     my LibXML::Document $bad .= parse: :string('<bar/>');
     my LibXML::RelaxNG @schemas = blat {
-        LibXML::RelaxNG.new(string => $grammar);
+        $good.create(LibXML::RelaxNG, string => $grammar);
     }
     my Bool @good = blat { @schemas[$_].is-valid($good); }
     my Bool @bad = blat { @schemas[$_].is-valid($bad); }
@@ -133,7 +134,7 @@ EOF
 subtest 'access leaf nodes', {
     my LibXML::Element @nodes;
     {
-        my $doc = $p.parse: :string($xml);
+        my LibXML::Document $doc = $p.parse: :string($xml);
         @nodes = blat { $doc.documentElement[0][0] }
     }
     is @nodes.elems, MAX_THREADS, 'document leaf nodes';

@@ -1,12 +1,15 @@
 #| LibXML's DOM L2 Document Fragment Implementation
-unit class LibXML::DocumentFragment is repr('CPointer');
+unit class LibXML::DocumentFragment;
 
 use LibXML::Node;
+use LibXML::Raw;
 use LibXML::_ParentNode;
+use LibXML::_Rawish;
 use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_ParentNode;
+also does LibXML::_Rawish[xmlDocFrag, <encoding setCompression getCompression standalone wellFormed>];
 also does W3C::DOM::DocumentFragment;
 
 =begin pod
@@ -53,7 +56,6 @@ also does W3C::DOM::DocumentFragment;
 =end pod
 
 use LibXML::Element;
-use LibXML::Raw;
 use LibXML::Node;
 use NativeCall;
 use Method::Also;
@@ -95,11 +97,11 @@ class ParserContext is LibXML::Parser::Context {
 
 # The native DOM returns the document fragment content as
 # a node-list; rather than the fragment itself
-method keep(|c) { LibXML::Node.box(|c) }
+method keep(|c) { LibXML::Node.box(:$.config, |c) }
 
-method new(LibXML::Node :doc($_), xmlDocFrag :$native) {
+method new(LibXML::Node :doc($_), xmlDocFrag :$native, *%c) {
     my xmlDoc:D $doc = .raw with $_;
-    self.box: $native // xmlDocFrag.new(:$doc);
+    self.box: $native // xmlDocFrag.new(:$doc), |%c;
 }
 =begin pod
     =head3 method new
@@ -109,10 +111,6 @@ method new(LibXML::Node :doc($_), xmlDocFrag :$native) {
     Creates a new empty document fragment to which nodes can be added; typically by
     calling the `parse()` method or using inherited `LibXML::Node` DOM methods, for example, `.addChild()`.
 =end pod
-
-method raw handles <encoding setCompression getCompression standalone wellFormed> {
-    nativecast(xmlDocFrag, self);
-}
 
 #| parses a balanced XML chunk
 method parse(
@@ -124,9 +122,8 @@ method parse(
 
     my $doc-frag = self;
     $_ .= new(|c) without $doc-frag;
-    my $flags = 
 
-    my ParserContext $ctx .= new: :$string, :$doc-frag, :$user-data, |c;
+    my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
 
     $ctx.try: {
         # simple closures tend to leak on native callbacks. use dynamic variables

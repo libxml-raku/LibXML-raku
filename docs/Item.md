@@ -27,10 +27,10 @@ Please see [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node) and [L
 Functions and Methods
 ---------------------
 
-### sub ast-to-xml
+### method ast-to-xml
 
 ```raku
-sub ast-to-xml(
+method ast-to-xml(
     |
 ) returns LibXML::Item
 ```

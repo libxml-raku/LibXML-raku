@@ -107,11 +107,13 @@ docs/index.md : lib/LibXML.rakumod
         ) > $@
 
 docs/%.md : lib/LibXML/%.rakumod
+	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@
 
 docs/%.md : lib/LibXML/%.pod6
+	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@

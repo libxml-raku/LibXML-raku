@@ -1,13 +1,16 @@
 #| LibXML DtD Element declaration introspection (experimental)
-unit class LibXML::Dtd::ElementDecl is repr('CPointer');
+unit class LibXML::Dtd::ElementDecl;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
+
 also is LibXML::Node;
+also does LibXML::_Rawish[xmlElementDecl, <etype prefix>];
 
 use LibXML::Dtd::AttrDecl;
 use LibXML::Dtd::ElementContent;
 use LibXML::Enums;
-use LibXML::Raw;
 use NativeCall;
 use Method::Also;
 
@@ -43,16 +46,17 @@ note $node-decl.attributes<id>.Str; # <!ATTLIST note id #IMPLIED>
 
 =end pod
 
-method box(anyNode $_) {
+proto method box(|) {*}
+multi method box(anyNode $_) {
     !.defined || .delegate.etype == XML_ELEMENT_TYPE_UNDEFINED
         ?? self.WHAT
         !! nextsame();
 }
+multi method box($, anyNode) { nextsame }
 
 #| return the parsed content expression for this element declaration
-method content(LibXML::Dtd::ElementDecl:D $decl: --> LibXML::Dtd::ElementContent) {
-    my xmlElementContent $raw = $decl.raw.content;
-    LibXML::Dtd::ElementContent.new: :$decl, :$raw;
+method content(LibXML::Dtd::ElementDecl:D: --> LibXML::Dtd::ElementContent) {
+    self.create: LibXML::Dtd::ElementContent, :decl(self), :raw($.raw.content)
 }
 
 #| return a read-only list of attribute declarations
@@ -60,7 +64,7 @@ method properties returns Array[LibXML::Dtd::AttrDecl] {
     my xmlAttrDecl $att = $.raw.attributes;
     my LibXML::Dtd::AttrDecl @props;
     while $att.defined {
-        @props.push: LibXML::Node.box($att);
+        @props.push: self.box(LibXML::Node, $att);
         $att .= nexth;
     }
     @props;
@@ -93,7 +97,6 @@ method attributes is also<attribs attr> {
     my % = @.properties.map: { .nodeName => $_ };
 }
 method new(|) { fail }
-method raw handles <etype prefix> { nativecast(xmlElementDecl, self) }
 
 method keys {
     [

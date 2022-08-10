@@ -5,10 +5,10 @@
 Description
 -----------
 
-The X::LibXML exception class hierarchy interfaces to *libxml2*'s structured error support. If LibXML is compiled with structured error support, all errors reported by libxml2 are transformed to X::LibXML exception objects. These objects automatically serialize to the corresponding error messages when printed or used in a string operation, but as objects, can also be used to get a detailed and structured information about the error that occurred.
+The X::LibXML::Domain exception class hierarchy interfaces to *libxml2*'s structured error support. If LibXML is compiled with structured error support, all errors reported by libxml2 are transformed to X::LibXML exception objects. These objects automatically serialize to the corresponding error messages when printed or used in a string operation, but as objects, can also be used to get a detailed and structured information about the error that occurred.
 
-Methods common to all X::LibXML exceptions
-------------------------------------------
+Methods common to all X::LibXML::Domain exceptions
+--------------------------------------------------
 
 ### method message
 

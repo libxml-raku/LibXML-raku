@@ -1,7 +1,10 @@
 #| RelaxNG Schema Validation
 unit class LibXML::RelaxNG;
 
+use LibXML::_Configurable;
 use LibXML::_Validator;
+
+also does LibXML::_Configurable;
 also does LibXML::_Validator;
 
     =head2 Synopsis
@@ -43,6 +46,7 @@ has xmlRelaxNG $.raw;
 
 my class Parser::Context {
     also does LibXML::_Configurable;
+
     has xmlRelaxNGParserCtxt $!raw;
     has Blob $!buf;
     # for the LibXML::ErrorHandling role
@@ -51,21 +55,19 @@ my class Parser::Context {
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
-    multi submethod BUILD( xmlRelaxNGParserCtxt:D :$!raw! ) {
+    multi submethod TWEAK( xmlRelaxNGParserCtxt:D :$!raw! ) {
     }
-    multi submethod BUILD(Str:D :$url!) {
+    multi submethod TWEAK(Str:D :location(:$url)!) {
         $!raw .= new: :$url;
     }
-    multi submethod BUILD(Str:D :location($url)!) {
-        self.BUILD: :$url;
-    }
-    multi submethod BUILD(Blob:D :$!buf!) {
+    multi submethod TWEAK(Blob:D :$!buf!) {
         $!raw .= new: :$!buf;
     }
-    multi submethod BUILD(Str:D :$string!) {
-        self.BUILD: :buf($string.encode);
+    multi submethod TWEAK(Str:D :$string!) {
+        $!buf = $string.encode;
+        $!raw .= new: :$!buf;
     }
-    multi submethod BUILD(LibXML::Document:D :doc($_)!) {
+    multi submethod TWEAK(LibXML::Document:D :doc($_)!) {
         my xmlDoc:D $doc = .raw;
         $!raw .= new: :$doc;
     }
@@ -106,8 +108,8 @@ my class ValidContext {
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
 
-    multi submethod BUILD( xmlRelaxNGValidCtxt:D :$!raw! ) { }
-    multi submethod BUILD( LibXML::RelaxNG:D :schema($_)! ) {
+    multi submethod TWEAK( xmlRelaxNGValidCtxt:D :$!raw! ) { }
+    multi submethod TWEAK( LibXML::RelaxNG:D :schema($_)! ) {
         my xmlRelaxNG:D $schema = .raw;
         $!raw .= new: :$schema;
     }
@@ -146,7 +148,7 @@ my class ValidContext {
 }
 
 submethod TWEAK(|c) {
-    my Parser::Context $parser-ctx .= new: |c;
+    my Parser::Context $parser-ctx = self.create: Parser::Context, |c;
     $!raw = $parser-ctx.parse;
 }
 =begin pod
@@ -172,9 +174,9 @@ submethod TWEAK(|c) {
     constraints of the RelaxNG specification.
 =end pod
 
-method !valid-ctx($schema: :$config!) { ValidContext.new: :$schema, :$config }
-method validate(LibXML::Document:D $doc, Bool :$check, LibXML::Config :$config) is hidden-from-backtrace {
-    self!valid-ctx(:$config).validate($doc, :$check);
+method !valid-ctx($schema:) { $schema.create: ValidContext, :$schema }
+method validate(LibXML::Document:D $doc, Bool :$check) is hidden-from-backtrace {
+    self!valid-ctx.validate($doc, :$check);
 }
 =begin pod
     =head3 method validate
@@ -188,8 +190,8 @@ method validate(LibXML::Document:D $doc, Bool :$check, LibXML::Config :$config) 
     a `try` block or in the scope of a `CATCH` block.
 =end pod
 
-method is-valid(LibXML::Document:D $doc, LibXML::Config :$config) {
-    self!valid-ctx(:$config).is-valid($doc);
+method is-valid(LibXML::Document:D $doc) {
+    self!valid-ctx.is-valid($doc);
 }
 =begin pod
     =head3 method is-valid

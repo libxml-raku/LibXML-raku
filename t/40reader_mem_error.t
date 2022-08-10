@@ -4,6 +4,7 @@ use v6;
 
 use Test;
 use LibXML;
+use LibXML::Config;
 use LibXML::Reader;
 use LibXML::Enums;
 

@@ -1,22 +1,23 @@
 {
-  "auth": "zef:dwarring",
+  "name": "LibXML",
+  "description": "Raku bindings to the libxml2 native library",
+  "version": "0.7.10",
+  "perl": "6",
   "authors": [
     "David Warring"
   ],
-  "build-depends": [
-    "LibraryMake"
-  ],
+  "auth": "zef:dwarring",
   "depends": [
     "File::Temp",
     "Method::Also",
     "W3C::DOM:ver<0.0.2+>",
     "XML",
-    "AttrX::Mooish:ver<0.8.4+>:auth<zef:vrurg>"
+    "OO::Monitors"
   ],
-  "description": "Raku bindings to the libxml2 native library",
-  "license": "Artistic-2.0",
-  "name": "LibXML",
-  "perl": "6",
+  "build-depends": [
+    "LibraryMake"
+  ],
+  "test-depends": [],
   "provides": {
     "LibXML": "lib/LibXML.rakumod",
     "LibXML::Attr": "lib/LibXML/Attr.rakumod",
@@ -74,32 +75,35 @@
     "LibXML::Text": "lib/LibXML/Text.rakumod",
     "LibXML::Types": "lib/LibXML/Types.rakumod",
     "LibXML::Utils": "lib/LibXML/Utils.rakumod",
+    "LibXML::X": "lib/LibXML/X.rakumod",
     "LibXML::XPath::Context": "lib/LibXML/XPath/Context.rakumod",
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",
     "LibXML::XPath::Object": "lib/LibXML/XPath/Object.rakumod",
     "LibXML::_CharacterData": "lib/LibXML/_CharacterData.rakumod",
+    "LibXML::_Collection": "lib/LibXML/_Collection.rakumod",
     "LibXML::_Configurable": "lib/LibXML/_Configurable.rakumod",
     "LibXML::_DomNode": "lib/LibXML/_DomNode.rakumod",
     "LibXML::_Options": "lib/LibXML/_Options.rakumod",
     "LibXML::_ParentNode": "lib/LibXML/_ParentNode.rakumod",
+    "LibXML::_Rawish": "lib/LibXML/_Rawish.rakumod",
     "LibXML::_Validator": "lib/LibXML/_Validator.rakumod"
   },
-  "raku": "*",
   "resources": [
     "libraries/xml6",
-    "libraries/libxml2"
+    "libraries/libxml2",
+    "libraries/liblibxml2.so",
+    "libraries/liblibxml2.dylib"
   ],
-  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
   "support": {
     "source": "https://github.com/libxml-raku/LibXML-raku.git"
   },
+  "license": "Artistic-2.0",
   "tags": [
     "xml",
     "html",
     "xpath",
     "dom"
   ],
-  "test-depends": [
-  ],
-  "version": "0.7.10"
+  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
+  "raku": "*"
 }

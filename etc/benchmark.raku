@@ -1,4 +1,5 @@
 use LibXML;
+use LibXML::Config;
 use LibXML::Node;
 use LibXML::Document;
 use LibXML::Element;

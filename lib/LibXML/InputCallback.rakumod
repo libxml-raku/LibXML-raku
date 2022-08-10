@@ -106,6 +106,9 @@ unit class LibXML::InputCallback;
 =end pod
 
 use LibXML::Raw;
+use LibXML::_Configurable;
+
+also does LibXML::_Configurable;
 
 my class CallbackGroup {
     has &.match is required;
@@ -328,15 +331,15 @@ method prepend(LibXML::InputCallback $icb) {
     @!callbacks.prepend: $icb.callbacks;
 }
 
-method make-contexts(:$config!) {
-    @!callbacks.map: -> $cb { Context.new: :$cb, :$config }
+method make-contexts {
+    @!callbacks.map: -> $cb { self.create: Context, :$cb }
 }
 
-method activate(LibXML::Config :$config) {
+method activate {
     # just to make sure we've initialised
     xmlInputCallbacks::RegisterDefault();
 
-    my @input-contexts = @.make-contexts: :$config;
+    my @input-contexts = @.make-contexts;
 
     for @input-contexts {
         die "unable to register input callbacks"

@@ -5,16 +5,6 @@ use LibXML::Raw;
 use LibXML::Enums;
 use LibXML::Config;
 
-sub iterate-list($parent, $of, Bool :$blank = True) is export(:iterate-list) {
-    # follow a chain of .next links.
-    LibXML::Node::List.new: :$of, :$blank, :$parent;
-}
-
-sub iterate-set($of, xmlNodeSet $raw, Bool :$deref) is export(:iterate-set) {
-    # iterate through a set of nodes
-    LibXML::Node::Set.new( :$raw, :$of, :$deref );
-}
-
 sub output-options(UInt :$options is copy = 0,
                    LibXML::Config :$config,
                    Bool :$format,

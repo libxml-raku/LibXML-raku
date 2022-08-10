@@ -3,9 +3,12 @@ use Test;
 plan 35;
 
 use LibXML;
+use LibXML::Config;
 use LibXML::Document;
 use LibXML::Element;
+use LibXML::Namespace;
 use LibXML::Node;
+
 my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo bar]]></foo>};
 
 my LibXML $parser .= new();
@@ -35,7 +38,7 @@ for 0..4 -> $c1 {
     }
 }
 
-my LibXML::Namespace $foo_default_ns .= new('foo.com');
+my LibXML::Namespace $foo_default_ns = $doc.create(LibXML::Namespace, 'foo.com');
 my LibXML::Namespace $foo_ns .= new('foo.com','foo');
 my LibXML::Namespace $bar_default_ns .= new('bar.com');
 my LibXML::Namespace$bar_ns .= new('bar.com','bar');

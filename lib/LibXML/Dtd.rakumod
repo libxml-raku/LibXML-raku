@@ -1,13 +1,32 @@
 #| LibXML DTD Handling
 unit class LibXML::Dtd;
 
-use LibXML::Node;
-use W3C::DOM;
+use LibXML::_Configurable;
 use LibXML::_Validator;
+use LibXML::_Rawish;
+use LibXML::ErrorHandling :&structured-error-cb;
+use LibXML::_Options;
+use LibXML::Raw;
+use LibXML::Raw::HashTable;
+use LibXML::Parser::Context;
+use LibXML::Attr;
+use LibXML::Element;
+use LibXML::EntityRef;
+use LibXML::Node;
+use LibXML::Dtd::AttrDecl;
+use LibXML::Dtd::ElementDecl;
+use LibXML::Dtd::Entity;
+use LibXML::Dtd::Notation;
+use LibXML::HashMap;
+use LibXML::Config :&protected;
+use Method::Also;
+use NativeCall;
+use W3C::DOM;
 
 also is LibXML::Node;
 also does W3C::DOM::DocumentType;
 also does LibXML::_Validator;
+also does LibXML::_Rawish[xmlDtd, <systemId publicId>];
 
   =begin pod
   =head2 Synopsis
@@ -73,43 +92,17 @@ also does LibXML::_Validator;
   =item L<LibXML::Dtd::AttrDecl> - LibXML DTD attribute declarations (experimental)
   =end  pod
 
-use LibXML::ErrorHandling :&structured-error-cb;
-use LibXML::_Options;
-use LibXML::Raw;
-use LibXML::Raw::HashTable;
-use LibXML::Parser::Context;
-use LibXML::Attr;
-use LibXML::Element;
-use LibXML::EntityRef;
-use LibXML::Node;
-use LibXML::Dtd::AttrDecl;
-use LibXML::Dtd::ElementDecl;
-use LibXML::Dtd::Entity;
-use LibXML::Dtd::Notation;
-use LibXML::HashMap;
-use LibXML::Config :&protected;
-use Method::Also;
-use NativeCall;
-
-has xmlDtd $.raw is built handles <systemId publicId>;
-
 constant DocNode = W3C::DOM::Document;
 
 class ValidContext {
-    use LibXML::_Configurable;
     also does LibXML::_Configurable;
 
-    has xmlValidCtxt $!raw;
+    has xmlValidCtxt $!raw .= new;
     # for the LibXML::ErrorHandling role
     has $.sax-handler is rw;
     has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
     also does LibXML::_Options[%( :recover, :suppress-errors, :suppress-warnings)];
     also does LibXML::ErrorHandling;
-
-    multi submethod BUILD( xmlValidCtxt:D :$!raw! ) { }
-    multi submethod BUILD {
-        $!raw .= new;
-    }
 
     method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, Bool :$check) is hidden-from-backtrace {
         my $rv;
@@ -172,18 +165,21 @@ class ValidContext {
     =head2 Methods
 =end pod
 
-multi method new(
-    Str:D :$type!,
-    LibXML::Node :doc($owner), Str:D :$name!,
-    Str :$external-id, Str :$system-id, ) {
+multi method new( Str:D :$type!,
+                  LibXML::Node :doc($owner),
+                  Str:D :$name!,
+                  Str :$external-id,
+                  Str :$system-id,
+                  *%c )
+{
     my xmlDoc $doc = .raw with $owner;
     my xmlDtd:D $new-dtd .= new: :$doc, :$name, :$external-id, :$system-id, :$type;
-    self.box: $new-dtd;
+    self.box: $new-dtd, |%c;
 }
 
 # for Perl compatiblity
-multi method new($external-id, $system-id) {
-    self.parse(:$external-id, :$system-id);
+multi method new($external-id, $system-id, *%c) {
+    self.parse(:$external-id, :$system-id, |%c);
 }
 
 =begin pod
@@ -229,9 +225,18 @@ multi method new($external-id, $system-id) {
     Returns the system identifier of the external subset.
 =end pod
 
-multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
+has LibXML::Parser::Context $!parser-ctx;
+method !parser-ctx {
+    $!parser-ctx //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new)
+}
+
+multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$string, :$enc};
-    self.box($raw);
+    self.box: $raw
+}
+multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
+    my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$string, :$enc};
+    self.box($raw)
 }
 =begin pod
     =head3 method parse
@@ -244,10 +249,13 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
     references with relative URLs.
 =end pod
 
-
-multi method parse(Str :$external-id, Str:D :$system-id!) {
+multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) {
     my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$external-id, :$system-id;};
-    self.box($raw);
+    self.box: $raw
+}
+multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) {
+    my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$external-id, :$system-id;};
+    self.box: $raw
 }
 multi method parse(Str $external-id, Str $system-id) is default {
     self.parse: :$external-id, :$system-id;
@@ -261,22 +269,22 @@ method cloneNode(LibXML::Dtd:D: $?) is also<clone> {
 
 #| Notation declaration lookup
 method getNotation(Str $name --> LibXML::Dtd::Notation) {
-    LibXML::Dtd::Notation.box: $.raw.getNotation($name);
+    LibXML::Dtd::Notation.box: $.raw.getNotation($name)
 }
 
 #| Entity declaration lookup
 method getEntity(Str $name --> LibXML::Dtd::Entity) {
-    LibXML::Dtd::Entity.box: $.raw.getEntity($name);
+    self.box: LibXML::Dtd::Entity, $.raw.getEntity($name)
 }
 
 #| Element declaration lookup
 method getElementDeclaration(Str $name --> LibXML::Dtd::ElementDecl) {
-    LibXML::Dtd::ElementDecl.box: $.raw.getElementDecl($name);
+    self.box: LibXML::Dtd::ElementDecl, $.raw.getElementDecl($name)
 }
 
 #| Attribute declaration lookup
 method getAttrDeclaration(Str $elem-name, Str $attr-name --> LibXML::Dtd::AttrDecl) {
-    LibXML::Dtd::AttrDecl.box: $.raw.getAttrDecl($elem-name, $attr-name);
+    self.box: LibXML::Dtd::AttrDecl, $.raw.getAttrDecl($elem-name, $attr-name)
 }
 
 =head3 getNodeDeclaration
@@ -299,7 +307,7 @@ multi method getNodeDeclaration(LibXML::Attr:D $_) {
     $.getAttrDeclaration: .getOwnerElement.nodeName, .nodeName;
 }
 
-method !valid-ctx($schema: :$config!) { ValidContext.new: :$schema, :$config }
+method !valid-ctx($schema: :$config!) { self.create: ValidContext, :$schema, |(:$config with $config) }
 
 method validate(LibXML::Dtd:D $dtd: DocNode:D $doc = $.ownerDocument, Bool :$check , LibXML::Config :$config --> UInt) is hidden-from-backtrace {
     self!valid-ctx(:$config).validate($doc, :$dtd, :$check);
@@ -331,11 +339,15 @@ method internalSubset {
 }
 
 class DeclMap {
+    use LibXML::_Configurable;
+    also does LibXML::_Configurable;
+
     has LibXML::Node $.of;
+
     class HashMap::NoGC
         # Direct binding to a Dtd internal hash table
         is LibXML::HashMap[LibXML::Item]
-        is repr('CPointer') {
+    {
         method DELETE-KEY($) { die X::NYI.new }
         method ASSIGN-KEY($, $) { die X::NYI.new }
         method freeze {...}
@@ -345,7 +357,7 @@ class DeclMap {
     has HashMap::NoGC $.map is built handles<AT-KEY DELETE-KEY ASSIGN-KEY keys pairs values>;
     has LibXML::Dtd $.dtd is required;
     submethod TWEAK(xmlHashTable:D :$raw!) {
-        $!map .= new: :$raw;
+        $!map = self.create: HashMap::NoGC, :$raw;
     }
 }
 
@@ -356,8 +368,8 @@ class DeclMapNotation is DeclMap {
     }
 }
 
-class AttrDeclMap {
-    my class HoHMap is LibXML::HashMap is repr('CPointer') {
+class AttrDeclMap does LibXML::_Configurable {
+    my class HoHMap is LibXML::HashMap {
         method of {xmlHashTable}
         method freeze($) { die X::NYI.new }
         method thaw(Pointer:D $p) {
@@ -372,13 +384,13 @@ class AttrDeclMap {
     has HoHMap $!map handles<keys>;
     has LibXML::Dtd:D $.dtd is required;
 
-    submethod TWEAK(xmlHashTable:D :$raw! is copy) {
+    submethod TWEAK(xmlHashTable:D :$raw! is copy, LibXML::Config :$config) {
         $raw .= BuildDtdAttrDeclTable();
-        $!map .= new: :$raw;
+        $!map = self.create: HoHMap, :$raw;
     }
     method AT-KEY($k) {
         with $!map.AT-KEY($k) -> $raw {
-            DeclMap.new: :$raw, :$!dtd;
+            self.create: DeclMap, :$raw, :$!dtd;
         }
         else {
             DeclMap.of;
@@ -393,22 +405,22 @@ class AttrDeclMap {
 has DeclMapNotation $!notations;
 #| returns a hash-map of notation declarations
 method notations(LibXML::Dtd:D $dtd: --> DeclMap) {
-    $!notations //= DeclMapNotation.new: :$dtd, :raw($_)
-        with $!raw.notations;
+    $!notations //= self.create: DeclMapNotation, :$dtd, :raw($_)
+        with $.raw.notations;
 }
 
 has DeclMap $!entities;
 #| returns a hash-map of entity declarations
 method entities(LibXML::Dtd:D $dtd: --> DeclMap) {
-    $!entities //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::Entity)
-        with $!raw.entities;
+    $!entities //= self.create: DeclMap, :$dtd, :raw($_), :of(LibXML::Dtd::Entity)
+        with $.raw.entities;
 }
 
 has DeclMap $!elements;
 #| returns a hash-map of element declarations
 method element-declarations(LibXML::Dtd:D $dtd: --> DeclMap) {
-    $!elements //= DeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
-        with $!raw.elements;
+    $!elements //= self.create: DeclMap, :$dtd, :raw($_), :of(LibXML::Dtd::ElementDecl)
+        with $.raw.elements;
 }
 
 method Hash handles<AT-KEY keys pairs values> {
@@ -419,8 +431,8 @@ has AttrDeclMap $!element-attributes;
 
 #| returns a hash-map of attribute declarations
 method attribute-declarations(LibXML::Dtd:D $dtd: --> AttrDeclMap) {
-    $!element-attributes //= AttrDeclMap.new: :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
-        with $!raw.attributes;
+    $!element-attributes //= self.create: AttrDeclMap, :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)
+        with $.raw.attributes;
 }
 =para Actually returns a two dimensional hash of element declarations and element names
 

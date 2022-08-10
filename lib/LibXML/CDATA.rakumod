@@ -1,19 +1,20 @@
 #| LibXML CDATA Section nodes
-unit class LibXML::CDATA is repr('CPointer');
+unit class LibXML::CDATA;
 
 use LibXML::Node;
+use LibXML::Raw;
 use LibXML::_CharacterData;
+use LibXML::_Rawish;
 use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_CharacterData;
+also does LibXML::_Rawish[xmlCDataNode];
 also does W3C::DOM::CDATASection;
 
-use LibXML::Raw;
 use NativeCall;
 use Method::Also;
 
-method raw { nativecast(xmlCDataNode, self) }
 method data is rw is also<content> handles<substr substr-rw> { $.raw.content };
 
 =begin pod

@@ -3,8 +3,7 @@ class LibXML::SAX::Handler {
     use LibXML::SAX::Builder;
 
     use LibXML::Raw;
-    has xmlSAXHandler $!raw;
-    method raw { $!raw }
+    has xmlSAXHandler $.raw .= new;
     method native is DEPRECATED<raw> { $.raw }
 
     has &.serror-cb is rw;      # structured errors
@@ -12,10 +11,9 @@ class LibXML::SAX::Handler {
     has &.error-cb is rw;       # unstructured errors
     has &.fatalError-cb is rw;  # unstructured fatal errors
 
-    has $.sax-builder = LibXML::SAX::Builder;
+    has LibXML::SAX::Builder $.sax-builder;
 
     submethod TWEAK {
-        $!raw .= new;
         $!sax-builder.build-sax-handler(self);
     }
 

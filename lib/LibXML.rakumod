@@ -12,13 +12,12 @@ use LibXML::Config;
 use LibXML::Document;
 use LibXML::Types :QName;
 
-method config handles <
-      version config-version
+proto method config() handles <
+      version config-version load-catalog
       have-compression have-reader have-schemas have-threads
-      skip-xml-declaration skip-dtd tag-expansion external-entity-loader
-> {
-    callsame();
-}
+      skip-xml-declaration skip-dtd tag-expansion external-entity-loader> {*}
+multi method config(::?CLASS:U:) { LibXML::Config }
+multi method config(::?CLASS:D:) { nextsame }
 
 method createDocument(|c) {
     LibXML::Document.createDocument(|c);

@@ -4,6 +4,7 @@ plan 68;
 # bootstrapping tests for the DOM
 
 use LibXML;
+use LibXML::Element;
 use LibXML::Document;
 use LibXML::DocumentFragment;
 use LibXML::Raw;
@@ -60,11 +61,13 @@ ok $frag<D>[0].addNewChild(Str, 'Bar').getOwner.isSameNode($frag);
 
 # create a document from scratch
 $doc .= new;
-my LibXML::Element $root .= new: :name<Test>;
+$doc.config.skip-xml-declaration = True;
+# XXX Perhaps it should be recommended to use `$doc.create: LibXML::Element, :name<Test>` to propagade document's config?
+my LibXML::Element $root = $doc.create: LibXML::Element, :name<Test>;
 $doc.documentElement = $root;
 my LibXML::Element $root2 = $doc.documentElement;
 ok $root.unique-key eq $root2.unique-key, 'Unique root key';
-ok +nativecast(Pointer, $root) == +nativecast(Pointer, $root2), 'Unique root address';
+ok +nativecast(Pointer, $root.raw) == +nativecast(Pointer, $root2.raw), 'Unique root address';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';
 ok $root.doc.isSameNode($doc);

@@ -10,6 +10,7 @@ use Test;
 plan 11;
 
 use LibXML;
+use LibXML::Element;
 use LibXML::Enums;
 
 my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo bar]]></foo>};
@@ -414,7 +415,7 @@ subtest 'importing and adopting', {
     ok $cndoc.defined;
     ok $cndoc.isSameNode( $doc2 );
 
-    my LibXML::Element $xnode .= new: :name<test>;
+    my LibXML::Element $xnode .= create: :for($doc2), :name<test>;
 
     my $node2 = $doc2.importNode($xnode);
     ok $node2;
@@ -429,7 +430,7 @@ subtest 'importing and adopting', {
     ok $node3.ownerDocument.defined, "have owner document";
     ok $doc3.isSameNode( $node3.ownerDocument );
 
-    my LibXML::Element $xnode2 .= new: :name<test>;
+    my LibXML::Element $xnode2 .= create: :for($doc3), :name<test>;
     $xnode2.setOwnerDocument( $doc3 ); # alternate version of adopt node
     ok $xnode2.ownerDocument, 'setOwnerDocument';
     ok $doc3.isSameNode( $xnode2.ownerDocument ), 'setOwnerDocument';
@@ -555,7 +556,7 @@ subtest 'entity reference', {
 subtest 'Perl #94149', {
     # https://rt.cpan.org/Ticket/Display.html?id=94149
 
-    my LibXML::Text $orig .= new: :content('Double ');
-    my $ret = $orig.addSibling(LibXML::Text.new: :content('Free'));
+    my LibXML::Text $orig = $doc.create: LibXML::Text, :content('Double ');
+    my $ret = $orig.addSibling($doc.create: LibXML::Text, :content('Free'));
     is $ret.textContent, 'Double Free', 'merge text nodes with addSibling'
 }

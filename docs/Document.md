@@ -714,7 +714,7 @@ Calling `LibXML::Document.parse(|c)` is equivalent to calling `LibXML.parse(|c)`
 
 ```raku
 method processXIncludes(
-    LibXML::Config :$config,
+    LibXML::Config :$config = Code.new,
     |c
 ) returns Mu
 ```

@@ -2,10 +2,14 @@
 unit class LibXML::Node::Set;
 
 use LibXML::Types :resolve-package;
+use LibXML::_Configurable;
+use LibXML::_Collection;
 
 also does Iterable;
 also does Positional;
 also does LibXML::Types::XPathish;
+also does LibXML::_Configurable;
+also does LibXML::_Collection;
 
 use LibXML::Raw;
 use LibXML::Raw::HashTable;
@@ -30,7 +34,7 @@ submethod DESTROY {
 method elems is also<size Numeric> { $!raw.nodeNr }
 method Seq returns Seq handles<Array list values map grep> {
     my CArray $tab := $!raw.nodeTab;
-    (^$!raw.nodeNr).map: { $!of.box: $tab[$_] };
+    (^$!raw.nodeNr).map: { $!of.box: $tab[$_], :$.config };
 }
 
 method Hash handles <AT-KEY keys pairs> {
@@ -38,14 +42,14 @@ method Hash handles <AT-KEY keys pairs> {
     cas $!hstore, {
         $_ // do {
             my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
-            resolve-package('LibXML::HashMap::NodeSet').new: :$raw;
+            self.create: resolve-package('LibXML::HashMap::NodeSet'), :$raw;
         }
     }
 }
 method AT-POS(UInt:D $pos) {
     $pos >= $!raw.nodeNr
         ?? $!of
-        !! $!of.box($!raw.nodeTab[$pos]);
+        !! $!of.box($!raw.nodeTab[$pos], :$.config);
 }
 method add(LibXML::Item:D $node) is also<push> {
     constant Ref = 1;
@@ -58,7 +62,7 @@ method add(LibXML::Item:D $node) is also<push> {
 method pop {
     with $!raw.pop -> $node {
         $!hstore ⚛= Nil;
-        $!of.box: $node;
+        $!of.box: $node, :$.config;
     }
     else {
         $!of;
