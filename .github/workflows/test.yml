@@ -15,7 +15,7 @@ jobs:
         os:
           - ubuntu-latest
           - macOS-latest
-         # - windows-2019
+          - windows-2019
         raku-version:
           - 'latest'
           - '2022.02'
