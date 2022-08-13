@@ -2,7 +2,7 @@
   "name": "LibXML",
   "description": "Raku bindings to the libxml2 native library",
   "version": "0.8.0",
-  "api: "0.8.0",
+  "api": "0.8.0",
   "perl": "6",
   "authors": [
     "David Warring"
