@@ -18,7 +18,9 @@
   "build-depends": [
     "LibraryMake"
   ],
-  "test-depends": [],
+  "test-depends": [
+    "JSON::Fast"
+  ],
   "provides": {
     "LibXML": "lib/LibXML.rakumod",
     "LibXML::Attr": "lib/LibXML/Attr.rakumod",
