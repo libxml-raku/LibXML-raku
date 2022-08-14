@@ -51,7 +51,7 @@ method data is also<text content ast> is rw handles<substr substr-rw> { $.raw.co
 
 =head2 Description
 
-LibXML implements the DOM C<CharacterData> abstract class via the <LibXML::_CharacterData> role. This
+LibXML implements the DOM C<CharacterData> abstract class via the L<LibXML::_CharacterData> role. This
 role is also applied to to Comments CDATA-sections and Processing instruction nodes.
 
 `data` provides a proxy to a rw string, which allows for idiomatic Raku string manipulation and update.
@@ -59,7 +59,7 @@ role is also applied to to Comments CDATA-sections and Processing instruction no
 
 =head2 Methods
 
-The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here. 
+The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation. 
 

@@ -1,63 +1,15 @@
 [[Raku LibXML Project]](https://libxml-raku.github.io)
  / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
- / [Text](https://libxml-raku.github.io/LibXML-raku/Text)
+ / [_CharacterData](https://libxml-raku.github.io/LibXML-raku/_CharacterData)
 
-class LibXML::Text
-------------------
 
-LibXML Text Nodes
 
-Synopsis
---------
-
-    use LibXML::Text;
-    # Only methods specific to Text nodes are listed here,
-    # see the LibXML::Node documentation for other methods
-
-    my LibXML::Text $text .= new: :$content; 
-    my Str $content = $text.data;
-
-    # Stringy Interface
-    $text.data = $text-content;
-    my $substr    = $text.data.substr($offset, $length);
-    $text.data   ~= $somedata ;                   # append
-    $text.data.substr-rw($offset, 0) = $string;   # insert
-    $text.data.substr-rw($offset, $length) = '';  # delete
-    $text.data   ~~ s/$remstring//;               # delete once
-    $text.data   ~~ s:g/$remstring//;             # delete all
-    $text.data.substr-rw($offset, $length) = $string; # replace
-    $text.data   ~~ s/(<[a..z]>)/-/;         # replace pattern
-    $text.data   ~~ s:g/<[a..z]>/{$0.uc}/;   # replace pattern, all
-
-    # DOM Interface
-    $text.setData( $text-content );
-    $text.substringData($offset, $length);
-    $text.appendData( $somedata );
-    $text.insertData($offset, $string);
-    $text.deleteData($offset, $length);
-    $text.deleteDataString($remstring, :g);
-    $text.replaceData($offset, $length, $string);
-    $text.replaceDataString($old, $new, :g);
-
-Description
------------
-
-LibXML implements the DOM `CharacterData` abstract class via the [LibXML::_CharacterData](https://libxml-raku.github.io/LibXML-raku/_CharacterData) role. This role is also applied to to Comments CDATA-sections and Processing instruction nodes.
-
-`data` provides a proxy to a rw string, which allows for idiomatic Raku string manipulation and update.
+This role models the W3C DOM CharacterData abstract class
 
 Methods
 -------
 
-The class inherits from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here.
-
 Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation. 
-
-### method new
-
-    method new( Str :$content ) returns LibXML::Text
-
-The constructor of the class. It creates an unbound text node.
 
 ### method data
 
