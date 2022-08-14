@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.8.0  2022-08-15T09:36:08+12:00
    - Improved encapsulation and inheritability
      -- Provide ways of overriding default classes with user-provided children
         on per-parser (per-document) base.

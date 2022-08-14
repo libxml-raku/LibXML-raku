@@ -1,13 +1,12 @@
 {
-  "name": "LibXML",
-  "description": "Raku bindings to the libxml2 native library",
-  "version": "0.8.0",
   "api": "0.8.0",
-  "perl": "6",
+  "auth": "zef:dwarring",
   "authors": [
     "David Warring"
   ],
-  "auth": "zef:dwarring",
+  "build-depends": [
+    "LibraryMake"
+  ],
   "depends": [
     "File::Temp",
     "Method::Also",
@@ -15,12 +14,10 @@
     "XML",
     "OO::Monitors"
   ],
-  "build-depends": [
-    "LibraryMake"
-  ],
-  "test-depends": [
-    "JSON::Fast"
-  ],
+  "description": "Raku bindings to the libxml2 native library",
+  "license": "Artistic-2.0",
+  "name": "LibXML",
+  "perl": "6",
   "provides": {
     "LibXML": "lib/LibXML.rakumod",
     "LibXML::Attr": "lib/LibXML/Attr.rakumod",
@@ -91,22 +88,25 @@
     "LibXML::_Rawish": "lib/LibXML/_Rawish.rakumod",
     "LibXML::_Validator": "lib/LibXML/_Validator.rakumod"
   },
+  "raku": "*",
   "resources": [
     "libraries/xml6",
     "libraries/libxml2",
     "libraries/liblibxml2.so",
     "libraries/liblibxml2.dylib"
   ],
+  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
   "support": {
     "source": "https://github.com/libxml-raku/LibXML-raku.git"
   },
-  "license": "Artistic-2.0",
   "tags": [
     "xml",
     "html",
     "xpath",
     "dom"
   ],
-  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
-  "raku": "*"
+  "test-depends": [
+    "JSON::Fast"
+  ],
+  "version": "0.8.0"
 }
