@@ -43,4 +43,4 @@ jobs:
           zef build .
           zef install --/test App::Prove6
       - name: Run Tests
-        run: prove6 -I. t
+        run: prove6 -I. t xt
