@@ -1,4 +1,12 @@
 {{$NEXT}}
+   - Improved encapsulation and inheritability
+     -- Provide ways of overriding default classes with user-provided children
+        on per-parser (per-document) base.
+     -- Implement common config object across all elements of the same document.
+     -- Replace CPointer classes with P6opaque
+     -- Introduce dedicated exception classes
+   - Add `api` key to META6 and LibXML metadata. Add test xt/release/version.t
+     this ensures that x.y.0 <= api <= x.y.z, when x.y.z is the current version.
 
 0.7.10  2022-06-28T07:33:30+12:00
    - Fix error handling in SAX callbacks. These are now trapped by

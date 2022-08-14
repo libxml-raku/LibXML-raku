@@ -1,3 +1,4 @@
+# ported from Perl XML::LibXML t/11memory.t
 use v6;
 use Test;
 use LibXML;
@@ -8,19 +9,11 @@ use Telemetry;
 plan 17;
 my $skip;
 
-if !( %*ENV<AUTHOR_TESTING> or %*ENV<RELEASE_TESTING> ) {
-    $skip = "These tests are for authors only!";
-}
-elsif $*KERNEL.name !~~ 'linux'
-{
+if $*KERNEL.name !~~ 'linux' {
     $skip = 'These tests only run on Linux';
 }
-elsif ! %*ENV<MEMORY_TEST>
-{
-    $skip = "developers only (set MEMORY_TEST=1 to run these tests)";
-}
 elsif LibXML::Raw::ref-total() < 0 {
-    $skip = "please run '\$ make clean debug' to enable debugging";
+    $skip = "please run '\$ make clean debug' to enable memory tests";
 }
 
 if $skip {
@@ -164,7 +157,7 @@ class sax-null {...}
         pass 'is-valid()';
         check-mem();
 
-        print "# validate() \n";
+        diag "validate()";
         for 1..TIMES-THROUGH {
             try {
                 quietly {
@@ -219,7 +212,7 @@ class sax-null {...}
     }
 
 #        {
-#            print "# ENCODING TESTS \n";
+#            diag "ENCODING TESTS";
 #            my $string = "test � � is a test string to test iso encoding";
 #            my $encstr = encodeToUTF8( "iso-8859-1" , $string );
 #            for 1..TIMES-THROUGH {
@@ -273,7 +266,7 @@ class sax-null {...}
         check-mem();
 
         for %xmlStrings.keys.sort -> $key {
-            print "# $key \n";
+            diag $key;
             for 1..TIMES-THROUGH {
                 my $doc = $parser.parse: :string( %xmlStrings{$key} );
             }
@@ -300,7 +293,7 @@ class sax-null {...}
 
         check-mem();
         for %xmlStrings.keys.sort -> $key {
-            print "# $key \n";
+            diag $key;
             for 1..TIMES-THROUGH {
                 %xmlStrings{$key}.map: { $parser.push( $_ ) } ;
                 my $doc = $parser.finish-push();
@@ -320,7 +313,7 @@ class sax-null {...}
         );
 
         for ( "SIMPLE", "SIMPLE2", "SIMPLE TEXT", "SIMPLE CDATA", "SIMPLE JUNK" ) -> $key {
-            print "# $key \n";
+            diag $key;
             for 1..TIMES-THROUGH {
                 try {%xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
                 try {my $doc = $parser.finish-push();};
@@ -348,7 +341,7 @@ class sax-null {...}
         );
 
         for %xmlStrings.keys.sort -> $key {
-            print "# $key \n";
+            diag $key;
             for 1..TIMES-THROUGH {
                 try { %xmlStrings{$key}.map: { $parser.push( $_ ) };};
                 try {my $doc = $parser.finish-push();};
@@ -369,7 +362,7 @@ class sax-null {...}
             );
 
             for %xmlBadStrings.keys.sort -> $key {
-                print "# $key \n";
+                diag $key;
                 for 1..TIMES-THROUGH {
                     try { %xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
                     try {my $doc = $parser.finish-push();};
@@ -459,7 +452,7 @@ sub check-mem($initialise?) {
         $LibXML::TOTALOBJS += $live-objects;
         $LibXML::MEMCHECKS++;
 
-        note("# Mem Total: %mem<Total> $units, Resident: %mem<Resident> $units, Objects: $live-objects");
+        note("Mem Total: %mem<Total> $units, Resident: %mem<Resident> $units, Objects: $live-objects");
     }
 }
 
@@ -469,7 +462,7 @@ sub summarise-mem() {
     my $lost-objects = LibXML::Raw::ref-current();
     my $lost-pcnt = sprintf("%.02f", 100 * $lost-objects / $total-objects);
 
-    note("# Total Mem Increase:{$LibXML::TOTALMEM - $LibXML::STARTMEM} $units, Avg-Objects:{$LibXML::TOTALOBJS div $LibXML::MEMCHECKS}, Lost:$lost-objects Objects ($lost-pcnt\%)");
+    note("Total Mem Increase:{$LibXML::TOTALMEM - $LibXML::STARTMEM} $units, Avg-Objects:{$LibXML::TOTALOBJS div $LibXML::MEMCHECKS}, Lost:$lost-objects Objects ($lost-pcnt\%)");
 }
 
 # some tests for document fragments
