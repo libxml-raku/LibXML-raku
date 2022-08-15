@@ -6,7 +6,7 @@ use LibXML::Document;
 use LibXML::Raw;
 use Telemetry;
 
-plan 17;
+plan 19;
 my $skip;
 
 if $*KERNEL.name !~~ 'linux' {
@@ -187,15 +187,36 @@ class sax-null {...}
     </dromedaries>
     dromeds.xml
 
+    subtest 'first()', {
+        my LibXML $parser .= new();
+        my $doc  = $parser.parse: :string($xml);
+        for 1..TIMES-THROUGH {
+            my $elm  = $doc.getDocumentElement;
+            my $node = $doc.first('/dromedaries/species');
+        }
+        pass;
+        check-mem();
+    }
+
+    subtest 'parse() then first()', {
+        for 1..TIMES-THROUGH {
+            my LibXML $parser .= new();
+            my $doc  = $parser.parse: :string($xml);
+            my $elm  = $doc.getDocumentElement;
+            my $node = $doc.first('/dromedaries/species');
+        }
+        pass;
+        check-mem();
+    }
+
     subtest 'findnodes', {
         # my $str = "<foo><bar><foo/></bar></foo>";
         my $str = $xml;
         my $doc = LibXML.parse: :string( $str );
         for 1..TIMES-THROUGH {
-            processMessage($xml, '/dromedaries/species' );
             my @nodes = $doc.findnodes("/foo/bar/foo");
         }
-        pass 'after processMessage';
+        pass 'after findnodes';
         check-mem();
 
     }
@@ -206,7 +227,7 @@ class sax-null {...}
         for 1..TIMES-THROUGH {
             my $nodes = $doc.find("/foo/bar/foo");
         }
-        pass '.find.';
+        pass 'after find';
         check-mem();
 
     }
@@ -378,12 +399,6 @@ class sax-null {...}
 summarise-mem();
 
 sub processMessage($msg, $xpath) {
-    my LibXML $parser .= new();
-
-    my $doc  = $parser.parse: :string($msg);
-    my $elm  = $doc.getDocumentElement;
-    my $node = $doc.first($xpath);
-    my $text = $node.to-literal;
 }
 
 sub make-doc {
