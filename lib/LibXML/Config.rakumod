@@ -442,8 +442,8 @@ multi method map-class(::?CLASS:D: *@pos, *%mappings) {
 }
 
 proto method class-from($) {*}
-multi method class-from(::?CLASS:U: |c) { $singleton.class-from(|c) }
-multi method class-from(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Bool:D :$strict = True) {
+multi method class-from(::?CLASS:U: |c) is raw { $singleton.class-from(|c) }
+multi method class-from(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Bool:D :$strict = True) is raw {
     return from-type
         unless self!validate-map-class(
             from-type,
@@ -451,7 +451,7 @@ multi method class-from(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Bool:D 
             :$strict);
     samewith(%DefaultClassMap{from-type.^name});
 }
-multi method class-from(::?CLASS:D: Str:D $class, Bool:D :$strict = True) {
+multi method class-from(::?CLASS:D: Str:D $class, Bool:D :$strict = True) is raw {
     return resolve-package($class)
         unless self!validate-map-class-name(
             $class,
@@ -459,7 +459,8 @@ multi method class-from(::?CLASS:D: Str:D $class, Bool:D :$strict = True) {
             :$strict);
     samewith(%DefaultClassMap{$class});
 }
-multi method class-from(::?CLASS:D: Int:D $id) { @.class-map[$id] }
+multi method class-from(::?CLASS:D: Int:D $id) is raw { @.class-map[$id] }
+multi method class-from(::?CLASS:D: anyNode:D $raw) is raw { @.class-map[$raw.type] }
 
 =begin pod
 

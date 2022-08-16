@@ -165,7 +165,7 @@ submethod DESTROY {
 
 multi method box(anyNode:D $node, *%c) {
     $node.Reference;
-    my $class := (%c<config> //= self.config).class-map[$node.type];
+    my $class := (%c<config> //= self.config).class-from($node);
     $class.bless: :raw($node.delegate), |%c;
 }
 
