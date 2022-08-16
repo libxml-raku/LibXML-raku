@@ -73,13 +73,13 @@ $(SRC)/xml6_error%O% : $(SRC)/xml6_error.c $(SRC)/xml6_error.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_error%O% $(SRC)/xml6_error.c %LIB-CFLAGS% $(DBG)
 
 test : all
-	@prove -e"raku -I ." t
+	@prove6 -I . t
 
 loudtest : all
-	@prove -e"raku -I ." -v t
+	@prove6 -I . -v t
 
 xtest : all
-	@prove -e"raku -I ." -r t xt
+	@prove6 -I . t xt
 
 clean :
 	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%

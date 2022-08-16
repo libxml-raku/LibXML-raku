@@ -41,6 +41,5 @@ jobs:
           zef install --/test LibraryMake
           zef install --deps-only .
           zef build .
-          zef install --/test App::Prove6
       - name: Run Tests
         run: prove6 -I. t xt
