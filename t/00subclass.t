@@ -3,9 +3,6 @@ plan 2;
 
 # Experimental. This may change without notice.
 # Testing the current ability of Raku LibXML to define custom node classes:
-# - The custom class must be a subclass of the overridden class
-# - It either must be REPR('CPointer') or contain an appropriate 'raw' attribute
-# - Best to construct new objects via the DOM. $doc.createElement(...), etc.
 
 use LibXML;
 use LibXML::Config;
