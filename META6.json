@@ -1,5 +1,5 @@
 {
-  "api": "0.8.0",
+  "api": "0.9.0",
   "auth": "zef:dwarring",
   "authors": [
     "David Warring"
@@ -106,5 +106,5 @@
   "test-depends": [
     "JSON::Fast"
   ],
-  "version": "0.8.1"
+  "version": "0.9.0"
 }
