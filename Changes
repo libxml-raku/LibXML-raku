@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.9.0  2022-08-18T06:01:31+12:00
+   - Simplify subclassing in complex cases
+     This can now be done by inheriting from `LibXML::Config` and adding
+     a custom `class-from` method. See t/00subclass.t
+
 0.8.1  2022-08-15T10:53:29+12:00
    - Fix installation v0.8 api installation #84
 
