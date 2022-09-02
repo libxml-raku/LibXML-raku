@@ -36,84 +36,70 @@ class sax-null {...}
     check-mem(1);
 
     subtest 'make doc in sub', {
-        my LibXML::Document:D $doc = make-doc();
-        ok $doc.Str.defined, 'Str()';
-        check-mem();
+        mem-test {
+            my LibXML::Document:D $doc = make-doc();
+        }
     }
 
-    subtest 'make doc in sub II', {
+    subtest 'doc.Str', {
         # same test as the first one. if this still leaks, it's
         # our problem, otherwise it's perl :/
-        my LibXML::Document:D $doc = make-doc();
-
-        ok $doc.Str.defined, 'Str()';
-        check-mem();
+        mem-test {
+            my LibXML::Document:D $doc = make-doc();
+            my Str:D $ = $doc.Str
+        }
     }
 
     subtest 'appendChild',{
-        my LibXML::Element $elem .= new("foo");
-        my LibXML::Element $elem2 .= new("bar");
-        $elem.appendChild($elem2);
-        ok $elem.Str;
-        check-mem();
+        mem-test {
+            my LibXML::Element $elem .= new("foo");
+            my LibXML::Element $elem2 .= new("bar");
+            $elem.appendChild($elem2);
+        }
     }
 
     subtest 'set document element', {
-        my LibXML::Document:D $doc2 .= new();
-        make-doc-elem( $doc2 );
-        ok $doc2.documentElement.defined, 'documentElement';
-        check-mem();
+        mem-test {
+            my LibXML::Document:D $doc2 .= new();
+            make-doc-elem( $doc2 );
+        }
     }
 
     subtest 'multiple parsers', {
         LibXML.new(); # first parser
-        check-mem(1);
 
-        for 1..TIMES-THROUGH {
+        mem-test {
             my LibXML $parser .= new();
         }
         pass 'Initialise multiple parsers.';
-        check-mem();
         # multiple parses
-        for 1..TIMES-THROUGH {
+        mem-test {
             my LibXML $parser .= new();
             my $dom = $parser.parse: :string("<sometag>foo</sometag>");
         }
-        pass 'multiple parses';
-
-        check-mem();
     }
 
     subtest 'multiple failing parses', {
-        for 1..TIMES-THROUGH {
+        mem-test {
             my LibXML $parser .= new();
             try {
                 my $dom = $parser.parse: :string("<sometag>foo</somtag>"); # Thats meant to be an error, btw!
             };
         }
-        pass 'Multiple failures.';
-
-        check-mem();
     }
 
     subtest 'building custom docs', {
         my LibXML::Document $doc .= new();
-        for 1..TIMES-THROUGH {
+        mem-test {
             my $elem = $doc.createElement('x');
             $doc.setDocumentElement($elem);
 
         }
-        pass 'customDocs';
-        check-mem();
 
-        {
-            my $doc = LibXML.createDocument;
-            for 1..TIMES-THROUGH {
-                make-doc2( $doc );
-            }
+        $doc = LibXML.createDocument;
+        mem-test {
+            make-doc2( $doc );
         }
-        pass 'customDocs No. 2';
-        check-mem();
     }
 
     my $dtdstr = 'samples/test.dtd'.IO.slurp;
@@ -123,19 +109,15 @@ class sax-null {...}
 
         ok $dtdstr;
 
-        for 1..TIMES-THROUGH {
+        mem-test {
             my LibXML::Dtd $dtd .= parse: :string($dtdstr);
         }
-        pass 'after dtdstr';
-        check-mem();
     }
 
     subtest 'DTD URI parsing', {
-        for 1..TIMES-THROUGH {
+        mem-test {
             my LibXML::Dtd $dtd .= new('ignore', 'samples/test.dtd');
         }
-        pass 'after URI parsing.';
-        check-mem();
     }
 
     subtest 'document validation', {
@@ -146,7 +128,7 @@ class sax-null {...}
             $xml = LibXML.parse: :file('samples/article_bad.xml');
         };
 
-        for 1..TIMES-THROUGH {
+        mem-test {
             my $good;
             try {
                 quietly { 
@@ -154,11 +136,9 @@ class sax-null {...}
                 }
             };
         }
-        pass 'is-valid()';
-        check-mem();
 
         diag "validate()";
-        for 1..TIMES-THROUGH {
+        mem-test {
             try {
                 quietly {
                     $xml.validate($dtd);
@@ -190,46 +170,36 @@ class sax-null {...}
     subtest 'first()', {
         my LibXML $parser .= new();
         my $doc  = $parser.parse: :string($xml);
-        for 1..TIMES-THROUGH {
+        mem-test {
             my $elm  = $doc.getDocumentElement;
             my $node = $doc.first('/dromedaries/species');
         }
-        pass;
-        check-mem();
     }
 
     subtest 'parse() then first()', {
-        for 1..TIMES-THROUGH {
-            my LibXML $parser .= new();
-            my $doc  = $parser.parse: :string($xml);
-            my $elm  = $doc.getDocumentElement;
+        my LibXML $parser .= new();
+        todo "LibXML issue #85";
+        mem-test {
+            my $doc = $parser.parse: :string($xml);
             my $node = $doc.first('/dromedaries/species');
         }
-        pass;
-        check-mem();
     }
 
     subtest 'findnodes', {
         # my $str = "<foo><bar><foo/></bar></foo>";
         my $str = $xml;
         my $doc = LibXML.parse: :string( $str );
-        for 1..TIMES-THROUGH {
+        mem-test {
             my @nodes = $doc.findnodes("/foo/bar/foo");
         }
-        pass 'after findnodes';
-        check-mem();
-
     }
 
     subtest 'find', {
         my $str = "<foo><bar><foo/></bar></foo>";
         my $doc = LibXML.parse: :string( $str );
-        for 1..TIMES-THROUGH {
+        mem-test {
             my $nodes = $doc.find("/foo/bar/foo");
         }
-        pass 'after find';
-        check-mem();
-
     }
 
 #        {
@@ -260,14 +230,12 @@ class sax-null {...}
 
         my LibXML::Document $doc .= parse: :string( $string );
 
-        for 1..TIMES-THROUGH {
+        mem-test {
             my @ns = $doc.documentElement().getNamespaces();
             # warn "ns : " ~ .localname ~ "=>" ~ .href for @ns;
             my $prefix = .localname for @ns;
             my $name = $doc.documentElement.nodeName;
         }
-        check-mem();
-        pass 'namespace tests.';
     }
 
     subtest 'SAX parser', {
@@ -288,11 +256,9 @@ class sax-null {...}
 
         for %xmlStrings.keys.sort -> $key {
             diag $key;
-            for 1..TIMES-THROUGH {
+            mem-test {
                 my $doc = $parser.parse: :string( %xmlStrings{$key} );
             }
-
-            check-mem();
         }
         pass 'SAX PARSER';
     }
@@ -315,12 +281,10 @@ class sax-null {...}
         check-mem();
         for %xmlStrings.keys.sort -> $key {
             diag $key;
-            for 1..TIMES-THROUGH {
+            mem-test {
                 %xmlStrings{$key}.map: { $parser.push( $_ ) } ;
                 my $doc = $parser.finish-push();
             }
-
-            check-mem();
         }
         # Cancelled TEST
         pass 'good pushed data';
@@ -335,12 +299,10 @@ class sax-null {...}
 
         for ( "SIMPLE", "SIMPLE2", "SIMPLE TEXT", "SIMPLE CDATA", "SIMPLE JUNK" ) -> $key {
             diag $key;
-            for 1..TIMES-THROUGH {
+            mem-test {
                 try {%xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
                 try {my $doc = $parser.finish-push();};
             }
-
-            check-mem();
         }
         pass 'bad pushed data';
     }
@@ -363,12 +325,10 @@ class sax-null {...}
 
         for %xmlStrings.keys.sort -> $key {
             diag $key;
-            for 1..TIMES-THROUGH {
+            mem-test {
                 try { %xmlStrings{$key}.map: { $parser.push( $_ ) };};
                 try {my $doc = $parser.finish-push();};
             }
-
-            check-mem();
         }
         pass 'SAX PUSH PARSER';
 
@@ -384,7 +344,7 @@ class sax-null {...}
 
             for %xmlBadStrings.keys.sort -> $key {
                 diag $key;
-                for 1..TIMES-THROUGH {
+                mem-test {
                     try { %xmlBadStrings{$key}.map: { $parser.push( $_ ) };};
                     try {my $doc = $parser.finish-push();};
                 }
@@ -478,6 +438,16 @@ sub summarise-mem() {
     my $lost-pcnt = sprintf("%.02f", 100 * $lost-objects / $total-objects);
 
     note("Total Mem Increase:{$LibXML::TOTALMEM - $LibXML::STARTMEM} $units, Avg-Objects:{$LibXML::TOTALOBJS div $LibXML::MEMCHECKS}, Lost:$lost-objects Objects ($lost-pcnt\%)");
+}
+
+sub mem-test(&test) {
+    my $live-objects = LibXML::Raw::ref-current;
+    for 1..TIMES-THROUGH {
+        &test();
+    }
+    check-mem();
+    my $live-objects2 = LibXML::Raw::ref-current;
+    ok ($live-objects2 - $live-objects < 500), "no major memory leaks";
 }
 
 # some tests for document fragments
