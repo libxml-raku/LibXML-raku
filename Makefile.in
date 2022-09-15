@@ -100,6 +100,7 @@ doc : Pod-To-Markdown-installed docs/index.md docs/Attr.md docs/Attr/Map.md docs
       docs/_CharacterData.md
 
 docs/index.md : lib/LibXML.rakumod
+	@raku -I . -c $<
 	(\
 	    echo '[![Actions Status]($(REPO)/workflows/test/badge.svg)]($(REPO)/actions)'; \
             echo '';\

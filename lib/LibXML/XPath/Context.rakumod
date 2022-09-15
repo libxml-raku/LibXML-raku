@@ -402,7 +402,7 @@ multi method first(Str:D $expr, LibXML::Node $ref?) {
     $.first(self.create(LibXML::XPath::Expression, :$expr), $ref);
 }
 multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
-    my $rv = LibXML::Node;
+    my LibXML::Node $rv;
     with self!findnodes($expr, $ref) -> xmlNodeSet $_ {
         $rv = self.box: LibXML::Item, .nodeTab[0]
            if .nodeNr;

@@ -17,7 +17,7 @@ Synopsis
     my Str $name = $node.nodeName;
     $node.nodeName = $newName;
     my Bool $same = $node.isSameNode( $other-node );
-    my Bool $blank = $node.isBlaNK;
+    my Bool $blank = $node.isBlank;
     my Str $key = $node.unique-key;
     my Str $content = $node.nodeValue;
     $content = $node.textContent;
