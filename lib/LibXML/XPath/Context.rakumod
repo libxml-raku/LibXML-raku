@@ -450,7 +450,7 @@ method AT-KEY($_, Bool :$deref = True --> LibXML::Node::Set) {
     for $xpc<tr> -> LibXML::Element $row-elem {...}
     =end code
 
-proto method get-value(xmlXPathObject, Bool :literal($)) is implementation-detail is export(:get-value) {*}
+proto method get-value(xmlXPathObject, Bool :literal($)) {*}
 multi method get-value(xmlXPathObject:D $raw, Bool :$literal) {
     my LibXML::XPath::Object $object = self.create: LibXML::XPath::Object, :$raw;
     $object.value: :$literal;
