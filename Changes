@@ -1,5 +1,26 @@
 {{$NEXT}}
 
+0.9.1  2022-11-10T13:48:54+13:00
+   - fix LibXML::XPath::Context get-value() for LibXSLT
+
+0.9.0  2022-08-18T06:01:31+12:00
+   - Simplify subclassing in complex cases
+     This can now be done by inheriting from `LibXML::Config` and adding
+     a custom `class-from` method. See t/00subclass.t
+
+0.8.1  2022-08-15T10:53:29+12:00
+   - Fix installation v0.8 api installation #84
+
+0.8.0  2022-08-15T09:36:08+12:00
+   - Improved encapsulation and inheritability
+     -- Provide ways of overriding default classes with user-provided children
+        on per-parser (per-document) base.
+     -- Implement common config object across all elements of the same document.
+     -- Replace CPointer classes with P6opaque
+     -- Introduce dedicated exception classes
+   - Add `api` key to META6 and LibXML metadata. Add test xt/release/version.t
+     this ensures that x.y.0 <= api <= x.y.z, when x.y.z is the current version.
+
 0.7.10  2022-06-28T07:33:30+12:00
    - Fix error handling in SAX callbacks. These are now trapped by
      LibXML::ErrorHandler. Note that exceptions in SAX callbacks now

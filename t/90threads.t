@@ -3,13 +3,15 @@ use Test;
 plan 24;
 use LibXML;
 use LibXML::Attr;
+use LibXML::Config;
 use LibXML::Document;
 use LibXML::Element;
 use LibXML::RelaxNG;
+use LibXML::Schema;
 use LibXML::Parser;
 use LibXML::InputCallback;
 
-INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || 10;
+INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || (($*KERNEL.cpu-cores / 2).Int max 10);
 INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
 
 my LibXML:D $p .= new();
@@ -53,14 +55,14 @@ subtest 'relaxng' => {
     my LibXML::Document $good .= parse: :string('<foo/>');
     my LibXML::Document $bad .= parse: :string('<bar/>');
     my LibXML::RelaxNG @schemas = blat {
-        LibXML::RelaxNG.new(string => $grammar);
+        $good.create(LibXML::RelaxNG, string => $grammar);
     }
     my Bool @good = blat { @schemas[$_].is-valid($good); }
     my Bool @bad = blat { @schemas[$_].is-valid($bad); }
 
     is +@schemas, MAX_THREADS, 'relaxng schemas';
-    is-deeply (+@good, [@good.unique]), (MAX_THREADS, [True]), 'relax-ng valid';
-    is-deeply (+@bad, [@bad.unique]), (MAX_THREADS, [False]), 'relax-ng invalid';
+    is-deeply (+@good, [@good.unique]), (+MAX_THREADS, [True]), 'relax-ng valid';
+    is-deeply (+@bad, [@bad.unique]), (+MAX_THREADS, [False]), 'relax-ng invalid';
 }
 
 subtest 'parse strings', {
@@ -132,7 +134,7 @@ EOF
 subtest 'access leaf nodes', {
     my LibXML::Element @nodes;
     {
-        my $doc = $p.parse: :string($xml);
+        my LibXML::Document $doc = $p.parse: :string($xml);
         @nodes = blat { $doc.documentElement[0][0] }
     }
     is @nodes.elems, MAX_THREADS, 'document leaf nodes';
@@ -232,7 +234,13 @@ subtest 'relaxNG schema validation', {
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
-            $ok = False without $!;
+            with $! {
+                .rethrow unless $_ ~~ X::LibXML::Parser
+                && .message.contains('failed to validate');
+            }
+            else {
+                $ok = False;
+            }
         }
 	$ok;
     }
@@ -253,8 +261,14 @@ subtest 'XML schema validation', {
         my $ok = True;
         for 1..MAX_LOOP {
 	    my $x = $p.parse: :string($xml);
-            try { LibXML::Schema.new( string => $xsdschema ).validate( $x ) };
-            $ok = False without $!;
+            try { my LibXML::Schema $s .= new( string => $xsdschema ); $s.validate( $x ) };
+            with $! {
+                .rethrow unless $_ ~~ X::LibXML::Parser
+                && .message.contains('is not valid');
+            }
+            else {
+                $ok = False;
+            }
         }
         $ok;
     }

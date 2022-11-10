@@ -1,12 +1,13 @@
 # test synopsis and code samples in POD Documentation
 use v6;
 use Test;
+use LibXML::Attr;
+use LibXML::Config;
 
 plan 18;
 
 subtest 'LibXML::Attr' => {
     plan 5;
-    use LibXML::Attr;
     my $name = "test";
     my $value = "Value";
     my LibXML::Attr $attr .= new(:$name, :$value);
@@ -43,7 +44,7 @@ subtest 'LibXML::Attr::Map' => {
     $atts<att3> = "CCC";
     is $node.Str, '<foo att1="AAA" att3="CCC"/>';
 
-    my LibXML::Attr $style .= new: :name<style>, :value('fontweight: bold');
+    my LibXML::Attr $style .= create: :from($node), :name<style>, :value('fontweight: bold');
     $atts.setNamedItem($style);
     $style = $atts.getNamedItem('style');
     like $node.Str, rx:s/ 'style="fontweight: bold"' /;
@@ -217,7 +218,7 @@ subtest 'LibXML::Element' => {
     my $name = 'test-elem';
     my $aname = 'ns:att';
     my $avalue = 'my-val';
-my Str $value;
+    my Str $value;
     my $localname = 'fred';
     my $nsURI = 'http://test.org';
     my $newURI = 'http://test2.org';
@@ -229,13 +230,13 @@ my Str $value;
     my $newPrefix = 'bar';
     my $childname = 'kid';
     my LibXML::Element $elem;
-    my LibXML::Attr $attrnode .= new: :name<att-key>, :value<att-val>;
+    my LibXML::Attr $attrnode .= create: :from($dom), :name<att-key>, :value<att-val>;
     my Bool $boolean;
     my $activate = True;
     my Str $xpath-expression = '*';
     #-- setup
 
-    $elem .= new( $name );
+    $elem .= new($name);
 
     # -- Attribute Methods -- #
     $elem.setAttribute( $aname, $avalue );
@@ -336,14 +337,16 @@ subtest 'LibXML::InputCallback' => {
         $handler.close;
     }
 
-    # Register them with a instance of LibXML::InputCallback
-    my LibXML::InputCallback $input-callbacks .= new: :trace;
-    $input-callbacks.register-callbacks(&match-uri, &open-uri,
-                                        &read-uri, &close-uri );
 
     my LibXML::Parser $parser .= new;
+    $parser.config.parser-locking = True;
+
+    # Register them with a instance of LibXML::InputCallback
+    my LibXML::InputCallback $input-callbacks = $parser.create: LibXML::InputCallback, :trace;
+    $input-callbacks.register-callbacks(&match-uri, &open-uri,
+                                        &read-uri, &close-uri );
     # Register the callback group at a parser instance
-    LibXML::Config.input-callbacks = $input-callbacks;
+    $parser.input-callbacks = $input-callbacks;
 
     my LibXML::Document:D $doc = $parser.parse: :file('myscheme:muahahaha.xml');
     is $doc.root.Str, '<helloworld/>';
@@ -366,8 +369,8 @@ subtest 'LibXML::Namespace' => {
     is $ns.getNamespaceURI, 'http://www.w3.org/2000/xmlns/';
     is $ns.prefix, 'xmlns';
     ok $ns.unique-key, 'unique_key sanity';
-    my LibXML::Namespace $ns-again .= new(:$URI, :$prefix);
-    my LibXML::Namespace $ns-different .= new(URI => $URI~'X', :$prefix);
+    my LibXML::Namespace $ns-again = $ns.create(LibXML::Namespace, :$URI, :$prefix);
+    my LibXML::Namespace $ns-different = $ns.create(LibXML::Namespace, URI => $URI~'X', :$prefix);
     is $ns.unique-key, $ns-again.unique-key, 'Unique key match';
     isnt $ns.unique-key, $ns-different.unique-key, 'Unique key non-match';
 
@@ -381,14 +384,14 @@ subtest 'LibXML::Node' => {
     use LibXML::Namespace;
 
     #++ setup
-    my LibXML::Element $node       .= new: :name<Alice>;
-    my LibXML::Element $other-node .= new: :name<Xxxx>;
-    my LibXML::Element $childNode  .= new: :name<Bambi>;
-    my LibXML::Element $newNode    .= new: :name<NewNode>;
-    my LibXML::Element $oldNode     = $childNode;
-    my LibXML::Element $refNode    .= new: :name<RefNode>;
-    my LibXML::Element $parent     .= new: :name<Parent>;
     my LibXML::Document $doc       .= new;
+    my LibXML::Element $node        = $doc.create: LibXML::Element, :name<Alice>;
+    my LibXML::Element $other-node  = $doc.create: LibXML::Element, :name<Xxxx>;
+    my LibXML::Element $childNode   = $doc.create: LibXML::Element, :name<Bambi>;
+    my LibXML::Element $newNode     = $doc.create: LibXML::Element, :name<NewNode>;
+    my LibXML::Element $oldNode     = $childNode;
+    my LibXML::Element $refNode     = $doc.create: LibXML::Element, :name<RefNode>;
+    my LibXML::Element $parent      = $doc.create: LibXML::Element, :name<Parent>;
     my Str $nsURI = 'http://ns.org';
     my Str $xpath-expression = '*';
     my Str $newName = 'Bob';
@@ -487,15 +490,15 @@ subtest 'LibXML::Node' => {
     my UInt $line-no = $node.line-number();
 
     # -- Positional Interface --
-    $node .= new: :name<Test>;
-    $node.push: LibXML::Element.new: :name<A>;
-    $node.push: LibXML::Element.new: :name<B>;
+    $node = $doc.create: $node, :name<Test>;
+    $node.push: $doc.create: LibXML::Element, :name<A>;
+    $node.push: $doc.create: LibXML::Element, :name<B>;
     is $node.Str, '<Test><A/><B/></Test>';
     is $node[1].Str, '<B/>';
     is $node.values.map(*.Str).join(':'), '<A/>:<B/>';
-    $node[1] = LibXML::Element.new: :name<C>;
-    $node[2] = LibXML::Element.new: :name<D>;
-    dies-ok { $node[42] = LibXML::Element.new: :name<Z>; }
+    $node[1] = $doc.create: LibXML::Element, :name<C>;
+    $node[2] = $doc.create: LibXML::Element, :name<D>;
+    dies-ok { $node[42] = $doc.create: LibXML::Element, :name<Z>; }
     is $node.Str, '<Test><A/><C/><D/></Test>';
     $node.pop;
     $node.pop;
@@ -705,8 +708,7 @@ subtest 'LibXML::XPath::Context' => {
     my Str $name = 'bar';
     #-- setup
 
-    my LibXML::XPath::Context $xpc .= new();
-    $xpc .= new(:$node);
+    my LibXML::XPath::Context $xpc .= new(:$node);
     $xpc.registerNs($prefix, $namespace-uri);
     $xpc.unregisterNs($prefix);
     my Str $uri = $xpc.lookupNs($prefix);
@@ -744,7 +746,7 @@ subtest 'LibXML::XPath::Context' => {
 
     my LibXML::Document $doc .= parse: "samples/article.xml";
     $node = $doc.root;
-    my LibXML::XPath::Context $xc .= new(:$node);
+    my LibXML::XPath::Context $xc = $doc.create(LibXML::XPath::Context, :$node);
     $xc.registerFunction('grep-nodes', &grep-nodes);
     @nodes = $xc.findnodes('grep-nodes(section,"^Bar")').list;
     is +@nodes, 2;
@@ -763,7 +765,7 @@ subtest 'LibXML::XPath::Context' => {
         my $areas = LibXML.parse: :file('samples/article.xml');
         my $empl = LibXML.parse: :file('samples/test.xml');
   
-        my LibXML::XPath::Context $xc .= new(node => $empl);
+        my LibXML::XPath::Context $xc = $doc.create(LibXML::XPath::Context, node => $empl);
   
         my %variables = (
             A => $xc.find('/employees/employee[@salary>10000]'),

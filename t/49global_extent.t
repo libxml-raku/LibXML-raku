@@ -15,6 +15,8 @@ config.external-entity-loader = &handler;
 
 my LibXML $parser .= new: :expand-entities;
 
+$parser.config.parser-locking = True;
+
 my $xml = q:to<EOF>;
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE foo [

@@ -1,46 +1,42 @@
 use v6;
-unit class LibXML::XPath::Object
-    is repr('CPointer');
+unit class LibXML::XPath::Object;
 
 use LibXML::Item;
 use LibXML::Raw;
-use LibXML::Utils :iterate-set;
 use LibXML::Types :XPathRange;
+use LibXML::_Configurable;
+use LibXML::_Collection;
 use NativeCall;
 
 also does LibXML::Types::XPathish;
+also does LibXML::_Configurable;
+also does LibXML::_Collection;
 
-method new(xmlXPathObject:D :$raw!) {
-    $raw.Reference;
-    nativecast(self.WHAT, $raw);
-}
+has xmlXPathObject:D $.raw is required;
 
-method raw { nativecast(xmlXPathObject, self) }
+submethod TWEAK { $!raw.Reference }
 
-submethod DESTROY { self.raw.Unreference }
+submethod DESTROY { $!raw.Unreference }
 
 method coerce-to-raw(XPathRange $content is copy) {
-    $content .= raw()
-        if $content ~~ LibXML::Types::XPathish;
-    xmlXPathObject.COERCE($content);
+    xmlXPathObject($content ~~ LibXML::Types::XPathish ?? $content.raw !! $content)
 }
 
 multi method COERCE(XPathRange:D $content) {
-    my xmlXPathObject:D $raw = self.coerce-to-raw($content);
-    self.new: :$raw;
+    self.create: raw => self.coerce-to-raw($content)
 }
 
 method coerce($v) is DEPRECATED<COERCE> { self.COERCE: $v }
 
-method value(xmlXPathObject :$raw = $.raw, Bool :$literal,  --> XPathRange) {
+method value(xmlXPathObject :$raw = $.raw, Bool :$literal, *%c  --> XPathRange) {
     given $raw.value {
         when xmlNodeSet {
-            given iterate-set(LibXML::Item, .copy) {
+            given self.iterate-set(LibXML::Item, .copy) {
                 $literal ?? .to-literal !! $_;
             }
         }
         when anyNode {
-            $literal ?? .Str !! LibXML::Item.box: $_;
+            $literal ?? .Str !! LibXML::Item.box: $_, |%c;
         }
         default { $_ }
     }

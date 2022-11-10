@@ -7,7 +7,6 @@ use NativeCall;
 use LibXML;
 use LibXML::Raw;
 use LibXML::Parser;
-my \config = LibXML.config;
 
 my @start-tags;
 my @end-tags;

@@ -37,3 +37,9 @@ class xmlRelaxNGValidCtxt is repr(Opaque) is export {
         New($schema);
     }
 }
+
+sub xmlRelaxNGInitTypes(--> int32) is native($XML2) {*}
+
+INIT {
+    xmlRelaxNGInitTypes();
+}

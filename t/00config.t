@@ -63,8 +63,10 @@ subtest 'node', {
     use LibXML::Document;
     use LibXML::XPath::Context;;
 
-    my LibXML::Document:D $doc .= parse: :string("<test/>");
-    my LibXML::Config:D $config .= new: :skip-xml-declaration, :max-errors(42);
+    my LibXML::Config:D $config .= new: :!skip-xml-declaration, :max-errors(42);
+    my LibXML::Document:D $doc .= parse: :string("<test/>"), :$config;
+
+    $doc.root.appendWellBalancedChunk("<a/><b/><c/>", :$config);
 
     lives-ok {$doc.root.appendWellBalancedChunk("<a/><b/><c/>", :$config);}
 
@@ -74,10 +76,12 @@ subtest 'node', {
     my $str = $doc.Str;
     ok $str.starts-with("<?xml"), 'Str without config :!skip';
 
-    $str = $doc.Str: :$config;
+    my $skip-config = $config.clone;
+    $skip-config.skip-xml-declaration = True;
+    $str = $doc.Str: :config($skip-config);
     nok $str.starts-with("<?xml"), 'Str with config :skip';
 
-    LibXML::Config.skip-xml-declaration = True;
+    $doc.config.skip-xml-declaration = True;
     $str = $doc.Str;
     nok $str.starts-with("<?xml"), 'Str without config :skip';
 

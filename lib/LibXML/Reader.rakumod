@@ -478,7 +478,7 @@ method matchesPattern(LibXML::Pattern:D $pattern --> Bool) {
 
 #| Provides access to the document tree built by the reader.
 method document {
-    $!document //= LibXML::Document.new: :raw($_)
+    $!document //= self.create: LibXML::Document, :raw($_)
         with $!raw.currentDoc;
 }
 =item This function can be
@@ -491,14 +491,14 @@ method copyCurrentNode(Bool :$deep --> LibXML::Node) {
     my $call := $deep ?? 'currentNodeTree' !! 'currentNode';
     my anyNode $node = self!op($call);
     $node .= copy: :$deep;
-    LibXML::Node.box($node);
+    self.box: LibXML::Node, $node
 }
 =item Use :deep to obtain the full sub-tree.
 
 #| This tells the XML Reader to preserve the current node in the document tree.
 method preserveNode(--> LibXML::Node) {
     $.document; # realise containing document
-    LibXML::Node.box: self!op('preserveNode');
+    self.box: LibXML::Node, self!op('preserveNode')
 }
 =para A document tree consisting of the preserved nodes and their content can be
     obtained using the method C<document()> once parsing is finished.

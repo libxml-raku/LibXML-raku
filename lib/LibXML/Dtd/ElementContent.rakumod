@@ -1,32 +1,35 @@
 #| DtD element content declaration (experimental)
 unit class LibXML::Dtd::ElementContent;
 
+use LibXML::_Configurable;
 use LibXML::Raw;
 use LibXML::Enums;
-use LibXML::Item :&box-class;
 use NativeCall;
+
+also does LibXML::_Configurable;
 
 has $!decl; # element declaration (keep this alive to avoid GC)
 submethod TWEAK(Any:D :$!decl) {}
 has xmlElementContent $.raw is required handles<type occurs name prefix Str>;
 method !visit(xmlElementContent $raw) {
     my constant MagicTopLevel = 1; # as set by LibXML on top-level declarations
+    my $class := self.WHAT;
     if $raw.defined && +nativecast(Pointer, $raw) != MagicTopLevel {
-        $?CLASS.new: :$!decl, :$raw;
+        self.create: $class, :$!decl, :$raw;
     }
     else {
-        $?CLASS
+        $class
     }
 }
 subset ElementDeclRef of LibXML::Dtd::ElementContent where .type == XML_ELEMENT_CONTENT_ELEMENT;
 subset ElementDeclNode of LibXML::Dtd::ElementContent where .type ~~ XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR;
 
 method getElementDecl(ElementDeclRef:D:) {
-    my $elem-decl-class = box-class(XML_ELEMENT_DECL);
+    my $elem-decl-class = $.config.class-from(XML_ELEMENT_DECL);
     with $!decl.raw.parent {
         # xmlElementDecl nodes should always have the Dtd as immediate parent
         my xmlDtd:D $dtd = .delegate;
-        $elem-decl-class.box: $dtd.getElementDecl($.name);
+        self.box: $elem-decl-class, $dtd.getElementDecl($.name);
     }
     else {
         $elem-decl-class;
@@ -38,7 +41,7 @@ method content(ElementDeclRef:D:) {
         my xmlDtd:D $dtd = .delegate;
         my xmlElementDecl:D $decl = $dtd.getElementDecl($.name);
         my xmlElementContent:D $raw = $decl.content;
-        self.new: :$raw, :$!decl;
+        self.create: self.WHAT, :$raw, :$!decl;
     }
 }
 multi method gist(Any:D:) { $.Str }

@@ -1,6 +1,7 @@
 use v6;
 use Test;
 use LibXML;
+use LibXML::Config;
 use LibXML::Document;
 use LibXML::Raw;
 use LibXML::Node::Set;

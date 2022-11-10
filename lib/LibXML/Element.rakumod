@@ -1,15 +1,30 @@
 
 #| LibXML Class for Element Nodes
-unit class LibXML::Element is repr('CPointer');
+unit class LibXML::Element;
 
 use LibXML::Node;
-use LibXML::Utils :iterate-list;
 use LibXML::_ParentNode;
+use LibXML::Attr;
+use LibXML::Attr::Map;
+use LibXML::Config;
+use LibXML::Dtd::ElementDecl;
+use LibXML::Enums;
+use LibXML::Item :box-class, :dom-boxed;
+use LibXML::Namespace;
+use LibXML::Raw;
+use LibXML::Types :QName, :NCName, :NameVal;
+use LibXML::_Rawish;
+use XML::Grammar;
+use NativeCall;
+use Method::Also;
 use W3C::DOM;
 
 also is LibXML::Node;
 also does LibXML::_ParentNode;
 also does W3C::DOM::Element;
+also does LibXML::_Rawish[ xmlElem,
+                           <content getAttribute getAttributeNS getNamespaceDeclURI
+                            hasAttribute hasAttributeNS removeAttribute removeAttributeNS>];
 
 =begin pod
     =head2 Synopsis
@@ -99,38 +114,30 @@ also does W3C::DOM::Element;
 
 =end pod
 
-use NativeCall;
-
-use LibXML::Attr;
-use LibXML::Attr::Map;
-use LibXML::Config;
-use LibXML::Dtd::ElementDecl;
-use LibXML::Enums;
-use LibXML::Item :box-class, :dom-boxed;
-use LibXML::Namespace;
-use LibXML::Raw;
-use LibXML::Types :QName, :NCName, :NameVal;
-use XML::Grammar;
-use Method::Also;
+#has xmlElem:D $.raw is required handles<
+#        content
+#        getAttribute getAttributeNS getNamespaceDeclURI
+#        hasAttribute hasAttributeNS
+#        removeAttribute removeAttributeNS>;
 
 # Perl compat
-multi method new(QName:D $name, LibXML::Namespace $ns?) {
-    self.new(:$name, :$ns);
+multi method new(QName:D $name, LibXML::Namespace $ns?, *%c) {
+    self.new(:$name, :$ns, |%c);
 }
-multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj)) {
+multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj), *%c) {
     my xmlDoc:D $doc = .raw with $owner;
     my xmlNs:D $ns = .raw with $ns-obj;
-    my $raw := xmlElem.new( :$name, :$doc, :$ns );
-    self.box: $raw;
+    %c<config> //= ($owner andthen .config orelse LibXML::Config.global);
+    self.box: xmlElem.new( :$name, :$doc, :$ns ), |%c;
 }
 
-method raw handles<
-        content
-        getAttribute getAttributeNS getNamespaceDeclURI
-        hasAttribute hasAttributeNS
-        removeAttribute removeAttributeNS> {
-    nativecast(xmlElem, self);
-}
+#method raw handles<
+#        content
+#        getAttribute getAttributeNS getNamespaceDeclURI
+#        hasAttribute hasAttributeNS
+#        removeAttribute removeAttributeNS> {
+#    nativecast(xmlElem, self);
+#}
 
 =begin pod
     =head3 method new
@@ -168,7 +175,7 @@ multi method setAttributeNS(Str $uri, NameVal:D $_ --> LibXML::Attr) {
 }
 #| Namespace-aware version of of setAttribute()
 multi method setAttributeNS(Str $uri, QName $name, Str $value --> LibXML::Attr) {
-    LibXML::Attr.box: $.raw.setAttributeNS($uri, $name, $value);
+    self.box: LibXML::Attr, $.raw.setAttributeNS($uri, $name, $value);
 }
 =begin pod
     =para  where
@@ -220,10 +227,10 @@ method removeAttributeNode(LibXML::Attr:D $att --> LibXML::Attr) {
 }
 
 method getAttributeNode(Str:D $att-name --> LibXML::Attr) is also<attribute> {
-    LibXML::Attr.box: $.raw.getAttributeNode($att-name);
+    self.box: LibXML::Attr, $.raw.getAttributeNode($att-name);
 }
 method getAttributeNodeNS(Str $uri, Str $att-name --> LibXML::Attr) {
-    LibXML::Attr.box: $.raw.getAttributeNodeNS($uri, $att-name);
+    self.box: LibXML::Attr, $.raw.getAttributeNodeNS($uri, $att-name);
 }
 
 # handled by the `raw` method
@@ -308,7 +315,7 @@ method attributes(LibXML::Element:D $node:) is rw is also<attribs attr> {
 =end pod
 
 method properties {
-    iterate-list(self, LibXML::Attr);
+    self.iterate-list(LibXML::Attr);
 }
 =begin pod
 
@@ -449,8 +456,8 @@ method !set-attributes(@atts) {
 ########################################################################
 =head2 DOM Manipulation Methods
 
-method ast(
-    LibXML::Config :$config,
+method ast(::?CLASS:D:
+    LibXML::Config :$config = $.config,
     Bool :$blank = $config.keep-blanks
 ) {
     self.tag => [
@@ -490,8 +497,8 @@ multi method AT-KEY(Str:D $ where /^['@'|'attribute::']<name=.XML::Grammar::name
     );
 }
 
-method appendWellBalancedChunk(Str:D $string, |c --> LibXML::Node) {
-    my $frag = box-class('LibXML::DocumentFragment').parse: :balanced, :$string, |c;
+method appendWellBalancedChunk(::?CLASS:D: Str:D $string, |c --> LibXML::Node) {
+    my $frag = self.create($.config.class-from(XML_DOCUMENT_FRAG_NODE), |c).parse: :balanced, :$string, |c;
     self.appendChild( $frag );
 }
 

@@ -10,3 +10,4 @@ resources
 LibXML-*
 .gitignore
 samples/testrun.xml
+*.iml

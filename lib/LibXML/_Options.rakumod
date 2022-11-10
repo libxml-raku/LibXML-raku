@@ -74,7 +74,7 @@ method get-option(Str:D $k is copy) {
         !! $.get-flag($.flags, $k);
     $neg ?? ! $rv !! $rv;
 }
-multi method set-option(Str:D $k is copy, $v is copy) is default {
+multi method set-option(Str:D $k is copy, $v is copy) {
     my $neg := ? $k.starts-with('no-');
     if $neg {
         $k .= substr(3);

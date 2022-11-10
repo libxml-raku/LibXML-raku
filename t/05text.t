@@ -6,6 +6,7 @@ plan 13;
 
 use LibXML;
 use LibXML::Text;
+use LibXML::Config;
 use LibXML::Document;
 
 my LibXML::Document $doc .= new();

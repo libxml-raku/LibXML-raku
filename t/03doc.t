@@ -11,6 +11,7 @@ plan 9;
 
 use LibXML;
 use LibXML::Document;
+use LibXML::Element;
 use LibXML::Enums;
 
 sub is-empty-str(Str $s)
@@ -499,9 +500,9 @@ subtest 'Nil-ing nodes', {
        $x = Nil;                              # free the attribute
     }
     do {
-      my LibXML::Element $object .= new( :name<object> );
       my $xml = qq{<?xml version="1.0" encoding="UTF-8"?>\n<lom/>};
       my $lom_doc = LibXML.parse: :string($xml);
+      my LibXML::Element $object = $lom_doc.create(LibXML::Element, :name<object> );
       my $lom_root = $lom_doc.getDocumentElement();
       $object.appendChild( $lom_root );
       ok !defined($object.firstChild.ownerDocument);

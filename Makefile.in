@@ -73,13 +73,13 @@ $(SRC)/xml6_error%O% : $(SRC)/xml6_error.c $(SRC)/xml6_error.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_error%O% $(SRC)/xml6_error.c %LIB-CFLAGS% $(DBG)
 
 test : all
-	@prove -e"raku -I ." t
+	@prove6 -I . t
 
 loudtest : all
-	@prove -e"raku -I ." -v t
+	@prove6 -I . -v t
 
 xtest : all
-	@prove -e"raku -I ." -r t xt
+	@prove6 -I . t xt
 
 clean :
 	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%
@@ -87,15 +87,20 @@ clean :
 realclean : clean
 	@rm -f Makefile docs/*.md docs/*/*.md
 
-doc : docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Dict.md docs/Document.md docs/DocumentFragment.md\
+Pod-To-Markdown-installed :
+	@raku -M Pod::To::Markdown -c
+
+doc : Pod-To-Markdown-installed docs/index.md docs/Attr.md docs/Attr/Map.md docs/CDATA.md docs/Comment.md docs/Config.md docs/Dict.md docs/Document.md docs/DocumentFragment.md\
       docs/Dtd.md docs/Dtd/AttrDecl.md  docs/Dtd/Entity.md docs/Dtd/ElementDecl.md docs/Dtd/Notation.md docs/Dtd/ElementContent.md docs/DOM.md docs/Element.md docs/Enums.md docs/EntityRef.md docs/ErrorHandling.md docs/InputCallback.md docs/Item.md docs/Namespace.md docs/HashMap.md docs/Raw.md\
       docs/Node.md docs/Node/List.md docs/Node/Set.md docs/PI.md docs/RelaxNG.md docs/Text.md docs/Pattern.md\
       docs/Parser.md docs/PushParser.md docs/RegExp.md docs/Reader.md docs/Schema.md\
       docs/XPath/Context.md docs/XPath/Expression.md\
       docs/SAX/Handler/SAX2.md docs/SAX/Handler/XML.md\
-      docs/SAX/Builder.md docs/Threads.md
+      docs/SAX/Builder.md docs/Threads.md\
+      docs/_CharacterData.md
 
 docs/index.md : lib/LibXML.rakumod
+	@raku -I . -c $<
 	(\
 	    echo '[![Actions Status]($(REPO)/workflows/test/badge.svg)]($(REPO)/actions)'; \
             echo '';\
@@ -104,11 +109,13 @@ docs/index.md : lib/LibXML.rakumod
         ) > $@
 
 docs/%.md : lib/LibXML/%.rakumod
+	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@
 
 docs/%.md : lib/LibXML/%.pod6
+	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
 	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
         > $@

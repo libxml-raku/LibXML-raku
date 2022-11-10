@@ -1,25 +1,13 @@
 unit class LibXML::Parser::Context;
 
-use LibXML::_Configurable;
-also does LibXML::_Configurable;
-
 use NativeCall;
+use LibXML::_Configurable;
 use LibXML::Config :&protected;
 use LibXML::Enums;
 use LibXML::ErrorHandling :&structured-error-cb;
 use LibXML::Item;
 use LibXML::Raw;
 use LibXML::_Options;
-
-has xmlParserCtxt $!raw handles <wellFormed valid SetStructuredErrorFunc>;
-has uint32 $.flags = self.config.parser-flags;
-multi method flags(::?CLASS:D:) is rw { $!flags }
-multi method flags(::?CLASS:U:) { self.config.parser-flags }
-has Bool $.input-compressed;
-has Bool $.line-numbers;
-has $.input-callbacks;
-has $.sax-handler;
-has $!published;
 
 our constant %Opts = %(
     :clean-namespaces(XML_PARSE_NSCLEAN),
@@ -49,8 +37,19 @@ our constant %Opts = %(
     :xinclude(XML_PARSE_XINCLUDE),
 );
 
+also does LibXML::_Configurable;
 also does LibXML::_Options[%Opts];
 also does LibXML::ErrorHandling;
+
+has xmlParserCtxt $!raw handles <wellFormed valid SetStructuredErrorFunc>;
+has uint32 $.flags = self.config.parser-flags;
+multi method flags(::?CLASS:D:) is rw { $!flags }
+multi method flags(::?CLASS:U:) { self.config.parser-flags }
+has Bool $.input-compressed;
+has Bool $.line-numbers;
+has $.input-callbacks;
+has $.sax-handler;
+has $!published;
 
 method raw { $!raw }
 method close {
@@ -107,37 +106,33 @@ method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fr
     my $rv;
 
     protected sub () is hidden-from-backtrace {
-	my $*XML-CONTEXT = self;
-	$_ = .new: :raw(xmlParserCtxt.new)
-	    without $*XML-CONTEXT;
+        my $*XML-CONTEXT = self;
+        $_ = .new: :raw(xmlParserCtxt.new) without $*XML-CONTEXT;
 
-	my @input-contexts = .activate()
-	    with $*XML-CONTEXT.input-callbacks;
+        my @input-contexts = .activate with $*XML-CONTEXT.input-callbacks;
 
-	die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
-	    if @input-contexts && !LibXML::Config.parser-locking;
+        die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
+            if @input-contexts && !LibXML::Config.parser-locking;
 
-	my $handlers = xml6_gbl::save-error-handlers();
-	$*XML-CONTEXT.SetStructuredErrorFunc: &structured-error-cb;
+        my $handlers = xml6_gbl::save-error-handlers();
+        $*XML-CONTEXT.SetStructuredErrorFunc: &structured-error-cb;
+        &*chdir(~$*CWD);
         my @prev = self.config.setup();
-	&*chdir(~$*CWD);
 
-	$rv := action();
+        $rv := action();
 
-	.flush-errors for @input-contexts;
-	$rv := $*XML-CONTEXT.is-valid if $check-valid;
-	$*XML-CONTEXT.flush-errors: :$recover;
-	$*XML-CONTEXT.publish() without self;
+        .flush-errors for @input-contexts;
+        $rv := $*XML-CONTEXT.is-valid if $check-valid;
+        $*XML-CONTEXT.flush-errors: :$recover;
+        $*XML-CONTEXT.publish() without self;
 
-	LEAVE {
+        LEAVE {
             self.config.restore(@prev);
 
-            .deactivate
-	        with $*XML-CONTEXT.input-callbacks;
+            .deactivate with $*XML-CONTEXT && $*XML-CONTEXT.input-callbacks;
 
-	    xml6_gbl::restore-error-handlers($handlers);
+            xml6_gbl::restore-error-handlers($handlers);
         }
-
     }
     $rv;
 }

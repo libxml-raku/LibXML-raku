@@ -64,7 +64,7 @@ subtest 'findnodes basic', {
         flunk('Attribute selection (AT-KEY)');
     }
 
-    my LibXML::Text $x .= new: :content(1234);
+    my LibXML::Text $x = $dom.create: LibXML::Text, :content(1234);
     with $x {
         is( .getData(), "1234", 'getData' );
     }

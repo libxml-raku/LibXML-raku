@@ -1,10 +1,13 @@
 #| LibXML Attribute nodes
-unit class LibXML::Attr is repr('CPointer');
+unit class LibXML::Attr;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
 use W3C::DOM;
 
 also is LibXML::Node;
+also does LibXML::_Rawish[xmlAttr, <atype name serializeContent>];
 also does W3C::DOM::Attr;
 
 =begin pod
@@ -29,10 +32,9 @@ also does W3C::DOM::Attr;
     the class relies on the W3C DOM documentation.
 =end pod
 
-use LibXML::Raw;
 use LibXML::Types :QName;
 use Method::Also;
-use NativeCall;
+#use NativeCall;
 
 =begin pod
     =head2 Methods
@@ -42,10 +44,10 @@ use NativeCall;
     Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
-method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!) {
+method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!, *%c) {
     my xmlDoc $doc = .raw with $owner;
     my xmlAttr:D $raw := xmlAttr.new( :$name, :$value, :$doc );
-    self.box: $raw;
+    self.box: $raw, |%c;
 }
 =begin pod
     =head3 method new
@@ -55,12 +57,12 @@ method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!) {
     Class constructor.
 =end pod
 
-method raw handles <atype name serializeContent> {
-    nativecast(xmlAttr, self);
-}
+#method raw handles <atype name serializeContent> {
+#    nativecast(xmlAttr, self);
+#}
 
 #| Gets or sets the attribute stored for the value
-method value is rw returns Str { $.nodeValue }
+method value is rw returns Str { self.nodeValue }
 =para Str:U is returned if the attribute has no value
 
 #| Determine whether an attribute is of type ID.
@@ -72,8 +74,8 @@ method isId returns Bool { $.raw.isId.so }
     In XML documents, all "xml:id" attributes are considered to be of type ID.
 =end pod
 
-method Str is also<getValue> { $.nodeValue}
-method setValue(Str $_) { $.nodeValue = $_ }
+method Str is also<getValue> { self.nodeValue}
+method setValue(Str $_) { self.nodeValue = $_ }
 method gist(|c) { $.raw.Str(|c).trim }
 method ast { self.nodeName => self.nodeValue }
 

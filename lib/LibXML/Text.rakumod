@@ -1,19 +1,19 @@
 #| LibXML Text Nodes
-unit class LibXML::Text is repr('CPointer');
+unit class LibXML::Text;
 
 use LibXML::Node;
+use LibXML::Raw;
+use LibXML::_Rawish;
 use LibXML::_CharacterData;
 use W3C::DOM;
-
-also is LibXML::Node;
-also does LibXML::_CharacterData;
-also does W3C::DOM::Text;
-
-use LibXML::Raw;
 use Method::Also;
 use NativeCall;
 
-method raw { nativecast(xmlTextNode, self) }
+also is LibXML::Node;
+also does LibXML::_CharacterData;
+also does LibXML::_Rawish[xmlTextNode];
+also does W3C::DOM::Text;
+
 method data is also<text content ast> is rw handles<substr substr-rw> { $.raw.content };
 
 =begin pod
@@ -51,19 +51,15 @@ method data is also<text content ast> is rw handles<substr substr-rw> { $.raw.co
 
 =head2 Description
 
-Unlike the DOM specification, LibXML implements the text node as the base class
-of all character data node. Therefore there exists no CharacterData class. This
-allows one to apply methods of text nodes also to Comments CDATA-sections and
-Processing instruction nodes.
-
-The DOM methods are provided for compatibility with ported Perl code.
+LibXML implements the DOM C<CharacterData> abstract class via the L<LibXML::_CharacterData> role. This
+role is also applied to to Comments CDATA-sections and Processing instruction nodes.
 
 `data` provides a proxy to a rw string, which allows for idiomatic Raku string manipulation and update.
 
 
 =head2 Methods
 
-The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here. 
+The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here.
 
 Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation. 
 

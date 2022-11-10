@@ -3,12 +3,13 @@ use NativeCall;
 use LibXML::Raw;
 use LibXML::Raw::Defs :$XML2, :$BIND-XML2;
 use LibXML::Enums;
+use LibXML::X;
 
-class X::LibXML is Exception {
+class X::LibXML::Domain does X::LibXML {
 =begin pod
     =head2 Description
 
-    =para The X::LibXML exception class hierarchy interfaces to I<libxml2>'s structured error support. If LibXML is compiled with structured error
+    =para The X::LibXML::Domain exception class hierarchy interfaces to I<libxml2>'s structured error support. If LibXML is compiled with structured error
     support, all errors reported by libxml2 are transformed to X::LibXML
     exception objects. These objects automatically serialize to the corresponding error
     messages when printed or used in a string operation, but as objects, can also
@@ -34,7 +35,7 @@ class X::LibXML is Exception {
     has X::LibXML $.prev is rw;
 
 =begin pod
-    =head2 Methods common to all X::LibXML exceptions
+    =head2 Methods common to all X::LibXML::Domain exceptions
 
     =head3 method message
 
@@ -88,12 +89,12 @@ class X::LibXML is Exception {
 }
 
 #| LibXML ad-hoc errors
-class X::LibXML::AdHoc is X::LibXML {
+class X::LibXML::AdHoc is X::LibXML::Domain {
     has Exception:D $.error is required;
 #| Ad-hoc exceptions from Raku XPath functions
     subset XPath of ::?CLASS where .domain-num == XML_FROM_XPATH;
     subset IO    of ::?CLASS where .domain-num == XML_FROM_IO;
-    method message { self.domain ~ ' error: ' ~ $!error.message }
+    method message { self.domain ~ ' error: ' ~ $!error.message #`{ ~ "\n" ~ $!error.backtrace.Str.indent(4) } }
 }
 =begin pod
     =para
@@ -109,13 +110,13 @@ class X::LibXML::AdHoc is X::LibXML {
 =end pod
 
 #| LibXML Reader exceptions
-class X::LibXML::OpFail is X::LibXML {
+class X::LibXML::OpFail is X::LibXML::Domain {
     has Str:D $.what = 'Read';
     has Str:D $.op is required;
     method message { "XML $!what $!op operation failed" }
 }
 
-class X::LibXML::TooManyErrors is X::LibXML {
+class X::LibXML::TooManyErrors is X::LibXML::Domain {
     has UInt:D $.max-errors is required;
     method msg { "Limit of $.max-errors warnings + errors reached" }
     method message {
@@ -125,7 +126,7 @@ class X::LibXML::TooManyErrors is X::LibXML {
 }
 
 #| LibXML Parser exceptions
-class X::LibXML::Parser is X::LibXML {
+class X::LibXML::Parser is X::LibXML::Domain {
 
     has Str  $.file;
     has UInt $.line;
