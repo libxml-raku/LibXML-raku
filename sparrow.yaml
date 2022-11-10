@@ -61,6 +61,18 @@ tasks:
 
           echo "Linux version: $os"
 
+          which raku
+          which zef
+
+          raku --version
+          zef --version
+          
+          zef update 
+          
+          zef info File::Directory::Tree
+
+          raku -MFile::Directory::Tree -e "say 'OK'"
+
           curl -sL https://rakudo.org/dl/rakudo/rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz \
           -o rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
           tar -xzf rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
