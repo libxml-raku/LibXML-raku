@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.9.1  2022-11-10T13:48:54+13:00
+   - fix LibXML::XPath::Context get-value() for LibXSLT
+
 0.9.0  2022-08-18T06:01:31+12:00
    - Simplify subclassing in complex cases
      This can now be done by inheriting from `LibXML::Config` and adding
