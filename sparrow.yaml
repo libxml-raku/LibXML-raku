@@ -63,7 +63,8 @@ tasks:
 
           curl -sL https://rakudo.org/dl/rakudo/rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz \
           -o rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
-          tar -xzf rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz          
+          tar -xzf rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
+          echo "activating rakudo version $version ..."
           eval "$(rakudo-moar-$version-01-linux-x86_64-gcc/scripts/set-env.sh)" > /dev/null 
 
           which raku
@@ -72,7 +73,14 @@ tasks:
           raku --version
           zef --version
           
+          zef update 
+          
+          zef info File::Directory::Tree
+
+          raku -MFile::Directory::Tree -e "say 'OK'"
+          
           cd source/
+          
           zef install . --deps-only --test-depends --build-depends --/test
           zef build .
           
