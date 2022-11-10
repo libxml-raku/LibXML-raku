@@ -1,7 +1,7 @@
 image:
   - melezhik/sparrow:debian
-  - melezhik/sparrow:ubuntu
-  - melezhik/sparrow:archlinux
+  # - melezhik/sparrow:ubuntu
+  # - melezhik/sparrow:archlinux
 tasks:
   -
     name: main
@@ -27,7 +27,7 @@ tasks:
     language: Raku
     config:
       list:
-        - 2022.06
+        # - 2022.06
         - 2022.07
     code: |
       my @state;
@@ -61,7 +61,7 @@ tasks:
 
           echo "Linux version: $os"
 
-          zef install --force-install --test File::Directory::Tree  
+          zef install --force-install --test File::Directory::Tree  -to=home
 
           curl -sL https://rakudo.org/dl/rakudo/rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz \
           -o rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
