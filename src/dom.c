@@ -21,7 +21,12 @@ DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list);
 
 static int _domIsDoc(xmlNodePtr node) {
-    return(node->type == XML_DOCUMENT_NODE || node->type == XML_HTML_DOCUMENT_NODE || node->type == XML_DOCB_DOCUMENT_NODE);
+    return(node->type == XML_DOCUMENT_NODE
+           || node->type == XML_HTML_DOCUMENT_NODE
+#ifdef LIBXML_DOCB_ENABLED
+           || node->type == XML_DOCB_DOCUMENT_NODE
+#endif
+        );
 }
 
 DLLEXPORT void
@@ -747,7 +752,9 @@ domGetNodeName(xmlNodePtr node) {
 
     case XML_DOCUMENT_NODE :
     case XML_HTML_DOCUMENT_NODE :
+#ifdef LIBXML_DOCB_ENABLED
     case XML_DOCB_DOCUMENT_NODE :
+#endif
         name = (const xmlChar*) "#document";
         break;
 
@@ -800,7 +807,7 @@ DLLEXPORT const xmlChar*
 domGetXPathKey(xmlNodePtr node) {
     const xmlChar* name = NULL;
 
-    switch (node->type) {
+    switch ((int)node->type) {
         case XML_COMMENT_NODE :
             name = (xmlChar*) "comment()";
             break;
@@ -813,7 +820,9 @@ domGetXPathKey(xmlNodePtr node) {
             break;
         case XML_DOCUMENT_NODE :
         case XML_HTML_DOCUMENT_NODE :
+#ifdef LIBXML_DOCB_ENABLED
         case XML_DOCB_DOCUMENT_NODE :
+#endif
         case XML_DOCUMENT_FRAG_NODE :
             name = (xmlChar*) "document()";
             break;
@@ -845,9 +854,11 @@ domGetASTKey(xmlNodePtr node) {
         case XML_HTML_DOCUMENT_NODE :
             name = (xmlChar*) "#html";
             break;
+#ifdef LIBXML_DOCB_ENABLED
         case XML_DOCB_DOCUMENT_NODE :
             name = (xmlChar*) "#docb";
             break;
+#endif
         case XML_DOCUMENT_FRAG_NODE :
             name = (xmlChar*) "#fragment";
             break;
@@ -1362,9 +1373,11 @@ domNodeType(xmlChar* name) {
                         else if (xmlStrcmp( name, (xmlChar*) "#document-fragment" ) == 0) {
                             node_type = XML_DOCUMENT_FRAG_NODE;
                         }
+#ifdef LIBXML_DOCB_ENABLED
                         else if (xmlStrcmp( name, (xmlChar*) "#docbook" ) == 0) {
                             node_type = XML_DOCB_DOCUMENT_NODE;
                         }
+#endif
                         break;
 
                     case 'h':
