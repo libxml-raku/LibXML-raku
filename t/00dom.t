@@ -27,14 +27,14 @@ ok $doc.doc === $doc, 'doc self-root';
 my $a = $doc.first;
 is $a.tag, 'a';
 is $a.first, '    ';
-is $a.first(:!blank), '<b/>';
-is $a.first('node()'), '    ';
-is $a.first('b'), '<b/>';
+is $a.first(:!blank), '<b/>', 'first non-blank';
+is $a.first('node()'), '    ', 'first node()';
+is $a.first('b'), '<b/>', 'first elem-name';
 is-deeply $a.first('XX'), LibXML::Node;
 
 is $a.last, ' ';
 is $a.last(:!blank), '<c/>';
-is $a.last('node()'), ' ';
+is $a.last('node()'), ' ', 'last node';
 is $a.last('b'), '<b/>';
 is $a.last('c'), '<c/>';
 is $a.elements, '<b/><c/>', 'elements()';

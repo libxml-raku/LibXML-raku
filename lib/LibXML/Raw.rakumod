@@ -195,7 +195,7 @@ class xmlCharEncodingHandler is repr(Opaque) is export {
 
 # subsets
 sub xmlParseCharEncoding(Str --> int32) is export is native($XML2) {*}
-my subset xmlEncodingStr of Str is export where {!.defined || xmlCharEncodingHandler::Find($_).defined}
+my subset xmlEncodingStr of Str is export where {!.defined || xmlParseCharEncoding($_).defined}
 
 
 #| List structure used when there is an enumeration in DTDs.
