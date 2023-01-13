@@ -25,11 +25,11 @@ class LibXML::SAX::Handler::XML
     method startElement($name, :%attribs) is sax-cb {
         my XML::Element $elem .= new: :$name, :%attribs;
         # append and step down
-        with $!doc {
-            $!node.append: $elem;
+        with $!node {
+            .append: $elem;
         }
         else {
-            $_ .= new: :root($elem);
+            $!doc .= new: :root($elem);
         }
         $!node = $elem;
     }
