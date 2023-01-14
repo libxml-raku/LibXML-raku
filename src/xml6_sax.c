@@ -1,5 +1,6 @@
 #include "xml6.h"
 #include "xml6_sax.h"
+#include <string.h>
 
 DLLEXPORT void xml6_sax_set_internalSubset(xmlSAXHandlerPtr self, internalSubsetSAXFunc func) {
     self->internalSubset = func;
@@ -112,10 +113,12 @@ DLLEXPORT void xml6_sax_set_externalSubset(xmlSAXHandlerPtr self, externalSubset
 }
 
 DLLEXPORT void xml6_sax_set_startElementNs(xmlSAXHandlerPtr self, startElementNsSAX2Func func) {
+  self->startElement = NULL;
   self->startElementNs = func;
 }
 
 DLLEXPORT void xml6_sax_set_endElementNs(xmlSAXHandlerPtr self, endElementNsSAX2Func func) {
+  self->endElement = NULL;
   self->endElementNs = func;
 }
 
@@ -148,3 +151,18 @@ DLLEXPORT void xml6_sax_locator_set_getColumnNumber(xmlSAXLocatorPtr self, void 
   self->getColumnNumber = func;
 }
 
+// Helper functions
+
+DLLEXPORT xmlChar* xml6_sax_slice(xmlChar* start, xmlChar* end) {
+  if (!start || !end || end < start) {
+    return NULL;
+  }
+  else {
+    int buf_len = end - start;
+    xmlChar* buf = malloc(buf_len);
+    strncpy((char*)buf, (char*)start, buf_len);
+    buf[buf_len] = 0;
+    fprintf(stderr, "buf='%s'\n", buf);
+    return buf;
+  }
+}

@@ -8,6 +8,11 @@ class LibXML::SAX::Builder
 
 Builds SAX callback sets
 
+class LibXML::SAX::Builder::NsAtt
+---------------------------------
+
+for marshalling of startElementNs attributes
+
 Description
 -----------
 

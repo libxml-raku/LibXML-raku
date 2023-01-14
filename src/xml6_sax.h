@@ -75,4 +75,6 @@ DLLEXPORT void xml6_sax_locator_set_getLineNumber(xmlSAXLocatorPtr, void *func);
 
 DLLEXPORT void xml6_sax_locator_set_getColumnNumber(xmlSAXLocatorPtr, void *func);
 
+DLLEXPORT xmlChar* xml6_sax_slice(xmlChar*, xmlChar*);
+
 #endif /* __XML6_SAX_H */

@@ -1,4 +1,10 @@
 {{$NEXT}}
+   - Add :%attribs argument to startElementNs() SAX handler
+
+0.9.2  2022-12-02T10:49:43+13:00
+   - fix valgrind errors in xmlEncodingStr subset.
+   - remove references to DocBook (DOCB). Not used in the Raku bindings,
+     deprecated in libxml2, and causing compilation warnings.
 
 0.9.1  2022-11-10T13:48:54+13:00
    - fix LibXML::XPath::Context get-value() for LibXSLT

@@ -279,7 +279,7 @@ method version is rw returns Version {
     Proxy.new(
         FETCH => { Version.new($.raw.version) },
         STORE => -> $, Str() $_ {
-            $.raw.version = Version.new($_).Str;
+            $.raw.version = .Version.Str;
     });
 }
 

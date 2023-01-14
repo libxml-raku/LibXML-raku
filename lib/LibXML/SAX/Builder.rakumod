@@ -2,12 +2,52 @@
 class LibXML::SAX::Builder {
 
     use LibXML::Raw;
-    use LibXML::Raw::Defs :$CLIB;
+    use LibXML::Raw::Defs :$CLIB, :$BIND-XML2;
     use LibXML::ErrorHandling;
     use LibXML::Node;
     use LibXML::Dtd::Entity;
 
     use NativeCall;
+
+    #| for marshalling of startElementNs attributes
+    class NsAtt is repr('CStruct') {
+        sub xml6_sax_slice(Pointer, Pointer --> Str) is native($BIND-XML2) {*};
+        has Str $.local-name;
+        has Str $.prefix;
+        has Str $.URI;
+        has Pointer $!value-start;
+        has Pointer $!value-end;
+        method key {
+            with $!prefix {
+                $_ ~ ':' ~ $!local-name
+            }
+            else {
+                $!local-name
+            }
+        }
+        method value {
+            xml6_sax_slice($!value-start, $!value-end);
+        }
+        
+    }
+    class NsAtts is repr('CPointer') {
+        my constant att-size = nativesizeof(NsAtt);
+        method Pointer { nativecast(Pointer, self) }
+        sub memcpy(Pointer:D, Pointer:D, size_t) is native($CLIB) {*}
+        method AT-POS(UInt:D $idx) {
+            my Pointer:D $src .= new(+self.Pointer  +  $idx * att-size);
+            given NsAtt.new -> $dest {
+                memcpy(nativecast(Pointer, $dest), $src, att-size);
+                $dest
+            }
+        }
+        method atts2Hash(UInt:D $elems) {
+            my % = (0 ..^ $elems).map: {
+                my $att := self[$_];
+                $att.key => $att;
+            }
+        }
+    }
 
     my role is-sax-cb[Str $name] is export(:is-sax-cb) {
         method sax-name { $name }
@@ -151,12 +191,17 @@ class LibXML::SAX::Builder {
                     $saxh.&callb($target, $data, :$ctx);
                 }
         },
-        # Introduced with SAX2 
+        # Introduced with SAX2
         'startElementNs' =>
             -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
-                    CATCH { default {callback-error $_ } }
-                    $saxh.&callb($local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :$atts-raw, :$ctx );
+                    CATCH { default {dd $_; callback-error $_ } }
+                    my $attribs := nativecast(NsAtts, $atts-raw);
+                    my UInt $n = $num-atts - $num-defaulted;
+                    my %attribs = .atts2Hash($n)
+                        with $attribs;
+ 
+                    $saxh.&callb($local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :%attribs, :$atts-raw, :$ctx );
                 }
         },
         'endElementNs' =>
@@ -188,7 +233,7 @@ class LibXML::SAX::Builder {
                 die "unknown SAX method $name. expected: $known";
             }
         }
-        for <Element ElementNS Document> {
+        for <Element ElementNS> {
             warn "'start$_', 'end$_' callbacks not paired"
                 if %seen{'start'~ $_}.so !=== %seen{'end'~ $_}.so
         }

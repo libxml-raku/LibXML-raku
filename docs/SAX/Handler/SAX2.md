@@ -122,6 +122,7 @@ Called when the end of an element has been detected.
     method startElementNs(
         Str $local-name,          # the local name of the element
         Str :$prefix,             # the element namespace prefix, if available
+        :%attributes,             # cooked attributes
         Str :$uri,                # the element namespace name, if available
         UInt :$num-namespaces,    # number of namespace definitions on that node
         CArray[Str] :$namespaces, # raw namespaces as name-value pairs

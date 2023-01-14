@@ -2,7 +2,7 @@ use v6;
 use Test;
 # minimal low-level bootstrapping tests for the sax parser
 
-plan 13;
+plan 16;
 use NativeCall;
 use LibXML;
 use LibXML::Raw;
@@ -50,6 +50,7 @@ is-deeply %atts-seen, %( :working<yup> ), 'atts';
 
 # 2. Subclassed LibXML::SAX::Handler
 
+use LibXML::SAX::Builder :&atts2Hash;
 use LibXML::SAX::Handler;
 
 class SaxHandler is LibXML::SAX::Handler {
@@ -63,18 +64,33 @@ class SaxHandler is LibXML::SAX::Handler {
     }
 }
 
-# low-level tests on native sax handlers
-@start-tags = ();
-@end-tags = ();
-%atts-seen = ();
-$sax-handler = SaxHandler.new.raw;
+class SaxHandlerNs is LibXML::SAX::Handler {
+    use LibXML::SAX::Builder :sax-cb;
+    method startElementNs($name, :%attribs) is sax-cb {
+        %atts-seen{.key} = .value.value
+            for %attribs;
+        @start-tags.push: $name; 
+    }
+    method endElementNs($name) is sax-cb {
+        @end-tags.push: $name; 
+    }
+}
 
-$ctx .= new: :$sax-handler, :$chunk;
-$ctx.ParseChunk(Blob.new, 0, 1); #terminate
+# low-level tests on native sax handlers 
+for SaxHandler, SaxHandlerNs -> $sax-handler-class {
+    @start-tags = ();
+    @end-tags = ();
+    %atts-seen = ();
+    dd $sax-handler-class;
+    $sax-handler = $sax-handler-class.new.raw;
 
-is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
-is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
-is-deeply %atts-seen, %( :working<yup> ), 'atts';
+    $ctx .= new: :$sax-handler, :$chunk;
+    $ctx.ParseChunk(Blob.new, 0, 1); #terminate
+
+    is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
+    is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
+    is-deeply %atts-seen, %( :working<yup> ), 'atts';
+}
 
 # 3. Basic use of LibXML::SAX::Builder::XML
 
