@@ -79,7 +79,7 @@ tasks:
           zef build .
           
           /usr/bin/time -o "${cache_root_dir}/${version}_time" \
-          zef test . && touch "${cache_root_dir}/${version}_ok"
+          zef test . --verbose && touch "${cache_root_dir}/${version}_ok"
           
     depends:
       -
