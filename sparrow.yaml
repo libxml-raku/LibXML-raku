@@ -61,8 +61,6 @@ tasks:
 
           echo "Linux version: $os"
 
-          zef install --force-install --test File::Directory::Tree  -to=home
-
           curl -sL https://rakudo.org/dl/rakudo/rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz \
           -o rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
           tar -xzf rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
@@ -75,15 +73,9 @@ tasks:
           raku --version
           zef --version
           
-          zef update 
-          
-          zef info File::Directory::Tree
-
-          raku -MFile::Directory::Tree -e "say 'OK'"
-          
           cd source/
           
-          zef install . --deps-only --test-depends --build-depends --/test
+          zef install . --deps-only --test-depends --build-depends --/test --to=home
           zef build .
           
           /usr/bin/time -o "${cache_root_dir}/${version}_time" \
