@@ -222,7 +222,7 @@ A DTD notation definition has been parsed
 
     method startElement(
         Str $name,                # the element name
-        :%attributes,             # cooked attributes
+        :%attribs,                # cooked attributes
         CArray[Str] :$atts-raw,   # raw attributes as name-value pairs (null terminated)
         xmlParserCtxt :$ctx,      # the raw user data (XML parser context)
     )
@@ -240,10 +240,11 @@ Called when the end of an element has been detected.
 
 =head4 method startElementNs
 
+    use LibXML::SAX::Builder :NsAtt;
     method startElementNs(
         Str $local-name,          # the local name of the element
         Str :$prefix,             # the element namespace prefix, if available
-        :%attributes,             # cooked attributes
+        NsAtt :%attribs,          # cooked attributes
         Str :$uri,                # the element namespace name, if available
         UInt :$num-namespaces,    # number of namespace definitions on that node
         CArray[Str] :$namespaces, # raw namespaces as name-value pairs
@@ -254,6 +255,14 @@ Called when the end of an element has been detected.
     )
 
 SAX2 callback when an element start has been detected by the parser. It provides the namespace informations for the element, as well as the new namespace declarations on the element.
+
+`:%attribs` values are of type `NsAtt` which has the following accessors:
+
+=item `name`
+=item `prefix`
+=item `key` - `name` or `name`:`prefix`
+=item `URI`
+=item value
 
 =head4 method endElementNs
 
