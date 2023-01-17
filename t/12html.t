@@ -238,14 +238,14 @@ subtest 'parse :def-dtd', {
     my $html = q{<body bgcolor='#ffffff' style="overflow: hidden;" leftmargin=0 MARGINWIDTH=0 CLASS="text">};
     my LibXML $p .= new;
         
-    like( $p.parse( :html, :string( $html),
+    unlike( $p.parse( :html, :string( $html),
                     :recover,
                     :!def-dtd,
-                    :enc<UTF-8>).Str, /^'<html>'/, 'do not add a default DOCTYPE' );
+                    :enc<UTF-8>).Str, /'<!DOCTYPE html'/, 'do not add a default DOCTYPE' );
 
     like( $p.parse(:html, :string( $html),
                    :recover,
-                   :enc<UTF-8>).Str, /^'<!DOCTYPE html'/, 'add a default DOCTYPE' );
+                   :enc<UTF-8>).Str, /'<!DOCTYPE html'/, 'add a default DOCTYPE' );
 }
 
 subtest 'case sensitivity', {

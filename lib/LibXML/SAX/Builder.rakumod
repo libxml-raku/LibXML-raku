@@ -10,7 +10,7 @@ class LibXML::SAX::Builder {
     use NativeCall;
 
     #| for marshalling of startElementNs attributes
-    class NsAtt is repr('CStruct') {
+    class NsAtt is repr('CStruct') is export(:NsAtt) {
         sub xml6_sax_slice(Pointer, Pointer --> Str) is native($BIND-XML2) {*};
         has Str $.local-name;
         has Str $.prefix;
@@ -195,10 +195,10 @@ class LibXML::SAX::Builder {
         'startElementNs' =>
             -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
-                    CATCH { default {dd $_; callback-error $_ } }
+                    CATCH { default { callback-error $_ } }
                     my $attribs := nativecast(NsAtts, $atts-raw);
                     my UInt $n = $num-atts - $num-defaulted;
-                    my %attribs = .atts2Hash($n)
+                    my NsAtt %attribs = .atts2Hash($n)
                         with $attribs;
  
                     $saxh.&callb($local-name, :$prefix, :$uri, :$num-namespaces, :$namespaces, :$num-atts, :$num-defaulted, :%attribs, :$atts-raw, :$ctx );

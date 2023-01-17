@@ -81,7 +81,6 @@ for SaxHandler, SaxHandlerNs -> $sax-handler-class {
     @start-tags = ();
     @end-tags = ();
     %atts-seen = ();
-    dd $sax-handler-class;
     $sax-handler = $sax-handler-class.new.raw;
 
     $ctx .= new: :$sax-handler, :$chunk;

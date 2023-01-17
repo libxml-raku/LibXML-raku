@@ -159,10 +159,9 @@ DLLEXPORT xmlChar* xml6_sax_slice(xmlChar* start, xmlChar* end) {
   }
   else {
     int buf_len = end - start;
-    xmlChar* buf = malloc(buf_len);
+    xmlChar* buf = malloc(buf_len + 1);
     strncpy((char*)buf, (char*)start, buf_len);
     buf[buf_len] = 0;
-    fprintf(stderr, "buf='%s'\n", buf);
     return buf;
   }
 }
