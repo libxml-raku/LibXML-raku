@@ -1189,7 +1189,7 @@ class htmlDoc is xmlDoc is repr('CStruct') is export {
         New($URI, $external-id);
     }
 
-    method dump(Bool:D :$format = True) {
+    method dump(Bool:D :$format = True) is DEPRECATED("see issue #90") {
         my AllocedStr $out .= new;
         my int32 $len;
 

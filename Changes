@@ -1,4 +1,6 @@
 {{$NEXT}}
+   - Deprecate HTML serialization via htmlDoc.dump() method in
+     favour of xml6_node_to_buf() with XML_SAVE_XHTML option #90
 
 0.9.3  2023-01-15T06:20:09+13:00
    - Add :%attribs argument to startElementNs() SAX handler

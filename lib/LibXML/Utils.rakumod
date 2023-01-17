@@ -10,6 +10,7 @@ sub output-options(UInt :$options is copy = 0,
                    Bool :$format,
                    Bool :$skip-xml-declaration = $config.skip-xml-declaration,
                    Bool :$tag-expansion = $config.tag-expansion,
+                   Bool :$html,
     # **DEPRECATED**
                    Bool :$skip-decl, Bool :$expand,
                    ) is export(:output-options) {
@@ -20,7 +21,7 @@ sub output-options(UInt :$options is copy = 0,
     warn ':expand option is deprecated, please use :tag-expansion'
         with $expand;
 
-    for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY {
+    for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY, $html => XML_SAVE_XHTML {
         $options +|= .value if .key;
     }
 

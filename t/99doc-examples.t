@@ -116,9 +116,9 @@ subtest 'LibXML::Document' => {
     # tested in 03doc.t
     ## $doc.save: :$io;
     $str = $doc.Str: :html;
-    like $str, /'<!DOCTYPE doc>'/;
+    like $str, /'<!DOCTYPE doc'/;
     $str = $doc.serialize-html();
-    like $str, /'<!DOCTYPE doc>'/;
+    like $str, /'<!DOCTYPE doc'/;
     my $bool = $doc.is-valid();
     $doc.validate();
     my $root = $doc.documentElement();

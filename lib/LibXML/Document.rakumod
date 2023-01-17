@@ -359,7 +359,6 @@ method Str(
     ::?CLASS:D $doc is copy:
     LibXML::Config :$config = $.config,
     Bool :$skip-dtd = $config.skip-dtd,
-    Bool :$html = $.raw.isa(htmlDoc),
     Bool :$C14N,
     |c --> Str) {
 
@@ -368,9 +367,12 @@ method Str(
         $doc.getInternalSubset.unbindNode;
     }
 
-    when $C14N { $doc.canonicalize(|c) }
-    when $html { $doc.serialize-html(|c) }
-    default { $doc.raw.Str: options => output-options(:$config, |c); }
+    if $C14N {
+        $doc.canonicalize(|c)
+    }
+    else  {
+        $doc.raw.Str: options => output-options(:$config, |c);
+    }
 }
 =begin pod
     =head3 method Str
@@ -426,14 +428,7 @@ method Str(
 =end pod
 
 #| Serialize to HTML.
-method serialize-html(Bool :$format = True --> Str) {
-    my buf8 $buf;
-
-    given self.raw -> xmlDoc:D $_ {
-        my htmlDoc:D $html-doc = nativecast(htmlDoc, $.raw);
-        $html-doc.dump(:$format);
-    }
-}
+method serialize-html(|c) { self.Str: :html, |c; }
 =begin pod
     =para Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 =end pod
