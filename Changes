@@ -1,6 +1,8 @@
 {{$NEXT}}
+
+0.9.4  2023-01-19T06:26:19+13:00
    - Deprecate HTML serialization via htmlDoc.dump() method in
-     favour of xml6_node_to_buf().
+     favour of xml6_node_to_buf(), which uses xmlSaveTree().
    - Added node method isHTMLish().  This is used to default
      the :$html option in Str() and Blob() methods.
 
