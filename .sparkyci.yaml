@@ -1,8 +1,0 @@
-init:
-
-  packages:
-    build-essential: {}
-    xml: {}
-
-main:
-  with-code-coverage: false
