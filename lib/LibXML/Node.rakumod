@@ -145,7 +145,7 @@ has $.xpath-class is built(:bind) = resolve-package('LibXML::XPath::Context');
 proto method raw(|) handles<
     domCheck
     getNodeName getNodeValue
-    isBlank hasAttributes hasChildNodes
+    isBlank isHTMLish hasAttributes hasChildNodes
     lookupNamespacePrefix lookupNamespaceURI
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
@@ -219,6 +219,13 @@ constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`,
         method isBlank() returns Bool
 
     True if this is a text node or processing instruction, and it contains only blank content
+
+    =head3 method isHTMLish
+
+        method isHTMLish() returns Bool
+
+    True if this is an HTML document (type `XML_HTML_DOCUMENT_NODE`) or is owned by an HTML document. Used internally to set `:$html` default value
+    for the `Blob` and `Str` methods.
 
 =end pod
 
@@ -825,8 +832,8 @@ multi method Str(LibXML::Node:D: :$C14N! where .so, |c) {
     `$node.Str( :C14N, |%opts)` is equivalent to `$node.canonicalize(|%opts)`
 =end pod
 
-multi method Str(LibXML::Node:D: |c) is default {
-    my $options = output-options(|c);
+multi method Str(LibXML::Node:D: :$html = self.isHTMLish, |c) is default {
+    my $options = output-options(:$html, |c);
     self.raw.Str(:$options);
 }
 =begin pod
@@ -835,6 +842,7 @@ multi method Str(LibXML::Node:D: |c) is default {
         method Str(
             Bool :$format, Bool :$tag-expansion,
             Bool :$skip-xml-declaration,
+            Bool :$html = self.isHTMLish,
             LibXML::Config :$config, # defaults for :skip-xml-declaration and :tag-expansion
         ) returns Str;
 
@@ -851,8 +859,8 @@ multi method Str(LibXML::Node:D: |c) is default {
     with libxml2.
 =end pod
 
-method Blob(Str :$enc, |c) {
-    my $options = output-options(|c);
+method Blob(Str :$enc, Bool :$html = self.isHTMLish, |c) {
+    my $options = output-options(:$html, |c);
     self.raw.Blob(:$enc, :$options);
 }
 =begin pod
@@ -861,7 +869,8 @@ method Blob(Str :$enc, |c) {
         method Blob(
             xmlEncodingStr :$enc = 'UTF-8',
             Bool :$format,
-            Bool :$tag-expansion
+            Bool :$tag-expansion,
+            Bool :$html = self.isHTMLish,
         ) returns Blob;
 
    Returns a binary representation  of the XML

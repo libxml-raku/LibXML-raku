@@ -360,6 +360,7 @@ method Str(
     LibXML::Config :$config = $.config,
     Bool :$skip-dtd = $config.skip-dtd,
     Bool :$C14N,
+    Bool :$html = self.isHTMLish,
     |c --> Str) {
 
     if $skip-dtd && $doc.getInternalSubset.defined {
@@ -371,7 +372,7 @@ method Str(
         $doc.canonicalize(|c)
     }
     else  {
-        $doc.raw.Str: options => output-options(:$config, |c);
+        $doc.raw.Str: options => output-options(:$config, :$html, |c);
     }
 }
 =begin pod
@@ -428,7 +429,7 @@ method Str(
 =end pod
 
 #| Serialize to HTML.
-method serialize-html(|c) { self.Str: :html, |c; }
+method serialize-html(|c --> Str) { self.Str: :html, |c; }
 =begin pod
     =para Equivalent to: .Str: :html, but doesn't allow `:skip-dtd` option.
 =end pod
@@ -440,6 +441,7 @@ method serialize-html(|c) { self.Str: :html, |c; }
         Bool() :$skip-dtd = $config.skip-dtd,
         xmlEncodingStr:D :$enc = self.encoding // 'UTF-8',
         Bool :$force,
+        Bool :$html = self.isHTMLish,
         |c  --> Blob) {
 
     if $skip-xml-declaration {
@@ -456,7 +458,7 @@ method serialize-html(|c) { self.Str: :html, |c; }
         $doc.getInternalSubset.unbindNode;
     }
 
-    my $options = output-options(:$skip-xml-declaration, |c);
+    my $options = output-options(:$skip-xml-declaration, :$html, |c);
     $doc.raw.Blob: :$enc, :$options;
 }
 =begin pod

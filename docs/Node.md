@@ -154,6 +154,12 @@ This function is not specified for any DOM level: It returns a canonical structu
 
 True if this is a text node or processing instruction, and it contains only blank content
 
+### method isHTMLish
+
+    method isHTMLish() returns Bool
+
+True if this is an HTML document (type `XML_HTML_DOCUMENT_NODE`) or is owned by an HTML document. Used internally to set `:$html` default value for the `Blob` and `Str` methods.
+
 ### method isSameNode
 
 ```raku
@@ -688,6 +694,7 @@ An optional parameter :$selector can be used to pass an [LibXML::XPathContext](h
     method Str(
         Bool :$format, Bool :$tag-expansion,
         Bool :$skip-xml-declaration,
+        Bool :$html = self.isHTMLish,
         LibXML::Config :$config, # defaults for :skip-xml-declaration and :tag-expansion
     ) returns Str;
 
@@ -704,7 +711,8 @@ An alias for Str. This function name was added to be more consistent with libxml
     method Blob(
         xmlEncodingStr :$enc = 'UTF-8',
         Bool :$format,
-        Bool :$tag-expansion
+        Bool :$tag-expansion,
+        Bool :$html = self.isHTMLish,
     ) returns Blob;
 
 Returns a binary representation of the XML node and its descendants encoded as `:$enc`.

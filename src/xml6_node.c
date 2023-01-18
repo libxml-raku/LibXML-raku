@@ -129,12 +129,16 @@ DLLEXPORT void xml6_node_set_content(xmlNodePtr self, xmlChar* new_content) {
     self->content = xmlStrdup((const xmlChar *) new_content);
 }
 
+DLLEXPORT int xml6_node_is_htmlish(xmlNodePtr self) {
+    return (    self
+            && (self->type == XML_HTML_DOCUMENT_NODE
+                || (self->doc
+                    && self->doc->type == XML_HTML_DOCUMENT_NODE))
+        );
+}
+
 DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr self, int options, size_t* len, char* encoding) {
     xmlChar* rv = NULL;
-
-    if (self && (self->type == XML_HTML_DOCUMENT_NODE || (self->doc && self->doc->type == XML_HTML_DOCUMENT_NODE))) {
-            options |= XML_SAVE_XHTML;
-    }
 
     if (!encoding || !encoding[0]) encoding = "UTF-8";
     if (len != NULL) *len = 0;

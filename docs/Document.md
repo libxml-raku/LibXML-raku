@@ -299,7 +299,7 @@ Similar to Str(), but doesn't interpret `:skip-dtd`, `:html` or `:C14N` options.
 
 ```raku
 method serialize-html(
-    Bool :$format = Bool::True
+    |c
 ) returns Str
 ```
 

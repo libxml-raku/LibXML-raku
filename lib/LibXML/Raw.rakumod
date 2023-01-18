@@ -915,6 +915,8 @@ class anyNode is export does LibXML::Raw::DOM::Node {
         } // Str;
     }
 
+    method xml6_node_is_htmlish(--> int32) is native($BIND-XML2) {*}
+    method isHTMLish { ? self.xml6_node_is_htmlish }
     method xml6_node_to_buf(int32 $opts, size_t $len is rw, Str $enc  --> Pointer[uint8]) is native($BIND-XML2) {*}
 
     method Blob(anyNode:D: int32 :$options = 0, xmlEncodingStr :$enc --> Blob) {
