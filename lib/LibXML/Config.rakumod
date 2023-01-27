@@ -95,6 +95,12 @@ method have-reader(--> Bool:D) {
     $have-reader //= resolve-package('LibXML::Reader').have-reader
 }
 
+#| Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) functionality.
+my $have-writer;
+method have-writer(--> Bool:D) {
+    $have-writer //= resolve-package('LibXML::Writer').have-writer
+}
+
 #| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
 my $have-schemas;
 method have-schemas(--> Bool:D) {

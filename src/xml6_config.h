@@ -4,6 +4,7 @@
 #include <libxml/xmlversion.h>
 
 DLLEXPORT int   xml6_config_have_libxml_reader(void);
+DLLEXPORT int   xml6_config_have_libxml_writer(void);
 DLLEXPORT int   xml6_config_have_threads(void);
 DLLEXPORT int   xml6_config_have_compression(void);
 DLLEXPORT char* xml6_config_version(void);
