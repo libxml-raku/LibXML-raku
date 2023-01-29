@@ -31,8 +31,8 @@ class xmlTextWriter is repr(Opaque) is export {
         NewTree($doc, $node, $compress);
     }
 
-    multi method new(Pointer[xmlDoc] :$doc!, :$compress = 0) {
-        NewDoc($doc, $compress);
+    multi method new(xmlBuffer32 :$buf!, Int :$compress = 0) {
+        NewMem($buf, $compress);
     }
 
 }

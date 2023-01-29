@@ -9,31 +9,14 @@ also does LibXML::ErrorHandling;
 use LibXML::Raw;
 use LibXML::Raw::TextWriter;
 use LibXML::Types :QName, :NCName;
-use LibXML::Document;
-use LibXML::Node;
 use Method::Also;
 use NativeCall;
 
-has xmlTextWriter $.raw is built;
-
-has LibXML::Document $.doc is built;
-has LibXML::Node     $.node is built;
+has xmlTextWriter $.raw is rw is built;
 
 #| Ensure libxml2 has been compiled with the tex-writer enabled
 method have-writer {
     ? xml6_config_have_libxml_writer();
-}
-
-multi method TWEAK(LibXML::Node :$!node!, LibXML::Document:D :$!doc = $!node.doc) {
-    my xmlDoc  $doc  = $!doc.raw;
-    my xmlNode $node = .raw with $!node;
-    $!raw = xmlTextWriter.new: :$doc, :$node;
-}
-
-multi method TWEAK(LibXML::Document:D :$!doc!) {
-    my xmlDoc  $doc  = $!doc.raw;
-    my xmlNode $node = .raw with $!node;
-    $!raw = xmlTextWriter.new: :$doc, :$node;
 }
 
 method recover is also<suppress-errors suppress-warnings> { False }

@@ -1,8 +1,9 @@
 use Test;
-plan 3;
+plan 4;
 
-use LibXML::Writer;
 use LibXML::Document;
+use LibXML::Writer::Buffer;
+use LibXML::Writer::Document;
 use LibXML::Element;
 
 unless LibXML::Writer.have-writer {
@@ -10,11 +11,21 @@ unless LibXML::Writer.have-writer {
     exit;
 }
 
-pass "loaded LibXML::Writer";
+subtest 'buffer writer sanity', {
+    my LibXML::Writer::Buffer:D $writer .= new;
+    ok $writer.raw.defined;
+    $writer.startDocument();
+    $writer.startElement('Foo');
+    $writer.endElement;
+    $writer.endDocument;
+    $writer.flush;
+    is $writer.Str.lines.join, '<?xml version="1.0"?><Foo/>';
+}
 
-subtest 'doc-writer', {
+subtest 'constructed root', {
     my LibXML::Document $doc .= new;
-    my LibXML::Writer $writer .= new: :$doc;
+    my LibXML::Writer::Document:D $writer .= new: :$doc;
+    ok $writer.raw.defined;
     $writer.startDocument();
     $writer.startElement('Foo');
     $writer.endElement;
@@ -23,16 +34,30 @@ subtest 'doc-writer', {
     is $writer.doc.root.Str, '<Foo/>';
 }
 
-
-subtest 'node-writer', {
+subtest 'nested child contruction', {
     my LibXML::Document $doc .= new;
     $doc.root = $doc.createElement('Foo');
     my LibXML::Element $node = $doc.root.addChild:  $doc.createElement('Bar');
-    my LibXML::Writer $writer .= new: :$node;
+    my LibXML::Writer::Document $writer .= new: :$node;
 
     $writer.startDocument();
     $writer.startElement('Baz');
     $writer.endElement;
     $writer.endDocument;
     is $writer.doc.root.Str, '<Foo><Bar><Baz/></Bar></Foo>';
+}
+
+subtest 'late root attachment', {
+    my LibXML::Element $node .= new('Foo');
+    my LibXML::Document $doc .= new;
+    my LibXML::Writer::Document $writer .= new: :$node, :$doc;
+
+    $writer.startDocument();
+    $writer.startElement('Baz');
+    $writer.endElement;
+    $writer.endDocument;
+    note $writer.doc.Str;
+    is $writer.node.Str, '<Foo><Baz/></Foo>';
+    $doc.root = $node;
+    is $writer.doc.root.Str, '<Foo><Baz/></Foo>';
 }
