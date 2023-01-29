@@ -1,10 +1,7 @@
 unit class LibXML::Writer;
 
-use LibXML::ErrorHandling;
 use LibXML::_Configurable;
-
 also does LibXML::_Configurable;
-also does LibXML::ErrorHandling;
 
 use LibXML::Raw;
 use LibXML::Raw::TextWriter;
@@ -19,11 +16,8 @@ method have-writer {
     ? xml6_config_have_libxml_writer();
 }
 
-method recover is also<suppress-errors suppress-warnings> { False }
-
 method !write(Str:D $op, |c) is hidden-from-backtrace {
     my Int $rv := $!raw."$op"(|c);
-    self.flush-errors;
     fail X::LibXML::OpFail.new(:what<Write>, :$op)
         if $rv < 0;
     $rv;
@@ -45,10 +39,14 @@ method endDocument { self!write('endDocument')}
 method startElement(QName $name) { self!write('startElement', $name)}
 method endElement { self!write('endElement')}
 method flush { self!write('flush')}
-
-submethod DESTROY {
+method close {
     with $!raw {
         .flush;
         .Free;
+        $_ = Nil;
     }
+}
+
+submethod DESTROY {
+    self.close;
 }

@@ -1,9 +1,10 @@
 use Test;
-plan 4;
+plan 5;
 
 use LibXML::Document;
 use LibXML::Writer::Buffer;
 use LibXML::Writer::Document;
+use LibXML::Writer::File;
 use LibXML::Element;
 
 unless LibXML::Writer.have-writer {
@@ -56,8 +57,21 @@ subtest 'late root attachment', {
     $writer.startElement('Baz');
     $writer.endElement;
     $writer.endDocument;
-    note $writer.doc.Str;
     is $writer.node.Str, '<Foo><Baz/></Foo>';
     $doc.root = $node;
     is $writer.doc.root.Str, '<Foo><Baz/></Foo>';
+}
+
+subtest 'file', {
+    use File::Temp;
+    my (Str:D $file) = tempfile();
+    my LibXML::Writer::File $writer .= new: :$file;
+
+    $writer.startDocument();
+    $writer.startElement('Baz');
+    $writer.endElement;
+    $writer.endDocument;
+    $writer.close;
+    my $io = $file.IO;
+    is $io.lines.join, '<?xml version="1.0"?><Baz/>';
 }

@@ -79,6 +79,7 @@
     "LibXML::Writer": "lib/LibXML/Writer.rakumod",
     "LibXML::Writer::Buffer": "lib/LibXML/Writer/Buffer.rakumod",
     "LibXML::Writer::Document": "lib/LibXML/Writer/Document.rakumod",
+    "LibXML::Writer::File": "lib/LibXML/Writer/File.rakumod",
     "LibXML::X": "lib/LibXML/X.rakumod",
     "LibXML::XPath::Context": "lib/LibXML/XPath/Context.rakumod",
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",

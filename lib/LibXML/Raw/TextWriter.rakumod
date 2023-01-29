@@ -13,7 +13,7 @@ class xmlTextWriter is repr(Opaque) is export {
 
     our sub NewDoc(Pointer[xmlDoc] is rw, int32 --> xmlTextWriter) is symbol('xmlNewTextWriterDoc') is native($XML2) {*}
     our sub NewTree(xmlDoc, xmlNode, int32 --> xmlTextWriter) is symbol('xmlNewTextWriterTree') is native($XML2) {*}
-    our sub NewFile(xmlCharP --> xmlTextWriter) is symbol('xmlNewTextWriterFilename') is native($XML2) {*}
+    our sub NewFile(xmlCharP, int32 --> xmlTextWriter) is symbol('xmlNewTextWriterFilename') is native($XML2) {*}
     our sub NewMem(xmlBuffer32, int32 --> xmlTextWriter) is symbol('xmlNewTextWriterMemory') is native($XML2) {*}
     our sub NewPushParser(xmlParserCtxt, int32 --> xmlTextWriter) is symbol('xmlNewTextWriterPushParser') is native($XML2) {*}
 
@@ -27,12 +27,16 @@ class xmlTextWriter is repr(Opaque) is export {
 
     method flush returns int32 is symbol('xmlTextWriterFlush') is native($XML2) {*}
 
-    multi method new(xmlDoc :$doc!, xmlNode :$node!, Int :$compress = 0) {
+    multi method new(xmlDoc:D :$doc!, xmlNode :$node!, Int :$compress = 0) {
         NewTree($doc, $node, $compress);
     }
 
-    multi method new(xmlBuffer32 :$buf!, Int :$compress = 0) {
+    multi method new(xmlBuffer32:D :$buf!, Int :$compress = 0) {
         NewMem($buf, $compress);
+    }
+
+    multi method new(Str:D :$file!, Int :$compress = 0) {
+        NewFile($file, $compress);
     }
 
 }
