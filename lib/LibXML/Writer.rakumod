@@ -6,6 +6,7 @@ also does LibXML::_Configurable;
 use LibXML::Raw;
 use LibXML::Raw::TextWriter;
 use LibXML::Types :QName, :NCName;
+use LibXML::ErrorHandling;
 use Method::Also;
 use NativeCall;
 

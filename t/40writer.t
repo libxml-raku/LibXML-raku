@@ -1,10 +1,11 @@
 use Test;
-plan 5;
+plan 6;
 
 use LibXML::Document;
 use LibXML::Writer::Buffer;
 use LibXML::Writer::Document;
 use LibXML::Writer::File;
+use LibXML::Writer::PushParser;
 use LibXML::Element;
 
 unless LibXML::Writer.have-writer {
@@ -74,4 +75,34 @@ subtest 'file', {
     $writer.close;
     my $io = $file.IO;
     is $io.lines.join, '<?xml version="1.0"?><Baz/>';
+}
+
+subtest 'push-parser', {
+    use  LibXML::SAX::Handler::SAX2;
+    class SAXShouter is LibXML::SAX::Handler::SAX2 {
+        use LibXML::SAX::Builder :sax-cb;
+        method startElement($name, |c) is sax-cb {
+            nextwith($name.uc, |c);
+        }
+        method endElement($name, |c) is sax-cb {
+            nextwith($name.uc, |c);
+        }
+        method characters($chars, |c) is sax-cb {
+            nextwith($chars.uc, |c);
+        }
+    }
+
+    my SAXShouter $sax-handler .= new;
+    my LibXML::Writer::PushParser $writer .= new: :$sax-handler;
+
+    $writer.startDocument();
+    $writer.startElement('Foo');
+    $writer.startElement('Bar');
+    $writer.endElement;
+    $writer.flush;
+    $writer.push('<Baz/>');
+    $writer.endElement;
+    $writer.endDocument;
+    my $doc = $writer.finish-push;
+    is $doc.Str.lines.join, '<?xml version="1.0" encoding="UTF-8"?><FOO><BAR/><BAZ/></FOO>';
 }

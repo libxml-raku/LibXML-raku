@@ -39,4 +39,8 @@ class xmlTextWriter is repr(Opaque) is export {
         NewFile($file, $compress);
     }
 
+    multi method new(xmlParserCtxt:D :$ctxt!, Int :$compress = 0) {
+        NewPushParser($ctxt, $compress);
+    }
+
 }

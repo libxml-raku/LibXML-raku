@@ -6,7 +6,7 @@ class LibXML::PushParser {
     use Method::Also;
 
     has Bool $.html;
-    has LibXML::Parser::Context $!ctx;
+    has LibXML::Parser::Context $.ctxt is built;
 
     multi submethod TWEAK(Str :chunk($str)!, |c) {
         my $chunk = $str.encode;
@@ -17,14 +17,14 @@ class LibXML::PushParser {
         my \ctx-class = $!html ?? htmlPushParserCtxt !! xmlPushParserCtxt;
         my xmlSAXHandler $sax = .raw with $sax-handler;
         my xmlParserCtxt:D $raw = ctx-class.new: :$chunk, :$path, :$sax, :$enc;
-        $!ctx .= new: :$raw, :$sax-handler, |c;
+        $!ctxt .= new: :$raw, :$sax-handler, |c;
     }
 
     method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
-        $!ctx.try: :$recover, {
-            with $!ctx.raw {
+        $!ctxt.try: :$recover, {
+            with $!ctxt.raw {
                 .ParseChunk($chunk, $size, +$terminate);
-                $!ctx.close() if $terminate;
+                $!ctxt.close() if $terminate;
             }
             else {
                 die "parser has been finished";
@@ -41,14 +41,13 @@ class LibXML::PushParser {
         self!parse($chunk, |c);
     }
 
-    method finish-push(Str :$URI, Bool :$recover, :$sax-handler = $!ctx.sax-handler, |c) {
+    method finish-push(Str :$URI, Bool :$recover, :$sax-handler = $!ctxt.sax-handler, |c) {
         self!parse: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
-            unless $recover || $!ctx.wellFormed;
-        my xmlDoc $raw = $!ctx.publish();
-        my $input-compressed = $!ctx.input-compressed;
+            unless $recover || $!ctxt.wellFormed;
+        my xmlDoc $raw = $!ctxt.publish();
+        my $input-compressed = $!ctxt.input-compressed;
         my LibXML::Document $doc .= new: :$raw, :$URI, :$input-compressed;
-        $!ctx = Nil;
         with $sax-handler {
             .publish($doc)
         }
