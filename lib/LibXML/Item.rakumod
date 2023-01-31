@@ -96,6 +96,9 @@ multi method ast-to-xml(Pair $_) {
             $name .= substr(1);
             $config.class-from(XML_PI_NODE).new: :$name, :content($value), :$config;
         }
+        when $name eq 'xmlns' {
+            $config.class-from(XML_NAMESPACE_DECL).new: :URI($value), :$config;
+        }
         when $name.starts-with('xmlns:') {
             my $prefix = $name.substr(6);
             $config.class-from(XML_NAMESPACE_DECL).new: :$prefix, :URI($value), :$config;
