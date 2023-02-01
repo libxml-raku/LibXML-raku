@@ -39,6 +39,10 @@ method endDocument { self!write('endDocument')}
 
 method startElement(QName $name) { self!write('startElement', $name)}
 method endElement { self!write('endElement')}
+method writeElement(QName $name, Str $content?) { self!write('writeElement', $name, $content)}
+method writeComment(Str $content) { self!write('writeComment', $content.subst('-->', '__>', :g))}
+method writeText(Str $content) { self!write('writeString', $content)}
+
 method flush { self!write('flush')}
 method close {
     with $!raw {

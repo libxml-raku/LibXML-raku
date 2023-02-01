@@ -1,5 +1,5 @@
 use Test;
-plan 6;
+plan 7;
 
 use LibXML::Document;
 use LibXML::Writer::Buffer;
@@ -105,4 +105,23 @@ subtest 'push-parser', {
     $writer.endDocument;
     my $doc = $writer.finish-push;
     is $doc.Str.lines.join, '<?xml version="1.0" encoding="UTF-8"?><FOO><BAR/><BAZ/></FOO>';
+}
+
+sub tail($writer, &m) {
+    $writer.writeText: "\n";
+    &m($writer);
+    $writer.flush;
+    $writer.Str.lines.tail;
+}
+
+subtest 'writing methods', {
+    my LibXML::Writer::Buffer:D $writer .= new;
+    ok $writer.raw.defined;
+    $writer.startDocument();
+    $writer.startElement('Test');
+    is tail($writer, { .writeElement('Xxx', 'Yy>yy') }), "<Xxx>Yy&gt;yy</Xxx>";
+    is tail($writer, { .writeComment('Yy-->yy') }), "<!--Yy__>yy-->";
+    $writer.endElement;
+    $writer.endDocument;
+
 }

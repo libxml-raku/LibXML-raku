@@ -24,6 +24,10 @@ class xmlTextWriter is repr(Opaque) is export {
 
     method startElement(xmlCharP $name --> int32) is symbol('xmlTextWriterStartElement') is native($XML2) {*}
     method endElement(--> int32) is symbol('xmlTextWriterEndElement') is native($XML2) {*}
+    method writeElement(xmlCharP $name, xmlCharP $content --> int32) is symbol('xmlTextWriterWriteElement') is native($XML2) {*}
+
+    method writeComment(xmlCharP $content --> int32) is symbol('xmlTextWriterWriteComment') is native($XML2) {*}
+    method writeString(xmlCharP $content --> int32) is symbol('xmlTextWriterWriteString') is native($XML2) {*}
 
     method flush returns int32 is symbol('xmlTextWriterFlush') is native($XML2) {*}
 
@@ -43,4 +47,5 @@ class xmlTextWriter is repr(Opaque) is export {
         NewPushParser($ctxt, $compress);
     }
 
+    multi method new(|) { fail }
 }

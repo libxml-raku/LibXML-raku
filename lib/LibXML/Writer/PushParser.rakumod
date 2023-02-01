@@ -17,7 +17,7 @@ submethod TWEAK(:$chunk = '', |c) is hidden-from-backtrace {
 
 method close {
     with $!push-parser {
-        .ctxt.raw = Nil; # avoide double free
+        .ctxt.raw = Nil; # avoid double free
         $_ = Nil;
         callsame();
     }
