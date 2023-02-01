@@ -23,11 +23,19 @@ class xmlTextWriter is repr(Opaque) is export {
     method endDocument(--> int32) is symbol('xmlTextWriterEndDocument') is native($XML2) {*}
 
     method startElement(xmlCharP $name --> int32) is symbol('xmlTextWriterStartElement') is native($XML2) {*}
+    method startElementNS(xmlCharP $prefix, xmlCharP $name, xmlCharP $URI --> int32) is symbol('xmlTextWriterStartElementNS') is native($XML2) {*}
     method endElement(--> int32) is symbol('xmlTextWriterEndElement') is native($XML2) {*}
     method writeElement(xmlCharP $name, xmlCharP $content --> int32) is symbol('xmlTextWriterWriteElement') is native($XML2) {*}
+    method writeElementNS(xmlCharP $prefix, xmlCharP $name, xmlCharP $URI, xmlCharP $content --> int32) is symbol('xmlTextWriterWriteElementNS') is native($XML2) {*}
+
+    method writeAttribute(xmlCharP $name, xmlCharP $content --> int32) is symbol('xmlTextWriterWriteAttribute') is native($XML2) {*}
+    method writeAttributeNS(xmlCharP $prefix, xmlCharP $name, xmlCharP $URI, xmlCharP $content --> int32) is symbol('xmlTextWriterWriteAttributeNS') is native($XML2) {*}
 
     method writeComment(xmlCharP $content --> int32) is symbol('xmlTextWriterWriteComment') is native($XML2) {*}
+
     method writeString(xmlCharP $content --> int32) is symbol('xmlTextWriterWriteString') is native($XML2) {*}
+    method writeCDATA(xmlCharP $content --> int32) is symbol('xmlTextWriterWriteCDATA') is native($XML2) {*}
+    method writeRaw(xmlCharP $content --> int32) is symbol('xmlTextWriterWriteRaw') is native($XML2) {*}
 
     method flush returns int32 is symbol('xmlTextWriterFlush') is native($XML2) {*}
 

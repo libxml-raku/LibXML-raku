@@ -42,7 +42,7 @@ my role SAX2BaseClass {
         $ctx.xmlSAX2InternalSubset($name, $external-id, $system-id);
     }
 
-    method startElementNs($local-name, Str :$prefix!, Str :$uri!, UInt :$num-namespaces!, CArray :$namespaces!, UInt :$num-atts!, UInt :$num-defaulted!, CArray :$atts-raw!, Ctx :$ctx!) {
+    method startElementNs(Str:D $local-name, Str :$prefix!, Str :$uri!, UInt :$num-namespaces!, CArray :$namespaces!, UInt :$num-atts!, UInt :$num-defaulted!, CArray :$atts-raw!, Ctx :$ctx!) {
         $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts-raw);
     }
 

@@ -12,7 +12,7 @@ use NativeCall;
 
 has xmlTextWriter $.raw is rw is built;
 
-#| Ensure libxml2 has been compiled with the tex-writer enabled
+#| Ensure libxml2 has been compiled with the text-writer enabled
 method have-writer {
     ? xml6_config_have_libxml_writer();
 }
@@ -25,7 +25,7 @@ method !write(Str:D $op, |c) is hidden-from-backtrace {
 }
 
 multi trait_mod:<is>(
-    Method $m, # where {.yada && .count <= 1},
+    Method $m  where {.yada && .count <= 1},
     :$writer-raw!) {
     my $name := $m.name;
     $m.wrap(method (|c) is hidden-from-backtrace { self!write($name, |c) })
@@ -38,10 +38,25 @@ method startDocument(Str :$version, Str :$enc, Str :$stand-alone) { self!write('
 method endDocument { self!write('endDocument')}
 
 method startElement(QName $name) { self!write('startElement', $name)}
+method startElementNS(NCName $local-name, Str :$prefix, Str :$uri) { self!write('startElementNS', $prefix, $local-name, $uri)}
 method endElement { self!write('endElement')}
 method writeElement(QName $name, Str $content?) { self!write('writeElement', $name, $content)}
-method writeComment(Str $content) { self!write('writeComment', $content.subst('-->', '__>', :g))}
-method writeText(Str $content) { self!write('writeString', $content)}
+method writeElementNS(NCName $local-name, Str $content = '', Str :$prefix, Str :$uri) { self!write('writeElementNS', $prefix, $local-name, $uri, $content)}
+
+method writeAttribute(QName $name, Str $content) { self!write('writeAttribute', $name, $content)}
+method writeAttributeNS(NCName $local-name, Str $content, Str :$prefix, Str :$uri) { self!write('writeAttributeNS', $prefix, $local-name, $uri, $content)}
+
+multi method writeComment(Str:D $content where .contains('-->')) {
+    $content.split(/'-->'/).map({ $.writeComment($_) }).join;
+}
+multi method writeComment(Str:D $content) { self!write('writeComment', $content)}
+
+method writeText(Str:D $content) { self!write('writeString', $content)}
+multi method writeCDATA(Str:D $content where .contains(']]>')) {
+    $content.split(/<?after ']'><?before ']>'>/).map({ $.writeCDATA($_) }).join;
+}
+multi method writeCDATA(Str:D $content) { self!write('writeCDATA', $content)}
+method writeRaw(Str:D $content) { self!write('writeRaw', $content)}
 
 method flush { self!write('flush')}
 method close {

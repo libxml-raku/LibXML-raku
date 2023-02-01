@@ -119,8 +119,26 @@ subtest 'writing methods', {
     ok $writer.raw.defined;
     $writer.startDocument();
     $writer.startElement('Test');
-    is tail($writer, { .writeElement('Xxx', 'Yy>yy') }), "<Xxx>Yy&gt;yy</Xxx>";
-    is tail($writer, { .writeComment('Yy-->yy') }), "<!--Yy__>yy-->";
+
+    is tail($writer, { .writeElement('Xxx') }), '<Xxx/>';
+    is tail($writer, { .writeElement('Xxx', 'Yy>yy') }), '<Xxx>Yy&gt;yy</Xxx>';
+
+    is tail($writer, { .writeElementNS('Foo') }), '<Foo></Foo>';
+    is tail($writer, { .writeElementNS('Foo', 'x&y') }), '<Foo>x&amp;y</Foo>';
+    is tail($writer, { .writeElementNS('Foo', :prefix<p>) }), '<p:Foo></p:Foo>';
+    is tail($writer, { .writeElementNS('Foo', :uri<https::/example.org>) }), '<Foo xmlns="https::/example.org"></Foo>';
+    is tail($writer, { .writeElementNS('Foo', :prefix<p> :uri<https::/example.org>) }), '<p:Foo xmlns:p="https::/example.org"></p:Foo>';
+
+    is tail($writer, { .startElement('Foo'); .writeAttribute("k", "a&b"); .endElement() }), '<Foo k="a&amp;b"/>';
+    is tail($writer, { .startElementNS('Foo', :prefix<p>); .writeAttributeNS("k", "a&b", :prefix<q>); .endElement() }), '<p:Foo q:k="a&amp;b"/>';
+
+    is tail($writer, { .writeComment('Yy-->yy') }), '<!--Yy--><!--yy-->';
+
+    is tail($writer, { .writeText('A&B') }), 'A&amp;B';
+    is tail($writer, { .writeRaw('A&amp;B') }), 'A&amp;B';
+    is tail($writer, { .writeCDATA('A&B') }), '<![CDATA[A&B]]>';
+    is tail($writer, { .writeCDATA('A&B]]>') }), '<![CDATA[A&B]]]><![CDATA[]>]]>';
+
     $writer.endElement;
     $writer.endDocument;
 
