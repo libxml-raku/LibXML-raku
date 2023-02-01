@@ -171,8 +171,22 @@ class xmlBuffer32 is repr(Opaque) is export {
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlNodeDump') {*};
-    method Content(--> xmlCharP) is symbol('xmlBufferContent') is native($XML2) { * }
+    method Content(--> Pointer) is symbol('xmlBufferContent') is native($XML2) { * }
+    method Length(--> int32) is symbol('xmlBufferLength') is native($XML2) { * }
     method NotationDump(xmlNotation) is native($XML2) is symbol('xmlDumpNotationDecl') {*};
+    method Blob {
+        my buf8 $buf;
+        my $size = self.Length;
+        fail "buffer size $size < 0" unless $size >= 0;
+        if $size {
+            $buf .= allocate: $size;
+            my Pointer $content = self.Content
+                || fail "Null Buffer content";
+            CLib::memcpy($buf, $content, $size);
+        }
+        $buf;
+    }
+    method Str { self.Blob.decode }
     method Free() is native($XML2) is symbol('xmlBufferFree') {*};
     method new(--> xmlBuffer32:D) { New() }
 }
@@ -183,7 +197,21 @@ class xmlBuf is repr(Opaque) is export {
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlBufNodeDump') { * }
-    method Content(--> xmlCharP) is symbol('xmlBufContent') is native($XML2) { * }
+    method Content(--> Pointer) is symbol('xmlBufContent') is native($XML2) { * }
+    method Length(--> int32) is symbol('xmlBufLength') is native($XML2) { * }
+    method Blob {
+        my buf8 $buf;
+        my $size = self.Length;
+        fail "buffer size $size < 0" unless $size >= 0;
+        if $size {
+            $buf .= allocate: $size;
+            my Pointer $content = self.Content
+                || fail "Null Buffer content";
+            CLib::memcpy($buf, $content, $size);
+        }
+        $buf;
+    }
+    method Str { self.Blob.decode }
     method Free is symbol('xmlBufFree') is native($XML2) { * }
     method new(--> xmlBuf:D) { New() }
 }
@@ -404,7 +432,7 @@ class xmlNs is export is repr('CStruct') {
             $buf.WriteQuoted($_);
         }
 
-        my Str $content = $buf.Content;
+        my Str $content = $buf.Str;
         $buf.Free;
         $content;
     }
@@ -1227,7 +1255,7 @@ class xmlNotation is export {
     multi method Str(xmlNotation:D:){
         my xmlBuffer32 $buf .= new;
         $buf.NotationDump(self);
-        my Str $content = $buf.Content;
+        my Str $content = $buf.Str;
         $buf.Free;
         $content;
     }
