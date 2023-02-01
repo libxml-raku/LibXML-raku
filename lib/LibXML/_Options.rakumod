@@ -66,26 +66,25 @@ method option-exists(Str:D $k is copy) {
     (%OPTS{$k} // %OPTS{neg($k)}).defined;
 }
 
-method get-option(Str:D $k is copy) {
-    my $neg := ? $k.starts-with('no-');
-    $k .= substr(3) if $neg;
-    my $rv := self.can($k)
+multi method get-option(Str:D $k where .starts-with("no-")) {
+    ! $.get-option: $k.substr(3);
+}
+multi method get-option(Str:D $k) {
+    self.can($k)
         ?? self."$k"()
         !! $.get-flag($.flags, $k);
-    $neg ?? ! $rv !! $rv;
 }
-multi method set-option(Str:D $k is copy, $v is copy) {
-    my $neg := ? $k.starts-with('no-');
-    if $neg {
-        $k .= substr(3);
-        $v = ! $v;
-    }
-    my $rv := self.can($k)
-       ?? (self."$k"() = $v)
-       !! $.set-flag($.flags, $k, $v);
-    $neg ?? ! $rv !! $rv;
+
+multi method set-option(Str:D $k where .starts-with("no-"), $v) {
+    $.set-option($k.substr(3), !$v);
+}
+multi method set-option(Str:D $k, $v) {
+    self.can($k)
+        ?? (self."$k"() = $v)
+        !! $.set-flag($.flags, $k, $v);
 }
 multi method set-option(*%opt) { $.set-options(|%opt); }
+
 method set-options(*%opt) {
     my $rv := $.set-option(.key, .value) for %opt.sort;
     $rv;
