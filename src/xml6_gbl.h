@@ -26,8 +26,8 @@ DLLEXPORT void xml6_gbl_set_os_thread_generic_error_handler(xml6_gbl_MessageCall
 DLLEXPORT void* xml6_gbl_save_error_handlers(void);
 DLLEXPORT void xml6_gbl_restore_error_handlers(void*);
 
-DLLEXPORT const xmlChar* xml6_gbl_cache(xmlChar*);
-DLLEXPORT const xmlChar* xml6_gbl_cache_dup(const xmlChar* word);
-DLLEXPORT int xml6_gbl_cache_size(void);
+DLLEXPORT const xmlChar* xml6_gbl_dict(xmlChar*);
+DLLEXPORT const xmlChar* xml6_gbl_dict_dup(const xmlChar* word);
+DLLEXPORT int xml6_gbl_dict_size(void);
 
 #endif /* __XML6_GBL_H */

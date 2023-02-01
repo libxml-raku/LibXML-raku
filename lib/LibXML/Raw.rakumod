@@ -414,11 +414,11 @@ class xmlNs is export is repr('CStruct') {
 #| A SAX Locator.
 class xmlSAXLocator is repr('CStruct') is export {
     has Pointer  $.getPublicIdFunc is rw-ptr(
-        method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx --> xmlCharP) ) is native($BIND-XML2) {*}
+        method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx) ) is native($BIND-XML2) {*}
     );
 
     has Pointer $.getSystemIdFunc is rw-ptr(
-        method xml6_sax_locator_set_getSystemId( &cb (xmlParserCtxt $ctx --> xmlCharP) ) is native($BIND-XML2) {*}
+        method xml6_sax_locator_set_getSystemId( &cb (xmlParserCtxt $ctx) ) is native($BIND-XML2) {*}
     );
 
     has Pointer $.getLineNumberFunc is rw-ptr(

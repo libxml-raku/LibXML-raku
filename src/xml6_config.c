@@ -10,6 +10,14 @@ DLLEXPORT int xml6_config_have_libxml_reader(void) {
 #endif
 }
 
+DLLEXPORT int xml6_config_have_libxml_writer(void) {
+#ifdef LIBXML_WRITER_ENABLED
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 DLLEXPORT int xml6_config_have_threads(void) {
 #ifdef LIBXML_THREAD_ENABLED
     return 1;

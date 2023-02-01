@@ -51,7 +51,7 @@ has $.input-callbacks;
 has $.sax-handler;
 has $!published;
 
-method raw { $!raw }
+method raw is rw { $!raw }
 method close {
     $!input-compressed //= ? .Close()
         with $!raw;

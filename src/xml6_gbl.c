@@ -192,7 +192,7 @@ DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
     }
 }
 
-DLLEXPORT const xmlChar* xml6_gbl_cache(xmlChar* word) {
+DLLEXPORT const xmlChar* xml6_gbl_dict(xmlChar* word) {
     const xmlChar *key = NULL;
 
     if (word != NULL) {
@@ -214,7 +214,7 @@ DLLEXPORT const xmlChar* xml6_gbl_cache(xmlChar* word) {
     return key;
 }
 
-DLLEXPORT const xmlChar* xml6_gbl_cache_dup(const xmlChar* word) {
+DLLEXPORT const xmlChar* xml6_gbl_dict_dup(const xmlChar* word) {
     const xmlChar *key = NULL;
 
     if (word != NULL) {
@@ -235,7 +235,7 @@ DLLEXPORT const xmlChar* xml6_gbl_cache_dup(const xmlChar* word) {
 }
 
 DLLEXPORT int
-xml6_gbl_cache_size(void) {
+xml6_gbl_dict_size(void) {
 #ifdef DEBUG
     return _cache_size;
 #else

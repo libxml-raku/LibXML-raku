@@ -14,7 +14,7 @@ use LibXML::Types :QName;
 
 proto method config() handles <
       version config-version load-catalog
-      have-compression have-reader have-schemas have-threads
+      have-compression have-reader have-schemas have-threads have-writer
       skip-xml-declaration skip-dtd tag-expansion external-entity-loader> {*}
 multi method config(::?CLASS:U:) { LibXML::Config }
 multi method config(::?CLASS:D:) { nextsame }
