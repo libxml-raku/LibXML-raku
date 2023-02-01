@@ -788,7 +788,7 @@ domGetNodeName(xmlNodePtr node) {
         strcpy(buf, (char*)prefix);
         buf[prefix_len] = ':';
         strcpy(buf + prefix_len + 1, (char*)name);
-        name = xml6_gbl_cache((xmlChar*)buf);
+        name = xml6_gbl_dict((xmlChar*)buf);
     }
 
     return name;
@@ -799,7 +799,7 @@ static const xmlChar* _domPrepend(const xmlChar* name, char pfx) {
     xmlChar* buf = malloc(buf_len);
     buf[0] = pfx;
     strncpy((char*)buf+1, (char*)name, buf_len-1);
-    return xml6_gbl_cache(buf);
+    return xml6_gbl_dict(buf);
 }
 
 // Returns a name that can be used in an XPath filter expression
@@ -1758,7 +1758,7 @@ domGetNamespaceDeclURI(xmlNodePtr self, const xmlChar* prefix ) {
             ns = ns->next;
         }
     }
-    return xml6_gbl_cache_dup(rv);
+    return xml6_gbl_dict_dup(rv);
 }
 
 DLLEXPORT int
@@ -2053,7 +2053,7 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
     }
 
     xmlHashFree(hash, NULL);
-    return xml6_gbl_cache(rv);
+    return xml6_gbl_dict(rv);
 }
 
 DLLEXPORT int

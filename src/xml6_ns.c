@@ -29,5 +29,5 @@ DLLEXPORT const xmlChar* xml6_ns_unique_key(xmlNsPtr self) {
     if (self->prefix != NULL) rv = xmlStrdup(self->prefix);
     rv = xmlStrcat(rv, (const xmlChar *) "|");
     if (self->href != NULL) rv = xmlStrcat(rv, self->href);
-    return xml6_gbl_cache(rv);
+    return xml6_gbl_dict(rv);
 }
