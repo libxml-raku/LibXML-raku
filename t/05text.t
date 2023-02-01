@@ -234,6 +234,11 @@ subtest 'cdata', {
     is $node.nodeName(), "#cdata-section";
     is $node.ast-key(), "#cdata";
     is $node.nodePath, '/text()';
+    is $node.Str, '<![CDATA[test]]>';
+
+    $node .= new :content('[[test]]>2');
+    is $node.string-value(), '[[test]]>2';
+    is $node.Str, '<![CDATA[[[test]]]]><![CDATA[>2]]>';
 }
 
 subtest 'comments', {
