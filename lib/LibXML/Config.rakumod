@@ -100,6 +100,7 @@ my $have-writer;
 method have-writer(--> Bool:D) {
     $have-writer //= resolve-package('LibXML::Writer').have-writer
 }
+=para Note: LibXML::Writer is available as a separate module.
 
 #| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
 my $have-schemas;

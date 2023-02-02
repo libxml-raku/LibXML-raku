@@ -83,6 +83,16 @@ method have-reader() returns Bool
 
 Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
 
+### method have-writer
+
+```raku
+method have-writer() returns Bool
+```
+
+Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) functionality.
+
+Note: LibXML::Writer is available as a separate module.
+
 ### method have-schemas
 
 ```raku
