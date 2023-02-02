@@ -22,11 +22,11 @@ static xmlChar* _xml6_make_ns_key(xmlChar* name, xmlChar *pfx) {
     return key;
 }
 
-static void _xml6_get_key(void* value, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar* _) {
+static void _xml6_get_key(void* value ATTRIBUTE_UNUSED, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar* _ ATTRIBUTE_UNUSED ) {
     *((*keys)++) = _xml6_make_ns_key(name, pfx);
 }
 
-static void _xml6_get_value(void* value, const void*** values, xmlChar* _, xmlChar* _2, xmlChar* _3) {
+static void _xml6_get_value(void* value, const void*** values, xmlChar* _ ATTRIBUTE_UNUSED, xmlChar* _2 ATTRIBUTE_UNUSED, xmlChar* _3 ATTRIBUTE_UNUSED) {
     *((*values)++) = value;
 }
 
@@ -232,7 +232,7 @@ DLLEXPORT void* xml6_hash_lookup_ns(xmlHashTablePtr self, xmlChar* name) {
 }
 
 // Free the hash, leave contents intact
-static void _keep_hash_contents(void *entry, const xmlChar *name ATTRIBUTE_UNUSED) {
+static void _keep_hash_contents(void *entry ATTRIBUTE_UNUSED, const xmlChar *name ATTRIBUTE_UNUSED) {
     // do nothing
 }
 DLLEXPORT void xml6_hash_discard(xmlHashTablePtr self) {
