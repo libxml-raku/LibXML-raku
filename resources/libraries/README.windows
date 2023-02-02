@@ -12,20 +12,27 @@ which restricts us to a small number of XML encoding schemes.
 
 Building on Windows
 -------------------
-Ensure that the mingw make system and compilers are installed:
+This is a minimal build of libxml2 and xml6 (binding) DLLs,
+without threading support or iconv for Unicode support.
 
-    choco install make mingw
+From a Rakudo Powershell (running as administrator):
 
-Here's how I built it:
+0. Install chocolatey - see https://chocolatey.org/install
+
+1. Ensure that git, the mingw make system and compilers are installed:
+
+    choco install make mingw git
+
+2. Here's how I built it:
 
     cd LibXML-raku
     cd ..
     git clone https:://github.com/GNOME/libxml2; # mirror
     cd libxml2\win32\
-    cscript.exe configure.gs threads=no iconv=no
+    cscript.exe configure.js compiler=mingw threads=no iconv=no
     make -f Makefile.mingw
     cd ..\..\LibXML-raku
-    cp ..\libxml2\win32\bin.mingw32\libxml2.dll resources\libraries
+    cp ..\libxml2\win32\bin.mingw32\libxml2.dll resources\libraries\
     rm resources\libraries\xml6.dll
     raku Build.pm6 -I ..\libxml2\include\
     git add -f resources\libraries\xml6.dll resources\libraries\libxml2.dll
