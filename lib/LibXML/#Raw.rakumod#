@@ -88,8 +88,6 @@ module xml6_config is export {
 our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
 our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
 
-module xml6_gbl {...}
-
 module CLib {
     use LibXML::Raw::Defs :$CLIB;
     our sub memcpy(Blob:D, Pointer:D, size_t) is native($CLIB) {*}
@@ -102,7 +100,7 @@ class AllocedStr is Pointer is repr('CPointer') {
         nativecast(Str, self);
     }
     submethod DESTROY {
-        xml6_gbl::xml-free(self) if self;
+        CLib::free(self) if self;
     }
 }
 
@@ -157,7 +155,7 @@ module xml6_gbl is export {
     our sub get-external-entity-loader( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
     our sub set-external-entity-loader( Pointer --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
 
-    our sub xml-free(Pointer) is symbol('xml6_gbl_os_thread_xml_free') is native($BIND-XML2) is export {*}
+    our sub xml-free() is symbol('xml6_gbl_init') is native($BIND-XML2) is export {*}
     our sub init() is symbol('xml6_gbl_init') is native($BIND-XML2) is export {*}
 }
 

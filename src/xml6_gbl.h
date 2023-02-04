@@ -15,6 +15,8 @@ DLLEXPORT void xml6_gbl_os_thread_set_tag_expansion(int);
 DLLEXPORT int xml6_gbl_os_thread_get_keep_blanks(void);
 DLLEXPORT void xml6_gbl_os_thread_set_keep_blanks(int flag);
 
+DLLEXPORT void xml6_gbl_os_thread_xml_free(void*);
+
 DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void);
 
 typedef void (*xml6_gbl_MessageCallback) (const char *msg,
