@@ -74,6 +74,10 @@ DLLEXPORT void xml6_gbl_os_thread_set_keep_blanks(int flag) {
     xmlKeepBlanksDefaultValue = flag;
 }
 
+DLLEXPORT void xml6_gbl_os_thread_xml_free(void* obj) {
+    xmlFree(obj);
+}
+
 DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void) {
     return &xmlLastError;
 }
