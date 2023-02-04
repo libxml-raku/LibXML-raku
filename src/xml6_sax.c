@@ -153,13 +153,12 @@ DLLEXPORT void xml6_sax_locator_set_getColumnNumber(xmlSAXLocatorPtr self, void 
 
 // Helper functions
 
-DLLEXPORT xmlChar* xml6_sax_slice(xmlChar* start, xmlChar* end) {
-  if (!start || !end || end < start) {
+DLLEXPORT xmlChar* xml6_sax_slice(xmlChar *buf, xmlChar* start, xmlChar* end) {
+  if (!buf || !start || !end || end < start) {
     return NULL;
   }
   else {
     int buf_len = end - start;
-    xmlChar* buf = malloc(buf_len + 1);
     strncpy((char*)buf, (char*)start, buf_len);
     buf[buf_len] = 0;
     return buf;

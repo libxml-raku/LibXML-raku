@@ -12,12 +12,11 @@ xml6_entity_create(const xmlChar *name, int type,
 
     rv = (xmlEntityPtr) xmlMalloc(sizeof(xmlEntity));
     if (rv == NULL) {
-        xml6_warn("xml6_entity_create: malloc failed");
+        xml6_warn("xml6_entity_create: xmlMalloc failed");
 	return(NULL);
     }
     memset(rv, 0, sizeof(xmlEntity));
     rv->type = XML_ENTITY_DECL;
-    rv->checked = 0;
 
     /*
      * fill the structure.

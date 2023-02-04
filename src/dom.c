@@ -594,7 +594,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     return 1;
 }
 
-static void _domScanEntry(void* value, int* refs, xmlChar* key) {
+static void _domScanEntry(void* value, int* refs, xmlChar* key ATTRIBUTE_UNUSED) {
     if (value != NULL && ((xmlNodePtr)value)->_private != NULL) {
         (*refs)++;
     }
@@ -720,7 +720,6 @@ DLLEXPORT const xmlChar*
 domGetNodeName(xmlNodePtr node) {
     const xmlChar* prefix = NULL;
     const xmlChar* name   = NULL;
-
     if ( node == NULL ) {
         return NULL;
     }
@@ -784,7 +783,7 @@ domGetNodeName(xmlNodePtr node) {
 
     if ( prefix != NULL ) {
         int prefix_len = strlen((char*)prefix);
-        char* buf = malloc(strlen((char*)prefix) + strlen((char*)name) + 3);
+        char* buf = xmlMalloc(strlen((char*)prefix) + strlen((char*)name) + 3);
         strcpy(buf, (char*)prefix);
         buf[prefix_len] = ':';
         strcpy(buf + prefix_len + 1, (char*)name);
@@ -796,7 +795,7 @@ domGetNodeName(xmlNodePtr node) {
 
 static const xmlChar* _domPrepend(const xmlChar* name, char pfx) {
     int buf_len = xmlStrlen(name) + 2;
-    xmlChar* buf = malloc(buf_len);
+    xmlChar* buf = xmlMalloc(buf_len);
     buf[0] = pfx;
     strncpy((char*)buf+1, (char*)name, buf_len-1);
     return xml6_gbl_dict(buf);

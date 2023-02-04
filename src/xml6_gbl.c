@@ -188,30 +188,22 @@ DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
         xmlStructuredError = save->serror_handler;
         xmlGenericErrorContext = save->error_ctxt;
         xmlGenericError = save->error_handler;
-        free(save);
+        xmlFree(save);
     }
 }
 
 DLLEXPORT const xmlChar* xml6_gbl_dict(xmlChar* word) {
-    const xmlChar *key = NULL;
+    const xmlChar *rv = NULL;
 
     if (word != NULL) {
         assert(_cache != NULL);
 
         xmlMutexLock(_cache_mutex);
-#ifdef DEBUG
-        if (!xmlDictExists(_cache, word, -1)) {
-            _cache_size++;
-        }
-#endif
-        key = xmlDictLookup(_cache, word, -1);
+        rv = xmlDictLookup(_cache, word, -1);
         xmlMutexUnlock(_cache_mutex);
-
-        if (key != word) {
-            xmlFree(word);
-        }
+        xmlFree(word);
     }
-    return key;
+    return rv;
 }
 
 DLLEXPORT const xmlChar* xml6_gbl_dict_dup(const xmlChar* word) {

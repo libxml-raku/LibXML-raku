@@ -30,7 +30,7 @@ static void _xml6_get_value(void* value, const void*** values, xmlChar* _ ATTRIB
     *((*values)++) = value;
 }
 
-static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar* _3) {
+static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar* _3 ATTRIBUTE_UNUSED) {
     *((*pairs)++) = (void*) _xml6_make_ns_key(name, pfx);
     *((*pairs)++) = value;
 }

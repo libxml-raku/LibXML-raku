@@ -11,7 +11,7 @@ class LibXML::SAX::Builder {
 
     #| for marshalling of startElementNs attributes
     class NsAtt is repr('CStruct') is export(:NsAtt) {
-        sub xml6_sax_slice(Pointer, Pointer --> Str) is native($BIND-XML2) {*};
+        sub xml6_sax_slice(buf8, Pointer, Pointer --> Str) is native($BIND-XML2) {*};
         has Str $.local-name;
         has Str $.prefix;
         has Str $.URI;
@@ -26,7 +26,8 @@ class LibXML::SAX::Builder {
             }
         }
         method value {
-            xml6_sax_slice($!value-start, $!value-end);
+            my buf8 $buf .= allocate: $!value-end - $!value-start + 1;
+            xml6_sax_slice($buf, $!value-start, $!value-end);
         }
         
     }
