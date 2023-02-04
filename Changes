@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.9.6  2023-02-04T21:04:27+13:00
+   - Update prebuilt xml6.dll on Windows
+   - Fix mixed use of alloc() & xmlMalloc(). Ensure objects created via
+     xmlMalloc() are freed via xmlFree().
+
 0.9.5  2023-02-03T07:52:04+13:00
    - Fix de-ASTfication of the default (xmlns) namespace PR #92 vrurg++
    - Fix xmlBuffer32 and xmlBuf to work with binary data
