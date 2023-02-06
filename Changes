@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.9.7  2023-02-07T07:58:24+13:00
+   - Implement DLL name demangling to fix installation on Windows #66
+
 0.9.6  2023-02-04T21:04:27+13:00
    - Update prebuilt xml6.dll on Windows
    - Fix mixed use of alloc() & xmlMalloc(). Ensure objects created via
