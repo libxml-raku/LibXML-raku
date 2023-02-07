@@ -157,7 +157,7 @@ role Assoc[UInt $of] {
 }
 
 role Assoc[Str $of] {
-    my constant &free = &LibXML::Raw::CLib::free;
+    my constant &free = &xml6_gbl::xml-free;
     method of {$of}
     sub strDup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
     method freeze(Str() $v) { strDup($v) }

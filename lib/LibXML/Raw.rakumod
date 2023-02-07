@@ -952,11 +952,13 @@ class anyNode is export does LibXML::Raw::DOM::Node {
 
     method Blob(anyNode:D: int32 :$options = 0, xmlEncodingStr :$enc --> Blob) {
         my buf8 $buf;
+
         if self.xml6_node_to_buf($options, my size_t $len, $enc) -> $p {
             $buf .= allocate($len);
             CLib::memcpy($buf, $p, $len);
-            CLib::free($p);
+            xml6_gbl::xml-free($p);
         }
+
         $buf;
     }
 
