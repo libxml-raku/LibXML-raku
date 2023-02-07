@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+0.9.8  2023-02-08T09:09:26+13:00
+   - Fix more xmlMalloc() not paired with xmlFree()
+   - Block parse(:$io) from running on Windows. I don't think it's
+     ever worked and may crash.
+   - Add CStruct size tests to t/00native.t
+
 0.9.7  2023-02-07T07:58:24+13:00
    - Implement DLL name demangling to fix installation on Windows #66
 
