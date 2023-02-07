@@ -212,6 +212,7 @@ multi method parse(
     |c
 ) is hidden-from-backtrace {
     my UInt:D $fd = $io.native-descriptor;
+    fail "NYI on Windows" if $*DISTRO.is-win;
     $io.?do-not-close-automatically();
     self.parse( :$fd, :$URI, |c);
 }
