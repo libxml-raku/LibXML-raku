@@ -1,4 +1,5 @@
 [![Actions Status](https://github.com/libxml-raku/LibXML-raku/workflows/test/badge.svg)](https://github.com/libxml-raku/LibXML-raku/actions)
+[![SparrowCI](https://ci.sparrowhub.io/project/git-dwarring-LibXML-raku/badge)](https://ci.sparrowhub.io)
 
 [[Raku LibXML Project]](https://libxml-raku.github.io)
  / [[LibXML Module]](https://libxml-raku.github.io/LibXML-raku)
