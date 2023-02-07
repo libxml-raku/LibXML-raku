@@ -103,6 +103,7 @@ docs/index.md : lib/LibXML.rakumod
 	@raku -I . -c $<
 	(\
 	    echo '[![Actions Status]($(REPO)/workflows/test/badge.svg)]($(REPO)/actions)'; \
+            echo '[![SparrowCI](https://ci.sparrowhub.io/project/git-dwarring-LibXML-raku/badge)](https://ci.sparrowhub.io)'; \
             echo '';\
             raku -I . --doc=Markdown $< \
             | TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
