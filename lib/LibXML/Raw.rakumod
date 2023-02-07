@@ -995,6 +995,8 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domSetNamespaceDeclURI(|c) { ... }
     method domGetNamespaceDeclURI(|c) { ... }
     method ItemNode handles<delegate cast> { nativecast(itemNode, self) }
+
+    method new() { fail "new() not available for " ~ self.WHAT.raku }
 }
 
 #| A node in an XML tree.

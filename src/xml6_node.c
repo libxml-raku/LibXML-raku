@@ -187,3 +187,38 @@ DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr self, int comments,  xmlC14N
     return rv;
 }
 
+DLLEXPORT int xml6_node_get_size(int type) {
+    switch (type) {
+        case XML_CDATA_SECTION_NODE:
+        case XML_COMMENT_NODE:
+        case XML_DOCUMENT_FRAG_NODE:
+        case XML_DOCUMENT_TYPE_NODE:
+        case XML_ELEMENT_NODE:
+        case XML_ENTITY_REF_NODE:
+        case XML_PI_NODE:
+        case XML_TEXT_NODE:
+	case XML_XINCLUDE_END:
+	case XML_XINCLUDE_START:
+            return sizeof(xmlNode);
+        case XML_ATTRIBUTE_DECL:
+            return sizeof(xmlAttribute);
+        case XML_ATTRIBUTE_NODE:
+            return sizeof(xmlAttr);
+        case XML_DOCUMENT_NODE:
+            return sizeof(xmlDoc);
+            return -1;
+        case XML_DTD_NODE:
+            return sizeof(xmlDtd);
+        case XML_ELEMENT_DECL:
+            return sizeof(xmlElement);
+        case XML_ENTITY_DECL:
+            return sizeof(xmlEntity);
+        case XML_HTML_DOCUMENT_NODE:
+            return sizeof(xmlDoc);
+	case XML_NAMESPACE_DECL:
+            return sizeof(xmlNs);
+        case XML_NOTATION_NODE:
+            return sizeof(xmlNotation);
+    }
+    return -1;
+}
