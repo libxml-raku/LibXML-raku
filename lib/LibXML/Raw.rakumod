@@ -123,6 +123,7 @@ class xmlNodeSet     is repr('CStruct') is export {...}
 class xmlNotation    is repr('CStruct') is export {...}
 class xmlParserCtxt  is repr('CStruct') is export {...}
 class xmlParserInput is repr('CStruct') is export {...}
+class xmlSAXLocator  is repr('CStruct') is export {...}
 class xmlXPathParserContext
                      is repr('CStruct') is export {...}
 class xmlXPathObject is repr('CStruct') is export {...}
@@ -156,6 +157,8 @@ module xml6_gbl is export {
 
     our sub get-external-entity-loader( --> Pointer ) is native($BIND-XML2) is symbol('xml6_gbl_get_external_entity_loader') {*}
     our sub set-external-entity-loader( Pointer --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_gbl_set_external_entity_loader') {*}
+
+    our sub get-default-sax-locator( --> xmlSAXLocator ) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_get_default_sax_locator') {*}
 
     our sub xml-free(Pointer) is symbol('xml6_gbl_os_thread_xml_free') is native($BIND-XML2) is export {*}
     our sub init() is symbol('xml6_gbl_init') is native($BIND-XML2) is export {*}
@@ -443,7 +446,7 @@ class xmlNs is export is repr('CStruct') {
 }
 
 #| A SAX Locator.
-class xmlSAXLocator is repr('CStruct') is export {
+class xmlSAXLocator is export {
     has Pointer  $.getPublicIdFunc is rw-ptr(
         method xml6_sax_locator_set_getPublicId( &cb (xmlParserCtxt $ctx) ) is native($BIND-XML2) {*}
     );
@@ -492,7 +495,7 @@ class xmlSAXLocator is repr('CStruct') is export {
     }
 
     method default {
-         cglobal($XML2, 'xmlDefaultSAXLocator', xmlSAXLocator);
+         xml6_gbl::get-default-sax-locator();
     }
 }
 

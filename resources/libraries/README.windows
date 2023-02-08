@@ -13,7 +13,7 @@ which restricts us to a small number of XML encoding schemes.
 Building on Windows
 -------------------
 This is a minimal build of libxml2 and xml6 (binding) DLLs,
-without threading support or iconv for Unicode support.
+without iconv for Unicode support.
 
 From a Rakudo Powershell (running as administrator):
 
@@ -29,8 +29,8 @@ From a Rakudo Powershell (running as administrator):
     cd ..
     git clone https:://github.com/GNOME/libxml2; # mirror
     cd libxml2\win32\
-    cscript.exe configure.js compiler=mingw threads=no iconv=no
-    make -f Makefile.mingw
+    cscript.exe configure.js compiler=mingw threads=yes iconv=no
+    make -f Makefile.mingw libxml
     cd ..\..\LibXML-raku
     cp ..\libxml2\win32\bin.mingw32\libxml2.dll resources\libraries\
     rm resources\libraries\xml6.dll

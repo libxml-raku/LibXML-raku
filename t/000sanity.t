@@ -9,9 +9,6 @@ use NativeCall;
 # Useful test when doing porting work on META6.json, LibXML::Raw::Defs etc
 
 # sanity check our libraries
-lives-ok({ cglobal($XML2, "xmlParserVersion", Pointer) }, 'libxml2 sanity')
-   or note "unable to access the libxml2 library; is it installed?";
-
 sub xmlInitParser is native($XML2) {*}
 lives-ok {xmlInitParser()}, 'can call xmlInitParser()';
 
@@ -23,7 +20,7 @@ for <xml6_doc_set_encoding xml6_gbl_os_thread_set_tag_expansion> {
      or diag "error fetching $_ symbol: $!";
 }
 
-for <xmlBufferCreate xmlNewDocNode xmlParserVersion xmlSaveNoEmptyTags> {
+for <xmlBufferCreate xmlNewDocNode> {
     ok(try {cglobal($XML2, $_, Pointer)}, "$XML2 $_ binding")
      or diag "error fetching $_ symbol: $!";
 }
