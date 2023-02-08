@@ -80,7 +80,7 @@ multi method clone(::?CLASS:D: |c) { nextsame }
 my $version;
 method version(--> Version:D) {
     return $_ with ⚛$version;
-    cas $version, { $_ // Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.') };
+    cas $version, { $_ // try { Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.'); } // do { warn $!; self.config-version } };
 }
 
 #| Returns the version of the `libxml2` library that the LibXML module was built against

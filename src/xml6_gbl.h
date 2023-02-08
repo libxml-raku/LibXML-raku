@@ -19,7 +19,7 @@ DLLEXPORT void xml6_gbl_os_thread_xml_free(void*);
 
 DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void);
 
-DLLEXPORT xmlSAXLocator xml6_gbl_os_thread_get_default_sax_locator(void);
+DLLEXPORT xmlSAXLocatorPtr xml6_gbl_os_thread_get_default_sax_locator(void);
 
 typedef void (*xml6_gbl_MessageCallback) (const char *msg,
                                           const char *argt,

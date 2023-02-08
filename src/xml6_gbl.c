@@ -82,8 +82,8 @@ DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void) {
     return &xmlLastError;
 }
 
-DLLEXPORT xmlSAXLocator xml6_gbl_os_thread_get_default_sax_locator(void) {
-    return xmlDefaultSAXLocator;
+DLLEXPORT xmlSAXLocatorPtr xml6_gbl_os_thread_get_default_sax_locator(void) {
+    return &xmlDefaultSAXLocator;
 }
 
 union MsgArg {
