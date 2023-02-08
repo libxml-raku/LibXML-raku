@@ -1,5 +1,6 @@
 use Test;
 use LibXML::Raw;
+use LibXML::Enums;
 use LibXML::Raw::Defs :$BIND-XML2;
 use NativeCall;
 
@@ -14,7 +15,9 @@ isa-ok anyNode.new, Failure, 'anyNode.new fails';
 for 1 ..^ @ClassMap -> $type {
     my $class := @ClassMap[$type];
     if $class ~~ anyNode|xmlNs {
-       is nativesizeof($class), node-size($type), 'size of ' ~ $class.raku;
+       todo "has known size changes between libxml2 versions"
+           if $type == XML_ENTITY_DECL;
+       is node-size($type), nativesizeof($class), 'size of ' ~ $class.raku;
     }
     else {
         skip "class $type";
