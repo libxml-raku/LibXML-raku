@@ -31,7 +31,9 @@ class Build {
         }
         else {
             %vars<LIBS> = chomp(qx{xml2-config --libs 2>/dev/null} || '-lxml2');
-            %vars<LIB-CFLAGS>  = chomp(qx{xml2-config --cflags 2>/dev/null} || '-I/usr/include/libxml2');
+            %vars<LIB-CFLAGS> = $I
+                             ?? "-I$I"
+                             !! chomp(qx{xml2-config --cflags 2>/dev/null} || '-I/usr/include/libxml2');
             s/:s '-DNDEBUG'// for %vars<CCFLAGS>, %vars<LDFLAGS>;
         }
 
