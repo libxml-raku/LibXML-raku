@@ -7,7 +7,7 @@ use LibXML;
 use LibXML::Config;
 use LibXML::Enums;
 
-LibXML::Config.max-errors = 100;
+LibXML::Config.max-errors = 80;
 
 {
     my LibXML $parser .= new();
