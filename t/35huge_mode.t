@@ -22,7 +22,7 @@ EOF
 my $evil_xml = q:to<EOF>;
 <?xml version="1.0"?>
 <!DOCTYPE lolz [
- <!ENTITY lol "lol">
+ <!ENTITY lol "lolXXXX">
  <!ENTITY lol1 "&lol;&lol;">
  <!ENTITY lol2 "&lol1;&lol1;">
  <!ENTITY lol3 "&lol2;&lol2;">
@@ -32,15 +32,23 @@ my $evil_xml = q:to<EOF>;
  <!ENTITY lol7 "&lol6;&lol6;">
  <!ENTITY lol8 "&lol7;&lol7;">
  <!ENTITY lol9 "&lol8;&lol8;">
+ <!ENTITY lolA "&lol9;&lol9;">
+ <!ENTITY lolB "&lolA;&lolA;">
+ <!ENTITY lolC "&lolB;&lolB;">
+ <!ENTITY lolD "&lolC;&lolC;">
+ <!ENTITY lolE "&lolD;&lolD;">
+ <!ENTITY lolF "&lolE;&lolE;">
+ <!ENTITY lolG "&lolF;&lolF;">
+ <!ENTITY lolH "&lolG;&lolG;">
 ]>
-<lolz>&lol9;</lolz>
+<lolz>&lolH;</lolz>
 EOF
 
 my LibXML $parser .= new;
 #$parser->set_option(huge => 0);
 ok !$parser.get-option('huge'), "huge mode disabled by default";
 
-throws-like { $parser.parse: :string($evil_xml); }, X::LibXML::Parser, :message(/entity.*loop/), "exception thrown during parse";
+throws-like { my $xml = $parser.parse: :string($evil_xml), :expand-entities; note $xml.Str.chars }, X::LibXML::Parser, :message(/entity/), "exception thrown during parse";
 
 $parser .= new;
 
