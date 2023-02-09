@@ -117,6 +117,14 @@ method have-compression() returns Bool
 
 Returns True if the `libxml2` library supports compression
 
+### method have-iconv
+
+```raku
+method have-iconv() returns Bool
+```
+
+Returns True if the `libxml2` library supports iconv (unicode encoding)
+
 Serialization Default Options
 -----------------------------
 
@@ -206,6 +214,8 @@ See [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallb
 ### parser-locking
 
 This configuration setting will lock the parsing of documents to disable concurrent parsing. It needs to be set to allow per-parser input-callbacks, which are not currently thread safe.
+
+Note: `parser-locking` defaults to `True` on Windows, as some platforms have thread-safety issues.
 
 Query Handler
 -------------

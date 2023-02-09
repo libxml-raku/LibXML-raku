@@ -154,7 +154,13 @@ The Xcode package also needs to be installed to enable compilation.
 Windows
 -------
 
-This module handles installation of LibXML, and binding code (xml6) so it should be ready to go without additional setup.
+This module uses prebuilt DLLs on Windows. There are currently some configuration (`LibXML::Config`) restrictions:
+
+  * `parser-locking` is set `True` to to disable concurrent parsing. This is due to known threading issues and unresolved failures in `t/90threads.t`
+
+  * `iconv` is `False`. The library is built without full Unicode support, which restricts the ability to read and write various encoding schemes.
+
+  * `compression` is `False`. The library is built without full compression, and is unable to read and write compressed XML directly.
 
 ACKNOWLEDGEMENTS
 ================

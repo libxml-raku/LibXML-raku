@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.9.9  2023-02-10T08:23:28+13:00
    - Enable threading in libxml.dll resource for Windows.
      However, LibXML::Config.parser-locking now defaults to True on
      Windows due to unresolved failures in 90threads.t
