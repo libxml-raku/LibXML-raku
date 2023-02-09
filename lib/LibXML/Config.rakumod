@@ -80,7 +80,7 @@ multi method clone(::?CLASS:D: |c) { nextsame }
 my $version;
 method version(--> Version:D) {
     return $_ with ⚛$version;
-    cas $version, { $_ // try { Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.'); } // do { warn $!; self.config-version } };
+    cas $version, { $_ // try { Version.new(xmlParserVersion.match(/^ (.) (..) (..) /).join: '.'); } // do { self.config-version } };
 }
 
 #| Returns the version of the `libxml2` library that the LibXML module was built against
@@ -334,8 +334,10 @@ multi method input-callbacks(::?CLASS:D:) is rw {
 concurrent parsing. It needs to be set to allow per-parser input-callbacks,
 which are not currently thread safe.
 
-my Bool:D() $parser-locking = ! $singleton.have-threads;
+my Bool:D() $parser-locking = $*DISTRO.is-win || ! $singleton.have-threads;
 method parser-locking is rw { $parser-locking }
+
+=para Note: `parser-locking` defaults to `True` on Windows, as some platforms have thread-safety issues.
 
 =head2 Query Handler
 

@@ -14,6 +14,9 @@ use LibXML::InputCallback;
 INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || (($*KERNEL.cpu-cores / 2).Int max 10);
 INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
 
+note "Threading is disabled{$*DISTRO.is-win ?? ' on Windows' !! ''} (LibXML::Config.parser-locking == True)"
+    if LibXML::Config.parser-locking;
+
 my LibXML:D $p .= new();
 
 sub blat(&r, :$n = MAX_THREADS) {
