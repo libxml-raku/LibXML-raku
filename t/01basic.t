@@ -14,8 +14,9 @@ my LibXML:D $p .= new();
 my $version = $p.version;
 
 ok $version, 'LibXML.version is trueish';
-
+sub yn($_) { .so ?? 'yes' !! 'no' }
 diag "Running libxml2 version: $version (module {LibXML.^ver}, Raku {$*RAKU.compiler.version})";
+diag "Configuration: threads={yn config.have-threads} reader={yn config.have-reader} schemas={yn config.have-schemas} compression={yn config.have-compression} writer={yn config.have-writer}"; #
 given LibXML.config-version {
     diag "***NOTE was configured against libxml2 version $_ ***"
         unless $_ == $version

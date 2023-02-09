@@ -98,7 +98,7 @@ method have-reader(--> Bool:D) {
 #| Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) functionality.
 my $have-writer;
 method have-writer(--> Bool:D) {
-    $have-writer //= resolve-package('LibXML::Writer').have-writer
+    $have-writer //= try { resolve-package('LibXML::Writer').have-writer } // False;
 }
 =para Note: LibXML::Writer is available as a separate module.
 
