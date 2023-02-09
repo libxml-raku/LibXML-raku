@@ -1,4 +1,13 @@
 {{$NEXT}}
+   - Enable threading in libxml.dll resource for Windows.
+     However, LibXML::Config.parser-locking now defaults to True on
+     Windows due to unresolved failures in 90threads.t
+   - Regress against latest libxml2 blead.
+     -- there are some changes in limits that impact 35huge_mode.t
+        and 60err_prev_chain.t
+     -- xmlElem struct size has changed! Affected tail members of the
+        struct have been made private and t/00native.t has been fixed.
+   - Build.pm6 -I <include-path> now works on non-Windows platforms
 
 0.9.8  2023-02-08T09:09:26+13:00
    - Fix more xmlMalloc() not paired with xmlFree()
