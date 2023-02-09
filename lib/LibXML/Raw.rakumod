@@ -82,6 +82,7 @@ sub xmlParserVersion is export { cglobal($XML2, 'xmlParserVersion', Str); }
 module xml6_config is export {
     our sub have_threads(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_threads') is export {*}
     our sub have_compression(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_compression') is export {*}
+    our sub have_iconv(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_iconv') is export {*}
     our sub version(--> Str) is native($BIND-XML2) is symbol('xml6_config_version') is export {*};
 }
 

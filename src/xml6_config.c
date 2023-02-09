@@ -34,6 +34,14 @@ DLLEXPORT int xml6_config_have_compression(void) {
 #endif
 }
 
+DLLEXPORT int xml6_config_have_iconv(void) {
+#ifdef LIBXML_ICONV_ENABLED
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 DLLEXPORT char* xml6_config_version(void) {
     return LIBXML_DOTTED_VERSION;
 }

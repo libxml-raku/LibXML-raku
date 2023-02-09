@@ -4,6 +4,9 @@ plan 3;
 use LibXML;
 use LibXML::Document;
 use LibXML::Element;
+use LibXML::Config;
+
+my \config =  LibXML::Config;
 
 my LibXML $p .= new();
 
@@ -41,8 +44,8 @@ subtest 'latin-1', {
 
 }
 
-if $*DISTRO.is-win {
-    skip-rest "don't have proper encoding support on Windows, yet";
+unless config.have-iconv {
+    skip-rest "this libxml library was built without iconv for encoding";
     exit 0;
 }
 

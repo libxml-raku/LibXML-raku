@@ -8,6 +8,11 @@
      -- xmlElem struct size has changed! Affected tail members of the
         struct have been made private and t/00native.t has been fixed.
    - Build.pm6 -I <include-path> now works on non-Windows platforms
+   - Add LibXML::Config.have-iconv method to detect if libxml was built
+     with the inconv library for Unicode encoding and decoding
+   - Fix some tests to skip for the right reasons; that the library
+     was built without iconv or compression, rather than we're running
+     under Windows.
 
 0.9.8  2023-02-08T09:09:26+13:00
    - Fix more xmlMalloc() not paired with xmlFree()

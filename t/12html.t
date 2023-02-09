@@ -7,6 +7,9 @@ plan 10;
 use LibXML;
 use LibXML::Raw;
 use LibXML::Document;
+use LibXML::Config;
+
+my \config =  LibXML::Config;
 
 constant CanDoIO = ? IO::Handle.can('do-not-close-automatically') && ! $*DISTRO.is-win;
 
@@ -68,8 +71,8 @@ subtest 'html recovery parse', {
     is +$body<InPut>, 1, "case sensitivity on assoc get";
 }
 
-if $*DISTRO.is-win {
-    skip-rest "don't have proper encoding support on Windows, yet";
+unless config.have-iconv {
+    skip-rest "this libxml library was built without iconv for encoding";
     exit 0;
 }
 

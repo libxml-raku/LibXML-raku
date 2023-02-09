@@ -118,6 +118,10 @@ method have-threads(--> Bool:D) { $have-threads //= ? xml6_config::have_threads(
 my $have-compression;
 method have-compression(--> Bool:D) { $have-compression //= ? xml6_config::have_compression(); }
 
+#| Returns True if the `libxml2` library supports iconv (unicode encoding)
+my $have-iconv;
+method have-iconv(--> Bool:D) { $have-iconv //= ? xml6_config::have_iconv(); }
+
 my $catalogs = SetHash.new;
 method load-catalog(Str:D $filename --> Nil) {
     my Int $stat = 0;
