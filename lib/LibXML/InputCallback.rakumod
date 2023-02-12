@@ -146,7 +146,6 @@ my class Context {
         has Blob $.buf is rw;
     }
     has Handle %.handles{UInt};
-    has Lock $!lock .= new;
 
     sub memcpy(CArray[uint8], Blob, size_t --> CArray[uint8]) is native($CLIB) {*}
 
@@ -165,7 +164,7 @@ my class Context {
             my $fh = $!cb.open.($file);
             with $fh {
                 my Handle $handle .= new: :$fh;
-                $!lock.protect: { %!handles{+$handle.addr} = $handle };
+                $.lock.protect: { %!handles{+$handle.addr} = $handle };
                 note "$_: open $file --> {+$handle.addr}" with $!cb.trace;
                 $handle.addr;
             }
@@ -180,7 +179,7 @@ my class Context {
         -> Pointer $addr, CArray $out-arr, UInt $bytes --> UInt {
             CATCH { default { self!catch($_); 0; } }
 
-            my Handle $handle = $!lock.protect({ %!handles{+$addr} })
+            my Handle $handle = $.lock.protect({ %!handles{+$addr} })
                 // die "read on unopen handle";
 
             given $handle.buf // $!cb.read.($handle.fh, $bytes) -> Blob $io-buf is copy {
@@ -213,7 +212,7 @@ my class Context {
         -> Pointer:D $addr --> Int {
             CATCH { default { self!catch($_); -1 } }
             note "$_\[{+$addr}\]: close --> 0" with $!cb.trace;
-            $!lock.protect: {
+            $.lock.protect: {
                 my Handle $handle = %!handles{+$addr}
                     // die (+$addr).fmt("close on unopened input callback context: 0x%X");
                 $!cb.close.($handle.fh);

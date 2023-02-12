@@ -212,7 +212,7 @@ class X::LibXML::Parser is X::LibXML::Domain {
 role LibXML::ErrorHandling {
 
     method config {...}
-
+    has Lock $.lock .= new;
     has X::LibXML @!errors;
     has UInt $.max-errors = self.config.max-errors;
 
@@ -252,39 +252,45 @@ role LibXML::ErrorHandling {
         CATCH { default { note "error handling generic error: $_" } }
         my $msg = sprintf($fmt, |@args);
 
-        if @!errors < $!max-errors {
-            @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
-            self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
-        }
-        elsif @!errors == $!max-errors {
-            @!errors.push: X::LibXML::TooManyErrors.new( :level(XML_ERR_FATAL), :$.max-errors );
-            self!sax-error-cb-unstructured(XML_ERR_FATAL, @!errors.tail.msg);
+        $!lock.protect: {
+            if @!errors < $!max-errors {
+                @!errors.push: X::LibXML::Parser.new( :level(XML_ERR_FATAL), :$msg );
+                self!sax-error-cb-unstructured(XML_ERR_FATAL, $msg);
+            }
+            elsif @!errors == $!max-errors {
+                @!errors.push: X::LibXML::TooManyErrors.new( :level(XML_ERR_FATAL), :$.max-errors );
+                self!sax-error-cb-unstructured(XML_ERR_FATAL, @!errors.tail.msg);
+            }
         }
     }
 
     method structured-error(xmlError:D $_) {
         CATCH { default { note "error handling structured error: $_" } }
 
-        if @!errors <= $!max-errors {
-            my Int $level = .level;
-            my Str $file = .file;
-            my UInt:D $line = .line;
-            my Str() $context = .context(my uint32 $column);
-            my UInt:D $code = .code;
-            my UInt:D $domain-num = .domain;
-            my Str $msg = .message;
-            $column ||= .column;
-            $msg //= $code.Str;
-            if $msg ~~ /^\d+$/ {
-                $msg ~= " ({.key})" with xmlParserErrors($msg.Int);
+        $!lock.protect: {
+            if @!errors <= $!max-errors {
+                my Int $level = .level;
+                my Str $file = .file;
+                my UInt:D $line = .line;
+                my Str() $context = .context(my uint32 $column);
+                my UInt:D $code = .code;
+                my UInt:D $domain-num = .domain;
+                my Str $msg = .message;
+                $column ||= .column;
+                $msg //= $code.Str;
+                if $msg ~~ /^\d+$/ {
+                    $msg ~= " ({.key})" with xmlParserErrors($msg.Int);
+                }
+                self!error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
             }
-            self!error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
         }
     }
 
     method callback-error(Exception $error, UInt :$domain-num = XML_FROM_IO) {
         self.?stop-parser;
-        self!error: X::LibXML::AdHoc.new: :$error, :$domain-num;
+        $!lock.protect: {
+            self!error: X::LibXML::AdHoc.new: :$error, :$domain-num;
+        }
     }
     method !error(X::LibXML:D $err is copy) {
 
@@ -302,17 +308,19 @@ role LibXML::ErrorHandling {
 
     method validity-check(|c) {
         my Bool $valid = True;
-        if @!errors {
-            my X::LibXML @errs;
-            for @!errors {
-                when ValidityError {
-                    $valid = False;
+        $!lock.protect: {
+            if @!errors {
+                my X::LibXML @errs;
+                for @!errors {
+                    when ValidityError {
+                        $valid = False;
+                    }
+                    default {
+                        @errs.push: $_;
+                    }
                 }
-                default {
-                    @errs.push: $_;
-                }
+                @!errors = @errs;
             }
-            @!errors = @errs;
         }
         $valid;
     }
@@ -322,12 +330,17 @@ role LibXML::ErrorHandling {
     multi sub throw('w', X::LibXML:D $err) is hidden-from-backtrace { warn $err }
 
     method will-die(--> Bool) {
-        @!errors.first(*.level >= XML_ERR_ERROR).defined;
+        $!lock.protect: {
+            @!errors.first(*.level >= XML_ERR_ERROR).defined;
+        }
     }
 
     method flush-errors(:$recover = $.recover) is hidden-from-backtrace {
-        my X::LibXML @errs = @!errors;
-        @!errors = ();
+        my X::LibXML @errs;
+        $.lock.protect: {
+            @errs = @!errors;
+            @!errors = ();
+        }
 
         if self.suppress-errors {
             @errs .= grep: *.level > XML_ERR_ERROR;
