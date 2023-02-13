@@ -1931,7 +1931,6 @@ domSetAttributeNodeNS( xmlNodePtr self, xmlAttrPtr attr ) {
     if ( self == NULL || attr == NULL ) {
         return attr;
     }
-
     if ( attr->type != XML_ATTRIBUTE_NODE )
         return NULL;
     if ( self == attr->parent ) {
@@ -2180,7 +2179,7 @@ domCreateAttributeNS( xmlDocPtr self, unsigned char *URI, unsigned char *name, u
             XML6_FAIL(self, "unable to create Attribute namespace");
         }
 
-        newAttr = xmlNewDocProp( self, localname, value );
+        newAttr = domCreateAttribute( self, localname, value );
         xmlSetNs((xmlNodePtr)newAttr, ns);
 
         if ( prefix ) {

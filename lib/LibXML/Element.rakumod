@@ -124,10 +124,10 @@ also does LibXML::_Rawish[ xmlElem,
 multi method new(QName:D $name, LibXML::Namespace $ns?, *%c) {
     self.new(:$name, :$ns, |%c);
 }
-multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns($ns-obj), *%c) {
-    my xmlDoc:D $doc = .raw with $owner;
-    my xmlNs:D $ns = .raw with $ns-obj;
-    %c<config> //= ($owner andthen .config orelse LibXML::Config.global);
+multi method new(QName :$name!, *%c) {
+    my xmlDoc:D $doc = .raw with %c<doc>;
+    my xmlNs:D $ns   = .raw with %c<ns>;
+    %c<config> //= (%c<doc> andthen .config orelse LibXML::Config.global);
     self.box: xmlElem.new( :$name, :$doc, :$ns ), |%c;
 }
 

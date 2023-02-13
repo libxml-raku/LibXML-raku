@@ -150,6 +150,8 @@ module xml6_gbl is export {
 
     our sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer $setter) is native($BIND-XML2) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
 
+    our sub get-generic-error-handler(--> Pointer) is native($BIND-XML2) is symbol('xml6_gbl_get_os_thread_generic_error_handler') {*}
+
     our sub get-keep-blanks(--> int32) is symbol('xml6_gbl_os_thread_get_keep_blanks') is native($BIND-XML2) is export { * }
     our sub set-keep-blanks(int32 $v) is symbol('xml6_gbl_os_thread_set_keep_blanks') is native($BIND-XML2) is export { * }
 
@@ -1042,7 +1044,7 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method ValidElements(xmlElem, CArray[Str], int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetValidElements') {*}
 
     our sub New(xmlNs, Str $name --> xmlElem) is native($XML2) is symbol('xmlNewNode') {*}
-    multi method new(Str:D :$name!, xmlNs:D :$ns, xmlDoc:D :$doc!) {
+    multi method new(Str:D :$name!, xmlDoc:D :$doc!, xmlNs :$ns) {
         $doc.new-node(:$name, :$ns);
     }
     multi method new(Str:D :$name!, xmlNs :$ns) {
