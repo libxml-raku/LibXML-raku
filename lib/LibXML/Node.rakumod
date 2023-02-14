@@ -139,9 +139,6 @@ has anyNode:D $!raw is built(:bind) is required;
 
 has $.xpath-class is built(:bind) = resolve-package('LibXML::XPath::Context');
 
-has LibXML::Node $.doc;
-
-
 ########################################################################
 =head2 Property Methods
 
@@ -358,7 +355,9 @@ method ownerDocument is rw is also<doc> {
 method getOwnerDocument is also<get-doc> returns LibXML::Node {
     my \doc-class = self.box-class(XML_DOCUMENT_NODE);
     do with self {
-        $!doc //= self.box: doc-class, .raw.doc;
+        with .raw.doc -> xmlDoc $raw {
+            self.box: doc-class, $raw
+        }
     } // doc-class;
 }
 
@@ -372,9 +371,9 @@ submethod TWEAK(:$native) {
 }
 
 #| Transfers a node to another document
-method setOwnerDocument( LibXML::Node $!doc) {
-    self.keep: $!doc.raw.adoptNode(self.raw);
-    $!doc;
+method setOwnerDocument( LibXML::Node $doc) {
+    $doc.adoptNode(self);
+    $doc;
 }
 =para This method unbinds the node first, if it is already bound to another document.
 =para Calling `$node.setOwnerDocument($doc)` is equivalent to calling $doc.adoptNode($node)`.

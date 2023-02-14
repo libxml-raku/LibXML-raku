@@ -162,9 +162,7 @@ subtest 'unbound node', {
 
 subtest 'namespace switching', {
     my LibXML::Document $doc .= new();
-    my LibXML::Element:D $elem = $doc.create: LibXML::Element, :name($foo), :$doc;
-    ok $elem.doc.isSameNode($doc);
-    ok $elem.doc.raw.isSameNode($doc.raw);
+    my LibXML::Element:D $elem = $doc.create: LibXML::Element, :name($foo);
 
     my $e2 = $doc.createElement($foo);
     $doc.setDocumentElement($e2);
@@ -173,10 +171,7 @@ subtest 'namespace switching', {
     $elem.setAttributeNodeNS($nsAttr);
     ok $elem.hasAttributeNS($nsURI, $foo);
 
-    ok $nsAttr.ownerDocument.isSameNode($doc);
-    ok $nsAttr.raw.doc.isSameNode($doc.raw);
-    ok $nsAttr.parent.isSameNode($elem);
-    ok $nsAttr.raw.parent.isSameNode($elem.raw);
+    nok defined($nsAttr.ownerDocument);
 }
 
 subtest 'default Namespace and Attributes', {

@@ -570,15 +570,15 @@ method documentElement is rw is also<root> returns LibXML::Element {
 =end pod
 
 #| Creates a new Element Node bound to the DOM with the given tag (name), Optionally bound to a given name-space;
-method createElement($doc: QName $name, Str :$href --> LibXML::Element) {
+method createElement(QName $name, Str :$href --> LibXML::Element) {
     $href
         ?? $.createElementNS($href, $name)
-        !! self.box: LibXML::Element, $.raw.createElement($name), :$doc;
+        !! self.box: LibXML::Element, $.raw.createElement($name);
 }
 
 #| equivalent to .createElement($name, :$href)
-method createElementNS($doc: Str $href, QName:D $name --> LibXML::Element) {
-    self.box: LibXML::Element, $.raw.createElementNS($href, $name), :$doc;
+method createElementNS(Str $href, QName:D $name --> LibXML::Element) {
+    self.box: LibXML::Element, $.raw.createElementNS($href, $name);
 }
 
 method !check-new-node($node, |) {
@@ -602,21 +602,20 @@ multi method createAttribute(
     $.createAttributeNS($href, $qname, $value);
 }
 
-multi method createAttribute($doc: QName:D $qname, Str $value = '' --> LibXML::Attr) {
-    self.box: LibXML::Attr, $.raw.createAttribute($qname, $value), :$doc;
+multi method createAttribute(QName:D $qname, Str $value = '' --> LibXML::Attr) {
+    self.box: LibXML::Attr, $.raw.createAttribute($qname, $value);
 }
 
 multi method createAttributeNS(Str $href, NameVal $_!, |c) {
     $.createAttributeNS($href, .key, .value, |c);
 }
 #| Creates an Attribute bound to a name-space.
-multi method createAttributeNS($doc:
-                         Str $href,
+multi method createAttributeNS(Str $href,
                          QName:D $qname,
                          Str $value = '',
                          --> LibXML::Attr
                         ) {
-    self.box: LibXML::Attr, $.raw.createAttributeNS($href, $qname, $value), :$doc;
+    self.box: LibXML::Attr, $.raw.createAttributeNS($href, $qname, $value);
 }
 
 #| Creates a Document Fragment
@@ -733,8 +732,8 @@ method insertAfter(LibXML::Node:D $node, LibXML::Node $)  { self!check-new-node(
 #| Imports a node from another DOM
 proto method importNode(LibXML::Node:D $node --> LibXML::Node) {*}
 multi method importNode(LibXML::Document $) { fail "Can't import Document nodes" }
-multi method importNode($doc: LibXML::Node:D $node --> LibXML::Node) {
-    self.box: LibXML::Node, $.raw.importNode($node.raw), :$doc;
+multi method importNode(LibXML::Node:D $node --> LibXML::Node) {
+     self.box: LibXML::Node, $.raw.importNode($node.raw);
 }
 =para If a node is not part of a document, it can be imported to another document. As
     specified in DOM Level 2 Specification the Node will not be altered or removed
@@ -743,9 +742,8 @@ multi method importNode($doc: LibXML::Node:D $node --> LibXML::Node) {
 #| Adopts a node from another DOM
 proto method adoptNode(LibXML::Node:D $node --> LibXML::Node) {*}
 multi method adoptNode(LibXML::Document $) { fail "Can't adopt Document nodes" }
-multi method adoptNode($doc: LibXML::Node:D $node --> LibXML::Node)  {
-    $node.setOwnerDocument($doc);
-    $node;
+multi method adoptNode(LibXML::Node:D $node --> LibXML::Node)  {
+    $node.keep: $.raw.adoptNode($node.raw);
 }
 =para If a node is not part of a document, it can be adopted by another document. As
     specified in DOM Level 3 Specification the Node will not be altered but it will
