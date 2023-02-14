@@ -86,7 +86,7 @@ unit class LibXML::InputCallback;
     After object instantiation using the parameter-less constructor, you can
     register callback groups.
 
-      my LibXML::InputCallback.$input-callbacks .= new(
+      my LibXML::InputCallback.$input-callbacks . = new(
         :&match, :&open, :&read, :&close);
       # setup second callback group (named arguments)
       $input-callbacks.register-callbacks(match => &match-cb2, open => &open-cb2,
@@ -141,7 +141,7 @@ my class Context {
 
     my class Handle {
         has CArray[uint8] $.addr .= new(42); # get a unique address
-        method addr { nativecast(Pointer, $!addr) }
+        method addr { do with self { nativecast(Pointer, $!addr) } }
         has $.fh is rw;
         has Blob $.buf is rw;
     }
