@@ -23,5 +23,6 @@ DLLEXPORT int xml6_node_is_htmlish(xmlNodePtr);
 DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr, int opts, size_t* len, char* enc);
 DLLEXPORT xmlChar* xml6_node_to_str_C14N(xmlNodePtr, int comments, xmlC14NMode, xmlChar** inc_prefix_list, xmlNodeSetPtr nodelist);
 DLLEXPORT int xml6_node_get_size(int type);
+DLLEXPORT int xml6_node_get_elem_index(xmlNodePtr);
 
 #endif /* __XML6_NODE_H */

@@ -933,6 +933,12 @@ method indexElements returns Int { $.raw.IndexElements }
     possible to use this method to re-index a modified document before using it
     with XPath again. This function is not a part of the DOM specification.
 
+=para After running this function, the LibXML::Element content() method returns the
+    index of the element, with the root element having an index of 1.
+
+=para If this function has not been run, the LibXML::Element content() method returns
+    0 for all elements.
+
 =para This function returns the number of elements indexed, -1 if error occurred, or -2
     if this feature is not available in the running libxml2.
 

@@ -91,7 +91,7 @@ Synopsis
 
 The class inherits from [LibXML::Node](https://libxml-raku.github.io/LibXML-raku/Node). The documentation for Inherited methods is not listed here. 
 
-Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation. 
+Many functions listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 ### method new
 
@@ -324,6 +324,16 @@ In item context this function returns an [LibXML::Node::Set](https://libxml-raku
 Returns all immediate child elements.
 
 Equivalent to `.getElementsByLocalName('*')`
+
+### method element-index
+
+```raku
+method element-index() returns UInt
+```
+
+Returns the element index in the document tree
+
+The [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) `indexElements`, must be used to to number each element in the document and return non-zero indexes.
 
 DOM Manipulation Methods
 ------------------------

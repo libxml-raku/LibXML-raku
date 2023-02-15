@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 13;
+plan 14;
 
 use LibXML;
 use LibXML::Parser::Context;
@@ -235,6 +235,18 @@ subtest 'findnode/remove', {
 
     $root.removeChild( $lastc );
     is( $root.Str(), $xmlstr, 'findnode/remove' );
+}
+
+subtest 'doc.indexElements', {
+    my $xmlstr = "<a><b><c>1</c><c>2</c></b></a>";
+
+    my $doc       = $parser.parse: :string( $xmlstr );
+    my $unindexed = $doc.findnodes('//*').map(*.element-index).join: ',';
+    is $unindexed, '0,0,0,0';
+    
+    $doc.indexElements;
+    my $indexed = $doc.findnodes('//*').map(*.element-index).join: ',';
+    is $indexed, '1,2,3,4';
 }
 
 # --------------------------------------------------------------------------- #

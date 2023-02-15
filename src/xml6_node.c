@@ -222,3 +222,11 @@ DLLEXPORT int xml6_node_get_size(int type) {
     }
     return -1;
 }
+
+// this returns non-zero if xmlXPathOrderDocElems() has been invoked
+DLLEXPORT int xml6_node_get_elem_index(xmlNodePtr node) {
+    if (node && node->type == XML_ELEMENT_NODE) {
+        return -((ptrdiff_t) node->content);
+    }
+    return 0;
+}

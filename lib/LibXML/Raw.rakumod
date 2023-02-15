@@ -1039,6 +1039,10 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method domSetAttributeNodeNS(xmlAttr --> xmlAttr) is native($BIND-XML2) {*}
     method domSetAttributeNS(Str $URI, Str $name, Str $value --> xmlAttr) is native($BIND-XML2) {*}
     method domGenNsPrefix(Str $base-prefix --> xmlCharP) is native($BIND-XML2) {*}
+
+    # The content field may hold the index of the element in the
+    # document, if doc.IndexElements has been run
+    method content(--> int32) is native($BIND-XML2) is symbol('xml6_node_get_elem_index') {*}
     method ValidElements(xmlElem, CArray[Str], int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetValidElements') {*}
 
     our sub New(xmlNs, Str $name --> xmlElem) is native($XML2) is symbol('xmlNewNode') {*}

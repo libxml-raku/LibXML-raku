@@ -110,7 +110,7 @@ also does LibXML::_Rawish[ xmlElem,
 
     The class inherits from L<LibXML::Node>. The documentation for Inherited methods is not listed here. 
 
-    Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation. 
+    Many functions listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 
 =end pod
 
@@ -450,8 +450,11 @@ method !set-attributes(@atts) {
     Returns all immediate child elements.
         
     Equivalent to `.getElementsByLocalName('*')`
-
 =end pod
+
+#| Returns the element index in the document tree
+method element-index returns UInt { self.raw.content }
+=para The L<LibXML::Document> C<indexElements>, must be used to to number each element in the document and return non-zero indexes.
 
 ########################################################################
 =head2 DOM Manipulation Methods

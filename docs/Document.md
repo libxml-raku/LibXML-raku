@@ -764,6 +764,10 @@ Index elements for faster XPath searching
 
 This function causes libxml2 to stamp all elements in a document with their document position index which considerably speeds up XPath queries for large documents. It should only be used with static documents that won't be further changed by any DOM methods, because once a document is indexed, XPath will always prefer the index to other methods of determining the document order of nodes. XPath could therefore return improperly ordered node-lists when applied on a document that has been changed after being indexed. It is of course possible to use this method to re-index a modified document before using it with XPath again. This function is not a part of the DOM specification.
 
+After running this function, the LibXML::Element content() method returns the index of the element, with the root element having an index of 1.
+
+If this function has not been run, the LibXML::Element content() method returns 0 for all elements.
+
 This function returns the number of elements indexed, -1 if error occurred, or -2 if this feature is not available in the running libxml2.
 
 Copyright
