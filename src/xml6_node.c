@@ -5,6 +5,7 @@
 #include "libxml/xmlsave.h"
 #include "libxml/c14n.h"
 #include <assert.h>
+#include <stddef.h>
 
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
     assert(self != NULL);
