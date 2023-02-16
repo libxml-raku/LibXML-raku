@@ -206,16 +206,14 @@ DLLEXPORT int xml6_node_get_size(int type) {
         case XML_ATTRIBUTE_NODE:
             return sizeof(xmlAttr);
         case XML_DOCUMENT_NODE:
+        case XML_HTML_DOCUMENT_NODE:
             return sizeof(xmlDoc);
-            return -1;
         case XML_DTD_NODE:
             return sizeof(xmlDtd);
         case XML_ELEMENT_DECL:
             return sizeof(xmlElement);
         case XML_ENTITY_DECL:
             return sizeof(xmlEntity);
-        case XML_HTML_DOCUMENT_NODE:
-            return sizeof(xmlDoc);
 	case XML_NAMESPACE_DECL:
             return sizeof(xmlNs);
         case XML_NOTATION_NODE:
