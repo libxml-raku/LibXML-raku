@@ -1,12 +1,17 @@
 {{$NEXT}}
+   - Add elementIndex method to LibXML::Element. This is valid
+     and non-zero after invoking doc.indexElements().
+   - Change xmlElement content() access to return a string. This
+     is where the element-index (above) is stored.
+   - Lock-protect error handling.
 
 0.9.9  2023-02-10T08:23:28+13:00
    - Enable threading in libxml.dll resource for Windows.
      However, LibXML::Config.parser-locking now defaults to True on
      Windows due to unresolved failures in 90threads.t
    - Regress against latest libxml2 blead.
-     -- there are some changes in limits that impact 35huge_mode.t
-        and 60err_prev_chain.t
+     -- adjust 35huge_mode.t and 60err_prev_chain.t for changes in
+        some limits;
      -- xmlElem struct size has changed! Affected tail members of the
         struct have been made private and t/00native.t has been fixed.
    - Build.pm6 -I <include-path> now works on non-Windows platforms

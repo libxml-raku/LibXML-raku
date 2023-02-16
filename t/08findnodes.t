@@ -241,11 +241,11 @@ subtest 'doc.indexElements', {
     my $xmlstr = "<a><b><c>1</c><c>2</c></b></a>";
 
     my $doc       = $parser.parse: :string( $xmlstr );
-    my $unindexed = $doc.findnodes('//*').map(*.element-index).join: ',';
+    my $unindexed = $doc.findnodes('//*').map(*.elementIndex).join: ',';
     is $unindexed, '0,0,0,0';
     
     $doc.indexElements;
-    my $indexed = $doc.findnodes('//*').map(*.element-index).join: ',';
+    my $indexed = $doc.findnodes('//*').map(*.elementIndex).join: ',';
     is $indexed, '1,2,3,4';
 }
 

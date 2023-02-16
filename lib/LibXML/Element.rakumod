@@ -453,8 +453,8 @@ method !set-attributes(@atts) {
 =end pod
 
 #| Returns the element index in the document tree
-method element-index returns UInt { self.raw.content }
-=para The L<LibXML::Document> C<indexElements>, must be used to to number each element in the document and return non-zero indexes.
+method elementIndex returns UInt { self.raw.content }
+=para The L<LibXML::Document> C<indexElements>, must first be used to to number each element in the document, otherwise 0 is always returned.
 
 ########################################################################
 =head2 DOM Manipulation Methods

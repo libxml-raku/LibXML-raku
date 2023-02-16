@@ -325,15 +325,15 @@ Returns all immediate child elements.
 
 Equivalent to `.getElementsByLocalName('*')`
 
-### method element-index
+### method elementIndex
 
 ```raku
-method element-index() returns UInt
+method elementIndex() returns UInt
 ```
 
 Returns the element index in the document tree
 
-The [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) `indexElements`, must be used to to number each element in the document and return non-zero indexes.
+The [LibXML::Document](https://libxml-raku.github.io/LibXML-raku/Document) `indexElements`, must first be used to to number each element in the document, otherwise 0 is always returned.
 
 DOM Manipulation Methods
 ------------------------
