@@ -32,6 +32,8 @@ also does LibXML::Types::Itemish;
 also does LibXML::Types::XPathish;
 also does LibXML::_Configurable;
 
+method raw { itemNode }
+
 sub box-class($_) is export(:box-class) {
     ::?CLASS.box-class($_)
 }

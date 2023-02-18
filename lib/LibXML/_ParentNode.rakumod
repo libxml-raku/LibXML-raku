@@ -3,18 +3,19 @@ unit role LibXML::_ParentNode;
 
 use LibXML::Node;
 use LibXML::Config;
+use LibXML::Enums;
 use LibXML::Types :QName, :NameVal;
 
 method iterate-set(|) {...}
 
-method getElementsByTagName(Str:D $name) {
-    self.iterate-set(LibXML::Node, $.raw.getElementsByTagName($name));
+method getElementsByTagName(Str:D $name) is raw {
+    self.iterate-set(self.box-class(XML_ELEMENT_NODE), $.raw.getElementsByTagName($name));
 }
 method getElementsByLocalName(Str:D $name) {
-    self.iterate-set(LibXML::Node, $.raw.getElementsByLocalName($name));
+    self.iterate-set(self.box-class(XML_ELEMENT_NODE), $.raw.getElementsByLocalName($name));
 }
 method getElementsByTagNameNS(Str $uri, Str $name) {
-    self.iterate-set(LibXML::Node, $.raw.getElementsByTagNameNS($uri, $name));
+    self.iterate-set(self.box-class(XML_ELEMENT_NODE), $.raw.getElementsByTagNameNS($uri, $name));
 }
 method getChildrenByLocalName(Str:D $name) {
     self.iterate-set(LibXML::Node, $.raw.getChildrenByLocalName($name));
@@ -26,7 +27,7 @@ method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
     self.iterate-set(LibXML::Node, $.raw.getChildrenByTagNameNS($uri, $name));
 }
 method elements {
-    self.iterate-set(LibXML::Node, $.raw.getChildrenByLocalName('*'));
+    self.iterate-set(self.box-class(XML_ELEMENT_NODE), $.raw.getChildrenByLocalName('*'));
 }
 
 #| adds a child element with tag $name and text content $value

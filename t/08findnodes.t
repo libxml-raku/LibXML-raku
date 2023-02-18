@@ -180,7 +180,7 @@ subtest 'dom interaction', {
     my $root= $doc.createElement( "A" );
     $doc.setDocumentElement($root);
 
-    my $b= $doc.createElement( "B" );
+    my $b = $doc.createElement( "B" );
     $root.appendChild( $b );
 
     my @list = $doc.findnodes( '//A' );
@@ -201,7 +201,7 @@ subtest 'dom interaction', {
     ok( @list[0].isSameNode( $b ), ' TODO : Add test name' );
 }
 
-subtest 'findnode/unbindNoode', {
+subtest 'findnode/unbindNode', {
     # test potential unbinding-segfault-problem
     my $doc = LibXML.createDocument();
     my $root= $doc.createElement( "A" );
