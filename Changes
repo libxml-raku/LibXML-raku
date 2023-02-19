@@ -1,6 +1,16 @@
 {{$NEXT}}
-   - Add elementIndex method to LibXML::Element. This is valid
-     and non-zero after invoking doc.indexElements().
+   - Lessen impact of #95 (.raku method handing). Override LibXML::Node:D
+     raku() to call LibXML::Node:U raku().
+   - Add intermediate domNode() role. This eases class composition
+     and bypasses the need to nativecast raw nodes, when the type
+     is known in advance. E.g. getElementsByTagName() is about
+     25% faster.
+   - Further optimize LibXML::Node::Set by nativecasting a CArray
+     as a whole to the container type, rather than casting individual
+     members.
+   - Add elementIndex() method to LibXML::Element. After invoking
+     doc.indexElements(), this returns distinct element numbers,
+     with the root element having value 1.
    - Change xmlElement content() access to return a string. This
      is where the element-index (above) is stored.
    - Lock-protect error handling.

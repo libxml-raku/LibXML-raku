@@ -169,6 +169,11 @@ multi method box(anyNode:D $node, *%c) {
     $class.bless: :raw($node.delegate), |%c;
 }
 
+multi method raku(::?CLASS:D: $obj?) {
+    # issue #95
+    self.WHAT.raku;
+}
+
 method getName { self.getNodeName }
 
 #| Gets or sets the node name
