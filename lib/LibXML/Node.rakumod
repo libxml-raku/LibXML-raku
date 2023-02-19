@@ -171,7 +171,7 @@ multi method box(anyNode:D $node, *%c) {
 
 multi method raku(::?CLASS:D: $obj?) {
     # issue #95
-    self.WHAT.raku;
+    self.Str.raku;
 }
 
 method getName { self.getNodeName }
