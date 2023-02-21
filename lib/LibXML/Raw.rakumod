@@ -1475,7 +1475,7 @@ class xmlValidCtxt is repr('CStruct') is export {
     method ValidateDocument(xmlDoc --> int32) is native($XML2) is symbol('xmlValidateDocument') {*}
     method ValidateElement(xmlDoc, xmlElem --> int32) is native($XML2) is symbol('xmlValidateElement') {*}
     method ValidateOneAttribute(xmlDoc, xmlElem, xmlAttr, xmlCharP --> int32) is native($XML2) is symbol('xmlValidateOneAttribute') {*}
-    method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_set_structured_error_handler') {*};
+    method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Free is symbol('xmlFreeValidCtxt') is native($XML2) {*}
     method new { New() }
     multi method validate(xmlDoc:D :$doc!, xmlDtd:D :$dtd!) {
@@ -1623,7 +1623,7 @@ class xmlParserCtxt is export {
     method UseOptions(int32 --> int32) is native($XML2) is symbol('xmlCtxtUseOptions') { * }
     method NewInputStream(xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native($XML2) is symbol('xmlNewIOInputStream') is export {*}
     method NewInputFile(Str --> xmlParserInput) is native($XML2) is export is symbol('xmlNewInputFromFile') {*}
-    method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_set_structured_error_handler') {*};
+    method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method GetLastError(--> xmlError) is native($XML2) is symbol('xmlCtxtGetLastError') is native($XML2) {*}
     method Close(--> int32) is native($BIND-XML2) is symbol('xml6_parser_ctx_close') {*}
     method ParserError(Str $msg) is native($XML2) is symbol('xmlParserError') {*}

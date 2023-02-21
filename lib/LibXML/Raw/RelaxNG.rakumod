@@ -2,7 +2,7 @@ unit module LibXML::Raw::RelaxNG;
 
 use NativeCall;
 use LibXML::Raw;
-use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque;
+use LibXML::Raw::Defs :$XML2, :Opaque;
 
 class xmlRelaxNG is repr(Opaque) is export {
     method Free is symbol('xmlRelaxNGFree') is native($XML2) {*}
@@ -14,7 +14,7 @@ class xmlRelaxNGParserCtxt is repr(Opaque) is export {
     our sub NewDoc(xmlDoc:D --> xmlRelaxNGParserCtxt) is native($XML2) is symbol('xmlRelaxNGNewDocParserCtxt') {*}
     method SetGenericErrorFunc( &err-func (xmlRelaxNGParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlRelaxNGParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native($XML2) is symbol('xmlRelaxNGSetParserErrors') {*}
     method SetParserErrorFunc( &error-func (xmlRelaxNGParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlRelaxNGSetParserStructuredErrors') {*};
-     method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_set_structured_error_handler') {*};
+     method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Parse(-->xmlRelaxNG) is native($XML2) is symbol('xmlRelaxNGParse') {*}
     method Free is symbol('xmlRelaxNGFreeParserCtxt') is native($XML2) {*}
     multi method new(Str:D :$url) {

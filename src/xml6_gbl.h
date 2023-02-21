@@ -27,8 +27,6 @@ typedef void (*xml6_gbl_MessageCallback) (const char *msg,
 
 DLLEXPORT void xml6_gbl_set_os_thread_generic_error_handler(xml6_gbl_MessageCallback, void (*route)(void*, xmlGenericErrorFunc));
 
-DLLEXPORT void xml6_gbl_os_thread_set_structured_error_handler(void*, xmlStructuredErrorFunc);
-
 DLLEXPORT void* xml6_gbl_save_error_handlers(void);
 DLLEXPORT void xml6_gbl_restore_error_handlers(void*);
 

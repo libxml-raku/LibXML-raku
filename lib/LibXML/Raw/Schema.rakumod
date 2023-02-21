@@ -2,7 +2,7 @@ unit module LibXML::Raw::Schema;
 
 use NativeCall;
 use LibXML::Raw;
-use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque;
+use LibXML::Raw::Defs :$XML2, :Opaque;
 
 class xmlSchema is repr(Opaque) is export {
    method Free is symbol('xmlSchemaFree') is native($XML2) {*}
@@ -14,7 +14,7 @@ class xmlSchemaParserCtxt is repr(Opaque) is export {
     our sub NewDoc(xmlDoc:D --> xmlSchemaParserCtxt) is native($XML2) is symbol('xmlSchemaNewDocParserCtxt') {*}
     method SetGenericErrorFunc( &err-func (xmlSchemaParserCtxt $ctx1, Str $msg1, Pointer), &warn-func (xmlSchemaParserCtxt $ctx2, Str $msg2, Pointer), Pointer $ctx) is native($XML2) is symbol('xmlSchemaSetParserErrors') {*}
     method SetParserErrorFunc( &error-func (xmlSchemaParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSchemaSetParserStructuredErrors') {*};
-    method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_set_structured_error_handler') {*};
+    method SetStructuredErrorFunc( &error-func (xmlValidCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method Parse(-->xmlSchema) is native($XML2) is symbol('xmlSchemaParse') {*}
     method Free is symbol('xmlSchemaFreeParserCtxt') is native($XML2) {*}
     multi method new(Str:D :$url) {

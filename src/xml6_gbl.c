@@ -199,11 +199,6 @@ DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
     }
 }
 
-DLLEXPORT void xml6_gbl_os_thread_set_structured_error_handler(void* ctx, xmlStructuredErrorFunc handler) {
-    xmlStructuredErrorContext = ctx;
-    xmlStructuredError = handler;
-}
-
 DLLEXPORT const xmlChar* xml6_gbl_dict(xmlChar* word) {
     const xmlChar *rv = NULL;
 
