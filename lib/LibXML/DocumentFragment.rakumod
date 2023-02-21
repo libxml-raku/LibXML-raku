@@ -125,7 +125,7 @@ method parse(
 
     my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
 
-    $ctx.try: {
+    $ctx.attempt: {
         # simple closures tend to leak on native callbacks. use dynamic variables
         my $ctx := $*XML-CONTEXT;
         my xmlSAXHandler $sax = .raw with $ctx.sax-handler;

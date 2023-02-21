@@ -105,26 +105,12 @@ class ValidContext {
     also does LibXML::ErrorHandling;
 
     method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, Bool :$check) is hidden-from-backtrace {
-        my $rv;
-
-        protected sub () is hidden-from-backtrace {
-            my $*XML-CONTEXT = self;
-            my $handlers = xml6_gbl::save-error-handlers();
-            $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            my @prev = self.config.setup;
-
-            $rv := $!raw.validate(:$doc, :$dtd, :$elem);
-
-	    $rv := self.validity-check
+        self.attempt: :$!raw, sub () is hidden-from-backtrace {
+            my $rv := $!raw.validate(:$doc, :$dtd, :$elem);
+            $rv := self.validity-check
                 if $check;
-            self.flush-errors;
-            LEAVE {
-                self.config.restore(@prev);
-                xml6_gbl::restore-error-handlers($handlers);
-            }
+            $rv.so;
         }
-
-        ? $rv;
     }
 
     multi method validate(
@@ -231,11 +217,11 @@ method !parser-ctx {
 }
 
 multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$string, :$enc};
+    my xmlDtd:D $raw = LibXML::Parser::Context.attempt: {xmlDtd.parse: :$string, :$enc};
     self.box: $raw
 }
 multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$string, :$enc};
+    my xmlDtd:D $raw = self!parser-ctx.attempt: {xmlDtd.parse: :$string, :$enc};
     self.box($raw)
 }
 =begin pod
@@ -250,11 +236,11 @@ multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') 
 =end pod
 
 multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) {
-    my xmlDtd:D $raw = LibXML::Parser::Context.try: {xmlDtd.parse: :$external-id, :$system-id;};
+    my xmlDtd:D $raw = LibXML::Parser::Context.attempt: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box: $raw
 }
 multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) {
-    my xmlDtd:D $raw = self!parser-ctx.try: {xmlDtd.parse: :$external-id, :$system-id;};
+    my xmlDtd:D $raw = self!parser-ctx.attempt: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box: $raw
 }
 multi method parse(Str $external-id, Str $system-id) is default {

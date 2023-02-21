@@ -76,28 +76,10 @@ my class Parser::Context {
     }
 
     method parse {
-        my $rv;
-
-        protected sub () is hidden-from-backtrace {
-            my $*XML-CONTEXT = self;
-
-            my $handlers = xml6_gbl::save-error-handlers();
-            $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            $!raw.SetParserErrorFunc: &structured-error-cb;
-            my @prev = self.config.setup();
+        self.attempt: :$!raw, {
             xmlExternalEntityLoader::set-networked(+$!network.so);
-
-            $rv := $!raw.Parse;
-
-            self.flush-errors;
-
-            LEAVE {
-                self.config.restore(@prev);
-                xml6_gbl::restore-error-handlers($handlers);
-             }
+            $!raw.Parse;
         }
-
-        $rv;
     }
 
 }
@@ -122,27 +104,13 @@ my class ValidContext {
         .Free with $!raw;
     }
 
-    multi method validate(LibXML::Document:D $_, Bool() :$check) is hidden-from-backtrace {
-        my xmlDoc:D $doc = .raw;
-        my $rv;
-
-        protected sub () is hidden-from-backtrace {
-            my $*XML-CONTEXT = self;
-            my $handlers = xml6_gbl::save-error-handlers();
-            $!raw.SetStructuredErrorFunc: &structured-error-cb;
-            my @prev = self.config.setup();
-            $rv := $!raw.ValidateDoc($doc);
-
+    multi method validate(LibXML::Document:D $doc, Bool() :$check) is hidden-from-backtrace {
+        self.attempt: :$!raw, {
+            my $rv := $!raw.ValidateDoc($doc.raw);
 	    $rv := self.validity-check
                 if $check;
-            self.flush-errors;
-            LEAVE {
-                self.config.restore(@prev);
-                xml6_gbl::restore-error-handlers($handlers);
-            }
+            $rv;
         }
-
-        $rv;
     }
 
     multi method validate(LibXML::Element:D $_, Bool() :$check) is hidden-from-backtrace {

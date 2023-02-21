@@ -101,7 +101,9 @@ method stop-parser {
     }
 }
 
-method try(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
+method try(|c) is hidden-from-backtrace is DEPRECATED<attempt>  { self.attempt: |c }
+
+method attempt(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
 

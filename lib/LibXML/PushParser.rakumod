@@ -21,7 +21,7 @@ class LibXML::PushParser {
     }
 
     method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
-        $!ctxt.try: :$recover, {
+        $!ctxt.attempt: :$recover, {
             with $!ctxt.raw {
                 .ParseChunk($chunk, $size, +$terminate);
                 $!ctxt.close() if $terminate;
