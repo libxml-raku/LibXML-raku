@@ -82,7 +82,7 @@ ok $attr.is-valid($elem);
 $elem.setAttributeNode($attr);
 is $attr, 'e & f', 'attr.Str';
 is $elem.raw.properties, ' attr="e &amp; f"', 'elem properties linkage';
-is $attr.raw.parent.properties, ' attr="e &amp; f"', 'attribute parent linkage';
+is $attr.raw.parent.delegate.properties, ' attr="e &amp; f"', 'attribute parent linkage';
 my $att2 = $elem.getAttributeNode('attr');
 is $att2.Str, 'e & f', 'att2.Str';
 ok $attr.isSameNode($att2);

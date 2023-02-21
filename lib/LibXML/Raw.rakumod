@@ -177,7 +177,7 @@ class xmlBuffer32 is repr(Opaque) is export {
     our sub New( --> xmlBuffer32) is native($XML2) is symbol('xmlBufferCreate') is export {*};
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufferWriteQuotedString') {*}
-    method NodeDump(xmlDoc $doc, xmlNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlNodeDump') {*};
+    method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlNodeDump') {*};
     method Content(--> Pointer) is symbol('xmlBufferContent') is native($XML2) { * }
     method Length(--> int32) is symbol('xmlBufferLength') is native($XML2) { * }
     method NotationDump(xmlNotation) is native($XML2) is symbol('xmlDumpNotationDecl') {*};
@@ -679,7 +679,7 @@ class xmlXPathObject is export {
     }
 
     method domXPathGetNodeSet(int32 $select --> xmlNodeSet) is native($BIND-XML2) {*}
-     method domXPathGetPoint(int32 $select --> anyNode) is native($BIND-XML2) {*}
+    method domXPathGetPoint(int32 $select --> anyNode) is native($BIND-XML2) {*}
     method Free is symbol('xmlXPathFreeObject') is native($XML2) {*}
 
     our sub NewString(xmlCharP --> xmlXPathObject) is native($XML2) is symbol('xmlXPathNewString') {*}
@@ -877,11 +877,11 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     has int32       $.type; # type number, must be second !
     has xmlCharP    $!name; # the name of the node, or the entity
     method name { $!name }
-    has xmlNode $.children; # parent->child link
-    has xmlNode     $.last; # last child link
-    has xmlNode   $.parent; # child->parent link
-    has xmlNode     $.next; # next sibling link
-    has xmlNode     $.prev; # previous sibling link
+    has anyNode $.children; # parent->child link
+    has anyNode     $.last; # last child link
+    has anyNode   $.parent; # child->parent link
+    has anyNode     $.next; # next sibling link
+    has anyNode     $.prev; # previous sibling link
     has xmlDoc       $.doc  # the containing document
          is rw-ptr(method xml6_node_set_doc(xmlDoc) is native($BIND-XML2) {*});
     # + additional fields, depending on node-type; see xmlElem, xmlDoc, xmlAttr, etc...
@@ -1000,7 +1000,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domSetNamespaceDeclPrefix(|c) { ... }
     method domSetNamespaceDeclURI(|c) { ... }
     method domGetNamespaceDeclURI(|c) { ... }
-    method ItemNode handles<delegate cast> { nativecast(itemNode, self) }
+    method ItemNode handles<delegate cast> {  nativecast(itemNode, self) }
 
     method new() { fail "new() not available for " ~ self.WHAT.raku }
 }
@@ -1222,7 +1222,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
     method SearchNs(anyNode, Str --> xmlNs) is native($XML2) is symbol('xmlSearchNs') {*}
     method SearchNsByHref(anyNode, Str --> xmlNs) is native($XML2) is symbol('xmlSearchNsByHref') {*}
     method GetID(Str --> xmlAttr) is native($XML2) is symbol('xmlGetID') {*}
-    method IsID(xmlNode, xmlAttr --> int32) is native($XML2) is symbol('xmlIsID') {*}
+    method IsID(xmlElem, xmlAttr --> int32) is native($XML2) is symbol('xmlIsID') {*}
     method IndexElements(--> long) is symbol('xmlXPathOrderDocElems') is native($XML2) {*}
 
     our sub New(xmlCharP $version --> xmlDoc) is native($XML2) is symbol('xmlNewDoc') {*}

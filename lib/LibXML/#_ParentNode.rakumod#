@@ -23,7 +23,7 @@ method getChildrenByLocalName(Str:D $name) {
 method getChildrenByTagName(Str:D $name) {
     self.iterate-set(LibXML::Node, $.raw.getChildrenByTagName($name));
 }
-method getChildrenByTagNameNS(Str $uri, Str:D $name) {
+method getChildrenByTagNameNS(Str:D $uri, Str:D $name) {
     self.iterate-set(LibXML::Node, $.raw.getChildrenByTagNameNS($uri, $name));
 }
 method elements {

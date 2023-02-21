@@ -16,7 +16,7 @@ also does LibXML::_Collection;
 
 has Bool:D $.blank = False;
 has $!raw handles <string-value>;
-has $.of is required;
+has LibXML::Item $.of is required;
 has Bool $!reified;
 has LibXML::Item @!store;
 has $!hstore;

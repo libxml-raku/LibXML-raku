@@ -137,7 +137,8 @@ method iterator($nodes:) {
 
 =head2 Description
 
-This class is commonly used for handling result sets from XPath queries. It performs the Iterator role, which enables:
+This class is commonly used for handling result sets from XPath queries or DOM navigation methods. It performs
+the Iterator role, which enables:
 
     for $elem.findnodes($path) {...}
     my LibXML::Item @nodes = $elem.findnodes($xpath);
