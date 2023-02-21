@@ -70,7 +70,7 @@ subtest 'Standalone Without NameSpaces', {
             ok $attributes, 'got attributes';
 
             is +$attributes, 1;
-q            for $attributes<foo>, $xc.getChildrenByLocalName('@foo')[0] -> $attr {
+            for $attributes<foo>, $xc.getChildrenByLocalName('@foo')[0] -> $attr {
                 is $attr, 'foobar';
                 is $attr.nodeType, +XML_ATTRIBUTE_NODE;
                 is $attr.nodeName, "foo";
