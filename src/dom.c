@@ -838,7 +838,7 @@ domGetXPathKey(xmlNodePtr node) {
             }
         break;
     }
-return (xmlChar*)name;
+    return (xmlChar*)name;
 }
 
 // Returns a name tailored for AST construction
