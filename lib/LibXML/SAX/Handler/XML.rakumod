@@ -15,22 +15,21 @@ class LibXML::SAX::Handler::XML
     use LibXML::SAX::Builder :sax-cb;
 
     has XML::Document $.doc;    # The document that we're really building
-    has XML::Element  $!node;   # Current node
+    has XML::Node  $!node;      # Current node
 
     method publish($) {
         # ignore SAX created document; replace with our own
         $!doc;
     }
 
+    method startDocument is sax-cb {
+        $!doc .= new;
+        $!node = $!doc;
+    }
+
     method startElement($name, :%attribs) is sax-cb {
         my XML::Element $elem .= new: :$name, :%attribs;
-        # append and step down
-        with $!node {
-            .append: $elem;
-        }
-        else {
-            $!doc .= new: :root($elem);
-        }
+        $!node.append: $elem;
         $!node = $elem;
     }
 
