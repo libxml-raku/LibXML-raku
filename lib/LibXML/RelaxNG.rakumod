@@ -76,8 +76,8 @@ my class Parser::Context {
         .Free with $!raw;
     }
 
-    method parse {
-        self.attempt: :$!raw, { $!raw.Parse; }
+    method parse is hidden-from-backtrace {
+        self.do: :$!raw, { $!raw.Parse; }
     }
 
 }
@@ -102,7 +102,7 @@ my class ValidContext {
     }
 
     method validate(LibXML::Document:D $doc, Bool() :$check) is hidden-from-backtrace {
-        self.attempt: :$!raw, {
+        self.do: :$!raw, {
             my $rv := $!raw.ValidateDoc($doc.raw);
             $check ?? self.validity-check !! $rv;
         }

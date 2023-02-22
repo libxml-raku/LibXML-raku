@@ -118,14 +118,14 @@ method parse(
     Bool :balanced($)! where .so,
     Pointer :$user-data,
     |c
-    --> LibXML::DocumentFragment) {
+    --> LibXML::DocumentFragment) is hidden-from-backtrace {
 
     my $doc-frag = self;
     $_ .= new(|c) without $doc-frag;
 
     my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
 
-    $ctx.attempt: {
+    $ctx.do: {
         # simple closures tend to leak on native callbacks. use dynamic variables
         my $ctx := $*XML-CONTEXT;
         my xmlSAXHandler $sax = .raw with $ctx.sax-handler;

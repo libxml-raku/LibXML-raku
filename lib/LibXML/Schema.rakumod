@@ -75,8 +75,8 @@ my class Parser::Context {
         .Free with $!raw;
     }
 
-    method parse {
-        self.attempt: :$!raw, {
+    method parse is hidden-from-backtrace {
+        self.do: :$!raw, {
             xmlExternalEntityLoader::set-networked(+$!network.so);
             $!raw.Parse;
         }
@@ -105,7 +105,7 @@ my class ValidContext {
     }
 
     multi method validate(LibXML::Document:D $doc, Bool() :$check) is hidden-from-backtrace {
-        self.attempt: :$!raw, {
+        self.do: :$!raw, {
             my $rv := $!raw.ValidateDoc($doc.raw);
 	    $rv := self.validity-check
                 if $check;

@@ -368,7 +368,7 @@ role LibXML::ErrorHandling {
         );
     }
 
-    method attempt(&action, :$raw!) is hidden-from-backtrace {
+    method do(&action, :$raw!) is hidden-from-backtrace {
         my $rv;
 
         protected sub () is hidden-from-backtrace {

@@ -105,7 +105,7 @@ class ValidContext {
     also does LibXML::ErrorHandling;
 
     method !validate-raw(xmlDoc:D :$doc, xmlDtd :$dtd, xmlElem :$elem, Bool :$check) is hidden-from-backtrace {
-        self.attempt: :$!raw, sub () is hidden-from-backtrace {
+        self.do: :$!raw, sub () is hidden-from-backtrace {
             my $rv := $!raw.validate(:$doc, :$dtd, :$elem);
             $rv := self.validity-check
                 if $check;
@@ -216,12 +216,12 @@ method !parser-ctx {
     $!parser-ctx //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new)
 }
 
-multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $raw = LibXML::Parser::Context.attempt: {xmlDtd.parse: :$string, :$enc};
+multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') is hidden-from-backtrace {
+    my xmlDtd:D $raw = LibXML::Parser::Context.do: {xmlDtd.parse: :$string, :$enc};
     self.box: $raw
 }
-multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') {
-    my xmlDtd:D $raw = self!parser-ctx.attempt: {xmlDtd.parse: :$string, :$enc};
+multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') is hidden-from-backtrace {
+    my xmlDtd:D $raw = self!parser-ctx.do: {xmlDtd.parse: :$string, :$enc};
     self.box($raw)
 }
 =begin pod
@@ -235,12 +235,12 @@ multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') 
     references with relative URLs.
 =end pod
 
-multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) {
-    my xmlDtd:D $raw = LibXML::Parser::Context.attempt: {xmlDtd.parse: :$external-id, :$system-id;};
+multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
+    my xmlDtd:D $raw = LibXML::Parser::Context.do: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box: $raw
 }
-multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) {
-    my xmlDtd:D $raw = self!parser-ctx.attempt: {xmlDtd.parse: :$external-id, :$system-id;};
+multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
+    my xmlDtd:D $raw = self!parser-ctx.do: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box: $raw
 }
 multi method parse(Str $external-id, Str $system-id) is default {

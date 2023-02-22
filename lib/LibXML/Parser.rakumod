@@ -92,7 +92,7 @@ method processXIncludes (
     my xmlDoc $doc = .raw;
     my $ctx = self!make-handler(:raw(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);
-    my $rv := $ctx.attempt: { $doc.XIncludeProcessFlags($flags) }
+    my $rv := $ctx.do: { $doc.XIncludeProcessFlags($flags) }
     $ctx.publish();
     $rv;
 }
@@ -109,7 +109,7 @@ multi method parse(
 
     my LibXML::Parser::Context:D $ctx = self!make-handler: :$html, |%opts;
 
-    $ctx.attempt: {
+    $ctx.do: {
         my xmlParserCtxt $raw = (
             $html
                 ?? htmlMemoryParserCtxt
@@ -145,7 +145,7 @@ multi method parse(
     $raw.input.filename = $_ with $URI;
 
     my LibXML::Parser::Context $ctx = self!make-handler: :$raw, :$html, |%opts;
-    $ctx.attempt: {
+    $ctx.do: {
         $raw.ParseDocument;
         LEAVE .close() with $ctx;
     };
@@ -162,7 +162,7 @@ multi method parse(
 ) is hidden-from-backtrace {
     my LibXML::Parser::Context $ctx = self!make-handler: :$html, |%opts;
 
-    $ctx.attempt: {
+    $ctx.do: {
         my xmlParserCtxt $raw = $html
            ?? htmlFileParserCtxt.new(:$file, :$enc)
            !! xmlFileParserCtxt.new(:$file);
@@ -193,7 +193,7 @@ multi method parse(
     my UInt $flags = self.get-flags(|%opts, :$html);
     my xmlDoc $raw-doc;
 
-    $ctx.attempt: {
+    $ctx.do: {
         my xmlParserCtxt $raw = $html
            ?? htmlParserCtxt.new
            !! xmlParserCtxt.new;

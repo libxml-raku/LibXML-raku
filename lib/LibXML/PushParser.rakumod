@@ -20,8 +20,8 @@ class LibXML::PushParser {
         $!ctxt .= new: :$raw, :$sax-handler, |c;
     }
 
-    method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) {
-        $!ctxt.attempt: :$recover, {
+    method !parse(Blob $chunk = Blob.new, UInt :$size = +$chunk, Bool :$recover, Bool :$terminate = False) is hidden-from-backtrace {
+        $!ctxt.do: :$recover, {
             with $!ctxt.raw {
                 .ParseChunk($chunk, $size, +$terminate);
                 $!ctxt.close() if $terminate;
@@ -33,15 +33,15 @@ class LibXML::PushParser {
     }
 
     proto method parse-chunk($, |)  is also<push> {*} 
-    multi method push(Str $chunk, |c) {
+    multi method push(Str $chunk, |c) is hidden-from-backtrace {
         self!parse($chunk.encode, |c);
     }
 
-    multi method push(Blob $chunk, |c) is default {
+    multi method push(Blob $chunk, |c) is hidden-from-backtrace {
         self!parse($chunk, |c);
     }
 
-    method finish-push(Str :$URI, Bool :$recover, :$sax-handler = $!ctxt.sax-handler, |c) {
+    method finish-push(Str :$URI, Bool :$recover, :$sax-handler = $!ctxt.sax-handler, |c) is hidden-from-backtrace {
         self!parse: :terminate, :$recover, |c;
 	die "XML not well-formed in xmlParseChunk"
             unless $recover || $!ctxt.wellFormed;
