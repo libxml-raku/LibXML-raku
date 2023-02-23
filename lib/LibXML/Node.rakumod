@@ -366,15 +366,6 @@ method getOwnerDocument is also<get-doc> returns LibXML::Node {
     } // doc-class;
 }
 
-submethod TWEAK(:$native) {
-    die 'new(:$native) option is obselete. Please use :$raw'
-        with $native;
-
-    die "undefined native node"
-        if self.REPR eq 'CPointer'
-        && !self.defined;
-}
-
 #| Transfers a node to another document
 method setOwnerDocument( LibXML::Node $doc) {
     $doc.adoptNode(self);
