@@ -2,7 +2,7 @@ use v6;
 use Test;
 # minimal low-level bootstrapping tests for the sax parser
 
-plan 16;
+plan 19;
 use NativeCall;
 use LibXML;
 use LibXML::Raw;
@@ -22,7 +22,6 @@ sub startElement(xmlParserCtxt $ctx, Str $name, CArray[Str] $atts) {
         my $val = $atts[$i++] // last;
         %atts-seen{$key} = $val;
     }
-    
 }
 
 sub endElement(xmlParserCtxt $ctx, Str $name) {
@@ -57,10 +56,21 @@ class SaxHandler is LibXML::SAX::Handler {
     use LibXML::SAX::Builder :sax-cb;
     method startElement($name, :%attribs) is sax-cb {
         %atts-seen ,= %attribs;
-        @start-tags.push: $name; 
+        @start-tags.push: $name;
     }
     method endElement($name) is sax-cb {
-        @end-tags.push: $name; 
+        @end-tags.push: $name;
+    }
+}
+
+class SaxHandler2 is LibXML::SAX::Handler {
+    use LibXML::SAX::Builder :sax-cb;
+    method elem:start ($name, :%attribs) is sax-cb<startElement> {
+        %atts-seen ,= %attribs;
+        @start-tags.push: $name;
+    }
+    method elem:end ($name) is sax-cb<endElement> {
+        @end-tags.push: $name;
     }
 }
 
@@ -69,15 +79,15 @@ class SaxHandlerNs is LibXML::SAX::Handler {
     method startElementNs($name, :%attribs) is sax-cb {
         %atts-seen{.key} = .value.value
             for %attribs;
-        @start-tags.push: $name; 
+        @start-tags.push: $name;
     }
     method endElementNs($name) is sax-cb {
-        @end-tags.push: $name; 
+        @end-tags.push: $name;
     }
 }
 
-# low-level tests on native sax handlers 
-for SaxHandler, SaxHandlerNs -> $sax-handler-class {
+# low-level tests on native sax handlers
+for SaxHandler, SaxHandler2, SaxHandlerNs -> $sax-handler-class {
     @start-tags = ();
     @end-tags = ();
     %atts-seen = ();
