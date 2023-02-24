@@ -2,7 +2,7 @@ use v6;
 use Test;
 # minimal low-level bootstrapping tests for the sax parser
 
-plan 19;
+plan 22;
 use NativeCall;
 use LibXML;
 use LibXML::Raw;
@@ -63,13 +63,31 @@ class SaxHandler is LibXML::SAX::Handler {
     }
 }
 
-class SaxHandler2 is LibXML::SAX::Handler {
+class SaxHandlerAlias is LibXML::SAX::Handler {
     use LibXML::SAX::Builder :sax-cb;
     method elem:start ($name, :%attribs) is sax-cb<startElement> {
         %atts-seen ,= %attribs;
         @start-tags.push: $name;
     }
     method elem:end ($name) is sax-cb<endElement> {
+        @end-tags.push: $name;
+    }
+}
+
+class SaxHandlerMulti is LibXML::SAX::Handler {
+    use LibXML::SAX::Builder :sax-cb;
+    proto method startElement($name, :%attribs) is sax-cb {
+        %atts-seen ,= %attribs;
+        {*}
+    }
+    multi method startElement('html')  {
+        @start-tags.push: 'html';
+    }
+    multi method startElement($name where 'body'|'h1') {
+        @start-tags.push: $name;
+    }
+
+    method endElement($name) is sax-cb {
         @end-tags.push: $name;
     }
 }
@@ -87,7 +105,7 @@ class SaxHandlerNs is LibXML::SAX::Handler {
 }
 
 # low-level tests on native sax handlers
-for SaxHandler, SaxHandler2, SaxHandlerNs -> $sax-handler-class {
+for SaxHandler, SaxHandlerAlias, SaxHandlerMulti, SaxHandlerNs -> $sax-handler-class {
     @start-tags = ();
     @end-tags = ();
     %atts-seen = ();
