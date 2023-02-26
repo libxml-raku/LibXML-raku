@@ -14,8 +14,8 @@ class LibXML::SAX::Handler::XML
     use XML::Text;
     use LibXML::SAX::Builder :sax-cb;
 
-    has XML::Document $.doc;    # The document that we're really building
-    has XML::Node  $!node;      # Current node
+    has XML::Document $.doc is built;  # The document that we're really building
+    has XML::Node  $!node;             # Current node
 
     method publish($) {
         # ignore SAX created document; replace with our own
@@ -39,24 +39,20 @@ class LibXML::SAX::Handler::XML
     }
 
     method cdataBlock(Str $data) is sax-cb {
-        .append: XML::CDATA.new(:$data)
-            with $!node;
+        $!node.append: XML::CDATA.new(:$data);
     }
 
     method characters(Str $text) is sax-cb {
-        .append: XML::Text.new(:$text)
-            with $!node;
+        $!node.append: XML::Text.new(:$text);
     }
 
     method comment(Str $text) is sax-cb {
-        .append: XML::Comment.new(:$text)
-            with $!node;
+        $!node.append: XML::Comment.new(:$text);
     }
 
     method processingInstruction(Str $target, Str $value) is sax-cb {
         my $data = $target ~ ' ' ~ $value;
-        .append: XML::PI.new(:$data)
-            with $!node;
+        $!node.append: XML::PI.new(:$data);
     }
 
 }
