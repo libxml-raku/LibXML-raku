@@ -283,7 +283,7 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name );
 
 DLLEXPORT xmlChar* domFailure(xmlNodePtr);
 
-DLLEXPORT xmlChar* domUniqueKey(xmlNodePtr);
+DLLEXPORT xmlChar* domUniqueKey(void*);
 
 DLLEXPORT int domIsSameNode(void*, void *);
 

@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 71;
+plan 68;
 # bootstrapping tests for the DOM
 
 use LibXML;
@@ -67,9 +67,6 @@ my LibXML::Element $root = $doc.create: LibXML::Element, :name<Test>;
 $doc.documentElement = $root;
 my LibXML::Element $root2 = $doc.documentElement;
 ok $root.unique-key eq $root2.unique-key, 'Unique root key';
-ok $root.unique-key ne $frag.unique-key;
-ok $root.uid == $root2.uid, 'Unique root uid';
-ok $root.uid != $frag.uid, 'Unique root uid';
 ok +nativecast(Pointer, $root.raw) == +nativecast(Pointer, $root2.raw), 'Unique root address';
 is $root, '<Test/>', 'Root Element';
 is ~$doc, "<Test/>\n", 'Document';

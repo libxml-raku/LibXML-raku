@@ -2375,14 +2375,10 @@ domAddNewChild( xmlNodePtr self, xmlChar* nsURI, xmlChar* name ) {
 DLLEXPORT xmlChar* domFailure(xmlNodePtr self) {
     return xml6_ref_get_fail(self->_private);
 }
-DLLEXPORT xmlChar* domUniqueKey(xmlNodePtr self) {
-    uint64_t uid = xml6_ref_get_uid(self->_private);
-    char key[22];
-    sprintf(key, "%lx", uid);
+DLLEXPORT xmlChar* domUniqueKey(void* self) {
+    char key[20];
+    sprintf(key, "%p", self);
     return xmlStrdup((xmlChar*)key);
-}
-DLLEXPORT uint64_t domGetUid(xmlNodePtr self) {
-    return xml6_ref_get_uid(self->_private);
 }
 
 DLLEXPORT int domIsSameNode(void* self, void* other) {

@@ -3,7 +3,6 @@
 
 #include "xml6.h"
 #include <libxml/parser.h>
-#include <stdint.h>
 
 #define XML6_REF_MAGIC 2020437046 // 'xml6', little endian
 #define XML6_FAIL(self, msg) { self && self->_private ? xml6_ref_set_fail(self->_private, (xmlChar*)msg) : xml6_warn(msg); return NULL;}
@@ -13,7 +12,6 @@ DLLEXPORT void xml6_ref_add(void**);
 DLLEXPORT int xml6_ref_remove(void**, const char*, void*);
 DLLEXPORT void xml6_ref_set_fail(void*, xmlChar*);
 DLLEXPORT xmlChar* xml6_ref_get_fail(void*);
-DLLEXPORT uint64_t xml6_ref_get_uid(void*);
 DLLEXPORT int xml6_ref_set_flags(void*, int);
 DLLEXPORT int xml6_ref_get_flags(void*);
 DLLEXPORT int xml6_ref_lock(void*);

@@ -8,7 +8,6 @@ struct _xml6Ref {
     xmlMutexPtr mutex;
     int ref_count;
     int flags;
-    int64_t uid;
     int magic;     /* for verification */
 };
 
@@ -16,12 +15,10 @@ typedef struct _xml6Ref xml6Ref;
 typedef xml6Ref *xml6RefPtr;
 
 static xml6Ref ref_freed = {
-    NULL, NULL, 0, 0, 0, 0
+    NULL, NULL, 0, 0, 0
 };
 
 static xmlMutexPtr _mutex = NULL;
-
-static int64_t next_uid = 1;
 
 #ifdef DEBUG
 static int ref_current = 0;
@@ -33,12 +30,11 @@ DLLEXPORT void* xml6_ref_freed() {
 }
 
 static xml6RefPtr
-_ref_new(uint64_t uid) {
+_ref_new(void) {
     xml6RefPtr ref = (xml6RefPtr)xmlMalloc(sizeof(struct _xml6Ref));
     memset(ref, 0, sizeof(struct _xml6Ref));
     ref->magic = XML6_REF_MAGIC;
     ref->mutex = xmlNewMutex();
-    ref->uid = uid;
     ref->ref_count = 1;
     return ref;
 }
@@ -47,7 +43,6 @@ DLLEXPORT void
 xml6_ref_add(void** self_ptr) {
     xml6RefPtr self;
     int init = 0;
-    uint64_t uid = 0;
 
     if (_mutex == NULL) {
         _mutex = xmlNewMutex();
@@ -56,8 +51,7 @@ xml6_ref_add(void** self_ptr) {
     if ( *self_ptr == NULL ) {
         xmlMutexLock(_mutex);
         if ( *self_ptr == NULL ) {
-            uid = next_uid++;
-            self = _ref_new(uid);
+            self = _ref_new();
             *self_ptr = (void*) self;
 #ifdef DEBUG
             ref_current++;
@@ -178,16 +172,6 @@ xml6_ref_get_fail(void* _self) {
       xmlMutexUnlock(self->mutex);
   }
   return fail;
-}
-
-DLLEXPORT uint64_t
-xml6_ref_get_uid(void* _self) {
-  xml6RefPtr self = (xml6RefPtr) _self;
-
-  if (self != NULL && self->magic == XML6_REF_MAGIC) {
-      return self->uid;
-  }
-  return 0;
 }
 
 DLLEXPORT int

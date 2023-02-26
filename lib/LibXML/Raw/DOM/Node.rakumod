@@ -152,7 +152,6 @@ method setNodeValue(Str $_) { self.domSetNodeValue($_) }
 method unique-key { self.domUniqueKey.Str }
 method xpath-key { self.domGetXPathKey }
 method ast-key { self.domGetASTKey }
-method uid { self.domGetUid }
 
 method hasAttributes returns Bool {
     given self.type {
