@@ -54,7 +54,7 @@ method compile(Str:D $regexp --> LibXML::RegExp) {
 }
 =para `LibXML::RegExp.compile($regexp)` is equivalent to `LibXML::RegExp.new(:$regexp)`
 
-method !try-bool(Str:D $op, |c) {
+method !bool-op(Str:D $op, |c) {
     my $rv := $!native."$op"(|c);
     fail X::LibXML::OpFail.new(:what<RegExp>, :$op)
         if $rv < 0;
@@ -63,12 +63,12 @@ method !try-bool(Str:D $op, |c) {
 
 #| (alias matches) Returns True if $content matches the regular expression
 multi method ACCEPTS(LibXML::RegExp:D: Str:D $content --> Bool) is also<matches> {
-    self!try-bool('Match', $content);
+    self!bool-op('Match', $content);
 }
 
 #| Returns True if the regular expression is deterministic. 
 method isDeterministic returns Bool {
-    self!try-bool('IsDeterministic');
+    self!bool-op('IsDeterministic');
 }
 =para (See the definition of determinism in the XML spec L<<<<<<http://www.w3.org/TR/REC-xml/#determinism >>>>>>)
 

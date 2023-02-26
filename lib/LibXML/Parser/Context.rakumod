@@ -101,7 +101,7 @@ method stop-parser {
     }
 }
 
-method try(|c) is hidden-from-backtrace is DEPRECATED<do>  { self.do: |c }
+method try(|c) is hidden-from-backtrace is DEPRECATED<do> { self.do: |c }
 
 method do(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 

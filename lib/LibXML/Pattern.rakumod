@@ -116,7 +116,7 @@ submethod DESTROY {
     .Free with $!raw;
 }
 
-method !try-bool(Str:D $op, |c) {
+method !bool-op(Str:D $op, |c) {
     my $rv := $!raw."$op"(|c);
     fail X::LibXML::OpFail.new(:what<Pattern>, :$op)
         if $rv < 0;
@@ -125,11 +125,11 @@ method !try-bool(Str:D $op, |c) {
 
 #| True if the node is matched by the compiled pattern
 multi method matchesNode(LibXML::Node $node --> Bool) {
-     self!try-bool('Match', $node.raw);
+     self!bool-op('Match', $node.raw);
 }
 
 multi method matchesNode(anyNode $node) {
-    self!try-bool('Match', $node);
+    self!bool-op('Match', $node);
 }
 
 #| True if the Node matches the pattern.

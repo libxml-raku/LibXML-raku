@@ -171,7 +171,7 @@ sub generic-error-cb(Str:D $fmt, |args) {
     CATCH { default { note "error handling XML generic error: $_" } }
     $*XPATH-CONTEXT.generic-error($fmt, |args);
 }
-method !try(&action) is hidden-from-backtrace {
+method !do(&action) is hidden-from-backtrace {
     my $rv;
 
     protected sub () is hidden-from-backtrace {
@@ -197,7 +197,7 @@ multi method registerNs(QName:D :$prefix!, Str :$uri --> Zero) {
     $.registerNs($prefix, $uri);
 }
 multi method registerNs(QName:D $prefix!, Str $uri? --> Zero) {
-    my $stat = self!try: {
+    my $stat = self!do: {
         $uri
             ?? $!raw.RegisterNs($prefix, $uri)
             !! $!raw.RegisterNs($prefix, Str);
@@ -345,11 +345,11 @@ method unregisterFunction(QName:D $name) { $.unregisterFunctionNS($name, Str) }
 
 method !findnodes(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref --> xmlNodeSet) {
     my anyNode $node = .raw with $ref;
-    self!try: { $!raw.findnodes( $xpath-expr.raw, $node); }
+    self!do: { $!raw.findnodes( $xpath-expr.raw, $node); }
 }
 method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, Bool:D :$bool = False, Bool :$literal) {
     my anyNode $node = .raw with $ref-node;
-    my xmlXPathObject $xo := self!try: {$!raw.find( $xpath-expr.raw, $node, :$bool);}
+    my xmlXPathObject $xo := self!do: {$!raw.find( $xpath-expr.raw, $node, :$bool);}
     do with $xo {
         my $v := .value;
         if $v ~~ xmlNodeSet {
