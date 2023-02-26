@@ -150,7 +150,7 @@ proto method raw(|) handles<
     normalize nodePath
     setNamespaceDeclURI setNamespaceDeclPrefix setNodeName setNodeValue
     type lock unlock
-    unique-key ast-key xpath-key> {*}
+    unique-key ast-key xpath-key uid> {*}
 multi method raw(::?CLASS:D:) { $!raw }
 multi method raw(::?CLASS:U:) { xmlNode }
 

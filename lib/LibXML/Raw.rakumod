@@ -941,6 +941,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domNormalize(--> int32) is native($BIND-XML2) {*}
     method domUniqueKey(--> AllocedStr) is native($BIND-XML2) {*}
     method domIsSameNode(anyNode --> int32) is native($BIND-XML2) {*}
+    method domGetUid(-->uint64) is native($BIND-XML2) {*}
 
     method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> AllocedStr) is native($BIND-XML2) {*}
 
