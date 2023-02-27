@@ -3,9 +3,12 @@ unit class LibXML::EntityRef;
 
 use LibXML::Node;
 use W3C::DOM;
+use LibXML::_Rawish;
+use LibXML::Raw;
 
 also is LibXML::Node;
 also does W3C::DOM::EntityReference;
+also does LibXML::_Rawish[ xmlEntityRefNode, () ];
 
 =begin pod
 
@@ -75,9 +78,6 @@ note $doc.root.Str; # <doc att="xxx&foo;">This is a valid document &foo; !</doc>
 =end code
 
 =end pod
-
-use LibXML::Raw;
-has xmlEntityRefNode:D $.raw is required;
 
 method new(LibXML::Node :doc($owner), Str :$name!, *%c) {
     my xmlDoc:D $doc = .raw with $owner;
