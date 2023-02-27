@@ -52,7 +52,7 @@ proto method box(|) {*}
 # XXX Should it be `anyNode:D` instead of `Any:D`??
 multi method box(::?CLASS:D: Any:D $_, *%c) { (%c<config> //= $.config).class-from(.type).box(.delegate, |%c) }
 multi method box(::?CLASS:U: Any:D $_, *%c) { (%c<config> //  $.config).class-from(.type).box(.delegate, |%c) }
-multi method box(Any:U) { self.WHAT }
+multi method box(Any:U, :$config) { ($config // $.config).class-from(self.WHAT, :!strict) }
 
 #| Node constructor from data
 proto method ast-to-xml(::?CLASS:D: | --> LibXML::Item) {*}
@@ -198,7 +198,11 @@ multi trait_mod:<is>( Method $m where {.yada && .count <= 1 && .returns ~~ ::?CL
     my $class := $m.returns;
     my &wrapper = method (::?CLASS:D:) is hidden-from-backtrace {
 #        note "BOXING on ", self.WHICH, " into {$class.^name} for method '$name' --> ", $.raw."$name"().WHICH;
-        self.box: $class, $.raw."$name"()
+        given $.raw."$name"() {
+            .defined
+                ?? $!config.class-from(.type).box: $_, :$!config
+                !! $!config.class-from($class, :!strict).box($_)
+        }
     };
     &wrapper.set_name($name);
     $m.wrap: &wrapper;

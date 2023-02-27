@@ -100,7 +100,7 @@ method iterator {
         method pull-one {
             with $!cur -> $this {
                 $!cur = $this.next-node($!blank);
-                $!of.box: $this, :$!config;
+                $!config.class-from($this.type).box: $this, :$!config;
             }
             else {
                 IterationEnd;

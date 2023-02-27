@@ -431,11 +431,11 @@ multi method map-class(::?CLASS:D: Int:D $id, Mu:U \user-type) {
     @.class-map[$id] := user-type;
 }
 multi method map-class(::?CLASS:D: Str:D $class, Mu:U \user-type) {
-    self!validate-map-class-name($class, q<unknown to configuration 'map-call' method>);
+    self!validate-map-class-name($class, q<unknown to configuration 'map-class' method>);
     samewith(%DefaultClassMap{$class}, user-type);
 }
 multi method map-class(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Mu:U \user-type) {
-    self!validate-map-class(from-type, q<unsupported by configuration 'map-call' method>);
+    self!validate-map-class(from-type, q<unsupported by configuration 'map-class' method>);
     samewith(from-type.^name, user-type)
 }
 # Maps LibXML::* class names into user classes

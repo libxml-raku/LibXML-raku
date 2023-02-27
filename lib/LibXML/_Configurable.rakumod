@@ -19,6 +19,6 @@ multi method create(::?ROLE:D :from(:$for)! is raw, |c) {
     self.WHAT.new: :config($for.config), |c
 }
 
-multi method box(LibXML::_Configurable \kind, |c) {
-    kind.box: :$!config, |c
+multi method box(::?CLASS:D: LibXML::_Configurable \kind, |c) {
+    $!config.class-from(kind, :!strict).box: :$!config, |c
 }

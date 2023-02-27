@@ -35,7 +35,7 @@ submethod DESTROY {
 
 method elems is also<size Numeric> { $!raw.nodeNr }
 method Seq returns Seq handles<Array list values map grep> {
-    (^$!raw.nodeNr).map: { $!of.box: $!nodeTab[$_], :$.config };
+    (^$!raw.nodeNr).map: { $!config.class-from(.type).box: $_, :$!config given $!nodeTab[$_] };
 }
 
 method Hash handles <AT-KEY keys pairs> {
@@ -51,6 +51,8 @@ method AT-POS(UInt:D $pos) {
     $pos >= $!raw.nodeNr
         ?? $!of
         !! $!of.box($!nodeTab[$pos], :$.config);
+    # TODO The following line is how it supposed to be but it fails on undefined values.
+    #     !! $!config.class-from(.type).box: $_, :$!config given $!nodeTab[$pos];
 }
 method add(LibXML::Item:D $node) is also<push> {
     constant Ref = 1;
@@ -64,7 +66,7 @@ method add(LibXML::Item:D $node) is also<push> {
 method pop {
     with $!raw.pop -> $node {
         $!hstore ⚛= Nil;
-        $!of.box: $node, :$.config;
+        $!config.class-from(.type).box: $_, :$!config given $node;
     }
     else {
         $!of;
