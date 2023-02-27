@@ -50,8 +50,8 @@ multi method box-class(::?CLASS:D: Int:D $id) { $!config.class-from($id) }
 
 proto method box(|) {*}
 # XXX Should it be `anyNode:D` instead of `Any:D`??
-multi method box(::?CLASS:D: Any:D $_, *%c) { $.config.class-from(.type).box(.delegate, :$!config, |%c) }
-multi method box(::?CLASS:U: Any:D $_, *%c) { $.config.class-from(.type).box(.delegate, |%c) }
+multi method box(::?CLASS:D: Any:D $_, *%c) { (%c<config> //= $.config).class-from(.type).box(.delegate, |%c) }
+multi method box(::?CLASS:U: Any:D $_, *%c) { (%c<config> //  $.config).class-from(.type).box(.delegate, |%c) }
 multi method box(Any:U) { self.WHAT }
 
 #| Node constructor from data
