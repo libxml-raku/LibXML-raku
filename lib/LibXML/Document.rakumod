@@ -143,13 +143,17 @@ method parser-class {
     Many functions listed here are documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
+submethod TWEAK(Bool :$input-compressed) {
+    self.raw.set-flags(InputCompressed)
+        if $input-compressed;
+}
+
 method new(
     Str  :$version,
     xmlEncodingStr :$enc,
     Str  :$URI,
     Bool :$html,
     Int  :$compression,
-    Bool :$input-compressed,
     xmlDoc :$raw = ($html ?? htmlDoc !! xmlDoc).new,
     LibXML::Config:D :$config = LibXML::Config.new,
     # obselete
@@ -164,11 +168,8 @@ method new(
     $raw.encoding = $_ with $enc;
     $raw.URI = $_ with $URI;
     $raw.setCompression($_) with $compression;
-    $raw.Reference;
-    $raw.set-flags(InputCompressed)
-        if $input-compressed;
 
-    self.bless(:$raw, :$config, |c);
+    self.box($raw, :$config, |c);
 }
 =begin pod
     =head3 method new
