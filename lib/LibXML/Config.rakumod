@@ -403,6 +403,8 @@ my constant @ClassMap = do {
     }
     @map;
 }
+my constant %RawClassType =
+    @LibXML::Raw::ClassMap.pairs.map({ @LibXML::Raw::ClassMap[.key]:exists ?? (.value.^name => .key) !! Empty });
 
 has @!class-map is default(Nil);
 
@@ -460,7 +462,7 @@ multi method class-from(::?CLASS:D: LibXML::Types::Itemish:U \from-type, Bool:D 
     return from-type
         unless self!validate-map-class(
             from-type,
-            q<unsupported by configuration 'class-map' method>,
+            q<unsupported by configuration 'class-from' method>,
             :$strict);
     samewith(%DefaultClassMap{from-type.^name});
 }
@@ -468,12 +470,47 @@ multi method class-from(::?CLASS:D: Str:D $class, Bool:D :$strict = True) is raw
     return resolve-package($class)
         unless self!validate-map-class-name(
             $class,
-            q<unknown to configuration 'class-map' method>,
+            q<unknown to configuration 'class-from' method>,
             :$strict);
     samewith(%DefaultClassMap{$class});
 }
 multi method class-from(::?CLASS:D: Int:D $id) is raw { @.class-map[$id] }
 multi method class-from(::?CLASS:D: anyNode:D $raw) is raw { @.class-map[$raw.type] }
+multi method class-from(::?CLASS:D: Any:U \raw-type, Bool:D :$strict = True) {
+    my $raw-name = raw-type.^name;
+    %RawClassType{$raw-name}:exists
+        ?? @.class-map[ %RawClassType{$raw-name} ]
+        !! ($strict
+            ?? X::LibXML::Class.new(:class($raw-name), :why(q<unknown to configuration method 'class-from'>)).throw
+            !! Nil)
+}
+
+#| Enable object re-use per XML node.
+has Bool:D $.with-cache is built = False;
+
+has %!node-cache;
+has Lock:D $!cache-lock .= new;
+
+proto method box(|) {*}
+multi method box(::?CLASS:D: anyNode:D $raw, &vivify?, *%profile) {
+    my sub default-vivify { self.class-from($raw).bless: :raw($raw.delegate), |%profile }
+    return (&vivify // &default-vivify)() unless $!with-cache;
+    $!cache-lock.protect: {
+        %!node-cache{$raw.unique-key} //= (&vivify // &default-vivify)()
+    }
+}
+multi method box(::?CLASS:D: Any:U \raw-type, &vivify) {
+    my $raw-name = raw-type.^name;
+    %RawClassType{$raw-name}:exists
+        ?? self.class-from(%RawClassType{$raw-name})
+        !! (&vivify
+            ?? vivify()
+            !! X::LibXML::Class.new(:class($raw-name), :why(q<unknown to configuration method 'box'>)).throw)
+}
+multi method box(::?CLASS:U: |c) {
+    $singleton.box: |c
+}
+
 
 =begin pod
 

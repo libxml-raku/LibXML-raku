@@ -159,15 +159,15 @@ method native is DEPRECATED<raw> { self.raw }
 method domFailure { $.raw.domFailure.Str }
 method string-value { $.raw.string-value.Str }
 
-submethod DESTROY {
-    self.raw.Unreference;
+submethod TWEAK {
+    $!raw.Reference;
 }
 
-multi method box(anyNode:D $node, *%c) {
-    $node.Reference;
-    my $class := (%c<config> //= self.config).class-from($node);
-    $class.bless: :raw($node.delegate), |%c;
+submethod DESTROY {
+    $!raw.Unreference;
 }
+
+multi method box(anyNode:D $node, *%c) { (%c<config> //= self.config).box($node, |%c) }
 
 multi method raku(::?CLASS:D: $obj?) {
     # issue #95
