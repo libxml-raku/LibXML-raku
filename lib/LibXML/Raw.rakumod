@@ -404,11 +404,21 @@ class xmlElementContent is repr('CStruct') is export {
     }
 }
 
+role domNode[$class, UInt:D $type] is export {
+    @ClassMap[$type] = $class;
+    method delegate {
+        fail "expected node of type $type, got {self.type}"
+            unless self.type == $type;
+        self
+    }
+}
+
 #| An XML namespace.
 #| Note that prefix == NULL is valid, it defines the default namespace
 #| within the subtree (until overridden).
 class xmlNs is export is repr('CStruct') {
-    BEGIN @ClassMap[XML_NAMESPACE_DECL] = $?CLASS;
+    also does domNode[$?CLASS, XML_NAMESPACE_DECL];
+
     has xmlNs        $.next; # next Ns link for this node
     has int32        $.type; # global or local (enum xmlNsType)
     has xmlCharP     $.href; # URL for the namespace
@@ -1022,16 +1032,6 @@ class xmlNode is anyNode {
     method domGetNamespaceDeclURI(xmlCharP $prefix --> xmlCharP) is native($BIND-XML2) {*}
     method domSetNamespaceDeclPrefix(xmlCharP $prefix, xmlCharP $ns-prefix --> int32) is native($BIND-XML2) {*}
 }
-
-role domNode[$class, UInt:D $type] is export {
-    @ClassMap[$type] = $class;
-    method delegate {
-        fail "expected node of type $type, got {self.type}"
-            unless self.type == $type;
-        self
-    }
-}
-
 
 #| xmlNode of type: XML_ELEMENT_NODE
 class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
