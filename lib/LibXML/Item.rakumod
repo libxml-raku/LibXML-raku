@@ -49,10 +49,9 @@ multi method box-class(::?CLASS:U: Int:D $id) { LibXML::Config.class-from($id) }
 multi method box-class(::?CLASS:D: Int:D $id) { $!config.class-from($id) }
 
 proto method box(|) {*}
-# XXX Should it be `anyNode:D` instead of `Any:D`??
 multi method box(::?CLASS:D: Any:D $_, *%c) { (%c<config> //= $.config).class-from(.type).box(.delegate, |%c) }
 multi method box(::?CLASS:U: Any:D $_, *%c) { (%c<config> //  $.config).class-from(.type).box(.delegate, |%c) }
-multi method box(Any:U) { self.WHAT }
+multi method box(Any:U \raw-type, :$config) { ($config    //  $.config).box(raw-type, { self.WHAT }) }
 
 #| Node constructor from data
 proto method ast-to-xml(::?CLASS:D: | --> LibXML::Item) {*}

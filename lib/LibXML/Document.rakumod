@@ -913,7 +913,9 @@ method processXIncludes(LibXML::Config :$config = self.config, |c) is also<proce
 
 #| Returns the element that has an ID attribute with the given value. If no such element exists, this returns LibXML::Element:U.
 method getElementById(Str:D $id --> LibXML::Element) is also<getElementsById> {
-    self.box: LibXML::Element, $.raw.getElementById($id)
+    $.raw.getElementById($id)
+        andthen self.box(LibXML::Element, $_)
+        orelse $.config.class-from(xmlElem)
 }
 =para Note: the ID of an element may change while manipulating the document. For
     documents with a DTD, the information about ID attributes is only available if
