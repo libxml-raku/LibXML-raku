@@ -1151,7 +1151,8 @@ class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
 
 #| An XML document (type: XML_DOCUMENT_NODE)
 class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
-    also does domNode[$?CLASS, XML_DOCUMENT_NODE];
+    # note: htmlDoc is based on this class
+    @ClassMap[XML_DOCUMENT_NODE] = $?CLASS;
 
     has int32           $.compression; # level of zlib compression
     has int32           $.standalone is rw;  # standalone document (no external refs)
