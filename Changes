@@ -1,4 +1,22 @@
 {{$NEXT}}
+   - Make LibXML::Item use :config for boxing (#97)
+     Any config supplied by upstream was previously ignored and class mapping
+     was expected to be done by `LibXML::Node`. This resulted in limited
+     abilities of user code in controlling how boxing is done. See #94.
+       Note that `LibXML::Node` still does its own class mapping because this
+     is the point of final decision and in many cases it is invoked directly.
+   - Added config attribute `with-cache` (#102). This defines whether
+     simple caching based on node's `unique-key` should be used.
+   - Fixed LibXML::EntityRef DOM class (#99). Remove local $.raw attribute
+     and base it on LibXML::_Rawish. Like other node types.
+   - Make LibXML::Document new() stantiate via box() (#101).
+   - Refactors:
+     -- LibXML::Raw composition of xmlNode and xmlNs classes. These
+        are now composed via the domNode parameterized role.
+     -- Rename try() method to do() in various contexts, including
+        parsing and validation.
+     -- fix some types in bindings parameters and return types. Mostly,
+        xmlNode -> anyNode,
 
 0.9.10  2023-02-20T08:10:13+13:00
    - Lessen impact of #95 (.raku method handing). Override LibXML::Node:D

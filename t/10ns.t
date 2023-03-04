@@ -271,9 +271,9 @@ subtest 'Namespace Declarations', {
     subtest 'check namespaced attributes', {
         is-deeply $root.getAttributeNode('xxx:attr'), LibXML::Attr;
         is-deeply $root.getAttributeNodeNS('http://example.com', 'attr'), LibXML::Attr;
-        ok $root.getAttributeNode('attr');
+        ok $root.getAttributeNode('attr').defined;
         is $root.getAttribute('attr'), 'value';
-        ok $root.getAttributeNodeNS(Str,'attr');
+        ok $root.getAttributeNodeNS(Str,'attr').defined;
         is $root.getAttributeNS(Str,'attr'), 'value';
         is-deeply $root.getAttributeNode('attr').getNamespaceURI(), Str;
 

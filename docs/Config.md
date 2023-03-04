@@ -230,6 +230,10 @@ Default query handler to service querySelector() and querySelectorAll() methods
 
 See [LibXML::XPath::Context](https://libxml-raku.github.io/LibXML-raku/XPath/Context)
 
+### has Bool:D $.with-cache
+
+Enable object re-use per XML node.
+
 Copyright
 ---------
 
