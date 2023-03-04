@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 24;
+plan 26;
 use LibXML;
 use LibXML::Attr;
 use LibXML::Config;
@@ -68,9 +68,27 @@ subtest 'relaxng' => {
     is-deeply (+@bad, [@bad.unique]), (+MAX_THREADS, [False]), 'relax-ng invalid';
 }
 
-subtest 'parse strings', {
+subtest 'parse invalid strings', {
     my X::LibXML::Parser:D @err = blat { try { LibXML.parse: :string('foo'); } for 1..100; $! };
     is @err.elems, MAX_THREADS, 'parse errors';
+}
+
+subtest 'parse with config', {
+    my LibXML::Element:D @elems = blat {
+        (1..100).map( {
+            .root given LibXML.parse( :string('<foo/>') :config(LibXML::Config.new))
+}).pick;
+    }
+    is +@elems, MAX_THREADS, 'parse with plain config';
+}
+
+subtest 'parse with :with-cache config', {
+    my LibXML::Element:D @elems = blat {
+        (1..100).map( {
+            .root given LibXML.parse( :string('<foo/>') :config(LibXML::Config.new: :with-cache))
+}).pick;
+    }
+    is +@elems, MAX_THREADS, 'parse with plain config';
 }
 
 subtest 'create element/attribute', {
