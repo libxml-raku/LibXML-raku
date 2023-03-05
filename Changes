@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.10.0  2023-03-06T06:15:27+13:00
    - Make LibXML::Item use :config for boxing (#97)
      Any config supplied by upstream was previously ignored and class mapping
      was expected to be done by `LibXML::Node`. This resulted in limited
@@ -9,7 +11,6 @@
      simple caching based on node's `unique-key` should be used.
    - Fixed LibXML::EntityRef DOM class (#99). Remove local $.raw attribute
      and base it on LibXML::_Rawish. Like other node types.
-   - Make LibXML::Document new() stantiate via box() (#101).
    - Refactors:
      -- LibXML::Raw composition of xmlNode and xmlNs classes. These
         are now composed via the domNode parameterized role.
