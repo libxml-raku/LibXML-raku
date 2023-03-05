@@ -169,7 +169,7 @@ method new(
     $raw.URI = $_ with $URI;
     $raw.setCompression($_) with $compression;
 
-    self.box($raw, :$config, |c);
+    self.bless: :$raw, :$config, |c;
 }
 =begin pod
     =head3 method new
