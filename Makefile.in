@@ -4,6 +4,7 @@ REPO=$(HOST)/libxml-raku/LibXML-raku
 DocProj=libxml-raku.github.io
 DocRepo=$(HOST)/libxml-raku/$(DocProj)
 DocLinker=etc/resolve-links.raku
+TEST_JOBS ?= 6
 
 all : lib
 
@@ -73,13 +74,13 @@ $(SRC)/xml6_error%O% : $(SRC)/xml6_error.c $(SRC)/xml6_error.h
 	%CC% -I $(SRC) -c %CCSHARED% %CCFLAGS% %CCOUT%$(SRC)/xml6_error%O% $(SRC)/xml6_error.c %LIB-CFLAGS% $(DBG)
 
 test : all
-	@prove6 -I . t
+	@prove6 -I . -j $(TEST_JOBS) t
+
+xtest : all
+	@prove6 -I . t -j $(TEST_JOBS) xt
 
 loudtest : all
 	@prove6 -I . -v t
-
-xtest : all
-	@prove6 -I . t xt
 
 clean :
 	@rm -f $(SRC)/xml6_*%O% $(SRC)/dom%O% $(SRC)/domXPath%O% resources/libraries/*%LIB-NAME%
