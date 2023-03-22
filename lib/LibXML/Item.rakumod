@@ -91,7 +91,7 @@ multi method ast-to-xml(Pair $_) {
 
     when $value ~~ Str:D {
         when $name.starts-with('#') {
-            self.box-class($node-type).new: :content($value), :$config;
+            $config.class-from($node-type).new: :content($value), :$config;
         }
         when $name.starts-with('?') {
             $name .= substr(1);
@@ -115,7 +115,7 @@ multi method ast-to-xml(Pair $_) {
         $config.class-from(XML_ENTITY_REF_NODE).new: :$name, :$config;
     }
     default {
-        my $node := self.box-class($node-type).new: :$name, :$config;
+        my $node := $config.class-from($node-type).new: :$name, :$config;
 
         for $value.List {
             $node.add( self.ast-to-xml($_) ) if .defined;
@@ -129,7 +129,7 @@ multi method ast-to-xml(Positional $_) {
 }
 
 multi method ast-to-xml(Str:D $content) {
-    self.box-class(XML_TEXT_NODE).new: :$content, :$.config
+    $.config.class-from(XML_TEXT_NODE).new: :$content, :$.config
 }
 
 multi method ast-to-xml(LibXML::Item:D $_) { $_ }
