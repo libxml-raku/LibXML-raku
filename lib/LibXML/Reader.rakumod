@@ -20,8 +20,7 @@ also does LibXML::ErrorHandling;
                                   $reader.isEmptyElement;
       }
 
-      my LibXML::Reader $reader .= new(file => "file.xml")
-          or die "cannot read file.xml";
+      my LibXML::Reader $reader .= new(file => "file.xml");
       while $reader.read {
           dump-node($reader);
       }
@@ -186,9 +185,10 @@ multi submethod TWEAK(IO::Handle:D :$io!, :$URI = $io.path.path, |c) {
 multi submethod TWEAK(
     Str:D :$file!,
     RelaxNG :$!RelaxNG, Schema :$!Schema,
-    xmlEncodingStr :$!enc, *%opts) {
+    xmlEncodingStr :$!enc, *%opts) is hidden-from-backtrace {
     self!init-flags(|%opts);
     $!raw .= new: :$file, :$!enc, :$!flags;
+    die "unable to open file: $file" without $!raw;
     self!setup;
 }
 multi submethod TWEAK(Str:D :location($file)!, |c) {
@@ -279,7 +279,8 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =end item1
 =end pod
 
-method !setup(Bool :$errors = True) {
+method !setup(Bool :$errors = True) is hidden-from-backtrace {
+    die "failed to initialize reader" without $!raw;
     my Pair $call;
     if $errors {
         $!raw.setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {

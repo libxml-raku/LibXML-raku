@@ -19,8 +19,7 @@ Synopsis
                                 $reader.isEmptyElement;
     }
 
-    my LibXML::Reader $reader .= new(file => "file.xml")
-        or die "cannot read file.xml";
+    my LibXML::Reader $reader .= new(file => "file.xml");
     while $reader.read {
         dump-node($reader);
     }
