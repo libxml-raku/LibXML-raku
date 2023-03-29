@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.10.1  2023-03-30T08:15:47+13:00
+   - Fix segfault in LibXML::Reader.new(:$file) on non-existent file
+   - Consistently use $config.class-from() in ast-to-xml()
+
 0.10.0  2023-03-06T06:15:27+13:00
    - Make LibXML::Item use :config for boxing (#97)
      Any config supplied by upstream was previously ignored and class mapping

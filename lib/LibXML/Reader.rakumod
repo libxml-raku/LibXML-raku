@@ -29,8 +29,7 @@ also does LibXML::ErrorHandling;
 
       use LibXML::Reader;
 
-      my LibXML::Reader $reader .= new(file => "file.xml")
-          or die "cannot read file.xml";
+      my LibXML::Reader $reader .= new(file => "file.xml");
       $reader.preservePattern('//table/tr');
       $reader.finish;
       print $reader.document.Str(:deep);
