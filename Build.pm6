@@ -37,6 +37,7 @@ class Build {
             s/:s '-DNDEBUG'// for %vars<CCFLAGS>, %vars<LDFLAGS>;
         }
 
+        note "build config: make=%vars<MAKE> compiler=%vars<CC> linker=%vars<LD>";
         mkdir($destfolder);
         LibraryMake::process-makefile($folder, %vars);
         shell(%vars<MAKE>);
