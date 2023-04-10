@@ -931,7 +931,7 @@ method setNamespace(Str $uri, NCName $prefix?, Bool :$activate = True) {
     ? self.raw.setNamespace($uri, $prefix, :$activate);
 }
 method clearNamespace {
-    ? self.raw.setNamespace(Str, Str);
+    ? self.raw.setNamespace(Str, Str, :activate);
 }
 method localNS(--> LibXML::Namespace) is dom-boxed {...}
 method getNamespaces is also<namespaces> {

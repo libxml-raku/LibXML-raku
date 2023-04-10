@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 11;
+plan 12;
 
 use LibXML;
 use LibXML::Enums;
@@ -300,6 +300,15 @@ subtest 'Namespace Declarations', {
 
         is-deeply $root.firstChild.prefix(), Str;
     }
+
+}
+
+subtest 'clearNamespace', {
+    my $doc = LibXML.createDocument;
+    my $root = $doc.createElementNS('http://example.com', 'document');
+    is-deeply $root.getNamespaceURI(), 'http://example.com';
+    $root.clearNamespace();
+    is-deeply $root.getNamespaceURI(), Str;
 }
 
 subtest 'namespace reconciliation', {

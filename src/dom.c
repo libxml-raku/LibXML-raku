@@ -2283,14 +2283,10 @@ domSetNamespace(xmlNodePtr node, xmlChar* nsURI, xmlChar* nsPrefix, int activate
   
     if ( nsPrefix == NULL && nsURI == NULL ) {
         /* special case: empty namespace */
-        if ( (ns = xmlSearchNs(node->doc, node, NULL)) &&
-             ( ns->href && xmlStrlen( ns->href ) != 0 ) ) {
-            /* won't take it */
-            rv = 0;
-        } else if ( activate ) {
+        if ( activate ) {
             /* no namespace */
+            rv = node->ns != NULL;
             xmlSetNs(node, NULL);
-            rv = 1;
         } else {
             rv = 0;
         }
