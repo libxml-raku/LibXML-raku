@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.10.2  2023-04-13T08:33:33+12:00
+   - Fix clearNamespace() method
+
 0.10.1  2023-03-30T08:15:47+13:00
    - Fix segfault in LibXML::Reader.new(:$file) on non-existent file
    - Consistently use $config.class-from() in ast-to-xml()
