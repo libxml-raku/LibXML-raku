@@ -73,7 +73,7 @@ also does LibXML::ErrorHandling;
 
       my LibXML::XPath::Context $xc .= new: doc($xhtml-doc), :ns{ xhtml => 'http://www.w3.org/1999/xhtml' };
       my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
-                     
+
     =head3 2. Custom XPath functions
 
     This example demonstrates C<registerFunction()> method by defining a function filtering nodes based on a Raku regular expression:
@@ -132,7 +132,8 @@ use Method::Also;
 
 has $.sax-handler is rw;
 has $.query-handler is rw = self.config.query-handler;
-has xmlXPathContext $!raw handles<SetStructuredErrorFunc> .= new;
+has xmlXPathContext $!raw handles<SetStructuredErrorFunc> is built;
+
 method raw { $!raw }
 
 # for the LibXML::ErrorHandling role
@@ -141,6 +142,10 @@ has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 =head2 Methods
+
+proto submethod TWEAK (|) {
+  $!raw //= xmlXPathContext.new;
+}
 
 multi submethod TWEAK(LibXML::Document:D :$doc!, :%ns) {
     self.setContextNode($doc);
