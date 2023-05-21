@@ -135,7 +135,7 @@ use Method::Also;
 
 has $.sax-handler is rw;
 has $.query-handler is rw = self.config.query-handler;
-has xmlXPathContext $!raw handles<SetStructuredErrorFunc> is built;
+has xmlXPathContext $!raw handles<SetStructuredErrorFunc> is built(:bind);
 
 method raw { $!raw }
 
