@@ -166,9 +166,9 @@ _domReconcileNsAttr(xmlAttrPtr attr, xmlNsPtr * unused) {
 
 static void
 _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
-    if( tree->ns != NULL
-        && ((tree->type == XML_ELEMENT_NODE)
-            || (tree->type == XML_ATTRIBUTE_NODE))) {
+    if (((tree->type == XML_ELEMENT_NODE)
+            || (tree->type == XML_ATTRIBUTE_NODE))
+        && tree->ns != NULL) {
         xmlNsPtr ns = xmlSearchNs( tree->doc, tree->parent, tree->ns->prefix );
         if( ns != NULL && ns->href != NULL && tree->ns->href != NULL &&
             xmlStrcmp(ns->href,tree->ns->href) == 0 ) {
@@ -193,7 +193,7 @@ _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
         }
     }
     /* Fix attribute namespacing */
-    if( tree->type == XML_ELEMENT_NODE ) {
+    if (tree->type == XML_ELEMENT_NODE ) {
         xmlElementPtr ele = (xmlElementPtr) tree;
         /* attributes is set to xmlAttributePtr,
            but is an xmlAttrPtr??? */
@@ -203,7 +203,7 @@ _domReconcileNs(xmlNodePtr tree, xmlNsPtr * unused) {
             attr = attr->next;
         }
     }
-    {
+    if (tree->type != XML_NAMESPACE_DECL) {
         /* Recurse through all child nodes */
         xmlNodePtr child = tree->children;
         while( child != NULL ) {
@@ -515,7 +515,9 @@ domIsParent( xmlNodePtr cur, xmlNodePtr refNode ) {
 
     if ( cur == NULL || refNode == NULL) return 0;
     if (refNode == cur) return 1;
-    if ( cur->doc != refNode->doc
+    if ( refNode->type == XML_NAMESPACE_DECL
+         || cur->type == XML_NAMESPACE_DECL
+         || cur->doc != refNode->doc
          || refNode->children == NULL
          || cur->parent == (xmlNodePtr)cur->doc
          || cur->parent == NULL ) {
@@ -703,7 +705,7 @@ domImportNode( xmlDocPtr doc, xmlNodePtr node, int move, int reconcileNS ) {
 
 
     /* tell all children about the new boss */
-    if ( node && node->doc != doc ) {
+    if ( node && node->type != XML_NAMESPACE_DECL && node->doc != doc ) {
         xmlSetTreeDoc(imported_node, doc);
     }
 
@@ -960,7 +962,7 @@ domAppendChild( xmlNodePtr self,
         XML6_FAIL(self, "appendChild: HIERARCHY_REQUEST_ERR");
     }
 
-    if ( newChild->doc == self->doc ){
+    if ( newChild->type != XML_NAMESPACE_DECL && newChild->doc == self->doc ){
         domUnlinkNode( newChild );
     }
     else {

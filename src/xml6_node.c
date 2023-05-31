@@ -87,7 +87,7 @@ DLLEXPORT xmlNodePtr xml6_node_last_child(xmlNodePtr node, int keep_blanks) {
 DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int keep_blanks) {
     assert(node != NULL);
     do {
-        node = node->next;
+        node = node->type == XML_NAMESPACE_DECL ? NULL : node->next;
     } while (node != NULL && keep_blanks == 0 && xmlIsBlankNode(node));
 
     return node;
@@ -96,7 +96,7 @@ DLLEXPORT xmlNodePtr xml6_node_next(xmlNodePtr node, int keep_blanks) {
 DLLEXPORT xmlNodePtr xml6_node_prev(xmlNodePtr node, int keep_blanks) {
     assert(node != NULL);
     do {
-        node = node->prev;
+        node =  node->type == XML_NAMESPACE_DECL ? NULL : node->prev;
     } while (node != NULL && keep_blanks == 0 && xmlIsBlankNode(node));
 
     return node;
