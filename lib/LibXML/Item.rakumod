@@ -84,7 +84,8 @@ Produces:
 
 multi method ast-to-xml(Pair $_) {
     my $name = .key;
-    my $value := .value;
+    my $value = .value;
+    $value .= Str if $value ~~ Numeric:D;
 
     my UInt $node-type := itemNode::NodeType($name);
     my $config = $.config // LibXML::Config.new;
