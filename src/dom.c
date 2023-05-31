@@ -447,10 +447,16 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
 
         n = head;
         while ( n ){
-            n->parent = p;
-            n->doc = p->doc;
-            tail = n;
-            n = n->next;
+            if (n->type == XML_NAMESPACE_DECL) {
+                ((xmlNsPtr)n)->context = p->doc;
+                n = NULL;
+            }
+            else {
+                n->parent = p;
+                n->doc = p->doc;
+                tail = n;
+                n = n->next;
+            }
         }
     }
     else {
