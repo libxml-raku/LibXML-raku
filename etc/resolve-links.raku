@@ -1,7 +1,11 @@
 constant DocRoot = "https://libxml-raku.github.io";
 
+multi sub resolve-class(@ ('LibXML', 'Writer', *@path)) {
+    %( :repo<LibXML-Writer-raku>, :@path );
+}
+
 multi sub resolve-class(@ ('LibXML', *@path)) {
-    %( :repo<LibXML-raku>, :@path )
+    %( :repo<LibXML-raku>, :@path );
 }
 
 multi sub resolve-class(@ ('W3C', 'DOM', *@)) {
@@ -10,7 +14,7 @@ multi sub resolve-class(@ ('W3C', 'DOM', *@)) {
 
 multi sub resolve-class(@ ('LibXSLT', *@p)) {
     my @path;
-    with @p[0] {
+    with @p.head {
         when 'Stylesheet'|'Security' {
             @path.push: $_;
         }
@@ -55,7 +59,7 @@ INIT {
         with %info<path> {
             my @path = .list;
             if @path {
-                my $n = @path[0..^+@mod] == @mod ?? +@mod !! 2;
+                my $n = @path[0..^+@mod] == @mod ?? 1 !! 2;
                 breadcrumb($url, @path, $n, :top);
                 breadcrumb($url, @path, $_)
                     for $n ^.. @path;
