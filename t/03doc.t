@@ -519,8 +519,6 @@ subtest 'Nil-ing encoding', {
   my $dom = LibXML.parse: :string($xml);
   is($dom.encoding, "UTF-8", 'Document encoding');
   $dom.encoding = Nil;
-  todo "unreliable on Rakudo <= 2019.07"
-      unless $*PERL.compiler.version > v2019.07;
   is-deeply($dom.encoding, Str, 'Document encoding cleared');
   is $dom.Str, $xml;
 }

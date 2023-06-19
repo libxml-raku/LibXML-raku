@@ -17,6 +17,12 @@ class LibXML::SAX::Builder {
         has Str $.URI;
         has Pointer $!value-start;
         has Pointer $!value-end;
+        method !memcpy(Pointer:D, size_t) is native($CLIB) {*}
+        method copy(UInt:D $addr) {
+            my $dest = self.new;
+            $dest!memcpy(Pointer.new($addr), nativesizeof($dest));
+            $dest;
+        }
         method key {
             with $!prefix {
                 $_ ~ ':' ~ $!local-name
@@ -34,16 +40,11 @@ class LibXML::SAX::Builder {
     class NsAtts is repr('CPointer') {
         my constant att-size = nativesizeof(NsAtt);
         method Pointer { nativecast(Pointer, self) }
-        sub memcpy(Pointer:D, Pointer:D, size_t) is native($CLIB) {*}
         method AT-POS(UInt:D $idx) {
-            my Pointer:D $src .= new(+self.Pointer  +  $idx * att-size);
-            given NsAtt.new -> $dest {
-                memcpy(nativecast(Pointer, $dest), $src, att-size);
-                $dest
-            }
+            NsAtt.copy(+self.Pointer  + $idx * att-size);
         }
         method atts2Hash(UInt:D $elems) {
-            my % = (0 ..^ $elems).map: {
+            my % = (^ $elems).map: {
                 my $att := self[$_];
                 $att.key => $att;
             }
