@@ -107,17 +107,17 @@ docs/index.md : lib/LibXML.rakumod
             echo '[![SparrowCI](https://ci.sparrowhub.io/project/git-dwarring-LibXML-raku/badge)](https://ci.sparrowhub.io)'; \
             echo '';\
             raku -I . --doc=Markdown $< \
-            | TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
+            | TRAIL=LibXML/$* raku -p -n $(DocLinker) \
         ) > $@
 
 docs/%.md : lib/LibXML/%.rakumod
 	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
-	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
+	| TRAIL=LibXML/$* raku -p -n $(DocLinker) \
         > $@
 
 docs/%.md : lib/LibXML/%.pod6
 	@raku -I . -c $<
 	raku -I . --doc=Markdown $< \
-	| TRAIL=LibXML/$* raku -p -n etc/resolve-links.raku \
+	| TRAIL=LibXML/$* raku -p -n $(DocLinker) \
         > $@
