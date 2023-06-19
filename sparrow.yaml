@@ -89,8 +89,10 @@ tasks:
     language: Bash
     code: |
       if test $os = "debian"; then
+        sudo apt-get update
         sudo apt-get install -y libxml2-dev libxslt-dev time 
       elif test $os = "ubuntu"; then
+        sudo apt-get update
         sudo apt-get install -y libxml2-dev libxslt-dev time 
       elif test $os = "arch"; then
         sudo pacman -S --needed --noconfirm -q libxml2 libxslt  time
