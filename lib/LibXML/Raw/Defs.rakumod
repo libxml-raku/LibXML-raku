@@ -14,14 +14,20 @@ sub find-library($base) {
     if my $file = %?RESOURCES{'libraries/' ~ $base} {
         my $tmpdir = $*SPEC.tmpdir ~ '/' ~ 'raku-libxml-' ~ $?DISTRIBUTION.meta<ver>;
         my $lib = $*VM.platform-library-name($base.IO);
-        my $inst = ($tmpdir ~ '/' ~ $lib).IO;
-        unless $inst.e && $inst.s == $file.IO.s {
-            # install it
-            note "installing: " ~ $inst.Str;
-            mkdir $tmpdir;
-            $file.copy($inst);
+        my IO $dest = ($tmpdir ~ '/' ~ $lib).IO;
+	{
+	    my $fh = $file.open;
+	    $fh.lock: :shared;
+            $dest = ($tmpdir ~ '/' ~ $lib).IO;
+            unless $dest.e && $dest.s == $file.IO.s {
+                # install it
+                note "installing: " ~ $dest.Str;
+                mkdir $tmpdir;
+                $file.copy($dest);
+	    }
+	    LEAVE $fh.close;
         }
-        $inst;
+        $dest;
     }
     else {
         $base
