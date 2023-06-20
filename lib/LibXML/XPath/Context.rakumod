@@ -24,6 +24,9 @@ also does LibXML::ErrorHandling;
       $xpc.registerNs($prefix, $namespace-uri);
       # -OR-
       $xpc .= new(:$node, :ns{ $prefix => $namespace-uri, });
+      # -OR-
+      my $raw = xmlXPathContext.new;
+      xpc .= new(:$raw);
 
       $xpc.unregisterNs($prefix);
       my Str $uri = $xpc.lookupNs($prefix);
@@ -73,7 +76,7 @@ also does LibXML::ErrorHandling;
 
       my LibXML::XPath::Context $xc .= new: doc($xhtml-doc), :ns{ xhtml => 'http://www.w3.org/1999/xhtml' };
       my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
-                     
+
     =head3 2. Custom XPath functions
 
     This example demonstrates C<registerFunction()> method by defining a function filtering nodes based on a Raku regular expression:
@@ -132,7 +135,8 @@ use Method::Also;
 
 has $.sax-handler is rw;
 has $.query-handler is rw = self.config.query-handler;
-has xmlXPathContext $!raw handles<SetStructuredErrorFunc> .= new;
+has xmlXPathContext $!raw handles<SetStructuredErrorFunc> is built(:bind);
+
 method raw { $!raw }
 
 # for the LibXML::ErrorHandling role
@@ -141,6 +145,10 @@ has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
 my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 =head2 Methods
+
+proto submethod TWEAK (|) {
+  $!raw //= xmlXPathContext.new;
+}
 
 multi submethod TWEAK(LibXML::Document:D :$doc!, :%ns) {
     self.setContextNode($doc);
@@ -156,6 +164,7 @@ multi submethod TWEAK(LibXML::Node :$node, :%ns) {
   =begin code :lang<raku>
   multi method new(LibXML::Document :$doc!, :%ns) returns LibXML::XPath::Context;
   multi method new(LibXML::Node :$node, :%ns) returns LibXML::XPath::Context;
+  multi method new(xmlXPathContext :$raw) returns LibXML::XPath::Context;
   =end code
   =para Creates a new LibXML::XPath::Context object with an optional context document or node,
       and `:%ns`, mapping of prefixes to namespace URI's.
