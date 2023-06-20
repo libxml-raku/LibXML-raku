@@ -19,6 +19,9 @@ Synopsis
     $xpc.registerNs($prefix, $namespace-uri);
     # -OR-
     $xpc .= new(:$node, :ns{ $prefix => $namespace-uri, });
+    # -OR-
+    my $raw = xmlXPathContext.new;
+    xpc .= new(:$raw);
 
     $xpc.unregisterNs($prefix);
     my Str $uri = $xpc.lookupNs($prefix);
@@ -114,6 +117,7 @@ Methods
 ```raku
 multi method new(LibXML::Document :$doc!, :%ns) returns LibXML::XPath::Context;
 multi method new(LibXML::Node :$node, :%ns) returns LibXML::XPath::Context;
+multi method new(xmlXPathContext :$raw) returns LibXML::XPath::Context;
 ```
 
 Creates a new LibXML::XPath::Context object with an optional context document or node, and `:%ns`, mapping of prefixes to namespace URI's.

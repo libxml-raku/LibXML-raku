@@ -135,9 +135,7 @@ use Method::Also;
 
 has $.sax-handler is rw;
 has $.query-handler is rw = self.config.query-handler;
-has xmlXPathContext $!raw handles<SetStructuredErrorFunc> is built(:bind);
-
-method raw { $!raw }
+has xmlXPathContext $.raw handles<SetStructuredErrorFunc> .= new;
 
 # for the LibXML::ErrorHandling role
 has Bool ($.recover, $.suppress-errors, $.suppress-warnings) is rw;
@@ -146,8 +144,11 @@ my subset XPathExpr where LibXML::XPath::Expression|Str|Any:U;
 
 =head2 Methods
 
-proto submethod TWEAK (|) {
-  $!raw //= xmlXPathContext.new;
+proto submethod TWEAK (xmlXPathContext :$raw) {
+  with $raw {
+      .Reference with .node;
+  }
+  {*}
 }
 
 multi submethod TWEAK(LibXML::Document:D :$doc!, :%ns) {

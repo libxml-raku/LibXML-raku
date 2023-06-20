@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 24;
+plan 25;
 
 use LibXML;
 use LibXML::Config;
@@ -36,7 +36,7 @@ subtest 'findnodes() scalar', {
 }
 
 subtest 'first(), last()', {
-    for ($xpath~'/*', LibXML::XPath::Expression.parse($xpath~'/*')) -> $exp {
+    for ($xpath2, LibXML::XPath::Expression.parse($xpath2)) -> $exp {
         my LibXML::XPath::Context $ctx = $doc.create(LibXML::XPath::Context, :$doc);
         is $ctx.first($exp).nodeName, 'bar';
         is $ctx.last($exp).nodeName, 'baz';
@@ -51,6 +51,14 @@ subtest 'findvalue()', {
     is-deeply $doc.create(LibXML::XPath::Context, :$doc).findvalue('1=2'), False;
 
     is-deeply $doc.create(LibXML::XPath::Context, :$doc).findvalue(LibXML::XPath::Expression.parse('1=2')), False;
+}
+
+subtest 'new(:$raw)', {
+    use LibXML::Raw;
+    my xmlXPathContext $raw .= new;
+    my $ctx = $doc.create(LibXML::XPath::Context, :$raw, :$doc);
+    cmp-ok($raw, '===', $ctx.raw);
+    is $ctx.first($xpath2).nodeName, 'bar';
 }
 
 subtest 'find()', {

@@ -1,4 +1,7 @@
 {{$NEXT}}
+   - Add file-level locking to Windows DLL installation
+   - Add ability to accept pre-existing xmlXPathContext to
+     LibXML::XPath::Context PR #105
 
 0.10.3  2023-05-31T15:45:47+12:00
    - Fix handling of name space objects in C bindings; Eliminate

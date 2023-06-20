@@ -7,7 +7,7 @@ LibXML library (libxml2.dll) or bindings (xml6.dll).
 So this needs to be done by hand on occasions to upgrade
 the library and/or bindings.
 
-Furthermore, we're currently building 32bit and without iconv,
+Furthermore, we're currently building without iconv,
 which restricts us to a small number of XML encoding schemes.
 
 Building on Windows
