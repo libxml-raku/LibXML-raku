@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.10.4  2023-06-22T06:21:36+12:00
    - Add file-level locking to Windows DLL installation
    - Add ability to accept pre-existing xmlXPathContext to
      LibXML::XPath::Context PR #105
