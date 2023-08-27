@@ -218,9 +218,9 @@ role LibXML::ErrorHandling {
     has UInt $.max-errors = self.config.max-errors;
 
     # SAX External Callback
-    sub generic-error-cb(Str:D $fmt, |args) is export(:generic-error-cb) {
+    sub generic-error-cb(Str:D $msg) is export(:generic-error-cb) {
         CATCH { default { note "error handling XML generic error: $_" } }
-        $*XML-CONTEXT.generic-error($fmt, |args);
+        $*XML-CONTEXT.generic-error($msg);
     }
 
     # SAX External Callback
@@ -249,9 +249,8 @@ role LibXML::ErrorHandling {
         }
     }
 
-    method generic-error(Str $fmt, *@args) {
+    method generic-error(Str $msg) {
         CATCH { default { note "error handling generic error: $_" } }
-        my $msg = sprintf($fmt, |@args);
 
         $!lock.protect: {
             if @!errors < $!max-errors {
@@ -359,10 +358,9 @@ role LibXML::ErrorHandling {
 
     method SetGenericErrorFunc(&handler) {
         xml6_gbl::set-generic-error-handler(
-            -> Str $msg, Str $fmt, Pointer[xml6_gbl::MsgArg] $argv {
+            -> Str:D $msg {
                 CATCH { default { note $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
-                my @args = xml6_gbl::scan-varargs($fmt, $argv);
-                &handler($msg, @args);
+                &handler($msg);
             },
             cglobal($XML2, 'xmlSetGenericErrorFunc', Pointer)
         );

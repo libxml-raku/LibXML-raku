@@ -131,24 +131,12 @@ class xmlXPathObject is repr('CStruct') is export {...}
 
 module xml6_gbl is export {
 
-    class MsgArg is repr('CUnion') {
-        has num64  $.f;
-        has uint32 $.d;
-        has long   $.l;
-        has Str    $.s;
-    }
-
-    our sub scan-varargs(Str $fmt, Pointer[MsgArg] $argv) {
-        my int $n = 0;
-        $fmt.comb.map: { $argv[$n++]."$_"() };
-    }
-
     our sub cache-size(-->int32) is native($BIND-XML2) is symbol('xml6_gbl_cache_size') {*}
 
     our sub save-error-handlers(--> Pointer) is symbol('xml6_gbl_save_error_handlers') is native($BIND-XML2) is export {*}
     our sub restore-error-handlers(Pointer) is symbol('xml6_gbl_restore_error_handlers') is native($BIND-XML2) is export {*}
 
-    our sub set-generic-error-handler( &callb (Str $fmt, Str $argt, Pointer[MsgArg] $argv), Pointer $setter) is native($BIND-XML2) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
+    our sub set-generic-error-handler( &callb (Str $msg), Pointer $setter) is native($BIND-XML2) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
 
     our sub get-keep-blanks(--> int32) is symbol('xml6_gbl_os_thread_get_keep_blanks') is native($BIND-XML2) is export { * }
     our sub set-keep-blanks(int32 $v) is symbol('xml6_gbl_os_thread_set_keep_blanks') is native($BIND-XML2) is export { * }

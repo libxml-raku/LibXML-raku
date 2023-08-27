@@ -177,9 +177,9 @@ multi submethod TWEAK(LibXML::Node :$node, :%ns) {
       }
 }
 
-sub generic-error-cb(Str:D $fmt, |args) {
+sub generic-error-cb(Str:D $msg) {
     CATCH { default { note "error handling XML generic error: $_" } }
-    $*XPATH-CONTEXT.generic-error($fmt, |args);
+    $*XPATH-CONTEXT.generic-error($msg);
 }
 method !do(&action) is hidden-from-backtrace {
     my $rv;
