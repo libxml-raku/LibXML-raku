@@ -8,14 +8,14 @@ use NativeCall;
 # Check a few symbols $XML2, $BIND-XML2 and $CLIB libraries.
 # Useful test when doing porting work on META6.json, LibXML::Raw::Defs etc
 
+# sanity check our libraries
+sub xmlInitParser is native($XML2) {*}
+lives-ok {xmlInitParser()}, 'can call xmlInitParser()';
+
 ok $BIND-XML2.IO.s, $BIND-XML2.IO.path ~ ' library has been built';
 unless $BIND-XML2.IO.s {
     bail-out "unable to access {$BIND-XML2.basename}, has it been built, (e.g. 'zef build .' or 'raku Build.rakumod'" ~ ('Makefile'.IO.e ?? ", or 'make'" !! '') ~ ')';
 }
-
-# sanity check our libraries
-sub xmlInitParser is native($XML2) {*}
-lives-ok {xmlInitParser()}, 'can call xmlInitParser()';
 
 lives-ok({ cglobal($BIND-XML2, "xml6_config_version", Pointer) }, 'binding lib sanity')
     or note "unable to access 'xml6' binding library; has it been built? (e.g. 'zef build .)";
