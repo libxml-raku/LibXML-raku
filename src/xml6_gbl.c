@@ -86,25 +86,16 @@ DLLEXPORT xmlSAXLocatorPtr xml6_gbl_os_thread_get_default_sax_locator(void) {
     return &xmlDefaultSAXLocator;
 }
 
-union MsgArg {
-    double f;
-    int    d;
-    long   l;
-    char*  s;
-    void*  p;
-};
-
 static void _gbl_message_func(
     void* ctx,         // actually our callback...
     char* fmt, ...) {  // incoming vararg message
     va_list args;
     char msg[256];
-    int n;
 
     xml6_gbl_MessageCallback callback = (xml6_gbl_MessageCallback) ctx;
 
-    va_start(args, msg);
-    n = vsnprintf(msg, 255, fmt, args);
+    va_start(args, fmt);
+    vsnprintf(msg, 255, fmt, args);
     va_end(args);
 
     // invoke the error handling callback; pass arguments
