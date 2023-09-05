@@ -12,7 +12,7 @@ lib : resources/libraries/%LIB-NAME%
 
 # 'all', with compilation warnings and debug symbols enabled
 debug :
-	%MAKE% "DBG=-Wall -DDEBUG -g -fsanitize=address"  all
+	%MAKE% "DBG=-Wall -DDEBUG -g"  all
 
 coverage :
 	%MAKE% "DBG=-fprofile-arcs -ftest-coverage" "LD_DBG=-coverage -lgcov" all
