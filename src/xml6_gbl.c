@@ -82,8 +82,15 @@ DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void) {
     return &xmlLastError;
 }
 
-DLLEXPORT xmlSAXLocatorPtr xml6_gbl_os_thread_get_default_sax_locator(void) {
-    return &xmlDefaultSAXLocator;
+static xmlSAXLocator _default_sax_locator = {
+    xmlSAX2GetPublicId,
+    xmlSAX2GetSystemId,
+    xmlSAX2GetLineNumber,
+    xmlSAX2GetColumnNumber
+};
+
+DLLEXPORT xmlSAXLocatorPtr xml6_gbl_get_default_sax_locator(void) {
+    return &_default_sax_locator;
 }
 
 static void _gbl_message_func(
