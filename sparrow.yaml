@@ -8,7 +8,6 @@ tasks:
     default: true
     language: Bash
     code: |
-
           raku --version
           zef --version
           
