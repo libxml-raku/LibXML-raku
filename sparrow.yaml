@@ -1,6 +1,6 @@
 image:
-  - melezhik/sparrow:debian
-  # - melezhik/sparrow:ubuntu
+  - melezhik/sparrow:debian_arm
+  - melezhik/sparrow:ubuntu_arm
   # - melezhik/sparrow:archlinux
 tasks:
   -
