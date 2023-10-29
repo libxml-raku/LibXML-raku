@@ -21,7 +21,7 @@ sub output-options(UInt :$options is copy = 0,
     warn ':expand option is deprecated, please use :tag-expansion'
         with $expand;
 
-    for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY, $html => XML_SAVE_XHTML {
+    for $format => XML_SAVE_FORMAT, $skip-xml-declaration => XML_SAVE_NO_DECL, $tag-expansion =>  XML_SAVE_NO_EMPTY, $html => XML_SAVE_AS_HTML {
         $options +|= .value if .key;
     }
 
