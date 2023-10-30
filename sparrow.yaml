@@ -1,85 +1,21 @@
 image:
-  - melezhik/sparrow:debian
-  # - melezhik/sparrow:ubuntu
+  - melezhik/sparrow:debian_arm
+  - melezhik/sparrow:ubuntu_arm
   # - melezhik/sparrow:archlinux
 tasks:
   -
     name: main
     default: true
-    language: Raku
+    language: Bash
     code: |
-      use Text::Table::Simple;
-      my @columns = ("Rakudo Version", "Status", "Time", "Linux Dist");
-      my @rows;
-      my $fail = False;
-      for config()<tasks><multi-versions><state><list><> -> $i {
-        @rows.push: [ $i<version>, $i<status>,  $i<time>, os() ];
-        $fail = True unless $i<status> eq "OK";
-      }
-      my @table = lol2table(@columns,@rows);
-      .say for @table;
-      die "some tests failed" if $fail == True;
-    depends:
-      -
-        name: multi-versions
-  -
-    name: multi-versions
-    language: Raku
-    config:
-      list:
-        # - 2022.06
-        - 2022.07
-    code: |
-      my @state;
-      for config()<list><> -> $v {
-        my $s = %( version => $v );
-        if "{cache_root_dir()}/{$v}_ok".IO ~~ :e {
-          $s<status> = "OK";
-        } else {
-          $s<status> = "FAIL";
-        }
-        if "{cache_root_dir()}/{$v}_time".IO ~~ :e {
-          $s<time> = "{cache_root_dir()}/{$v}_time".IO.slurp();
-        } else {
-          $s<time> = "NA";
-        }
-        @state.push: $s;
-      }
-      update_state %( list => @state );
-    init: |
-      for config()<list><> -> $v {
-        run_task("test", %( version => $v ));
-      }
-    subtasks:
-      -
-        name: test
-        language: Bash
-        init: |
-          ignore_error
-        code: |
-          set -e
-
-          echo "Linux version: $os"
-
-          curl -sL https://rakudo.org/dl/rakudo/rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz \
-          -o rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
-          tar -xzf rakudo-moar-$version-01-linux-x86_64-gcc.tar.gz
-          echo "activating rakudo version $version ..."
-          eval "$(rakudo-moar-$version-01-linux-x86_64-gcc/scripts/set-env.sh)" > /dev/null 
-
-          which raku
-          which zef
-
           raku --version
           zef --version
           
           cd source/
           
-          zef install . --deps-only --test-depends --build-depends --/test --to=home
+          zef install . --deps-only --test-depends --build-depends --/test
           zef build .
-          
-          /usr/bin/time -o "${cache_root_dir}/${version}_time" \
-          zef test . --verbose && touch "${cache_root_dir}/${version}_ok"
+          zef test . --verbose
           
     depends:
       -
@@ -90,11 +26,10 @@ tasks:
     code: |
       if test $os = "debian"; then
         sudo apt-get update
-        sudo apt-get install -y libxml2-dev libxslt-dev time 
+        sudo apt-get install -y libxml2-dev libxslt-dev
       elif test $os = "ubuntu"; then
         sudo apt-get update
-        sudo apt-get install -y libxml2-dev libxslt-dev time 
+        sudo apt-get install -y libxml2-dev libxslt-dev
       elif test $os = "arch"; then
-        sudo pacman -S --needed --noconfirm -q libxml2 libxslt  time
+        sudo pacman -S --needed --noconfirm -q libxml2 libxslt
       fi  
-      zef install --/test Text::Table::Simple
