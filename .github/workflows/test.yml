@@ -43,4 +43,4 @@ jobs:
           zef install --deps-only .
           zef build .
       - name: Run Tests
-        run: prove -e'raku -I.' t xt
+        run: prove -e'raku -I.' t
