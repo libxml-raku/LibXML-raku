@@ -136,7 +136,7 @@ module xml6_gbl is export {
     our sub save-error-handlers(--> Pointer) is symbol('xml6_gbl_save_error_handlers') is native($BIND-XML2) is export {*}
     our sub restore-error-handlers(Pointer) is symbol('xml6_gbl_restore_error_handlers') is native($BIND-XML2) is export {*}
 
-    our sub set-generic-error-handler( &callb (Str $msg), Pointer $setter) is native($BIND-XML2) is symbol('xml6_gbl_set_os_thread_generic_error_handler') {*}
+    our sub set-generic-error-handler( &callb (Str $msg), Pointer $setter) is native($BIND-XML2) is symbol('xml6_gbl_set_generic_error_handler') {*}
 
     our sub get-keep-blanks(--> int32) is symbol('xml6_gbl_os_thread_get_keep_blanks') is native($BIND-XML2) is export { * }
     our sub set-keep-blanks(int32 $v) is symbol('xml6_gbl_os_thread_set_keep_blanks') is native($BIND-XML2) is export { * }

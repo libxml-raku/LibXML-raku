@@ -109,7 +109,7 @@ static void _gbl_message_func(
     (*callback)(msg);
 }
 
-DLLEXPORT void xml6_gbl_set_os_thread_generic_error_handler(xml6_gbl_MessageCallback callback,  void (*setter)(void*, xmlGenericErrorFunc)) {
+DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callback,  void (*setter)(void*, xmlGenericErrorFunc)) {
     /* we actually set the callback as the context and
        xml6_gbl_message_func() as the handler
     */
