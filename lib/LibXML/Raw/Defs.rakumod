@@ -11,7 +11,7 @@ my constant XML_XML_NS is export(:XML_XML_NS) = 'http://www.w3.org/XML/1998/name
 
 sub find-library($base) {
     # unmangle library names, so xml6.dll can load libxml.dll 
-    if my IO $file = %?RESOURCES{'libraries/' ~ $base} {
+    with %?RESOURCES{'libraries/' ~ $base} -> Distribution::Resource $file {
         my $tmpdir = $*SPEC.tmpdir ~ '/' ~ 'raku-libxml-' ~ $?DISTRIBUTION.meta<ver>;
         my $lib = $*VM.platform-library-name($base.IO);
         my IO() $dest = $tmpdir ~ '/' ~ $lib;
