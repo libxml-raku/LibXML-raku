@@ -11,15 +11,14 @@ my constant XML_XML_NS is export(:XML_XML_NS) = 'http://www.w3.org/XML/1998/name
 
 sub find-library($base) {
     # unmangle library names, so xml6.dll can load libxml.dll 
-    if my $file = %?RESOURCES{'libraries/' ~ $base} {
+    if my IO $file = %?RESOURCES{'libraries/' ~ $base} {
         my $tmpdir = $*SPEC.tmpdir ~ '/' ~ 'raku-libxml-' ~ $?DISTRIBUTION.meta<ver>;
         my $lib = $*VM.platform-library-name($base.IO);
-        my IO $dest = ($tmpdir ~ '/' ~ $lib).IO;
+        my IO() $dest = $tmpdir ~ '/' ~ $lib;
 	{
 	    my $fh = $file.open;
 	    $fh.lock: :shared;
-            $dest = ($tmpdir ~ '/' ~ $lib).IO;
-            unless $dest.e && $dest.s == $file.IO.s {
+            unless $dest.e && $dest.s == $file.s {
                 # install it
                 note "installing: " ~ $dest.Str;
                 mkdir $tmpdir;

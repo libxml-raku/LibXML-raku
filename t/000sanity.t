@@ -21,17 +21,17 @@ lives-ok({ cglobal($BIND-XML2, "xml6_config_version", Pointer) }, 'binding lib s
     or note "unable to access 'xml6' binding library; has it been built? (e.g. 'zef build .)";
 
 for <xml6_doc_set_encoding xml6_gbl_os_thread_set_tag_expansion> {
-    ok(try {cglobal($BIND-XML2, $_, Pointer)}, "$BIND-XML2 $_ symbol")
+    ok(try {cglobal($BIND-XML2, $_, Pointer)}, "binding lib $_ symbol")
      or diag "error fetching $_ symbol: $!";
 }
 
 for <xmlBufferCreate xmlNewDocNode> {
-    ok(try {cglobal($XML2, $_, Pointer)}, "$XML2 $_ binding")
+    ok(try {cglobal($XML2, $_, Pointer)}, "libxml $_ binding")
      or diag "error fetching $_ symbol: $!";
 }
 
 for <malloc memcpy free> {
-    ok(try {cglobal($CLIB, $_, Pointer)}, "CLIB $_ binding")
+    ok(try {cglobal($CLIB, $_, Pointer)}, "clib $_ binding")
      or diag "error fetching $_ symbol: $!";
 }
 
