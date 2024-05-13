@@ -461,7 +461,6 @@ class xmlSAXLocator is export {
     has Pointer $.getColumnNumberFunc is rw-ptr(
         method xml6_sax_locator_set_getColumnNumber( &cb (xmlParserCtxt $ctx --> int32) ) is native($BIND-XML2) {*}
     );
-    method init is native($XML2) is symbol('xml6_sax_locator_init') {*}
 
     submethod BUILD(*%atts) {
         for %atts.pairs.sort {
@@ -1127,6 +1126,8 @@ class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
     has xmlNs       $.ns; # the associated namespace
     has int32    $.atype; # the attribute type if validating
     has Pointer   $.psvi; # for type/PSVI information
+    ## todo Only available in newer libxml2 versions!
+    has Pointer $!id;     # the ID struct
 
     method Free is native($XML2) is symbol('xmlFreeProp') {*}
     method xmlCopyProp(--> xmlAttr) is native($XML2) {*}

@@ -1,6 +1,7 @@
 #ifndef __XML6_ERROR_H
 #define __XML6_ERROR_H
 
+#include <libxml/xmlstring.h>
 #include <libxml/xmlerror.h>
 
 DLLEXPORT xmlChar*

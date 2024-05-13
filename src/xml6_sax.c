@@ -128,13 +128,6 @@ DLLEXPORT void xml6_sax_set_serror(xmlSAXHandlerPtr self, xmlStructuredErrorFunc
 
 // SaxLocator Methods
 
-DLLEXPORT void xml6_sax_locator_init(xmlSAXLocatorPtr self) {
-  self->getPublicId = xmlDefaultSAXLocator.getPublicId;
-  self->getSystemId = xmlDefaultSAXLocator.getSystemId;
-  self->getLineNumber = xmlDefaultSAXLocator.getLineNumber;
-  self->getColumnNumber = xmlDefaultSAXLocator.getColumnNumber;
-}
-
 DLLEXPORT void xml6_sax_locator_set_getPublicId(xmlSAXLocatorPtr self, void *func) {
   self->getPublicId = func;
 }

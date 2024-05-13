@@ -16,7 +16,7 @@ for 1 ..^ @ClassMap -> $type {
     my $class := @ClassMap[$type];
     if $class ~~ anyNode|xmlNs {
        todo "has known size changes between libxml2 versions"
-           if $type == XML_ENTITY_DECL;
+           if $type == XML_ENTITY_DECL|XML_ATTRIBUTE_NODE;
        is node-size($type), nativesizeof($class), 'size of ' ~ $class.raku;
     }
     else {
