@@ -18,11 +18,11 @@ sub find-library($base) {
 	{
 	    my $fh = $file.open;
 	    $fh.lock: :shared;
-            unless $dest.e && $dest.s == $file.s {
+            unless $dest.e && $dest.s == $file.IO.s {
                 # install it
                 note "installing: " ~ $dest.Str;
                 mkdir $tmpdir;
-                $file.copy($dest);
+                $file.IO.copy($dest);
 	    }
 	    LEAVE $fh.close;
         }
