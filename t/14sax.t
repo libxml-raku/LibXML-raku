@@ -152,8 +152,8 @@ EOT
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 }
 
-todo "libxml2 v2.12.6+  startElementNs bug?"
-    if LibXML.version >= v2.12.6;
+todo "libxml2 v2.12.0+  startElementNs bug?"
+    if LibXML.version >= v2.12.00;
 subtest 'Ns callbacks', {
     my SAXNSTester:D $sax = $parser.create: SAXNSTester;
 

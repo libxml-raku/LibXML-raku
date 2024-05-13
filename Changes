@@ -1,5 +1,10 @@
 {{$NEXT}}
 
+0.10.7  2024-05-14T11:18:11+12:00
+   - Fix compilation against libxml2 v2.12.6 #111
+   - Fix Windows install
+   - Further expunge _xmlDefaultSAXLocator definitions
+
 0.10.6  2023-10-31T05:46:03+13:00
    - Remove references to deprecated _xmlDefaultSAXLocator #108
    - Save HTML as HTML, not XHTML due to issues in browsers handling
