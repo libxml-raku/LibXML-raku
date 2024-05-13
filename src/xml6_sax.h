@@ -65,8 +65,6 @@ DLLEXPORT void xml6_sax_set_serror(xmlSAXHandlerPtr, xmlStructuredErrorFunc);
 
 // SaxLocator methods
 
-DLLEXPORT void xml6_sax_locator_init(xmlSAXLocatorPtr);
-
 DLLEXPORT void xml6_sax_locator_set_getPublicId(xmlSAXLocatorPtr, void *func);
 
 DLLEXPORT void xml6_sax_locator_set_getSystemId(xmlSAXLocatorPtr, void *func);
