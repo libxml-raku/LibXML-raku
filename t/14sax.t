@@ -49,13 +49,19 @@ my Stacker $SAXTester_startElement_stacker .= new(
     }
 );
 
+sub ns-uri($node) {
+    do with $node {
+        .namespaceURI
+    } // '';
+}
+
 my Stacker $SAXNSTester_startElement_stacker .= new(
     gen-cb => -> &push-cb {
 
         ->  LibXML::Node $node {
 
             &push-cb(
-                $node.namespaceURI ~~ /^urn:/
+                $node.&ns-uri ~~ /^urn:/
                     ?? 'true'
                     !! 'false'
                    );
@@ -71,7 +77,7 @@ my Stacker $SAXNS2Tester_startElement_stacker .= new(
             if ($elt.name eq "b")
                 {
                     &push-cb(
-                        ($elt.namespaceURI eq "xml://A") ?? 'true' !! 'false'
+                        ($elt.&ns-uri eq "xml://A") ?? 'true' !! 'false'
                        );
                 }
             };
@@ -84,9 +90,8 @@ sub _create_urn_stacker
     Stacker.new(
         gen-cb => -> &push-cb {
             -> LibXML::Node $node {
-
                 &push-cb(
-                    ($node.namespaceURI ~~ /^^'urn:'[camels|mammals|a]$$/)
+                    ($node.&ns-uri ~~ /^^'urn:'[camels|mammals|a]$$/)
                         ?? 'true'
                         !! 'false'
                        );
@@ -147,6 +152,8 @@ EOT
     $SAXTester_endDocument_counter.test(1, 'endDocument called once.');
 }
 
+todo "libxml2 v2.12.6+  startElementNs bug?"
+    if LibXML.version >= v2.12.6;
 subtest 'Ns callbacks', {
     my SAXNSTester:D $sax = $parser.create: SAXNSTester;
 

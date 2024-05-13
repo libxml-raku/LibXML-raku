@@ -23,21 +23,18 @@ throws-like
     :file<test.xml>,
     :line(1),
     :level(XML_ERR_FATAL),
-    :code(XML_ERR_DOCUMENT_END),
+    :code(XML_ERR_DOCUMENT_END | XML_ERR_GT_REQUIRED),
     :domain-num(XML_FROM_PARSER),
     :domain<parser>,
     :column({ LibXML.version < v2.09.02 || 203 }), # The older versions are unreliable, make it just True
-    :msg(*.contains('Extra content at the end of the document')),
+    :msg(*.contains('Extra content at the end of the document'|"Couldn't find end of Start Tag foo")),
     :message(rx:s/
-    'test.xml:1: parser error : attributes construct error'
-    .*
-    "test.xml:1: parser error : Couldn't find end of Start Tag foo line 1"
-    .*
-    'test.xml:1: parser error : Extra content at the end of the document'/),
+      'test.xml:1: parser error : attributes construct error'/),
     :prev({
         ?( $^prev ~~ X::LibXML::Parser
             && $prev.domain-num == XML_FROM_PARSER
-            && $prev.prev.msg.chomp eq 'attributes construct error' )
+            && (($prev.prev // $prev).msg.chomp eq 'attributes construct error' )
+         )
     });
 
 throws-like

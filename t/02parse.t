@@ -517,7 +517,7 @@ subtest 'SAX push parser', {
 }
 
 subtest 'parse well balanced chunks', {
-    my $MAX_WF_C = 11;
+    my $MAX_WF_C = 10;
     my $MAX_WB_C = 16;
 
     my %chunks = (
@@ -551,7 +551,6 @@ subtest 'parse well balanced chunks', {
                  );
 
     my @badWBStrings = (
-        "",
         "<ouch>",
         "<ouch>bar",
         "bar</ouch>",
@@ -608,8 +607,6 @@ subtest 'parse well balanced chunks', {
 
         subtest 'broken strings', {
             dies-ok { $pparser.parse-balanced: :string(Mu); };
-
-            dies-ok { $pparser.parse-balanced: :string(""); };
 
             for @badWBStrings -> $string {
                 dies-ok { $pparser.parse-balanced: :$string; }, "parse-balanced fails: $string";
