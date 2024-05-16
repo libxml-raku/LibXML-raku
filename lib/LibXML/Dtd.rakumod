@@ -57,7 +57,7 @@ also does LibXML::_Rawish[xmlDtd, <systemId publicId>];
       # Associative Interfaces
       my LibXML::Dtd::DeclMap $entities = $dtd.entities;
       $foo = $entities<foo>;
-      my LibXML::Dtd::DeclMap $notations = $dtd.notations;
+      my LibXML::Dtd::NotationDeclMap $notations = $dtd.notations;
       $bar = $notations<bar>;
       my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
       $elem-decl = $elem-decls{$elem-name}
@@ -325,25 +325,25 @@ method internalSubset {
 }
 
 class DeclMap is LibXML::HashMap[LibXML::Item] {
+    has LibXML::Dtd $.dtd is required;
     method DELETE-KEY($) { die X::NYI.new }
     method ASSIGN-KEY($, $) { die X::NYI.new }
-    submethod new(xmlHashTable:D :$raw! is copy) {
-        $raw .= Copy: -> Pointer $p, $ --> Pointer {
-            itemNode.cast($_).Reference with $p;
+    submethod TWEAK(xmlHashTable:D :raw($)!) {
+        self.raw .= Copy: -> Pointer $p, $ --> Pointer {
+            itemNode.cast($p).Reference;
             $p;
         }
-        self.bless: :$raw;
     }
 }
 
 class NotationDeclMap is LibXML::HashMap[LibXML::Dtd::Notation] {
+    has LibXML::Dtd $.dtd is required;
     method DELETE-KEY($) { die X::NYI.new }
     method ASSIGN-KEY($, $) { die X::NYI.new }
-    method new(xmlHashTable:D :$raw! is copy) {
-        $raw .= Copy: -> Pointer $p, $ --> Pointer {
+    submethod TWEAK(xmlHashTable:D :raw($)!) {
+        self.raw .= Copy: -> Pointer $p, $ --> Pointer {
             nativecast Pointer, nativecast(xmlNotation, $p).Copy;
         }
-        self.bless: :$raw;
     }
 }
 
@@ -356,6 +356,7 @@ class AttrDeclMap does LibXML::_Configurable {
         }
         method deallocator() {
             -> Pointer $p, $ {
+                 nativecast($.of, $p).Discard;
             }
         }
     }
@@ -368,18 +369,20 @@ class AttrDeclMap does LibXML::_Configurable {
         $!map = self.create: HoHMap, :$raw;
     }
     method AT-KEY($k) {
-        if %!cache{$k}:exists {
-             %!cache{$k}
-        }
-        else {
-            %!cache{$k} = do {
-                            with $!map.AT-KEY($k) -> $raw {
-                                self.create: DeclMap, :$raw;
+        $!dtd.protect: {
+            if %!cache{$k}:exists {
+                 %!cache{$k}
+            }
+            else {
+                %!cache{$k} = do {
+                                with $!map.AT-KEY($k) -> $raw {
+                                    self.create: DeclMap, :$raw, :$!dtd;
+                                }
+                                else {
+                                    DeclMap.of;
+                                }
                             }
-                            else {
-                                DeclMap.of;
-                            }
-                        }
+            }
         }
     }
     method values { $.keys.map: { $.AT-KEY($_) } }
@@ -390,8 +393,8 @@ class AttrDeclMap does LibXML::_Configurable {
 
 has NotationDeclMap $!notations;
 #| returns a hash-map of notation declarations
-method notations(--> NotationDeclMap) {
-    $!notations //= NotationDeclMap.new: :raw($_)
+method notations($dtd: --> NotationDeclMap) {
+    $!notations //= NotationDeclMap.new: :raw($_), :$dtd
         with $.raw.notations;
 }
 

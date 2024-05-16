@@ -36,7 +36,7 @@ my LibXML::Node $node-decl = $dtd.getNodeDeclaration($node);
 # Associative Interfaces
 my LibXML::Dtd::DeclMap $entities = $dtd.entities;
 $foo = $entities<foo>;
-my LibXML::Dtd::DeclMap $notations = $dtd.notations;
+my LibXML::Dtd::NotationDeclMap $notations = $dtd.notations;
 $bar = $notations<bar>;
 my LibXML::Dtd::DeclMap $elem-decls = $dtd.element-declarations;
 $elem-decl = $elem-decls{$elem-name}
@@ -202,7 +202,7 @@ Returns False if the Id's don't match or Bool:U if the DtD lack either a publicI
 ### method notations
 
 ```raku
-method notations() returns LibXML::Dtd::DeclMap
+method notations() returns LibXML::Dtd::NotationDeclMap
 ```
 
 returns a hash-map of notation declarations

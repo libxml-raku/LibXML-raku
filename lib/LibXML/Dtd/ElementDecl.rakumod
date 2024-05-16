@@ -99,10 +99,8 @@ method attributes is also<attribs attr> {
 method new(|) { fail }
 
 method keys {
-    [
-        slip(@.properties.map: { '@' ~ .nodeName }),
-        slip($.content.potential-children),
-    ]
+    my @props = @.properties.map: { '@' ~ .nodeName };
+    @props.append: $.content.potential-children;
 }
 method values {
     my $dtd := self.parent;

@@ -20,7 +20,7 @@ also does Associative;
 also does LibXML::_Configurable;
 also does LibXML::_Collection;
 
-has xmlHashTable:D $.raw .= new;
+has xmlHashTable:D $.raw is rw .= new;
 
 method of {XPathRange}
 
