@@ -356,23 +356,30 @@ class AttrDeclMap does LibXML::_Configurable {
         }
         method deallocator() {
             -> Pointer $p, $ {
-                nativecast($.of, $p).Discard;
             }
         }
     }
     has HoHMap $!map handles<keys>;
     has LibXML::Dtd:D $.dtd is required;
+    has DeclMap %!cache;
 
     submethod TWEAK(xmlHashTable:D :$raw! is copy, LibXML::Config :$config) {
         $raw .= BuildDtdAttrDeclTable();
         $!map = self.create: HoHMap, :$raw;
     }
     method AT-KEY($k) {
-        with $!map.AT-KEY($k) -> $raw {
-            self.create: DeclMap, :$raw;
+        if %!cache{$k}:exists {
+             %!cache{$k}
         }
         else {
-            DeclMap.of;
+            %!cache{$k} = do {
+                            with $!map.AT-KEY($k) -> $raw {
+                                self.create: DeclMap, :$raw;
+                            }
+                            else {
+                                DeclMap.of;
+                            }
+                        }
         }
     }
     method values { $.keys.map: { $.AT-KEY($_) } }
