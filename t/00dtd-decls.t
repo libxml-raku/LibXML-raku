@@ -13,7 +13,7 @@ subtest 'dtd notations' => {
     plan 10;
     my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my LibXML::Dtd::DeclMap $notations = $dtd.notations;
+    my LibXML::Dtd::NotationDeclMap $notations = $dtd.notations;
     ok $notations.defined, 'DtD has notations';
     is-deeply $notations.keys, ("foo",), 'notation keys';
     my LibXML::Dtd::Notation $foo = $notations<foo>;

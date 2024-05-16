@@ -324,33 +324,26 @@ method internalSubset {
     die X::NYI.new
 }
 
-class DeclMap {
-    use LibXML::_Configurable;
-    also does LibXML::_Configurable;
-
-    has LibXML::Node $.of;
-
-    class HashMap::NoGC
-        # Direct binding to a Dtd internal hash table
-        is LibXML::HashMap[LibXML::Item]
-    {
-        method DELETE-KEY($) { die X::NYI.new }
-        method ASSIGN-KEY($, $) { die X::NYI.new }
-        method freeze {...}
-        method deallocator { -> | {} }
-        method cleanup { }
-    }
-    has HashMap::NoGC $.map is built handles<AT-KEY DELETE-KEY ASSIGN-KEY keys pairs values>;
-    has LibXML::Dtd $.dtd is required;
-    submethod TWEAK(xmlHashTable:D :$raw!) {
-        $!map = self.create: HashMap::NoGC, :$raw;
+class DeclMap is LibXML::HashMap[LibXML::Item] {
+    method DELETE-KEY($) { die X::NYI.new }
+    method ASSIGN-KEY($, $) { die X::NYI.new }
+    submethod new(xmlHashTable:D :$raw! is copy) {
+        $raw .= Copy: -> Pointer $p, $ --> Pointer {
+            itemNode.cast($_).Reference with $p;
+            $p;
+        }
+        self.bless: :$raw;
     }
 }
 
-class DeclMapNotation is DeclMap {
-    method of {LibXML::Dtd::Notation}
-    method AT-KEY($k is raw) {
-        $.dtd.getNotation($k);
+class NotationDeclMap is LibXML::HashMap[LibXML::Dtd::Notation] {
+    method DELETE-KEY($) { die X::NYI.new }
+    method ASSIGN-KEY($, $) { die X::NYI.new }
+    method new(xmlHashTable:D :$raw! is copy) {
+        $raw .= Copy: -> Pointer $p, $ --> Pointer {
+            nativecast Pointer, nativecast(xmlNotation, $p).Copy;
+        }
+        self.bless: :$raw;
     }
 }
 
@@ -376,7 +369,7 @@ class AttrDeclMap does LibXML::_Configurable {
     }
     method AT-KEY($k) {
         with $!map.AT-KEY($k) -> $raw {
-            self.create: DeclMap, :$raw, :$!dtd;
+            self.create: DeclMap, :$raw;
         }
         else {
             DeclMap.of;
@@ -388,10 +381,10 @@ class AttrDeclMap does LibXML::_Configurable {
     method ASSIGN-KEY($, $) { die X::NYI.new }
 }
 
-has DeclMapNotation $!notations;
+has NotationDeclMap $!notations;
 #| returns a hash-map of notation declarations
-method notations(LibXML::Dtd:D $dtd: --> DeclMap) {
-    $!notations //= self.create: DeclMapNotation, :$dtd, :raw($_)
+method notations(--> NotationDeclMap) {
+    $!notations //= NotationDeclMap.new: :raw($_)
         with $.raw.notations;
 }
 

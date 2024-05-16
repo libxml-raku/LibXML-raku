@@ -14,10 +14,10 @@ class xmlHashTable is repr(Opaque) is export {
     method RemoveEntry(Str, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xmlHashRemoveEntry') is native($XML2) {*}
     method RemoveEntryNs(Str, &deallocator ( Pointer, xmlCharP ) --> int32)  is symbol('xml6_hash_remove_entry_ns') is native($BIND-XML2) {*}
     method Size(--> int32) is symbol('xmlHashSize') is native($XML2) {*}
-    method Copy(xmlHashTable --> xmlHashTable) is native($XML2) is symbol('xmlHashCopy') {*}
+    method Copy(&copier (Pointer, xmlCharP --> Pointer) --> xmlHashTable) is native($XML2) is symbol('xmlHashCopy') {*}
     method Free( &deallocator ( Pointer, xmlCharP ) ) is symbol('xmlHashFree') is native($XML2) {*}
     method Discard() is native($BIND-XML2) is symbol('xml6_hash_discard') {*}
-    method keys(CArray[Str]) is native($BIND-XML2) is symbol('xml6_hash_keys') {*}
+    method keys(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_keys') {*}
     method values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_values') {*}
     method key-values(CArray[Pointer]) is native($BIND-XML2) is symbol('xml6_hash_key_values') {*}
     method add-pairs(CArray, uint32, &deallocator ( Pointer, xmlCharP ) ) is native($BIND-XML2) is symbol('xml6_hash_add_pairs') {*}

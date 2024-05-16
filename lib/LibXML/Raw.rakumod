@@ -1273,7 +1273,7 @@ class xmlNotation is export {
         New($name, $publicId, $systemId);
     }
     method Free is native($BIND-XML2) is symbol('xml6_notation_free') {*}
-    method Copy(--> xmlNs) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
+    method Copy(--> xmlNotation) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
     method UniqueKey(--> AllocedStr) is native($BIND-XML2) is symbol('xml6_notation_unique_key') {*}
     method copy { $.Copy }
     multi method Str(xmlNotation:D:){

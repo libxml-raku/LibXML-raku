@@ -57,17 +57,17 @@ submethod DESTROY { self.cleanup }
 
 subset OfType where XPathRange|LibXML::Dtd::Notation|Pointer;
 
-method !CArray(Any:U $type = Pointer, UInt:D :$len = $.raw.Size ) {
-    my $a := CArray[$type].new;
-    $a[$len -1] = $type if $len;
+method !CArray(UInt:D :$len = $.raw.Size ) {
+    my $a := CArray[Pointer].new;
+    $a[$len -1] = Pointer if $len;
     $a;
 }
 
 method elems is also<Numeric> { $.raw.Size }
 method keys  {
-    my $buf := self!CArray(Str);
+    my $buf := self!CArray;
     $.raw.keys($buf);
-    $buf.list;
+    $buf.map: {nativecast(Str, $_) };
 }
 method values {
     my $buf := self!CArray;
@@ -77,12 +77,12 @@ method values {
     }
 }
 method pairs is also<list List> {
-    my $kbuf := self!CArray(Str);
+    my $kbuf := self!CArray;
     my $vbuf := self!CArray;
     $.raw.keys($kbuf);
     $.raw.values($vbuf);
     (^$.elems).map: {
-        $kbuf[$_] => $.thaw($vbuf[$_]);
+        nativecast(Str, $kbuf[$_]) => $.thaw($vbuf[$_]);
     }
 }
 method kv {
