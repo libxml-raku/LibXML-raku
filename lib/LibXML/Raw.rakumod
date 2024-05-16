@@ -383,7 +383,7 @@ class xmlElementContent is repr('CStruct') is export {
     has xmlElementContent $.c2;     # Second child
     has xmlElementContent $.parent; # Parent
     has xmlCharP          $.prefix; # Namespace prefix
-    method PotentialChildren(CArray[Str], int32 $len is rw, int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetPotentialChildren') {*}
+    method PotentialChildren(CArray[Pointer], int32 $len is rw, int32 $max --> int32)  is native($XML2) is symbol('xmlValidGetPotentialChildren') {*}
     our sub Dump(Blob, int32, xmlElementContent, bool) is native($XML2) is symbol('xmlSnprintfElementContent') {*}
     method Str(UInt :$max = 255, Bool:D :$paren = so ($!type == XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR)) {
         my buf8 $buf .= allocate($max);

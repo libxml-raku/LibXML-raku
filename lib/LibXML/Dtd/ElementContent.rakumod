@@ -55,11 +55,11 @@ method parent {
     self!visit: $!raw.parent;
 }
 method potential-children(UInt:D :$max = 255) {
-    my CArray[Str] $kids .= new;
+    my CArray[Pointer] $kids .= new;
     my int32 $len = 0;
     $kids[$max] = Pointer;
     $!raw.PotentialChildren($kids, $len, $max);
-    my @ = (^$len).map: {$kids[$_]}
+    my @ = (^$len).map: {nativecast(Str, $kids[$_])}
 }
 
 =begin pod
