@@ -1,128 +1,114 @@
-# a base class that provides a full set of SAX2 callbacks
+#| a base class that provides a full set of SAX2 callbacks
+unit class LibXML::SAX::Handler::SAX2;
+
 use LibXML::SAX::Handler;
+also is LibXML::SAX::Handler;
 
-my role SAX2BaseClass {
-    # implement methods that call LibXML2's default SAX2 handlers,
-    # so that callsame(), etc will invoke them
-    use LibXML::Types :QName, :NCName;
-    use LibXML::Raw;
-    use NativeCall;
+use LibXML::SAX::Handler::SAX2::Locator;
+has LibXML::SAX::Handler::SAX2::Locator $.locator handles<line-number column-number> .= new;
 
-    my constant Ctx = xmlParserCtxt;
+# implement methods that call LibXML2's default SAX2 handlers,
+# so that callsame(), etc will invoke them
+use LibXML::Types :QName, :NCName;
+use LibXML::Raw;
+use NativeCall;
 
-    method setDocumentLocator(xmlSAXLocator $locator, Ctx :$ctx!) returns Bool {
-        ? $ctx.xmlSAX2SetDocumentLocator($locator);
-    }
+my constant Ctx = xmlParserCtxt;
 
-    method isStandalone(Ctx :$ctx!) returns Bool {
-        ? $ctx.xmlSAX2IsStandalone;
-    }
-
-    method startDocument(Ctx :$ctx!) {
-        $ctx.xmlSAX2StartDocument;
-    }
-
-    method endDocument(Ctx :$ctx!) {
-        $ctx.xmlSAX2EndDocument;
-    }
-
-    method startElement(QName:D $name, CArray :$atts-raw!, Ctx :$ctx!) {
-        $ctx.xmlSAX2StartElement($name, $atts-raw);
-    }
-
-    method endElement(QName:D $name, Ctx :$ctx!) {
-        $ctx.xmlSAX2EndElement($name);
-    }
-
-    method externalSubset(Str:D $name, Ctx :$ctx!, Str :$external-id, Str :$system-id) {
-        $ctx.xmlSAX2ExternalSubset($name, $external-id, $system-id);
-    }
-
-    method internalSubset(Str:D $name, Ctx :$ctx!, Str :$external-id, Str :$system-id) {
-        $ctx.xmlSAX2InternalSubset($name, $external-id, $system-id);
-    }
-
-    method startElementNs(Str:D $local-name, Str :$prefix!, Str :$uri!, UInt :$num-namespaces!, CArray :$namespaces!, UInt :$num-atts!, UInt :$num-defaulted!, CArray :$atts-raw!, Ctx :$ctx!) {
-        $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts-raw);
-    }
-
-    method endElementNs($local-name, Str :$prefix, Str :$uri, Ctx :$ctx!) {
-        $ctx.xmlSAX2EndElementNs($local-name, $prefix, $uri);
-    }
-
-    method characters(Str $chars, Ctx :$ctx!) {
-        my Blob $buf = $chars.encode;
-        $ctx.xmlSAX2Characters($buf, +$buf);
-    }
-
-    method processingInstruction(Str $target, Str $data, Ctx :$ctx!) {
-        $ctx.xmlSAX2ProcessingInstruction($target, $data);
-    }
-
-    method cdataBlock(Str $chars, Ctx :$ctx!) {
-        my Blob $buf = $chars.encode;
-        $ctx.xmlSAX2CDataBlock($buf, +$buf);
-    }
-
-    method getEntity(Str $name, Ctx :$ctx!) {
-        $ctx.xmlSAX2GetEntity($name);
-    }
-
-    method entityDecl(Str $name, Str $content, Ctx :$ctx!, Int :$type, Str :$public-id, Str :$system-id) {
-        $ctx.xmlSAX2EntityDecl($name, $type, $public-id, $system-id, $content);
-    }
-
-    method elementDecl(Str $name, xmlElementContent $content, Ctx :$ctx!, Int :$type) {
-        $ctx.xmlSAX2ElementDecl($name, $type, $content);
-    }
-
-    method reference(Str:D $text, Ctx :$ctx! ) {
-        $ctx.xmlSAX2Reference($text);
-    }
-
-    method attributeDecl($elem, $fullname, :$ctx!, :$type, :$def, :$default-value, :$tree) {
-        $ctx.xmlSAX2AttributeDecl($elem, $fullname, $type, $def, $default-value, $tree);
-    }
-
-    method unparsedEntityDecl($name, :$ctx!, :$public-id, :$system-id, :$notation-name) {
-        $ctx.xmlSAX2UnparsedEntityDecl($name, $public-id, $system-id, $notation-name);
-    }
-
-    method notationDecl($name, :$ctx!, :$public-id, :$system-id) {
-        $ctx.xmlSAX2NotationDecl($name, $public-id, $system-id);
-    }
-
-    method comment(Str:D $text, Ctx :$ctx! ) {
-        $ctx.xmlSAX2Comment($text);
-    }
-
-    # unimplmented callbacks
-    method error(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method fatalError(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method getParameterEntity(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method hasExternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method hasInternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method ignorableWhitespace(|) {die &?BLOCK.name ~ " SAX callback nyi"}
-    method warning(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method setDocumentLocator(xmlSAXLocator $locator, Ctx :$ctx!) returns Bool {
+    ? $ctx.xmlSAX2SetDocumentLocator($locator);
 }
 
-class LibXML::SAX::Handler::SAX2
-    is LibXML::SAX::Handler
-    does SAX2BaseClass {
-    use LibXML::SAX::Handler::SAX2::Locator;
-    has LibXML::SAX::Handler::SAX2::Locator $.locator handles<line-number column-number> .= new;
-
-    use LibXML::Document;
-    use LibXML::DocumentFragment;
-
-    multi method publish(LibXML::Document $doc!) {
-        $doc;
-    }
-    multi method publish(LibXML::DocumentFragment $doc!) {
-        $doc;
-    }
-
+method isStandalone(Ctx :$ctx!) returns Bool {
+    ? $ctx.xmlSAX2IsStandalone;
 }
+
+method startDocument(Ctx :$ctx!) {
+    $ctx.xmlSAX2StartDocument;
+}
+
+method endDocument(Ctx :$ctx!) {
+    $ctx.xmlSAX2EndDocument;
+}
+
+method startElement(QName:D $name, CArray :$atts-raw!, Ctx :$ctx!) {
+    $ctx.xmlSAX2StartElement($name, $atts-raw);
+}
+
+method endElement(QName:D $name, Ctx :$ctx!) {
+    $ctx.xmlSAX2EndElement($name);
+}
+
+method externalSubset(Str:D $name, Ctx :$ctx!, Str :$external-id, Str :$system-id) {
+    $ctx.xmlSAX2ExternalSubset($name, $external-id, $system-id);
+}
+
+method internalSubset(Str:D $name, Ctx :$ctx!, Str :$external-id, Str :$system-id) {
+    $ctx.xmlSAX2InternalSubset($name, $external-id, $system-id);
+}
+
+method startElementNs(Str:D $local-name, Str :$prefix!, Str :$uri!, UInt :$num-namespaces!, CArray :$namespaces!, UInt :$num-atts!, UInt :$num-defaulted!, CArray :$atts-raw!, Ctx :$ctx!) {
+    $ctx.xmlSAX2StartElementNs($local-name, $prefix, $uri, $num-namespaces, $namespaces, $num-atts, $num-defaulted, $atts-raw);
+}
+
+method endElementNs($local-name, Str :$prefix, Str :$uri, Ctx :$ctx!) {
+    $ctx.xmlSAX2EndElementNs($local-name, $prefix, $uri);
+}
+
+method characters(Str $chars, Ctx :$ctx!) {
+    my Blob $buf = $chars.encode;
+    $ctx.xmlSAX2Characters($buf, +$buf);
+}
+
+method processingInstruction(Str $target, Str $data, Ctx :$ctx!) {
+    $ctx.xmlSAX2ProcessingInstruction($target, $data);
+}
+
+method cdataBlock(Str $chars, Ctx :$ctx!) {
+    my Blob $buf = $chars.encode;
+    $ctx.xmlSAX2CDataBlock($buf, +$buf);
+}
+
+method getEntity(Str $name, Ctx :$ctx!) {
+    $ctx.xmlSAX2GetEntity($name);
+}
+
+method entityDecl(Str $name, Str $content, Ctx :$ctx!, Int :$type, Str :$public-id, Str :$system-id) {
+    $ctx.xmlSAX2EntityDecl($name, $type, $public-id, $system-id, $content);
+}
+
+method elementDecl(Str $name, xmlElementContent $content, Ctx :$ctx!, Int :$type) {
+    $ctx.xmlSAX2ElementDecl($name, $type, $content);
+}
+
+method reference(Str:D $text, Ctx :$ctx! ) {
+    $ctx.xmlSAX2Reference($text);
+}
+
+method attributeDecl($elem, $fullname, :$ctx!, :$type, :$def, :$default-value, :$tree) {
+    $ctx.xmlSAX2AttributeDecl($elem, $fullname, $type, $def, $default-value, $tree);
+}
+
+method unparsedEntityDecl($name, :$ctx!, :$public-id, :$system-id, :$notation-name) {
+    $ctx.xmlSAX2UnparsedEntityDecl($name, $public-id, $system-id, $notation-name);
+}
+
+method notationDecl($name, :$ctx!, :$public-id, :$system-id) {
+    $ctx.xmlSAX2NotationDecl($name, $public-id, $system-id);
+}
+
+method comment(Str:D $text, Ctx :$ctx! ) {
+    $ctx.xmlSAX2Comment($text);
+}
+
+# unimplmented callbacks
+method error(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method fatalError(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method getParameterEntity(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method hasExternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method hasInternalSubset(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method ignorableWhitespace(|) {die &?BLOCK.name ~ " SAX callback nyi"}
+method warning(|) {die &?BLOCK.name ~ " SAX callback nyi"}
 
 =begin pod
 

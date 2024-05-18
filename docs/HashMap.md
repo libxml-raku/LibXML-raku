@@ -30,7 +30,7 @@ Synopsis
 Description
 -----------
 
-This module uses an xmlHashTable object as a raw hash-like store.
+This class implements hashing of native data via xmlHashTable objects.
 
 Both [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) and [LibXML::Node::List](https://libxml-raku.github.io/LibXML-raku/Node/List) objects have a `Hash()` method that returns a `LibXML::HashMap[LibXML::Node::Set]` object. For example
 
@@ -60,7 +60,7 @@ Several container types are available:
 
   * `LibXML::HashMap[LibXML::Dtd::Notation]` - Dtd notation table
 
-  * `LibXML::HashMap[LibXML::Dtd::ElementDecl]` - Dtd element declartion
+  * `LibXML::HashMap[LibXML::Dtd::ElementDecl]` - Dtd element declaration
 
 Methods
 -------

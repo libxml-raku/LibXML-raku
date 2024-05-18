@@ -52,6 +52,7 @@ unit class LibXML::Pattern;
 
 use LibXML::Enums;
 use LibXML::Raw;
+use LibXML::Raw::Defs :xmlCharP;
 use LibXML::Node;
 use LibXML::_Options;
 use NativeCall;
@@ -80,7 +81,7 @@ has UInt $.flags;
 
 submethod TWEAK(Str:D :$pattern!, :%ns, *%opts) {
     self.set-flags($!flags, |%opts);
-    my CArray[Str] $ns .= new: |(%ns.kv.sort), Str;
+    my CArray[xmlCharP] $ns .= new: |(%ns.kv.sort), Str;
     $!raw .= new(:$pattern, :$!flags, :$ns)
         // die X::LibXML::OpFail.new(:what<Pattern>, :op<Compile>);
 }

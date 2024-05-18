@@ -4,6 +4,11 @@
  :: [Handler](https://libxml-raku.github.io/LibXML-raku/SAX/Handler)
  :: [SAX2](https://libxml-raku.github.io/LibXML-raku/SAX/Handler/SAX2)
 
+class LibXML::SAX::Handler::SAX2
+--------------------------------
+
+a base class that provides a full set of SAX2 callbacks
+
 Description
 -----------
 

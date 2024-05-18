@@ -139,7 +139,7 @@ role Assoc[LibXML::Node::Set $of] {
         }
     }
     method thaw(Pointer $p) {
-        my $raw = nativecast(xmlNodeSet, $p).copy;
+        my $raw = nativecast(xmlNodeSet, $p);
         self.create: $of, :$raw, :deref;
     }
     method deallocator() {
@@ -157,12 +157,12 @@ role Assoc[UInt $of] {
 }
 
 role Assoc[Str $of] {
-    my constant &free = &xml6_gbl::xml-free;
+    my constant &xml-free = &xml6_gbl::xml-free;
     method of {$of}
-    sub strDup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
-    method freeze(Str() $v) { strDup($v) }
+    sub xml-str-dup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
+    method freeze(Str() $v) { xml-str-dup($v) }
     method thaw(Pointer $p) { nativecast(Str, $p) }
-    method deallocator { -> Pointer $p, xmlCharP $k { free($_) with $p } }
+    method deallocator { -> Pointer $p, xmlCharP $k { xml-free($_) with $p } }
 }
 
 role Assoc[LibXML::Dtd::Notation $of] {
@@ -210,7 +210,7 @@ method ^parameterize(Mu:U \p, OfType:U \t) {
 
 =head2 Description
 
-This module uses an xmlHashTable object as a raw hash-like store.
+This class implements hashing of native data via xmlHashTable objects.
 
 Both L<LibXML::Node::Set> and L<LibXML::Node::List> objects have a `Hash()` method that returns
 a `LibXML::HashMap[LibXML::Node::Set]` object. For example
@@ -235,7 +235,7 @@ Several container types are available:
   =item `LibXML::HashMap[LibXML::Node::Set]` - Sets of nodes
   =item `LibXML::HashMap[LibXML::Item]` - Individual nodes
   =item `LibXML::HashMap[LibXML::Dtd::Notation]` - Dtd notation table
-  =item `LibXML::HashMap[LibXML::Dtd::ElementDecl]` - Dtd element declartion
+  =item `LibXML::HashMap[LibXML::Dtd::ElementDecl]` - Dtd element declaration
 
 =head2 Methods
 

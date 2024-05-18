@@ -212,13 +212,13 @@ subtest 'Dtd DOM', {
 
     my $elem-decls = $dtd.element-declarations;
     is $elem-decls<test>.gist.chomp, '<!ELEMENT test (#PCDATA)>';
-    nok $elem-decls<orphan>.defined;
-    is-deeply $elem-decls.keys.sort, ("orphan", "test");
+    nok $elem-decls<orphan>.defined, 'ATTLIST without ELEMENT';
+    is-deeply $elem-decls.keys.sort, ("orphan", "test"), 'keys';
     my $attr-decls = $dtd.attribute-declarations;
 
     my $attr-decl = $attr-decls<test><attr>;
     ok $attr-decl.defined;
-    is $attr-decl.gist.chomp, '<!ATTLIST test attr CDATA #IMPLIED>';
+    is $attr-decl.gist.chomp, '<!ATTLIST test attr CDATA #IMPLIED>','gist';
     is $attr-decl.elemName, 'test';
     ok $attr-decl.parent.isSameNode($dtd);
 

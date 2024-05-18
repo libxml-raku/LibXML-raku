@@ -1,6 +1,8 @@
 
 class LibXML::SAX::Handler {
     use LibXML::SAX::Builder;
+    use LibXML::Document;
+    use LibXML::DocumentFragment;
 
     use LibXML::Raw;
     has xmlSAXHandler $.raw .= new;
@@ -31,6 +33,13 @@ class LibXML::SAX::Handler {
     # Remaining calls are all handled directly via a native SAX handler
     multi method set-sax-callback($name, &cb) is default {
         $!raw."$name"() = &cb;
+    }
+
+    multi method publish(LibXML::Document $doc!) {
+        $doc;
+    }
+    multi method publish(LibXML::DocumentFragment $doc!) {
+        $doc;
     }
 
 }
