@@ -543,7 +543,7 @@ method xpath-context($node: |c) {
 }
 
 method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$deref) {
-    self.create($.xpath-class, :$node, :%ns).findnodes($expr, :$deref)
+    $node.xpath-context(:%ns).findnodes($expr, :$deref)
 }
 
 =begin pod

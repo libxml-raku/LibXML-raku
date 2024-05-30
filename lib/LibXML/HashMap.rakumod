@@ -135,6 +135,7 @@ role Assoc[LibXML::Node::Set $of] {
     method of {$of}
     method freeze(LibXML::Node::Set:D $n) {
         given $n.raw.copy {
+            .Reference;
             nativecast(Pointer, $_);
         }
     }
