@@ -9,6 +9,7 @@ use LibXML::Types :resolve-package;
 use LibXML::_Configurable;
 use LibXML::_Collection;
 use Method::Also;
+use NativeCall;
 
 also does Iterable;
 also does LibXML::_Configurable;
@@ -51,9 +52,13 @@ method AT-KEY(Str() $key) {
 method Hash handles <pairs> {
     return $_ with ⚛$!hstore;
     cas $!hstore, {
-        $_ // do {
-            my xmlHashTable:D $raw = $!parent.raw.Hash(:$!blank);
-            self.create: resolve-package('LibXML::HashMap').^parameterize(LibXML::Node::Set), :$raw
+        $_ // do given $!parent.raw.Hash(:$!blank) -> xmlHashTable:D $raw {
+            # reference node sets
+            $raw.Copy( -> Pointer $p, Str --> Pointer {
+                nativecast(xmlNodeSet, $p).Reference;
+                $p;
+            }).Discard;
+            self.create: resolve-package('LibXML::HashMap').^parameterize(LibXML::Node::Set), :$raw;
         }
     }
 }

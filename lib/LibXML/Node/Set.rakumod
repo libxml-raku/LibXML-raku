@@ -25,7 +25,7 @@ has $!hstore;
 has CArray $!nodeTab;
 
 submethod TWEAK {
-     $!raw //= xmlNodeSet.new;
+    $!raw //= xmlNodeSet.new;
     .Reference given $!raw;
     $!nodeTab = nativecast(CArray[$!of.raw], $!raw.nodeTab);
 }
@@ -41,8 +41,12 @@ method Seq returns Seq handles<Array list values map grep> {
 method Hash handles <AT-KEY keys pairs> {
     return $_ with ⚛$!hstore;
     cas $!hstore, {
-        $_ // do {
-            my xmlHashTable:D $raw = $!raw.Hash(:$!deref);
+        $_ // do given $!raw.Hash(:$!deref) -> xmlHashTable:D $raw {
+            # reference not sets
+           $raw.Copy( -> Pointer $p, Str --> Pointer {
+                nativecast(xmlNodeSet, $p).Reference;
+                $p;
+            }).Discard;
             self.create: resolve-package('LibXML::HashMap::NodeSet'), :$raw;
         }
     }
