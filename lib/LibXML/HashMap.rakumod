@@ -141,6 +141,7 @@ role Assoc[LibXML::Node::Set $of] {
     }
     method thaw(Pointer $p) {
         my $raw = nativecast(xmlNodeSet, $p);
+        $raw .= copy;
         self.create: $of, :$raw, :deref;
     }
     method deallocator() {
