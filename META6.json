@@ -76,6 +76,7 @@
     "LibXML::Types": "lib/LibXML/Types.rakumod",
     "LibXML::Utils": "lib/LibXML/Utils.rakumod",
     "LibXML::X": "lib/LibXML/X.rakumod",
+    "LibXML::XInclude::Context": "lib/LibXML/XInclude/Context.rakumod",
     "LibXML::XPath::Context": "lib/LibXML/XPath/Context.rakumod",
     "LibXML::XPath::Expression": "lib/LibXML/XPath/Expression.rakumod",
     "LibXML::XPath::Object": "lib/LibXML/XPath/Object.rakumod",

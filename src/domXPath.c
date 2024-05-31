@@ -303,7 +303,7 @@ DLLEXPORT xmlNodeSetPtr domReverseNodeSet(xmlNodeSetPtr rv) {
 }
 
 static void
-_domNodeSetDeallocator(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
+_domNodeSetGC(void *entry, unsigned char *key ATTRIBUTE_UNUSED) {
     xmlNodePtr twig = (xmlNodePtr) entry;
     xmlNodePtr owner = _domItemOwner(twig);
     if (owner) {
@@ -341,7 +341,7 @@ DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item) {
         }
         else if (elem == item) {
             _domUnreferenceItem(elem);
-            _domNodeSetDeallocator(elem, NULL);
+            _domNodeSetGC(elem, NULL);
             pos = i;
         }
     }
@@ -354,7 +354,7 @@ DLLEXPORT int domDeleteNodeSetItem(xmlNodeSetPtr self, xmlNodePtr item) {
 DLLEXPORT void
 domUnreferenceNodeSet(xmlNodeSetPtr self) {
     int i;
-    xmlHashTablePtr hash = xmlHashCreate(self->nodeNr);
+    xmlHashTablePtr gc = xmlHashCreate(self->nodeNr);
     xmlNodePtr last_twig = NULL;
 
     for (i = 0; i < self->nodeNr; i++) {
@@ -362,10 +362,9 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
 
         if (cur != NULL) {
             xmlNodePtr twig = _domUnreferenceItem(cur);
-
             if (!twig) {
                 if (cur->type == XML_NAMESPACE_DECL) {
-                    _domNodeSetDeallocator(cur, NULL);
+                    _domNodeSetGC(cur, NULL);
                 }
             }
             else {
@@ -375,8 +374,8 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
                     char key[20];
                     sprintf(key, "%p", cur);
 
-                    if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
-                        xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), twig);
+                    if (xmlHashLookup(gc, (xmlChar*)key) == NULL) {
+                        xmlHashAddEntry(gc, xmlStrdup((xmlChar*)key), twig);
                     }
 
                     last_twig = twig;
@@ -385,7 +384,7 @@ domUnreferenceNodeSet(xmlNodeSetPtr self) {
         }
     }
 
-    xmlHashFree(hash, (xmlHashDeallocator) _domNodeSetDeallocator);
+    xmlHashFree(gc, (xmlHashDeallocator) _domNodeSetGC);
     xmlFree(self);
 }
 

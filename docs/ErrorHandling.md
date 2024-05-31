@@ -119,6 +119,14 @@ The column, if available.
 
 LibXML Exceptions and Error Handling
 
+### method init-local-error-handling
+
+```raku
+method init-local-error-handling() returns Mu
+```
+
+should be called from TWEAK
+
 Synopsis
 --------
 

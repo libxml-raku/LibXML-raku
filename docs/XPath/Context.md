@@ -11,7 +11,7 @@ XPath Evaluation Context
 Synopsis
 --------
 
-    use LibXML::XPathContext;
+    use LibXML::XPath::Context;
     use LibXML::Node;
     my LibXML::XPath::Context $xpc .= new();
 

@@ -65,6 +65,8 @@ method set-raw(xmlParserCtxt $_) {
         .UseOptions($!flags);     # Note: sets ctxt.linenumbers = 1
         .linenumbers = +?$!line-numbers;
         $!raw.sax = .raw with $!sax-handler;
+        self.init-local-error-handling
+            unless self.config.version < v2.13.00;
     }
     with $old {
         unless $!published {
@@ -116,8 +118,11 @@ method do(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fro
         die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
             if @input-contexts && !LibXML::Config.parser-locking;
 
-        my $handlers = xml6_gbl::save-error-handlers();
-        $*XML-CONTEXT.SetStructuredErrorFunc: &structured-error-cb;
+        my $handlers;
+        if $*XML-CONTEXT.global-error-handling {
+            $handlers := xml6_gbl::save-error-handlers();
+            $*XML-CONTEXT.SetStructuredErrorFunc: &structured-error-cb;
+        }
         &*chdir(~$*CWD);
         my @prev = self.config.setup();
 
@@ -133,7 +138,8 @@ method do(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fro
 
             .deactivate with $*XML-CONTEXT && $*XML-CONTEXT.input-callbacks;
 
-            xml6_gbl::restore-error-handlers($handlers);
+            xml6_gbl::restore-error-handlers($_)
+                with $handlers;
         }
     }
     $rv;

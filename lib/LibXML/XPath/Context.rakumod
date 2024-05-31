@@ -16,7 +16,7 @@ also does LibXML::ErrorHandling;
 =begin pod
     =head2 Synopsis
 
-      use LibXML::XPathContext;
+      use LibXML::XPath::Context;
       use LibXML::Node;
       my LibXML::XPath::Context $xpc .= new();
 

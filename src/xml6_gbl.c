@@ -78,19 +78,38 @@ DLLEXPORT void xml6_gbl_os_thread_xml_free(void* obj) {
     xmlFree(obj);
 }
 
+#ifdef XML6_GBL_COMPAT_OLD_ERRORS
+struct _xml6HandlerSave {
+    void* serror_ctxt;
+    xmlStructuredErrorFunc serror_handler;
+    void* error_ctxt;
+    xmlGenericErrorFunc error_handler;
+};
+
+typedef struct _xml6HandlerSave xml6HandlerSave;
+typedef xml6HandlerSave *xml6HandlerSavePtr;
+
 DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void) {
     return &xmlLastError;
 }
+DLLEXPORT void* xml6_gbl_save_error_handlers(void) {
+    xml6HandlerSavePtr save = (xml6HandlerSavePtr)xmlMalloc(sizeof(struct _xml6HandlerSave));
+    save->serror_ctxt = xmlStructuredErrorContext;
+    save->serror_handler = xmlStructuredError;
+    save->error_ctxt = xmlGenericErrorContext;
+    save->error_handler = xmlGenericError;
+    return (void*)save;
+}
 
-static xmlSAXLocator _default_sax_locator = {
-    xmlSAX2GetPublicId,
-    xmlSAX2GetSystemId,
-    xmlSAX2GetLineNumber,
-    xmlSAX2GetColumnNumber
-};
-
-DLLEXPORT xmlSAXLocatorPtr xml6_gbl_get_default_sax_locator(void) {
-    return &_default_sax_locator;
+DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
+    if (ptr != NULL) {
+        xml6HandlerSavePtr save = (xml6HandlerSavePtr)ptr;
+        xmlStructuredErrorContext = save->serror_ctxt;
+        xmlStructuredError = save->serror_handler;
+        xmlGenericErrorContext = save->error_ctxt;
+        xmlGenericError = save->error_handler;
+        xmlFree(save);
+    }
 }
 
 static void _gbl_message_func(
@@ -119,41 +138,24 @@ DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callb
     setter(ctx, handler);
 }
 
-struct _xml6HandlerSave {
-    void* serror_ctxt;
-    xmlStructuredErrorFunc serror_handler;
-    void* error_ctxt;
-    xmlGenericErrorFunc error_handler;
+#endif
+
+static xmlSAXLocator _default_sax_locator = {
+    xmlSAX2GetPublicId,
+    xmlSAX2GetSystemId,
+    xmlSAX2GetLineNumber,
+    xmlSAX2GetColumnNumber
 };
 
-typedef struct _xml6HandlerSave xml6HandlerSave;
-typedef xml6HandlerSave *xml6HandlerSavePtr;
+DLLEXPORT xmlSAXLocatorPtr xml6_gbl_get_default_sax_locator(void) {
+    return &_default_sax_locator;
+}
 
 /*
  * These are also thread-safe macros:
  * 	xmlStructuredErrorContext, xmlStructuredErrorContext
  *      xmlGenericErrorContext, xmlGenericError
  */
-
-DLLEXPORT void* xml6_gbl_save_error_handlers(void) {
-    xml6HandlerSavePtr save = (xml6HandlerSavePtr)xmlMalloc(sizeof(struct _xml6HandlerSave));
-    save->serror_ctxt = xmlStructuredErrorContext;
-    save->serror_handler = xmlStructuredError;
-    save->error_ctxt = xmlGenericErrorContext;
-    save->error_handler = xmlGenericError;
-    return (void*)save;
-}
-
-DLLEXPORT void xml6_gbl_restore_error_handlers(void* ptr) {
-    if (ptr != NULL) {
-        xml6HandlerSavePtr save = (xml6HandlerSavePtr)ptr;
-        xmlStructuredErrorContext = save->serror_ctxt;
-        xmlStructuredError = save->serror_handler;
-        xmlGenericErrorContext = save->error_ctxt;
-        xmlGenericError = save->error_handler;
-        xmlFree(save);
-    }
-}
 
 DLLEXPORT const xmlChar* xml6_gbl_dict(xmlChar* word) {
     const xmlChar *rv = NULL;

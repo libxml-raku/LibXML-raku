@@ -216,6 +216,13 @@ role LibXML::ErrorHandling {
     has Lock $.lock .= new;
     has X::LibXML @!errors;
     has UInt $.max-errors = self.config.max-errors;
+    has $.global-error-handling is built = True;
+
+    #| should be called from TWEAK
+    method init-local-error-handling {
+        $!global-error-handling = False;
+        self.raw.SetErrorHandler: &structured-error-cb, Pointer;
+    }
 
     # SAX External Callback
     sub generic-error-cb(Str:D $msg) is export(:generic-error-cb) {
@@ -225,8 +232,8 @@ role LibXML::ErrorHandling {
 
     # SAX External Callback
     sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
-        CATCH { default { note "error handling XML structured error: $_" } }
-        $*XML-CONTEXT.structured-error($err);
+        CATCH { default { note "error handling XML structured error: $_" } } 
+       $*XML-CONTEXT.structured-error($err);
     }
 
     # API Callback - structured
@@ -371,8 +378,11 @@ role LibXML::ErrorHandling {
 
         protected sub () is hidden-from-backtrace {
             my $*XML-CONTEXT = self;
-            my $handlers = xml6_gbl::save-error-handlers();
-            $raw.SetStructuredErrorFunc: &structured-error-cb;
+            my $handlers;
+            if $!global-error-handling {
+                $handlers := xml6_gbl::save-error-handlers();
+                $raw.SetStructuredErrorFunc: &structured-error-cb;
+            }
             my @prev = self.config.setup;
 
             $rv := &action();
@@ -380,10 +390,10 @@ role LibXML::ErrorHandling {
             self.flush-errors;
             LEAVE {
                 self.config.restore(@prev);
-                xml6_gbl::restore-error-handlers($handlers);
+                xml6_gbl::restore-error-handlers($_)
+                    with $handlers;
             }
         }
-
         $rv;
     }
 }

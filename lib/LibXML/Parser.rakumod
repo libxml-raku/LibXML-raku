@@ -2,6 +2,7 @@
 unit class LibXML::Parser;
 
 use LibXML::Parser::Context;
+use LibXML::XInclude::Context;
 use LibXML::_Configurable;
 use LibXML::_Options;
 
@@ -86,15 +87,22 @@ method !publish(Str :$URI, LibXML::Parser::Context :$ctx!) {
 }
 
 method processXIncludes (
-    LibXML::Document $_,
+    LibXML::Document:D $doc,
     *%opts --> Int
 ) is also<process-xincludes> {
-    my xmlDoc $doc = .raw;
-    my $ctx = self!make-handler(:raw(xmlParserCtxt.new));
     my $flags = self.get-flags(|%opts);
-    my $rv := $ctx.do: { $doc.XIncludeProcessFlags($flags) }
-    $ctx.publish();
-    $rv;
+    if self.config.version >= v2.13.00 {
+        LibXML::XInclude::Context.process-xincludes(:$doc, :$flags);
+    }
+    else {
+        # old-style XInclude processing
+        my xmlParserCtxt $raw .= new;
+        my $ctx = self!make-handler(:$raw);
+        my $rv := $ctx.do: { $doc.raw.XIncludeProcessFlags($flags) }
+        $ctx.publish();
+        $rv;
+
+    }
 }
 
 proto method parse(|c) is also<load> {*}

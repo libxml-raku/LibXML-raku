@@ -122,7 +122,7 @@ A libxml regular expression, they can actually be far more complex thank the POS
 class LibXML::Raw::xmlXIncludeCtxt
 ----------------------------------
 
-An XInclude context
+An XInclude context (libxml v2.13.00+)
 
 class LibXML::Raw::xmlXPathAxis
 -------------------------------

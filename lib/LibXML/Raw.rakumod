@@ -268,8 +268,20 @@ class xmlRegexp is repr(Opaque) is export {
     }
 }
 
-#| An XInclude context
-class xmlXIncludeCtxt is repr(Opaque) is export {}
+#| An XInclude context (libxml v2.13.00+)
+class xmlXIncludeCtxt is repr(Opaque) is export {
+    our sub New(xmlDoc --> xmlXIncludeCtxt) is native($XML2) is symbol('xmlXIncludeNewContext') {*}
+    method new(xmlDoc:D :$doc!) { New($doc) }
+    method SetFlags(int32) is native($XML2) is symbol('xmlXIncludeSetFlags') {*}
+    # recommended libxml 2.13.0+
+    method SetErrorHandler(&error-func (xmlXIncludeCtxt $, xmlError $)) is native($XML2) is symbol('xmlXIncludeSetErrorHandler') {*};
+    # legacy
+    method SetStructuredErrorFunc(&error-func (xmlXIncludeCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
+    method ProcessNode(xmlNode --> int32) is native($XML2) is symbol('xmlXIncludeProcessNode') {*}
+    our sub ProcessNodeWTF(Pointer:D, xmlNode --> int32) is native($XML2) is symbol('xmlXIncludeProcessNode') {*}
+    method Free()  is native($XML2) is symbol('xmlXIncludeFreeContext') {*}
+    
+}
 
 #| A mapping of name to axis function
 class xmlXPathAxis is repr(Opaque) is export {}
@@ -1613,7 +1625,10 @@ class xmlParserCtxt is export {
     method UseOptions(int32 --> int32) is native($XML2) is symbol('xmlCtxtUseOptions') { * }
     method NewInputStream(xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native($XML2) is symbol('xmlNewIOInputStream') is export {*}
     method NewInputFile(Str --> xmlParserInput) is native($XML2) is export is symbol('xmlNewInputFromFile') {*}
+    # deprecated
     method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
+    # recommended libxml 2.13.0+
+    method SetErrorHandler(&error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlCtxtSetErrorHandler') {*};
     method GetLastError(--> xmlError) is native($XML2) is symbol('xmlCtxtGetLastError') is native($XML2) {*}
     method Close(--> int32) is native($BIND-XML2) is symbol('xml6_parser_ctx_close') {*}
     method ParserError(Str $msg) is native($XML2) is symbol('xmlParserError') {*}
