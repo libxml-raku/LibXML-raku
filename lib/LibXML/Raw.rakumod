@@ -853,6 +853,9 @@ class xmlXPathContext is repr('CStruct') is export {
     constant xmlXPathFunction = Pointer;
     method RegisterFuncLookup( &func4 (xmlXPathContext, xmlCharP $name, xmlCharP $ns-uri --> xmlXPathFunction), Pointer) is native($XML2) is symbol('xmlXPathRegisterFuncLookup') {*};
     method FunctionLookupNS(xmlCharP $name, xmlCharP $ns_uri --> xmlXPathFunction) is native($XML2) is symbol('xmlXPathFunctionLookupNS') {*};
+    # recommended libxml 2.13.0+
+    method SetErrorHandler(&error-func (xmlXIncludeCtxt $, xmlError $)) is native($XML2) is symbol('xmlXPathSetErrorHandler') {*};
+    # legacy
     method SetStructuredErrorFunc( &error-func (xmlXPathContext $, xmlError $)) is native($BIND-XML2) is symbol('domSetXPathCtxtErrorHandler') {*};
 }
 

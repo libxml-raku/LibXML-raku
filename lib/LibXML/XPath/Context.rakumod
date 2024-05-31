@@ -148,6 +148,8 @@ proto submethod TWEAK (xmlXPathContext :$raw) {
   with $raw {
       .Reference with .node;
   }
+  self.init-local-error-handling
+      unless self.config.version < v2.13.00;
   {*}
 }
 
@@ -185,8 +187,11 @@ method !do(&action) is hidden-from-backtrace {
     my $rv;
 
     protected sub () is hidden-from-backtrace {
-        my $handlers = xml6_gbl::save-error-handlers();
-        self.SetGenericErrorFunc: &generic-error-cb;
+        my $handlers;
+        if self.global-error-handling {
+            $handlers = xml6_gbl::save-error-handlers();
+            self.SetGenericErrorFunc: &generic-error-cb;
+        }
         my $*XPATH-CONTEXT = self;
         my @prev = self.config.setup;
 
@@ -196,7 +201,8 @@ method !do(&action) is hidden-from-backtrace {
 
         LEAVE {
             self.config.restore(@prev);
-            xml6_gbl::restore-error-handlers($handlers);
+            xml6_gbl::restore-error-handlers($handlers)
+                if self.global-error-handling;
         }
     }
     $rv;

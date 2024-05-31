@@ -232,8 +232,8 @@ role LibXML::ErrorHandling {
 
     # SAX External Callback
     sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
-        CATCH { default { note "error handling XML structured error: $_" } } 
-       $*XML-CONTEXT.structured-error($err);
+        CATCH { default { note "error handling XML structured error: $_" } }
+        $*XML-CONTEXT.structured-error($err);
     }
 
     # API Callback - structured
