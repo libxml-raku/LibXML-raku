@@ -153,7 +153,7 @@ EOT
 }
 
 todo "libxml2 v2.12.0+  startElementNs bug?"
-    if LibXML.version >= v2.12.00;
+    if v2.12.00 <= LibXML.version;
 subtest 'Ns callbacks', {
     my SAXNSTester:D $sax = $parser.create: SAXNSTester;
 
@@ -434,8 +434,8 @@ class SAXErrorTester
     has $.end-doc-calls = 0;
     has @.errors;
 
-    method startDocument(|c) is sax-cb { $!start-doc-calls++; }
-    method endDocument(|c) is sax-cb { $!end-doc-calls++; }
+    method startDocument(|c) is sax-cb { $!start-doc-calls++; callsame;}
+    method endDocument(|c) is sax-cb { $!end-doc-calls++; callsame; }
     method warning($_) is sax-cb { @!errors.push: 'warning' => $_ }
     method error($_) is sax-cb { @!errors.push: 'error' => $_; }
     method fatalError($_) is sax-cb { @!errors.push: 'fatal' => $_; }
