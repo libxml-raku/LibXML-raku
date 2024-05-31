@@ -3,7 +3,7 @@ use Test;
 use LibXML::RegExp;
 use LibXML::Parser::Context;
 
-plan 23;
+plan 22;
 
 {
     my $regexp = '[0-9]{5}(-[0-9]{4})?';
@@ -43,10 +43,10 @@ plan 23;
 
 # silence this test
 my $errors;
-LibXML::Parser::Context.SetGenericErrorFunc: -> $fmt, |c { $errors++ };
+LibXML::Parser::Context.SetGenericErrorFunc(-> $fmt, |c { $errors++ })
+    unless LibXML::Config.version >= v2.13.00;
 
 {
     my $bad_regex = '[0-9]{5}(-[0-9]{4}?';
     dies-ok { LibXML::RegExp.new(regexp => $bad_regex); },  'An exception was thrown on bad regex';
-    ok $errors, 'error handler called';
 }

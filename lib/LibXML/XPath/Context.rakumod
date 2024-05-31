@@ -148,7 +148,7 @@ proto submethod TWEAK (xmlXPathContext :$raw) {
   with $raw {
       .Reference with .node;
   }
-  self.init-local-error-handling
+  self.init-local-error-handling(&structured-error-cb)
       unless self.config.version < v2.13.00;
   {*}
 }
@@ -182,6 +182,10 @@ multi submethod TWEAK(LibXML::Node :$node, :%ns) {
 sub generic-error-cb(Str:D $msg) {
     CATCH { default { note "error handling XML generic error: $_" } }
     $*XPATH-CONTEXT.generic-error($msg);
+}
+sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
+        CATCH { default { note "error handling XML structured error: $_" } }
+        $*XPATH-CONTEXT.structured-error($err);
 }
 method !do(&action) is hidden-from-backtrace {
     my $rv;

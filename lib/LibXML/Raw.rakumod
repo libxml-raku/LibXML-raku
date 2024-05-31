@@ -1381,6 +1381,8 @@ class xmlEntity is anyNode is export {
     method get-predefined(Str :$name!) {
         GetPredefined($name);
     }
+    method Reference { nextsame unless self.etype == +XML_INTERNAL_PREDEFINED_ENTITY}
+    method Unreference { nextsame unless self.etype == +XML_INTERNAL_PREDEFINED_ENTITY}
     method create(Str:D :$name!, Str:D :$content!, Int :$type = XML_INTERNAL_GENERAL_ENTITY, Str :$external-id, Str :$internal-id) {
         Create($name, $type, $external-id, $internal-id, $content );
     }

@@ -862,6 +862,7 @@ subtest 'Perl ticket #7913', {
 
     # lets see if load_ext_dtd = False works
     $parser.load-ext-dtd = False;
+    $parser.expand-entities = True;
     my $doc2;
     dies-ok {
        $doc2 = $parser.parse: :string( $xmldoc );

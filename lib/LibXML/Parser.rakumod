@@ -328,7 +328,7 @@ submethod TWEAK(
     self.set-options(|%opts);
 }
 
-method FALLBACK($key, |c) is rw {
+method FALLBACK($key, |c) is rw is hidden-from-backtrace {
     $.option-exists($key)
         ?? $.option($key, |c)
         !! die X::Method::NotFound.new( :method($key), :typename(self.^name) );

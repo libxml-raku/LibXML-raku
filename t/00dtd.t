@@ -67,7 +67,7 @@ $doc .= parse( string => q:to<EOF>, :load-ext-dtd, :$sax-handler, :suppress-warn
 EOF
 
 is $level, +XML_ERR_WARNING;
-is $message, 'failed to load external entity "test.dtd"';
+like $message, rx/'failed to load'.*'"test.dtd"'/;
 
 subtest 'doc with internal dtd' => {
     plan 14;

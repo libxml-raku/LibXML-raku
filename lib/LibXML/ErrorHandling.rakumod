@@ -219,9 +219,9 @@ role LibXML::ErrorHandling {
     has $.global-error-handling is built = True;
 
     #| should be called from TWEAK
-    method init-local-error-handling {
+    method init-local-error-handling(&cb = &structured-error-cb) {
         $!global-error-handling = False;
-        self.raw.SetErrorHandler: &structured-error-cb, Pointer;
+        self.raw.SetErrorHandler: &cb, Pointer;
     }
 
     # SAX External Callback
@@ -238,7 +238,7 @@ role LibXML::ErrorHandling {
 
     # API Callback - structured
     method !sax-error-cb-structured(X::LibXML $err) {
-        with self.sax-handler -> $sax {
+        with self.?sax-handler -> $sax {
             .($err) with $sax.serror-cb;
         }
     }
@@ -246,7 +246,7 @@ role LibXML::ErrorHandling {
     # API Callback - unstructured
     method !sax-error-cb-unstructured(UInt:D $level, Str $msg) {
         # unstructured error handler
-        with self.sax-handler -> $sax {
+        with self.?sax-handler -> $sax {
             my &cb = do given $level {
                 when XML_ERR_FATAL   { $sax.fatalError-cb // $sax.error-cb }
                 when XML_ERR_ERROR   { $sax.error-cb }
