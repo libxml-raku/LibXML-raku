@@ -10,12 +10,14 @@
 DLLEXPORT void xml6_node_add_reference(xmlNodePtr self) {
     assert(self != NULL);
     assert(self->type != XML_NAMESPACE_DECL);
+    assert(!(self->type == XML_ENTITY_DECL && ((xmlEntityPtr)self)->etype == XML_INTERNAL_PREDEFINED_ENTITY));
     xml6_ref_add( &(self->_private) );
 }
 
 DLLEXPORT int xml6_node_remove_reference(xmlNodePtr self) {
     assert(self != NULL);
     assert(self->type != XML_NAMESPACE_DECL);
+    assert(!(self->type == XML_ENTITY_DECL && ((xmlEntityPtr)self)->etype == XML_INTERNAL_PREDEFINED_ENTITY));
     if (self->_private == NULL) {
         /* unexpected; print some extra debugging */
         fprintf(stderr, __FILE__ ":%d %p type=%d name='%s'\n", __LINE__, self, self->type, (self->name ? (char*) self->name : "(null)"));
