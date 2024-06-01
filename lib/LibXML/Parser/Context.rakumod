@@ -136,7 +136,7 @@ method do(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fro
         LEAVE {
             self.config.restore(@prev);
 
-            .deactivate with $*XML-CONTEXT && $*XML-CONTEXT.input-callbacks;
+            .deactivate with $*XML-CONTEXT.input-callbacks;
 
             xml6_gbl::restore-error-handlers($_)
                 with $handlers;

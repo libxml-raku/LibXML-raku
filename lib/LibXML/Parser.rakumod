@@ -91,18 +91,17 @@ method processXIncludes (
     *%opts --> Int
 ) is also<process-xincludes> {
     my $flags = self.get-flags(|%opts);
-    if self.config.version >= v2.13.00 {
-        LibXML::XInclude::Context.process-xincludes(:$doc, :$flags);
+    my xmlParserCtxt $raw .= new;
+    my $ctx = self!make-handler(:$raw);
+    my $rv := do if self.config.version >= v2.13.00 {
+        $ctx.do: { LibXML::XInclude::Context.process-xincludes(:$doc, :$flags) }
     }
     else {
         # old-style XInclude processing
-        my xmlParserCtxt $raw .= new;
-        my $ctx = self!make-handler(:$raw);
-        my $rv := $ctx.do: { $doc.raw.XIncludeProcessFlags($flags) }
-        $ctx.publish();
-        $rv;
-
+        $ctx.do: { $doc.raw.XIncludeProcessFlags($flags) }
     }
+    $ctx.publish();
+    $rv;
 }
 
 proto method parse(|c) is also<load> {*}

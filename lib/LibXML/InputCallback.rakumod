@@ -335,8 +335,8 @@ method make-contexts {
 }
 
 method activate {
+    self!active-check;
     # just to make sure we've initialised
-    xmlInputCallbacks::RegisterDefault();
 
     my @input-contexts = @.make-contexts;
 
@@ -350,6 +350,7 @@ method activate {
 
 method deactivate {
     for @!callbacks {
+        note "-";
         warn "unable to remove input callbacks"
             if xmlInputCallbacks::Pop() < 0;
     }

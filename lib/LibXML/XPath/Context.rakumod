@@ -205,8 +205,8 @@ method !do(&action) is hidden-from-backtrace {
 
         LEAVE {
             self.config.restore(@prev);
-            xml6_gbl::restore-error-handlers($handlers)
-                if self.global-error-handling;
+            xml6_gbl::restore-error-handlers($_)
+                with $handlers;
         }
     }
     $rv;

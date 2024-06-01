@@ -98,7 +98,7 @@ module CLib {
 }
 
 # Pointer to string, expected to be freed by the caller
-class AllocedStr is Pointer is repr('CPointer') {
+class xmlAllocedStr is Pointer is repr('CPointer') {
     method Str {
         nativecast(Str, self);
     }
@@ -647,7 +647,7 @@ class xmlError is export {
     has anyNode           $.node; # the node in the tree
 
     our sub Last(--> xmlError) is native($BIND-XML2) is symbol('xml6_gbl_os_thread_get_last_error') {*}
-    method context(uint32 is rw --> AllocedStr) is native($BIND-XML2) is symbol('xml6_error_context_and_column') {*}
+    method context(uint32 is rw --> xmlAllocedStr) is native($BIND-XML2) is symbol('xml6_error_context_and_column') {*}
 }
 
 class xmlXPathObject is export {
@@ -905,7 +905,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method SetListDoc(xmlDoc) is native($XML2) is symbol('xmlSetListDoc') {*}
     method GetLineNo(--> long) is native($XML2) is symbol('xmlGetLineNo') {*}
     method IsBlank(--> int32) is native($XML2) is symbol('xmlIsBlankNode') {*}
-    method GetNodePath(--> AllocedStr) is native($XML2) is symbol('xmlGetNodePath') {*}
+    method GetNodePath(--> xmlAllocedStr) is native($XML2) is symbol('xmlGetNodePath') {*}
     method AddChild(anyNode --> anyNode) is native($XML2) is symbol('xmlAddChild') {*}
     method AddChildList(anyNode --> anyNode) is native($XML2) is symbol('xmlAddChildList') {*}
     method AddContent(xmlCharP) is native($XML2) is symbol('xmlNodeAddContent') {*}
@@ -913,7 +913,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native($XML2) {*}
     method domXPathSelectStr(Str --> xmlNodeSet) is native($BIND-XML2) {*}
     method domXPathFind(xmlXPathCompExpr, int32 --> xmlXPathObject) is native($BIND-XML2) {*}
-    method domFailure(--> AllocedStr) is native($BIND-XML2) {*}
+    method domFailure(--> xmlAllocedStr) is native($BIND-XML2) {*}
     method dom-error { die .Str with self.domFailure }
     method domAppendChild(anyNode --> anyNode) is native($BIND-XML2) {*}
     method domReplaceNode(anyNode --> anyNode) is native($BIND-XML2) {*}
@@ -923,7 +923,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domInsertAfter(anyNode, anyNode --> anyNode) is native($BIND-XML2) {*}
     method domGetNodeName(--> xmlCharP) is native($BIND-XML2) {*}
     method domSetNodeName(Str) is native($BIND-XML2) {*}
-    method domGetNodeValue(--> AllocedStr) is native($BIND-XML2) {*}
+    method domGetNodeValue(--> xmlAllocedStr) is native($BIND-XML2) {*}
     method domGetXPathKey(--> xmlCharP) is native($BIND-XML2) {*}
     method domGetASTKey(--> xmlCharP) is native($BIND-XML2) {*}
     method domSetNodeValue(Str) is native($BIND-XML2) {*}
@@ -951,10 +951,10 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     }
 
     method domNormalize(--> int32) is native($BIND-XML2) {*}
-    method domUniqueKey(--> AllocedStr) is native($BIND-XML2) {*}
+    method domUniqueKey(--> xmlAllocedStr) is native($BIND-XML2) {*}
     method domIsSameNode(anyNode --> int32) is native($BIND-XML2) {*}
 
-    method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> AllocedStr) is native($BIND-XML2) {*}
+    method xml6_node_to_str_C14N(int32 $comments, int32 $mode, CArray[Str] $inc-prefix is rw, xmlNodeSet --> xmlAllocedStr) is native($BIND-XML2) {*}
 
     method Str(anyNode:D: UInt :$options = 0 --> xmlCharP) is default {
         do with self.Blob(:$options) {
@@ -990,7 +990,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
         }
     }
 
-    method string-value(--> AllocedStr) is native($XML2) is symbol('xmlXPathCastNodeToString') {*}
+    method string-value(--> xmlAllocedStr) is native($XML2) is symbol('xmlXPathCastNodeToString') {*}
     method Unlink is native($BIND-XML2) is symbol('domUnlinkNode') {*}
     method Release is native($BIND-XML2) is symbol('domReleaseNode') {*}
     method Reference is native($BIND-XML2) is symbol('xml6_node_add_reference') {*}
@@ -1042,9 +1042,9 @@ class xmlElem is xmlNode is export does LibXML::Raw::DOM::Element {
     method NewNs(xmlCharP $href, xmlCharP $prefix --> xmlNs) is native($XML2) is symbol('xmlNewNs') {*};
     method SetProp(Str, Str --> xmlAttr) is native($XML2) is symbol('xmlSetProp') {*}
     method domGetAttributeNode(xmlCharP $qname --> xmlAttr) is native($BIND-XML2) {*}
-    method domGetAttribute(xmlCharP $qname --> AllocedStr) is native($BIND-XML2)  {*}
+    method domGetAttribute(xmlCharP $qname --> xmlAllocedStr) is native($BIND-XML2)  {*}
     method domHasAttributeNS(xmlCharP $uri, xmlCharP $name --> int32) is native($BIND-XML2) {*}
-    method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> AllocedStr) is native($BIND-XML2) {*}
+    method domGetAttributeNS(xmlCharP $uri, xmlCharP $name --> xmlAllocedStr) is native($BIND-XML2) {*}
     method domGetAttributeNodeNS(xmlCharP $uri, xmlCharP $name --> xmlAttr) is native($BIND-XML2) {*}
     method domSetAttribute(Str, Str --> int32) is native($BIND-XML2) {*}
     method domSetAttributeNode(xmlAttr --> xmlAttr) is native($BIND-XML2) {*}
@@ -1150,7 +1150,7 @@ class xmlAttr is anyNode does LibXML::Raw::DOM::Attr is export {
     method new(Str :$name!, Str :$value!, xmlDoc :$doc --> xmlAttr:D) {
         $doc.NewProp($name, $value);
     }
-    method domAttrSerializeContent(--> AllocedStr) is native($BIND-XML2) {*}
+    method domAttrSerializeContent(--> xmlAllocedStr) is native($BIND-XML2) {*}
 }
 
 #| An XML document (type: XML_DOCUMENT_NODE)
@@ -1220,8 +1220,8 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
        self.NewEntityRef($name);
     }
 
-    method NodeGetBase(anyNode --> AllocedStr) is native($XML2) is symbol('xmlNodeGetBase') {*}
-    method EncodeEntitiesReentrant(xmlCharP --> AllocedStr) is native($XML2) is symbol('xmlEncodeEntitiesReentrant') {*}
+    method NodeGetBase(anyNode --> xmlAllocedStr) is native($XML2) is symbol('xmlNodeGetBase') {*}
+    method EncodeEntitiesReentrant(xmlCharP --> xmlAllocedStr) is native($XML2) is symbol('xmlEncodeEntitiesReentrant') {*}
     method NewProp(xmlCharP $name, xmlCharP $value --> xmlAttr) is symbol('xmlNewDocProp') is native($XML2) {*}
     method XIncludeProcessFlags(uint32 $flags --> int32) is symbol('xmlXIncludeProcessFlags') is native($XML2) {*}
     method SearchNs(anyNode, Str --> xmlNs) is native($XML2) is symbol('xmlSearchNs') {*}
@@ -1251,14 +1251,14 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
 class htmlDoc is xmlDoc is repr('CStruct') is export {
     also does domNode[$?CLASS, XML_HTML_DOCUMENT_NODE];
 
-    method DumpFormat(AllocedStr $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
+    method DumpFormat(xmlAllocedStr $ is rw, int32 $ is rw, int32 ) is symbol('htmlDocDumpMemoryFormat') is native($XML2) {*}
     our sub New(xmlCharP $URI, xmlCharP $external-id --> htmlDoc) is native($XML2) is symbol('htmlNewDoc') {*}
     method new(Str :$URI, Str :$external-id) {
         New($URI, $external-id);
     }
 
     method dump(Bool:D :$format = True) is DEPRECATED("see issue #90") {
-        my AllocedStr $out .= new;
+        my xmlAllocedStr $out .= new;
         my int32 $len;
 
         self.DumpFormat($out, $len, +$format);
@@ -1289,7 +1289,7 @@ class xmlNotation is export {
     }
     method Free is native($BIND-XML2) is symbol('xml6_notation_free') {*}
     method Copy(--> xmlNotation) is native($BIND-XML2) is symbol('xml6_notation_copy') {*}
-    method UniqueKey(--> AllocedStr) is native($BIND-XML2) is symbol('xml6_notation_unique_key') {*}
+    method UniqueKey(--> xmlAllocedStr) is native($BIND-XML2) is symbol('xml6_notation_unique_key') {*}
     method copy { $.Copy }
     multi method Str(xmlNotation:D:){
         my xmlBuffer32 $buf .= new;
@@ -1771,14 +1771,12 @@ multi method GetLastError { xmlError::Last()  }
 
 module xmlInputCallbacks is export {
     our sub Pop(--> int32) is native($XML2) is symbol('xmlPopInputCallbacks') {*}
-    our sub RegisterDefault() is native($XML2) is symbol('xmlRegisterDefaultInputCallbacks') {*}
     our sub Register(
         &match (Str --> int32),
         &open (Str --> Pointer),
         &read (Pointer, CArray[uint8], int32 --> int32),
         &close (Pointer --> int32)
          --> int32) is native($XML2) is symbol('xmlRegisterInputCallbacks') {*}
-    our sub Cleanup() is native($XML2) is symbol('xmlCleanupInputCallbacks') {*}
 }
 
 sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
