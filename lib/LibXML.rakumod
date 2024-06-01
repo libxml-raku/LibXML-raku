@@ -4,7 +4,7 @@ use W3C::DOM;
 # Needed for Rakudo 2020.5.1 - see #59
 use LibXML::XPath::Context;
 
-unit class LibXML:ver<0.10.8>:api<0.10.0>
+unit class LibXML:ver<0.10.9>:api<0.10.0>
     is LibXML::Parser
     does W3C::DOM::Implementation;
 

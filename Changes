@@ -1,5 +1,16 @@
 {{$NEXT}}
 
+0.10.9  2024-06-02T11:28:45+12:00
+   - Deprecation of xmlLastError() global variable #111
+   - Implement context-specific error handlers to be switched on with libxml
+     2.13.0+ #111. There's still some more libxml support needed in areas
+     such as Dtd and balanced chunk parsing.
+   - Don't reference-count static predefined entities ('&gt;', '&lt', etc).
+   - Fix reference-counting in associative node-sets and some Dtd internal
+     tables #112
+   - Fix stack leakage/eventual overflow in input-callback set-up/tear-down.
+   - Deprecate AddChild() for LibXML::Attr;
+
 0.10.8  2024-05-17T07:29:02+12:00
    - Fix flapping t/00dtd.t test #111
 
