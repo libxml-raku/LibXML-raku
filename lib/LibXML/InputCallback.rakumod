@@ -350,7 +350,6 @@ method activate {
 
 method deactivate {
     for @!callbacks {
-        note "-";
         warn "unable to remove input callbacks"
             if xmlInputCallbacks::Pop() < 0;
     }

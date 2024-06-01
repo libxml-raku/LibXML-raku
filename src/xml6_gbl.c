@@ -78,7 +78,6 @@ DLLEXPORT void xml6_gbl_os_thread_xml_free(void* obj) {
     xmlFree(obj);
 }
 
-#ifdef XML6_GBL_COMPAT_OLD_ERRORS
 struct _xml6HandlerSave {
     void* serror_ctxt;
     xmlStructuredErrorFunc serror_handler;
@@ -90,7 +89,26 @@ typedef struct _xml6HandlerSave xml6HandlerSave;
 typedef xml6HandlerSave *xml6HandlerSavePtr;
 
 DLLEXPORT xmlError* xml6_gbl_os_thread_get_last_error(void) {
+#ifdef XML6_GBL_COMPAT_OLD_ERRORS
     return &xmlLastError;
+#else
+    static xmlError e_deprecated = {
+        XML_FROM_NONE, /* domain */
+        XML_ERR_INTERNAL_ERROR, /* code */
+        "xmlLastError() is deprecated", /* message */
+        XML_ERR_FATAL, /* level */
+        NULL, /* file */
+        0, /* line */
+        NULL, /* str1 */
+        NULL, /* str2 */
+        NULL, /* str3 */
+        0, /* int1 */
+        0, /* int2 */
+        NULL, /* ctxt */
+        NULL  /* node */
+    };
+    return &e_deprecated;
+#endif
 }
 DLLEXPORT void* xml6_gbl_save_error_handlers(void) {
     xml6HandlerSavePtr save = (xml6HandlerSavePtr)xmlMalloc(sizeof(struct _xml6HandlerSave));
@@ -137,8 +155,6 @@ DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callb
     // setter could be: xmlSetGenericErrorFunc() or xsltSetGenericErrorFunc()
     setter(ctx, handler);
 }
-
-#endif
 
 static xmlSAXLocator _default_sax_locator = {
     xmlSAX2GetPublicId,
