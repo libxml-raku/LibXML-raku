@@ -123,6 +123,10 @@ method is-valid($elem) { self.ownerDocument.is-valid($elem, self) }
     parse time).
 =end pod
 
+# Adding child nodes to an attribute node is technically allowed,
+# but makes no sense
+method addChild(|) is DEPRECATED("LibXML::Element for node parenting") { nextsame }
+
 #| DOM level-2 method NYI
 method specified { die X::NYI.new }
 

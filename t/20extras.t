@@ -42,6 +42,8 @@ subtest 'cloneNode', {
     is $doc.Str, $clone.Str, "unbind of document element";
 }
 
+skip "attribute child nodes is deprecated";
+#`( # depreacted
 subtest 'attribute child nodes' => {
     plan 3;
     my LibXML::Document:D $doc .= parse: :file<samples/dtd.xml>;
@@ -53,3 +55,4 @@ subtest 'attribute child nodes' => {
     $elem.setAttributeNode($att);
     is $elem.Str, '<Test att="xxx&foo;"/>';
 }
+)
