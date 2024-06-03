@@ -65,7 +65,6 @@ class ParserContext is LibXML::Parser::Context {
     has LibXML::DocumentFragment $.doc-frag is required;
     has Int $.stat is rw;
     has Str $.string;
-    has Pointer $.user-data;
     has Pointer[xmlNode] $.nodes is rw .= new();
     my Lock:D $lock .= new;
 
@@ -123,25 +122,29 @@ method parse(
     my $doc-frag = self;
     $_ .= new(|c) without $doc-frag;
 
+
     my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
+    my xmlSAXHandler $sax = .raw with $ctx.sax-handler;
+    my xmlParserCtxt:D $raw .= new(:$sax, :$user-data);
+    $ctx.set-raw: $raw;
 
     $ctx.do: {
-        # simple closures tend to leak on native callbacks. use dynamic variables
-        my $ctx := $*XML-CONTEXT;
-        my xmlSAXHandler $sax = .raw with $ctx.sax-handler;
-        my $doc = $ctx.doc-frag.raw.doc;
-        my Pointer $user-data = $ctx.user-data;
-        temp LibXML::Raw.KeepBlanksDefault = $ctx.keep-blanks;
+        if $ctx.config.version >= v2.13.00 {
+            $raw.ParseBalancedChunk($ctx.string, $ctx.nodes);
+        }
+        else {
+            my xmlDoc $doc = $ctx.doc-frag.raw.doc;
+            temp LibXML::Raw.KeepBlanksDefault = $ctx.keep-blanks;
 
-        $ctx.stat = ($doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
-            ($sax // xmlSAXHandler), ($ctx.user-data // Pointer), 0, $ctx.string, $ctx.nodes, +$ctx.recover
-        );
+            $doc.xmlParseBalancedChunkMemoryRecover(
+                $sax, $user-data, 0, $ctx.string, $ctx.nodes, +$ctx.recover
+            );
+       }
     };
 
     # just in case, we didn't catch the error
     die "balanced parse failed with status {$ctx.stat}"
-        if $ctx.stat && !$ctx.recover;
-
+       if $ctx.stat && !$ctx.recover;
     $doc-frag.raw.AddChildList($_) with $ctx.publish;
     $doc-frag;
 }

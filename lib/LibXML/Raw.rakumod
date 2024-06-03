@@ -1623,26 +1623,21 @@ class xmlParserCtxt is export {
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
     our sub New(--> xmlParserCtxt) is native($XML2) is symbol('xmlNewParserCtxt') {*};
-    our sub NewSAX(xmlSAXHandler $sax --> xmlParserCtxt) is native($XML2) is symbol('xmlNewSAXParserCtxt') {*};
-    method new(xmlSAXHandler :$sax) {
-        with $sax {
-            NewSAX($_);
-        }
-        else {
-            New()
-        }
+    method new {
+        New()
     }
     method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native($XML2) is symbol('xmlCtxtReadDoc') {*};
     method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native($XML2) is symbol('xmlCtxtReadFile') {*};
     method ReadFd(int32 $fd, xmlCharP $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native($XML2) is symbol('xmlCtxtReadFd') {*};
     method UseOptions(int32 --> int32) is native($XML2) is symbol('xmlCtxtUseOptions') { * }
+    method ParseBalancedChunk(xmlCharP $string, Pointer[anyNode] $list is rw --> xmlNode) is native($XML2) is symbol('xmlParseBalancedChunkMemoryCtxt') {*}
     method NewInputStream(xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native($XML2) is symbol('xmlNewIOInputStream') is export {*}
     method NewInputFile(Str --> xmlParserInput) is native($XML2) is export is symbol('xmlNewInputFromFile') {*}
     # deprecated
     method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     # recommended libxml 2.13.0+
     method SetErrorHandler(&error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlCtxtSetErrorHandler') {*};
-    method GetLastError(--> xmlError) is native($XML2) is symbol('xmlCtxtGetLastError') is native($XML2) {*}
+    method GetLastError(--> xmlError) is native($XML2) is symbol('xmlCtxtGetLastError') {*}
     method Close(--> int32) is native($BIND-XML2) is symbol('xml6_parser_ctx_close') {*}
     method ParserError(Str $msg) is native($XML2) is symbol('xmlParserError') {*}
     method StopParser is native($XML2) is symbol('xmlStopParser') { * }
