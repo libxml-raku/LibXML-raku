@@ -213,14 +213,10 @@ multi method new($external-id, $system-id, *%c) {
 
 has LibXML::Parser::Context $!parser-ctx;
 method !parser-ctx {
-    $!parser-ctx //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new)
+    (self.defined ?? $!parser-ctx !! my $) //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new);
 }
 
-multi method parse(::?CLASS:U: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') is hidden-from-backtrace {
-    my xmlDtd:D $raw = LibXML::Parser::Context.do: {xmlDtd.parse: :$string, :$enc};
-    self.box: $raw
-}
-multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') is hidden-from-backtrace {
+multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') is hidden-from-backtrace {
     my xmlDtd:D $raw = self!parser-ctx.do: {xmlDtd.parse: :$string, :$enc};
     self.box($raw)
 }
@@ -235,11 +231,7 @@ multi method parse(::?CLASS:D: Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') 
     references with relative URLs.
 =end pod
 
-multi method parse(::?CLASS:U: Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
-    my xmlDtd:D $raw = LibXML::Parser::Context.do: {xmlDtd.parse: :$external-id, :$system-id;};
-    self.box: $raw
-}
-multi method parse(::?CLASS:D: Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
+multi method parse(Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
     my xmlDtd:D $raw = self!parser-ctx.do: {xmlDtd.parse: :$external-id, :$system-id;};
     self.box: $raw
 }
