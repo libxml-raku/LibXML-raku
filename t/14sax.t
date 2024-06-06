@@ -277,18 +277,18 @@ subtest 'error handling', {
 skip("todo: port remaining tests", 29);
 =begin TODO
 
-
+# Note: Handled by Raku LibXML::Writer::PushParser
 {
     my $chunk = '<app>LOGOUT</app><bar/>';
-    my LibXML::SAX::Handler::SAX2 $sax .= new();
-    my LibXML::SAX $parser .= new(sax-handler => $sax );
+    my LibXML::SAX::Handler::SAX2 $sax-handler .= new();
+    my LibXML::PushParser $parser .= new: :$sax-handler;
     $parser.startDocument();
-    $sax.startElement('foo');
+    $parser.startElement('foo');
     $parser.parse-chunk($chunk);
     $parser.parse-chunk($chunk);
-    $builder.endElement('foo');
+    $parser.endElement('foo');
     $parser.endDocument();
-    is($builder.publish().documentElement.toString(), '<foo>'.$chunk.$chunk.'</foo>', ' TODO : Add test name');
+    is($sax-handler.publish().documentElement.toString(), '<foo>'~$chunk~$chunk~'</foo>', ' TODO : Add test name');
 }
 
 {

@@ -122,7 +122,9 @@ LibXML Exceptions and Error Handling
 ### method init-local-error-handling
 
 ```raku
-method init-local-error-handling() returns Mu
+method init-local-error-handling(
+    &cb = Code.new
+) returns Mu
 ```
 
 should be called from TWEAK

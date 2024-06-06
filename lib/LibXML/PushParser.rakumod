@@ -161,6 +161,32 @@ This can be annoying if the closing tag is missed by accident. The following cod
   
   print $doc.Str(); # returns "<foo>bar</foo>"
 
+=head2 See Also
+
+The L<LibXML::Writer::PushParser> class, available in the L<LibXML::Writer> Raku module, extends L<LibXML::PushParser>. It may be used to push structural elements and/or XML chunks:
+
+=begin code :lang<raku>
+use LibXML::Writer::PushParser;
+my LibXML::Writer::PushParser $writer .= new;
+
+$writer.startDocument();
+$writer.startElement('Foo');
+$writer.startElement('Bar');
+$writer.endElement;
+$writer.flush;
+$writer.push('<Baz/>');
+$writer.endElement;
+$writer.endDocument;
+my LibXML::Document $doc = $writer.finish-push;
+say $doc.Str;
+=end code
+
+Produces:
+
+=begin code :lang<xml>
+<?xml version="1.0" encoding="UTF-8"?>
+<Foo><Bar/><baz/></foo>;
+=end code
 
 =head2 Copyright
 

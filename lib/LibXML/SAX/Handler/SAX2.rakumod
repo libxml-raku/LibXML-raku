@@ -101,7 +101,7 @@ method comment(Str:D $text, Ctx :$ctx! ) {
     $ctx.xmlSAX2Comment($text);
 }
 
-# unimplmented callbacks
+# unimplemented callbacks
 method error(|) {die &?BLOCK.name ~ " SAX callback nyi"}
 method fatalError(|) {die &?BLOCK.name ~ " SAX callback nyi"}
 method getParameterEntity(|) {die &?BLOCK.name ~ " SAX callback nyi"}

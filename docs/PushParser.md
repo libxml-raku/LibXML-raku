@@ -92,6 +92,34 @@ This can be annoying if the closing tag is missed by accident. The following cod
 
     print $doc.Str(); # returns "<foo>bar</foo>"
 
+See Also
+--------
+
+The [LibXML::Writer::PushParser](https://libxml-raku.github.io/LibXML-Writer-raku/PushParser) class, available in the [LibXML::Writer](https://libxml-raku.github.io/LibXML-Writer-raku) Raku module, extends [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser). It may be used to push structural elements and/or XML chunks:
+
+```raku
+use LibXML::Writer::PushParser;
+my LibXML::Writer::PushParser $writer .= new;
+
+$writer.startDocument();
+$writer.startElement('Foo');
+$writer.startElement('Bar');
+$writer.endElement;
+$writer.flush;
+$writer.push('<Baz/>');
+$writer.endElement;
+$writer.endDocument;
+my LibXML::Document $doc = $writer.finish-push;
+say $doc.Str;
+```
+
+Produces:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Foo><Bar/><baz/></foo>;
+```
+
 Copyright
 ---------
 

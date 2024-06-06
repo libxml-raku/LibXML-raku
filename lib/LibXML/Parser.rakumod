@@ -270,6 +270,10 @@ method finish-push (
     $.push: :terminate, :$URI, :$recover;
 }
 
+method !new-push-parser(|c) {
+    $!push-parser .= new: :$!html, :$!flags, :$!line-numbers, :$.sax-handler, :$.config, |c;
+}
+
 method push(
     $chunk?,
     Str :$URI,
@@ -282,7 +286,7 @@ method push(
                 .push($chunk);
             }
             else {
-                $_ .= new: :$chunk, :$!html, :$!flags, :$!line-numbers, :$.sax-handler, :$.config;
+                self!new-push-parser: :$chunk;
             }
         }
         if $terminate {
@@ -299,6 +303,9 @@ method push(
 }
 multi method parse(:$chunk!, |c) { $.push($chunk, |c); }
 multi method parse(Bool :$terminate!, |c) { $.push(:$terminate, |c); }
+multi method parse(&code) {
+    code
+}
 
 method parse-balanced(Str() :$string!, LibXML::Document :$doc) {
     use LibXML::DocumentFragment;
