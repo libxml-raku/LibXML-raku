@@ -166,6 +166,7 @@ This can be annoying if the closing tag is missed by accident. The following cod
 The L<LibXML::Writer::PushParser> class, available in the L<LibXML::Writer> Raku module, extends L<LibXML::PushParser>. It may be used to push structural elements and/or XML chunks:
 
 =begin code :lang<raku>
+use LibXML::Document;
 use LibXML::Writer::PushParser;
 my LibXML::Writer::PushParser $writer .= new;
 
@@ -173,7 +174,6 @@ $writer.startDocument();
 $writer.startElement('Foo');
 $writer.startElement('Bar');
 $writer.endElement;
-$writer.flush;
 $writer.push('<Baz/>');
 $writer.endElement;
 $writer.endDocument;

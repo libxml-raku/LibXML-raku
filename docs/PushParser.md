@@ -98,6 +98,7 @@ See Also
 The [LibXML::Writer::PushParser](https://libxml-raku.github.io/LibXML-Writer-raku/PushParser) class, available in the [LibXML::Writer](https://libxml-raku.github.io/LibXML-Writer-raku) Raku module, extends [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser). It may be used to push structural elements and/or XML chunks:
 
 ```raku
+use LibXML::Document;
 use LibXML::Writer::PushParser;
 my LibXML::Writer::PushParser $writer .= new;
 
@@ -105,7 +106,6 @@ $writer.startDocument();
 $writer.startElement('Foo');
 $writer.startElement('Bar');
 $writer.endElement;
-$writer.flush;
 $writer.push('<Baz/>');
 $writer.endElement;
 $writer.endDocument;
