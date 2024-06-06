@@ -1623,14 +1623,8 @@ class xmlParserCtxt is export {
     has ulong                  $.sizeentcopy;  # volume of entity copy
 
     our sub New(--> xmlParserCtxt) is native($XML2) is symbol('xmlNewParserCtxt') {*};
-    our sub NewSAX(xmlSAXHandler $sax --> xmlParserCtxt) is native($XML2) is symbol('xmlNewSAXParserCtxt') {*};
-    method new(xmlSAXHandler :$sax) {
-        with $sax {
-            NewSAX($_);
-        }
-        else {
-            New()
-        }
+    method new() {
+        New()
     }
     method ReadDoc(Str $xml, Str $uri, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native($XML2) is symbol('xmlCtxtReadDoc') {*};
     method ReadFile(Str $xml, xmlEncodingStr $enc, int32 $flags --> xmlDoc) is native($XML2) is symbol('xmlCtxtReadFile') {*};
