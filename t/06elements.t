@@ -24,8 +24,7 @@ my @badnames= ("1A", "<><", "&", "-:");
 
 subtest 'bound node', {
     my LibXML::Document $doc .= new();
-    my LibXML::Element $elem = $doc.createElement( $foo );
-    ok $elem.defined;
+    my LibXML::Element:D $elem = $doc.createElement( $foo );
     is $elem.tagName, $foo;
 
     for @badnames -> $name {
@@ -300,18 +299,14 @@ subtest 'LibXML::Attr nodes', {
         ok $doc.defined;
         my $root = $doc.getDocumentElement;
         subtest 'getAttributeNode', {
-            my LibXML::Attr $attr = $root.getAttributeNode('foo');
-            ok $attr.defined;
-            isa-ok $attr, 'LibXML::Attr';
+            my LibXML::Attr:D $attr = $root.getAttributeNode('foo');
             ok $root.isSameNode($attr.ownerElement);
             is $attr.value, '"barENT"';
             is $attr.serializeContent, '&quot;bar&ent;&quot;';
             is $attr.gist, 'foo="&quot;bar&ent;&quot;"';
         }
         subtest 'getAttributeNodeNS', {
-            my LibXML::Attr $attr = $root.getAttributeNodeNS(Str,'foo');
-            ok $attr.defined;
-            isa-ok $attr, 'LibXML::Attr';
+            my LibXML::Attr:D $attr = $root.getAttributeNodeNS(Str,'foo');
             ok $root.isSameNode($attr.ownerElement);
             is $attr.value, '"barENT"';
         }
@@ -349,10 +344,7 @@ subtest 'LibXML::Attr nodes', {
             ok($doc, "Could parse document $n");
             my $root = $doc.getDocumentElement;
             subtest "$n getAttributeNode", {
-                my $attr = $root.getAttributeNode('foo');
-                ok($attr, "Attribute foo exists for $n");
-                isa-ok($attr, 'LibXML::Attr',
-                    "Attribute is of type LibXML::Attr - $n");
+                my LibXML::Attr:D $attr = $root.getAttributeNode('foo');
                 ok($root.isSameNode($attr.ownerElement),
                     "attr owner element is root - $n");
                 is($attr.value, q{"barENT"},
@@ -369,22 +361,18 @@ subtest 'LibXML::Attr nodes', {
                 is $root.getAttribute('a:ns_fixed'),'ns_foo';
             }
             subtest "and $n attribute nodes are created", {
-                my $attr = $root.getAttributeNode('fixed');
-                isa-ok $attr, 'LibXML::Attr';
-                is $attr.value,'foo';
+                my LibXML::Attr:D $attr = $root.getAttributeNode('fixed');
                 is $attr.gist, 'fixed="foo"';
             }
             subtest 'getAttributeNode', {
-                my $attr = $root.getAttributeNode('a:ns_fixed');
-                isa-ok $attr, 'LibXML::Attr';
+                my LibXML::Attr:D $attr = $root.getAttributeNode('a:ns_fixed');
                 is $attr.value,'ns_foo';
                 nok defined($root.getAttributeNode('ns_fixed'));
                 nok defined($root.getAttributeNode('name'));
                 nok defined($root.getAttributeNode('baz'));
             }
             subtest 'getAttributeNodeNS', {
-                my $attr = $root.getAttributeNodeNS($ns,'ns_fixed');
-                isa-ok $attr, 'LibXML::Attr';
+                my LibXML::Attr:D $attr = $root.getAttributeNodeNS($ns,'ns_fixed');
                 is $attr.value,'ns_foo';
                 is $attr.gist, 'a:ns_fixed="ns_foo"';
                 nok defined($root.getAttributeNodeNS($ns,'foo'));

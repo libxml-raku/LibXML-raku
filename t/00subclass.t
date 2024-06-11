@@ -26,10 +26,6 @@ class MyElement::Foo is MyElement {
 }
 
 class MyAttr is LibXML::Attr {
-#    submethod TWEAK {
-#        isa-ok $.raw, xmlAttr, 'MyAttr $.raw type';
-#        ok defined($.raw), 'MyAttr $.raw is defined';
-#    }
 }
 
 subtest "Basics" => {

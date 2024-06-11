@@ -313,8 +313,8 @@ subtest 'document manipulation', {
     my LibXML::Element $node = $doc.createElement( "foo" );
     $doc.documentElement = $node;
     my $tn = $doc.documentElement;
-    is($tn, '<foo/>', 'set document element');
-    ok($node.isSameNode($tn), 'document element preserved');
+    is $tn, '<foo/>', 'set document element';
+    ok $node.isSameNode($tn), 'document element preserved';
 
     my $node2 = $doc.createElement( "bar" );
     dies-ok {
@@ -322,19 +322,19 @@ subtest 'document manipulation', {
     }, 'Append second document root element - dies';
 
     my @cn = $doc.childNodes;
-    is( +@cn, 1, 'Second document root element is isgnored');
-    ok(@cn[0].isSameNode($node), 'document element preserved');
+    is +@cn, 1, 'Second document root element is isgnored';
+    ok @cn[0].isSameNode($node), 'document element preserved';
 
     dies-ok {
       $doc.insertBefore($node2, $node);
     }, "Can't insertBefore document root";
     @cn = $doc.childNodes;
-    is( +@cn, 1, "Can't insertBefore document root");
-    ok(@cn[0].isSameNode($node), 'document element preserved');
+    is +@cn, 1, "Can't insertBefore document root";
+    ok @cn[0].isSameNode($node), 'document element preserved';
 
     $doc.removeChild($node);
     @cn = $doc.childNodes;
-    is( +@cn, 0, 'document removeChild of root element');
+    is +@cn, 0, 'document removeChild of root element';
 
     $doc.addNewChild( Str, 'baz' );
     is $doc.childNodes, '<baz/>', 'addNewChild';
@@ -345,7 +345,7 @@ subtest 'document manipulation', {
         my $nodeA = $doc.createElement( "x" );
         $doc.documentElement = $nodeA;
     }
-    pass('Replacement of document root element');
+    pass 'Replacement of document root element';
 
     $doc.documentElement = $node2;
     @cn = $doc.childNodes;
@@ -374,7 +374,7 @@ subtest 'document storing', {
     my LibXML $parser .= new;
     my LibXML::Document $doc = $parser.parse: :string("<foo>bar</foo>");
 
-    is-deeply( $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity' );
+    is-deeply $doc.Str.lines, ('<?xml version="1.0" encoding="UTF-8"?>', '<foo>bar</foo>'), 'string parse sanity';
 
 
     subtest 'to file handle', {
@@ -396,10 +396,8 @@ subtest 'document storing', {
 
     subtest 'to named file', {
         $doc.save: :file( "samples/testrun.xml" );
-        pass(' TODO : Add test name');
         # now parse the file to check, if succeeded
         my $tdoc = $parser.parse: :file( "samples/testrun.xml" );
-        ok( $tdoc, ' TODO : Add test name' );
         ok $tdoc.documentElement;
         is $tdoc.documentElement.nodeName, "foo";
         is $tdoc.documentElement.string-value, "bar";
@@ -479,26 +477,26 @@ subtest 'document storing', {
 
 subtest 'Nil-ing nodes', {
     lives-ok {
-       my $doc=LibXML.createDocument(); # create a doc
-       my $x=$doc.createPI('foo'=>"bar");      # create a PI
+       my $doc = LibXML.createDocument(); # create a doc
+       my $x = $doc.createPI('foo'=>"bar");      # create a PI
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the PI
     }
     lives-ok {
-       my $doc=LibXML.createDocument(); # create a doc
-       my $x=$doc.createAttribute('foo'=>"bar"); # create an attribute
+       my $doc = LibXML.createDocument(); # create a doc
+       my $x = $doc.createAttribute('foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
     }
     lives-ok {
-       my $doc=LibXML.createDocument(); # create a doc
-       my $x=$doc.createAttributeNS(Str,'foo'=>"bar"); # create an attribute
+       my $doc = LibXML.createDocument(); # create a doc
+       my $x = $doc.createAttributeNS(Str,'foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
     }
     lives-ok {
-       my $doc=LibXML.parse: :string('<foo xmlns:x="http://foo.bar"/>');
-       my $x=$doc.createAttributeNS('http://foo.bar','x:foo'=>"bar"); # create an attribute
+       my $doc = LibXML.parse: :string('<foo xmlns:x="http://foo.bar"/>');
+       my $x = $doc.createAttributeNS('http://foo.bar','x:foo'=>"bar"); # create an attribute
        $doc = Nil;                            # should not free
        $x = Nil;                              # free the attribute
     }

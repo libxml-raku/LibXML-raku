@@ -4,13 +4,13 @@ use LibXML;
 use LibXML::Config;
 use LibXML::Enums;
 
-constant config =  LibXML::Config;
+constant config = LibXML::Config;
 
 plan 7;
 
 config.external-entity-loader = &handler;
 
-my  LibXML $parser .= new: :expand-entities;
+my LibXML $parser .= new: :expand-entities;
 
 $parser.config.parser-locking = True;
 

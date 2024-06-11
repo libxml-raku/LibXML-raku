@@ -11,8 +11,8 @@ my $htmlPublic = "-//W3C//DTD XHTML 1.0 Transitional//EN";
 my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
 subtest 'internalSubset', {
-    my LibXML::Document $doc .= new;
-    my $dtd = $doc.createExternalSubset( "html",
+    my LibXML::Document:D $doc .= new;
+    my  LibXML::Dtd:D $dtd = $doc.createExternalSubset( "html",
                                           $htmlPublic,
                                           $htmlSystem
                                         );
@@ -32,8 +32,7 @@ subtest 'externalSubset', {
     ok $dtd.isSameNode( $doc.internalSubset );
     ok !defined($doc.externalSubset);
 
-    skip 'setExternalSubset :validate - locking?';
-    #dies-ok {$doc.setExternalSubset( $dtd, :validate )}, 'setExternalSubset :validate';
+    dies-ok {$doc.setExternalSubset( $dtd, :validate )}, 'setExternalSubset :validate';
     ok defined($doc.internalSubset);
     lives-ok {$doc.setExternalSubset( $dtd )}, 'setExternalSubset';
     ok $dtd.isSameNode( $doc.externalSubset );

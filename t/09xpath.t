@@ -59,55 +59,39 @@ EOSTR
     }
 
     subtest 'find', {
-        my $result = $doc.find( "/foo/bar" );
-        ok $result.defined;
-        isa-ok $result, "LibXML::Node::Set";
+        my LibXML::Node::Set:D $result = $doc.find( "/foo/bar" );
         skip("numeric on nodes");
         is +$result, 2;
 
         ok $doc.isSameNode($result.iterator.pull-one.ownerDocument);
 
         $result = $doc.find( LibXML::XPath::Expression.parse("/foo/bar") );
-        ok $result.defined;
-        isa-ok $result, "LibXML::Node::Set";
-        skip("numeric on nodes");
         is +$result, 2;
         {
-            my $node = $doc.last("/foo/bar");
+            my LibXML::Element:D $node = $doc.last("/foo/bar");
             is $node.find('ancestor-or-self::*').map(*.nodePath).join(','), '/foo,/foo/bar[2]';
             is $node.find('ancestor-or-self::*').reverse.map(*.nodePath).join(','), '/foo/bar[2],/foo';
         }
 
         ok $doc.isSameNode($result.iterator.pull-one.ownerDocument);
 
-        $result = $doc.find( "string(/foo/bar)" );
-        ok $result.defined;
-        ok $result.isa(Str);
-        ok $result ~~ /'test 1'/;
+        my Str:D $str-result = $doc.find( "string(/foo/bar)" );
+        ok $str-result ~~ /'test 1'/;
 
-        $result = $doc.find( "string(/foo/bar)" );
-        ok $result.defined;
-        ok $result.isa(Str);
-        ok $result ~~ /'test 1'/;
+        $str-result = $doc.find( "string(/foo/bar)" );
+        ok $str-result ~~ /'test 1'/;
 
-        $result = $doc.find( LibXML::XPath::Expression.parse("count(/foo/bar)") );
-        ok $result.defined;
-        todo("https://github.com/rakudo/rakudo/issues/4485");
-        ok $result.isa( Numeric );
-        is $result, 2;
+        my Numeric:D $num-result = $doc.find( LibXML::XPath::Expression.parse("count(/foo/bar)") );
+        is $num-result, 2;
 
-        $result = $doc.find( "contains(/foo/bar[1], 'test 1')" );
-        ok $result.defined;
-        ok $result.isa( Bool );
-        is-deeply $result, True;
+        my Bool:D $bool-result = $doc.find( "contains(/foo/bar[1], 'test 1')" );
+        is-deeply $bool-result, True;
 
-        $result = $doc.find( LibXML::XPath::Expression.parse("contains(/foo/bar[1], 'test 1')") );
-        ok $result.defined;
-        ok $result.isa( Bool );
-        is-deeply $result, True;
+        $bool-result = $doc.find( LibXML::XPath::Expression.parse("contains(/foo/bar[1], 'test 1')") );
+        is-deeply $bool-result, True;
 
-        $result = $doc.find( "contains(/foo/bar[3], 'test 1')" );
-        is-deeply $result, False;
+        $bool-result = $doc.find( "contains(/foo/bar[3], 'test 1')" );
+        is-deeply $bool-result, False;
 
         ok $doc.exists("/foo/bar[2]");
         is-deeply $doc.exists("/foo/bar[3]"), False;
@@ -117,8 +101,7 @@ EOSTR
         is-deeply $doc.exists("''"), False;
         is-deeply $doc.exists("'0'"), True;
 
-        my LibXML::Element $node = $doc.first("/foo/bar[1]" );
-        ok $node.defined;
+        my LibXML::Element:D $node = $doc.first("/foo/bar[1]" );
         ok $node.exists("following-sibling::bar");
     }
 

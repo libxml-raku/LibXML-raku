@@ -6,6 +6,8 @@ use Test;
 
 plan 20;
 use LibXML;
+use LibXML::Document;
+use LibXML::DocumentFragment;
 use LibXML::Raw;
 use LibXML::Namespace;
 use LibXML::Node;
@@ -142,8 +144,7 @@ sub shorten_string($string is copy) { # Used for test naming.
 subtest 'non validating parser', {
     subtest 'well formed strings', {
         for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> Str $string {
-            my $doc = $parser.parse(:$string);
-            isa-ok $doc, 'LibXML::Document';
+            lives-ok { my LibXML::Document $ = $parser.parse(:$string) }
         }
     }
 
@@ -162,8 +163,7 @@ subtest 'keep-blanks', {
     temp $parser.keep-blanks = False;
 
     for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> $string {
-	my $doc = $parser.parse(:$string);
-        isa-ok $doc, 'LibXML::Document';
+	lives-ok {my LibXML::Document:D $ = $parser.parse(:$string);}
     }
 
     for @badWFStrings -> $string {
@@ -175,8 +175,7 @@ subtest 'expand-entities', {
     temp $parser.expand-entities = False;
 
     for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> $string {
-        my $doc = $parser.parse: :$string;
-        isa-ok $doc, 'LibXML::Document';
+        lives-ok {my LibXML::Document:D $ = $parser.parse: :$string;}
     }
 
     dies-ok { $parser.parse: :string(Str); };
@@ -191,8 +190,7 @@ subtest 'pedantic-parser', {
     temp $parser.pedantic-parser = True;
 
     for flat @goodWFStrings, @goodWFNSStrings, @goodWFDTDStrings -> $string {
-        my $doc = $parser.parse(:$string);
-	isa-ok $doc, 'LibXML::Document';
+        lives-ok { my LibXML::Document:D $ = $parser.parse(:$string);}
     }
 
     for @badWFStrings -> $string {
@@ -201,10 +199,7 @@ subtest 'pedantic-parser', {
 }
 
 subtest 'parse :file', {
-    {
-        my $doc = $parser.parse(:file($goodfile));
-        isa-ok $doc, 'LibXML::Document';
-    }
+    lives-ok {my LibXML::Document:D $ = $parser.parse(:file($goodfile));}
 
     throws-like( { $parser.parse(:file($badfile1))},
                  X::LibXML::Parser,
@@ -234,8 +229,7 @@ else {
 
         $io .= open(:r, :bin);
         isa-ok $io, IO::Handle;
-        $doc = $parser.parse: :$io;
-        isa-ok $doc, 'LibXML::Document';
+        lives-ok {my LibXML::Document:D $ = $parser.parse: :$io;}
 
         $io = $badfile1.IO;
         isa-ok $io, IO::Path;
@@ -249,14 +243,13 @@ else {
 
 subtest 'expand-entities + parse: :file', {
     temp $parser.expand-entities = True;
-    my $doc = $parser.parse: :file( "samples/dtd.xml" );
+    my LibXML::Document:D $doc = $parser.parse: :file( "samples/dtd.xml" );
 
-    my $root = $doc.documentElement;
-    isa-ok $root, 'LibXML::Element';
+    my LibXML::Element $root = $doc.documentElement;
     my LibXML::Node @cn = $root.childNodes;
     is +@cn, 1, "1 child node";
 
-    $parser.expand-entities = False;
+    temp $parser.expand-entities = False;
     $doc = $parser.parse: :file( "samples/dtd.xml" );
     @cn = $doc.documentElement.childNodes;
     is +@cn, 3, "3 child nodes";
@@ -284,10 +277,9 @@ my $badXInclude = q{
 
 
 subtest 'x-include processing', {
-    $parser.URI = "samples/";
+    temp $parser.URI = "samples/";
     temp $parser.keep-blanks = False;
-    my $doc = $parser.parse: :string( $goodXInclude );
-    isa-ok $doc, 'LibXML::Document';
+    my LibXML::Document $doc = $parser.parse: :string( $goodXInclude );
 
     my $i;
     lives-ok { $i = $parser.processXIncludes($doc); };
@@ -304,7 +296,6 @@ subtest 'x-include processing', {
     # auto expand
     temp $parser.expand-xinclude = True;
     $doc = $parser.parse: :string( $goodXInclude );
-    isa-ok $doc, 'LibXML::Document';
 
     $doc = Nil;
     throws-like { $doc = $parser.parse: :string( $badXInclude ); },
@@ -335,9 +326,7 @@ subtest 'push parser', {
                 $pparser.parse-chunk( $_ );
             }
             
-            my $doc;
-            lives-ok {$doc = $pparser.parse-chunk("", :terminate); }, "No error parsing $key";
-	    isa-ok $doc, 'LibXML::Document', "Document came back parsing chunk: ";
+            lives-ok {my LibXML::Document:D $d = $pparser.parse-chunk("", :terminate); }, "No error parsing $key";
         }
     }
 
@@ -349,8 +338,7 @@ subtest 'push parser', {
         for @good_strings {
             $parser.parse-chunk( $_ );
         }
-        my $doc = $parser.parse-chunk("",:terminate);
-        isa-ok $doc, 'LibXML::Document', "parse multipe chunks";
+        lives-ok {my LibXML::Document $ = $parser.parse-chunk("",:terminate);}
     }
 
     subtest 'parsing broken documents', {
@@ -392,24 +380,24 @@ subtest 'push parser', {
         }
 
         my $doc;
-        quietly {
-            $doc = $parser.finish-push(:recover);
-        };
-        isa-ok $doc, 'LibXML::Document', 'RECOVERING PUSH PARSER';
+        lives-ok {
+            quietly {
+            my LibXML::Document:D $ = $parser.finish-push(:recover);
+            }
+        }, 'RECOVERING PUSH PARSER';
     }
 }
 
 use LibXML::SAX;
 subtest 'SAX parser', {
-
     subtest 'XML handler', {
+        need XML;
         my LibXML::SAX::Handler::XML $sax-handler .= new;
         my LibXML::SAX $generator .= new: :$sax-handler;
 
         my $string  = q{<bar foo="bar">foo</bar>};
 
-        my $doc = $generator.parse: :$string;
-        isa-ok $doc , 'XML::Document', 'SAX PARSER';
+        lives-ok {my XML::Document $ = $generator.parse: :$string;}, 'SAX PARSER';
 
     }
 
@@ -420,21 +408,19 @@ subtest 'SAX parser', {
         subtest 'general tests', {
             my $string  = q{<bar foo="bar">foo</bar>};
 
-            my $doc = $generator.parse: :$string;
-            isa-ok $doc , 'LibXML::Document';
+            lives-ok {my LibXML::Document:D $ = $generator.parse: :$string;}
 
             for @goodWFStrings -> $string {
-                my $doc = $generator.parse: :$string;
-                isa-ok $doc , 'LibXML::Document', 'SAX Handler on good strings';
+                  lives-ok {my LibXML::Document:D $ = $generator.parse: :$string;}
             }
         }
 
         subtest 'CDATA sections', {
             my $string = q{<foo><![CDATA[&foo<bar]]></foo>};
 
-            my $doc = $generator.parse: :$string;
+            my LibXML::Document:D $doc = $generator.parse: :$string;
             my @cn = $doc.documentElement.childNodes();
-            is + @cn, 1, "Child nodes - 1" ;
+            is +@cn, 1, "Child nodes - 1" ;
             is @cn[0].nodeType, +XML_CDATA_SECTION_NODE;
             is @cn[0].content, '&foo<bar';
             is @cn[0].Str, '<![CDATA[&foo<bar]]>';
@@ -452,21 +438,21 @@ subtest 'SAX parser', {
 
             my $string2 = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi/></foo>};
 
-            my $doc = $generator.parse: :string($string2);
+            my LibXML::Document $doc = $generator.parse: :string($string2);
 
             my LibXML::Namespace @namespaces = $doc.documentElement.namespaces;
 
             is +@namespaces , 1, "1 namespace";
             is @namespaces[0].type, +XML_NAMESPACE_DECL, "Node type: " ~ +XML_NAMESPACE_DECL;
 
-            my $root = $doc.documentElement;
+            my LibXML::Element $root = $doc.documentElement;
 
             my $vstring = q{<foo xmlns:bar="http://foo.bar">bar<bar:bi/></foo>};
             is $root.Str, $vstring;
         }
 
         subtest 'attributes', {
-            my $doc = $generator.parse: :string(q{<foo bar="x" baz="y" />});
+            my LibXML::Document $doc = $generator.parse: :string(q{<foo bar="x" baz="y" />});
             my LibXML::Node:D $root = $doc.documentElement;
             # attributes as a tied hash
             my $attrs := $root.attributes;
@@ -485,14 +471,12 @@ subtest 'SAX parser', {
 
         subtest 'internal subsets', {
             for @goodWFDTDStrings -> $string {
-                my $doc = $generator.parse: :$string;
-                isa-ok $doc , 'LibXML::Document', "dtd $string";
+                lives-ok { my LibXML::Document:D $ = $generator.parse: :$string;}
             }
         }
 
         subtest 'parse :file', {
-            my $doc = $generator.parse: :file("samples/test.xml");
-            isa-ok $doc, 'LibXML::Document';
+            lives-ok {my LibXML::Document $ = $generator.parse: :file("samples/test.xml"); }
         }
     }
 }
@@ -510,9 +494,7 @@ subtest 'SAX push parser', {
             $parser.push( $_);
         }
 
-        my $doc;
-        lives-ok {$doc = $parser.finish-push; }, "sax push parse $key";
-        isa-ok $doc , 'LibXML::Document', "sax push parse $key";
+        lives-ok {my LibXML::Document:D $ = $parser.finish-push; }, "sax push parse $key";
     }
 }
 
@@ -567,11 +549,10 @@ subtest 'parse well balanced chunks', {
     subtest 'DOM chunk parser', {
 
         subtest 'well-formed', {
-            plan 2 * $MAX_WF_C;
+            plan $MAX_WF_C;
             for 1 .. $MAX_WF_C -> $_ is copy {
                 my Str:D $string = %chunks{'wellformed' ~ $_};
-                my $frag = $pparser.parse-balanced: :$string;
-                isa-ok $frag, 'LibXML::DocumentFragment';
+                my LibXML::DocumentFragment $frag = $pparser.parse-balanced: :$string;
                 if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
                      && $frag.hasChildNodes {
                     if $frag.firstChild.isSameNode($frag.lastChild) {
@@ -588,11 +569,10 @@ subtest 'parse well balanced chunks', {
         }
 
         subtest 'well-balanced', {
-            plan 2 * $MAX_WB_C;
+            plan $MAX_WB_C;
             for 1 .. $MAX_WB_C -> $_ is copy {
                 my Str:D $string = %chunks{'wellbalance' ~ $_};
-                my $frag = $pparser.parse-balanced: :$string;
-                isa-ok $frag, 'LibXML::DocumentFragment';
+                my LibXML::DocumentFragment $frag = $pparser.parse-balanced: :$string;
                 if $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
                      && $frag.hasChildNodes {
                     if $string ~~ /'<A></A>'/ {
@@ -620,8 +600,8 @@ subtest 'parse well balanced chunks', {
         my $sChunk = '<A/><B/>';
 
         my LibXML $parser .= new();
-        my $doc = $parser.parse-balanced: :string( $sDoc);
-        my $chk = $parser.parse-balanced: :string( $sChunk);
+        my LibXML::DocumentFragment $doc = $parser.parse-balanced: :string( $sDoc);
+        my  LibXML::DocumentFragment $chk = $parser.parse-balanced: :string( $sChunk);
 
         my $fc = $doc.firstChild;
         isa-ok $fc, 'LibXML::Element';
@@ -656,8 +636,8 @@ subtest 'parse well balanced chunks', {
         my $sChunk = '<A/><B/>';
 
         my LibXML $parser .= new();
-        my $doc = $parser.parse-balanced: :string($sDoc);
-        my $chk = $parser.parse-balanced: :string($sChunk);
+        my  LibXML::DocumentFragment $doc = $parser.parse-balanced: :string($sDoc);
+        my  LibXML::DocumentFragment $chk = $parser.parse-balanced: :string($sChunk);
 
         my $fc = $doc.firstChild;
 
@@ -672,11 +652,10 @@ subtest 'parse well balanced chunks', {
         my LibXML::SAX $parser .= new: :$sax-handler;
 
         subtest 'well-formed', {
-            plan 2 * $MAX_WF_C;
+            plan $MAX_WF_C;
              for 1 .. $MAX_WF_C -> $_ is copy {
                 my $string = %chunks{'wellformed' ~ $_};
-                my $frag = $parser.parse-balanced: :$string;
-                isa-ok $frag, 'LibXML::DocumentFragment';
+                my  LibXML::DocumentFragment $frag = $parser.parse-balanced: :$string;
                 if ( $frag.nodeType == +XML_DOCUMENT_FRAG_NODE
                      && $frag.hasChildNodes ) {
                     if $frag.firstChild.isSameNode( $frag.lastChild ) {
@@ -692,11 +671,10 @@ subtest 'parse well balanced chunks', {
         }
 
         subtest 'well-balanced', {
-            plan 2 * $MAX_WB_C;
+            plan $MAX_WB_C;
             for 1 .. $MAX_WB_C -> $_ is copy {
                 my Str:D $string = %chunks{'wellbalance' ~ $_};
-                my $frag = $parser.parse-balanced: :$string;
-                isa-ok $frag, 'LibXML::DocumentFragment';
+                my  LibXML::DocumentFragment $frag = $parser.parse-balanced: :$string;
                 if ( $frag.nodeType == XML_DOCUMENT_FRAG_NODE
                      && $frag.hasChildNodes ) {
                     if $string ~~ /'<A></A>'/ {
@@ -718,8 +696,7 @@ subtest 'validating parser', {
     my LibXML $parser .= new;
 
     $parser.validation = True;
-    my $doc;
-    dies-ok { $doc = $parser.parse: :string(%badstrings<SIMPLE>); }, "Failed to parse SIMPLE bad string";
+    dies-ok {my  $doc = $parser.parse: :string(%badstrings<SIMPLE>); }, "Failed to parse SIMPLE bad string";
 }
 
 subtest 'line numbers', {
@@ -750,9 +727,9 @@ subtest 'line numbers', {
     X::LibXML::Parser, :message(rx/^^\:3\:/), "line 3 found in error";
 
     # switch off validation for the following tests
-    $parser.validation = False;
+    temp $parser.validation = False;
 
-    my $doc;
+    my LibXML::Document $doc;
     lives-ok { $doc = $parser.parse: :string( $goodxml ); };
 
     my $root = $doc.documentElement();
@@ -870,12 +847,10 @@ subtest 'Perl ticket #7913', {
 
     $parser.validation = False;
     $parser.load-ext-dtd = False;
-    my $doc3;
+    my LibXML::Document $doc3;
     lives-ok {
        $doc3 = $parser.parse: :file( "samples/article_external_bad.xml" );
     };
-
-    isa-ok $doc3, 'LibXML::Document';
 
     $parser.validation = True;
     $parser.load-ext-dtd = True;
@@ -889,8 +864,8 @@ subtest 'XML URI and baseURI', {
 
    my LibXML $parser .= new();
 
-   my $doc = $parser.parse: :string('<foo xml:base="foo.xml"/>'), :URI<bar.xml>;
-   my $el = $doc.documentElement;
+   my LibXML::Document $doc = $parser.parse: :string('<foo xml:base="foo.xml"/>'), :URI<bar.xml>;
+   my LibXML::Element $el = $doc.documentElement;
    is $doc.URI, "bar.xml", "xml uris";
    is $doc.baseURI, "bar.xml", "xml uris";
    is $el.baseURI, "foo.xml", "xml uris";
@@ -916,7 +891,7 @@ subtest 'HTML URI and baseURI', {
 
    my LibXML $parser .= new();
 
-   my $doc = $parser.parse: :html, :string('<html><head><base href="foo.html"></head><body></body></html>'), :URI<bar.html>;
+   my LibXML::Document $doc = $parser.parse: :html, :string('<html><head><base href="foo.html"></head><body></body></html>'), :URI<bar.html>;
    my $el = $doc.documentElement;
    is $doc.URI, "bar.html", "html uris";
    is $doc.baseURI, "foo.html", "html uris";

@@ -10,8 +10,13 @@ use Test;
 plan 11;
 
 use LibXML;
+use LibXML::Document;
 use LibXML::Element;
 use LibXML::Enums;
+use LibXML::Node::List;
+use LibXML::Item;
+use LibXML::Attr;
+use LibXML::Attr::Map;
 
 my $xmlstring = q{<foo>bar<foobar/><bar foo="foobar"/><!--foo--><![CDATA[&foo bar]]></foo>};
 
@@ -142,9 +147,8 @@ subtest 'Standalone Without NameSpaces', {
     }
 
     subtest 'node children', {
-        my $children = $node.childNodes;
+        my LibXML::Node::List $children = $node.childNodes;
         ok defined($children);
-        isa-ok $children, "LibXML::Node::List";
         is $children.first, 'bar';
         is $children[0].xpath-key, 'text()';
         is-deeply $children.Hash.keys.sort, ('bar', 'comment()', 'foobar', 'text()');
@@ -156,14 +160,13 @@ subtest 'Standalone Without NameSpaces', {
     subtest '(Child) Node Manipulation', {
 
         subtest 'valid operations', {
-            my $inode = $doc.createElement("kungfoo"); # already tested
-            my $jnode = $doc.createElement("kungfoo");
-            my $xn = $node.insertBefore($inode, $rnode);
-            ok $xn;
+            my LibXML::Element:D $inode = $doc.createElement("kungfoo"); # already tested
+            my LibXML::Element:D $jnode = $doc.createElement("kungfoo");
+            my LibXML::Node:D $xn = $node.insertBefore($inode, $rnode);
             ok $xn.isSameNode($inode);
 
             $node.insertBefore( $jnode, LibXML::Node );
-            my $children := $node.childNodes();
+            my LibXML::Node::List $children := $node.childNodes();
             my $n = 0; $n++ for $children;
             is $n, 7, 'iterator';
             $n = 0; $n++ for $children;
@@ -176,12 +179,11 @@ subtest 'Standalone Without NameSpaces', {
             $jnode.unbindNode;
             $node.Str;
 
-            my @cn = $node.childNodes;
+            my LibXML::Item @cn = $node.childNodes;
             is +@cn, 6;
             ok @cn[3].isSameNode($inode);
 
             $xn = $node.removeChild($inode);
-            ok $xn;
             ok $xn.isSameNode($inode);
 
             @cn = $node.childNodes;
@@ -189,17 +191,14 @@ subtest 'Standalone Without NameSpaces', {
             ok @cn[3].isSameNode($rnode);
 
             $xn = $node.appendChild($inode);
-            ok $xn;
             ok $xn.isSameNode($inode);
             ok $xn.isSameNode($node.lastChild);
 
             $xn = $node.removeChild($inode);
-            ok $xn;
             ok $xn.isSameNode($inode);
             ok @cn.tail.isSameNode($node.lastChild);
 
             $xn = $node.replaceChild( $inode, $rnode );
-            ok $xn;
             ok $xn.isSameNode($rnode);
 
             my @cn2 = $node.childNodes;
@@ -226,13 +225,12 @@ subtest 'Standalone Without NameSpaces', {
     }
 
     subtest 'createElement', {
-        my ($inode, $jnode );
+        my LibXML::Element ($inode, $jnode );
 
         $inode = $doc.createElement("kungfoo"); # already tested
         $jnode = $doc.createElement("foobar");
 
-        my $xn = $inode.insertBefore( $jnode, LibXML::Node);
-        ok $xn;
+        my LibXML::Element:D $xn = $inode.insertBefore( $jnode, LibXML::Node);
         ok $xn.isSameNode( $jnode );
     }
 
@@ -243,8 +241,8 @@ subtest 'Standalone Without NameSpaces', {
         my $frag = $doc.createDocumentFragment;
         is $frag.nodeType, +XML_DOCUMENT_FRAG_NODE, 'nodeType';
 
-        my $node1 = $doc.createElement("kung");
-        my $node2 = $doc.createElement("foobar1");
+        my LibXML::Element:D $node1 = $doc.createElement("kung");
+        my LibXML::Element:D $node2 = $doc.createElement("foobar1");
 
         $frag.appendChild($node1);
         $frag.appendChild($node2);
@@ -252,9 +250,8 @@ subtest 'Standalone Without NameSpaces', {
         ok $node1.getOwner.isSameNode($frag), 'owner is fragment';
         ok $node1.getOwnerDocument.isSameNode($doc), 'ownerDocument';
 
-        my $xn = $node.appendChild( $frag );
+        my LibXML::Element:D $xn = $node.appendChild( $frag );
 
-        ok $xn;
         my @cn2 = $node.childNodes;
         is +@cn2, 7;
         ok @cn2[*-1].isSameNode($node2);
@@ -267,7 +264,6 @@ subtest 'Standalone Without NameSpaces', {
 
         $xn = $node.replaceChild( $frag, @cn[3] );
 
-        ok $xn;
         ok $xn.isSameNode(@cn[3]);
         @cn2 = $node.childNodes;
         is +@cn2, 6;
@@ -277,7 +273,6 @@ subtest 'Standalone Without NameSpaces', {
         $frag.addNewChild( Str, 'baz' );
 
         $xn = $node.insertBefore( $frag, @cn[0] );
-        ok $xn;
         ok $node1.isSameNode($node.firstChild);
         @cn2 = $node.childNodes;
         is +@cn2, 7;
@@ -290,8 +285,8 @@ subtest 'Standalone Without NameSpaces', {
 
     subtest 'DOM extensions', {
         my $string = "<foo><bar/>com</foo>";
-        my $doc = LibXML.parse: :$string;
-        my $elem= $doc.documentElement;
+        my LibXML::Document:D $doc = LibXML.parse: :$string;
+        my LibXML::Element:D $elem = $doc.documentElement;
         is $elem, '<foo><bar/>com</foo>';
         ok $elem.hasChildNodes, 'hasChildNodes';
         my $frag = $elem.removeChildNodes;
@@ -308,14 +303,12 @@ subtest 'Standalone With NameSpaces', {
     my $pre = "foo";
     my $name= "bar";
 
-    my $elem = $doc.createElementNS($URI, $pre~":"~$name);
+    my LibXML::Element:D $elem = $doc.createElementNS($URI, $pre~":"~$name);
 
-    ok $elem.defined;
     is $elem.nodeName, $pre~":"~$name;
     is $elem.namespaceURI, $URI;
     is $elem.prefix, $pre;
     is $elem.localname, $name;
-
 
     is $elem.lookupNamespacePrefix( $URI ), $pre;
     is $elem.lookupNamespaceURI( $pre ), $URI;
@@ -367,12 +360,11 @@ subtest 'libxml2 specials', {
 
 subtest 'implicit attribute manipulation', {
     my LibXML $parser .= new();
-    my $doc = $parser.parse: :string( '<foo bar="foo"/>' );
-    my $root = $doc.documentElement;
-    my $attributes := $root.attributes;
+    my LibXML::Document:D $doc = $parser.parse: :string( '<foo bar="foo"/>' );
+    my LibXML::Element:D $root = $doc.documentElement;
+    my LibXML::Attr::Map:D $attributes := $root.attributes;
     is +$attributes, 1;
-    ok $attributes;
-    my $newAttr = $doc.createAttribute( "kung", "foo" );
+    my LibXML::Attr:D $newAttr = $doc.createAttribute( "kung", "foo" );
     # as mandated by W3C DOM
     lives-ok {$newAttr.attributes}, 'node attributes';
     $attributes.setNamedItem( $newAttr );
@@ -452,7 +444,6 @@ subtest 'self append', {
 }
 
 subtest 'entity reference', {
-    use NativeCall;
     my LibXML::Document $doc .= new();
     my $attr = $doc.createAttribute('test','bar');
     my $ent = $doc.createEntityReference('foo');
@@ -482,9 +473,8 @@ subtest 'entity reference', {
     EOF
 
     subtest 'child accessors', {
-        my $doc = LibXML.load: :$string;
-        my $r = $doc.getDocumentElement;
-        ok $r;
+        my LibXML::Document:D $doc = LibXML.load: :$string;
+        my LibXML::Element:D $r = $doc.getDocumentElement;
         my @nonblank = $r.nonBlankChildNodes;
         is join(',',@nonblank.map(*.ast-key)), 'a,b,#comment,#cdata,?foo,c,#text', 'ast-key';
         is join(',',@nonblank.map(*.xpath-key)), 'a,b,comment(),text(),processing-instruction(),c,text()', 'xpath-key';

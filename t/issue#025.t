@@ -1,7 +1,8 @@
 use v6;
 use LibXML;
+use LibXML::Document;
 use Test;
-plan 2;
+plan 1;
 
 my $html = q:to/HTML/;
 <!DOCTYPE html>
@@ -14,15 +15,13 @@ my $html = q:to/HTML/;
 HTML
 
 my LibXML $parser .= new;
-my $doc = $parser.parse(
+my LibXML::Document:D $doc = $parser.parse(
     :string($html),
     :recover,
     :suppress-errors,
     :suppress-warnings,
     :html
 );
-
-isa-ok $doc, 'LibXML::Document';
 
 my @nodes = $doc.findnodes("//aside[@class='hello']");
 ok @nodes > 0;
