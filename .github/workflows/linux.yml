@@ -14,17 +14,9 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macOS-latest
-          - windows-2019
-##          - windows-latest
         raku-version:
           - 'latest'
           - '2022.02'
-        exclude:
-          - os: windows-2019
-            raku-version: 'latest'
-          - os: windows-latest
-            raku-version: 'latest'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -34,15 +26,11 @@ jobs:
       - name: Linux specific setup
         if: contains(matrix.os, 'ubuntu')
         run: sudo apt-get install -y libxml2-dev
-      - name: macOS specific setup
-        if: contains(matrix.os, 'macOS')
-        run: |
-            brew update
-            brew install libxml2
       - name: Install Dependencies
         run: |
           zef install --/test LibraryMake
+          zef install App::Prove6
           zef install --deps-only .
           zef build .
       - name: Run Tests
-        run: prove -e'raku -I.' t
+        run: prove6 -I .  t
