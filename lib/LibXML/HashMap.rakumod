@@ -162,9 +162,9 @@ role Assoc[Str $of] {
     my constant &xml-free = &xml6_gbl::xml-free;
     method of {$of}
     sub xml-str-dup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
-    method freeze(Str() $v) { xml-str-dup($v) }
+    method freeze(Str() $v) { $v.&xml-str-dup }
     method thaw(Pointer $p) { nativecast(Str, $p) }
-    method deallocator { -> Pointer $p, xmlCharP $k { xml-free($_) with $p } }
+    method deallocator { -> Pointer $p, xmlCharP $k { .&xml-free with $p } }
 }
 
 role Assoc[LibXML::Dtd::Notation $of] {

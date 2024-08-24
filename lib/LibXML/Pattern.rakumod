@@ -6,7 +6,7 @@ unit class LibXML::Pattern;
     =head2 Synopsis
 
         use LibXML;
-        my LibXML::Pattern $pattern = complie('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
+        my LibXML::Pattern $pattern = compile('/x:html/x:body//x:div', :ns{ 'x' => 'http://www.w3.org/1999/xhtml' });
         # test a match on an LibXML::Node $node
 
         if $pattern.matchesNode($node) { ... }

@@ -409,7 +409,6 @@ method Hash handles<AT-KEY keys pairs values> {
 }
 
 has AttrDeclMap $!element-attributes;
-
 #| returns a hash-map of attribute declarations
 method attribute-declarations(LibXML::Dtd:D $dtd: --> AttrDeclMap) {
     $!element-attributes //= self.create: AttrDeclMap, :$dtd, :raw($_), :of(LibXML::Dtd::AttrDecl)

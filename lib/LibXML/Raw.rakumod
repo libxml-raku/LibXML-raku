@@ -103,7 +103,7 @@ class xmlAllocedStr is Pointer is repr('CPointer') {
         nativecast(Str, self);
     }
     submethod DESTROY {
-        xml6_gbl::xml-free(self) if self;
+        xml6_gbl::xml-free(self);
     }
 }
 

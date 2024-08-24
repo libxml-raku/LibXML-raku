@@ -32,7 +32,7 @@ class LibXML::PushParser {
         }
     }
 
-    proto method parse-chunk($, |)  is also<push> {*} 
+    proto method parse-chunk($, |)  is also<push> {*}
     multi method push(Str $chunk, |c) is hidden-from-backtrace {
         self!parse($chunk.encode, |c);
     }
@@ -158,7 +158,7 @@ This can be annoying if the closing tag is missed by accident. The following cod
       $doc = $parser.finish-push(:recover);   # will return the data parsed
                                         # unless an error happened
   };
-  
+
   print $doc.Str(); # returns "<foo>bar</foo>"
 
 =head2 See Also
@@ -185,7 +185,7 @@ Produces:
 
 =begin code :lang<xml>
 <?xml version="1.0" encoding="UTF-8"?>
-<Foo><Bar/><baz/></foo>;
+<Foo><Bar/><Baz/></Foo>;
 =end code
 
 =head2 Copyright

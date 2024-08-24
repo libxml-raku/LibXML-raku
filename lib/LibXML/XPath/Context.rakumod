@@ -331,9 +331,8 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
         $name, $uri,
         -> xmlXPathParserContext $ctxt, Int $n {
             CATCH { default { $ctxt.valuePush: callback-error($_) } }
-            my @params;
-            @params.unshift: self.get-value($ctxt.valuePop) for ^$n;
-            my $ret = &func(|@params, |args) // '';
+            my @params = (self.get-value($ctxt.valuePop) xx $n);
+            my $ret = &func(|@params.reverse, |args) // '';
             my xmlXPathObject:D $out := xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret, :$ctxt);
             $ctxt.valuePush($_) for $out;
         }

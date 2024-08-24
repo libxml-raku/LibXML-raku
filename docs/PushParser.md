@@ -117,7 +117,7 @@ Produces:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<Foo><Bar/><baz/></foo>;
+<Foo><Bar/><Baz/></Foo>;
 ```
 
 Copyright
