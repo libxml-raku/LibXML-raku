@@ -217,7 +217,15 @@ constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`,
         method nodePath() returns Str
 
     This function is not specified for any DOM level: It returns a canonical
-    structure based XPath for a given node.
+    structure based XPath for a given node. For example:
+
+    =begin code :lang<raku>
+    use LibXML::Document;
+    use LibXML::Element;
+    LibXML::Document:D $doc .= parse: :file<samples/dromeds.xml>;
+    my LibXML::Element @humps = $doc.find: "//humps";
+    say @humps[0].nodePath: # /dromedaries/species[1]/humps
+    =end code
 
     =head3 method isBlank
 

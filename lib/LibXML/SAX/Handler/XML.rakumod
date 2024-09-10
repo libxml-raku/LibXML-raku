@@ -1,8 +1,8 @@
-use LibXML::SAX::Handler::SAX2;
-
 #| Build pure Raku XML documents using LibXML's SAX parser
-class LibXML::SAX::Handler::XML
-    is LibXML::SAX::Handler::SAX2 {
+class LibXML::SAX::Handler::XML {
+
+    use LibXML::SAX::Handler::SAX2;
+    also is LibXML::SAX::Handler::SAX2;
 
     # This class Builds a Raku 'XML' document,
 

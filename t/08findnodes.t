@@ -39,6 +39,8 @@ subtest 'findnodes basic', {
 
     @slist = $node.findnodes('./humps');
     is +@slist, 1, 'self path on relative name';
+    is @slist[0].nodePath, '/dromedaries/species[1]/humps';
+    is @slist[0]<text()>[0].nodePath, '/dromedaries/species[1]/humps/text()';
 
     # find a single node
     @list   = $elem.findnodes( "species[\@name='Llama']" );
