@@ -113,15 +113,30 @@ method new(LibXML::Node :doc($_), xmlDocFrag :$native, *%c) {
 =end pod
 
 #| parses a balanced XML chunk
-method parse(
-    Str() :$string!,
+proto method parse(
+    Str:D() :$string!,
+    Bool :balanced($)! where .so,
+    Pointer :$user-data,
+    --> LibXML::DocumentFragment) {
+    {*}
+}
+
+multi method parse(
+  ::?CLASS:U:
+  Str:D() :$string, 
+  Bool :balanced($)! where .so,
+  Pointer :$user-data,
+ |c) is hidden-from-backtrace {
+    self.new(|c).parse: :$string, :balanced, :$user-data, |c;
+}
+
+multi method parse(
+    ::?CLASS:D $doc-frag:
+    Str:D() :$string!,
     Bool :balanced($)! where .so,
     Pointer :$user-data,
     |c
     --> LibXML::DocumentFragment) is hidden-from-backtrace {
-
-    my $doc-frag = self;
-    $_ .= new(|c) without $doc-frag;
 
     my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
 

@@ -61,10 +61,9 @@ Creates a new empty document fragment to which nodes can be added; typically by 
 
 ```raku
 method parse(
-    Str(Any) :$string!,
+    Str:D(Any):D :$string!,
     Bool :balanced($)! where { ... },
-    NativeCall::Types::Pointer :$user-data,
-    |c
+    NativeCall::Types::Pointer :$user-data
 ) returns LibXML::DocumentFragment
 ```
 
