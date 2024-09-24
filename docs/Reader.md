@@ -99,7 +99,7 @@ where ... are reader options described below in [Reader options](Reader options)
 
   * ...
 
-    the reader further supports various parser options described in [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) (specifically those labeled by /reader/). 
+    the reader further supports various parser options described in [LibXML::Parser](https://libxml-raku.github.io/LibXML-raku/Parser) (specifically those labeled by /reader/).
 
 Methods Controlling Parsing Progress
 ------------------------------------
@@ -345,7 +345,7 @@ Returns a canonical location path to the current element from the root node to
 
   * Namespaced elements are matched by '*', because there is no way to declare prefixes within XPath patterns.
 
-  * Unlike `LibXML::Node::nodePath()`, this function does not provide sibling counts (i.e. instead of e.g. '/a/b[1]' and '/a/b[2]' you get '/a/b' for both matches). 
+  * Unlike `LibXML::Node::nodePath()`, this function does not provide sibling counts (i.e. instead of e.g. '/a/b[1]' and '/a/b[2]' you get '/a/b' for both matches).
 
 ### method matchesPattern
 

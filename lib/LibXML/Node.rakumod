@@ -178,14 +178,13 @@ method getName { self.getNodeName }
 
 #| Gets or sets the node name
 method nodeName is rw is also<name tag tagName> returns Str {
-    Proxy.new(
-        FETCH => sub ($) { self.getNodeName },
-        STORE => sub ($, QName $_) { self.setNodeName($_) },
-    );
+    sub FETCH($) { self.getNodeName }
+    sub STORE($, QName $_) { self.setNodeName($_) }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 =para This method is aware of namespaces and returns the
-full name of the current node (C<prefix:localname>). 
+full name of the current node (C<prefix:localname>).
 
 =para It also returns the correct DOM names for node types with
 constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`,
@@ -250,10 +249,9 @@ method isEqual(|c) is DEPRECATED<isSameNode> { $.isSameNode(|c) }
 
 #| Get or set the value of a node
 method nodeValue is rw is also<value> returns Str {
-    Proxy.new(
-        FETCH => sub ($) { self.getNodeValue },
-        STORE => sub ($, Str() $_) { self.setNodeValue($_) },
-    );
+    sub FETCH($) { self.getNodeValue }
+    sub STORE($, Str() $_) { self.setNodeValue($_) }
+    Proxy.new: :&FETCH, :&STORE;
 }
 =para If the node has any content (such as stored in a C<text node>) it
     can get requested through this function.
@@ -281,16 +279,15 @@ method getBaseURI returns Str { self.raw.GetBase.Str // do with $.doc { .URI } /
 method setBaseURI(Str $uri) { self.raw.SetBase($uri) }
 =para This method only does something useful for an element node in an XML document.
     It sets the xml:base attribute on the node to $strURI, which effectively sets
-    the base URI of the node to the same value. 
+    the base URI of the node to the same value.
 =para Note: For HTML documents this behaves as if the document was XML which may not
     be desired, since it does not effectively set the base URI of the node. See RFC
-    2396 appendix D for an example of how base URI can be specified in HTML. 
+    2396 appendix D for an example of how base URI can be specified in HTML.
 
 method baseURI is also<URI> is rw {
-    Proxy.new(
-        FETCH => { self.getBaseURI },
-        STORE => sub ($, Str() $uri) { self.setBaseURI($uri) }
-    );
+    sub FETCH($) { self.getBaseURI }
+    sub STORE($, Str() $uri) { self.setBaseURI($uri) }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 #| Return the source line number where the tag was found
@@ -298,7 +295,7 @@ method line-number returns UInt  { self.raw.GetLineNo }
 =para If a node is added to the document the line number is 0. Problems may occur, if
     a node from one document is passed to another one.
 =para IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
-    65535 will be returned as 65535. Please see L<http://bugzilla.gnome.org/show_bug.cgi?id=325533> for more details. 
+    65535 will be returned as 65535. Please see L<http://bugzilla.gnome.org/show_bug.cgi?id=325533> for more details.
 =para Note: line-number() is special to LibXML and not part of the DOM specification.
 
 ########################################################################
@@ -355,14 +352,13 @@ method appendText(Str:D $text) is also<appendTextNode> {
 
 #| Gets or sets the owner document for the node
 method ownerDocument is rw is also<doc> {
-    Proxy.new(
-        FETCH => {
-            self.getOwnerDocument;
-        },
-        STORE => sub ($, LibXML::Node $doc) {
-            self.setOwnerDocument($doc);
-        },
-    );
+    sub FETCH($) {
+        self.getOwnerDocument;
+    }
+    sub STORE($, LibXML::Node $doc) {
+        self.setOwnerDocument($doc);
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 method getOwnerDocument is also<get-doc> returns LibXML::Node {
@@ -421,7 +417,7 @@ method nonBlankChildNodes {
         method nonBlankChildNodes() returns LibXML::Node::List
 
     Get non-blank child nodes of a node
- 
+
     This equivalent to I<childNodes(:!blank)>. It returns only non-blank nodes (where a node is blank if it is a Text or
     CDATA node consisting of whitespace only). This method is not defined by DOM.
 =end pod
@@ -488,7 +484,7 @@ method addNewChild(Str $uri, QName $name --> LibXML::Node) {
 
 #| Replace a node
 method replaceNode(LibXML::Node:D $new --> LibXML::Node) {
-    self.keep: self.raw.replaceNode($new.raw); 
+    self.keep: self.raw.replaceNode($new.raw);
 }
 =para This function is very similar to replaceChild(), but it replaces the node
     itself rather than a childnode. This is useful if a node found by any XPath
@@ -508,7 +504,7 @@ multi method cloneNode(LibXML::Node:D: Bool() :$deep = False --> LibXML::Node) i
 }
 =para When $deep is True the function will copy all child nodes as well.
     Otherwise the current node will be copied. Note that in case of
-    element, attributes are copied even if $deep is not True. 
+    element, attributes are copied even if $deep is not True.
 
 #| Inserts $new before $ref.
 method insertBefore(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
@@ -559,7 +555,7 @@ method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$dere
 
         multi method findnodes(Str $xpath-expr,
                                LibXML::Node $ref-node?,
-                               Bool :$deref, :%ns) returns LibXML::Node::Set 
+                               Bool :$deref, :%ns) returns LibXML::Node::Set
         multi method findnodes(LibXML::XPath::Expression:D $xpath-expr,
                                LibXML::Node $ref-node?,
                                Bool :$deref, :%ns) returns LibXML::Node::Set
@@ -585,18 +581,18 @@ method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$dere
     A common mistake about XPath is to assume that node tests consisting of an
     element name with no prefix match elements in the default namespace. This
     assumption is wrong - by XPath specification, such node tests can only match
-    elements that are in no (i.e. null) namespace. 
+    elements that are in no (i.e. null) namespace.
 
     So, for example, one cannot match the root element of an XHTML document with C<$node.find('/html')> since C<'/html'> would only match if the root element `<html>` had no namespace, but all XHTML elements belong to the namespace
     http://www.w3.org/1999/xhtml. (Note that C<xmlns="..."> namespace declarations can also be specified in a DTD, which makes the
     situation even worse, since the XML document looks as if there was no default
-    namespace). 
+    namespace).
 
-    There are several possible ways to deal with namespaces in XPath: 
+    There are several possible ways to deal with namespaces in XPath:
 
         =begin item
         The recommended way is to define a document
-        independent prefix-to-namespace mapping. For example: 
+        independent prefix-to-namespace mapping. For example:
 
           my %ns = 'x' => 'http://www.w3.org/1999/xhtml';
           $node.find('/x:html', :%ns);
@@ -610,7 +606,7 @@ method findnodes(XPathExpr $expr, LibXML::Node:D $node = self, :%ns, Bool :$dere
         =begin item
         Another possibility is to use prefixes declared in the queried document (if
         known). If the document declares a prefix for the namespace in question (and
-        the context node is in the scope of the declaration), C<LibXML> allows you to use the prefix in the XPath expression, e.g.: 
+        the context node is in the scope of the declaration), C<LibXML> allows you to use the prefix in the XPath expression, e.g.:
 
           $node.find('/xhtml:html');
 
@@ -803,14 +799,14 @@ method canonicalize(
     One has to note, that only the nodes that are part of the nodeset, will be
     included into the result-document. Their child-nodes will not exist in the
     resulting document, unless they are part of the nodeset defined by the xpath
-    expression. 
+    expression.
 
     If :$xpath is omitted or empty, Str: :C14N will include all nodes
-    in the given sub-tree, using the following XPath expressions: with comments 
+    in the given sub-tree, using the following XPath expressions: with comments
       =begin code :lang<xpath>
       (. | .//node() | .//@* | .//namespace::*)
       =end code
-    and without comments 
+    and without comments
       =begin code :lang<xpath>
       (. | .//node() | .//@* | .//namespace::*)[not(self::comment())]
       =end code
@@ -818,7 +814,7 @@ method canonicalize(
     An optional parameter :$selector can be used to pass an L<LibXML::XPathContext> object defining the context for evaluation of $xpath-expression. This is useful
     for mapping namespace prefixes used in the XPath expression to namespace URIs.
     Note, however, that $node will be used as the context node for the evaluation,
-    not the context node of :$selector. 
+    not the context node of :$selector.
 
     :v(v1.1) can be passed to specify v1.1 of the C14N specification. The `:$eclusve` flag is not applicable to this level.
 =end pod
@@ -1004,7 +1000,7 @@ method namespaceURI(--> Str) is also<getNamespaceURI> { do with self.raw.ns {.hr
       say $node<species/humps>;
       say $node<species><humps>;
 
-  This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`.                                                   
+  This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`.
 
 =end pod
 

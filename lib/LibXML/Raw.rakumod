@@ -299,12 +299,12 @@ multi trait_mod:<is>(Attribute $att, :&rw-ptr!) {
         # override standard Attribute method for generating accessors
         method compose(Mu $package) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
-            my &accessor = sub (\obj) is rw {
-                Proxy.new(
-                    FETCH => { self.get_value(obj) },
-                    STORE => sub ($, $val is raw) {
-                        setter(obj, $val);
-                    });
+            sub accessor(\obj) is rw {
+                sub FETCH($) { self.get_value(obj) }
+                sub STORE($, $val is raw) {
+                    setter(obj, $val);
+                }
+                Proxy.new: :&FETCH, :&STORE;
             }
             try $package.^add_method( $name, &accessor );
         }
@@ -318,13 +318,13 @@ multi trait_mod:<is>(Attribute $att, :&rw-str!) {
     my role StringSetterHOW[&setter] {
         method compose(Mu $package) {
             my $name = self.name.subst(/^(\$|\@|\%)'!'/, '');
-            my &accessor = sub (\obj) is rw {
-                Proxy.new(
-                    FETCH => { self.get_value(obj) },
-                    STORE => sub ($, $val) {
-                        my $str := do with $val {.Str} else { Str };
-                        setter(obj, $str);
-                    });
+            my sub accessor(\obj) is rw {
+                sub FETCH($) { self.get_value(obj) }
+                sub STORE($, $val) {
+                    my $str := do with $val {.Str} else { Str };
+                    setter(obj, $str);
+                }
+                Proxy.new: :&FETCH, :&STORE;
             }
             try $package.^add_method( $name, &accessor );
         }
@@ -1789,23 +1789,19 @@ sub xmlInitParser is native($XML2) is export {*}
 ## Globals aren't yet writable in Rakudo
 
 method KeepBlanksDefault is rw {
-
-    Proxy.new(
-        FETCH => { ? xml6_gbl::get-keep-blanks() },
-        STORE => sub ($, Bool() $_) {
-            xml6_gbl::set-keep-blanks($_);
-        },
-    );
+    sub FETCH($) { ? xml6_gbl::get-keep-blanks() }
+    sub STORE($, Bool() $_) {
+        xml6_gbl::set-keep-blanks($_);
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 method TagExpansion is rw {
-
-    Proxy.new(
-        FETCH => { ? xml6_gbl::get-tag-expansion() },
-        STORE => sub ($, Bool() $_) {
-            xml6_gbl::set-tag-expansion($_);
-        },
-    );
+    sub FETCH($) { ? xml6_gbl::get-tag-expansion() }
+    sub STORE($, Bool() $_) {
+        xml6_gbl::set-tag-expansion($_);
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 module xmlExternalEntityLoader is export {
@@ -1815,12 +1811,13 @@ module xmlExternalEntityLoader is export {
 }
 
 method ExternalEntityLoader is rw {
-    Proxy.new(
-        FETCH => { nativecast( :(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput), xmlEntityLoader::Get()) },
-        STORE => sub ($, &loader) {
-             xmlExternalEntityLoader::Set(&loader)
-        }
-    );
+    sub FETCH($) {
+        nativecast( :(xmlCharP, xmlCharP, xmlParserCtxt --> xmlParserInput), xmlEntityLoader::Get())
+    }
+    sub STORE($, &loader) {
+        xmlExternalEntityLoader::Set(&loader)
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 INIT {

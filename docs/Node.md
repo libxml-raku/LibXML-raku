@@ -122,7 +122,7 @@ method nodeName() returns Str
 
 Gets or sets the node name
 
-This method is aware of namespaces and returns the full name of the current node (`prefix:localname`). 
+This method is aware of namespaces and returns the full name of the current node (`prefix:localname`).
 
 It also returns the correct DOM names for node types with constant names, namely: `#text`, `#cdata-section`, `#comment`, `#document`, `#document-fragment`.
 
@@ -228,9 +228,9 @@ method setBaseURI(
 
 Sets the base URI
 
-This method only does something useful for an element node in an XML document. It sets the xml:base attribute on the node to $strURI, which effectively sets the base URI of the node to the same value. 
+This method only does something useful for an element node in an XML document. It sets the xml:base attribute on the node to $strURI, which effectively sets the base URI of the node to the same value.
 
-Note: For HTML documents this behaves as if the document was XML which may not be desired, since it does not effectively set the base URI of the node. See RFC 2396 appendix D for an example of how base URI can be specified in HTML. 
+Note: For HTML documents this behaves as if the document was XML which may not be desired, since it does not effectively set the base URI of the node. See RFC 2396 appendix D for an example of how base URI can be specified in HTML.
 
 ### method line-number
 
@@ -242,7 +242,7 @@ Return the source line number where the tag was found
 
 If a node is added to the document the line number is 0. Problems may occur, if a node from one document is passed to another one.
 
-IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533](http://bugzilla.gnome.org/show_bug.cgi?id=325533) for more details. 
+IMPORTANT: Due to limitations in the libxml2 library line numbers greater than 65535 will be returned as 65535. Please see [http://bugzilla.gnome.org/show_bug.cgi?id=325533](http://bugzilla.gnome.org/show_bug.cgi?id=325533) for more details.
 
 Note: line-number() is special to LibXML and not part of the DOM specification.
 
@@ -486,7 +486,7 @@ multi method cloneNode(
 
 Copy a node
 
-When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True. 
+When $deep is True the function will copy all child nodes as well. Otherwise the current node will be copied. Note that in case of element, attributes are copied even if $deep is not True.
 
 ### method insertBefore
 
@@ -529,7 +529,7 @@ Searching Methods
 
     multi method findnodes(Str $xpath-expr,
                            LibXML::Node $ref-node?,
-                           Bool :$deref, :%ns) returns LibXML::Node::Set 
+                           Bool :$deref, :%ns) returns LibXML::Node::Set
     multi method findnodes(LibXML::XPath::Expression:D $xpath-expr,
                            LibXML::Node $ref-node?,
                            Bool :$deref, :%ns) returns LibXML::Node::Set
@@ -551,13 +551,13 @@ It indexes element child nodes and attributes. This option is used by the `AT-KE
 
 *NOTE ON NAMESPACES AND XPATH*:
 
-A common mistake about XPath is to assume that node tests consisting of an element name with no prefix match elements in the default namespace. This assumption is wrong - by XPath specification, such node tests can only match elements that are in no (i.e. null) namespace. 
+A common mistake about XPath is to assume that node tests consisting of an element name with no prefix match elements in the default namespace. This assumption is wrong - by XPath specification, such node tests can only match elements that are in no (i.e. null) namespace.
 
-So, for example, one cannot match the root element of an XHTML document with `$node.find('/html')` since `'/html'` would only match if the root element `<html>` had no namespace, but all XHTML elements belong to the namespace http://www.w3.org/1999/xhtml. (Note that `xmlns="..."` namespace declarations can also be specified in a DTD, which makes the situation even worse, since the XML document looks as if there was no default namespace). 
+So, for example, one cannot match the root element of an XHTML document with `$node.find('/html')` since `'/html'` would only match if the root element `<html>` had no namespace, but all XHTML elements belong to the namespace http://www.w3.org/1999/xhtml. (Note that `xmlns="..."` namespace declarations can also be specified in a DTD, which makes the situation even worse, since the XML document looks as if there was no default namespace).
 
-There are several possible ways to deal with namespaces in XPath: 
+There are several possible ways to deal with namespaces in XPath:
 
-  * The recommended way is to define a document independent prefix-to-namespace mapping. For example: 
+  * The recommended way is to define a document independent prefix-to-namespace mapping. For example:
 
         my %ns = 'x' => 'http://www.w3.org/1999/xhtml';
         $node.find('/x:html', :%ns);
@@ -567,7 +567,7 @@ There are several possible ways to deal with namespaces in XPath:
         my $xpath-context = $node.xpath-context: :%ns;
         $xpath-context.find('/x:html');
 
-  * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML` allows you to use the prefix in the XPath expression, e.g.: 
+  * Another possibility is to use prefixes declared in the queried document (if known). If the document declares a prefix for the namespace in question (and the context node is in the scope of the declaration), `LibXML` allows you to use the prefix in the XPath expression, e.g.:
 
         $node.find('/xhtml:html');
 
@@ -673,21 +673,21 @@ The canonicalize method is similar to Str(). Instead of simply serializing the d
 
 If :$comments is False or not specified, the result-document will not contain any comments that exist in the original document. To include comments into the canonized document, :$comments has to be set to True.
 
-The parameter :$xpath defines the nodeset of nodes that should be visible in the resulting document. This can be used to filter out some nodes. One has to note, that only the nodes that are part of the nodeset, will be included into the result-document. Their child-nodes will not exist in the resulting document, unless they are part of the nodeset defined by the xpath expression. 
+The parameter :$xpath defines the nodeset of nodes that should be visible in the resulting document. This can be used to filter out some nodes. One has to note, that only the nodes that are part of the nodeset, will be included into the result-document. Their child-nodes will not exist in the resulting document, unless they are part of the nodeset defined by the xpath expression.
 
-If :$xpath is omitted or empty, Str: :C14N will include all nodes in the given sub-tree, using the following XPath expressions: with comments 
+If :$xpath is omitted or empty, Str: :C14N will include all nodes in the given sub-tree, using the following XPath expressions: with comments
 
 ```xpath
 (. | .//node() | .//@* | .//namespace::*)
 ```
 
-and without comments 
+and without comments
 
 ```xpath
 (. | .//node() | .//@* | .//namespace::*)[not(self::comment())]
 ```
 
-An optional parameter :$selector can be used to pass an [LibXML::XPathContext](https://libxml-raku.github.io/LibXML-raku/XPathContext) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector. 
+An optional parameter :$selector can be used to pass an [LibXML::XPathContext](https://libxml-raku.github.io/LibXML-raku/XPathContext) object defining the context for evaluation of $xpath-expression. This is useful for mapping namespace prefixes used in the XPath expression to namespace URIs. Note, however, that $node will be used as the context node for the evaluation, not the context node of :$selector.
 
 :v(v1.1) can be passed to specify v1.1 of the C14N specification. The `:$eclusve` flag is not applicable to this level.
 
@@ -825,7 +825,7 @@ Associative Interface
     say $node<species/humps>;
     say $node<species><humps>;
 
-This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`. 
+This is a lightweight associative interface, based on xpath expressions. `$node.AT-KEY($foo)` is equivalent to `$node.findnodes($foo, :deref)`.
 
 Copyright
 ---------

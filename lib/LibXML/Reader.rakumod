@@ -96,16 +96,15 @@ also does LibXML::_Options[%LibXML::Parser::Context::Opts];
 
 # Perl compat
 multi method recover is rw {
-    Proxy.new(
-        FETCH => { 
-            my $recover = $.get-flag($!flags, 'recover');
-            $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
-        },
-        STORE => -> $, UInt() $v {
-            $.set-flag($!flags, 'recover', $v >= 1);
-            $.set-flag($!flags, 'suppress-errors', $v >= 2);
-        }
-    );
+    sub FETCH($) {
+        my $recover = $.get-flag($!flags, 'recover');
+        $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
+    }
+    sub STORE($, UInt() $v) {
+        $.set-flag($!flags, 'recover', $v >= 1);
+        $.set-flag($!flags, 'suppress-errors', $v >= 2);
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 multi method recover($v) { $.recover = $v }
 
@@ -273,7 +272,7 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =begin item1
         ...
 
-        the reader further supports various parser options described in L<LibXML::Parser> (specifically those labeled by /reader/). 
+        the reader further supports various parser options described in L<LibXML::Parser> (specifically those labeled by /reader/).
 
         =end item1
 =end pod
@@ -358,7 +357,7 @@ method nextPatternMatch(LibXML::Pattern:D $pattern --> Bool) {
 
 
 #| Skip all nodes on the same or lower level until the first node on a higher
-#| level is reached. 
+#| level is reached.
 method skipSiblings returns Bool is reader-raw {...}
 =para In particular, if the current node occurs in an element, the
     reader stops at the end tag of the parent element, otherwise it stops at a node
@@ -463,7 +462,7 @@ method nodePath {
     way to declare prefixes within XPath patterns.
 =item Unlike C<LibXML::Node::nodePath()>, this function does not provide
     sibling counts (i.e. instead of e.g. '/a/b[1]'
-    and '/a/b[2]' you get '/a/b' for both matches). 
+    and '/a/b[2]' you get '/a/b' for both matches).
 
 
 #| Returns a true value if the current node matches a compiled pattern.

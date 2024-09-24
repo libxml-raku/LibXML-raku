@@ -33,16 +33,16 @@ multi method input-callbacks($!input-callbacks) {}
 
 # Perl compat
 multi method recover is rw {
-    Proxy.new(
-        FETCH => { 
-            my $recover = $.get-flag($!flags, 'recover');
-            $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
-        },
-        STORE => -> $, UInt() $v {
-            $.set-flag($!flags, 'recover', $v >= 1);
-            $.set-flag($!flags, 'suppress-errors', $v >= 2);
-        }
-    );
+    sub FETCH($) {
+        my $recover = $.get-flag($!flags, 'recover');
+        $recover && $.get-flag($!flags, 'suppress-errors') ?? 2 !! $recover;
+    }
+    sub STORE($, UInt() $v) {
+        $.set-flag($!flags, 'recover', $v >= 1);
+        $.set-flag($!flags, 'suppress-errors', $v >= 2);
+    }
+    Proxy.new: :&FETCH, :&STORE;
+
 }
 multi method recover($v) { $.recover = $v }
 
@@ -344,14 +344,15 @@ method FALLBACK($key, |c) is rw is hidden-from-backtrace {
 
 =head2 Synopsis
 
+  =begin code :lang<raku>
   use LibXML;
 
   # Parser constructor
-  
+
   my LibXML $parser .= new: :$catalog, |%opts;
-  
+
   # Parsing XML
-  
+
   $dom = LibXML.parse(
       location => $file-or-url,
       # parser options ...
@@ -370,24 +371,21 @@ method FALLBACK($key, |c) is rw is hidden-from-backtrace {
     );
   # dispatch to above depending on type
   $dom = $parser.parse($src ...);
-  			  
+
   # Parsing HTML
-  
+
   $dom = LibXML.parse(..., :html);
   $dom = $parser.parse(..., :html);
   $parser.html = True; $parser.parse(...);
-  			  
+
   # Parsing well-balanced XML chunks
-  			       
   my LibXML::DocumentFragment $chunk = $parser.parse-balanced( string => $wbxml);
-  
+
   # Processing XInclude
-  
   $parser.process-xincludes( $doc );
   $parser.processXIncludes( $doc );
-  
+
   # Push parser
-  			    
   $parser.parse-chunk($string, :$terminate);
   $parser.init-push();
   $parser.push($chunk);
@@ -402,11 +400,12 @@ method FALLBACK($key, |c) is rw is hidden-from-backtrace {
   $parser.get-option($name);
   $parser.set-option($name, $value);
   $parser.set-options(name => $value, ...);
-  
+
   # XML catalogs
   my LibXML $parser .= new: catalog => $catalog-file, |%opts
   # -OR-
   $parser.load-catalog( $catalog-file );
+  =end code
 
 =head2 Parsing
 
@@ -488,14 +487,14 @@ DOM tree. The function can be called as a class method or an object method. In
 both cases it internally creates a new parser instance passing the specified
 parser options; if called as an object method, it clones the original parser
 (preserving its settings) and additionally applies the specified options to the
-new parser. See the constructor `new` and L<Parser Options> for more information. 
+new parser. See the constructor `new` and L<Parser Options> for more information.
 
 Note: Although this method usually returns a `LibXML::Document` object. It can be requisitioned to return other document types by providing
 a `:sax-handler` that returns an alternate document via a `publish()` method. See L<LibXML::SAX::Builder>. L<LibXML::SAX::Handler::XML>, for example produces pure Raku XML document objects.
 
 =head4 method parse - `:html` option
 
-  use LibXML::Document :HTML;  
+  use LibXML::Document :HTML;
   my HTML $dom = LibXML.parse: :html, ...;
   my HTML $dom = $parser.parse: :html, ...;
 
@@ -733,7 +732,7 @@ Each of the flags listed below is labeled
 =begin item1
 /parser/
 
-if it can be used with a L<LibXML> parser object (i.e. passed to C<LibXML.new>, C<LibXML.set-option>, etc.) 
+if it can be used with a L<LibXML> parser object (i.e. passed to C<LibXML.new>, C<LibXML.set-option>, etc.)
 
 =end item1
 
@@ -751,7 +750,7 @@ if it can be used with the L<LibXML::Reader>.
 
 =end item1
 
-Unless specified otherwise, the default for boolean valued options is False. 
+Unless specified otherwise, the default for boolean valued options is False.
 
 The available options are:
 
@@ -787,10 +786,10 @@ line-numbers
 If this option is activated, libxml2 will store the line number of each element
 node in the parsed document. The line number can be obtained using the C<line-number()> method of the L<LibXML::Node> class (for non-element nodes this may report the line number of the containing
 element). The line numbers are also used for reporting positions of validation
-errors. 
+errors.
 
 IMPORTANT: Due to limitations in the libxml2 library line numbers greater than
-65535 will be returned as 65535. Please see L<http://bugzilla.gnome.org/show_bug.cgi?id=325533> for more details. 
+65535 will be returned as 65535. Please see L<http://bugzilla.gnome.org/show_bug.cgi?id=325533> for more details.
 
 =end item1
 
@@ -958,7 +957,7 @@ Enable network access; default False
 All attempts to fetch non-local resources (such as DTD or
 external entities) will fail unless set to True (or custom input-callbacks are defined).
 
-It may be necessary to use the flag C<recover> for processing documents requiring such resources while networking is off. 
+It may be necessary to use the flag C<recover> for processing documents requiring such resources while networking is off.
 
 =end item1
 
@@ -1012,7 +1011,7 @@ recover-silently
 
   $parser.recover-silently = True;
 
-If called without an argument, returns true if the current value of the C<recover> parser option is 2 and returns false otherwise. With a true argument sets the C<recover> parser option to 2; with a false argument sets the C<recover> parser option to 0. 
+If called without an argument, returns true if the current value of the C<recover> parser option is 2 and returns false otherwise. With a true argument sets the C<recover> parser option to 2; with a false argument sets the C<recover> parser option to 0.
 
 =end item1
 
@@ -1021,11 +1020,11 @@ If called without an argument, returns true if the current value of the C<recove
 C<libxml2> supports XML catalogs. Catalogs are used to map remote resources to their local
 copies. Using catalogs can speed up parsing processes if many external
 resources from remote addresses are loaded into the parsed documents (such as
-DTDs or XIncludes). 
+DTDs or XIncludes).
 
 Note that libxml2 has a global pool of loaded catalogs, so if you apply the
 method C<load-catalog> to one parser instance, all parser instances will start using the catalog (in
-addition to other previously loaded catalogs). 
+addition to other previously loaded catalogs).
 
 Note also that catalogs are not used when a custom external entity handler is
 specified. At the current state it is not possible to make use of both types of

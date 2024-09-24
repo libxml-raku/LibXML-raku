@@ -46,7 +46,7 @@ Both [LibXML::Node::Set](https://libxml-raku.github.io/LibXML-raku/Node/Set) and
 
 This is the nodes in the set or list collated by tag-name.
 
-Several container types are available: 
+Several container types are available:
 
   * `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans, nodes or node-sets.
 

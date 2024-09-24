@@ -555,14 +555,13 @@ multi method validate($doc: LibXML::Element:D $elem, LibXML::Attr $attr?, Bool :
 
 #| Gets or sets the root element of the Document.
 method documentElement is rw is also<root> returns LibXML::Element {
-    Proxy.new(
-        FETCH => sub ($) {
+        sub FETCH($) {
             self.getDocumentElement;
-        },
-        STORE => sub ($, LibXML::Node $elem) {
+        }
+        sub STORE($, LibXML::Node $elem) {
             self.setDocumentElement($elem);
         }
-    );
+        Proxy.new: :&FETCH, :&STORE;
 }
 =begin pod
     =para
@@ -830,11 +829,11 @@ method setEncoding(xmlEncodingStr $enc) { $.encoding = $enc }
 
 #| Gets or sets the internal DTD for the document.
 method internalSubset is rw returns LibXML::Dtd {
-    Proxy.new( FETCH => sub ($) { self.getInternalSubset },
-               STORE => sub ($, LibXML::Dtd $dtd) {
-                     self.setInternalSubset($dtd);
-                 }
-             );
+     sub FETCH($) { self.getInternalSubset }
+     sub STORE($, LibXML::Dtd $dtd) {
+         self.setInternalSubset($dtd);
+     }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 method getExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
@@ -859,11 +858,11 @@ method removeExternalSubset(--> LibXML::Dtd) is dom-boxed {...}
 
 #| Gets or sets the external DTD for a document.
 method externalSubset is rw returns LibXML::Dtd {
-    Proxy.new( FETCH => sub ($) { self.getExternalSubset },
-               STORE => sub ($, LibXML::Dtd $dtd) {
-                     self.setExternalSubset($dtd);
-                 }
-             );
+    sub FETCH($) { self.getExternalSubset }
+    sub STORE($, LibXML::Dtd $dtd) {
+        self.setExternalSubset($dtd);
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 
 proto method parser(|) handles<parse parseFromString> {*}

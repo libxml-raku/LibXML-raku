@@ -193,7 +193,6 @@ has &!external-entity-loader;
 proto method external-entity-loader() {*}
 multi method external-entity-loader(::?CLASS:U:) is rw { $singleton.external-entity-loader }
 multi method external-entity-loader(::?CLASS:D:) is rw {
-#method external-entity-loader(--> Callable) is rw {
     Proxy.new(
         FETCH => { &!external-entity-loader },
         STORE => -> $, &loader {

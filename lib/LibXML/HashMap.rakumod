@@ -72,7 +72,7 @@ method keys  {
 method values {
     my $buf := self!CArray;
     $.raw.values($buf);
-    $buf.map: {   
+    $buf.map: {
         $.thaw($_);
     }
 }
@@ -90,16 +90,23 @@ method kv {
      my $kv := self!CArray(:$len);
      $.raw.key-values($kv);
      my size_t $i = 0;
-     $kv.map: {   
+     $kv.map: {
          $i++ %% 2 ?? nativecast(Str, $_) !! $.thaw($_);
      }
 }
 method Hash { %( self.pairs ) }
 method AT-KEY(Str() $key) is rw {
-    Proxy.new(
-        FETCH => {with $.raw.LookupNs($key) { self.thaw($_) } else { self.of } },
-        STORE => -> $, $val { self.ASSIGN-KEY($key, $val) },
-    )
+    sub FETCH($) {
+        with $.raw.LookupNs($key) {
+            self.thaw($_)
+        }
+        else {
+            self.of }
+    }
+    sub STORE($, $val) {
+        self.ASSIGN-KEY($key, $val);
+    }
+    Proxy.new: :&FETCH, :&STORE;
 }
 method EXISTS-KEY(Str() $key) { $.raw.LookupNs($key).defined; }
 method ASSIGN-KEY(Str() $key, $val) is rw {
@@ -229,7 +236,7 @@ a `LibXML::HashMap[LibXML::Node::Set]` object. For example
 
 This is the nodes in the set or list collated by tag-name.
 
-Several container types are available:  
+Several container types are available:
 
   =item `LibXML::HashMap` By default XPath objects are used to store strings, floats, booleans, nodes or node-sets.
   =item `LibXML::HashMap[UInt]` - Positive integers
