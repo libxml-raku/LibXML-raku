@@ -188,7 +188,7 @@ class xmlBuffer32 is repr(Opaque) is export {
 
 #| New buffer structure, introduced in libxml 2.09.00, the actual structure internals are not public
 class xmlBuf is repr(Opaque) is export {
-    our sub New(--> xmlBuf) is native($XML2) is symbol('xmlBufCreate') {*}
+    our sub New(size_t --> xmlBuf) is native($XML2) is symbol('xmlBufCreate') {*}
     method Write(xmlCharP --> int32) is native($XML2) is symbol('xmlBufCat') {*}
     method WriteQuoted(xmlCharP --> int32) is native($XML2) is symbol('xmlBufWriteQuotedString') {*}
     method NodeDump(xmlDoc $doc, anyNode $cur, int32 $level, int32 $format --> int32) is native($XML2) is symbol('xmlBufNodeDump') { * }
@@ -208,7 +208,7 @@ class xmlBuf is repr(Opaque) is export {
     }
     method Str { self.Blob.decode }
     method Free is symbol('xmlBufFree') is native($XML2) { * }
-    method new(--> xmlBuf:D) { New() }
+    method new(UInt:D :$size = 0 --> xmlBuf:D) { New($size) }
 }
 
 # type defs
