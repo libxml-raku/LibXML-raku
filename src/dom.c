@@ -602,7 +602,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     return 1;
 }
 
-static void _domScanEntry(void* value, int* refs, xmlChar* key ATTRIBUTE_UNUSED) {
+static void _domScanEntry(void* value, int* refs, xmlChar*) {
     if (value != NULL && ((xmlNodePtr)value)->_private != NULL) {
         (*refs)++;
     }
@@ -1300,14 +1300,15 @@ domGetNodeValue( xmlNodePtr n ) {
                 /* ok then toString in this case ... */
                 while (cnode) {
                     xmlBufferPtr buffer = xmlBufferCreate();
-                    /* buffer = xmlBufferCreate(); */
+                    const xmlChar* content;
                     xmlNodeDump( buffer, n->doc, cnode, 0, 0 );
-                    if ( buffer->content != NULL ) {
+                    content = xmlBufferContent( buffer );
+                    if ( content != NULL ) {
                         if ( rv != NULL ) {
-                            rv = xmlStrcat( rv, buffer->content );
+                            rv = xmlStrcat( rv, content );
                         }
                         else {
-                            rv = xmlStrdup( buffer->content );
+                            rv = xmlBufferDetach( buffer );
                         }
                     }
                     xmlBufferFree( buffer );
@@ -1993,8 +1994,7 @@ domAttrSerializeContent(xmlAttrPtr attr) {
         children = children->next;
     }
 
-    rv = buffer->content;
-    buffer->content = NULL;
+    rv = xmlBufferDetach(buffer);
     xmlBufferFree( buffer );
 
     return rv;

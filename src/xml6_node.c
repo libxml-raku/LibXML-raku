@@ -153,11 +153,10 @@ DLLEXPORT xmlChar* xml6_node_to_buf(xmlNodePtr self, int options, size_t* len, c
         xmlSaveClose(save_ctx);
 
         if (stat >= 0) {
-            rv = buffer->content;
-            buffer->content = NULL;
             if (len != NULL) {
-                *len = buffer->use;
+                *len = xmlBufferLength(buffer);
             }
+            rv = xmlBufferDetach(buffer);
         }
         xmlBufferFree(buffer);
     }
