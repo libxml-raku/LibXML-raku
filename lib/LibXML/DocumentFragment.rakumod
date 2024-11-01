@@ -60,9 +60,11 @@ use LibXML::Element;
 use LibXML::Node;
 use NativeCall;
 use Method::Also;
-use LibXML::Parser::Context;
 
-class ParserContext is LibXML::Parser::Context {
+class ParserContext {
+    use LibXML::Parser::Context;
+    also is LibXML::Parser::Context;
+
     has LibXML::DocumentFragment $.doc-frag is required;
     has Int $.stat is rw;
     has Str $.string;
@@ -72,9 +74,7 @@ class ParserContext is LibXML::Parser::Context {
 
     submethod DESTROY {
         $lock.protect: {
-            if $!nodes {
-                $!nodes.FreeList();
-            }
+            .FreeList() with $!nodes;
         }
     }
     method publish {

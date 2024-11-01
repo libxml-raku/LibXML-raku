@@ -913,7 +913,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method GetNodePath(--> xmlAllocedStr) is native($XML2) is symbol('xmlGetNodePath') {*}
     method AddChild(anyNode --> anyNode) is native($XML2) is symbol('xmlAddChild') {*}
     method AddChildList(anyNode --> anyNode) is native($XML2) is symbol('xmlAddChildList') {*}
-    method AddContent(xmlCharP) is native($XML2) is symbol('xmlNodeAddContent') {*}
+    method AddContent(xmlCharP --> int32) is native($XML2) is symbol('xmlNodeAddContent') {*}
     method SetContext(xmlXPathContext --> int32) is symbol('xmlXPathSetContextNode') is native($XML2) {*}
     method XPathEval(Str, xmlXPathContext --> xmlXPathObject) is symbol('xmlXPathNodeEval') is native($XML2) {*}
     method domXPathSelectStr(Str --> xmlNodeSet) is native($BIND-XML2) {*}

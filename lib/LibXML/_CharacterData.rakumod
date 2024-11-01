@@ -15,21 +15,18 @@ multi method new(Str:D() $content, *%c) {
 
 method data {...}
 method cloneNode {...}
-method !substr(|c) {$.data.substr(|c)}
-method !substr-rw(|c) is rw {$.data.substr-rw(|c)}
-
 method length { $.data.chars }
 
 # DOM Boot-leather
-method substringData(UInt:D $off, UInt:D $len --> Str) { self!substr($off, $len) }
-method appendData(Str:D $val --> Str) { self!substr-rw(*-0, 0) = $val }
-method insertData(UInt:D $pos, Str:D $val) { self!substr-rw($pos, 0) = $val; }
-method setData(Str:D $val --> Str) { self!substr-rw(0, *) = $val; }
+method substringData(UInt:D $off, UInt:D $len --> Str) { $.data.substr($off, $len) }
+method appendData(Str:D $val --> Str) { self.appendText($val); $.data; }
+method insertData(UInt:D $pos, Str:D $val) { $.data.substr-rw($pos, 0) = $val; }
+method setData(Str:D $val --> Str) { $.data = $val; }
 method getData returns Str { $.data }
 multi method replaceData(UInt:D $off, UInt:D $length, Str:D $val --> Str) {
     my $len = $.length;
     if $len > $off {
-        self!substr-rw($off, $length) = $val;
+        $.data.substr-rw($off, $length) = $val;
     }
     else {
         Str
