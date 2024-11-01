@@ -221,7 +221,7 @@ role LibXML::ErrorHandling {
     #| should be called from TWEAK
     method init-local-error-handling(&cb = &structured-error-cb) {
         $!global-error-handling = False;
-        self.raw.SetErrorHandler: &cb, Pointer;
+        self.raw.SetErrorHandler: &cb;
     }
 
     # SAX External Callback
