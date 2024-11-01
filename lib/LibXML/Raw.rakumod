@@ -382,7 +382,12 @@ class xmlParserInput is export {
     has int32                    $.standalone; # Was that entity marked standalone
     has int32                            $.id; # a unique identifier for the entity
 
+    # since libxml 2.14.0
+    our sub NewFromString(Str $url, Str $str, int32 $flags --> ::?CLASS) is native($XML2) is symbol('xmlNewInputFromString') {*}
     method Free is native($XML2) is symbol('xmlFreeInputStream') {*}
+    method new(Str:D :$string!, Str :$url, UInt:D :$flags = 0) {
+        NewFromString($url, $string, $flags);
+    }
 }
 
 #| An XML Element content as stored after parsing an element definition
@@ -1632,6 +1637,8 @@ class xmlParserCtxt is export {
     method UseOptions(int32 --> int32) is native($XML2) is symbol('xmlCtxtUseOptions') { * }
     method NewInputStream(xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native($XML2) is symbol('xmlNewIOInputStream') is export {*}
     method NewInputFile(Str --> xmlParserInput) is native($XML2) is export is symbol('xmlNewInputFromFile') {*}
+    # available since libxml2 v2.14.0
+    method ParseContent(xmlParserInput, xmlNode, int32 $has-text-decl --> xmlNode) is native($XML2) is export is symbol('xmlCtxtParseContent') {*}
     # deprecated
     method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     # recommended libxml 2.13.0+

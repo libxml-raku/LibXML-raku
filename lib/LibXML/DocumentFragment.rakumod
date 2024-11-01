@@ -2,6 +2,7 @@
 unit class LibXML::DocumentFragment;
 
 use LibXML::Node;
+use LibXML::Enums;
 use LibXML::Raw;
 use LibXML::_ParentNode;
 use LibXML::_Rawish;
@@ -66,13 +67,13 @@ class ParserContext is LibXML::Parser::Context {
     has Int $.stat is rw;
     has Str $.string;
     has Pointer $.user-data;
-    has Pointer[xmlNode] $.nodes is rw .= new();
+    has xmlNode $.nodes is rw;
     my Lock:D $lock .= new;
 
     submethod DESTROY {
         $lock.protect: {
             if $!nodes {
-                $!nodes.deref.FreeList(); ;
+                $!nodes.FreeList();
             }
         }
     }
@@ -81,8 +82,8 @@ class ParserContext is LibXML::Parser::Context {
         my xmlNode $rv;
         $lock.protect: {
             if $!nodes {
-                $rv = $!nodes.deref;
-                $!nodes .= new();
+                $rv = $!nodes;
+                $!nodes = Nil;
             }
         }
         $rv;
@@ -123,7 +124,7 @@ proto method parse(
 
 multi method parse(
   ::?CLASS:U:
-  Str:D() :$string, 
+  Str:D() :$string,
   Bool :balanced($)! where .so,
   Pointer :$user-data,
  |c) is hidden-from-backtrace {
@@ -143,16 +144,31 @@ multi method parse(
     $ctx.do: {
         # simple closures tend to leak on native callbacks. use dynamic variables
         my $ctx := $*XML-CONTEXT;
-        my xmlSAXHandler $sax = .raw with $ctx.sax-handler;
-        my $doc = $ctx.doc-frag.raw.doc;
-        my Pointer $user-data = $ctx.user-data;
-        temp LibXML::Raw.KeepBlanksDefault = $ctx.keep-blanks;
 
-        $ctx.stat = ($doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
-            ($sax // xmlSAXHandler), ($ctx.user-data // Pointer), 0, $ctx.string, $ctx.nodes, +$ctx.recover
-        );
-    };
+        if $.config.version >= v2.14.0 {
+            my xmlDoc:D $doc = self.raw.doc // xmlDoc.new;
+            my $raw = ($doc.type == XML_HTML_DOCUMENT_NODE
+                ?? htmlParserCtxt.new
+                !! xmlParserCtxt.new);
+            my xmlParserInput $input .= new: :$string;
+            $raw.myDoc = $doc;
+            $ctx.set-raw: $raw;
+            $ctx.nodes = $raw.ParseContent($input, $doc, 0);
+        }
+        else {
+            my xmlSAXHandler $sax = .raw with $ctx.sax-handler;
+            my $doc = $ctx.doc-frag.raw.doc;
+            my Pointer $user-data = $ctx.user-data;
+            temp LibXML::Raw.KeepBlanksDefault = $ctx.keep-blanks;
+            my Pointer[xmlNode] $nodes-p .= new;
+            $ctx.stat = ($doc // xmlDoc).xmlParseBalancedChunkMemoryRecover(
+                            ($sax // xmlSAXHandler), ($ctx.user-data // Pointer), 0, $ctx.string, $nodes-p, +$ctx.recover
+                        );
+            $ctx.nodes = $nodes-p ?? $nodes-p.deref !! Nil;
+        }
 
+        LEAVE .close() with $ctx;
+    }
     # just in case, we didn't catch the error
     die "balanced parse failed with status {$ctx.stat}"
         if $ctx.stat && !$ctx.recover;

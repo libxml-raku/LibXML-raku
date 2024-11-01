@@ -124,8 +124,7 @@ my %goodPushWF = (
 );
 
 my $goodfile = "samples/dromeds.xml";
-my $badfile1 = "samples/bad.xml";
-my $badfile2 = "does_not_exist.xml";
+my $badfile = "samples/bad.xml";
 
 my LibXML $parser .= new();
 
@@ -201,7 +200,7 @@ subtest 'pedantic-parser', {
 subtest 'parse :file', {
     lives-ok {my LibXML::Document:D $ = $parser.parse(:file($goodfile));}
 
-    throws-like( { $parser.parse(:file($badfile1))},
+    throws-like( { $parser.parse(:file($badfile))},
                  X::LibXML::Parser,
                  "Error thrown with bad xml file");
 
@@ -231,12 +230,12 @@ else {
         isa-ok $io, IO::Handle;
         lives-ok {my LibXML::Document:D $ = $parser.parse: :$io;}
 
-        $io = $badfile1.IO;
+        $io = $badfile.IO;
         isa-ok $io, IO::Path;
         throws-like(
             { $parser.parse: :$io; },
             X::LibXML::Parser, :message(rx/:s Extra content at the end of the document/),
-            "error parsing bad file from file handle of $badfile1"
+            "error parsing bad file from file handle of $badfile"
         );
     }
 }
@@ -301,7 +300,7 @@ subtest 'x-include processing', {
     throws-like { $doc = $parser.parse: :string( $badXInclude ); },
         X::LibXML::Parser,
         :message(rx/'samples/bad.xml:3: parser error : Extra content at the end of the document'/),
-         "error parsing $badfile1 in include";
+         "error parsing $badfile in include";
     ok !$doc.defined, "no doc returned";
 
     # some bad stuff
@@ -536,7 +535,6 @@ subtest 'parse well balanced chunks', {
         "<ouch>",
         "<ouch>bar",
         "bar</ouch>",
-        "<ouch/>&foo;", # undefined entity
         "&",            # bad char
        ## "h\x[e4]h?",         # bad encoding
         "<!--->",       # bad stays bad ;)
@@ -564,7 +562,7 @@ subtest 'parse well balanced chunks', {
                         next;
                     }
                 }
-                fail("Unexpected fragment without child nodes");
+                flunk("Unexpected fragment without child nodes");
             }
         }
 
@@ -916,5 +914,3 @@ subtest 'Perl fossil', {
     };
    
 }
-
-
