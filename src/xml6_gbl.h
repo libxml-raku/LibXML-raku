@@ -8,6 +8,9 @@
 # define XML6_GBL_COMPAT_OLD_ERRORS 1
 #endif
 
+#if LIBXML_VERSION < 21400
+# define XML6_GBL_COMPAT_KEEP_BLANKS 1
+#endif
 
 DLLEXPORT void xml6_gbl_init(void);
 

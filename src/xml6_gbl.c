@@ -67,11 +67,17 @@ DLLEXPORT void xml6_gbl_os_thread_set_tag_expansion(int flag) {
 }
 
 DLLEXPORT int xml6_gbl_os_thread_get_keep_blanks(void) {
+#ifdef XML6_GBL_COMPAT_KEEP_BLANKS
     return xmlKeepBlanksDefaultValue;
+#else
+    return -1;
+#endif
 }
 
 DLLEXPORT void xml6_gbl_os_thread_set_keep_blanks(int flag) {
+#ifdef XML6_GBL_COMPAT_KEEP_BLANKS
     xmlKeepBlanksDefaultValue = flag;
+#endif
 }
 
 DLLEXPORT void xml6_gbl_os_thread_xml_free(void* obj) {
