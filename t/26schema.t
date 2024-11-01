@@ -101,7 +101,7 @@ subtest 'schema :network option', {
 
     {
         my $schema = try { LibXML::Schema.new( location => $netfile ); };
-        like $!, /'I/O error : Attempt to load network entity'/, 'Schema from file location with external import throws an exception.';
+        like $!, /'I/O error :'.*' Attempt to load network entity'/, 'Schema from file location with external import throws an exception.';
         nok defined($schema), 'Schema from file location with external import and !network is not loaded.' ;
     }
     {
@@ -111,7 +111,7 @@ subtest 'schema :network option', {
           <xsd:import namespace="http://example.com/namespace" schemaLocation="http://example.com/xml.xsd"/>
         </xsd:schema>
         EOF
-        like( $!, /'I/O error : Attempt to load network entity'/, 'Schema from buffer with external import throws an exception.' );
+        like( $!, /'I/O error : '.*'Attempt to load network entity'/, 'Schema from buffer with external import throws an exception.' );
         nok( defined($schema), 'Schema from buffer with external import and !network is not loaded.' );
     }
 

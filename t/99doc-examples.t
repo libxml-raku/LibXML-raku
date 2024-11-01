@@ -157,7 +157,7 @@ subtest 'LibXML::Document' => {
     $doc.indexElements();
 
     if $*DISTRO.is-win {
-        skip 'todo - proper encoding/iconv on Winbdows', 2;
+        skip 'todo - proper encoding/iconv on Windows', 2;
     }
     else {
         $doc = LibXML.createDocument( '1.0', "ISO-8859-15" );

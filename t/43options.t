@@ -124,7 +124,7 @@ subtest 'network options', {
     $parser.expand_entities = True;
     is-deeply $parser.network, False;
     try { $parser.load: string => $XML };
-    like( $!, /'I/O error : Attempt to load network entity'/, 'Entity from network location throw error.' );
+    like( $!, /'I/O error : '.*'Attempt to load network entity'/, 'Entity from network location throw error.' );
     nok $net-access, 'no attempted network access';
     $parser.network = True;
     try { $parser.load: string => $XML };
