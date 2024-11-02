@@ -81,7 +81,7 @@ xml6_parser_ctx_close(xmlParserCtxtPtr self) {
         xmlParserInputPtr input = self->inputTab[i];
         xmlParserInputBufferPtr buf = input->buf;
         if (buf != NULL) {
-            if (buf->compressed != 0) {
+            if (buf->compressed > 0) {
                 compressed = 1;
             }
             xmlFreeParserInputBuffer(buf);
