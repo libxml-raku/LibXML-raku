@@ -27,7 +27,6 @@ Synopsis
     use LibXML::Document :XmlStandalone;
     if $doc.standalone == XmlStandaloneYes {...}
     $doc.standalone = XmlStandaloneNo;
-    my Bool $is-compressed = $doc.input-compressed;
     my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
     $doc.compression = $zip-level;
     my Str $html-tidy = $doc.Str: :$format, :$html;
@@ -229,7 +228,7 @@ Gets or sets output compression
 method input-compressed() returns Bool
 ```
 
-Detect whether input was compressed
+Detect whether input was compressed (deprecated)
 
 ```raku
 my LibXML::Document $doc .= parse<mydoc.xml.gz>;

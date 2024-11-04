@@ -557,25 +557,20 @@ subtest 'various encodings', {
 }
 
 subtest 'compress' => {
-    plan 5;
+    plan 3;
     use File::Temp;
     my LibXML::Document:D $doc .= parse: :file( "samples/test.xml" );
-    todo '$doc.input-compressed is unreliable in libxml <= v2.09.01'
-        if LibXML.version <= v2.09.01;
-    todo "this libxml library was built without compression" unless config.have-compression;
-    is-deeply $doc.input-compressed , False, 'input-compression of uncompressed document';
+
     if LibXML.have-compression {
         lives-ok { $doc = LibXML.parse: :file<test/compression/test.xml.gz> }, 'load compressed document';
-        is-deeply $doc.input-compressed, True, 'document input-compression';
         $doc.compression = 5;
         is $doc.compression, 5, 'set document compression';
         my (Str:D $file) = tempfile();
         my $n = $doc.write: :$file;
-        $doc = LibXML.parse: :$file;
-        is-deeply $doc.input-compressed , True, 'compression of written document';
+        lives-ok {$doc = LibXML.parse: :$file}, 'reload compressed document';
     }
     else {
-        skip "LibXML compression is not available for compression tests", 4;
+        skip "LibXML compression is not available for compression tests", 3;
     }
 }
 

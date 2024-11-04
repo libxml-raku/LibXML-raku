@@ -147,7 +147,7 @@ multi method parse(
 
         if $.config.version >= v2.14.0 {
             my xmlDoc:D $doc = self.raw.doc // xmlDoc.new;
-            my $raw = ($doc.type == XML_HTML_DOCUMENT_NODE
+            my $raw = ($doc.isHTMLish
                 ?? htmlParserCtxt.new
                 !! xmlParserCtxt.new);
             my xmlParserInput $input .= new: :$string;

@@ -51,7 +51,6 @@ use NativeCall;
         use LibXML::Document :XmlStandalone;
         if $doc.standalone == XmlStandaloneYes {...}
         $doc.standalone = XmlStandaloneNo;
-        my Bool $is-compressed = $doc.input-compressed;
         my Int $zip-level = 5; # zip-level (0..9), or -1 for no compression
         $doc.compression = $zip-level;
         my Str $html-tidy = $doc.Str: :$format, :$html;
@@ -331,8 +330,8 @@ method compression is rw returns Int {
     );
 }
 
-#| Detect whether input was compressed
-method input-compressed returns Bool {
+#| Detect whether input was compressed (deprecated)
+method input-compressed returns Bool is DEPRECATED {
    ? ($.raw.get-flags +& InputCompressed);
 }
 =begin pod
