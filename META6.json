@@ -108,5 +108,5 @@
     "JSON::Fast",
     "App::Prove6"
   ],
-  "version": "0.10.10"
+  "version": "0.10.11"
 }
