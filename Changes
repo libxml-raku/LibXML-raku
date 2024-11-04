@@ -1,14 +1,18 @@
 {{$NEXT}}
+
+0.10.10  2024-11-05T07:31:45+13:00
    - Deprecate LibXML::Document input-compressed() which has proven to
      be inconsistent across libxml2 versions and platforms.
    - Fix initialization in Lib:XML::ErrorHandling.set-error-handling()
    - Rework DocumentFragment balanced chunk parsing for news libxml
      2.14+ implementation. Remove deprecated xmlKeepBlanksGlobal from
      xml6 bindings.
-   - Fix some libxml2.14 test regressions.
+   - Fix some libxml2.14 test regressions and deprecation warnings
+     in xml6 bindings.
    - Fix xmlBufCreate() to pass 'size' argument.
-   - Break LibXML::DocumentFragment parse() method into multis; making
-     it consistent with LibXML::Parser
+   - Refactor LibXML::_CharacterData string manipulation methods
+   - Structure LibXML::DocumentFragment parse() method as multis;
+     making it consistent with LibXML::Parser
 
 0.10.9  2024-06-02T11:28:45+12:00
    - Deprecation of xmlLastError() global variable #111
