@@ -213,7 +213,7 @@ multi method new($external-id, $system-id, *%c) {
 
 has LibXML::Parser::Context $!parser-ctx;
 method !parser-ctx {
-    (self.defined ?? $!parser-ctx !! my $) //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new);
+    (self.defined ?? $!parser-ctx !! my $) //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new), :!local-errors;
 }
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8') is hidden-from-backtrace {

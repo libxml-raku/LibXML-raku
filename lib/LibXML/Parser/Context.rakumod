@@ -50,6 +50,7 @@ has Bool $.line-numbers;
 has $.input-callbacks;
 has $.sax-handler;
 has $!published;
+has Bool $.local-errors = self.config.version >= v2.13.00;
 
 method raw { $!raw }
 method close {
@@ -66,7 +67,7 @@ method set-raw(xmlParserCtxt $_) {
         .linenumbers = +?$!line-numbers;
         $!raw.sax = .raw with $!sax-handler;
         self.init-local-error-handling
-            unless self.config.version < v2.13.00;
+            if $!local-errors;
     }
     with $old {
         unless $!published {

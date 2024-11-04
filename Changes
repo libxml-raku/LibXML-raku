@@ -1,4 +1,6 @@
 {{$NEXT}}
+   - Disable local error handling for libxml2 2.13 Dtd parsing. Waiting
+     on https://gitlab.gnome.org/GNOME/libxml2/-/issues/808
 
 0.10.10  2024-11-05T07:31:45+13:00
    - Deprecate LibXML::Document input-compressed() which has proven to
@@ -7,7 +9,7 @@
    - Rework DocumentFragment balanced chunk parsing for news libxml
      2.14+ implementation. Remove deprecated xmlKeepBlanksGlobal from
      xml6 bindings.
-   - Fix some libxml2.14 test regressions and deprecation warnings
+   - Fix some libxml 2.14+ test regressions and deprecation warnings
      in xml6 bindings.
    - Fix xmlBufCreate() to pass 'size' argument.
    - Refactor LibXML::_CharacterData string manipulation methods
