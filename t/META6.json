@@ -1,0 +1,13 @@
+{
+  "description": "LibXML test suite modules",
+  "license": "Artistic-2.0",
+  "name": "LibXML::t",
+  "perl": "6.c",
+  "provides": {
+      "Collector": "lib/Collector.rakumod",
+      "Counter": "lib/Counter.rakumod",
+      "Stacker": "lib/Stacker.rakumod"
+  },
+  "source-url": "https://github.com/libxml-raku/LibXML-raku.git",
+  "version": "0.0.1"
+}

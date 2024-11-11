@@ -10,7 +10,7 @@ use LibXML::Config;
 
 LibXML::Config.parser-locking = True;
 
-use lib './t/lib';
+use lib 't';
 use Counter;
 
 use LibXML;

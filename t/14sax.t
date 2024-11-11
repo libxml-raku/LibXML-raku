@@ -10,7 +10,7 @@ use LibXML::Document;
 use LibXML::Node;
 use LibXML::Element;
 
-use lib 't/lib';
+use lib 't';
 use Collector;
 use Counter;
 use Stacker;
