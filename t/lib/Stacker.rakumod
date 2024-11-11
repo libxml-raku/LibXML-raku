@@ -1,8 +1,9 @@
-use  v6;
+unit class Stacker;
 use Collector;
+also is Collector;
 
-unit class Stacker is Collector;
 use Test;
+
 has @.stack is rw;
 has &.gen-cb;
 

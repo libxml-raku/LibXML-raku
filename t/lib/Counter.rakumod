@@ -1,7 +1,6 @@
-use v6;
+unit class Counter;
 use Collector;
-
-unit class Counter is Collector;
+also is Collector;
 use Test;
 has UInt $!count;
 
