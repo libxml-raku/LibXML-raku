@@ -14,8 +14,6 @@ use lib 't';
 use Counter;
 use Stacker;
 
-use LibXML;
-
 my Counter $read_hash_counter .= new(
     gen-cb => -> &inc-cb {
         -> $h, $n {

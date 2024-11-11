@@ -13,8 +13,6 @@ LibXML::Config.parser-locking = True;
 use lib 't';
 use Counter;
 
-use LibXML;
-
 my $string = q:to<EOF>;
 <x xmlns:xinclude="http://www.w3.org/2001/XInclude"><xml>test<xinclude:include href="/samples/test2.xml"/></xml></x>
 EOF

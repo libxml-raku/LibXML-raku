@@ -25,9 +25,7 @@ class SAXInternalParseTester { ... }
 sub _create_simple_counter {
     Counter.new(
         gen-cb => -> &inc-cb {
-            sub {
-                inc-cb();
-            }
+            &inc-cb;
         }
     );
 }
