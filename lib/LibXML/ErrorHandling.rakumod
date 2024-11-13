@@ -373,11 +373,10 @@ role LibXML::ErrorHandling {
         );
     }
 
-    method do(&action, :$raw!) is hidden-from-backtrace {
+    method do(::?CLASS:D $*XML-CONTEXT: &action, :$raw!) is hidden-from-backtrace {
         my $rv;
 
         protected sub () is hidden-from-backtrace {
-            my $*XML-CONTEXT = self;
             my $handlers;
             if $!global-error-handling {
                 $handlers := xml6_gbl::save-error-handlers();

@@ -125,11 +125,11 @@ DLLEXPORT void xml6_node_set_nsDef(xmlNodePtr self, xmlNsPtr ns) {
     self->nsDef = ns;
 }
 
-DLLEXPORT void xml6_node_set_content(xmlNodePtr self, xmlChar* new_content) {
+DLLEXPORT void xml6_node_set_content(xmlNodePtr self, const xmlChar* new_content) {
     assert(self != NULL);
     if (self->content) xmlFree(self->content);
 
-    self->content = xmlStrdup((const xmlChar *) new_content);
+    self->content = xmlStrdup(new_content);
 }
 
 DLLEXPORT int xml6_node_is_htmlish(xmlNodePtr self) {

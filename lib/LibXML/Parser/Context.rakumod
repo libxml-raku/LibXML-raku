@@ -106,14 +106,12 @@ method stop-parser {
 
 method try(|c) is hidden-from-backtrace is DEPRECATED<do> { self.do: |c }
 
-method do(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
+proto method do(|) {*}
+multi method do(::?CLASS:D $*XML-CONTEXT: &action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
 
     protected sub () is hidden-from-backtrace {
-        my $*XML-CONTEXT = self;
-        $_ = .new: :raw(xmlParserCtxt.new) without $*XML-CONTEXT;
-
         my @input-contexts = .activate with $*XML-CONTEXT.input-callbacks;
 
         die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
@@ -144,6 +142,11 @@ method do(&action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-fro
         }
     }
     $rv;
+}
+
+multi method do(::?CLASS:U: |c) {
+    my xmlParserCtxt $raw .= new;
+    self.new(:$raw).do: |c;
 }
 
 method FALLBACK($key, |c) is rw is hidden-from-backtrace {
