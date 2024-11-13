@@ -107,7 +107,7 @@ method stop-parser {
 method try(|c) is hidden-from-backtrace is DEPRECATED<do> { self.do: |c }
 
 proto method do(|) {*}
-multi method do(::?CLASS:D $*XML-CONTEXT: &action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
+multi method do(::?CLASS:D $*XML-CONTEXT: &action, Bool :$*recover = $.recover, Bool :$*check-valid) is hidden-from-backtrace {
 
     my $rv;
 
@@ -128,8 +128,8 @@ multi method do(::?CLASS:D $*XML-CONTEXT: &action, Bool :$recover = $.recover, B
         $rv := action();
 
         .flush-errors for @input-contexts;
-        $rv := $*XML-CONTEXT.is-valid if $check-valid;
-        $*XML-CONTEXT.flush-errors: :$recover;
+        $rv := $*XML-CONTEXT.is-valid if $*check-valid;
+        $*XML-CONTEXT.flush-errors: :$*recover;
         $*XML-CONTEXT.publish() without self;
 
         LEAVE {
