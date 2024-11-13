@@ -373,22 +373,23 @@ role LibXML::ErrorHandling {
         );
     }
 
-    method do(::?CLASS:D $*XML-CONTEXT: &action, :$raw!) is hidden-from-backtrace {
+    method do(::?CLASS:D $ctx: &action, :$raw!) is hidden-from-backtrace {
         my $rv;
 
         protected sub () is hidden-from-backtrace {
+            my $*XML-CONTEXT := $ctx;
             my $handlers;
             if $!global-error-handling {
                 $handlers := xml6_gbl::save-error-handlers();
                 $raw.SetStructuredErrorFunc: &structured-error-cb;
             }
-            my @prev = self.config.setup;
+            my @prev = $ctx.config.setup;
 
             $rv := &action();
 
-            self.flush-errors;
+            $ctx.flush-errors;
             LEAVE {
-                self.config.restore(@prev);
+                $ctx.config.restore(@prev);
                 xml6_gbl::restore-error-handlers($_)
                     with $handlers;
             }

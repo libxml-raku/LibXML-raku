@@ -107,35 +107,36 @@ method stop-parser {
 method try(|c) is hidden-from-backtrace is DEPRECATED<do> { self.do: |c }
 
 proto method do(|) {*}
-multi method do(::?CLASS:D $*XML-CONTEXT: &action, Bool :$*recover = $.recover, Bool :$*check-valid) is hidden-from-backtrace {
+multi method do(::?CLASS:D $ctx: &action, Bool :$recover = $.recover, Bool :$check-valid) is hidden-from-backtrace {
 
     my $rv;
 
     protected sub () is hidden-from-backtrace {
-        my @input-contexts = .activate with $*XML-CONTEXT.input-callbacks;
+        my $*XML-CONTEXT := $ctx;
+        my @input-contexts = .activate with $ctx.input-callbacks;
 
         die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
             if @input-contexts && !LibXML::Config.parser-locking;
 
         my $handlers;
-        if $*XML-CONTEXT.global-error-handling {
+        if $ctx.global-error-handling {
             $handlers := xml6_gbl::save-error-handlers();
-            $*XML-CONTEXT.SetStructuredErrorFunc: &structured-error-cb;
+            $ctx.SetStructuredErrorFunc: &structured-error-cb;
         }
         &*chdir(~$*CWD);
-        my @prev = self.config.setup();
+        my @prev = $ctx.config.setup();
 
         $rv := action();
 
         .flush-errors for @input-contexts;
-        $rv := $*XML-CONTEXT.is-valid if $*check-valid;
-        $*XML-CONTEXT.flush-errors: :$*recover;
-        $*XML-CONTEXT.publish() without self;
+        $rv := $ctx.is-valid if $check-valid;
+        $ctx.flush-errors: :$recover;
+        $ctx.publish() without self;
 
         LEAVE {
             self.config.restore(@prev);
 
-            .deactivate with $*XML-CONTEXT.input-callbacks;
+            .deactivate with $ctx.input-callbacks;
 
             xml6_gbl::restore-error-handlers($_)
                 with $handlers;
@@ -144,7 +145,7 @@ multi method do(::?CLASS:D $*XML-CONTEXT: &action, Bool :$*recover = $.recover, 
     $rv;
 }
 
-multi method do(::?CLASS:U: |c) {
+multi method do(::?CLASS:U: |c) is hidden-from-backtrace {
     my xmlParserCtxt $raw .= new;
     self.new(:$raw).do: |c;
 }
