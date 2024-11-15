@@ -1321,7 +1321,6 @@ class xmlDtd is anyNode is export {
     method Copy(--> xmlDtd) is native($XML2) is symbol('xmlCopyDtd') {*}
     method copy() { $.Copy }
 
-    our sub xmlCanonicPath(xmlCharP $systemID --> xmlAllocedStr) is native($XML2) {*}
     our sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native($XML2) {*}
     method IsXHTML returns int32 { xmlIsXHTML($!SystemID, $!ExternalID) }
     method getAttrDecl(xmlCharP $elem, xmlCharP $name --> xmlAttrDecl) is native($XML2) is symbol('xmlGetDtdAttrDesc') {*}

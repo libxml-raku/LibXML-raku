@@ -212,8 +212,10 @@ multi method new($external-id, $system-id, *%c) {
 =end pod
 
 has LibXML::Parser::Context $!parser-ctx;
-method !parser-ctx(Bool :$local-errors = False) {
-    (self.defined ?? $!parser-ctx !! my $) //= self.create: LibXML::Parser::Context, :raw(xmlParserCtxt.new), local-errors => $.config.version >= v2.14.0
+method !parser-ctx(Bool :$html) {
+    my $raw = ($html ?? htmlParserCtxt !! xmlParserCtxt).new;
+    my $local-errors = $.config.version >= v2.14.0;
+    (self.defined ?? $!parser-ctx !! my $) //= self.create: LibXML::Parser::Context, :$raw, :$local-errors;
 }
 
 multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8', Str :$external-id, Str :$system-id) is hidden-from-backtrace {
@@ -243,7 +245,8 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8', Str :$extern
 
 
 multi method parse(Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
-    my $ctx := self!parser-ctx;
+    my Bool() $html = xmlDtd::xmlIsXHTML($system-id, $external-id);
+    my $ctx := self!parser-ctx: :$html;
     my xmlDtd:D $raw = $ctx.do: {
         if $ctx.local-errors {
            my xmlParserInput $input = $ctx.raw.LoadDtd($external-id, $system-id);
