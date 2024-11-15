@@ -1,4 +1,6 @@
 {{$NEXT}}
+   - Re-enable local error handling for Dtd parsing. xmlCtxtParseDtd()
+     has been implemented in libxml2 2.14.0
 
 0.10.11  2024-11-05T09:21:51+13:00
    - Disable local error handling for libxml2 2.13 Dtd parsing. Waiting
@@ -8,12 +10,12 @@
    - Deprecate LibXML::Document input-compressed() which has proven to
      be inconsistent across libxml2 versions and platforms.
    - Fix initialization in Lib:XML::ErrorHandling.set-error-handling()
-   - Rework DocumentFragment balanced chunk parsing for news libxml
+   - Rework DocumentFragment balanced chunk parsing for pending libxml
      2.14+ implementation. Remove deprecated xmlKeepBlanksGlobal from
      xml6 bindings.
    - Fix some libxml 2.14+ test regressions and deprecation warnings
      in xml6 bindings.
-   - Fix xmlBufCreate() to pass 'size' argument.
+   - Fix xmlBufCreate() to require a 'size' argument.
    - Refactor LibXML::_CharacterData string manipulation methods
    - Structure LibXML::DocumentFragment parse() method as multis;
      making it consistent with LibXML::Parser

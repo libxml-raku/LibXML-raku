@@ -11,6 +11,7 @@ DLLEXPORT void xml6_parser_ctx_set_sax(xmlParserCtxtPtr, xmlSAXHandlerPtr);
 DLLEXPORT void xml6_parser_ctx_set_myDoc(xmlParserCtxtPtr, xmlDocPtr);
 DLLEXPORT htmlParserCtxtPtr xml6_parser_ctx_html_create_str(const xmlChar*, const char*);
 DLLEXPORT htmlParserCtxtPtr xml6_parser_ctx_html_create_buf(const xmlChar*, int, const char*);
+DLLEXPORT xmlParserInputPtr xml_parser_ctx_load_dtd(xmlParserCtxtPtr,  const xmlChar*, const xmlChar*);
 DLLEXPORT int xml6_parser_ctx_close(xmlParserCtxtPtr);
 
 #endif /* __XML6_PARSER_CTX_H */

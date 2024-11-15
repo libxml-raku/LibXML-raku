@@ -142,9 +142,6 @@ multi method parse(
     my ParserContext $ctx = $doc-frag.create: ParserContext, :$string, :$doc-frag, :$user-data, |c;
 
     $ctx.do: {
-        # simple closures tend to leak on native callbacks. use dynamic variables
-        my $ctx := $*XML-CONTEXT;
-
         if $.config.version >= v2.14.0 {
             my xmlDoc:D $doc = self.raw.doc // xmlDoc.new;
             my $raw = ($doc.isHTMLish

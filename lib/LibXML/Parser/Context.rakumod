@@ -112,7 +112,6 @@ multi method do(::?CLASS:D $ctx: &action, Bool :$recover = $.recover, Bool :$che
     my $rv;
 
     protected sub () is hidden-from-backtrace {
-        my $*XML-CONTEXT := $ctx;
         my @input-contexts = .activate with $ctx.input-callbacks;
 
         die "LibXML::Config.parser-locking needs to be enabled to allow parser-level input-callbacks"
@@ -126,6 +125,7 @@ multi method do(::?CLASS:D $ctx: &action, Bool :$recover = $.recover, Bool :$che
         &*chdir(~$*CWD);
         my @prev = $ctx.config.setup();
 
+        my $*XML-CONTEXT := $ctx;
         $rv := action();
 
         .flush-errors for @input-contexts;

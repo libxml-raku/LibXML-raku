@@ -278,9 +278,7 @@ class xmlXIncludeCtxt is repr(Opaque) is export {
     # legacy
     method SetStructuredErrorFunc(&error-func (xmlXIncludeCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     method ProcessNode(xmlNode --> int32) is native($XML2) is symbol('xmlXIncludeProcessNode') {*}
-    our sub ProcessNodeWTF(Pointer:D, xmlNode --> int32) is native($XML2) is symbol('xmlXIncludeProcessNode') {*}
     method Free()  is native($XML2) is symbol('xmlXIncludeFreeContext') {*}
-    
 }
 
 #| A mapping of name to axis function
@@ -1323,6 +1321,7 @@ class xmlDtd is anyNode is export {
     method Copy(--> xmlDtd) is native($XML2) is symbol('xmlCopyDtd') {*}
     method copy() { $.Copy }
 
+    our sub xmlCanonicPath(xmlCharP $systemID --> xmlAllocedStr) is native($XML2) {*}
     our sub xmlIsXHTML(xmlCharP $systemID, xmlCharP $publicID --> int32) is native($XML2) {*}
     method IsXHTML returns int32 { xmlIsXHTML($!SystemID, $!ExternalID) }
     method getAttrDecl(xmlCharP $elem, xmlCharP $name --> xmlAttrDecl) is native($XML2) is symbol('xmlGetDtdAttrDesc') {*}
@@ -1637,8 +1636,11 @@ class xmlParserCtxt is export {
     method UseOptions(int32 --> int32) is native($XML2) is symbol('xmlCtxtUseOptions') { * }
     method NewInputStream(xmlParserInputBuffer, int32 $enc --> xmlParserInput) is native($XML2) is symbol('xmlNewIOInputStream') is export {*}
     method NewInputFile(Str --> xmlParserInput) is native($XML2) is export is symbol('xmlNewInputFromFile') {*}
-    # available since libxml2 v2.14.0
+    method LoadDtd(xmlCharP $ext-id, xmlCharP $sys-id --> xmlParserInput) is native($BIND-XML2) is symbol('xml6_parser_ctx_load_dtd') {*}
+    #++ available since libxml2 v2.14.0
+    method ParseDtd(xmlParserInput, xmlCharP $ext-id, xmlCharP $int-id --> xmlDtd) is native($XML2) is export is symbol('xmlCtxtParseDtd') {*}
     method ParseContent(xmlParserInput, xmlNode, int32 $has-text-decl --> xmlNode) is native($XML2) is export is symbol('xmlCtxtParseContent') {*}
+    #-- available since libxml2 v2.14.0
     # deprecated
     method SetStructuredErrorFunc( &error-func (xmlParserCtxt $, xmlError $)) is native($XML2) is symbol('xmlSetStructuredErrorFunc') {*};
     # recommended libxml 2.13.0+

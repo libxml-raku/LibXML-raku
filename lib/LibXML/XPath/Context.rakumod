@@ -187,24 +187,24 @@ sub structured-error-cb($ctx, xmlError:D $err) is export(:structured-error-cb) {
         CATCH { default { note "error handling XML structured error: $_" } }
         $*XPATH-CONTEXT.structured-error($err);
 }
-method !do(&action) is hidden-from-backtrace {
+method !do(::?CLASS:D $ctx: &action) is hidden-from-backtrace {
     my $rv;
 
     protected sub () is hidden-from-backtrace {
         my $handlers;
-        if self.global-error-handling {
+        if $ctx.global-error-handling {
             $handlers = xml6_gbl::save-error-handlers();
-            self.SetGenericErrorFunc: &generic-error-cb;
+            $ctx.SetGenericErrorFunc: &generic-error-cb;
         }
-        my $*XPATH-CONTEXT = self;
-        my @prev = self.config.setup;
+        my @prev = $ctx.config.setup;
 
+        my $*XPATH-CONTEXT = $ctx;
         $rv := &action();
 
-        self.flush-errors;
+        $ctx.flush-errors;
 
         LEAVE {
-            self.config.restore(@prev);
+            $ctx.config.restore(@prev);
             xml6_gbl::restore-error-handlers($_)
                 with $handlers;
         }
@@ -218,9 +218,7 @@ multi method registerNs(QName:D :$prefix!, Str :$uri --> Zero) {
 }
 multi method registerNs(QName:D $prefix!, Str $uri? --> Zero) {
     my $stat = self!do: {
-        $uri
-            ?? $!raw.RegisterNs($prefix, $uri)
-            !! $!raw.RegisterNs($prefix, Str);
+        $!raw.RegisterNs($prefix, $uri)
     }
     die "XPathContext: cannot {$uri ?? '' !! 'un'}register namespace"
        if $stat == -1;
@@ -331,8 +329,8 @@ method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
         $name, $uri,
         -> xmlXPathParserContext $ctxt, Int $n {
             CATCH { default { $ctxt.valuePush: callback-error($_) } }
-            my @params = (self.get-value($ctxt.valuePop) xx $n);
-            my $ret = &func(|@params.reverse, |args) // '';
+            my @params = reverse(self.get-value($ctxt.valuePop) xx $n);
+            my $ret = &func(|@params, |args) // '';
             my xmlXPathObject:D $out := xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret, :$ctxt);
             $ctxt.valuePush($_) for $out;
         }

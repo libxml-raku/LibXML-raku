@@ -2,6 +2,7 @@
 #include "xml6_parser_ctx.h"
 #include "xml6_ref.h"
 #include <assert.h>
+#include <libxml/uri.h>
 
 DLLEXPORT void xml6_parser_ctx_add_reference(xmlParserCtxtPtr self) {
     assert(self != NULL);
@@ -71,6 +72,40 @@ xml6_parser_ctx_html_create_buf(const xmlChar *buf, int len, const char *encodin
     }
 
     return(ctxt);
+}
+
+DLLEXPORT xmlParserInputPtr xml6_parser_ctx_load_dtd(xmlParserCtxtPtr self,  const xmlChar* ExternalID, const xmlChar* SystemID) {
+    xmlParserInputPtr input = NULL;
+    xmlChar* systemIdCanonic;
+    if ((ExternalID == NULL) && (SystemID == NULL)) return(NULL);
+
+    /*
+     * Canonicalise the system ID
+     */
+    systemIdCanonic = xmlCanonicPath(SystemID);
+    if ((SystemID != NULL) && (systemIdCanonic == NULL)) {
+	return(NULL);
+    }
+
+    /*
+     * Ask the Entity resolver to load the damn thing
+     */
+
+    if ((self->sax != NULL) && (self->sax->resolveEntity != NULL))
+	input = self->sax->resolveEntity(self->userData, ExternalID,
+	                                 systemIdCanonic);
+    if (input == NULL) {
+	if (systemIdCanonic != NULL)
+	    xmlFree(systemIdCanonic);
+	return(NULL);
+    }
+
+    if (input->filename == NULL)
+	input->filename = (char *) systemIdCanonic;
+    else
+	xmlFree(systemIdCanonic);
+
+    return input;
 }
 
 DLLEXPORT int
