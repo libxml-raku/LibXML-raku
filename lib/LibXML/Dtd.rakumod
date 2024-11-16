@@ -19,6 +19,7 @@ use LibXML::Dtd::Entity;
 use LibXML::Dtd::Notation;
 use LibXML::HashMap;
 use LibXML::Config :&protected;
+use LibXML::Enums;
 use Method::Also;
 use NativeCall;
 use W3C::DOM;
@@ -242,21 +243,25 @@ multi method parse(Str :$string!, xmlEncodingStr:D :$enc = 'UTF-8', Str :$extern
     references with relative URLs.
 =end pod
 
-
-
 multi method parse(Str :$external-id, Str:D :$system-id!) is hidden-from-backtrace {
     my Bool() $html = xmlDtd::xmlIsXHTML($system-id, $external-id);
     my $ctx := self!parser-ctx: :$html;
-    my xmlDtd:D $raw = $ctx.do: {
+    my xmlDtd $raw;
+    $ctx.do: {
         if $ctx.local-errors {
            my xmlParserInput $input = $ctx.raw.LoadDtd($external-id, $system-id);
-           $ctx.raw.ParseDtd($_, $external-id, $system-id)
-               with $input;
+           $raw := $ctx.raw.ParseDtd($input, $external-id, $system-id);
+           unless $raw.defined || $ctx.will-die {
+               for $ctx.errors {
+                   .level = XML_ERR_ERROR
+                       if .code == XML_IO_ENOENT
+               }
+           }
         }
         else {
-            xmlDtd.parse: :$external-id, :$system-id;
+            $raw = xmlDtd.parse: :$external-id, :$system-id;
         }
-    };
+    }
     self.box: $raw
 }
 multi method parse(Str $external-id, Str $system-id) is default {

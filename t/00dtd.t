@@ -8,7 +8,7 @@ use LibXML::Element;
 use LibXML::Enums;
 use LibXML::ErrorHandling;
 
-plan 10;
+plan 11;
 
 my $string = q:to<EOF>;
     <!ELEMENT doc (head, descr)>
@@ -139,5 +139,16 @@ subtest 'doc with parameter entities' => {
     is $dtd.name, "Document", '.name';
     is $dtd.systemId, "parameter-entities.dtd", 'systemId';
     nok $dtd.publicId.defined, 'sans publicId';
+}
+
+subtest 'Dtd parse' => {
+    lives-ok {LibXML::Dtd.parse: :system-id<samples/ProductCatalog.dtd>};
+    if LibXML::Config.version >= v2.14.00 {
+        throws-like { LibXML::Dtd.parse: :system-id<samples/DoesNotExist.dtd> }, X::LibXML::Parser;
+    }
+    else {
+        skip "requires libxml2 >= v2.14.00";
+    }
+
 }
 

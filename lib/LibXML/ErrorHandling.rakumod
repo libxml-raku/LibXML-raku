@@ -30,7 +30,7 @@ class X::LibXML::Domain does X::LibXML {
         "Schematron validity",
     );
 
-    has UInt $.level = XML_ERR_ERROR;
+    has UInt $.level is rw = XML_ERR_ERROR;
     has UInt $.domain-num = XML_FROM_PARSER;
     method domain returns Str { @ErrorDomains[$!domain-num // 0] }
     has X::LibXML $.prev is rw;
@@ -214,7 +214,7 @@ role LibXML::ErrorHandling {
 
     method config {...}
     has Lock $.lock .= new;
-    has X::LibXML @!errors;
+    has X::LibXML @.errors;
     has UInt $.max-errors = self.config.max-errors;
     has $.global-error-handling is built = True;
 

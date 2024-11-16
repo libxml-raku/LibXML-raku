@@ -12,7 +12,7 @@ my $htmlSystem = "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd";
 
 subtest 'internalSubset', {
     my LibXML::Document:D $doc .= new;
-    my  LibXML::Dtd:D $dtd = $doc.createExternalSubset( "html",
+    my LibXML::Dtd:D $dtd = $doc.createExternalSubset( "html",
                                           $htmlPublic,
                                           $htmlSystem
                                         );
