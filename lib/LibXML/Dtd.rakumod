@@ -165,7 +165,7 @@ multi method new( Str:D :$type!,
 }
 
 # for Perl compatiblity
-multi method new($external-id, $system-id, *%c) {
+multi method new($external-id, $system-id, *%c) is hidden-from-backtrace {
     self.parse(:$external-id, :$system-id, |%c);
 }
 
@@ -251,16 +251,17 @@ multi method parse(Str :$external-id, Str:D :$system-id!) is hidden-from-backtra
         if $ctx.local-errors {
            my xmlParserInput $input = $ctx.raw.LoadDtd($external-id, $system-id);
            $raw := $ctx.raw.ParseDtd($input, $external-id, $system-id);
-           unless $raw.defined || $ctx.will-die {
-               for $ctx.errors {
-                   .level = XML_ERR_ERROR
-                       if .code == XML_IO_ENOENT
-               }
-           }
         }
         else {
             $raw = xmlDtd.parse: :$external-id, :$system-id;
         }
+
+        unless $raw.defined || $ctx.will-die {
+           for $ctx.errors {
+               .level = XML_ERR_ERROR
+                   if .code ~~ XML_IO_ENOENT|XML_IO_LOAD_ERROR;
+           }
+       }
     }
     self.box: $raw
 }

@@ -68,7 +68,7 @@ subtest 'childNodes sanity', {
 }
 
 subtest 'Perl ticket #2021', {
-    quietly { dies-ok { LibXML::Dtd.new("",""); } };
+    dies-ok { LibXML::Dtd.new("",""); };
     lives-ok {
         my LibXML::Dtd:D $dtd .= new('', 'samples/test.dtd');
     }, "LibXML::Dtd.new working correctly";
