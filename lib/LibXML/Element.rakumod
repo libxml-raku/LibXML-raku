@@ -131,14 +131,6 @@ multi method new(LibXML::Node :doc($owner), QName :$name!, LibXML::Namespace :ns
     self.box: xmlElem.new( :$name, :$doc, :$ns ), |%c;
 }
 
-#method raw handles<
-#        content
-#        getAttribute getAttributeNS getNamespaceDeclURI
-#        hasAttribute hasAttributeNS
-#        removeAttribute removeAttributeNS> {
-#    nativecast(xmlElem, self);
-#}
-
 =begin pod
     =head3 method new
 

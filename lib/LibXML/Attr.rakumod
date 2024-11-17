@@ -57,10 +57,6 @@ method new(LibXML::Node :doc($owner), QName:D :$name!, Str :$value!, *%c) {
     Class constructor.
 =end pod
 
-#method raw handles <atype name serializeContent> {
-#    nativecast(xmlAttr, self);
-#}
-
 #| Gets or sets the attribute stored for the value
 method value is rw returns Str { self.nodeValue }
 =para Str:U is returned if the attribute has no value
