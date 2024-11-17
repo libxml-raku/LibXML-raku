@@ -140,7 +140,7 @@ Returns child content for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
 =begin code :lang<raku>
 method potential-children(UInt :$max = 255) returns Array
 =end code
-Returns an array (up to size `$max`) of names, summarizing possible content for the nodes and
+Returns an array (up to size `$max`) of names, summarizing possible content for the node and
 its immediate children.
 
 =head3 method prefix

@@ -42,7 +42,7 @@ Notation declarations are an older mechanism that is sometimes used in a DTD to 
 
 has xmlNotation:D $.raw handles<Str type> is required;
 
-multi method new(Str:D :$name!, Str :$publicId, Str :$systemId, *%c) {
+method new(Str:D :$name!, Str :$publicId, Str :$systemId, *%c) {
     self.bless(raw => xmlNotation.new(:$name, :$publicId, :$systemId), |%c)
 }
 method box(xmlNotation:D $raw, |c --> LibXML::Dtd::Notation) {
