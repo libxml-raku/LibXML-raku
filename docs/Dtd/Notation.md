@@ -41,7 +41,7 @@ Notation declarations are an older mechanism that is sometimes used in a DTD to 
 method publicId() returns Str
 ```
 
-return the Public (External) ID
+Return the Public (External) ID
 
 ### method systemId
 

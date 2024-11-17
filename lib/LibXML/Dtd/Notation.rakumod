@@ -40,7 +40,7 @@ Notation declarations are an older mechanism that is sometimes used in a DTD to 
 
 =end pod
 
-has xmlNotation:D $.raw handles<Str type> is required;
+has xmlNotation:D $.raw handles<Str type publicId systemId> is required;
 
 method new(Str:D :$name!, Str :$publicId, Str :$systemId, *%c) {
     self.bless(raw => xmlNotation.new(:$name, :$publicId, :$systemId), |%c)
@@ -53,11 +53,19 @@ method isSame($_) is also<isSameNode> {
     .isa($?CLASS) && self.unique-key eq .unique-key
 }
 
-#| return the Public (External) ID
-method publicId(--> Str) { $.raw.publicId }
+=head3 method publicId
 
-#| Return the System ID
-method systemId(--> Str) { $.raw.systemId }
+=for code :lang<raku>
+method publicId() returns Str
+
+=para Return the Public (External) ID
+
+=head3 method systemId
+
+=for code :lang<raku>
+method systemId() returns Str
+
+=para Return the System ID
 
 # DOM
 

@@ -93,7 +93,7 @@ Returns child content for a node of type `XML_ELEMENT_CONTENT_ELEMENT`.
 method potential-children(UInt :$max = 255) returns Array
 ```
 
-Returns an array (up to size `$max`) of names, summarizing possible content for the nodes and its immediate children.
+Returns an array (up to size `$max`) of names, summarizing possible content for the node and its immediate children.
 
 ### method prefix
 
