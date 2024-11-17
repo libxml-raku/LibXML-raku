@@ -1,6 +1,9 @@
 {{$NEXT}}
-   - Re-enable local error handling for Dtd parsing. xmlCtxtParseDtd()
-     has been implemented in libxml2 2.14.0
+   - Re-enable local error handling for libxml 2.14, which resolves
+     https://gitlab.gnome.org/GNOME/libxml2/-/issues/808.
+   - Fix Dtd IO error handling by promoting some libxml2 warnings to errors.
+   - Create t/META6.json for test suite modules and rename test modules
+     from *.pm6 to *.rakumod
 
 0.10.11  2024-11-05T09:21:51+13:00
    - Disable local error handling for libxml2 2.13 Dtd parsing. Waiting

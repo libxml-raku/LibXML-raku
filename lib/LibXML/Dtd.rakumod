@@ -257,9 +257,10 @@ multi method parse(Str :$external-id, Str:D :$system-id!) is hidden-from-backtra
         }
 
         unless $raw.defined || $ctx.will-die {
-           for $ctx.errors {
+           with $ctx.errors.grep(*.code ~~ XML_IO_ENOENT|XML_IO_LOAD_ERROR).first {
                .level = XML_ERR_ERROR
-                   if .code ~~ XML_IO_ENOENT|XML_IO_LOAD_ERROR;
+           } else {
+               $ctx.errors.push: X::LibXML::AdHoc.new(:error("Unable to load external Dtd: $external-id"));
            }
        }
     }
@@ -396,14 +397,12 @@ class AttrDeclMap does LibXML::_Configurable {
                  %!cache{$k}
             }
             else {
-                %!cache{$k} = do {
-                                with $!map.AT-KEY($k) -> $raw {
-                                    self.create: DeclMap, :$raw, :$!dtd;
-                                }
-                                else {
-                                    DeclMap.of;
-                                }
+                %!cache{$k} = do with $!map.AT-KEY($k) -> $raw {
+                                self.create: DeclMap, :$raw, :$!dtd;
                             }
+                else {
+                    DeclMap.of;
+                }
             }
         }
     }
