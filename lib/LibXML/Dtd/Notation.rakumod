@@ -43,10 +43,12 @@ Notation declarations are an older mechanism that is sometimes used in a DTD to 
 has xmlNotation:D $.raw handles<Str type publicId systemId> is required;
 
 method new(Str:D :$name!, Str :$publicId, Str :$systemId, *%c) {
-    self.bless(raw => xmlNotation.new(:$name, :$publicId, :$systemId), |%c)
+    my xmlNotation:D $raw .= new(:$name, :$publicId, :$systemId);
+    self.bless: :$raw, |%c;
 }
-method box(xmlNotation:D $raw, |c --> LibXML::Dtd::Notation) {
-    self.bless: :raw(nativecast(xmlNotation, $raw.Copy)), |c
+method box(xmlNotation:D $raw is copy, |c --> LibXML::Dtd::Notation) {
+    $raw .= Copy;
+    self.bless: :$raw, |c
 }
 method unique-key returns Str { $.raw.UniqueKey.Str }
 method isSame($_) is also<isSameNode> {
