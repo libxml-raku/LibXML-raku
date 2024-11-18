@@ -80,7 +80,8 @@ also does LibXML::_Rawish[ xmlElem,
         my LibXML::Element @as = $elem<a>;  # equiv: $elem.getChildrenByLocalName('a');
         my $b-value  = $elem<@b>.Str;       # value of 'b' attribute
         my LibXML::Element @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes('*/z', :deref);
-        my $text-content = $elem<text()>;
+        my Str $text-content = $elem.to-literal; # or .textContent() or text()
+        my LibXML::Node::Set $text-nodes = $elem<text()>;
         say $_ for $elem.keys;   # @att-1 .. @att-n .. tag-1 .. tag-n
         say $_ for $elem.attributes.keys;   # att-1 .. att-n
         say $_ for $elem.childNodes.keys;   # 0, 1, ...
