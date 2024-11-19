@@ -213,6 +213,7 @@ subtest 'LibXML::Element' => {
     use LibXML::Attr::Map;
     use LibXML::Node;
     use LibXML::Document;
+    use LibXML::Node::Set;
 
     #++ setup
     my $name = 'test-elem';
@@ -283,6 +284,8 @@ subtest 'LibXML::Element' => {
     @nodes = $elem{$xpath-expression};  # xpath node selection
     my LibXML::Node @as = $elem<a>;  # equivalent to: $elem.findnodes<a>;
     my @z-grand-kids = $elem<*/z>;   # equiv: $elem.findnodes<*/z>;
+    my Str $text-content = $elem.to-literal;
+    my LibXML::Node::Set $text-nodes = $elem<text()>;
     $elem.setAttributeNS( $nsURI, $aname, $avalue );
     is $elem<@ns:att>.Str, "my-val";
     is $elem[0].Str, '<a>XXX</a>';

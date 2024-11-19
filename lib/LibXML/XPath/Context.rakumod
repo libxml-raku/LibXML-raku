@@ -372,7 +372,7 @@ method !find(LibXML::XPath::Expression:D $xpath-expr, LibXML::Node $ref-node?, B
         if $v ~~ xmlNodeSet {
             if $literal {
                 if $v.defined {
-                    given (^$v.nodeNr).map({$v.nodeTab[$_].delegate.string-value}).join {
+                    given (^$v.nodeNr).map({$v[$_].delegate.string-value}).join {
                         $v.Free;
                         $v := $_;
                     }
@@ -421,7 +421,7 @@ multi method first(Str:D $expr, LibXML::Node $ref?) {
 multi method first(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     my LibXML::Node $rv;
     with self!findnodes($expr, $ref) -> xmlNodeSet $_ {
-        $rv = self.box: LibXML::Item, .nodeTab[0]
+        $rv = self.box: LibXML::Item, .[0]
            if .nodeNr;
         .Free;
     }
@@ -443,9 +443,10 @@ multi method last(Str:D $expr, LibXML::Node $ref?) {
 }
 multi method last(LibXML::XPath::Expression:D $expr, LibXML::Node $ref?) {
     do with self!findnodes($expr, $ref) -> xmlNodeSet $nodes {
-        my $n := $nodes.nodeNr;
-        my itemNode $node = $nodes.nodeTab[$n - 1] if $n;
-        my $rv := self.box: LibXML::Item, $node;
+        my $rv = do if $nodes.nodeNr -> $n {
+            my itemNode $node = $nodes[$n - 1];
+            self.box: LibXML::Item, $nodes[$n - 1];
+        }
         $nodes.Free;
         $rv;
     } // LibXML::Node;

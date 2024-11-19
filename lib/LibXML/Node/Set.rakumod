@@ -22,20 +22,21 @@ has LibXML::Item $.of;
 has Bool $.deref;
 has xmlNodeSet $.raw;
 has $!hstore;
-has CArray $!nodeTab;
 
+our $count = 0;
 submethod TWEAK {
+    $count++;
     $!raw //= xmlNodeSet.new;
     .Reference given $!raw;
-    $!nodeTab = nativecast(CArray[$!of.raw], $!raw.nodeTab);
 }
 submethod DESTROY {
+    $count--;
     .Unreference with $!raw;
 }
 
 method elems is also<size Numeric> { $!raw.nodeNr }
 method Seq returns Seq handles<Array list values map grep> {
-    (^$!raw.nodeNr).map: { $!of.box: $!nodeTab[$_], :$.config };
+    (^$!raw.nodeNr).map: { $!of.box: $!raw[$_], :$.config };
 }
 
 method Hash handles <AT-KEY keys pairs> {
@@ -52,9 +53,7 @@ method Hash handles <AT-KEY keys pairs> {
     }
 }
 method AT-POS(UInt:D $pos) {
-    $pos >= $!raw.nodeNr
-        ?? $!of
-        !! $!of.box($!nodeTab[$pos], :$.config);
+    $!of.box($!raw[$pos], :$.config);
 }
 method add(LibXML::Item:D $node) is also<push> {
     constant Ref = 1;
@@ -62,7 +61,6 @@ method add(LibXML::Item:D $node) is also<push> {
         unless $node ~~ $!of;
     $!hstore ⚛= Nil;
     $!raw.push($node.raw.ItemNode, Ref);
-    $!nodeTab = nativecast(CArray[$!of.raw], $!raw.nodeTab);
     $node;
 }
 method pop {

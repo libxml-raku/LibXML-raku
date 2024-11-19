@@ -191,6 +191,14 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
     }
 }
 
+DLLEXPORT xmlNodePtr
+domNodeSetAtPos(xmlNodeSetPtr self, int i) {
+    if (i >= 0 && i < self->nodeNr) {
+        return self->nodeTab[i];
+    }
+    return NULL;
+}
+
 static xmlNodeSetPtr _domResizeNodeSet(xmlNodeSetPtr rv, int nodeMax) {
     xmlNodePtr *temp;
     int size;

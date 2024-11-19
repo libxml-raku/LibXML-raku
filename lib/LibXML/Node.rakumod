@@ -1,5 +1,3 @@
-use v6;
-
 #| Abstract base class of LibXML Nodes
 unit class LibXML::Node;
 
@@ -159,11 +157,15 @@ method native is DEPRECATED<raw> { self.raw }
 method domFailure { $.raw.domFailure.Str }
 method string-value { $.raw.string-value.Str }
 
+our $count = 0;
+
 submethod TWEAK {
+    $count++;
     $!raw.Reference;
 }
 
 submethod DESTROY {
+    $count--;
     $!raw.Unreference;
 }
 

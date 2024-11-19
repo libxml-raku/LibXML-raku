@@ -1439,11 +1439,13 @@ class xmlNodeSet is export {
     method push(itemNode, int32) is symbol('domPushNodeSet') is native($BIND-XML2) {*}
     method pop(--> itemNode) is symbol('domPopNodeSet') is native($BIND-XML2) {*}
     method hasSameNodes(xmlNodeSet --> int32) is symbol('xmlXPathHasSameNodes') is native($XML2) {*}
+    method AT-POS(int32 --> itemNode) is symbol('domNodeSetAtPos') is native($BIND-XML2) {*}
 
+    proto method new(|) {*}
     multi method new(itemNode:D :$node, :list($)! where .so, Bool :$keep-blanks = True) {
         NewFromList($node, +$keep-blanks);
     }
-    multi method new(anyNode :$node) is default {
+    multi method new(anyNode :$node) {
         NewFromNode($node);
     }
 }
