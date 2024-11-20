@@ -23,14 +23,11 @@ has Bool $.deref;
 has xmlNodeSet $.raw;
 has $!hstore;
 
-our $count = 0;
 submethod TWEAK {
-    $count++;
     $!raw //= xmlNodeSet.new;
     .Reference given $!raw;
 }
 submethod DESTROY {
-    $count--;
     .Unreference with $!raw;
 }
 

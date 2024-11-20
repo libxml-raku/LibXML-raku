@@ -157,15 +157,11 @@ method native is DEPRECATED<raw> { self.raw }
 method domFailure { $.raw.domFailure.Str }
 method string-value { $.raw.string-value.Str }
 
-our $count = 0;
-
 submethod TWEAK {
-    $count++;
     $!raw.Reference;
 }
 
 submethod DESTROY {
-    $count--;
     $!raw.Unreference;
 }
 
@@ -659,9 +655,10 @@ method findvalue(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
 multi method first(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
     self.create($.xpath-class, :$node, :%ns).first($expr);
 }
-multi method first(Bool :$blank = True) {
-    $blank ?? $.firstChild !! $.firstNonBlankChild;
+multi method first(Bool :$blank! where !.so) {
+    $.firstNonBlankChild;
 }
+multi method first { $.firstChild; }
 
 =begin pod
     =head3 method first
