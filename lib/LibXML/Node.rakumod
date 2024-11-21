@@ -1009,7 +1009,7 @@ multi method AT-KEY(NCName:D $tag) {
 multi method AT-KEY(QName:D $tag) {
     self.iterate-set(LibXML::Node, self.raw.getChildrenByTagName($tag), :deref);
 }
-multi method AT-KEY(Str:D $xpath) is default {
+multi method AT-KEY(Str:D $xpath) {
     $.xpath-context.AT-KEY($xpath);
 }
 

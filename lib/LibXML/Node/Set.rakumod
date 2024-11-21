@@ -45,7 +45,7 @@ method Hash handles <AT-KEY keys pairs> {
                 nativecast(xmlNodeSet, $p).Reference;
                 $p;
             }).Discard;
-            self.create: resolve-package('LibXML::HashMap::NodeSet'), :$raw;
+            self.create: resolve-package('LibXML::HashMap').^parameterize(self.WHAT), :$raw;
         }
     }
 }
