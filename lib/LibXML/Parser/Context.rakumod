@@ -131,7 +131,6 @@ multi method do(::?CLASS:D $ctx: &action, Bool :$recover = $.recover, Bool :$che
         .flush-errors for @input-contexts;
         $rv := $ctx.is-valid if $check-valid;
         $ctx.flush-errors: :$recover;
-        $ctx.publish() without self;
 
         LEAVE {
             self.config.restore(@prev);

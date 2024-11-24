@@ -215,6 +215,9 @@ role LibXML::ErrorHandling {
     method config {...}
     has Lock $.lock .= new;
     has X::LibXML @.errors;
+    has $!min-error-level = self.suppress-errors
+        ?? XML_ERR_FATAL
+        !! (self.suppress-warnings ?? XML_ERR_ERROR !! XML_ERR_NONE);
     has UInt $.max-errors = self.config.max-errors;
     has $.global-error-handling is built = True;
 
@@ -274,21 +277,23 @@ role LibXML::ErrorHandling {
     method structured-error(xmlError:D $_) {
         CATCH { default { note "error handling structured error: $_" } }
 
-        $!lock.protect: {
-            if @!errors <= $!max-errors {
-                my Int $level = .level;
-                my Str $file = .file;
-                my UInt:D $line = .line;
-                my Str() $context = .context(my uint32 $column);
-                my UInt:D $code = .code;
-                my UInt:D $domain-num = .domain;
-                my Str $msg = .message;
-                $column ||= .column;
-                $msg //= $code.Str;
-                if $msg ~~ /^\d+$/ {
-                    $msg ~= " ({.key})" with xmlParserErrors($msg.Int);
+        if .level >= $!min-error-level {
+            $!lock.protect: {
+                if @!errors <= $!max-errors {
+                    my Int $level = .level;
+                    my Str $file = .file;
+                    my UInt:D $line = .line;
+                    my Str() $context = .context(my uint32 $column);
+                    my UInt:D $code = .code;
+                    my UInt:D $domain-num = .domain;
+                    my Str $msg = .message;
+                    $column ||= .column;
+                    $msg //= $code.Str;
+                    if $msg ~~ /^\d+$/ {
+                        $msg ~= " ({.key})" with xmlParserErrors($msg.Int);
+                    }
+                    self!error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
                 }
-                self!error: X::LibXML::Parser.new( :$level, :$msg, :$file, :$line, :$column, :$code, :$domain-num, :$context );
             }
         }
     }
@@ -347,13 +352,6 @@ role LibXML::ErrorHandling {
         $.lock.protect: {
             @errs = @!errors;
             @!errors = ();
-        }
-
-        if self.suppress-errors {
-            @errs .= grep: *.level > XML_ERR_ERROR;
-        }
-        elsif self.suppress-warnings {
-            @errs .= grep({ .level >= XML_ERR_ERROR })
         }
 
         my X::LibXML $fatal = @errs.first: *.level >= XML_ERR_ERROR;

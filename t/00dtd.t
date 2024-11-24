@@ -59,13 +59,14 @@ is $b.value, 'inherited';
 
 my SaxHandler $sax-handler .= new();  
 
-$doc .= parse( string => q:to<EOF>, :load-ext-dtd, :$sax-handler, :suppress-warnings);
-    <!DOCTYPE test PUBLIC "-//TEST" "test.dtd" []>
-    <test>
-      <title>T1</title>
-    </test>
-EOF
-
+quietly {
+    $doc .= parse( string => q:to<EOF>, :load-ext-dtd, :$sax-handler);
+        <!DOCTYPE test PUBLIC "-//TEST" "test.dtd" []>
+        <test>
+          <title>T1</title>
+        </test>
+    EOF
+}
 is $level, +XML_ERR_WARNING;
 like $message, rx/'failed to load'.*'"test.dtd"'/;
 
