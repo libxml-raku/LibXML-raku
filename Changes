@@ -1,4 +1,10 @@
 {{$NEXT}}
+
+0.10.12  2024-11-26T06:56:59+13:00
+   - Filter suppressed errors and warnings early for improved error
+     handling performance #115
+   - Provide a domNodeSetAtPos() binding. Avoid direct access to
+     xmlNodeSet C struct NodeTab field.
    - Re-enable local error handling for libxml 2.14, which resolves
      https://gitlab.gnome.org/GNOME/libxml2/-/issues/808.
    - Fix Dtd IO error handling by promoting some libxml2 warnings to errors.

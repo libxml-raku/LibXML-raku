@@ -193,7 +193,7 @@ domReferenceNodeSet(xmlNodeSetPtr self) {
 
 DLLEXPORT xmlNodePtr
 domNodeSetAtPos(xmlNodeSetPtr self, int i) {
-    if (i >= 0 && i < self->nodeNr) {
+    if (self && i >= 0 && i < self->nodeNr) {
         return self->nodeTab[i];
     }
     return NULL;
