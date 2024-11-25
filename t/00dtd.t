@@ -144,12 +144,6 @@ subtest 'doc with parameter entities' => {
 
 subtest 'Dtd parse' => {
     lives-ok {LibXML::Dtd.parse: :system-id<samples/ProductCatalog.dtd>};
-    if LibXML::Config.version >= v2.14.00 {
-        throws-like { LibXML::Dtd.parse: :system-id<samples/DoesNotExist.dtd> }, X::LibXML::Parser;
-    }
-    else {
-        skip "requires libxml2 >= v2.14.00";
-    }
-
+    throws-like { LibXML::Dtd.parse: :system-id<samples/DoesNotExist.dtd> }, X::LibXML::Parser;
 }
 
