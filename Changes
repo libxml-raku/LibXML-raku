@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.10.13  2024-11-26T07:32:08+13:00
+   - Fix failing libxml v2.14+ test in t/00dtd.t
+
 0.10.12  2024-11-26T06:56:59+13:00
    - Filter suppressed errors and warnings early for improved error
      handling performance #115

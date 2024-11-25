@@ -257,7 +257,7 @@ multi method parse(Str :$external-id, Str:D :$system-id!) is hidden-from-backtra
         }
 
         unless $raw.defined || $ctx.will-die {
-           with $ctx.errors.grep(*.code ~~ XML_IO_ENOENT|XML_IO_LOAD_ERROR).first {
+           with $ctx.errors.grep(*.code == XML_IO_ENOENT|XML_IO_LOAD_ERROR).first {
                .level = XML_ERR_ERROR
            } else {
                $ctx.errors.push: X::LibXML::AdHoc.new(:error("Unable to load external Dtd: $external-id"));
