@@ -84,8 +84,8 @@ multi method delete(LibXML::Item:D $node) {
         $!of;
     }
 }
-method first { self.AT-POS(0) }
-method tail  { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
+method first is also<head> { self.AT-POS(0) }
+method tail { my $n := $!raw.nodeNr; $n ?? self.AT-POS($n - 1) !! $!of }
 method string-value { do with $.first { .string-value } // Str}
 multi method to-literal( :list($)! where .so ) { self».string-value }
 multi method to-literal( :delimiter($_) = '' ) { self.to-literal(:list).join: $_ }

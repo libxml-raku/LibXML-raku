@@ -60,13 +60,13 @@ Examples
 
 This example demonstrates `registerNs()` method. It finds all paragraph nodes in an XHTML document.
 
-    my LibXML::XPath::Context $xc .= new: doc($xhtml-doc);
+    my LibXML::XPath::Context $xc .= new: :doc($xhtml-doc);
     $xc.registerNs('xhtml', 'http://www.w3.org/1999/xhtml');
     my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
 Alternatively, namespaces can be defined on the constructor:
 
-    my LibXML::XPath::Context $xc .= new: doc($xhtml-doc), :ns{ xhtml => 'http://www.w3.org/1999/xhtml' };
+    my LibXML::XPath::Context $xc .= new: :doc($xhtml-doc), :ns{ xhtml => 'http://www.w3.org/1999/xhtml' };
     my LibXML::Node @nodes = $xc.findnodes('//xhtml:p');
 
 ### 2. Custom XPath functions

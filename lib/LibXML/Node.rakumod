@@ -165,7 +165,7 @@ submethod DESTROY {
     $!raw.Unreference;
 }
 
-multi method box(anyNode:D $node, *%c) { (%c<config> //= self.config).box($node, |%c) }
+multi method box(anyNode:D $node, :$config = self.config, *%c) { $config.box($node, :$config, |%c) }
 
 multi method raku(::?CLASS:D: $obj?) {
     # issue #95
