@@ -491,11 +491,11 @@ has %!node-cache;
 has Lock:D $!cache-lock .= new;
 
 proto method box(|) {*}
-multi method box(::?CLASS:D: anyNode:D $raw, &vivify?, *%profile) {
-    my sub default-vivify { self.class-from($raw).bless: :raw($raw.delegate), |%profile }
-    return (&vivify // &default-vivify)() unless $!with-cache;
+multi method box(::?CLASS:D: anyNode:D $raw, &vivify? is copy, *%profile) {
+    &vivify //= sub { self.class-from($raw).bless: :raw($raw.delegate), |%profile }
+    return &vivify() unless $!with-cache;
     $!cache-lock.protect: {
-        %!node-cache{$raw.unique-key} //= (&vivify // &default-vivify)()
+        %!node-cache{$raw.unique-key} //= &vivify();
     }
 }
 multi method box(::?CLASS:D: Any:U \raw-type, &vivify) {
