@@ -1,12 +1,9 @@
+unit class LibXML:ver<0.10.13>:api<0.10.0>;
+
 use LibXML::Parser;
 use W3C::DOM;
-
-# Needed for Rakudo 2020.5.1 - see #59
-use LibXML::XPath::Context;
-
-unit class LibXML:ver<0.10.13>:api<0.10.0>
-    is LibXML::Parser
-    does W3C::DOM::Implementation;
+also is LibXML::Parser;
+also does W3C::DOM::Implementation;
 
 use LibXML::Config;
 use LibXML::Document;
