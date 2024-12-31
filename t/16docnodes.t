@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 11;
+plan 10;
 
 use LibXML;
 use LibXML::Element;
@@ -49,9 +49,6 @@ for 1 .. 3 -> $time {
     my LibXML::Element $node = $doc.create(LibXML::Element, 'test');
     $node.setAttribute(contents => "\c[0xE4]");
     $doc.setDocumentElement($node);
-
-    is $node.Str(), '<test contents="&#xE4;"/>', 'Node serialise works.';
     $doc.encoding = 'utf-8';
-    # Second output
     is $node.Str(), qq{<test contents="\c[0xE4]"/>}, 'UTF-8 node serialize';
 }

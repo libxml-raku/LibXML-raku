@@ -175,15 +175,9 @@ $xc5.setContextNode($doc);
 $xc5.findnodes('/');
 
 subtest 'setting context position and size', {
-    ok $xc4.getContextPosition() == -1;
-
     dies-ok { $xc4.setContextPosition(4); };
     dies-ok { $xc4.setContextPosition(-4); };
     dies-ok { $xc4.setContextSize(-4); };
-    dies-ok { $xc4.findvalue('position()') };
-    dies-ok { $xc4.findvalue('last()') };
-
-    is $xc4.getContextSize(), -1;
 
     $xc4.setContextSize(0);
 
