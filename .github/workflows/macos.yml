@@ -24,7 +24,6 @@ jobs:
         with:
           raku-version: ${{ matrix.raku-version }}
       - name: macOS specific setup
-        if: contains(matrix.os, 'macOS')
         run: |
             brew update
             brew install libxml2

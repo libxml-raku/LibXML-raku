@@ -151,7 +151,7 @@ multi submethod TWEAK(LibXML::Document:D :DOM($!document)!,
                      ) {
     my xmlDoc:D $doc = $!document.raw;
     $!raw .= new: :$doc;
-    self!setup: :!errors;
+    self!setup: :!handle-errors;
 }
 method !init-flags(:config($), *%opts) {
     self.set-flags($!flags, |%opts);
@@ -277,10 +277,10 @@ multi submethod TWEAK(Str:D :location($file)!, |c) {
         =end item1
 =end pod
 
-method !setup(Bool :$errors = True) is hidden-from-backtrace {
+method !setup(Bool :$handle-errors = True) is hidden-from-backtrace {
     die "failed to initialize reader" without $!raw;
     my Pair $call;
-    if $errors {
+    if $handle-errors {
         $!raw.setStructuredErrorFunc: -> Pointer $ctx, xmlError:D $err {
             self.structured-error($err);
         }

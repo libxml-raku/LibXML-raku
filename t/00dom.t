@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 68;
+plan 70;
 # bootstrapping tests for the DOM
 
 use LibXML;
@@ -18,6 +18,8 @@ my $sDoc   = '<C/><D/>';
 my $sChunk = '<A/><B/>';
 
 my LibXML $parser .= new;
+ok $parser.hasFeature('Core', 2.0), "has DOM Core 2.0 feature";
+nok $parser.hasFeature('CSS', 2.0), "hasn't DOM CSS 2.0 feature";
 $parser.keep-blanks = True;
 $parser.config.skip-xml-declaration = True;
 my LibXML::Document $doc = $parser.parse: :$string;

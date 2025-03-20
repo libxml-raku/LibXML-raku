@@ -24,7 +24,6 @@ jobs:
         with:
           raku-version: ${{ matrix.raku-version }}
       - name: Linux specific setup
-        if: contains(matrix.os, 'ubuntu')
         run: sudo apt-get install -y libxml2-dev
       - name: Install Dependencies
         run: |

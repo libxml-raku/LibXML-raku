@@ -162,14 +162,14 @@ DLLEXPORT void xml6_gbl_set_generic_error_handler(xml6_gbl_MessageCallback callb
     setter(ctx, handler);
 }
 
-static xmlSAXLocator _default_sax_locator = {
-    xmlSAX2GetPublicId,
-    xmlSAX2GetSystemId,
-    xmlSAX2GetLineNumber,
-    xmlSAX2GetColumnNumber
-};
-
 DLLEXPORT xmlSAXLocatorPtr xml6_gbl_get_default_sax_locator(void) {
+    static xmlSAXLocator _default_sax_locator = {
+        xmlSAX2GetPublicId,
+        xmlSAX2GetSystemId,
+        xmlSAX2GetLineNumber,
+        xmlSAX2GetColumnNumber
+    };
+
     return &_default_sax_locator;
 }
 
