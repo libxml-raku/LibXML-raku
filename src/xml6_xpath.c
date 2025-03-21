@@ -33,3 +33,13 @@ xml6_xpath_ctxt_set_node(xmlXPathContextPtr ctxt, xmlNodePtr node) {
 
     return node;
 }
+
+DLLEXPORT xmlXPathVariableLookupFunc
+xml6_xpath_ctxt_get_var_lookup_func(xmlXPathContextPtr ctxt) {
+    if (ctxt) {
+        return ctxt->varLookupFunc;
+    }
+    else {
+        return NULL;
+    }
+}

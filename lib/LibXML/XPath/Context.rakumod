@@ -270,14 +270,12 @@ sub callback-error(Exception $error) {
 
 #| Registers a variable lookup function.
 method registerVarLookupFunc(&callback, |args) {
-    $!raw.RegisterVariableLookup(
-        -> xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject {
-            CATCH { default { callback-error $_ } }
-            my $ret = &callback($name, $url, |args) // '';
-            xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret);
-        },
-        Pointer,
-    );
+    sub cb(xmlXPathContext $ctxt, Str $name, Str $url --> xmlXPathObject) {
+        CATCH { default { callback-error $_ } }
+        my $ret = &callback($name, $url, |args) // '';
+        xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret);
+    }    
+    $!raw.RegisterVariableLookup(&cb, Pointer);
 }
 =begin pod
     =para The registered function is executed by the XPath engine each time an XPath
@@ -309,7 +307,7 @@ method unregisterVarLookupFunc {
 
 #| Gets the current variable lookup function
 method getVarLookupFunc returns Routine {
-    do with $!raw.varLookupFunc {
+    do with $!raw.GetVariableLookupFunc {
         nativecast( :($ctxt, Str $name, Str $url --> xmlXPathObject:D), $_)
     } // Routine;
 }

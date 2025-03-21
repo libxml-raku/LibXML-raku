@@ -853,6 +853,7 @@ class xmlXPathContext is repr('CStruct') is export {
     method RegisterFunc(xmlCharP $name, &func1 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFunc') is native($XML2) {*}
     method RegisterFuncNS(xmlCharP $name, xmlCharP $ns-uri, &func2 (xmlXPathParserContext, int32 --> xmlXPathObject) ) is symbol('xmlXPathRegisterFuncNS') is native($XML2) {*}
     method RegisterVariableLookup( &func3 (xmlXPathContext, Str, Str --> xmlXPathObject), Pointer ) is symbol('xmlXPathRegisterVariableLookup') is native($XML2) {*}
+    method GetVariableLookupFunc( --> Pointer) is symbol('xml6_xpath_ctxt_get_var_lookup_func') is native($BIND-XML2) {*}
     constant xmlXPathFunction = Pointer;
     method RegisterFuncLookup( &func4 (xmlXPathContext, xmlCharP $name, xmlCharP $ns-uri --> xmlXPathFunction), Pointer) is native($XML2) is symbol('xmlXPathRegisterFuncLookup') {*};
     method FunctionLookupNS(xmlCharP $name, xmlCharP $ns_uri --> xmlXPathFunction) is native($XML2) is symbol('xmlXPathFunctionLookupNS') {*};

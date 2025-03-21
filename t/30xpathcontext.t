@@ -57,7 +57,7 @@ subtest 'new(:$raw)', {
     use LibXML::Raw;
     my xmlXPathContext $raw .= new;
     my $ctx = $doc.create(LibXML::XPath::Context, :$raw, :$doc);
-    cmp-ok($raw, '===', $ctx.raw);
+    cmp-ok $raw, '===', $ctx.raw;
     is $ctx.first($xpath2).nodeName, 'bar';
 }
 

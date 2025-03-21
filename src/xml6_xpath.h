@@ -9,5 +9,6 @@ DLLEXPORT void xml6_xpath_object_add_reference(xmlXPathObjectPtr);
 DLLEXPORT int xml6_xpath_object_is_referenced(xmlXPathObjectPtr);
 DLLEXPORT int xml6_xpath_object_remove_reference(xmlXPathObjectPtr);
 DLLEXPORT xmlNodePtr xml6_xpath_ctxt_set_node(xmlXPathContextPtr, xmlNodePtr node);
+DLLEXPORT xmlXPathVariableLookupFunc xml6_xpath_ctxt_get_var_lookup_func(xmlXPathContextPtr);
 
 #endif /* __XML6_XPATH_H */

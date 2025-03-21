@@ -131,7 +131,7 @@ subtest 'identity function', {
     $xc.registerVarLookupFunc: -> $name, $uri {
         $largedoc.findnodes('(//*)')
     }
-
+    ok $xc.varLookupFunc.defined;
 
     is $xc.find('$a[name()="b"]').size(), 300;
     my $pass1=$xc.findnodes('pass1()');
