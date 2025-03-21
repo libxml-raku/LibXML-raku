@@ -29,18 +29,20 @@ subtest 'parse a DTD from a string', {
 
 subtest 'validate with the DTD', {
     my LibXML::Dtd $dtd .= parse: :string($dtdstr);
-    ok($dtd, '.parse_string 2');
+    ok $dtd, '.parse_string 2';
     my $xml = LibXML.parse: :file('samples/article.xml');
-    ok($xml, 'parse the article.xml file');
-    ok($xml.is-valid($dtd), 'valid XML file');
+    ok $xml, 'parse the article.xml file';
+    ok $xml.is-valid($dtd), 'valid XML file';
+    ok $xml ~~ $dtd, 'ACCEPTS() on valid document';
     lives-ok { $xml.validate($dtd) };
 }
 
 subtest 'validate a bad document', {
     my LibXML::Dtd $dtd .= parse: :string($dtdstr);
-    ok($dtd, '.parse_string 3');
+    ok $dtd, '.parse_string 3';
     my $xml = LibXML.parse: :file('samples/article_bad.xml');
-    ok(!$xml.is-valid($dtd), 'invalid XML');
+    nok $xml.is-valid($dtd), 'invalid XML';
+    nok $xml ~~ $dtd, 'ACCEPTS() on invalid document';
     dies-ok {
         $xml.validate($dtd);
     }, '.validate throws an exception';

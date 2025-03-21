@@ -54,11 +54,13 @@ subtest 'validate a document', {
     lives-ok { $stat = $rngschema.validate( $doc ); }, 'validate valid document';
     is $stat, 0;
     ok $doc.is-valid($rngschema);
+    ok $doc ~~ $rngschema;
 
     $doc  = $xmlparser.parse: :file( $invalidfile );
     dies-ok { $rngschema.validate( $doc ); }, 'validate invalid document';
     is-deeply $rngschema.is-valid( $doc ), False, 'is-valid on invalid doc';
     nok $doc.is-valid($rngschema);
+    nok $doc ~~ $rngschema;
 }
 
 subtest 're-validate a modified document', {
