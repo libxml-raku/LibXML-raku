@@ -29,7 +29,9 @@ EOSTR
 
     subtest 'findnodes', {
         my @nodes = $doc.findnodes( "/foo/bar" );
-        is( +@nodes, 2, 'Two bar nodes' );
+        is +@nodes, 2, 'Two bar nodes';
+        ok @nodes[0] ~~ @nodes[0];
+        nok @nodes[0] ~~ @nodes[1];
 
         ok( $doc.isSameNode(@nodes[0].ownerDocument),
             'Doc is the same as the owner document.' );
@@ -37,15 +39,13 @@ EOSTR
         my LibXML::XPath::Expression $compiled .= parse("/foo/bar");
         for (1..3) -> $idx {
             @nodes = $doc.findnodes( $compiled );
-            is( +@nodes, 2, "Two nodes for /foo/bar - try No. $idx" );
+            is +@nodes, 2, "Two nodes for /foo/bar - try No. $idx" ;
         }
 
         my $comment = $doc.first('/foo/comment()');
         is $comment, '<!-- test -->';
         is $comment.xpath-key, 'comment()';
-        ok( $doc.isSameNode(@nodes[0].ownerDocument),
-            'Same owner as previous one',
-        );
+        ok $doc.isSameNode(@nodes[0].ownerDocument), 'Same owner as previous one';
 
         my $n = $doc.createElement( "foobar" );
 
@@ -53,7 +53,7 @@ EOSTR
         $p.insertBefore( $n, @nodes[1] );
 
 
-        ok( $p.isSameNode( $doc.documentElement ), 'Same as document elem' );
+        ok $p.isSameNode( $doc.documentElement ), 'Same as document elem';
         @nodes = $p.childNodes;
         is( +@nodes, 8, 'Found child nodes' );
     }
