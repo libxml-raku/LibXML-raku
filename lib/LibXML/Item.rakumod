@@ -115,11 +115,18 @@ multi method ast-to-xml(Pair $_) {
         $name .= chop() if $name.ends-with(';');
         $config.class-from(XML_ENTITY_REF_NODE).new: :$name, :$config;
     }
+    when $name.starts-with('!') {
+        $name .= substr(1);
+        my Str $system-id   = $_ with $value<system>;
+        my Str $external-id = $_ with $value<external>;
+        $config.class-from(XML_DTD_NODE).new: :$name, :$config, :$system-id, :$external-id, :type<external>;
+    }
     default {
         my $node := $config.class-from($node-type).new: :$name, :$config;
 
         for $value.List {
-            $node.add( self.ast-to-xml($_) ) if .defined;
+            $node.add: self.ast-to-xml($_)
+                if .defined;
         }
         $node;
     }

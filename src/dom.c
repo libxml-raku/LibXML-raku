@@ -880,6 +880,9 @@ domGetASTKey(xmlNodePtr node) {
             else if (node->type == XML_ENTITY_REF_NODE) {
                 name = _domPrepend(name, '&');
             }
+            else if (node->type == XML_DTD_NODE) {
+                name = _domPrepend(name, '!');
+            }
     }
     return name;
 }

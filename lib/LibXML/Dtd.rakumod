@@ -308,6 +308,13 @@ multi method getNodeDeclaration(LibXML::EntityRef:D $_) {
     $.getEntity: .nodeName;
 }
 
+method ast {
+    my %ast;
+    %ast<system> = $_ with self.systemId;
+    %ast<public> = $_ with self.publicId;
+    '!' ~ self.getName => %ast;
+}
+
 multi method getNodeDeclaration(LibXML::Element:D $_) {
     $.getElementDeclaration: .nodeName;
 }

@@ -428,7 +428,7 @@ method unbindNode is also<remove unlink unlinkNode> returns LibXML::Node {
     self.raw.Unlink;
     self;
 }
-=para If the node is not inserted into the DOM afterwards, it will be
+=para If the node is not re-inserted into a DOM afterwards, it will be
     lost after the program terminates.
 
 #| Unbind a child node from its parent
@@ -721,7 +721,7 @@ method exists(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
     =head3 methods query-handler, querySelector, querySelectorAll
 
     These methods provide pluggable support for CSS (or other 3rd party) Query Selectors. See https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE. For example,
-    to use the L<CSS::Selector::To::XPath> (module available separately).
+    to use L<CSS::Selector::To::XPath> (module available separately).
 
         use CSS::Selector::To::XPath;
         $doc.query-handler = CSS::Selector::To::XPath.new;
@@ -877,7 +877,9 @@ method Blob(Str :$enc, Bool :$html = self.isHTMLish, |c) {
 =end pod
 
 #| Data serialization
-method ast returns Pair { self.ast-key => self.nodeValue }
+method ast returns Pair {
+       self.ast-key => self.nodeValue
+}
 =begin pod
     =para
     This method performs a deep data-serialization of the node. The L<LibXML::Item> X<ast-to-xml()> function can then be used to create a deep copy of the node;

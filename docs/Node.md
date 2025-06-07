@@ -396,7 +396,7 @@ method unbindNode() returns LibXML::Node
 
 Unbinds the Node from its siblings and Parent, but not from the Document it belongs to.
 
-If the node is not inserted into the DOM afterwards, it will be lost after the program terminates.
+If the node is not re-inserted into a DOM afterwards, it will be lost after the program terminates.
 
 ### method removeChild
 
@@ -640,7 +640,7 @@ Gets the [LibXML::XPath::Context](https://libxml-raku.github.io/LibXML-raku/XPat
 
 ### methods query-handler, querySelector, querySelectorAll
 
-These methods provide pluggable support for CSS (or other 3rd party) Query Selectors. See https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE. For example, to use the [CSS::Selector::To::XPath](CSS::Selector::To::XPath) (module available separately).
+These methods provide pluggable support for CSS (or other 3rd party) Query Selectors. See https://www.w3.org/TR/selectors-api/#DOM-LEVEL-2-STYLE. For example, to use [CSS::Selector::To::XPath](CSS::Selector::To::XPath) (module available separately).
 
     use CSS::Selector::To::XPath;
     $doc.query-handler = CSS::Selector::To::XPath.new;
