@@ -896,8 +896,10 @@ domSetNodeName(xmlNodePtr self , xmlChar *string) {
         return;
 
     if ((self->type == XML_PI_NODE && *string == '?')
-        || (self->type == XML_ENTITY_REF_NODE && *string == '&')) {
-        // skip leading '?' or '&'
+        || (self->type == XML_ENTITY_REF_NODE && *string == '&')
+        || (self->type == XML_DTD_NODE && *string == '!')
+        ) {
+        // skip leading sigil
         string++;
     }
 
@@ -1364,6 +1366,9 @@ domNodeType(xmlChar* name) {
                 break;
             case '&' :
                 node_type = XML_ENTITY_REF_NODE;
+                break;
+            case '!' :
+                node_type = XML_DTD_NODE;
                 break;
             case '#': {
                 switch (name[1]) {
