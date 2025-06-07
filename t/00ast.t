@@ -8,7 +8,7 @@ use LibXML::Item :&ast-to-xml;
 use LibXML::Config;
 use LibXML::Raw;
 
-plan 11;
+plan 13;
 
 LibXML::Config.keep-blanks = False; # Make it the test default
 my LibXML::Element $elem .= new('Test', config => LibXML::Config.new);
@@ -58,5 +58,11 @@ is-deeply $doc.ast, "#xml" => [ :$dromedaries ];
 
 $doc<dromedaries><species>[0].replaceNode: ast-to-xml('#comment' => 'youza');
 is $doc<dromedaries><comment()>, '<!--youza-->';
+
+my $string = '<Foo bar="x"><bar bar="bar">bar</bar></Foo>';
+$doc .= parse: :$string;
+is-deeply $doc.ast, "#xml" => [:Foo[:bar<x>, :bar[:bar<bar>, 'bar']]];
+
+is $doc.ast.&ast-to-xml().root.Str, $string;
 
 done-testing;
