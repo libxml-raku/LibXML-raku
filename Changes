@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+0.10.14  2025-06-09T08:30:57+12:00
+   - Partially handle Dtd's in document ast(). Inline Dtd
+     declarations are not handled yet.
+   - Fix creation of stand-alone processing instructions; this also
+     fixes ast() method on documents with processing instructions
+
 0.10.13  2024-11-26T07:32:08+13:00
    - Fix failing libxml v2.14+ test in t/00dtd.t
 

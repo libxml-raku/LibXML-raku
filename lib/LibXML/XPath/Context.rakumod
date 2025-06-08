@@ -274,7 +274,7 @@ method registerVarLookupFunc(&callback, |args) {
         CATCH { default { callback-error $_ } }
         my $ret = &callback($name, $url, |args) // '';
         xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret);
-    }    
+    }
     $!raw.RegisterVariableLookup(&cb, Pointer);
 }
 =begin pod
