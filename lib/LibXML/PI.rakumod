@@ -12,8 +12,8 @@ also is LibXML::Node;
 also does LibXML::_Rawish[xmlPINode];
 also does W3C::DOM::ProcessingInstruction;
 
-method new(:doc($owner)!, Str :$name!, Str :$content!, *%c) {
-    my xmlDoc:D $doc = .raw with $owner;
+method new(:doc($owner), Str :$name!, Str :$content!, *%c) {
+    my xmlDoc $doc = .raw with $owner;
     my xmlPINode:D $raw .= new: :$name, :$content, :$doc;
     self.box: $raw, |%c;
 }

@@ -1120,13 +1120,10 @@ class xmlCDataNode is xmlNode is repr('CStruct') is export {
 class xmlPINode is xmlNode is repr('CStruct') is export {
     also does domNode[$?CLASS, XML_PI_NODE];
 
-    our sub New(xmlCharP $name, xmlCharP $content) is native($XML2) is symbol('xmlNewPI') {*}
-    multi method new(xmlDoc:D :$doc!, Str:D :$name!, Str :$content) {
+    method new(xmlDoc :$doc, Str:D :$name!, Str :$content) {
         $doc.new-pi(:$name, :$content);
     }
-    multi method new(Str:D :$name!, Str :$content) {
-        New($name, $content);
-    }
+
 }
 
 #| xmlNode of type: XML_ENTITY_REF_NODE

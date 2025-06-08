@@ -59,10 +59,16 @@ is-deeply $doc.ast, "#xml" => [ :$dromedaries ];
 $doc<dromedaries><species>[0].replaceNode: ast-to-xml('#comment' => 'youza');
 is $doc<dromedaries><comment()>, '<!--youza-->';
 
-my $string = '<Foo bar="x"><bar bar="bar">bar</bar></Foo>';
-$doc .= parse: :$string;
-is-deeply $doc.ast, "#xml" => [:Foo[:bar<x>, :bar[:bar<bar>, 'bar']]];
+my $string = q:to<XML>;
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Foo SYSTEM "http://example.com/Foo.dtd">
+<?xml-stylesheet href="http://example.com/Foo.css"?>
+<Foo bar="x"><bar bar="bar"/></Foo>
+XML
 
-is $doc.ast.&ast-to-xml().root.Str, $string;
+$doc .= parse: :$string;
+is-deeply $doc.root.ast, "Foo" => [:bar<x>, :bar[:bar<bar>]];
+
+is $doc.ast.&ast-to-xml().Str, $string;
 
 done-testing;
