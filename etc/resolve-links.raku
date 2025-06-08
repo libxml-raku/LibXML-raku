@@ -1,6 +1,6 @@
 constant DocRoot = "https://libxml-raku.github.io";
 
-multi sub resolve-class(@ ('LibXML', 'Writer', *@path)) {
+multi sub resolve-class(@ ('LibXML', *@path ('Writer', *@)) ) {
     %( :repo<LibXML-Writer-raku>, :@path );
 }
 

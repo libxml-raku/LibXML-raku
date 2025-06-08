@@ -95,7 +95,7 @@ This can be annoying if the closing tag is missed by accident. The following cod
 See Also
 --------
 
-The [LibXML::Writer::PushParser](https://libxml-raku.github.io/LibXML-Writer-raku/PushParser) class, available in the [LibXML::Writer](https://libxml-raku.github.io/LibXML-Writer-raku) Raku module, extends [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser). It may be used to push structural elements and/or XML chunks:
+The [LibXML::Writer::PushParser](https://libxml-raku.github.io/LibXML-Writer-raku/Writer/PushParser) class, available in the [LibXML::Writer](https://libxml-raku.github.io/LibXML-Writer-raku/Writer) Raku module, extends [LibXML::PushParser](https://libxml-raku.github.io/LibXML-raku/PushParser). It may be used to push structural elements and/or XML chunks:
 
 ```raku
 use LibXML::Document;
