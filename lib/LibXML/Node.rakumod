@@ -677,8 +677,11 @@ multi method first { $.firstChild; }
 multi method last(XPathExpr $expr, LibXML::Node:D $node = self, :%ns) {
     self.create($.xpath-class, :$node, :%ns).last($expr);
 }
+multi method last(Bool :$blank! where !.so) {
+    $.lastNonBlankChild;
+}
 multi method last(Bool :$blank = True) {
-    $blank ?? $.lastChild !! $.lastNonBlankChild;
+    $.lastChild;
 }
 
 =begin pod
