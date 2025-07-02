@@ -16,7 +16,7 @@ Synopsis
     my LibXML::DocumentFragment $frag .= parse: :balanced, :string('<foo/><bar/>');
     say $frag.Str; # '<foo/><bar/>';
     $frag.parse: :balanced, :string('<baz/>');
-    say $frag.Str; # '<foo/><bar/><baz>';
+    say $frag.Str; # '<foo/><bar/><baz/>';
 
     my LibXML::Document $doc .= parse: :string("<doc/>");
     $doc.root.addChild($frag);
