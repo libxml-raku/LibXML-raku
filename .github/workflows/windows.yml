@@ -13,11 +13,10 @@ jobs:
     strategy:
       matrix:
         os:
-          - windows-2019
           - windows-latest
         raku-version:
           - 'latest'
-          - '2024.02'
+          - '2025.06'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
