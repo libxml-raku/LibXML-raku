@@ -325,7 +325,7 @@ subtest 'Patterns', {
 subtest 'issue#60' => {
     use LibXML::Reader;
 
-    my $string = q:to<END>;
+    my $string = q:to<END>.lines>>.trim.join;
     <foo>
         <!--Comment-->Text<Pfx:Elem xmlns:Pfx="foo"/>
         <![CDATA[Cdata]]>
@@ -334,19 +334,24 @@ subtest 'issue#60' => {
 
     my @results;
 
-    my LibXML::Reader $reader .= new(:$string, :!blanks);
+    my LibXML::Reader $reader .= new(:$string);
 
     lives-ok {
         while $reader.read {
-            @results.push([$reader.value, $reader.nodeType, $reader.name, $reader.localName, $reader.prefix]);
+            my $v = $reader.value;
+            my $t = $reader.nodeType;
+            my $n = $reader.name;
+            my $ln = $reader.localName;
+            my $p = $reader.prefix;
+            @results.push: (:$v, :$t, :$n, :$ln, :$p);
         }
     }
     is-deeply @results, [
-        [Str, 1, "foo", "foo", Str],
-        ["Comment", 8, "#comment", "#comment", Str],
-        ["Text", 3, "#text", "#text", Str],
-        [Str, 1, "Pfx:Elem", "Elem", "Pfx"],
-        ["Cdata", 4, "#cdata-section", "#cdata-section", Str],
-        [Str, 15, "foo", "foo", Str]
+        (:v(Str),     :t(1),  :n<foo>,            :ln<foo>,            :p(Str)),
+        (:v<Comment>, :t(8),  :n<#comment>,       :ln<#comment>,       :p(Str)),
+        (:v<Text>,    :t(3),  :n<#text>,          :ln<#text>,          :p(Str)),
+        (:v(Str),     :t(1),  :n<Pfx:Elem>,       :ln<Elem>,           :p<Pfx>),
+        (:v<Cdata>,   :t(4),  :n<#cdata-section>, :ln<#cdata-section>, :p(Str)),
+        (:v(Str),     :t(15), :n<foo>,            :ln<foo>,            :p(Str))
     ]
 }
