@@ -884,8 +884,12 @@ class xmlXPathParserContext is export {
 
     has int32                 $.valueFrame; # used to limit Pop on the stack
 
+    #++ valuePush, valuePop renamed in libxml2 v2.15.0
     method valuePop(--> xmlXPathObject) is native($XML2) {*}
     method valuePush(xmlXPathObject --> int32) is native($XML2) {*}
+    #++ libxml2 v2.15.0+
+    method XPathPop(--> xmlXPathObject) is symbol('xmlXPathValuePop') is native($XML2) {*}
+    method XPathPush(xmlXPathObject --> int32)  is symbol('xmlXPathValuePush') is native($XML2) {*}
 }
 
 class anyNode is export does LibXML::Raw::DOM::Node {

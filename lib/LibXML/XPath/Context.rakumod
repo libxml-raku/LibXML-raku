@@ -325,7 +325,15 @@ method varLookupFunc returns Routine is rw {
 method registerFunctionNS(QName:D $name, Str $uri, &func, |args) {
     $!raw.RegisterFuncNS(
         $name, $uri,
-        -> xmlXPathParserContext $ctxt, Int $n {
+        self.config.version >= v2.15.00
+        ?? -> xmlXPathParserContext $ctxt, Int $n {
+            CATCH { default { $ctxt.XPathPush: callback-error($_) } }
+            my @params = reverse(self.get-value($ctxt.XPathPop) xx $n);
+            my $ret = &func(|@params, |args) // '';
+            my xmlXPathObject:D $out := xmlXPathObject.COERCE: $*XPATH-CONTEXT.park($ret, :$ctxt);
+            $ctxt.XPathPush($_) for $out;
+        }
+        !! -> xmlXPathParserContext $ctxt, Int $n {
             CATCH { default { $ctxt.valuePush: callback-error($_) } }
             my @params = reverse(self.get-value($ctxt.valuePop) xx $n);
             my $ret = &func(|@params, |args) // '';
