@@ -271,15 +271,17 @@ role LibXML::ErrorHandling {
         }
     }
 
-    method !min-error-level {
-        self.suppress-errors
-            ?? XML_ERR_FATAL
-             !! (self.suppress-warnings ?? XML_ERR_ERROR !! XML_ERR_NONE)
+    method !error-suppressed(UInt:D $level) {
+        $level <= XML_ERR_ERROR
+        && (self.suppress-errors
+            || ($level <= XML_ERR_WARNING && self.suppress-warnings)
+           );
     }
+
     method structured-error(xmlError:D $_) {
         CATCH { default { note "error handling structured error: $_" } }
 
-        if .level >= self!min-error-level {
+        unless self!error-suppressed(.level) {
             $!lock.protect: {
                 if @!errors <= $!max-errors {
                     my Int $level = .level;
