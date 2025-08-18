@@ -1,4 +1,6 @@
 {{$NEXT}}
+   - Fix error-handling to handle updates to suppress-warnings()
+     and suppress-errors() attributes. Issue introduced in 0.10.12
 
 0.10.14  2025-06-09T08:30:57+12:00
    - Partially handle Dtd's in document ast(). Inline Dtd
