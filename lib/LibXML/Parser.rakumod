@@ -178,7 +178,7 @@ multi method parse(
             .ParseDocument;
         }
         else {
-            $ctx.generic-error("unable to load file: %s", $file)\
+            $ctx.generic-error: 'unable to load file: ' ~ $file
                 unless $ctx.will-die();
         }
         $ctx.close();
