@@ -7,6 +7,7 @@ use NativeCall;
 use LibXML;
 use LibXML::Raw;
 use LibXML::Parser;
+use LibXML::Parser::Context;
 
 my @start-tags;
 my @end-tags;
@@ -147,8 +148,10 @@ class SAXShouter is LibXML::SAX::Handler::SAX2 {
 }
 
 $sax-handler = SAXShouter.new.raw;
-
 $ctx .= new: :$sax-handler, :$chunk;
+my $*XML-CONTEXT = LibXML::Parser::Context.new: :raw($ctx);
 $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
 is $ctx.myDoc.Str.lines.tail, '<HTML><BODY><H1 working="yup">HELLO WORLD</H1></BODY></HTML>', 'Simple transform';
+
+$*XML-CONTEXT.flush-errors;
