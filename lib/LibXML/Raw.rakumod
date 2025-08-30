@@ -516,12 +516,8 @@ class xmlSAXLocator is export {
 #| of the input generate data or structure information.
 class xmlSAXHandler is repr('CStruct') is export {
 
-    method SetVersion(int32 $version --> int32) is native($XML2) is symbol('xmlSAXVersion') {*};
-
-    submethod BUILD(*%cb) {
-        self.SetVersion(2); # SAX2
-
-        for %cb.pairs.sort {
+    submethod BUILD(*%atts) {
+        for %atts.pairs.sort {
             self."{.key}"() = .value;
         }
     }
