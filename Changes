@@ -1,6 +1,10 @@
 {{$NEXT}}
+
+0.10.15  2025-09-01T07:14:41+12:00
    - Fix error-handling to handle updates to suppress-warnings()
      and suppress-errors() attributes. Issue introduced in 0.10.12
+   - Fix SAX handler initialization for Debian libxml2 2.9.14
+     security patches.
 
 0.10.14  2025-06-09T08:30:57+12:00
    - Partially handle Dtd's in document ast(). Inline Dtd
