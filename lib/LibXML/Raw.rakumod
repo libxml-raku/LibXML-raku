@@ -624,7 +624,7 @@ class xmlSAXHandler is repr('CStruct') is export {
     method initxmlDefaultSAXHandler(int32 $warning) is native($XML2) {*} # until v2.9.14
     method inithtmlDefaultSAXHandler is native($XML2) {*}                # until v2.9.14
     method init(Bool :$html, Bool :$warning = True, UInt:D :$SAX = 2) {
-        if $SAX == 1 && xmlParserVersion() le '20914' {
+        if $SAX == 1 {
             # Work around for Debian security patches #116
             $html
                 ?? $.inithtmlDefaultSAXHandler()

@@ -248,7 +248,7 @@ class LibXML::SAX::Builder {
                 if %seen{$name}++;
             $name => &meth;
         }
-        my $SAX =  %methods<startElement> ?? 1 !! 2;
+        my $SAX =  %methods<startElement> && xml6_config::version().Version <= v2.9.14 ?? 1 !! 2;
         $saxh.raw.init: :$SAX;
         self!build($saxh, %methods, %SAXHandlerDispatch);
     }
