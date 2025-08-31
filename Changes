@@ -1,6 +1,8 @@
 {{$NEXT}}
-   - Further fix #116 to ensure forward compatible with libxml v2.10.0+
-     releases.
+
+0.10.16  2025-09-01T08:34:40+12:00
+   - Further bed down fix #116 to ensure forward compatible with
+     libxml v2.10.0+ releases.
 
 0.10.15  2025-09-01T07:14:41+12:00
    - Fix error-handling to handle updates to suppress-warnings()
