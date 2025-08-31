@@ -221,13 +221,9 @@ class LibXML::SAX::Builder {
         },
     );
 
-    method !build(Any:D $saxh, %dispatches) {
-        my Bool %seen;
-        for $saxh.^methods.grep(* ~~ is-sax-cb) -> &meth {
-            my $name = &meth.sax-name;
+    method !build(Any:D $saxh, %methods, %dispatches) {
+        for %methods.kv -> $name, &meth {
             with %dispatches{$name} -> &dispatch {
-                warn "duplicate SAX callback: $name"
-                    if %seen{$name}++;
                 $saxh.set-sax-callback($name, &dispatch($saxh, &meth));
             }
             else {
@@ -237,16 +233,24 @@ class LibXML::SAX::Builder {
         }
         for <Element ElementNS> {
             warn "'start$_', 'end$_' callbacks not paired"
-                if %seen{'start'~ $_}.so !=== %seen{'end'~ $_}.so
+                if %methods{'start'~ $_}.so !=== %methods{'end'~ $_}.so
         }
         warn "'startElement' and 'startElementNs' callbacks are mutually exclusive"
-            if %seen<startElement> && %seen<startElementNs>;
+            if %methods<startElement> && %methods<startElementNs>;
         $saxh;
     }
 
     method build-sax-handler($saxh) {
-        $saxh.raw.init;
-        self!build($saxh, %SAXHandlerDispatch);
+        my Bool %seen;
+        my Method %methods = $saxh.^methods.grep(* ~~ is-sax-cb).map: -> &meth {
+            my $name = &meth.sax-name;
+            warn "duplicate SAX callback: $name"
+                if %seen{$name}++;
+            $name => &meth;
+        }
+        my $SAX =  %methods<startElement> ?? 1 !! 2;
+        $saxh.raw.init: :$SAX;
+        self!build($saxh, %methods, %SAXHandlerDispatch);
     }
 
 }

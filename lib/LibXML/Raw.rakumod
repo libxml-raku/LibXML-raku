@@ -621,10 +621,19 @@ class xmlSAXHandler is repr('CStruct') is export {
 
     method xmlSAX2InitDefaultSAXHandler(int32 $warning) is native($XML2) {*}
     method xmlSAX2InitHtmlDefaultSAXHandler is native($XML2) {*}
-    method init(Bool :$html, Bool :$warning = True) {
-        $html
-        ?? $.xmlSAX2InitHtmlDefaultSAXHandler()
-        !! $.xmlSAX2InitDefaultSAXHandler( +$warning );
+    method initxmlDefaultSAXHandler(int32 $warning) is native($XML2) {*}
+    method inithtmlDefaultSAXHandler is native($XML2) {*}
+    method init(Bool :$html, Bool :$warning = True, UInt:D :SAX($_) = 2) {
+        when 1 {
+            $html
+                ?? $.inithtmlDefaultSAXHandler()
+                !! $.initxmlDefaultSAXHandler( +$warning );
+        }
+        when 2 {
+            $html
+                ?? $.xmlSAX2InitHtmlDefaultSAXHandler()
+                !! $.xmlSAX2InitDefaultSAXHandler( +$warning );
+        }
     }
     method ParseDoc(Str, int32 $recovery --> xmlDoc) is native($XML2) is symbol('xmlSAXParseDoc') {*};
     method IOParseDTD(xmlParserInputBuffer:D, int32 $enc --> xmlDtd) is native($XML2) is symbol('xmlIOParseDTD') {*}
