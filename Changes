@@ -1,7 +1,10 @@
 {{$NEXT}}
 
+0.10.17  2025-09-01T10:25:04+12:00
+   - Further adjust #116 to work on Windows
+
 0.10.16  2025-09-01T08:34:40+12:00
-   - Further bed down fix #116 to ensure forward compatible with
+   - Further bed down fix #116 to ensure forward compatibility with
      libxml v2.10.0+ releases.
 
 0.10.15  2025-09-01T07:14:41+12:00
