@@ -104,7 +104,8 @@ Many functions listed here are documented in the DOM Level 3 specification ([htt
 ### method new
 
     method new(
-      xmlDoc :$native,
+      xmlDoc :$raw,
+      LibXML::Element :$root,
       Str :$version,
       xmlEncodingStr :$enc, # e.g. 'utf-8', 'utf-16'
       Str :$URI,

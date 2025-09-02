@@ -153,20 +153,16 @@ method new(
     Str  :$URI,
     Bool :$html,
     Int  :$compression,
+    LibXML::Element :$root,
     xmlDoc :$raw = ($html ?? htmlDoc !! xmlDoc).new,
     LibXML::Config:D :$config = LibXML::Config.new,
-    # obselete
-    :$ctx,
-    :$native, # obselete,
     |c
 ) {
-    die 'new(:$native) option is obselete. Please use :$raw'
-        with $native;
-    die 'new(:$ctx) option is obselete.' with $ctx;
     $raw.version = $_ with $version;
     $raw.encoding = $_ with $enc;
     $raw.URI = $_ with $URI;
     $raw.setCompression($_) with $compression;
+    $raw.setDocumentElement(.raw) with $root;
 
     self.bless: :$raw, :$config, |c;
 }
@@ -174,7 +170,8 @@ method new(
     =head3 method new
 
         method new(
-          xmlDoc :$native,
+          xmlDoc :$raw,
+          LibXML::Element :$root,
           Str :$version,
           xmlEncodingStr :$enc, # e.g. 'utf-8', 'utf-16'
           Str :$URI,

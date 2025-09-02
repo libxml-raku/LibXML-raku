@@ -576,7 +576,7 @@ subtest 'compress' => {
 
 sub check-standalone($code is raw, Str $string, Bool $expected) {
     use LibXML::Document;
-    my LibXML::Document $doc .= new: :version('1.0'), :enc('UTF-8');
+    my LibXML::Document $doc .= new: :version<1.0>, :enc<UTF-8>;
     $doc.setStandalone($code);
     my LibXML::Element $root = $doc.createElement('Types');
     $root.setNamespace('http://schemas.openxmlformats.org/package/2006/content-types');
