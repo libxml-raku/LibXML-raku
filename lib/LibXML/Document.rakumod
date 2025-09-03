@@ -401,7 +401,7 @@ method Str(
     level. This value can not be altered at run-time.
 
     Note that the `:C14N` and `:html` options match different multi-methods, with
-    diffrent options, as below:
+    different options, as below:
 
     =head4 `multi method Str: :C14N($!)!, Bool :$comments, Bool :$exclusive, :$xpath`
 

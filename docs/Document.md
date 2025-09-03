@@ -274,7 +274,7 @@ If $format is True, libxml2 will add ignorable white spaces, so the nodes conten
 
 libxml2 uses a hard-coded indentation of 2 space characters per indentation level. This value can not be altered at run-time.
 
-Note that the `:C14N` and `:html` options match different multi-methods, with diffrent options, as below:
+Note that the `:C14N` and `:html` options match different multi-methods, with different options, as below:
 
 #### `multi method Str: :C14N($!)!, Bool :$comments, Bool :$exclusive, :$xpath`
 
