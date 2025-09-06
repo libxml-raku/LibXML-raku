@@ -37,17 +37,8 @@ role Itemish { }
         }
     }
 
-    my &resolve-package-slow-path = $*RAKU.compiler.version >= v2022.04.74.g.1.c.4680544
-        ?? anon sub resolve-package-slow-path(Str:D $pkg) is raw {
-            my \found = do require ::($pkg);
-            add-to-cache($pkg, found)
-        }
-        !! do {
-            my $resolve-lock = Lock.new;
-            anon sub resolve-package-slow-path(Str:D $pkg) is raw {
-                my \found = $resolve-lock.protect: { do require ::($pkg) }
-                add-to-cache($pkg, found)
-            }
-        }
+    sub resolve-package-slow-path(Str:D $pkg) is raw {
+        $pkg.&add-to-cache: do require ::($pkg);
+    }
 }
 
