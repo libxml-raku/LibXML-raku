@@ -3,6 +3,11 @@ unit class LibXML::HashMap;
 
 use LibXML::_Configurable;
 use LibXML::_Collection;
+
+also does Associative;
+also does LibXML::_Configurable;
+also does LibXML::_Collection;
+
 use LibXML::_Rawish;
 use LibXML::Item;
 use LibXML::Node::Set;
@@ -15,10 +20,6 @@ use LibXML::Dtd::Notation;
 use LibXML::XPath::Object;
 use NativeCall;
 use Method::Also;
-
-also does Associative;
-also does LibXML::_Configurable;
-also does LibXML::_Collection;
 
 has xmlHashTable:D $.raw is rw .= new;
 
@@ -42,7 +43,7 @@ method thaw(Pointer $p) {
 }
 
 method deallocator() {
-    -> Pointer $p, Str $k {
+    -> Pointer $p, Str {
         nativecast(xmlXPathObject, $_).Unreference
             with $p;
     }
@@ -57,21 +58,19 @@ submethod DESTROY { self.cleanup }
 
 subset OfType where XPathRange|LibXML::Dtd::Notation|Pointer;
 
-method !CArray(UInt:D :$len = $.raw.Size ) {
-    my $a := CArray[Pointer].new;
-    $a[$len -1] = Pointer if $len;
-    $a;
+method !CArray(UInt:D :$len = $!raw.Size ) {
+    CArray[Pointer].allocate($len);
 }
 
-method elems is also<Numeric> { $.raw.Size }
+method elems is also<Numeric> { $!raw.Size }
 method keys  {
     my $buf := self!CArray;
-    $.raw.keys($buf);
+    $!raw.keys($buf);
     $buf.map: {nativecast(Str, $_) };
 }
 method values {
     my $buf := self!CArray;
-    $.raw.values($buf);
+    $!raw.values($buf);
     $buf.map: {
         $.thaw($_);
     }
@@ -79,8 +78,8 @@ method values {
 method pairs is also<list List> {
     my $kbuf := self!CArray;
     my $vbuf := self!CArray;
-    $.raw.keys($kbuf);
-    $.raw.values($vbuf);
+    $!raw.keys($kbuf);
+    $!raw.values($vbuf);
     (^$.elems).map: {
         nativecast(Str, $kbuf[$_]) => $.thaw($vbuf[$_]);
     }
@@ -88,7 +87,7 @@ method pairs is also<list List> {
 method kv {
      my $len := 2 * $.elems;
      my $kv := self!CArray(:$len);
-     $.raw.key-values($kv);
+     $!raw.key-values($kv);
      my size_t $i = 0;
      $kv.map: {
          $i++ %% 2 ?? nativecast(Str, $_) !! $.thaw($_);
@@ -97,23 +96,24 @@ method kv {
 method Hash { %( self.pairs ) }
 method AT-KEY(Str() $key) is rw {
     sub FETCH($) {
-        with $.raw.LookupNs($key) {
+        with $!raw.LookupNs($key) {
             self.thaw($_)
         }
         else {
-            self.of }
+            self.of
+        }
     }
     sub STORE($, $val) {
         self.ASSIGN-KEY($key, $val);
     }
     Proxy.new: :&FETCH, :&STORE;
 }
-method EXISTS-KEY(Str() $key) { $.raw.LookupNs($key).defined; }
+method EXISTS-KEY(Str() $key) { $!raw.LookupNs($key).defined; }
 method ASSIGN-KEY(Str() $key, $val) is rw {
     my Pointer $ptr := $.freeze($val);
-    $.raw.UpdateEntryNs($key, $ptr, $.deallocator); $val;
+    $!raw.UpdateEntryNs($key, $ptr, $.deallocator); $val;
 }
-method DELETE-KEY(Str() $key) { $.raw.RemoveEntryNs($key, $.deallocator) }
+method DELETE-KEY(Str() $key) { $!raw.RemoveEntryNs($key, $.deallocator) }
 
 role Assoc[Pointer $of] {
     method of { $of }
@@ -132,7 +132,7 @@ role Assoc[LibXML::Item $of] {
         $of.box: itemNode.cast($p), :$.config;
     }
     method deallocator() {
-        -> Pointer $p, Str $k {
+        -> Pointer $p, Str {
             itemNode.cast($_).Unreference with $p;
         }
     }
@@ -152,7 +152,7 @@ role Assoc[LibXML::Node::Set $of] {
         self.create: $of, :$raw, :deref;
     }
     method deallocator() {
-        -> Pointer $p, Str $k {
+        -> Pointer $p, Str {
             nativecast(xmlNodeSet, $_).Unreference with $p;
         }
     }
@@ -171,7 +171,7 @@ role Assoc[Str $of] {
     sub xml-str-dup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
     method freeze(Str() $v) { $v.&xml-str-dup }
     method thaw(Pointer $p) { nativecast(Str, $p) }
-    method deallocator { -> Pointer $p, xmlCharP $k { .&xml-free with $p } }
+    method deallocator { -> Pointer $p, xmlCharP { .&xml-free with $p } }
 }
 
 role Assoc[LibXML::Dtd::Notation $of] {
@@ -179,7 +179,7 @@ role Assoc[LibXML::Dtd::Notation $of] {
     method freeze(LibXML::Dtd::Notation $_) { .raw.Copy }
     method thaw(Pointer:D $p --> LibXML::Dtd::Notation:D) { $of.box: nativecast(xmlNotation, $p) }
     method deallocator() {
-        -> Pointer $p, Str $k {
+        -> Pointer $p, Str {
             nativecast(xmlNotation, $_).Free with $p;
         }
     }
