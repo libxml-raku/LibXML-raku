@@ -5,9 +5,6 @@
 #include <libxml/xpath.h>
 #include "xml6.h"
 
-DLLEXPORT void
-perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs);
-
 DLLEXPORT xmlNodeSetPtr
 domXPathGetNodeSet(xmlXPathObjectPtr, int select);
 

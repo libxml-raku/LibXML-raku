@@ -22,8 +22,8 @@
 #include "xml6_ns.h"
 #include "xml6_ref.h"
 
-DLLEXPORT void
-perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
+static void
+_documentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
     xmlXPathObjectPtr obj = NULL, obj2 = NULL;
     xmlChar* base = NULL;
     xmlChar* URI = NULL;
@@ -69,7 +69,7 @@ perlDocumentFunction(xmlXPathParserContextPtr ctxt, int nargs) {
                     valuePush(ctxt,
                               xmlXPathNewNodeSet(obj->nodesetval->nodeTab[i]));
                 }
-                perlDocumentFunction(ctxt, 2);
+                _documentFunction(ctxt, 2);
                 newobj = valuePop(ctxt);
                 ret->nodesetval = xmlXPathNodeSetMerge(ret->nodesetval,
                                                        newobj->nodesetval);
@@ -521,7 +521,7 @@ domXPathNewCtxt(xmlNodePtr refNode) {
     xmlXPathContextPtr ctxt = xmlXPathNewContext( NULL );
     xmlXPathRegisterFunc(ctxt,
                          (const xmlChar*) "document",
-                         perlDocumentFunction);
+                         _documentFunction);
 
     if (refNode) {
         domXPathCtxtSetNode(ctxt, refNode);
