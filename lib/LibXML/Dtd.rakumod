@@ -372,7 +372,7 @@ class NotationDeclMap is LibXML::HashMap[LibXML::Dtd::Notation] {
     method ASSIGN-KEY($, $) { die X::NYI.new }
     submethod TWEAK(xmlHashTable:D :raw($)!) {
         self.raw .= Copy: -> Pointer $p, $ --> Pointer {
-            nativecast Pointer, nativecast(xmlNotation, $p).Copy;
+            Pointer.&nativecast: xmlNotation.&nativecast($p).Copy;
         }
     }
 }
@@ -382,11 +382,11 @@ class AttrDeclMap does LibXML::_Configurable {
         method of {xmlHashTable}
         method freeze($) { die X::NYI.new }
         method thaw(Pointer:D $p) {
-            nativecast($.of, $p);
+            $.of.&nativecast($p);
         }
         method deallocator() {
             -> Pointer $p, $ {
-                 nativecast($.of, $p).Discard;
+                 $.of.&nativecast($p).Discard;
             }
         }
     }

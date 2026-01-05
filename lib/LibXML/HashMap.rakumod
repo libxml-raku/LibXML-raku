@@ -28,13 +28,13 @@ method of {XPathRange}
 method freeze(XPathRange $content) {
     given LibXML::XPath::Object.coerce-to-raw($content) {
         .Reference;
-        nativecast(Pointer, $_);
+        Pointer.&nativecast: $_;
     }
 }
 
 method thaw(Pointer $p) {
     do with $p {
-        my $raw = nativecast(xmlXPathObject, $_);
+        my $raw = xmlXPathObject.&nativecast: $_;
         LibXML::XPath::Object.value: :$raw, :$.config;
     }
     else {
@@ -44,7 +44,7 @@ method thaw(Pointer $p) {
 
 method deallocator() {
     -> Pointer $p, Str {
-        nativecast(xmlXPathObject, $_).Unreference
+        xmlXPathObject.&nativecast($_).Unreference
             with $p;
     }
 }
@@ -66,7 +66,7 @@ method elems is also<Numeric> { $!raw.Size }
 method keys  {
     my $buf := self!CArray;
     $!raw.keys($buf);
-    $buf.map: {nativecast(Str, $_) };
+    $buf.map: {Str.&nativecast: $_ };
 }
 method values {
     my $buf := self!CArray;
@@ -81,7 +81,7 @@ method pairs is also<list List> {
     $!raw.keys($kbuf);
     $!raw.values($vbuf);
     (^$.elems).map: {
-        nativecast(Str, $kbuf[$_]) => $.thaw($vbuf[$_]);
+        Str.&nativecast($kbuf[$_]) => $.thaw($vbuf[$_]);
     }
 }
 method kv {
@@ -90,7 +90,7 @@ method kv {
      $!raw.key-values($kv);
      my size_t $i = 0;
      $kv.map: {
-         $i++ %% 2 ?? nativecast(Str, $_) !! $.thaw($_);
+         $i++ %% 2 ?? Str.&nativecast($_) !! $.thaw($_);
      }
 }
 method Hash { %( self.pairs ) }
@@ -126,7 +126,7 @@ role Assoc[LibXML::Item $of] {
     method of {$of}
     method freeze(LibXML::Item $n where .isa($of)) {
         .raw.Reference with $n;
-        nativecast(Pointer, $n.raw);
+        Pointer.&nativecast: $n.raw;
     }
     method thaw(Pointer $p) {
         $of.box: itemNode.cast($p), :$.config;
@@ -143,17 +143,17 @@ role Assoc[LibXML::Node::Set $of] {
     method freeze(LibXML::Node::Set:D $n) {
         given $n.raw.copy {
             .Reference;
-            nativecast(Pointer, $_);
+            Pointer.&nativecast: $_;
         }
     }
     method thaw(Pointer $p) {
-        my $raw = nativecast(xmlNodeSet, $p);
+        my $raw = xmlNodeSet.&nativecast: $p;
         $raw .= copy;
         self.create: $of, :$raw, :deref;
     }
     method deallocator() {
         -> Pointer $p, Str {
-            nativecast(xmlNodeSet, $_).Unreference with $p;
+            xmlNodeSet.&nativecast($_).Unreference with $p;
         }
     }
 }
@@ -170,17 +170,17 @@ role Assoc[Str $of] {
     method of {$of}
     sub xml-str-dup(Str --> Pointer) is native($XML2) is symbol('xmlStrdup') {*}
     method freeze(Str() $v) { $v.&xml-str-dup }
-    method thaw(Pointer $p) { nativecast(Str, $p) }
+    method thaw(Pointer $p) { Str.&nativecast: $p }
     method deallocator { -> Pointer $p, xmlCharP { .&xml-free with $p } }
 }
 
 role Assoc[LibXML::Dtd::Notation $of] {
     method of {$of}
     method freeze(LibXML::Dtd::Notation $_) { .raw.Copy }
-    method thaw(Pointer:D $p --> LibXML::Dtd::Notation:D) { $of.box: nativecast(xmlNotation, $p) }
+    method thaw(Pointer:D $p --> LibXML::Dtd::Notation:D) { $of.box: xmlNotation.&nativecast($p) }
     method deallocator() {
         -> Pointer $p, Str {
-            nativecast(xmlNotation, $_).Free with $p;
+            xmlNotation.&nativecast($_).Free with $p;
         }
     }
 }

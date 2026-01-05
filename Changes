@@ -1,4 +1,5 @@
 {{$NEXT}}
+   - Add LibXML::Document.new(:$root) option
 
 0.10.17  2025-09-01T10:25:04+12:00
    - Further adjust #116 to work on Windows

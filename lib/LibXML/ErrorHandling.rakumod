@@ -10,7 +10,8 @@ class X::LibXML::Domain does X::LibXML {
 =begin pod
     =head2 Description
 
-    =para The X::LibXML::Domain exception class hierarchy interfaces to I<libxml2>'s structured error support. If LibXML is compiled with structured error
+    =para The X::LibXML::Domain exception class hierarchy interfaces to I<libxml2>'s
+    structured error support. If LibXML is compiled with structured error
     support, all errors reported by libxml2 are transformed to X::LibXML
     exception objects. These objects automatically serialize to the corresponding error
     messages when printed or used in a string operation, but as objects, can also
@@ -369,7 +370,7 @@ role LibXML::ErrorHandling {
         xml6_gbl::set-generic-error-handler(
             -> Str:D $msg {
                 CATCH { default { note $_; $*XML-CONTEXT.callback-error: X::LibXML::XPath::AdHoc.new: :error($_) } }
-                &handler($msg);
+                $msg.&handler;
             },
             cglobal($XML2, 'xmlSetGenericErrorFunc', Pointer)
         );

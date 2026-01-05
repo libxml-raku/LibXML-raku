@@ -14,7 +14,7 @@ has xmlElementContent $.raw is required handles<type occurs name prefix Str>;
 method !visit(xmlElementContent $raw) {
     my constant MagicTopLevel = 1; # as set by LibXML on top-level declarations
     my $class := self.WHAT;
-    if $raw.defined && +nativecast(Pointer, $raw) != MagicTopLevel {
+    if $raw.defined && +Pointer.&nativecast($raw) != MagicTopLevel {
         self.create: $class, :$!decl, :$raw;
     }
     else {
@@ -59,7 +59,7 @@ method potential-children(UInt:D :$max = 255) {
     my int32 $len = 0;
     $kids[$max] = Pointer;
     $!raw.PotentialChildren($kids, $len, $max);
-    my @ = (^$len).map: {nativecast(Str, $kids[$_])}
+    my @ = (^$len).map: {Str.&nativecast($kids[$_])}
 }
 
 =begin pod

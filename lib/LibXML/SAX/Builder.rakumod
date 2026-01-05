@@ -39,7 +39,7 @@ class LibXML::SAX::Builder {
     }
     class NsAtts is repr('CPointer') {
         my constant att-size = nativesizeof(NsAtt);
-        method Pointer { nativecast(Pointer, self) }
+        method Pointer { Pointer.&nativecast(self) }
         method AT-POS(UInt:D $idx) {
             NsAtt.copy(+self.Pointer  + $idx * att-size);
         }
@@ -198,7 +198,7 @@ class LibXML::SAX::Builder {
             -> $saxh, &callb {
                 sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
                     CATCH { default { callback-error $_ } }
-                    my $attribs := nativecast(NsAtts, $atts-raw);
+                    my $attribs := NsAtts.&nativecast($atts-raw);
                     my UInt $n = $num-atts - $num-defaulted;
                     my NsAtt %attribs = .atts2Hash($n)
                         with $attribs;
@@ -248,7 +248,7 @@ class LibXML::SAX::Builder {
                 if %seen{$name}++;
             $name => &meth;
         }
-        my $SAX =  %methods<startElement> && xml6_config::version().Version <= v2.9.14 ?? 1 !! 2;
+        my $SAX = %methods<startElement> && xml6_config::version().Version <= v2.9.14 ?? 1 !! 2;
         $saxh.raw.init: :$SAX;
         self!build($saxh, %methods, %SAXHandlerDispatch);
     }

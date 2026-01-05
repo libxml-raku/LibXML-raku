@@ -100,7 +100,7 @@ module CLib {
 # Pointer to string, expected to be freed by the caller
 class xmlAllocedStr is Pointer is repr('CPointer') {
     method Str {
-        nativecast(Str, self);
+        Str.&nativecast(self);
     }
     submethod DESTROY {
         xml6_gbl::xml-free(self);
@@ -403,7 +403,7 @@ class xmlElementContent is repr('CStruct') is export {
     method Str(UInt :$max = 255, Bool:D :$paren = so ($!type == XML_ELEMENT_CONTENT_SEQ|XML_ELEMENT_CONTENT_OR)) {
         my buf8 $buf .= allocate($max);
         Dump($buf, $max, self, +$paren);
-        nativecast(Str, $buf);
+        Str.&nativecast($buf);
     }
 }
 
@@ -456,7 +456,7 @@ class xmlNs is export is repr('CStruct') {
         $buf.Free;
         $content;
     }
-    method ItemNode { nativecast(itemNode, self) }
+    method ItemNode { itemNode.&nativecast(self) }
 }
 
 #| A SAX Locator.
@@ -623,18 +623,17 @@ class xmlSAXHandler is repr('CStruct') is export {
     method xmlSAX2InitHtmlDefaultSAXHandler is native($XML2) {*}
     method initxmlDefaultSAXHandler(int32 $warning) is native($XML2) {*} # until v2.9.14
     method inithtmlDefaultSAXHandler is native($XML2) {*}                # until v2.9.14
-    method init(Bool :$html, Bool :$warning = True, UInt:D :$SAX = 2) {
-        if $SAX == 1 {
-            # Work around for Debian security patches #116
-            $html
-                ?? $.inithtmlDefaultSAXHandler()
-                !! $.initxmlDefaultSAXHandler( +$warning );
-        }
-        else {
-            $html
-                ?? $.xmlSAX2InitHtmlDefaultSAXHandler()
-                !! $.xmlSAX2InitDefaultSAXHandler( +$warning );
-        }
+    multi method init(Int:D :$SAX! where 1, Bool :$html! where .so, ) {
+        $.inithtmlDefaultSAXHandler()
+    }
+    multi method init(Int:D :$SAX! where 1, Bool :$warning = True, ) {
+        $.initxmlDefaultSAXHandler( +$warning );
+    }
+    multi method init(Bool :$html! where .so) {
+        $.xmlSAX2InitHtmlDefaultSAXHandler()
+    }
+    multi method init(:$warning = True) {
+        $.xmlSAX2InitDefaultSAXHandler( +$warning );
     }
     method ParseDoc(Str, int32 $recovery --> xmlDoc) is native($XML2) is symbol('xmlSAXParseDoc') {*};
     method IOParseDTD(xmlParserInputBuffer:D, int32 $enc --> xmlDtd) is native($XML2) is symbol('xmlIOParseDTD') {*}
@@ -1030,7 +1029,7 @@ class anyNode is export does LibXML::Raw::DOM::Node {
     method domSetNamespaceDeclPrefix(|c) { ... }
     method domSetNamespaceDeclURI(|c) { ... }
     method domGetNamespaceDeclURI(|c) { ... }
-    method ItemNode handles<delegate cast> {  nativecast(itemNode, self) }
+    method ItemNode handles<delegate cast> {  itemNode.&nativecast(self) }
 
     method new() { fail "new() not available for " ~ self.WHAT.raku }
 }
@@ -1422,12 +1421,12 @@ class itemNode is export {
 
     method delegate {
         my $class := @ClassMap[$!type];
-        nativecast($class, self);
+        $class.&nativecast(self);
     }
     method cast(Pointer:D $p) {
         my $type := nativecast(itemNode, $p).type;
         my $class := @ClassMap[$type];
-        nativecast($class, $p);
+        $class.&nativecast($p);
     }
     our sub NodeType(Str --> int32) is native($BIND-XML2) is symbol('domNodeType') {*}
 }
@@ -1734,7 +1733,7 @@ class xmlPushParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 #| a vanilla HTML parser context - can be used to read files or strings
 class htmlParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 
-    method myDoc is rw { nativecast(htmlDoc, callsame) }
+    method myDoc is rw { htmlDoc.&nativecast(callsame) }
     method UseOptions(int32 --> int32) is native($XML2) is symbol('htmlCtxtUseOptions') { * }
 
     our sub New(--> htmlParserCtxt) is native($XML2) is symbol('htmlNewParserCtxt') {*};

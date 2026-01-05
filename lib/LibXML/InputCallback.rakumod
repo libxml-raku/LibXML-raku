@@ -141,7 +141,7 @@ my class Context {
 
     my class Handle {
         has CArray[uint8] $.addr .= new(42); # get a unique address
-        method addr { do with self { nativecast(Pointer, $!addr) } }
+        method addr { do with self { Pointer.&nativecast($!addr) } }
         has $.fh is rw;
         has Blob $.buf is rw;
     }

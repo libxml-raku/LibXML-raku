@@ -630,7 +630,7 @@ method !stash(xmlNodeSet:D $raw, xmlXPathParserContext :$ctxt --> xmlNodeSet:D) 
     my UInt $ctxt-addr = 0;
     with $ctxt {
         # scope to a particular parser/eval context
-        $ctxt-addr = +nativecast(Pointer, $_); # associated with a particular parse/eval
+        $ctxt-addr = +Pointer.&nativecast($_); # associated with a particular parse/eval
         # context stack is clear. We can also clear the associated pool
         %!pool{$ctxt-addr} = []
              if .valueNr == 0  && !.value.defined;

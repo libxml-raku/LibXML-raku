@@ -55,7 +55,7 @@ method Hash handles <pairs> {
         $_ // do given $!parent.raw.Hash(:$!blank) -> xmlHashTable:D $raw {
             # reference node sets
             $raw.Copy( -> Pointer $p, Str --> Pointer {
-                nativecast(xmlNodeSet, $p).Reference;
+                xmlNodeSet.&nativecast($p).Reference;
                 $p;
             }).Discard;
             self.create: resolve-package('LibXML::HashMap').^parameterize(LibXML::Node::Set), :$raw;

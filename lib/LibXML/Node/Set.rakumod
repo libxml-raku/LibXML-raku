@@ -42,7 +42,7 @@ method Hash handles <AT-KEY keys pairs> {
         $_ // do given $!raw.Hash(:$!deref) -> xmlHashTable:D $raw {
             # reference not sets
            $raw.Copy( -> Pointer $p, Str --> Pointer {
-                nativecast(xmlNodeSet, $p).Reference;
+                xmlNodeSet.&nativecast($p).Reference;
                 $p;
             }).Discard;
             self.create: resolve-package('LibXML::HashMap').^parameterize(self.WHAT), :$raw;
