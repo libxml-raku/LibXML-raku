@@ -602,7 +602,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     return 1;
 }
 
-static void _domScanEntry(void* value, int* refs, xmlChar*) {
+static void _domScanEntry(void* value, int* refs, xmlChar* _) {
     if (value != NULL && ((xmlNodePtr)value)->_private != NULL) {
         (*refs)++;
     }
@@ -888,7 +888,7 @@ domGetASTKey(xmlNodePtr node) {
 }
 
 DLLEXPORT void
-domSetNodeName(xmlNodePtr self , xmlChar *string) {
+domSetNodeName(xmlNodePtr self, xmlChar *string) {
     xmlChar* localname;
     xmlChar* prefix;
 

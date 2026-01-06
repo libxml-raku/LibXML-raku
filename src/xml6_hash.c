@@ -232,7 +232,7 @@ DLLEXPORT void* xml6_hash_lookup_ns(xmlHashTablePtr self, xmlChar* name) {
 }
 
 // Free the hash, leave contents intact
-static void _keep_hash_contents(void*, const xmlChar*) {
+static void _keep_hash_contents(void* _, const xmlChar* __) {
     // do nothing
 }
 DLLEXPORT void xml6_hash_discard(xmlHashTablePtr self) {

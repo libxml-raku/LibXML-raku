@@ -285,6 +285,6 @@ DLLEXPORT xmlChar* domFailure(xmlNodePtr);
 
 DLLEXPORT xmlChar* domUniqueKey(void*);
 
-DLLEXPORT int domIsSameNode(void*, void *);
+DLLEXPORT int domIsSameNode(void*, void*);
 
 #endif
