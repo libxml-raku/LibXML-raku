@@ -603,6 +603,7 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
 }
 
 static void _domScanEntry(void* value, int* refs, xmlChar* _) {
+    (void)_; /* unused parameter */
     if (value != NULL && ((xmlNodePtr)value)->_private != NULL) {
         (*refs)++;
     }

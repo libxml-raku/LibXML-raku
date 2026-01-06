@@ -198,6 +198,7 @@ static void
 _domNodeSetGC(void *entry, unsigned char* _) {
     xmlNodePtr twig = (xmlNodePtr) entry;
     xmlNodePtr owner = _domItemOwner(twig);
+    (void)_; /* unused parameter */
     if (owner) {
         int orphaned = owner->parent == NULL && owner->prev == NULL && owner->next == NULL;
         if (orphaned) {
