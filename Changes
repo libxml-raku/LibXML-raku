@@ -1,5 +1,9 @@
 {{$NEXT}}
+
+0.10.18  2026-01-07T09:56:37+13:00
    - Add LibXML::Document.new(:$root) option
+   - Silence some unused variable warnings/errors in C compilation #117
+   - Further tewak SAX initialization
 
 0.10.17  2025-09-01T10:25:04+12:00
    - Further adjust #116 to work on Windows
