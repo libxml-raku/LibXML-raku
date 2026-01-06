@@ -39,6 +39,7 @@ static void _xml6_scan(xmlHashTablePtr self, xmlHashScannerFull scanner, int n, 
     void** p;
     assert(self != NULL);
     assert(buf != NULL);
+    (void) n; /* unused parameter, maybe */
     p = buf;
     xmlHashScanFull(self, scanner, (void*) &p);
     assert(p == &(buf[xmlHashSize(self) * n]));
