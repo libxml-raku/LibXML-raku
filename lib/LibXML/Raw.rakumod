@@ -623,10 +623,10 @@ class xmlSAXHandler is repr('CStruct') is export {
     method xmlSAX2InitHtmlDefaultSAXHandler is native($XML2) {*}
     method initxmlDefaultSAXHandler(int32 $warning) is native($XML2) {*} # until v2.9.14
     method inithtmlDefaultSAXHandler is native($XML2) {*}                # until v2.9.14
-    multi method init(Int:D :$SAX! where 1, Bool :$html! where .so, ) {
+    multi method init(Int:D :$version! where 1, Bool :$html! where .so, ) {
         $.inithtmlDefaultSAXHandler()
     }
-    multi method init(Int:D :$SAX! where 1, Bool :$warning = True, ) {
+    multi method init(Int:D :$version! where 1, Bool :$warning = True, ) {
         $.initxmlDefaultSAXHandler( +$warning );
     }
     multi method init(Bool :$html! where .so) {
