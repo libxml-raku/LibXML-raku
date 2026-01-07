@@ -22,15 +22,21 @@ static xmlChar* _xml6_make_ns_key(xmlChar* name, xmlChar *pfx) {
     return key;
 }
 
-static void _xml6_get_key(void*, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar*) {
+static void _xml6_get_key(void* _value, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar* _) {
+    (void)_value; /* unused parameter */
+    (void)_; /* unused parameter */
     *((*keys)++) = _xml6_make_ns_key(name, pfx);
 }
 
-static void _xml6_get_value(void* value, const void*** values, xmlChar*, xmlChar*, xmlChar*) {
+static void _xml6_get_value(void* value, const void*** values, xmlChar* _name, xmlChar* _pfx, xmlChar* _) {
+    (void)_name; /* unused parameter */
+    (void)_pfx; /* unused parameter */
+    (void)_; /* unused parameter */
     *((*values)++) = value;
 }
 
-static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar*) {
+static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar* _) {
+    (void)_; /* unused parameter */
     *((*pairs)++) = (void*) _xml6_make_ns_key(name, pfx);
     *((*pairs)++) = value;
 }
