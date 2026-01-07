@@ -198,6 +198,7 @@ static void _xml6_build_hash_attrs(void* value, const void* _self, xmlChar* attr
         xmlChar* uqname = xmlSplitQName2(elem_qname, &pfx);
         // Vivify sub-hash
         bucket = xmlHashCreate(0);
+        assert(bucket != NULL);
         if (uqname != NULL) {
             xmlHashAddEntry2(self, uqname, pfx, (void*) bucket);
             xmlFree(uqname);
@@ -239,9 +240,9 @@ DLLEXPORT void* xml6_hash_lookup_ns(xmlHashTablePtr self, xmlChar* name) {
 }
 
 // Free the hash, leave contents intact
-static void _keep_hash_contents(void* _, const xmlChar* __) {
-    (void)_; /* unused parameter */
-    (void)__; /* unused parameter */
+static void _keep_hash_contents(void* _data, const xmlChar* _name) {
+    (void)_data; /* unused parameter */
+    (void)_name; /* unused parameter */
     // do nothing
 }
 DLLEXPORT void xml6_hash_discard(xmlHashTablePtr self) {

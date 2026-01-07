@@ -357,7 +357,7 @@ domSetExternalSubset(xmlDocPtr self, xmlDtdPtr dtd) {
 }
 
 DLLEXPORT xmlEntityPtr
-domGetEntityFromDtd(xmlDtdPtr dtd, xmlChar *name) {
+domGetEntityFromDtd(xmlDtdPtr dtd, xmlChar* name) {
     xmlEntitiesTablePtr table;
 
     if((dtd != NULL) && (dtd->entities != NULL)) {
@@ -368,7 +368,7 @@ domGetEntityFromDtd(xmlDtdPtr dtd, xmlChar *name) {
 }
 
 DLLEXPORT xmlEntityPtr
-domGetParameterEntityFromDtd(xmlDtdPtr dtd, xmlChar *name) {
+domGetParameterEntityFromDtd(xmlDtdPtr dtd, xmlChar* name) {
     xmlEntitiesTablePtr table;
 
     if ((dtd != NULL) && (dtd->pentities != NULL)) {
@@ -602,8 +602,8 @@ domTestDocument(xmlNodePtr cur, xmlNodePtr refNode) {
     return 1;
 }
 
-static void _domScanEntry(void* value, int* refs, xmlChar* _) {
-    (void)_; /* unused parameter */
+static void _domScanEntry(void* value, int* refs, xmlChar* _name) {
+    (void)_name; /* unused parameter */
     if (value != NULL && ((xmlNodePtr)value)->_private != NULL) {
         (*refs)++;
     }
@@ -889,7 +889,7 @@ domGetASTKey(xmlNodePtr node) {
 }
 
 DLLEXPORT void
-domSetNodeName(xmlNodePtr self, xmlChar *string) {
+domSetNodeName(xmlNodePtr self, xmlChar* string) {
     xmlChar* localname;
     xmlChar* prefix;
 
@@ -2010,7 +2010,7 @@ domAttrSerializeContent(xmlAttrPtr attr) {
 }
 
 // check if prefix is of the form: base<digit+>
-static int _domPrefixMatch(const xmlChar *prefix, xmlChar *base) {
+static int _domPrefixMatch(const xmlChar* prefix, xmlChar* base) {
     int len = xmlStrlen(base);
     int matched = 0;
     if (prefix && xmlStrncmp(prefix, base, len) == 0) {
@@ -2047,7 +2047,7 @@ domGenNsPrefix(xmlNodePtr self, xmlChar* base) {
         while ( ns ) {
             if (_domPrefixMatch(ns->prefix, base)) {
                 // found an entry of the form base<n>
-                const xmlChar *key = ns->prefix;
+                const xmlChar* key = ns->prefix;
                 if (xmlHashLookup(hash, (xmlChar*)key) == NULL) {
                     xmlHashAddEntry(hash, xmlStrdup((xmlChar*)key), entry);
                 }
