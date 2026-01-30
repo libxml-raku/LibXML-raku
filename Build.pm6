@@ -11,14 +11,20 @@ class Build {
     #| without any prefixes or extensions.
     sub make(Str $folder, Str $destfolder, IO() :$libname!, Str :$I) {
         my %vars = LibraryMake::get-vars($destfolder);
+        my Bool $gcc;
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
+        my $use-gcc = %vars<CC> ~~ 'gcc';
         if Rakudo::Internals.IS-WIN {
-            unless $I {
+            with $I {
+                $use-gcc = True;
+            }
+            else {
                 note "Using prebuilt DLLs on Windows";
                 return True;
             }
+        }
 
-            %vars<LIB-CFLAGS> = "-I$I";
+        if $use-gcc {
             %vars<LIBS> = '-lxml2'; 
             %vars<MAKE> = 'make';
             %vars<CC> = 'gcc';
@@ -31,11 +37,12 @@ class Build {
         }
         else {
             %vars<LIBS> = chomp(qx{xml2-config --libs 2>/dev/null} || '-lxml2');
-            %vars<LIB-CFLAGS> = $I
-                             ?? "-I$I"
-                             !! chomp(qx{xml2-config --cflags 2>/dev/null} || '-I/usr/include/libxml2');
             s/:s '-DNDEBUG'// for %vars<CCFLAGS>, %vars<LDFLAGS>;
         }
+
+        %vars<LIB-CFLAGS> ||= $I
+            ?? "-I$I"
+            !! chomp(qx{xml2-config --cflags 2>/dev/null} || '-I/usr/include/libxml2');
 
         mkdir($destfolder);
         LibraryMake::process-makefile($folder, %vars);
