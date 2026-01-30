@@ -1,4 +1,4 @@
-unit class LibXML:ver<0.10.19>:api<0.10.0>;
+unit class LibXML:ver<0.10.20>:api<0.10.0>;
 
 use LibXML::Parser;
 use W3C::DOM;

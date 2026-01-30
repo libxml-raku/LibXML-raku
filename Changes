@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.10.20  2026-01-31T08:54:11+13:00
+   - Use preset options when gcc detected #118
+
 0.10.19  2026-01-08T07:17:06+13:00
    - Silence some more unused variable warnings/errors in C compilation #117
 

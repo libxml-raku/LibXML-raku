@@ -448,7 +448,6 @@ _domAddNodeToList(xmlNodePtr cur, xmlNodePtr leader, xmlNodePtr followup, xmlNod
         n = head;
         while ( n ){
             if (n->type == XML_NAMESPACE_DECL) {
-                ((xmlNsPtr)n)->context = p->doc;
                 n = NULL;
             }
             else {
