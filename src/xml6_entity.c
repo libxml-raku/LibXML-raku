@@ -5,9 +5,9 @@
 
 
 DLLEXPORT xmlEntityPtr
-xml6_entity_create(const xmlChar *name, int type,
-                   const xmlChar *ExternalID, const xmlChar *SystemID,
-                   const xmlChar *content) {
+xml6_entity_create(const xmlChar* name, int type,
+                   const xmlChar* ExternalID, const xmlChar* SystemID,
+                   const xmlChar* content) {
     xmlEntityPtr rv;
 
     rv = (xmlEntityPtr) xmlMalloc(sizeof(xmlEntity));

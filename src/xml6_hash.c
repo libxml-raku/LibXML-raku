@@ -22,15 +22,21 @@ static xmlChar* _xml6_make_ns_key(xmlChar* name, xmlChar *pfx) {
     return key;
 }
 
-static void _xml6_get_key(void*, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar*) {
+static void _xml6_get_key(void* _value, const xmlChar*** keys, xmlChar* name, xmlChar* pfx, xmlChar* _) {
+    (void)_value; /* unused parameter */
+    (void)_; /* unused parameter */
     *((*keys)++) = _xml6_make_ns_key(name, pfx);
 }
 
-static void _xml6_get_value(void* value, const void*** values, xmlChar*, xmlChar*, xmlChar*) {
+static void _xml6_get_value(void* value, const void*** values, xmlChar* _name, xmlChar* _pfx, xmlChar* _) {
+    (void)_name; /* unused parameter */
+    (void)_pfx; /* unused parameter */
+    (void)_; /* unused parameter */
     *((*values)++) = value;
 }
 
-static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar*) {
+static void _xml6_get_pair(void* value, const void*** pairs, xmlChar* name, xmlChar *pfx, xmlChar* _) {
+    (void)_; /* unused parameter */
     *((*pairs)++) = (void*) _xml6_make_ns_key(name, pfx);
     *((*pairs)++) = value;
 }
@@ -192,6 +198,7 @@ static void _xml6_build_hash_attrs(void* value, const void* _self, xmlChar* attr
         xmlChar* uqname = xmlSplitQName2(elem_qname, &pfx);
         // Vivify sub-hash
         bucket = xmlHashCreate(0);
+        assert(bucket != NULL);
         if (uqname != NULL) {
             xmlHashAddEntry2(self, uqname, pfx, (void*) bucket);
             xmlFree(uqname);
@@ -233,9 +240,9 @@ DLLEXPORT void* xml6_hash_lookup_ns(xmlHashTablePtr self, xmlChar* name) {
 }
 
 // Free the hash, leave contents intact
-static void _keep_hash_contents(void* _, const xmlChar* __) {
-    (void)_; /* unused parameter */
-    (void)__; /* unused parameter */
+static void _keep_hash_contents(void* _data, const xmlChar* _name) {
+    (void)_data; /* unused parameter */
+    (void)_name; /* unused parameter */
     // do nothing
 }
 DLLEXPORT void xml6_hash_discard(xmlHashTablePtr self) {

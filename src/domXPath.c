@@ -195,10 +195,10 @@ DLLEXPORT xmlNodeSetPtr domReverseNodeSet(xmlNodeSetPtr rv) {
 }
 
 static void
-_domNodeSetGC(void *entry, unsigned char* _) {
+_domNodeSetGC(void *entry, unsigned char* _name) {
     xmlNodePtr twig = (xmlNodePtr) entry;
     xmlNodePtr owner = _domItemOwner(twig);
-    (void)_; /* unused parameter */
+    (void)_name; /* unused parameter */
     if (owner) {
         int orphaned = owner->parent == NULL && owner->prev == NULL && owner->next == NULL;
         if (orphaned) {

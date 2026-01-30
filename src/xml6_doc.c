@@ -12,7 +12,7 @@ DLLEXPORT void xml6_doc_set_encoding(xmlDocPtr self, char *encoding) {
     }
 
     if (encoding != NULL && strlen(encoding)) {
-        self->encoding = xmlStrdup( (const xmlChar *) encoding );
+        self->encoding = xmlStrdup( (const xmlChar*) encoding );
     } else {
         self->encoding = NULL;
     }

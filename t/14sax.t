@@ -1,6 +1,6 @@
 use v6;
 use Test;
-plan 34;
+plan 8;
 
 use LibXML;
 use LibXML::SAX;
@@ -156,7 +156,7 @@ subtest 'Ns callbacks', {
     my SAXNSTester:D $sax = $parser.create: SAXNSTester;
 
     $parser.sax-handler = $sax;
-    $parser.parse: :file("samples/ns.xml");
+    quietly { $parser.parse: :file("samples/ns.xml"); }
 
     $SAXNSTester_startElement_stacker.test(
         [
@@ -272,7 +272,7 @@ subtest 'error handling', {
 
  ########### LibXML::SAX::parse-chunk test ###########
 
-skip("todo: port remaining tests", 29);
+skip("todo: port remaining tests", 3);
 =begin TODO
 
 # Note: Handled by Raku LibXML::Writer::PushParser
