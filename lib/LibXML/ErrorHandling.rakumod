@@ -287,11 +287,13 @@ role LibXML::ErrorHandling {
                 if @!errors <= $!max-errors {
                     my Int $level = .level;
                     my Str $file = .file;
+                    my uint32 $column = 0;
+                    my Str() $context;
                     my UInt:D $line = .line;
-                    my Str() $context = .context(my uint32 $column);
+                    try { $context = .context($column) };
                     my UInt:D $code = .code;
                     my UInt:D $domain-num = .domain;
-                    my Str $msg = .message;
+                    my Str $msg = try { .message };
                     $column ||= .column;
                     $msg //= $code.Str;
                     if $msg ~~ /^\d+$/ {
