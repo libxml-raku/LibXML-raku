@@ -31,6 +31,13 @@ DLLEXPORT void xml6_doc_set_version(xmlDocPtr self, char *version) {
 }
 
 DLLEXPORT int
+xml6_doc_set_doc_properties(xmlDocPtr self, int mask) {
+    assert(self != NULL);
+    self->properties |= mask;
+    return self->properties;
+}
+
+DLLEXPORT int
 xml6_doc_set_flags(xmlDocPtr self, int flags) {
     assert(self != NULL);
     assert(self->_private != NULL);

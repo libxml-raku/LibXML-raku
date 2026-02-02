@@ -100,6 +100,7 @@ method processXIncludes (
         # old-style XInclude processing
         $ctx.do: { $doc.raw.XIncludeProcessFlags($flags) }
     }
+    $doc.raw.set-doc-properties(XML_DOC_XINCLUDE);
     $ctx.publish();
     $rv;
 }
@@ -172,7 +173,7 @@ multi method parse(
     $ctx.do: {
         my xmlParserCtxt $raw = $html
            ?? htmlFileParserCtxt.new(:$file, :$enc)
-           !! xmlFileParserCtxt.new(:$file);
+           !! xmlFileParserCtxt.new(:$file, flags => $ctx.flags);
         with $raw {
             $ctx.set-raw: $_;
             .ParseDocument;
@@ -1003,6 +1004,14 @@ type of attack.
 
 =end item1
 
+=begin item1
+unzip (since libxml2 v2.15)
+
+/parser/
+
+Automatically uncompress input files.
+
+=end item1
 
 The following obsolete methods trigger parser options in some special way:
 

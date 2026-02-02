@@ -53,7 +53,12 @@ enum xmlParserOption is export (
    XML_PARSE_HUGE => 524288,
    XML_PARSE_OLDSAX => 1048576,
    XML_PARSE_IGNORE_ENC => 2097152,
-   XML_PARSE_BIG_LINES => 4194304
+   XML_PARSE_BIG_LINES => 1+<22,
+   XML_PARSE_NO_XXE => 1+<23,
+   XML_PARSE_UNZIP => 1+<24,
+   XML_PARSE_NO_SYS_CATALOG => 1+<25,
+   XML_PARSE_CATALOG_PI => 1+<26,
+   XML_PARSE_SKIP_IDS => 1+<27,
 );
 
 enum htmlParserOption is export (
@@ -978,6 +983,43 @@ enum xmlDocProperties is export (
     XML_DOC_USERBUILT => 32, # Document was built using the API and not by parsing an instance
     XML_DOC_INTERNAL => 64,  # built for internal processing
     XML_DOC_HTML => 128,     # parsed or built HTML document
+);
+
+enum xmlFeature is export (
+    XML_WITH_THREAD => 1,       # Multithreading support
+    XML_WITH_TREE => 2,         # @deprecated Always available
+    XML_WITH_OUTPUT => 3,       # Serialization support
+    XML_WITH_PUSH => 4,         # Push parser
+    XML_WITH_READER => 5,       # XML Reader
+    XML_WITH_PATTERN => 6,      # Streaming patterns
+    XML_WITH_WRITER => 7,       # XML Writer
+    XML_WITH_SAX1 => 8,         # Legacy SAX1 API
+    XML_WITH_FTP => 9,          # @deprecated FTP support was removed
+    XML_WITH_HTTP => 10,        # @deprecated HTTP support was removed
+    XML_WITH_VALID => 11,       # DTD validation
+    XML_WITH_HTML => 12,        # HTML parser
+    XML_WITH_LEGACY => 13,      # Legacy symbols
+    XML_WITH_C14N => 14,        # Canonical XML
+    XML_WITH_CATALOG => 15,     # XML Catalogs
+    XML_WITH_XPATH => 16,       # XPath
+    XML_WITH_XPTR => 17,        # XPointer
+    XML_WITH_XINCLUDE => 18,    # XInclude
+    XML_WITH_ICONV => 19,       # iconv
+    XML_WITH_ISO8859X => 20,    # Built-in ISO-8859-X
+    XML_WITH_UNICODE => 21,     # @deprecated Removed
+    XML_WITH_REGEXP => 22,      # Regular expressions
+    XML_WITH_AUTOMATA => 23,    # @deprecated Same as XML_WITH_REGEXP
+    XML_WITH_EXPR => 24,        # @deprecated Removed
+    XML_WITH_SCHEMAS => 25,     # XML Schemas
+    XML_WITH_SCHEMATRON => 26,  # Schematron
+    XML_WITH_MODULES => 27,     # Loadable modules
+    XML_WITH_DEBUG => 28,       # Debugging API
+    XML_WITH_DEBUG_MEM => 29,   # @deprecated Removed
+    XML_WITH_DEBUG_RUN => 30,   # @deprecated Removed
+    XML_WITH_ZLIB => 31,        # GZIP compression
+    XML_WITH_ICU => 32,         # ICU
+    XML_WITH_LZMA => 33,        # @deprecated LZMA support was removed
+    XML_WITH_RELAXNG => 34,     # RELAXNG, since 2.14
 );
 
 =begin pod

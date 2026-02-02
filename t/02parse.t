@@ -453,6 +453,7 @@ subtest 'SAX parser', {
         subtest 'attributes', {
             my LibXML::Document $doc = $generator.parse: :string(q{<foo bar="x" baz="y" />});
             my LibXML::Node:D $root = $doc.documentElement;
+            is-deeply $doc.document-properties, XML_DOC_WELLFORMED +| XML_DOC_NSVALID +| XML_DOC_DTDVALID, 'document properties';
             # attributes as a tied hash
             my $attrs := $root.attributes;
             is +$attrs , 2, "2 attributes";

@@ -5,6 +5,7 @@ use LibXML;
 plan 10;
 
 use LibXML;
+use LibXML::Enums;
 use LibXML::Raw;
 use LibXML::Document;
 use LibXML::Config;
@@ -21,6 +22,7 @@ subtest 'parse :html and :file options', {
     isa-ok $doc.raw, htmlDoc, 'HTML, under the hood';
     cmp-ok $doc, '~~', LibXML::Document::HTML, "is HTML";
     cmp-ok $doc, '!~~', LibXML::Document::XML, "isn't XML";
+     is-deeply $doc.document-properties, +XML_DOC_HTML, 'document properties';
 }
 
 

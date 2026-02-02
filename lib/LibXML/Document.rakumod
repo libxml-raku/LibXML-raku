@@ -513,9 +513,29 @@ You may also pass in a L<LibXML::Dtd> object, to validate the document against a
 
 =end pod
 
+#| Matches  a document properties mask
+multi method document-properties(UInt:D $mask --> Bool) { ? ($.raw.properties +& $mask) }
+=para Matches document properties agains a single value, or mask from the following:
+
+=begin table
+Name | Value | Description
+XML_DOC_WELLFORMED | 1 | document is XML well formed
+XML_DOC_NSVALID | 2 | document is Namespace valid
+XML_DOC_OLD10 | 4 | parsed with old XML-1.0 parser
+XML_DOC_DTDVALID | 8 | DTD validation was successful
+XML_DOC_XINCLUDE | 16 | XInclude substitution was done
+XML_DOC_USERBUILT | 32 | Document was built using the API and not by parsing an instance
+XML_DOC_INTERNAL | 64 | built for internal processing
+XML_DOC_HTML | 128 | parsed or built HTML document
+=end table
+
+#| Returns the document properties mask
+multi method document-properties { $.raw.properties }
+=para Returns a mask of L<xmlDocProperties|LibXML::Enums>.
+
 #| Whether the document was valid when it was parsed
 method was-valid returns Bool {
-    ? ($.raw.properties +& XML_DOC_DTDVALID)
+    $.document-properties: XML_DOC_DTDVALID
 }
 method valid is DEPRECATED<was-valid> { $.was-valid }
 

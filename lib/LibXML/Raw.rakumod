@@ -1259,6 +1259,7 @@ class xmlDoc is anyNode does LibXML::Raw::DOM::Document is export {
 
     method set-flags(int32 --> int32) is native($BIND-XML2) is symbol('xml6_doc_set_flags') {*}
     method get-flags(--> int32) is native($BIND-XML2) is symbol('xml6_doc_get_flags') {*}
+    method set-doc-properties(int32 --> int32) is native($BIND-XML2) is symbol('xml6_doc_set_doc_properties') {*}
 }
 
 #| xmlDoc of type: XML_HTML_DOCUMENT_NODE
@@ -1715,9 +1716,9 @@ class xmlParserCtxt is export {
 #| XML file parser context
 class xmlFileParserCtxt is xmlParserCtxt is repr('CStruct') is export {
 
-    our sub New(Str $file --> xmlFileParserCtxt) is native($XML2) is symbol('xmlCreateFileParserCtxt') {*};
+    our sub New(Str $file, int32 $flags --> xmlFileParserCtxt) is native($XML2) is symbol('xmlCreateURLParserCtxt') {*};
     method ParseDocument(--> int32) is native($XML2) is symbol('xmlParseDocument') {*}
-    method new(Str() :$file!) { New($file) }
+    method new(Str() :$file!, UInt:D :$flags = 0) { New($file, $flags) }
 }
 
 #| an incremental XML push parser context. Determines encoding and reads data in binary chunks
@@ -1806,6 +1807,8 @@ sub xmlLoadCatalog(Str --> int32) is native($XML2) is export {*}
 
 ## xmlInitParser() should be called once at start-up
 sub xmlInitParser is native($XML2) is export {*}
+
+sub xmlHasFeature(int32 --> int32) is native($XML2) is export {*}
 
 ## Globals aren't yet writable in Rakudo
 
