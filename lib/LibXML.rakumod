@@ -11,7 +11,7 @@ use LibXML::Types :QName;
 
 proto method config() handles <
       version config-version load-catalog
-      have-compression have-reader have-schemas have-threads have-writer
+      have-compression have-reader have-schemas have-threads have-writer have-feature
       skip-xml-declaration skip-dtd tag-expansion external-entity-loader> {*}
 multi method config(::?CLASS:U:) { LibXML::Config }
 multi method config(::?CLASS:D:) { nextsame }
@@ -26,6 +26,7 @@ method createDocumentType(QName $name, Str $external-id, Str $system-id) {
       .createInternalSubset($name, $external-id, $system-id);
 }
 
+# For DOM compatibility - largely deprecated
 method hasFeature(Str:D() $feature, Version() $v = v2.0) {
     ($feature ~~ /:i ^[xml|core]$ / && $v <= v2.0)
 }

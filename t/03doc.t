@@ -561,13 +561,13 @@ subtest 'compress' => {
     use File::Temp;
     my LibXML::Document:D $doc .= parse: :file( "samples/test.xml" );
 
-    if LibXML.have-compression {
-        lives-ok { $doc = LibXML.parse: :file<test/compression/test.xml.gz> }, 'load compressed document';
+    if LibXML.have-compression && LibXML.have-feature(XML_WITH_ZLIB) {
+        lives-ok { $doc = LibXML.parse: :file<test/compression/test.xml.gz>, :unzip }, 'load compressed document';
         $doc.compression = 5;
         is $doc.compression, 5, 'set document compression';
         my (Str:D $file) = tempfile();
         my $n = $doc.write: :$file;
-        lives-ok {$doc = LibXML.parse: :$file}, 'reload compressed document';
+        lives-ok {$doc = LibXML.parse: :$file, :unzip}, 'reload compressed document';
     }
     else {
         skip "LibXML compression is not available for compression tests", 3;

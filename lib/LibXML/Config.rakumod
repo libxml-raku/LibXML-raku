@@ -102,6 +102,12 @@ method have-writer(--> Bool:D) {
 }
 =para Note: LibXML::Writer is available as a separate module.
 
+#| General feature check.
+method have-feature(Int:D $feature --> Bool) {
+    ? xmlHasFeature($feature);
+}
+=para See xmlFeature in L<LibXML::Enums>.
+
 #| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
 my $have-schemas;
 method have-schemas(--> Bool:D) {

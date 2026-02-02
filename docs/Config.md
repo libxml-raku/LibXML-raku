@@ -93,6 +93,18 @@ Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) funct
 
 Note: LibXML::Writer is available as a separate module.
 
+### method have-feature
+
+```raku
+method have-feature(
+    Int:D $feature
+) returns Bool
+```
+
+General feature check.
+
+See xmlFeature in [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums).
+
 ### method have-schemas
 
 ```raku

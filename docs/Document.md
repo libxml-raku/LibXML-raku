@@ -365,6 +365,34 @@ unless $doc.is-valid($dtd) {
 }
 ```
 
+### multi method document-properties
+
+```raku
+multi method document-properties(
+    Int:D $mask where { ... }
+) returns Bool
+```
+
+Matches a document properties mask
+
+Matches document properties agains a single value, or mask from the following:
+
+<table class="pod-table">
+<tbody>
+<tr> <td>Name</td> <td>Value</td> <td>Description</td> </tr> <tr> <td>XML_DOC_WELLFORMED</td> <td>1</td> <td>document is XML well formed</td> </tr> <tr> <td>XML_DOC_NSVALID</td> <td>2</td> <td>document is Namespace valid</td> </tr> <tr> <td>XML_DOC_OLD10</td> <td>4</td> <td>parsed with old XML-1.0 parser</td> </tr> <tr> <td>XML_DOC_DTDVALID</td> <td>8</td> <td>DTD validation was successful</td> </tr> <tr> <td>XML_DOC_XINCLUDE</td> <td>16</td> <td>XInclude substitution was done</td> </tr> <tr> <td>XML_DOC_USERBUILT</td> <td>32</td> <td>Document was built using the API and not by parsing an instance</td> </tr> <tr> <td>XML_DOC_INTERNAL</td> <td>64</td> <td>built for internal processing</td> </tr> <tr> <td>XML_DOC_HTML</td> <td>128</td> <td>parsed or built HTML document</td> </tr>
+</tbody>
+</table>
+
+### multi method document-properties
+
+```raku
+multi method document-properties() returns Mu
+```
+
+Returns the document properties mask
+
+Returns a mask of [xmlDocProperties](https://libxml-raku.github.io/LibXML-raku/Enums).
+
 ### method was-valid
 
 ```raku

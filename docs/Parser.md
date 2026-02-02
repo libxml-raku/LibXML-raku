@@ -511,6 +511,12 @@ The available options are:
 
     Note: the default value for this option was changed to protect against denial of service through entity expansion attacks. Before enabling the option ensure you have taken alternative measures to protect your application against this type of attack.
 
+  * unzip (since libxml2 v2.15)
+
+    /parser/
+
+    Automatically uncompress input files.
+
 The following obsolete methods trigger parser options in some special way:
 
   * recover-silently

@@ -33,6 +33,7 @@ our constant %Opts = %(
     :recover-silently(XML_PARSE_RECOVER +| XML_PARSE_NOERROR),
     :suppress-errors(XML_PARSE_NOERROR),
     :suppress-warnings(XML_PARSE_NOWARNING),
+    :unzip(XML_PARSE_UNZIP), # required for libxml2 v1.15+ decompression
     :validation(XML_PARSE_DTDVALID),
     :xinclude(XML_PARSE_XINCLUDE),
 );
