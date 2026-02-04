@@ -127,7 +127,7 @@ also does W3C::DOM::Node;
     document or a document-fragment. Because of this there is no node without a
     parent.
 
-    Many methods listed here are extensively documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
+    Many methods listed here are documented in the DOM Level 3 specification (L<http://www.w3.org/TR/DOM-Level-3-Core/>). Please refer to the specification for extensive documentation.
 =end pod
 
 enum <SkipBlanks KeepBlanks>;

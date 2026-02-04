@@ -3,18 +3,19 @@
 0.11.0  2026-02-03T06:34:40+13:00
    - Added LibXML::Document document-properties() method.
    - Adjust "size of" tests to from strict equality to less than or equal
-     to #118. This generally seems more robust for forward compatibility and/or
-     package maintainer extensions.
-   - Fix compression in libxml2 v2.15+, which requires the new :unzip parser
-     option. Also change xmlParserCtxt new() method call from xmlCreateFileParserCtxt()
-     to xmlCreateURLParserCtxt(). The latter correctly initializes input handlers
-     when compression is needed. 
+     to #118. This generally seems more robust for forward compatibility
+     and/or package maintainer extensions.
+   - Fix compression in libxml2 v2.15+, which requires the new :unzip
+     parser option. Also change xmlParserCtxt new() method call from
+     xmlCreateFileParserCtxt() to xmlCreateURLParserCtxt(). The latter
+     correctly initializes input handlers when compression is needed. 
 
 0.10.20  2026-01-31T08:54:11+13:00
    - Use preset compilation options when gcc detected #118
 
 0.10.19  2026-01-08T07:17:06+13:00
-   - Silence some more unused variable warnings/errors in C compilation #117
+   - Silence some more unused variable warnings/errors in C compilation
+     #117
 
 0.10.18  2026-01-07T09:56:37+13:00
    - Add LibXML::Document.new(:$root) option

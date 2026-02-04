@@ -109,7 +109,7 @@ Description
 
 LibXML::Node defines functions that are common to all Node Types. An LibXML::Node should never be created standalone, but as an instance of a high level class such as [LibXML::Element](https://libxml-raku.github.io/LibXML-raku/Element) or [LibXML::Text](https://libxml-raku.github.io/LibXML-raku/Text). The class itself should provide only common functionality. In LibXML each node is part either of a document or a document-fragment. Because of this there is no node without a parent.
 
-Many methods listed here are extensively documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
+Many methods listed here are documented in the DOM Level 3 specification ([http://www.w3.org/TR/DOM-Level-3-Core/](http://www.w3.org/TR/DOM-Level-3-Core/)). Please refer to the specification for extensive documentation.
 
 Property Methods
 ----------------
