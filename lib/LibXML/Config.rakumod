@@ -89,44 +89,37 @@ method config-version(--> Version:D) {
     $config-version //= Version.new: xml6_config::version()
 }
 
-#| Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
-my $have-reader;
-method have-reader(--> Bool:D) {
-    $have-reader //= resolve-package('LibXML::Reader').have-reader
-}
-
-#| Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) functionality.
-my $have-writer;
-method have-writer(--> Bool:D) {
-    $have-writer //= try { resolve-package('LibXML::Writer').have-writer } // False;
-}
-=para Note: LibXML::Writer is available as a separate module.
-
 #| General feature check.
 method have-feature(Int:D $feature --> Bool) {
     ? xmlHasFeature($feature);
 }
 =para See xmlFeature in L<LibXML::Enums>.
 
+#| Returns True if the `libxml2` library supports XML Reader (LibXML::Reader) functionality.
+method have-reader(--> Bool:D) {
+    $.have-feature: XML_WITH_READER;
+}
+
+#| Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) functionality.
+method have-writer(--> Bool:D) {
+    $.have-feature: XML_WITH_WRITER;
+}
+=para Note: LibXML::Writer is available as a separate module.
+
 #| Returns True if the `libxml2` library supports XML Schema (LibXML::Schema) functionality.
-my $have-schemas;
 method have-schemas(--> Bool:D) {
-    $have-schemas //= do given self.version {
-        $_ >= v2.05.10 && $_ != v2.09.04
-    }
+    $.have-feature: XML_WITH_SCHEMAS;
 }
 
 #| Returns True if the `libxml2` library supports threads
-my $have-threads;
-method have-threads(--> Bool:D) { $have-threads //= ? xml6_config::have_threads(); }
+method have-threads(--> Bool:D) { $.have-feature: XML_WITH_THREAD }
 
 #| Returns True if the `libxml2` library supports compression
-my $have-compression;
-method have-compression(--> Bool:D) { $have-compression //= ? xml6_config::have_compression(); }
+method have-compression(--> Bool:D) { $.have-feature: XML_WITH_ZLIB  }
 
 #| Returns True if the `libxml2` library supports iconv (unicode encoding)
 my $have-iconv;
-method have-iconv(--> Bool:D) { $have-iconv //= ? xml6_config::have_iconv(); }
+method have-iconv(--> Bool:D) { $.have-feature: XML_WITH_ICONV }
 
 my $catalogs = SetHash.new;
 method load-catalog(Str:D $filename --> Nil) {

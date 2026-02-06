@@ -523,7 +523,7 @@ method insertAfter(LibXML::Node:D $new, LibXML::Node $ref? --> LibXML::Node) {
 =para If C<$refNode> is undefined, the newNode will be set as the new
     last child of the parent node.
 
-    method removeChildNodes(--> LibXML::Node) {
+method removeChildNodes(--> LibXML::Node) {
     my \frag-class = $.config.class-from(XML_DOCUMENT_FRAG_NODE);
     self.box: frag-class, self.raw.removeChildNodes();
 }

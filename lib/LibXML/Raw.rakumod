@@ -80,14 +80,13 @@ use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
 sub xmlParserVersion is export { cglobal($XML2, 'xmlParserVersion', Str); }
 
 module xml6_config is export {
-    our sub have_threads(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_threads') is export {*}
-    our sub have_compression(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_compression') is export {*}
-    our sub have_iconv(-->int32) is native($BIND-XML2) is symbol('xml6_config_have_iconv') is export {*}
     our sub version(--> Str) is native($BIND-XML2) is symbol('xml6_config_version') is export {*};
 }
 
-our sub ref-current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
-our sub ref-total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
+module xml6_ref is export {
+    our sub current(-->int32) is native($BIND-XML2) is symbol('xml6_ref_current') {*}
+    our sub total(-->int32) is native($BIND-XML2) is symbol('xml6_ref_total') {*}
+}
 
 module xml6_gbl {...}
 

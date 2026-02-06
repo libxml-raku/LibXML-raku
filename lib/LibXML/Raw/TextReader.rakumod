@@ -7,8 +7,6 @@ use LibXML::Raw::Schema;
 use LibXML::Types :QName;
 use LibXML::Raw::Defs :$XML2, :$BIND-XML2, :Opaque, :xmlCharP;
 
-sub xml6_config_have_libxml_reader(--> int32) is native($BIND-XML2) is export {*}
-
 class xmlTextReader is repr(Opaque) is export {
 
     our sub NewBuf(xmlParserInputBuffer, Str $uri --> xmlTextReader) is native($XML2) is symbol('xmlNewTextReader') {*}

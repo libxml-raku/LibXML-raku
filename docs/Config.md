@@ -75,6 +75,18 @@ method config-version() returns Version:D
 
 Returns the version of the `libxml2` library that the LibXML module was built against
 
+### method have-feature
+
+```raku
+method have-feature(
+    Int:D $feature
+) returns Bool
+```
+
+General feature check.
+
+See xmlFeature in [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums).
+
 ### method have-reader
 
 ```raku
@@ -92,18 +104,6 @@ method have-writer() returns Bool
 Returns True if the `libxml2` library supports XML Writer (LibXML::Writer) functionality.
 
 Note: LibXML::Writer is available as a separate module.
-
-### method have-feature
-
-```raku
-method have-feature(
-    Int:D $feature
-) returns Bool
-```
-
-General feature check.
-
-See xmlFeature in [LibXML::Enums](https://libxml-raku.github.io/LibXML-raku/Enums).
 
 ### method have-schemas
 

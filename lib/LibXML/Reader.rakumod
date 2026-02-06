@@ -709,7 +709,7 @@ multi method getParserProp(Numeric:D $prop) {
 
 #| Ensure libxml2 has been compiled with the reader pull-parser enabled
 method have-reader {
-    ? xml6_config_have_libxml_reader();
+    self.config.have-reader;;
 }
 
 method FALLBACK($key, |c) is rw {

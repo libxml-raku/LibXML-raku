@@ -12,7 +12,7 @@ my $skip;
 if $*KERNEL.name !~~ 'linux' {
     $skip = 'These tests only run on Linux';
 }
-elsif LibXML::Raw::ref-total() < 0 {
+elsif xml6_ref::total() < 0 {
     $skip = "please run '\$ make clean debug' to enable memory tests";
 }
 
@@ -423,7 +423,7 @@ sub check-mem($initialise?) {
             $LibXML::TOTALMEM = %mem<Total>;
         }
 
-        my $live-objects = LibXML::Raw::ref-current;
+        my $live-objects = xml6_ref::current();
         $LibXML::TOTALOBJS += $live-objects;
         $LibXML::MEMCHECKS++;
 
@@ -433,20 +433,20 @@ sub check-mem($initialise?) {
 
 sub summarise-mem() {
     $*VM.request-garbage-collection;
-    my $total-objects = LibXML::Raw::ref-total() || 1;
-    my $lost-objects = LibXML::Raw::ref-current();
+    my $total-objects = xml6_ref::total() || 1;
+    my $lost-objects = xml6_ref::current();
     my $lost-pcnt = sprintf("%.02f", 100 * $lost-objects / $total-objects);
 
     note("Total Mem Increase:{$LibXML::TOTALMEM - $LibXML::STARTMEM} $units, Avg-Objects:{$LibXML::TOTALOBJS div $LibXML::MEMCHECKS}, Lost:$lost-objects Objects ($lost-pcnt\%)");
 }
 
 sub mem-test(&test) {
-    my $live-objects = LibXML::Raw::ref-current;
+    my $live-objects = xml6_ref::current;
     for 1..TIMES-THROUGH {
         &test();
     }
     check-mem();
-    my $live-objects2 = LibXML::Raw::ref-current;
+    my $live-objects2 = xml6_ref::current;
     ok ($live-objects2 - $live-objects < 500), "no major memory leaks";
 }
 
