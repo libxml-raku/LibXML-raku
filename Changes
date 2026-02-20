@@ -1,5 +1,11 @@
 {{$NEXT}}
 
+0.11.1  2026-02-21T10:16:38+13:00
+   - Remove use of OO::Monitors from LibXML::Config. Better protect r/w
+     accessors in LibXML::Config.
+   - Replace custom implementation of have-reader(), have-writer(), have-schema(),
+     have-threads(), have-compression() and have-iconv() with use of xmlHaveFeatures().
+
 0.11.0  2026-02-03T06:34:40+13:00
    - Added LibXML::Document document-properties() method.
    - Adjust "size of" tests to from strict equality to less than or equal

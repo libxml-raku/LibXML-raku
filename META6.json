@@ -11,8 +11,7 @@
     "File::Temp",
     "Method::Also",
     "W3C::DOM:ver<0.0.2+>",
-    "XML",
-    "OO::Monitors"
+    "XML"
   ],
   "description": "Raku bindings to the libxml2 native library",
   "license": "Artistic-2.0",
@@ -107,5 +106,5 @@
     "JSON::Fast",
     "App::Prove6"
   ],
-  "version": "0.11.0"
+  "version": "0.11.1"
 }

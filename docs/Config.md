@@ -59,6 +59,12 @@ DOM objects, generally aren't configurable, although some particular methods do 
 Configuration Methods
 ---------------------
 
+### parser-locking
+
+This configuration setting will lock the parsing of documents to disable concurrent parsing. It needs to be set to allow per-parser input-callbacks, which are not currently thread safe.
+
+Note: `parser-locking` defaults to `True` on Windows, as some platforms have thread-safety issues.
+
 ### method version
 
 ```raku
@@ -222,12 +228,6 @@ The LibXML::Config:U `input-callbacks` method sets and enables a set of input ca
 The LibXML::Config:U `input-callbacks` sets up a localised set of input callbacks. Concurrent use of multiple input callbacks is NOT thread-safe and `parser-locking` also needs to be set to disable concurrent parsing (see below).
 
 See [LibXML::InputCallback](https://libxml-raku.github.io/LibXML-raku/InputCallback)
-
-### parser-locking
-
-This configuration setting will lock the parsing of documents to disable concurrent parsing. It needs to be set to allow per-parser input-callbacks, which are not currently thread safe.
-
-Note: `parser-locking` defaults to `True` on Windows, as some platforms have thread-safety issues.
 
 Query Handler
 -------------
