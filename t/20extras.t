@@ -13,7 +13,7 @@ my LibXML $parser .= new();
 
 subtest ':skip-xml-declaration, :tag-expansion', {
     my LibXML::Document:D $doc = $parser.parse: :$string;
-    temp $doc.config.skip-xml-declaration = 1;
+    temp $doc.config.skip-xml-declaration = True;
     is $doc.Str(), $string, ':skip-xml-declaration';
     temp $doc.config.tag-expansion = True;
     is $doc.Str(), "<foo><bar></bar></foo>\n", ':tag-expansion';

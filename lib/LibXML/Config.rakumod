@@ -76,6 +76,40 @@ multi method clone(::?CLASS:D: |c) { nextsame }
 
 =head2 Configuration Methods
 
+=head3 parser-locking
+=para This configuration setting will lock the parsing of documents to disable
+concurrent parsing. It needs to be set to allow per-parser input-callbacks,
+which are not currently thread safe.
+
+my Bool:D() $parser-locking = $*DISTRO.is-win || ! $singleton.have-threads;
+method parser-locking is rw { $parser-locking }
+
+=para Note: `parser-locking` defaults to `True` on Windows, as some platforms have thread-safety issues.
+
+method Lock handles<protect> {
+    # global lock
+    BEGIN Lock.new;
+}
+
+sub protected(&action) is hidden-from-backtrace is export(:protected) {
+    $parser-locking
+        ?? $singleton.protect(&action)
+        !! &action();
+}
+
+my Attribute %atts = ::?CLASS.^attributes.map: {.name => $_ };
+
+method attr-rw($att-name) is rw {
+    my Attribute:D $att := %atts{$att-name};
+    sub FETCH($) {
+        protected { $att.get_value: self; }
+    }
+    sub STORE($, $val) {
+        protected { $att.set_value: self, $val; }
+    }
+    Proxy.new: :&FETCH, :&STORE;
+}
+
 #| Returns the run-time version of the `libxml2` library.
 my $version;
 method version(--> Version:D) {
@@ -86,7 +120,9 @@ method version(--> Version:D) {
 #| Returns the version of the `libxml2` library that the LibXML module was built against
 my $config-version;
 method config-version(--> Version:D) {
-    $config-version //= Version.new: xml6_config::version()
+    protected {
+        $config-version //= Version.new: xml6_config::version()
+    }
 }
 
 #| General feature check.
@@ -123,12 +159,14 @@ method have-iconv(--> Bool:D) { $.have-feature: XML_WITH_ICONV }
 
 my $catalogs = SetHash.new;
 method load-catalog(Str:D $filename --> Nil) {
-    my Int $stat = 0;
-    unless $filename ∈ $catalogs {
-        $stat = xmlLoadCatalog($filename);
-        fail "unable to load XML catalog: $filename"
+    protected {
+        my Int $stat = 0;
+        unless $filename ∈ $catalogs {
+            $stat = xmlLoadCatalog($filename);
+            fail "unable to load XML catalog: $filename"
             if $stat < 0;
-        $catalogs.set: $filename;
+            $catalogs.set: $filename;
+        }
     }
 }
 
@@ -145,7 +183,7 @@ has Bool:D() $!skip-xml-declaration is built = False;
 
 proto method skip-xml-declaration() {*}
 multi method skip-xml-declaration(::?CLASS:U: --> Bool:D) is rw { $singleton.skip-xml-declaration }
-multi method skip-xml-declaration(::?CLASS:D: --> Bool:D) is rw { $!skip-xml-declaration }
+multi method skip-xml-declaration(::?CLASS:D: --> Bool:D) is rw { $.attr-rw: '$!skip-xml-declaration' }
 
 =head3 method skip-dtd
 =for code :lang<raku>
@@ -156,14 +194,14 @@ has Bool:D() $!skip-dtd is built = False;
 
 proto method skip-dtd() {*}
 multi method skip-dtd(::?CLASS:U: --> Bool) is rw { $singleton.skip-dtd }
-multi method skip-dtd(::?CLASS:D: --> Bool) is rw { $!skip-dtd }
+multi method skip-dtd(::?CLASS:D: --> Bool) is rw { $.attr-rw: '$!skip-dtd' }
 
 #| Whether to output empty tags as '<a></a>' rather than '<a/>' (default False)
 has Bool:D() $!tag-expansion is built = False;
 
 proto method tag-expansion() {*}
 multi method tag-expansion(::?CLASS:U: --> Bool) is rw { $singleton.tag-expansion }
-multi method tag-expansion(::?CLASS:D: --> Bool) is rw { $!tag-expansion }
+multi method tag-expansion(::?CLASS:D: --> Bool) is rw { $.attr-rw: '$!tag-expansion' }
 
 =head3 method max-errors
 =for code :lang<raku>
@@ -174,7 +212,7 @@ has UInt:D $!max-errors is built = 100;
 
 proto method max-errors() {*}
 multi method max-errors(::?CLASS:U: --> UInt:D) is rw { $singleton.max-errors }
-multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $!max-errors }
+multi method max-errors(::?CLASS:D: --> UInt:D) is rw { $.attr-rw: '$!max-errors' }
 
 =head2 Parsing Default Options
 
@@ -182,7 +220,7 @@ has xmlDocumentType:D $!document-kind = XML_DOCUMENT_NODE;
 
 proto method document-kind() {*}
 multi method document-kind(::?CLASS:U: --> xmlDocumentType:D) { $singleton.document-kind }
-multi method document-kind(::?CLASS:D: --> xmlDocumentType:D) { $!document-kind }
+multi method document-kind(::?CLASS:D: --> xmlDocumentType:D) { $.attr-rw: '$!document-kind' }
 
 method keep-blanks-default is rw is DEPRECATED<keep-blanks> { $.keep-blanks }
 method default-parser-flags is DEPRECATED<parser-flags> { $.parser-flags }
@@ -193,49 +231,55 @@ proto method external-entity-loader() {*}
 multi method external-entity-loader(::?CLASS:U:) is rw { $singleton.external-entity-loader }
 multi method external-entity-loader(::?CLASS:D:) is rw {
     Proxy.new(
-        FETCH => { &!external-entity-loader },
+        FETCH => { protected { &!external-entity-loader } },
         STORE => -> $, &loader {
-            if self === $singleton {
-                set-external-entity-loader(&loader);
+            protected {
+                if self === $singleton {
+                    set-external-entity-loader(&loader);
+                }
+                &!external-entity-loader = &loader;
             }
-            &!external-entity-loader = &loader;
         });
 }
 
 proto method setup(|) {*}
-multi method setup(::?CLASS:U: --> List:D) { $singleton.setup }
+multi method setup(::?CLASS:U: --> List:D) { protected { $singleton.setup } }
 multi method setup(::?CLASS:D: --> List:D) {
-    if self.defined && &!external-entity-loader.defined && !self.parser-locking {
-        warn q:to<END>.chomp;
-        Unsafe use of local 'external-entity-loader' configuration.
-        Please configure globally, or set 'parser-locking' to disable threaded parsing
-        END
+    protected {
+        if self.defined && &!external-entity-loader.defined && !self.parser-locking {
+            warn q:to<END>.chomp;
+            Unsafe use of local 'external-entity-loader' configuration.
+            Please configure globally, or set 'parser-locking' to disable threaded parsing
+            END
+        }
+        my @prev[4] = (
+            $*THREAD.id,
+            xml6_gbl::get-tag-expansion(),
+            xml6_gbl::get-keep-blanks(),
+            xml6_gbl::get-external-entity-loader,
+        );
+        xml6_gbl::set-tag-expansion(self.tag-expansion);
+        xml6_gbl::set-keep-blanks(self.keep-blanks);
+        #    xml6_gbl::set-external-entity-loader(&!external-entity-loader) with self && &!external-entity-loader;
+        if self !=== $singleton && &!external-entity-loader {
+            note "SETTING EXTERNAL ENT LOADER";
+            set-external-entity-loader(&!external-entity-loader);
+        }
+        @prev;
     }
-    my @prev[4] = (
-        $*THREAD.id,
-        xml6_gbl::get-tag-expansion(),
-        xml6_gbl::get-keep-blanks(),
-        xml6_gbl::get-external-entity-loader,
-    );
-    xml6_gbl::set-tag-expansion(self.tag-expansion);
-    xml6_gbl::set-keep-blanks(self.keep-blanks);
-#    xml6_gbl::set-external-entity-loader(&!external-entity-loader) with self && &!external-entity-loader;
-    if self !=== $singleton && &!external-entity-loader {
-        note "SETTING EXTERNAL ENT LOADER";
-        set-external-entity-loader(&!external-entity-loader);
-    }
-    @prev;
 }
 
 multi method restore([]) { }
 multi method restore(@prev where .elems == 4) {
-    if $*THREAD.id == @prev[0] {
-        xml6_gbl::set-tag-expansion(@prev[1]);
-        xml6_gbl::set-keep-blanks(@prev[2]);
-        xml6_gbl::set-external-entity-loader(@prev[3]) with self;
-    }
-    else {
-        warn "OS thread change\n" ~ Backtrace.new.full.Str.indent(4);
+    protected {
+        if $*THREAD.id == @prev[0] {
+            xml6_gbl::set-tag-expansion(@prev[1]);
+            xml6_gbl::set-keep-blanks(@prev[2]);
+            xml6_gbl::set-external-entity-loader(@prev[3]) with self;
+        }
+        else {
+            warn "OS thread change\n" ~ Backtrace.new.full.Str.indent(4);
+        }
     }
 }
 
@@ -243,7 +287,7 @@ has Bool:D() $!keep-blanks is built = True;
 
 proto method keep-blanks() {*}
 multi method keep-blanks(::?CLASS:U: --> Bool) is rw { $singleton.keep-blanks }
-multi method keep-blanks(::?CLASS:D: --> Bool) is rw { $!keep-blanks }
+multi method keep-blanks(::?CLASS:D: --> Bool) is rw { $.attr-rw: '$!keep-blanks' }
 
 #| Low-level default parser flags (Read-only)
 method parser-flags(--> UInt:D) {
@@ -254,26 +298,28 @@ method parser-flags(--> UInt:D) {
 
 #| External entity handler to be used when parser expand-entities is set.
 sub set-external-entity-loader(&loader) {
-    my constant XML_CHAR_ENCODING_NONE = 0;
-    if &loader.defined {
-        xmlExternalEntityLoader::Set(
-            sub (Str $url, Str $id, xmlParserCtxt $ctxt --> xmlParserInput) {
-                CATCH {
-                    default {
-                        if $ctxt.defined {
-                            $ctxt.ParserError(.message);
+    protected {
+        my constant XML_CHAR_ENCODING_NONE = 0;
+        if &loader.defined {
+            xmlExternalEntityLoader::Set(
+                sub (Str $url, Str $id, xmlParserCtxt $ctxt --> xmlParserInput) {
+                    CATCH {
+                        default {
+                            if $ctxt.defined {
+                                $ctxt.ParserError(.message);
+                            }
+                            else {
+                                note "uncaught entity loader error: " ~ .message;
+                            }
+                            return xmlParserInput;
                         }
-                        else {
-                            note "uncaught entity loader error: " ~ .message;
-                        }
-                        return xmlParserInput;
                     }
+                    my Str $string := &loader($url, $id);
+                    my xmlParserInputBuffer $buf .= new: :$string;
+                    $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
                 }
-                my Str $string := &loader($url, $id);
-                my xmlParserInputBuffer $buf .= new: :$string;
-                $ctxt.NewInputStream($buf, XML_CHAR_ENCODING_NONE);
-            }
-        );
+            );
+        }
     }
 }
 
@@ -320,26 +366,18 @@ proto method input-callbacks(|) {*}
 multi method input-callbacks(::?CLASS:U:) is rw { $singleton.input-callbacks }
 multi method input-callbacks(::?CLASS:D:) is rw {
     Proxy.new(
-        FETCH => sub ($) { $!input-callbacks },
+        FETCH => sub ($) { protected { $!input-callbacks } },
         STORE => sub ($, $callbacks) {
-            if self === $singleton {
-                .deactivate with $!input-callbacks;
-                .activate with $callbacks;
+            protected {
+                if self === $singleton {
+                    .deactivate with $!input-callbacks;
+                    .activate with $callbacks;
+                }
+                $!input-callbacks = $callbacks
             }
-            $!input-callbacks = $callbacks
         });
 }
 =para See L<LibXML::InputCallback>
-
-=head3 parser-locking
-=para This configuration setting will lock the parsing of documents to disable
-concurrent parsing. It needs to be set to allow per-parser input-callbacks,
-which are not currently thread safe.
-
-my Bool:D() $parser-locking = $*DISTRO.is-win || ! $singleton.have-threads;
-method parser-locking is rw { $parser-locking }
-
-=para Note: `parser-locking` defaults to `True` on Windows, as some platforms have thread-safety issues.
 
 =head2 Query Handler
 
@@ -351,18 +389,6 @@ my QueryHandler $query-handler = class NoQueryHandler {
     }
 }
 
-method lock handles<protect> {
-    # global lock
-    BEGIN Lock.new;
-}
-
-sub protected(&action) is hidden-from-backtrace is export(:protected) {
-    $parser-locking
-        ?? $singleton.protect(&action)
-        !! &action();
-}
-
-
 =head3 method query-handler
 =for code :lang<raku>
 method query-handler() is rw returns LibXML::Config::QueryHandler
@@ -372,7 +398,7 @@ has $!query-handler is built = $query-handler;
 
 proto method query-handler() {*}
 multi method query-handler(::?CLASS:U: --> QueryHandler) is rw { $singleton.query-handler }
-multi method query-handler(::?CLASS:D: --> QueryHandler) is rw { $!query-handler }
+multi method query-handler(::?CLASS:D: --> QueryHandler) is rw { $.attr-rw: '$!query-handler' }
 =para See L<LibXML::XPath::Context>
 
 my constant @DefaultClassMap =
@@ -409,10 +435,12 @@ has @!class-map is default(Nil);
 proto method class-map() {*}
 multi method class-map(::?CLASS:U:) { $singleton.class-map }
 multi method class-map(::?CLASS:D:) {
-    unless @!class-map {
-        @!class-map = @ClassMap.map({ .defined ?? resolve-package($_) !! Nil })
+    protected {
+        unless @!class-map {
+            @!class-map = @ClassMap.map({ .defined ?? resolve-package($_) !! Nil })
+        }
+        @!class-map
     }
-    @!class-map
 }
 
 method !validate-map-class-name(Str:D $class, Str:D $why, Bool:D :$strict = True) {
@@ -426,9 +454,9 @@ method !validate-map-class(Any:U \type, Str:D $why, Bool:D :$strict = True) {
 }
 
 proto method map-class(|) {*}
-multi method map-class(::?CLASS:U: |c) { $singleton.map-class(|c) }
+multi method map-class(::?CLASS:U: |c) { protected { $singleton.map-class(|c) } }
 multi method map-class(::?CLASS:D: Int:D $id, Mu:U \user-type) {
-    @.class-map[$id] := user-type;
+    protected { @.class-map[$id] := user-type; }
 }
 multi method map-class(::?CLASS:D: Str:D $class, Mu:U \user-type) {
     self!validate-map-class-name($class, q<unknown to configuration 'map-call' method>);
