@@ -1,7 +1,6 @@
 use v6.d;
-use OO::Monitors;
 #| LibXML Global configuration
-unit monitor LibXML::Config;
+unit class LibXML::Config;
 
 =begin pod
 

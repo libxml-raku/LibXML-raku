@@ -12,7 +12,6 @@ use LibXML::Element;
 use LibXML::Attr;
 use LibXML::Raw;
 use LibXML::Types;
-use OO::Monitors;
 
 class MyElement is LibXML::Element {
     has Str:D $.my-attr = "something special";
@@ -65,7 +64,7 @@ subtest "Basics" => {
 
 subtest "By Element Type" => {
     plan 4;
-    my monitor MyConfig is LibXML::Config {
+    my class MyConfig is LibXML::Config {
         proto method class-from(|) {*}
         multi method class-from(::?CLASS:D: anyNode:D $raw) is raw {
             $raw.getNodeName eq 'foo' ?? MyElement::Foo !! nextsame

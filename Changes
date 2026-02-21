@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.11.2  2026-02-21T10:51:19+13:00
+   - Fix removal of OO::Monitors
+
 0.11.1  2026-02-21T10:16:38+13:00
    - Remove use of OO::Monitors from LibXML::Config. Better protect r/w
      accessors in LibXML::Config.
