@@ -13,6 +13,7 @@ use LibXML::InputCallback;
 
 INIT my \MAX_THREADS = %*ENV<MAX_THREADS> || (($*KERNEL.cpu-cores / 2).Int max 10);
 INIT my \MAX_LOOP = %*ENV<MAX_LOOP> || 50;
+INIT my \LOOPS = ^MAX_LOOP;
 
 note "Threading is disabled{$*DISTRO.is-win ?? ' on Windows' !! ''} (LibXML::Config.parser-locking == True)"
     if LibXML::Config.parser-locking;
@@ -31,14 +32,14 @@ subtest 'dtd' => {
     plan 2;
     my LibXML::Document $doc .= parse: :file<samples/dtd.xml>;
     my LibXML::Dtd:D $dtd = $doc.getInternalSubset;
-    my @ok = (1..MAX_LOOP).map: {
+    my @ok = LOOPS.map: {
         my @k = blat {$doc.is-valid && $dtd.is-valid($doc) && $doc.is-valid($dtd) };
         @k.all.so;
     }
     ok @ok.all.so;
     my LibXML::Document $bad .= parse: :string('<bar/>');
 
-    @ok = (1..MAX_LOOP).map: {
+    @ok = LOOPS.map: {
         my @k = blat { ! ($dtd.is-valid($bad) || $bad.is-valid($dtd)) }
         @k.all.so;
     }
@@ -179,7 +180,7 @@ subtest 'input callbacks, global', {
                 -> $fh { $fh.close },
     );
     temp LibXML::Config.input-callbacks = $callbacks;
-    for (^MAX_LOOP) {
+    for LOOPS {
         my LibXML::Document:D @ = blat {
             my LibXML $parser .= new;
             $parser.parse: :location<samples/dromeds.xml>;
@@ -191,7 +192,7 @@ subtest 'input callbacks, global', {
 subtest 'input callbacks, local', {
     my Int $open-calls = 0;
     temp LibXML::Config.parser-locking = True;
-    for (^MAX_LOOP) {
+    for LOOPS {
         my atomicint $local-open-calls = 0;
         my LibXML::InputCallback() $callbacks = (
             -> $ { $local-open-calls⚛++; True },
@@ -252,7 +253,7 @@ subtest 'relaxNG schema validation', {
 
     my @ok = blat {
         my $ok = True;
-        for 1..MAX_LOOP {
+        for LOOPS {
 	    my $x = $p.parse: :string($xml);
 	    try { LibXML::RelaxNG.new( string => $rngschema ).validate( $x ) };
             with $! {
@@ -280,7 +281,7 @@ subtest 'XML schema validation', {
 
     my @ok = blat {
         my $ok = True;
-        for 1..MAX_LOOP {
+        for LOOPS {
 	    my $x = $p.parse: :string($xml);
             try { my LibXML::Schema $s .= new( string => $xsdschema ); $s.validate( $x ) };
             with $! {
@@ -397,9 +398,9 @@ subtest 'docfrag4', {
     use LibXML::DocumentFragment;
     my LibXML::Document $doc .= parse: :string("<doc/>");
 
-    my LibXML::DocumentFragment:D @frags = (1..MAX_THREADS).hyper(:batch(1)).map: {
+    my LibXML::DocumentFragment:D @frags = (^MAX_THREADS).hyper(:batch(1)).map: {
         my LibXML::DocumentFragment $frag;
-        for (1..MAX_LOOP) {
+        for LOOPS {
             $frag .= parse: :balanced, :string('<foo/><bar/>');
             $frag.parse: :balanced, :string('<baz/>');
             $frag.addChild: $doc.createElement('foo');
@@ -425,7 +426,7 @@ subtest 'xinclude', {
 subtest 'xpath', {
     my @sym = <xx docbParserInputPtr docbParserCtxt docbParserCtxtPtr docbParserInput docbDocPtr>;
     my LibXML::Document $doc .= parse: :$string;
-    my @ok = (1..MAX_LOOP).map: {
+    my @ok = LOOPS.map: {
         my @all = blat -> $n {
             my $m = $n % 5 + 1;
             my $elem = $doc.first("/api/files/file[1]/exports[$m]");
