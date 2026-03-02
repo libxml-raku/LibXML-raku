@@ -91,23 +91,29 @@ This example demonstrates `registerFunction()` method by defining a function fil
 
 This example demonstrates `registerVarLookup()` method. We use XPath variables to recycle results of previous evaluations:
 
-    sub var-lookup(Str $name, Str $uri, Hash $data) {
-      return $data{$name};
-    }
+```raku
+use LibXML;
+use LibXML::Document;
+use LibXML::Node;
+use LibXML::XPath::Context;
+sub var-lookup(Str $name, Str $uri, Hash $data) {
+    return $data{$name};
+}
 
-    my $areas = LibXML.new.parse: :file('areas.xml');
-    my $empl = LibXML.new.parse: :file('employees.xml');
+my LibXML::Document $areas = LibXML.new.parse: :file('areas.xml');
+my LibXML::Document $empl = LibXML.new.parse: :file('employees.xml');
 
-    my $xc = LibXML::XPath::Context.new(node => $empl);
+my LibXML::XPath::Context $xc .= new(node => $empl);
 
-    my %variables = (
-      A => $xc.find('/employees/employee[@salary>10000]'),
-      B => $areas.find('/areas/area[district='Brooklyn']/street'),
-    );
+my %variables = (
+  A => $xc.find('/employees/employee[@salary>10000]'),
+  B => $areas.find('/areas/area[district="Brooklyn"]/street'),
+);
 
-    # get names of employees from $A working in an area listed in $B
-    $xc.registerVarLookupFunc(&var-lookup, %variables);
-    my @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
+# get names of employees from $A working in an area listed in $B
+$xc.registerVarLookupFunc(&var-lookup, %variables);
+my LibXML::Node @nodes = $xc.findnodes('$A[work_area/street = $B]/name');
+```
 
 Methods
 -------

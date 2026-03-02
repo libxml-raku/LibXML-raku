@@ -10,7 +10,7 @@ my token qname {
 
 subset NCName of Str is export(:NCName) where !.so || /^<pident>$/;
 subset QName of Str is export(:QName) where !.defined || $_ ~~ &qname;
-subset NameVal of Pair is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
+subset NameVal of Pair:D is export(:NameVal) where .key ~~ QName:D && .value ~~ Str:D;
 
 # XPathish is just a marker role for classes matching XPathRange
 role XPathish {}
