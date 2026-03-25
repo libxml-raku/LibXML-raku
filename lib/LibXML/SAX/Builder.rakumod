@@ -74,130 +74,120 @@ class LibXML::SAX::Builder {
         $*XML-CONTEXT.callback-error: $err;
     }
 
+    sub callback(&sub) {
+        -> xmlParserCtxt $ctx, *@args {
+            CATCH { default { .&callback-error } }
+            $ctx.&sub(|@args);
+        }
+    }
+
     my %SAXHandlerDispatch = %(
         'characters'|'ignorableWhitespace'|'cdataBlock' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) {
-                    CATCH { default { callback-error $_ } }
-                    # ensure null termination
-                    sub memcpy(Blob $dest, CArray $chars, size_t $n) is native($CLIB) {*};
-                    my buf8 $char-buf .= allocate($len);
-                    memcpy($char-buf, $chars, $len);
-                    $saxh.&callb($char-buf.decode, :$ctx);
-                }
+            callback sub (xmlParserCtxt $ctx, CArray[byte] $chars, int32 $len) {
+                # ensure null termination
+                sub memcpy(Blob $dest, CArray $chars, size_t $n) is native($CLIB) {*};
+                my buf8 $char-buf .= allocate($len);
+                memcpy($char-buf, $chars, $len);
+                $saxh.&callb($char-buf.decode, :$ctx);
+            }
         },
         'internalSubset'|'externalSubset' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) {
-                    CATCH { default {callback-error $_ } }
-                    $saxh.&callb($name, :$ctx, :$external-id, :$system-id);
-                }
+            callback sub (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) {
+                $saxh.&callb($name, :$ctx, :$external-id, :$system-id);
+            }
         },
         'isStandalone'|'hasInternalSubset'|'hasExternalSubset' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx --> UInt) {
-                    CATCH { default { callback-error $_; UInt; } }
+                callback sub (xmlParserCtxt $ctx --> UInt) {
                     my UInt $ := $saxh.&callb(:$ctx);
                 }
         },
         'resolveEntity' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $public-id, Str $system-id --> xmlParserInput) {
                     my xmlParserInput $ := $saxh.&callb(:$ctx, :$public-id, :$system-id);
                 }
         },
         'getEntity' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $name --> xmlEntity) {
                     my $ent := $saxh.&callb($name, :$ctx);
                     $ent ~~ LibXML::Dtd::Entity ?? .raw !! $ent;
                 }
         },
         'entityDecl' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, Int $type, Str $public-id, Str $system-id, Str $content) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $name, Int $type, Str $public-id, Str $system-id, Str $content) {
                     $saxh.&callb($name, $content, :$ctx, :$public-id, :$system-id, :$type);
                 }
         },
         'attributeDecl' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $elem, Str $fullname, uint32 $type, uint32 $def, Str $default-value, xmlEnumeration $tree) {
                     $saxh.&callb($elem, $fullname, :$ctx, :$type, :$def, :$default-value, :$tree);
                 }
         },
         'elementDecl' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $name, uint32 $type, xmlElementContent $content) {
                     $saxh.&callb($name, $content, :$ctx, :$type);
                 }
         },
         'unparsedEntityDecl' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id, Str $notation-name) {
                     $saxh.&callb($name, :$ctx, :$public-id, :$system-id, :$notation-name);
                 }
         },
         'notationDecl' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $name, Str $public-id, Str $system-id) {
                     $saxh.&callb($name, :$ctx, :$public-id, :$system-id);
                 }
         },
         'setDocumentLocator' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, xmlSAXLocator $locator) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, xmlSAXLocator $locator) {
                     $saxh.&callb($locator, :$ctx);
                 }
         },
         'startDocument'|'endDocument' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx) {
                     $saxh.&callb(:$ctx);
                 }
         },
         'startElement' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts-raw) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $name, CArray[Str] $atts-raw) {
                     my $attribs = atts2Hash($atts-raw);
                     $saxh.&callb($name, :$ctx, :$atts-raw, :$attribs);
                 }
         },
         'endElement'|'reference'|'comment'|'getParameterEntity' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $text) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $text) {
                     $saxh.&callb($text, :$ctx);
                 }
         },
         'warning'|'error'|'fatalError' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $text) {
-                    CATCH { default { note "error handling SAX error: $_" } }
+                callback sub (xmlParserCtxt $ctx, Str $text) {
                     $saxh.&callb($text, :$ctx);
                 }
         },
         'processingInstruction' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $target, Str $data) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $target, Str $data) {
                     $saxh.&callb($target, $data, :$ctx);
                 }
         },
         # Introduced with SAX2
         'startElementNs' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
-                    CATCH { default { callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-atts, int32 $num-defaulted, CArray[Str] $atts-raw) {
                     my $attribs := NsAtts.&nativecast($atts-raw);
                     my UInt $n = $num-atts - $num-defaulted;
                     my NsAtt %attribs = .atts2Hash($n)
@@ -208,8 +198,7 @@ class LibXML::SAX::Builder {
         },
         'endElementNs' =>
             -> $saxh, &callb {
-                sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
-                    CATCH { default {callback-error $_ } }
+                callback sub (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri) {
                     $saxh.&callb($local-name, :$prefix, :$uri, :$ctx);
                 }
         },
