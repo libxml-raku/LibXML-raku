@@ -2,7 +2,7 @@ use v6;
 use Test;
 # minimal low-level bootstrapping tests for the sax parser
 
-plan 22;
+plan 16;
 use NativeCall;
 use LibXML;
 use LibXML::Raw;
@@ -75,6 +75,31 @@ class SaxHandlerAlias is LibXML::SAX::Handler {
     }
 }
 
+class SaxHandlerHTML is LibXML::SAX::Handler {
+    use LibXML::SAX::Builder :sax-cb;
+    method is-html { True }
+    method startElement($name, :%attribs) is sax-cb {
+        @start-tags.push: $name;
+        %atts-seen ,= %attribs;
+    }
+    method endElement($name) is sax-cb {
+        @end-tags.push: $name;
+    }
+}
+
+class SaxHandlerHTMLNs is LibXML::SAX::Handler {
+    use LibXML::SAX::Builder :sax-cb;
+    method is-html { True }
+    method startElementNs($name, :%attribs) is sax-cb {
+        %atts-seen{.key} = .value.value
+            for %attribs;
+        @start-tags.push: $name;
+    }
+    method endElementNs($name) is sax-cb {
+        @end-tags.push: $name;
+    }
+}
+
 class SaxHandlerMulti is LibXML::SAX::Handler {
     use LibXML::SAX::Builder :sax-cb;
     proto method startElement($name, :%attribs) is sax-cb {
@@ -106,18 +131,20 @@ class SaxHandlerNs is LibXML::SAX::Handler {
 }
 
 # low-level tests on native sax handlers
-for SaxHandler, SaxHandlerAlias, SaxHandlerMulti, SaxHandlerNs -> $sax-handler-class {
-    @start-tags = ();
-    @end-tags = ();
-    %atts-seen = ();
-    $sax-handler = $sax-handler-class.new.raw;
+for SaxHandler, SaxHandlerAlias, SaxHandlerMulti, SaxHandlerNs, SaxHandlerHTML, SaxHandlerHTMLNs -> $sax-handler-class {
+    subtest $sax-handler-class.^name, {
+        @start-tags = ();
+        @end-tags = ();
+        %atts-seen = ();
+        $sax-handler = $sax-handler-class.new.raw;
 
-    $ctx .= new: :$sax-handler, :$chunk;
-    $ctx.ParseChunk(Blob.new, 0, 1); #terminate
+        $ctx .= new: :$sax-handler, :$chunk;
+        $ctx.ParseChunk(Blob.new, 0, 1); #terminate
 
-    is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
-    is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
-    is-deeply %atts-seen, %( :working<yup> ), 'atts';
+        is-deeply @start-tags, ['html', 'body', 'h1'], 'start tags';
+        is-deeply @end-tags, ['h1', 'body', 'html'], 'end tags';
+        is-deeply %atts-seen, %( :working<yup> ), 'atts';
+    }
 }
 
 # 3. Basic use of LibXML::SAX::Builder::XML

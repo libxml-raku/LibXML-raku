@@ -6,7 +6,6 @@ class LibXML::SAX::Builder {
     use LibXML::ErrorHandling;
     use LibXML::Node;
     use LibXML::Dtd::Entity;
-
     use NativeCall;
 
     #| for marshalling of startElementNs attributes
@@ -213,7 +212,8 @@ class LibXML::SAX::Builder {
     method !build(Any:D $saxh, %methods, %dispatches) {
         for %methods.kv -> $name, &meth {
             with %dispatches{$name} -> &dispatch {
-                $saxh.set-sax-callback($name, &dispatch($saxh, &meth));
+                my &callback := $saxh.&dispatch(&meth);
+                $saxh.set-sax-callback: $name, &callback;
             }
             else {
                 my $known = %dispatches.keys.sort.join: ' ';
@@ -229,7 +229,7 @@ class LibXML::SAX::Builder {
         $saxh;
     }
 
-    method build-sax-handler($saxh) {
+    method build-sax-handler($saxh, Bool :$is-html is copy = $saxh.is-html) {
         my Bool %seen;
         my Method %methods = $saxh.^methods.grep(* ~~ is-sax-cb).map: -> &meth {
             my $name = &meth.sax-name;
@@ -238,7 +238,8 @@ class LibXML::SAX::Builder {
             $name => &meth;
         }
         my $version = %methods<startElement> && xml6_config::version().Version <= v2.9.14 ?? 1 !! 2;
-        $saxh.raw.init: :$version;
+
+        $saxh.raw.init: :$version, :$is-html;
         self!build($saxh, %methods, %SAXHandlerDispatch);
     }
 

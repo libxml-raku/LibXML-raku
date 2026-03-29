@@ -7,6 +7,7 @@ class LibXML::SAX::Handler {
     use LibXML::Raw;
     has xmlSAXHandler $.raw .= new;
     method native is DEPRECATED<raw> { $.raw }
+    method is-html { False }
 
     has &.serror-cb is rw;      # structured errors
     has &.warning-cb is rw;     # unstructured warnings
