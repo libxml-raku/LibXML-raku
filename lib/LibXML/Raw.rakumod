@@ -425,7 +425,7 @@ class xmlNs is export is repr('CStruct') {
     has int32        $.type; # global or local (enum xmlNsType)
     has xmlCharP     $.href; # URL for the namespace
     has xmlCharP   $.prefix; # prefix for the namespace
-    has Pointer  $._private; # application data
+    has Pointer   $!private; # application data
     has xmlDoc    $.context; # normally an xmlDoc
 
     method new(Str:D :$URI!, Str :$prefix, xmlElem :$node) {
@@ -607,7 +607,7 @@ class xmlSAXHandler is repr('CStruct') is export {
         method xml6_sax_set_externalSubset( &cb (xmlParserCtxt $ctx, Str $name, Str $external-id, Str $system-id) ) is native($BIND-XML2) {*}
     );
     has uint32    $.initialized;
-    has Pointer   $._private;
+    has Pointer   $!private;
     has Pointer   $.startElementNs is rw-ptr(
         method xml6_sax_set_startElementNs( &cb (xmlParserCtxt $ctx, Str $local-name, Str $prefix, Str $uri, int32 $num-namespaces, CArray[Str] $namespaces, int32 $num-attributes, int32 $num-defaulted, CArray[Str] $attributes) ) is native($BIND-XML2) {*}
     );
@@ -901,7 +901,7 @@ class xmlXPathParserContext is export {
 }
 
 class anyNode is export does LibXML::Raw::DOM::Node {
-    has Pointer $._private; # application data
+    has Pointer  $!private; # application data
     has int32       $.type; # type number, must be second !
     has xmlCharP    $!name; # the name of the node, or the entity
     method name { $!name }
@@ -1587,7 +1587,7 @@ class xmlParserCtxt is export {
     has int32                  $.nodelen;      # Those two fields are there to
     has int32                  $.nodemem;      # Speed up large node parsing
     has int32                  $.pedantic;     # signal pedantic warnings
-    has Pointer                $._private;     # For user data, libxml won't touch it
+    has Pointer                $!private;      # For user data, libxml won't touch it
 
     has int32                  $.loadsubset;   # should the external subset be loaded
     has int32                  $.linenumbers is rw;     # set line number in element content
