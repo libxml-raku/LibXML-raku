@@ -9,6 +9,7 @@ class Build {
     #| C<"$folder/resources/lib"> and C<$libname> should be the name of the library
     #| without any prefixes or extensions.
     sub make(Str $folder, Str $destfolder, IO() :$libname!, Str :$I) {
+        my Bool $use-gcc;
         if Rakudo::Internals.IS-WIN {
             with $I {
                 $use-gcc = True;
@@ -23,7 +24,7 @@ class Build {
         my %vars = LibraryMake::get-vars($destfolder);
         my Bool $gcc;
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
-        my $use-gcc = %vars<CC> ~~ 'gcc';
+        $use-gcc ||= so(%vars<CC> ~~ 'gcc');
 
         if $use-gcc {
             %vars<LIBS> = '-lxml2'; 
