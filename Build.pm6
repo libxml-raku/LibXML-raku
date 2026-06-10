@@ -3,17 +3,12 @@
 use v6;
 
 class Build {
-    need LibraryMake;
     # adapted from deprecated Native::Resources
 
     #| Sets up a C<Makefile> and runs C<make>.  C<$folder> should be
     #| C<"$folder/resources/lib"> and C<$libname> should be the name of the library
     #| without any prefixes or extensions.
     sub make(Str $folder, Str $destfolder, IO() :$libname!, Str :$I) {
-        my %vars = LibraryMake::get-vars($destfolder);
-        my Bool $gcc;
-        %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
-        my $use-gcc = %vars<CC> ~~ 'gcc';
         if Rakudo::Internals.IS-WIN {
             with $I {
                 $use-gcc = True;
@@ -23,6 +18,12 @@ class Build {
                 return True;
             }
         }
+
+        require LibraryMake;
+        my %vars = LibraryMake::get-vars($destfolder);
+        my Bool $gcc;
+        %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
+        my $use-gcc = %vars<CC> ~~ 'gcc';
 
         if $use-gcc {
             %vars<LIBS> = '-lxml2'; 

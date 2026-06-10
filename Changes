@@ -1,4 +1,5 @@
 {{$NEXT}}
+   - Make LibraryMake an optional dependency on Windows
 
 0.11.2  2026-02-21T10:51:19+13:00
    - Fix removal of OO::Monitors
