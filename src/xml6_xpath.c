@@ -16,6 +16,7 @@ xml6_xpath_object_is_referenced(xmlXPathObjectPtr self) {
 
 DLLEXPORT int
 xml6_xpath_object_remove_reference(xmlXPathObjectPtr self) {
+    assert(self != NULL);
     return xml6_ref_remove( &(self->user2), "xpath object", (void*) self );
 }
 

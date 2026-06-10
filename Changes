@@ -1,5 +1,9 @@
 {{$NEXT}}
+
+0.11.3  2026-06-11T06:21:25+12:00
    - Make LibraryMake an optional dependency on Windows
+   - Make _private struct accessors $!private in C Structs
+   - Refactor SAX callback handling
 
 0.11.2  2026-02-21T10:51:19+13:00
    - Fix removal of OO::Monitors

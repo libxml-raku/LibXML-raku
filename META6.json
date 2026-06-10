@@ -4,8 +4,10 @@
   "authors": [
     "David Warring"
   ],
+  "build-depends": [
+  ],
   "depends": {
-     "build": {
+    "build": {
       "requires": [
         {
           "by-distro.name": {
@@ -20,10 +22,10 @@
     },
     "runtime": {
       "requires": [
-          "File::Temp",
-          "Method::Also",
-          "W3C::DOM:ver<0.0.2+>",
-          "XML"
+        "File::Temp",
+        "Method::Also",
+        "W3C::DOM:ver<0.0.2+>",
+        "XML"
       ]
     }
   },
@@ -120,5 +122,5 @@
     "JSON::Fast",
     "App::Prove6"
   ],
-  "version": "0.11.2"
+  "version": "0.11.3"
 }

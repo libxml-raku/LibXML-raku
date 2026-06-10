@@ -22,7 +22,6 @@ class Build {
 
         require LibraryMake;
         my %vars = LibraryMake::get-vars($destfolder);
-        my Bool $gcc;
         %vars<LIB-NAME> = ~ $*VM.platform-library-name($libname);
         $use-gcc ||= so(%vars<CC> ~~ 'gcc');
 

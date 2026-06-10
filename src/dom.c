@@ -53,11 +53,8 @@ domClearPSVI(xmlNodePtr tree) {
 
 DLLEXPORT void
 domClearPSVIInList(xmlNodePtr list) {
-    xmlNodePtr cur;
+    xmlNodePtr cur = list;
 
-    if (list == NULL)
-        return;
-    cur = list;
     while (cur != NULL) {
         domClearPSVI(cur);
         cur = cur->next;

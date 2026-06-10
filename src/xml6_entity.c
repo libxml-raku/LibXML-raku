@@ -8,9 +8,8 @@ DLLEXPORT xmlEntityPtr
 xml6_entity_create(const xmlChar* name, int type,
                    const xmlChar* ExternalID, const xmlChar* SystemID,
                    const xmlChar* content) {
-    xmlEntityPtr rv;
 
-    rv = (xmlEntityPtr) xmlMalloc(sizeof(xmlEntity));
+    xmlEntityPtr rv = (xmlEntityPtr) xmlMalloc(sizeof(xmlEntity));
     if (rv == NULL) {
         xml6_warn("xml6_entity_create: xmlMalloc failed");
 	return(NULL);
