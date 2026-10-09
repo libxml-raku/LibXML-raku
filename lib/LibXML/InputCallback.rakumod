@@ -151,7 +151,7 @@ my class Context {
 
     method match {
         -> Str:D $file --> Int {
-            CATCH { default { self!catch($_); 0; } }
+            CATCH { default { self!catch($_); } }
             my $rv := + $!cb.match.($file).so.Int;
             note "$_: match $file --> $rv" with $!cb.trace;
             $rv;
@@ -160,7 +160,7 @@ my class Context {
 
     method open {
         -> Str:D $file --> Pointer {
-            CATCH { default { self!catch($_); Pointer; } }
+            CATCH { default { self!catch($_); } }
             my $fh = $!cb.open.($file);
             with $fh {
                 my Handle $handle .= new: :$fh;
@@ -177,7 +177,7 @@ my class Context {
 
     method read {
         -> Pointer $addr, CArray $out-arr, UInt $bytes --> UInt {
-            CATCH { default { self!catch($_); 0; } }
+            CATCH { default { self!catch($_); } }
 
             my Handle $handle = $.lock.protect({ %!handles{+$addr} })
                 // die "read on unopen handle";
@@ -210,7 +210,7 @@ my class Context {
 
     method close {
         -> Pointer:D $addr --> Int {
-            CATCH { default { self!catch($_); -1 } }
+            CATCH { default { self!catch($_); } }
             note "$_\[{+$addr}\]: close --> 0" with $!cb.trace;
             $.lock.protect: {
                 my Handle $handle = %!handles{+$addr}
